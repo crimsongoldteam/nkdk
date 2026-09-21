@@ -142,7 +142,10 @@ pub(super) fn inherit_presence(
             continue;
         }
         let mut common = build_entry(module, modules, ids, visiting, cache)?;
-        if !matches!(common.value, LinkedType::Scalar(_) | LinkedType::Enum(_)) {
+        if !matches!(
+            common.value,
+            LinkedType::Scalar(_) | LinkedType::Enum(_) | LinkedType::Choice(_)
+        ) {
             continue;
         }
         if common.presence.is_empty() {

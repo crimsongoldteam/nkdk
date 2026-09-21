@@ -28,6 +28,10 @@ fn recursive_target(name: &str) -> Option<u32> {
     RECURSIVE_TARGETS.with(|targets| targets.borrow().get(name).copied())
 }
 
+pub(super) fn is_recursive(name: &str) -> bool {
+    recursive_target(name).is_some()
+}
+
 struct RecordFrame(String);
 impl RecordFrame {
     fn enter(entry: &LinkedEntry) -> Option<Self> {
@@ -67,7 +71,7 @@ pub(super) fn generate(
     lifted: Option<(usize, String, Option<String>)>,
 ) -> Result<RecordBody, Diagnostic> {
     let Some(_frame) = RecordFrame::enter(row) else {
-        return recursive(row, boundary, lifted);
+        return recursive(row, program, boundary, lifted);
     };
     let LinkedType::Record(row_fields) = &row.value else {
         return Err(unsupported(row, "Expected a record value"));
@@ -310,6 +314,7 @@ pub(super) fn recursive_root(id: u32) -> String {
 
 fn recursive(
     row: &LinkedEntry,
+    program: &Program,
     boundary: &[ExpandedName],
     lifted: Option<(usize, String, Option<String>)>,
 ) -> Result<RecordBody, Diagnostic> {
@@ -327,6 +332,18 @@ fn recursive(
     let physical = boundary.last().expect("recursive boundary");
     let root = recursive_root(target_id);
     let target = format!("crate::recursive_value_{target_id}::item_{target_id}");
+    let LinkedType::Record(fields) = &row.value else {
+        unreachable!("recursive value rows are records")
+    };
+    let allows_absence = fields.len() == 1
+        && scalar_presence::rule(row, 0, &fields[0].value, program).is_some_and(|presence| {
+            presence
+                .yaml_missing
+                .as_ref()
+                .is_some_and(|value| matches!(value.kind, LinkedExpressionKind::Absent))
+                && scalar_presence::yaml_empty(Some(presence), EmptyKind::Null)
+                && matches!(scalar_presence::absent_form(Some(presence)), XmlForm::Nil)
+        });
     let source = format!(
         r#"#[allow(dead_code)] mod item_{id} {{
 use super::*;
@@ -336,35 +353,37 @@ fn virtual_source(source:&[u8],offset:usize)->core::Result<Vec<u8>>{{
 let mut tree=core::xml::Tree::capture_at(source,ROUTE,offset)?.ok_or_else(||RuntimeDiagnostic::new("xml.recursive-value","Missing recursive XML value"))?;
 tree.rename_root(core::xml::Name{{namespace:String::new(),local:{root:?}.into()}});
 tree.document(&qnames())}}
-pub(super) struct Stored(Box<{target}::Stored>);
-impl core::inputs::RecordInput for Stored{{fn field(&self,index:usize)->Option<core::inputs::InputRef<'_>>{{core::inputs::RecordInput::field(&*self.0,index)}}}}
+const ALLOWS_ABSENCE:bool={allows_absence};
+pub(super) struct Stored(Option<Box<{target}::Stored>>);
+impl core::inputs::RecordInput for Stored{{fn field(&self,index:usize)->Option<core::inputs::InputRef<'_>>{{self.0.as_deref().and_then(|value|core::inputs::RecordInput::field(value,index))}}}}
 pub(super) struct Prepared(core::xml::Tree);
-pub(super) struct XmlReader{{offset:Option<usize>}}
-impl XmlReader{{pub(super) fn new()->Self{{Self{{offset:None}}}}pub(super) fn consume_scoped(&mut self,path:&[core::xml::Name],token:&core::xml::Token<'_>,_scope:Option<core::xml::NamespaceScope<'_>>,_source:&[u8],_inputs:&InputView<'_>)->core::Result<()>{{if core::xml::matches(path,ROUTE)&&let core::xml::Token::Start(offset)=token{{if self.offset.replace(*offset).is_some(){{return Err(RuntimeDiagnostic::new("xml.duplicate-field","Repeated recursive value"))}}}}Ok(())}}pub(super) fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<Stored>{{let offset=self.offset.ok_or_else(||RuntimeDiagnostic::new("value.missing","Missing recursive value"))?;{target}::read_xml(&virtual_source(source,offset)?,inputs).map(|value|Stored(Box::new(value)))}}}}
-pub(super) struct YamlReader(Box<{target}::YamlReader>);
-impl YamlReader{{pub(super) fn new()->core::Result<Self>{{{target}::YamlReader::new().map(|value|Self(Box::new(value)))}}pub(super) fn consume(&mut self,node:core::yaml::Node,position:core::Position,source:&[u8],inputs:&InputView<'_>)->core::Result<()>{{self.0.consume(node,position,source,inputs)}}pub(super) fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<Stored>{{self.0.finish(source,inputs).map(|value|Stored(Box::new(value)))}}}}
+pub(super) struct XmlReader{{offset:Option<usize>,nil:bool,content:bool}}
+impl XmlReader{{pub(super) fn new()->Self{{Self{{offset:None,nil:false,content:false}}}}pub(super) fn consume_scoped(&mut self,path:&[core::xml::Name],token:&core::xml::Token<'_>,_scope:Option<core::xml::NamespaceScope<'_>>,_source:&[u8],_inputs:&InputView<'_>)->core::Result<()>{{if core::xml::matches(path,ROUTE){{match token{{core::xml::Token::Start(offset)=>{{if self.offset.replace(*offset).is_some(){{return Err(RuntimeDiagnostic::new("xml.duplicate-field","Repeated recursive value"))}}}},core::xml::Token::Attribute(attribute) if attribute.name.namespace=="http://www.w3.org/2001/XMLSchema-instance"&&attribute.name.local=="nil"&&attribute.text=="true"=>self.nil=true,core::xml::Token::Attribute(_)|core::xml::Token::Text(_)=>self.content=true,core::xml::Token::End=>{{}}}}}}else if self.offset.is_some()&&path.len()>ROUTE.len()&&core::xml::matches(&path[..ROUTE.len()],ROUTE)&&matches!(token,core::xml::Token::Start(_)){{self.content=true;}}Ok(())}}pub(super) fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<Stored>{{let Some(offset)=self.offset else{{if ALLOWS_ABSENCE{{return Ok(Stored(None))}}return Err(RuntimeDiagnostic::new("value.missing","Missing recursive value"))}};if ALLOWS_ABSENCE&&(self.nil||!self.content){{return Ok(Stored(None))}}{target}::read_xml(&virtual_source(source,offset)?,inputs).map(|value|Stored(Some(Box::new(value))))}}}}
+pub(super) struct YamlReader{{inner:Box<{target}::YamlReader>,absent:bool}}
+impl YamlReader{{pub(super) fn new()->core::Result<Self>{{{target}::YamlReader::new().map(|value|Self{{inner:Box::new(value),absent:false}})}}pub(super) fn consume(&mut self,node:core::yaml::Node,position:core::Position,source:&[u8],inputs:&InputView<'_>)->core::Result<()>{{if ALLOWS_ABSENCE&&matches!(&node,core::yaml::Node::Scalar(value,_) if value.is_null()){{if self.absent{{return Err(RuntimeDiagnostic::new("yaml.document","Expected one recursive value"))}}self.absent=true;return Ok(())}}if self.absent{{return Err(RuntimeDiagnostic::new("yaml.document","Expected one recursive value"))}}self.inner.consume(node,position,source,inputs)}}pub(super) fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<Stored>{{if self.absent{{Ok(Stored(None))}}else{{self.inner.finish(source,inputs).map(|value|Stored(Some(Box::new(value))))}}}}}}
 pub(super) fn read_xml(source:&[u8],inputs:&InputView<'_>)->core::Result<Stored>{{let mut reader=XmlReader::new();core::xml::visit_scoped(source,|path,token,scope|reader.consume_scoped(path,&token,Some(scope),source,inputs))?;reader.finish(source,inputs)}}
 pub(super) fn recover_xml(source:&[u8],inputs:&InputView<'_>)->core::Result<Stored>{{read_xml(source,inputs)}}
-pub(super) fn read_yaml(source:&[u8],inputs:&InputView<'_>)->core::Result<Stored>{{{target}::read_yaml(source,inputs).map(|value|Stored(Box::new(value)))}}
-pub(super) fn finalize(source:&[u8],value:&Stored,inputs:&InputView<'_>)->core::Result<Vec<u8>>{{let offset=core::xml::first_offset(source,ROUTE)?.ok_or_else(||RuntimeDiagnostic::new("value.missing","Missing recursive value"))?;{target}::finalize(&virtual_source(source,offset)?,&value.0,inputs)}}
-pub(super) fn text(value:&Stored,field:usize)->core::Result<&str>{{{target}::text(&value.0,field)}}
-pub(super) fn prepare(value:&Stored,inputs:&InputView<'_>)->core::Result<Prepared>{{let prepared={target}::prepare(&value.0,inputs)?;let mut names=Vec::new();{target}::namespaces(&value.0,&prepared,&mut names);let mut out=core::xml::Writer::new(&names);{target}::write_xml(&value.0,&prepared,inputs,&mut out)?;let bytes=out.finish();let mut tree=core::xml::Tree::capture(&bytes,&[("",{root:?})])?.ok_or_else(||RuntimeDiagnostic::new("xml.recursive-value","Generated recursive value is absent"))?;tree.rename_root(core::xml::Name{{namespace:{:?}.into(),local:{:?}.into()}});Ok(Prepared(tree))}}
+pub(super) fn read_yaml(source:&[u8],inputs:&InputView<'_>)->core::Result<Stored>{{let mut reader=YamlReader::new()?;let document=if source.is_empty(){{if ALLOWS_ABSENCE{{b"null".as_slice()}}else{{b"{{}}".as_slice()}}}}else{{source}};core::yaml::Source::visit(core::yaml::DocumentSource(document),|node,position|reader.consume(node,position,source,inputs))?;reader.finish(source,inputs)}}
+pub(super) fn finalize(source:&[u8],value:&Stored,inputs:&InputView<'_>)->core::Result<Vec<u8>>{{let Some(value)=value.0.as_deref()else{{return Ok(b"null".to_vec())}};let offset=core::xml::first_offset(source,ROUTE)?.ok_or_else(||RuntimeDiagnostic::new("value.missing","Missing recursive value"))?;{target}::finalize(&virtual_source(source,offset)?,value,inputs)}}
+pub(super) fn text(value:&Stored,field:usize)->core::Result<&str>{{let value=value.0.as_deref().ok_or_else(||RuntimeDiagnostic::new("fact.unready","Absent recursive value has no field"))?;{target}::text(value,field)}}
+pub(super) fn prepare(value:&Stored,inputs:&InputView<'_>)->core::Result<Prepared>{{let Some(value)=value.0.as_deref()else{{let attribute=core::xml::WriteAttribute{{name:("http://www.w3.org/2001/XMLSchema-instance","nil"),value:core::xml::AttributeValue::Text("true")}};return Ok(Prepared(core::xml::Tree::scalar(core::xml::Name{{namespace:{:?}.into(),local:{:?}.into()}},"",[&attribute])))}};let prepared={target}::prepare(value,inputs)?;let mut names=Vec::new();{target}::namespaces(value,&prepared,&mut names);let mut out=core::xml::Writer::new(&names);{target}::write_xml(value,&prepared,inputs,&mut out)?;let bytes=out.finish();let mut tree=core::xml::Tree::capture(&bytes,&[("",{root:?})])?.ok_or_else(||RuntimeDiagnostic::new("xml.recursive-value","Generated recursive value is absent"))?;tree.rename_root(core::xml::Name{{namespace:{:?}.into(),local:{:?}.into()}});Ok(Prepared(tree))}}
 pub(super) fn namespaces<'a>(_value:&'a Stored,prepared:&'a Prepared,names:&mut Vec<&'a str>){{prepared.0.collect_namespaces(names)}}
 pub(super) fn write_xml<'a>(_value:&Stored,prepared:&'a Prepared,_inputs:&InputView<'_>,out:&mut core::xml::Writer<'a>)->core::Result<()>{{prepared.0.write_at(out,PARENT,&qnames())}}
-pub(super) fn write_yaml(value:&Stored,inputs:&InputView<'_>,out:&mut String,indent:&str)->core::Result<()>{{{target}::write_yaml(&value.0,inputs,out,indent)}}
+pub(super) fn write_yaml(value:&Stored,inputs:&InputView<'_>,out:&mut String,indent:&str)->core::Result<()>{{if let Some(value)=value.0.as_deref(){{{target}::write_yaml(value,inputs,out,indent)}}else{{out.push_str("null");Ok(())}}}}
 pub(super) fn key_can_be_lifted(_value:&Stored)->bool{{false}}
 pub(super) fn write_mapping_value(_value:&Stored,_inputs:&InputView<'_>,_out:&mut String,_indent:&str)->core::Result<()>{{Err(RuntimeDiagnostic::new("yaml.recursive-value","Recursive record is not a keyed projection"))}}
-pub(super) fn check(value:&Stored,source:&[u8],inputs:&InputView<'_>,xml:bool)->Vec<RuntimeDiagnostic>{{if xml{{Vec::new()}}else{{{target}::check(&value.0,source,inputs,false)}}}}
+pub(super) fn check(value:&Stored,source:&[u8],inputs:&InputView<'_>,xml:bool)->Vec<RuntimeDiagnostic>{{if xml{{Vec::new()}}else if let Some(value)=value.0.as_deref(){{{target}::check(value,source,inputs,false)}}else{{Vec::new()}}}}
 pub(super) fn scalar(_value:&Stored,_path:&[core::xml::Name],_occurrences:&[usize])->bool{{false}}
 thread_local!{{static QNAMES_ACTIVE:std::cell::Cell<bool>=const{{std::cell::Cell::new(false)}};}}
 struct QNamesFrame;
 impl QNamesFrame{{fn enter()->Option<Self>{{QNAMES_ACTIVE.with(|active|if active.replace(true){{None}}else{{Some(Self)}})}}}}
 impl Drop for QNamesFrame{{fn drop(&mut self){{QNAMES_ACTIVE.with(|active|active.set(false));}}}}
 pub(super) fn qnames()->Vec<(&'static str,&'static str)>{{let Some(_frame)=QNamesFrame::enter()else{{return Vec::new()}};{target}::qnames()}}
-pub(super) fn qname_attribute(_path:&[core::xml::Name],name:&core::xml::Name)->bool{{qnames().contains(&(name.namespace.as_str(),name.local.as_str()))}}
-pub(super) fn qname_text(_path:&[core::xml::Name])->bool{{false}}
+fn target_path(path:&[core::xml::Name])->Option<Vec<core::xml::Name>>{{if path.len()<ROUTE.len()||!core::xml::matches(&path[..ROUTE.len()],ROUTE){{return None}}let mut result=Vec::with_capacity(path.len()-ROUTE.len()+1);result.push(core::xml::Name{{namespace:String::new(),local:{root:?}.into()}});result.extend_from_slice(&path[ROUTE.len()..]);Some(result)}}
+pub(super) fn qname_attribute(path:&[core::xml::Name],name:&core::xml::Name)->bool{{let Some(path)=target_path(path)else{{return false}};let Some(_frame)=QNamesFrame::enter()else{{return false}};{target}::qname_attribute(&path,name)}}
+pub(super) fn qname_text(path:&[core::xml::Name])->bool{{let Some(path)=target_path(path)else{{return false}};let Some(_frame)=QNamesFrame::enter()else{{return false}};{target}::qname_text(&path)}}
 }}"#,
-        physical.namespace, physical.local,
+        physical.namespace, physical.local, physical.namespace, physical.local,
     );
     Ok(RecordBody {
         source,
@@ -456,5 +475,5 @@ Ok(TextPrepared@id@{ordinary,tree})}
 fn namespaces_text_xml_@id@<'a>(value:&'a V@id@,prepared:&'a TextPrepared@id@,names:&mut Vec<&'a str>){
 if let Some(tree)=&prepared.tree{tree.collect_namespaces(names)}else{namespaces_xml_@id@(value,&prepared.ordinary,names)}}
 fn write_text_xml_@id@<'a>(value:&V@id@,prepared:&'a TextPrepared@id@,inputs:&InputView<'_>,out:&mut core::xml::Writer<'a>)->core::Result<()>{
-if let Some(tree)=&prepared.tree{tree.write_at(out,@boundary_parent@,Q@id@)}else{write_xml_into_@id@(value,&prepared.ordinary,inputs,out)?;out.ensure_container(@boundary@);Ok(())}}
+if let Some(tree)=&prepared.tree{tree.write_at(out,@boundary_parent@,Q@id@)}else{write_xml_into_@id@(value,&prepared.ordinary,inputs,out)?;out.ensure_container_written(@boundary@);Ok(())}}
 "#;

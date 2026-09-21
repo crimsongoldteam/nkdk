@@ -1,0 +1,22 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.metadata-value-nil
+imports: {value: common.metadata-value}
+inputs:
+  defaultLanguage: {type: {kind: scalar, scalar: text}}
+  registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+value:
+  kind: record
+  fields: [{name: value, type: {use: value, bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}}}}]
+representations:
+  xml: {kind: record, fields: [{field: value, path: [Root, FillValue]}]}
+  yaml: {kind: mapping, fields: [{field: value, key: Значение}]}
+presence:
+- target: {field: value}
+  xml:
+    missing: {denotes: {absent: true}}
+    empty:
+    - {form: empty-element, denotes: {absent: true}}
+    - {form: nil, denotes: {absent: true}}
+    canonical: [{when: {not: {present: {field: value}}}, form: nil}]
+  yaml: {missing: {denotes: {absent: true}}}

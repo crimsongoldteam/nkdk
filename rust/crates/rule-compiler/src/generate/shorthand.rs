@@ -38,6 +38,7 @@ pub(crate) fn specialize(
         }
         _ => {}
     }
+    crate::link::scalar_parameters::fold(&mut value);
     Ok(value)
 }
 pub(super) fn scalar(

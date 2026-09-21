@@ -399,6 +399,7 @@ pub struct Writer<'a> {
     path: Vec<(&'a str, &'a str)>,
     children: Vec<bool>,
     namespaces: &'a [&'a str],
+    last_closed: Option<Vec<(&'a str, &'a str)>>,
 }
 impl<'a> Writer<'a> {
     pub fn new(namespaces: &'a [&'a str]) -> Self {
@@ -409,6 +410,7 @@ impl<'a> Writer<'a> {
             path: vec![],
             children: vec![],
             namespaces,
+            last_closed: None,
         }
     }
     fn name(&self, name: (&str, &str)) -> String {
@@ -431,6 +433,7 @@ impl<'a> Writer<'a> {
         namespace.is_empty() || namespace == XML_NAMESPACE || self.namespaces.contains(&namespace)
     }
     fn close(&mut self, container: bool) {
+        self.last_closed = Some(self.path.clone());
         let name = self.path.pop().unwrap();
         let children = self.children.pop().expect("opened element");
         if container && children {
@@ -445,6 +448,13 @@ impl<'a> Writer<'a> {
     /// Independent property writers must not close and reopen their shared owner.
     pub fn ensure_container(&mut self, path: &[(&'a str, &'a str)]) {
         if !self.path.starts_with(path) {
+            self.container(path);
+        }
+    }
+    /// Retain an empty fallback only when a composed writer did not already
+    /// emit this exact boundary and close it as a scalar value.
+    pub fn ensure_container_written(&mut self, path: &[(&'a str, &'a str)]) {
+        if !self.path.starts_with(path) && self.last_closed.as_deref() != Some(path) {
             self.container(path);
         }
     }
@@ -521,6 +531,15 @@ impl<'a> Writer<'a> {
     }
     pub fn end_container(&mut self) {
         self.close(true);
+    }
+    /// Close `path` when a composed value writer left that element open.
+    /// Scalar writers close their own element, while structured writers may
+    /// leave it as the current container; collection emitters can use this
+    /// operation without needing to know which representation was selected.
+    pub fn end_container_if_open(&mut self, path: &[(&str, &str)]) {
+        while self.path.len() >= path.len() && self.path.starts_with(path) {
+            self.close(true);
+        }
     }
     pub fn field(&mut self, path: &[(&'a str, &'a str)], value: &str) {
         self.field_with_attributes(path, value, &[]);

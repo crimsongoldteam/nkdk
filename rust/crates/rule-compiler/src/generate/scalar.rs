@@ -541,6 +541,17 @@ impl<'a> Codec<'a> {
         )
     }
 
+    /// Write a scalar as a lexical fragment of a surrounding text pattern.
+    /// Choice values normally produce a complete YAML scalar, so their outer
+    /// quoting must be skipped when another pattern owns the final scalar.
+    pub fn write_text_reference(&self, name: &str, reference: &str, xml_side: bool) -> String {
+        if matches!(self, Self::Forms(_)) {
+            let reference = reference.strip_prefix('&').unwrap_or(reference);
+            return format!("&({reference}).write_text({xml_side})?");
+        }
+        self.write_reference(name, reference, xml_side)
+    }
+
     pub fn qname_owned_reference(&self, name: &str, reference: &str) -> Option<String> {
         match self {
             Self::QNameEnumeration(variants, table, _) => {

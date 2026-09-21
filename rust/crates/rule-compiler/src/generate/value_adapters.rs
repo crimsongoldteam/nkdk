@@ -16,6 +16,13 @@ fn add_virtual_route(entry: &mut LinkedEntry, field: &LinkedField, rooted: bool)
         namespace: String::new(),
         local: "__declarative_virtual__".into(),
     });
+    if let Some(existing) = xml
+        .iter_mut()
+        .find(|mapping| mapping.field == field.name && mapping.path.is_empty())
+    {
+        existing.path = path;
+        return;
+    }
     xml.push(LinkedXmlField {
         file: None,
         field: field.name.clone(),
@@ -104,7 +111,7 @@ pub(super) fn emit_standard_usage(request: UsageRequest<'_>) -> Result<ValueEmis
     if mapping.is_none() && sequence.is_some() && super::declared_items::applies(&local, program) {
         add_virtual_route(&mut local, field, false);
     }
-    if mapping.is_none() && record.is_some() {
+    if mapping.is_none_or(|mapping| mapping.path.is_empty()) && record.is_some() {
         add_virtual_route(&mut local, field, true);
     }
     let record_value = crate::plan::routes::record_usage(&local, program)?.is_some();
@@ -113,7 +120,7 @@ pub(super) fn emit_standard_usage(request: UsageRequest<'_>) -> Result<ValueEmis
     let nested_layout = if record_value {
         None
     } else {
-        super::nested_record::lower(child, program)?
+        super::nested_record::lower(&local, program)?
     };
     let nested = nested_layout.is_some();
     let composite =
@@ -349,6 +356,14 @@ pub(super) fn emit_standard_usage(request: UsageRequest<'_>) -> Result<ValueEmis
         } else {
             "let _=(value,field);false"
         };
+    let semantic_present = if deferred
+        && child.presence.iter().any(|presence| {
+            presence.target == LinkedPresenceTarget::Field(0) && presence.yaml_missing.is_some()
+        }) {
+        "value.0.f0.is_some()"
+    } else {
+        "true"
+    };
     let xml_write = if mapping.is_none() {
         "let _=(value,prepared,inputs,out);Ok(())".to_owned()
     } else if !names.is_empty() && xml.iter().any(|mapping| mapping.attribute.is_none()) {
@@ -379,6 +394,7 @@ pub(super) fn emit_standard_usage(request: UsageRequest<'_>) -> Result<ValueEmis
 {exclude_writer}
 pub(super) struct Stored(V{id},bool);
 pub(super) fn has_raw(value:&Stored)->bool{{{raw_test}}}
+pub(super) fn semantic_present(value:&Stored)->bool{{let _=value;{semantic_present}}}
 pub(super) fn input_field(value:&Stored,field:usize)->Option<core::inputs::InputRef<'_>>{{{input_accessor}}}
 pub(super) fn text_field(value:&Stored,field:usize)->core::Result<&str>{{{text_accessor}}}
 pub(super) fn field_has_annotation(value:&Stored,field:usize)->bool{{{annotation_accessor}}}

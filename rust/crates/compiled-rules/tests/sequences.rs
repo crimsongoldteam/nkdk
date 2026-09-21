@@ -1,24 +1,292 @@
 use nkdk_compiled_rules::{
-    Direction, PreparedInputs, convert_file, entry_id, validate_file, verify_candidate,
+    Direction, InputValue, PreparedInputs, convert_file, entry_id, prepare_inputs, validate_file,
+    verify_candidate,
 };
+
+fn metadata_value_inputs(entry: nkdk_compiled_rules::EntryId) -> PreparedInputs {
+    prepare_inputs(
+        entry,
+        vec![
+            ("defaultLanguage".into(), InputValue::Text("ru".into())),
+            (
+                "registeredLanguages".into(),
+                InputValue::Sequence(vec![
+                    InputValue::Text("ru".into()),
+                    InputValue::Text("en".into()),
+                ]),
+            ),
+        ],
+    )
+    .unwrap()
+}
+
+fn assert_corpus_source_unchanged(case: &serde_json::Value) {
+    let relative = case["source"].as_str().unwrap();
+    let source_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .ancestors()
+        .nth(3)
+        .unwrap()
+        .join(relative);
+    let source = std::fs::read(source_path).unwrap();
+    let start = case["start"].as_u64().unwrap() as usize;
+    let end = start + case["original"].as_str().unwrap().len();
+    assert_eq!(
+        source.get(start..end),
+        Some(case["original"].as_str().unwrap().as_bytes()),
+        "corpus source changed: {relative}"
+    );
+}
+
+fn verify_corpus_case(
+    entry: nkdk_compiled_rules::EntryId,
+    case: &serde_json::Value,
+    inputs: &PreparedInputs,
+) {
+    let xml = case["xml"].as_str().unwrap().as_bytes();
+    let expected = case["yaml"].as_str().unwrap().as_bytes();
+    let source = &case["source"];
+    let converted = convert_file(entry, Direction::XmlToYaml, xml, inputs)
+        .unwrap_or_else(|error| panic!("{source}: {error:?}"));
+    assert_eq!(converted.bytes, expected, "{source}");
+    verify_candidate(entry, xml, expected, inputs)
+        .unwrap_or_else(|error| panic!("{source}: {error:?}"));
+}
 
 #[test]
 fn metadata_value_derives_the_empty_xml_form_from_the_sibling_type() {
     let entry = entry_id("migration.metadata-value").unwrap();
-    let inputs = PreparedInputs::default();
+    let inputs = metadata_value_inputs(entry);
     let string_xml = b"<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Type><v8:Type>xs:string</v8:Type></Type><FillValue xsi:type=\"xs:string\"/></Root>";
     let number_xml = b"<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Type><v8:Type>xs:decimal</v8:Type></Type><FillValue xsi:nil=\"true\"/></Root>";
     for xml in [string_xml.as_slice(), number_xml.as_slice()] {
         let converted = convert_file(entry, Direction::XmlToYaml, xml, &inputs).unwrap();
         verify_candidate(entry, xml, &converted.bytes, &inputs).unwrap();
-        assert!(!String::from_utf8_lossy(&converted.bytes).contains("Значение:"));
+        assert!(
+            !String::from_utf8_lossy(&converted.bytes).contains("Значение:"),
+            "{}",
+            String::from_utf8_lossy(&converted.bytes)
+        );
+    }
+}
+
+#[test]
+fn metadata_value_selects_declared_scalar_and_structured_forms() {
+    let entry = entry_id("migration.metadata-value-full").unwrap();
+    let inputs = metadata_value_inputs(entry);
+    let cases: &[(&str, &str)] = &[
+        (
+            "<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><FillValue xsi:type=\"xs:string\">11</FillValue></Root>",
+            "Значение: \"11\"",
+        ),
+        (
+            "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><FillValue xsi:type=\"xs:decimal\">9007199254740993.25</FillValue></Root>",
+            "Значение: 9007199254740993.25",
+        ),
+        (
+            "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><FillValue xsi:type=\"xs:boolean\">true</FillValue></Root>",
+            "Значение: Истина",
+        ),
+        (
+            "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><FillValue xsi:type=\"xs:dateTime\">2025-12-24T12:00:00</FillValue></Root>",
+            "Значение: 24.12.2025 12:00:00",
+        ),
+        (
+            "<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><FillValue xsi:type=\"v8:StandardPeriod\"><v8:variant xsi:type=\"v8:StandardPeriodVariant\">Custom</v8:variant><v8:startDate>0001-01-01T00:00:00</v8:startDate><v8:endDate>0001-01-01T00:00:00</v8:endDate></FillValue></Root>",
+            "Значение:\n  Вариант: ПроизвольныйПериод\n  ДатаНачала: 01.01.0001 00:00:00\n  ДатаОкончания: 01.01.0001 00:00:00",
+        ),
+        (
+            "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><FillValue xsi:type=\"xr:DesignTimeRef\">Enum.ВидыДоговоров.EnumValue.СПоставщиком</FillValue></Root>",
+            "Значение: Перечисление.ВидыДоговоров.СПоставщиком",
+        ),
+        (
+            "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><FillValue xsi:type=\"xr:DesignTimeRef\"/></Root>",
+            "Значение: .",
+        ),
+        (
+            "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><FillValue xsi:type=\"xr:ValueList\"/></Root>",
+            "Значение: СписокЗначений",
+        ),
+        (
+            "<Root xmlns:ent=\"http://v8.1c.ru/8.1/data/enterprise\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><FillValue xsi:type=\"ent:ComparisonType\">Equal</FillValue></Root>",
+            "Значение:\n  Тип: ВидСравнения\n  Значение: Равно",
+        ),
+        (
+            "<Root xmlns:ent=\"http://v8.1c.ru/8.1/data/enterprise\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><FillValue xsi:type=\"ent:AccountType\">ActivePassive</FillValue></Root>",
+            "Значение:\n  Тип: ВидСчета\n  Значение: АктивноПассивный",
+        ),
+        (
+            "<Root xmlns:dcsset=\"http://v8.1c.ru/8.1/data-composition-system/settings\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><FillValue xsi:type=\"dcsset:DataCompositionComparisonType\">NotEqual</FillValue></Root>",
+            "Значение:\n  Тип: ВидСравненияКомпоновкиДанных\n  Значение: НеРавно",
+        ),
+        (
+            "<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><FillValue xsi:type=\"v8:FixedArray\"><v8:Value xsi:type=\"xs:string\">11</v8:Value><v8:Value xsi:nil=\"true\"/><v8:Value xsi:type=\"xs:boolean\">true</v8:Value></FillValue></Root>",
+            "Значение:\n  - \"11\"\n  -\n  - Истина",
+        ),
+        (
+            "<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><FillValue xsi:type=\"v8:FixedArray\"><v8:Value xsi:type=\"FormChoiceListDesTimeValue\"><Presentation><v8:item><v8:lang>ru</v8:lang><v8:content>Физическое лицо</v8:content></v8:item></Presentation><Value xsi:type=\"xr:DesignTimeRef\">Enum.ТипыДоговоров.EnumValue.СПоставщиком</Value></v8:Value></FillValue></Root>",
+            "Значение:\n  -\n    Тип: ЗначениеСпискаВыбора\n    Представление: Физическое лицо\n    Значение: Перечисление.ТипыДоговоров.СПоставщиком",
+        ),
+        (
+            "<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><FillValue xsi:type=\"FormChoiceListDesTimeValue\"><Presentation><v8:item><v8:lang>ru</v8:lang><v8:content>Физическое лицо</v8:content></v8:item></Presentation><Value xsi:type=\"xs:string\">ФЛ</Value></FillValue></Root>",
+            "Значение:\n  Представление: Физическое лицо\n  Значение: ФЛ",
+        ),
+    ];
+    for (xml, yaml) in cases {
+        let converted = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs)
+            .unwrap_or_else(|error| panic!("{xml}: {error:?}"));
+        assert_eq!(String::from_utf8_lossy(&converted.bytes), *yaml);
+        verify_candidate(entry, xml.as_bytes(), &converted.bytes, &inputs).unwrap();
+    }
+}
+
+#[test]
+fn metadata_value_exports_every_declared_form_without_an_xml_reference() {
+    let entry = entry_id("migration.metadata-value-full").unwrap();
+    let inputs = metadata_value_inputs(entry);
+    let cases: &[(&str, (&str, &str))] = &[
+        (
+            "Значение: \"11\"",
+            ("http://www.w3.org/2001/XMLSchema", "string"),
+        ),
+        (
+            "Значение: 9007199254740993.25",
+            ("http://www.w3.org/2001/XMLSchema", "decimal"),
+        ),
+        (
+            "Значение: Истина",
+            ("http://www.w3.org/2001/XMLSchema", "boolean"),
+        ),
+        (
+            "Значение: 24.12.2025 12:00:00",
+            ("http://www.w3.org/2001/XMLSchema", "dateTime"),
+        ),
+        (
+            "Значение: Перечисление.ВидыДоговоров.СПоставщиком",
+            ("http://v8.1c.ru/8.3/xcf/readable", "DesignTimeRef"),
+        ),
+        (
+            "Значение: .",
+            ("http://v8.1c.ru/8.3/xcf/readable", "DesignTimeRef"),
+        ),
+        (
+            "Значение: СписокЗначений",
+            ("http://v8.1c.ru/8.3/xcf/readable", "ValueList"),
+        ),
+        (
+            "Значение:\n  Тип: ВидСравнения\n  Значение: Равно",
+            ("http://v8.1c.ru/8.1/data/enterprise", "ComparisonType"),
+        ),
+        (
+            "Значение:\n  Тип: ВидСчета\n  Значение: АктивноПассивный",
+            ("http://v8.1c.ru/8.1/data/enterprise", "AccountType"),
+        ),
+        (
+            "Значение:\n  Тип: ВидСравненияКомпоновкиДанных\n  Значение: НеРавно",
+            (
+                "http://v8.1c.ru/8.1/data-composition-system/settings",
+                "DataCompositionComparisonType",
+            ),
+        ),
+        (
+            "Значение:\n  - \"11\"\n  -\n  - Истина",
+            ("http://v8.1c.ru/8.1/data/core", "FixedArray"),
+        ),
+        (
+            "Значение:\n  Представление: Физическое лицо\n  Значение: ФЛ",
+            ("", "FormChoiceListDesTimeValue"),
+        ),
+        (
+            "Значение:\n  Вариант: ПроизвольныйПериод\n  ДатаНачала: 01.01.0001 00:00:00\n  ДатаОкончания: 01.01.0001 00:00:00",
+            ("http://v8.1c.ru/8.1/data/core", "StandardPeriod"),
+        ),
+    ];
+    for (yaml, expected_type) in cases {
+        let exported = convert_file(entry, Direction::YamlToXml, yaml.as_bytes(), &inputs)
+            .unwrap_or_else(|error| panic!("{yaml}: {error:?}"));
+        let mut actual_type = None;
+        nkdk_conversion_core::xml::visit(&exported.bytes, |path, token| {
+            if path.last().is_some_and(|name| name.local == "FillValue")
+                && let nkdk_conversion_core::xml::Token::Attribute(attribute) = token
+                && attribute.name.namespace == "http://www.w3.org/2001/XMLSchema-instance"
+                && attribute.name.local == "type"
+            {
+                actual_type = attribute.qname.map(|name| (name.namespace, name.local));
+            }
+            Ok(())
+        })
+        .unwrap();
+        assert_eq!(
+            actual_type
+                .as_ref()
+                .map(|name| (name.0.as_str(), name.1.as_str())),
+            Some(*expected_type),
+            "{yaml}: {}",
+            String::from_utf8_lossy(&exported.bytes)
+        );
+        let imported = convert_file(entry, Direction::XmlToYaml, &exported.bytes, &inputs)
+            .unwrap_or_else(|error| {
+                panic!("{}: {error:?}", String::from_utf8_lossy(&exported.bytes))
+            });
+        assert_eq!(String::from_utf8_lossy(&imported.bytes), *yaml);
+    }
+}
+
+#[test]
+fn metadata_value_preserves_unrepresentable_xml_variants_as_inferred_anomalies() {
+    let entry = entry_id("migration.metadata-value-full").unwrap();
+    let inputs = metadata_value_inputs(entry);
+    for xml in [
+        "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:q=\"urn:unknown\"><FillValue xsi:type=\"q:FutureValue\">payload</FillValue></Root>",
+        "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:q=\"urn:unknown\"><FillValue xsi:type=\"q:FutureValue\"><q:Payload>payload</q:Payload></FillValue></Root>",
+        "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><FillValue xsi:type=\"xr:MDObjectRef\">Catalog.Products</FillValue></Root>",
+        "<Root xmlns:app=\"http://v8.1c.ru/8.2/managed-application/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><FillValue xsi:type=\"app:ApplicationUsePurpose\">PlatformApplication</FillValue></Root>",
+        "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\"><FillValue xsi:type=\"v8:Type\">xs:string</FillValue></Root>",
+        "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\"><FillValue xsi:type=\"v8:UUID\">12345678-1234-1234-1234-123456789abc</FillValue></Root>",
+        "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><FillValue xsi:type=\"xs:boolean\">maybe</FillValue></Root>",
+        "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><FillValue xsi:type=\"xs:decimal\">NaN</FillValue></Root>",
+        "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><FillValue xsi:type=\"xs:dateTime\">2026-02-30T12:00:00</FillValue></Root>",
+    ] {
+        let converted = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs)
+            .unwrap_or_else(|error| panic!("{xml}: {error:?}"));
+        assert!(
+            String::from_utf8_lossy(&converted.bytes).contains("!xml/"),
+            "{xml}: {}",
+            String::from_utf8_lossy(&converted.bytes)
+        );
+        verify_candidate(entry, xml.as_bytes(), &converted.bytes, &inputs).unwrap();
+    }
+}
+
+#[test]
+fn metadata_value_covers_every_scalar_and_absent_e2e_form() {
+    let corpus: serde_json::Value = serde_json::from_slice(include_bytes!(
+        "../../../../tests/migration/metadata-value-e2e.json"
+    ))
+    .unwrap();
+    assert_eq!(corpus["count"], 879);
+    let cases = corpus["cases"].as_array().unwrap();
+    assert_eq!(cases.len(), 17);
+    for case in cases {
+        assert_corpus_source_unchanged(case);
+        let name = if case["original"]
+            .as_str()
+            .unwrap()
+            .contains("xsi:nil=\"true\"")
+        {
+            "migration.metadata-value-nil"
+        } else {
+            "migration.metadata-value-full"
+        };
+        let entry = entry_id(name).unwrap();
+        let inputs = metadata_value_inputs(entry);
+        verify_corpus_case(entry, case, &inputs);
     }
 }
 
 #[test]
 fn choice_parameters_use_a_keyed_yaml_mapping_for_declared_values() {
     let entry = entry_id("migration.choice-parameters").unwrap();
-    let inputs = PreparedInputs::default();
+    let inputs = metadata_value_inputs(entry);
     let xml = b"<Root xmlns:app=\"http://v8.1c.ru/8.2/managed-application/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><ChoiceParameters><app:item name=\"Text\"><app:value xsi:type=\"xs:string\">value</app:value></app:item></ChoiceParameters></Root>";
     let converted = convert_file(entry, Direction::XmlToYaml, xml, &inputs).unwrap();
     assert_eq!(
@@ -51,6 +319,36 @@ fn choice_parameter_links_are_structural_and_reversible() {
     ] {
         let converted = convert_file(entry, Direction::XmlToYaml, original, &inputs).unwrap();
         verify_candidate(entry, original, &converted.bytes, &inputs).unwrap();
+    }
+}
+
+#[test]
+fn choice_parameter_families_cover_every_ordinary_e2e_form() {
+    let corpus: serde_json::Value = serde_json::from_slice(include_bytes!(
+        "../../../../tests/migration/choice-parameters-e2e.json"
+    ))
+    .unwrap();
+    assert_eq!(corpus["counts"]["choiceParameters"], 281);
+    assert_eq!(corpus["counts"]["choiceParameterLinks"], 274);
+    let cases = corpus["cases"].as_array().unwrap();
+    assert_eq!(cases.len(), 9);
+    for case in cases {
+        assert_corpus_source_unchanged(case);
+        let name = case["entry"].as_str().unwrap();
+        let entry = entry_id(name).unwrap();
+        let inputs = if name == "migration.choice-parameters" {
+            metadata_value_inputs(entry)
+        } else {
+            PreparedInputs::default()
+        };
+        let expected = case["yaml"].as_str().unwrap().as_bytes();
+        verify_corpus_case(entry, case, &inputs);
+
+        let exported = convert_file(entry, Direction::YamlToXml, expected, &inputs)
+            .unwrap_or_else(|error| panic!("{}: {error:?}", case["source"]));
+        let imported = convert_file(entry, Direction::XmlToYaml, &exported.bytes, &inputs)
+            .unwrap_or_else(|error| panic!("{}: {error:?}", case["source"]));
+        assert_eq!(imported.bytes, expected, "{}", case["source"]);
     }
 }
 

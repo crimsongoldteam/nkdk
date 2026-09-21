@@ -626,7 +626,7 @@ pub(super) fn generate_at(
         )
         .unwrap();
     }
-    writeln!(out, "out.ensure_container({root_code});Ok(())}}").unwrap();
+    writeln!(out, "out.ensure_container_written({root_code});Ok(())}}").unwrap();
     writeln!(out,"fn write_yaml_{id}(value:&V{id},inputs:&InputView<'_>)->core::Result<Vec<u8>> {{{scope_full}let mut out=String::new();").unwrap();
     for &slot in &yaml_slots {
         writeln!(
@@ -793,7 +793,7 @@ pub(super) fn generate_at(
     }
     writeln!(
         out,
-        "let candidate=out.into_bytes();match verify_{id}(original,&candidate,inputs) {{Ok(())=>return Ok(candidate),Err(error) if error.code.as_deref()==Some(\"xml.round-trip-mismatch\")=>{{}},Err(error)=>return Err(error)}}let ordinary=write_xml_{id}(&read_yaml_{id}(&candidate,inputs)?,inputs)?;let expected=core::xml::Tree::capture_with_qnames(original,{root_code},xml_qname_text_{id})?.ok_or_else(||RuntimeDiagnostic::new(\"xml.owner-root\",\"Expected the declared document root\"))?;let base=core::xml::Tree::capture_with_qnames(&ordinary,{root_code},xml_qname_text_{id})?;let patch=expected.patch_yaml(base.as_ref(),&[],&xml_qnames_{id}())?;let candidate=core::raw::Document::encode(&candidate,patch.as_bytes())?;verify_{id}(original,&candidate,inputs)?;Ok(candidate)}}"
+        "let refined=out.into_bytes();match verify_{id}(original,&refined,inputs) {{Ok(())=>return Ok(refined),Err(error) if error.code.as_deref()==Some(\"xml.round-trip-mismatch\")=>{{}},Err(error)=>return Err(error)}}let ordinary=write_xml_{id}(&read_yaml_{id}(&refined,inputs)?,inputs)?;let expected=core::xml::Tree::capture_with_qnames(original,{root_code},xml_qname_text_{id})?.ok_or_else(||RuntimeDiagnostic::new(\"xml.owner-root\",\"Expected the declared document root\"))?;let base=core::xml::Tree::capture_with_qnames(&ordinary,{root_code},xml_qname_text_{id})?;let patch=expected.patch_yaml(base.as_ref(),&[],&xml_qnames_{id}())?;let candidate=core::raw::Document::encode(&refined,patch.as_bytes())?;verify_{id}(original,&candidate,inputs)?;Ok(candidate)}}"
     )
     .unwrap();
     for (accessor, result, fallback) in [

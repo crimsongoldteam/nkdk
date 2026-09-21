@@ -106,6 +106,23 @@ pub(super) fn generate(
             .replace("@canonical_plain_guard@", &canonical_plain_guard)
             .replace("@path@", &record::path_code(&usage.path))
             .replace("@parent@", &record::path_code(parent))
+            .replace("@projected@", &usage.projected.to_string())
+            .replace(
+                "@yaml_issue_prefix@",
+                if usage.projected {
+                    ""
+                } else {
+                    "issue.path.insert(0,@key@.into());"
+                },
+            )
+            .replace(
+                "@refined_start@",
+                if usage.projected {
+                    ""
+                } else {
+                    "refined.push_str(&core::yaml::mapping_key(@key@));"
+                },
+            )
             .replace("@key@", &format!("{:?}", usage.key))
             .replace("@physical@", &format!("{:?}", name.local))
             .replace("@namespace@", &format!("{:?}", name.namespace))
@@ -281,9 +298,9 @@ impl RecordYamlRead@id@{
 #[allow(dead_code)]
 fn new()->core::Result<Self>{Ok(Self{property:core::yaml::PropertyReader::default(),body:item_@id@::YamlReader::new()?})}
 #[allow(dead_code)]
-fn consume(&mut self,node:core::yaml::Node,position:core::Position,source:&[u8],inputs:&InputView<'_>)->core::Result<()>{if let Some(node)=self.property.consume(node,@key@,"yaml.record")?{self.body.consume(node,position,source,inputs)?;}Ok(())}
+fn consume(&mut self,node:core::yaml::Node,position:core::Position,source:&[u8],inputs:&InputView<'_>)->core::Result<()>{if @projected@{return self.body.consume(node,position,source,inputs)}if let Some(node)=self.property.consume(node,@key@,"yaml.record")?{self.body.consume(node,position,source,inputs)?;}Ok(())}
 #[allow(dead_code)]
-fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<V@id@>{let present=self.property.finish("yaml.record")?;if !present && !@yaml_missing@{return Err(RuntimeDiagnostic::new("value.missing","Missing record"))}Ok(V@id@{body:if present{Some(self.body.finish(source,inputs)?)}else{@yaml_default@},raw:None})}
+fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<V@id@>{let present=if @projected@{true}else{self.property.finish("yaml.record")?};if !present && !@yaml_missing@{return Err(RuntimeDiagnostic::new("value.missing","Missing record"))}Ok(V@id@{body:if present{Some(self.body.finish(source,inputs)?)}else{@yaml_default@},raw:None})}
 }
 #[allow(dead_code)]
 fn read_xml_events_@id@(source:&[u8],inputs:&InputView<'_>,events:impl core::xml::ScopedSource)->core::Result<V@id@>{let mut state=RecordXmlRead@id@::new();events.visit_scoped(|path,token,scope|state.consume_scoped(path,token,Some(scope),source,inputs))?;state.finish(source,inputs)}
@@ -307,7 +324,7 @@ return Ok(V@id@{body,raw:Some(core::xml::Patch::read(&envelope.payload,&[],&xml_
 if let Some(bytes)=core::raw::record_contents(source,@key@)?{return item_@id@::read_yaml(&bytes,inputs).map(|body|V@id@{body:Some(body),raw:None});}Err(error)}}}
 #[allow(dead_code)]
 fn write_yaml_plain_@id@(value:&V@id@,inputs:&InputView<'_>,out:&mut String,indent:&str)->core::Result<()>{
-let Some(body)=&value.body else{return Ok(())};out.push_str(indent);out.push_str(&core::yaml::mapping_key(@key@));@write_body@Ok(())}
+let Some(body)=&value.body else{return Ok(())};if @projected@{return item_@id@::write_yaml(body,inputs,out,indent)}out.push_str(indent);out.push_str(&core::yaml::mapping_key(@key@));@write_body@Ok(())}
 #[allow(dead_code)]
 fn write_yaml_indented_@id@(value:&V@id@,inputs:&InputView<'_>,out:&mut String,indent:&str,_lift:bool)->core::Result<()>{
 if let Some(patch)=&value.raw{let mut meaning=String::new();write_yaml_plain_@id@(value,inputs,&mut meaning,"")?;let payload=patch.to_yaml();let bytes=core::raw::Property::encode(@key@,@physical@,meaning.as_bytes(),payload.as_bytes())?;core::yaml::Indented::new(out,indent).push_str(std::str::from_utf8(&bytes).expect("generated YAML"));Ok(())}else{write_yaml_plain_@id@(value,inputs,out,indent)}}
@@ -330,9 +347,9 @@ fn write_plain_xml_@id@(value:&V@id@,prepared:&XmlPrepared@id@,inputs:&InputView
 #[allow(dead_code)]
 fn write_xml_@id@(value:&V@id@,inputs:&InputView<'_>)->core::Result<Vec<u8>>{let prepared=prepare_xml_@id@(value,inputs)?;let mut names=Vec::new();namespaces_xml_@id@(value,&prepared,&mut names);let mut out=core::xml::Writer::new(&names);write_xml_into_@id@(value,&prepared,inputs,&mut out)?;Ok(out.finish_with_root((@path@)[0]))}
 #[allow(dead_code)]
-fn check_xml_@id@(value:&V@id@,source:&[u8],inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{let mut issues=value.body.as_ref().map_or_else(Vec::new,|value|item_@id@::check(value,source,inputs,true));@xml_checks@ issues.into_iter().map(|mut issue|{issue.path.insert(0,@key@.into());issue}).collect()}
+fn check_xml_@id@(value:&V@id@,source:&[u8],inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{let mut issues=value.body.as_ref().map_or_else(Vec::new,|value|item_@id@::check(value,source,inputs,true));@xml_checks@ issues.into_iter().map(|mut issue|{@yaml_issue_prefix@ issue}).collect()}
 #[allow(dead_code)]
-fn check_yaml_@id@(value:&V@id@,source:&[u8],inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{let mut issues=value.body.as_ref().map_or_else(Vec::new,|value|item_@id@::check(value,source,inputs,false));@yaml_checks@ issues.into_iter().map(|mut issue|{issue.path.insert(0,@key@.into());issue}).collect()}
+fn check_yaml_@id@(value:&V@id@,source:&[u8],inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{let mut issues=value.body.as_ref().map_or_else(Vec::new,|value|item_@id@::check(value,source,inputs,false));@yaml_checks@ issues.into_iter().map(|mut issue|{@yaml_issue_prefix@ issue}).collect()}
 #[allow(dead_code)]
 fn xml_scalar_at_@id@(value:&V@id@,path:&[core::xml::Name],occurrences:&[usize])->bool{value.body.as_ref().is_some_and(|value|item_@id@::scalar(value,path,occurrences))}
 #[allow(dead_code)]
@@ -349,7 +366,7 @@ fn prove_xml_@id@(value:&V@id@,original:&[u8],restored:&[u8])->core::Result<()>{
 fn verify_@id@(original:&[u8],candidate:&[u8],inputs:&InputView<'_>)->core::Result<()>{let value=read_yaml_@id@(candidate,inputs)?;if let Some(error)=check_yaml_@id@(&value,candidate,inputs).into_iter().find(|error|error.severity==Severity::Error){return Err(error)}prove_xml_@id@(&value,original,&write_xml_@id@(&value,inputs)?)}
 #[allow(dead_code)]
 fn finalize_yaml_@id@(original:&[u8],candidate:Vec<u8>,value:&V@id@,inputs:&InputView<'_>)->core::Result<Vec<u8>>{@debug_candidate@ if !(@xml_required@ && value.body.is_none()){match verify_@id@(original,&candidate,inputs){Ok(())=>return Ok(candidate),Err(error) if error.code.as_deref()==Some("xml.round-trip-mismatch")=>{},Err(error)=>return Err(error)}}
-if value.raw.is_none() && let Some(body)=&value.body{let refined_body=match item_@id@::finalize(original,body,inputs){Ok(body)=>Some(body),Err(error) if error.code.as_deref()==Some("xml.round-trip-mismatch")=>None,Err(error)=>return Err(error)};if let Some(body)=refined_body{let mut refined=String::new();refined.push_str(&core::yaml::mapping_key(@key@));@refined_body@match verify_@id@(original,refined.as_bytes(),inputs){Ok(())=>return Ok(refined.into_bytes()),Err(error) if error.code.as_deref()==Some("xml.round-trip-mismatch")=>{},Err(error)=>return Err(error)}}}
+if value.raw.is_none() && let Some(body)=&value.body{let refined_body=match item_@id@::finalize(original,body,inputs){Ok(body)=>Some(body),Err(error) if error.code.as_deref()==Some("xml.round-trip-mismatch")=>None,Err(error)=>return Err(error)};if let Some(body)=refined_body{let mut refined=String::new();@refined_start@ if @projected@{refined.extend(std::str::from_utf8(&body).expect("generated YAML").chars());}else{@refined_body@}match verify_@id@(original,refined.as_bytes(),inputs){Ok(())=>return Ok(refined.into_bytes()),Err(error) if error.code.as_deref()==Some("xml.round-trip-mismatch")=>{},Err(error)=>return Err(error)}}}
 let ordinary=write_xml_@id@(&read_yaml_@id@(candidate.as_slice(),inputs)?,inputs)?;let base=core::xml::Tree::capture_with_qnames(&ordinary,@path@,xml_qname_text_@id@)?;let source=core::xml::Tree::capture_with_qnames(original,@path@,xml_qname_text_@id@)?;let payload=match source{Some(tree)=>tree.patch_yaml(base.as_ref(),&[],&xml_qnames_@id@())?,None=>"null".into()};let annotated=core::raw::Property::encode(@key@,@physical@,&candidate,payload.as_bytes())?;verify_@id@(original,&annotated,inputs)?;Ok(annotated)}
 "#;
 

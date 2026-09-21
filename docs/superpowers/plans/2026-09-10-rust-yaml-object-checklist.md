@@ -41,7 +41,7 @@ ExternalFile принят: четыре свойства подключены к
 Следующий этап описан в [плане единого преобразования](2026-09-13-unified-conversion-plan.md).
 Флажки обновляются только после полной приёмки объекта, предусмотренной этим планом.
 
-Принято **21/90 common**. Полные Document и DocumentJournal ещё не приняты.
+Принято **24/90 common**. Полные Document и DocumentJournal ещё не приняты.
 Общий XML-record расширен типизированными атрибутами и сохранением их исходной
 записи. Это инфраструктура; дополнительных флажков объектов не устанавливает.
 Правила присутствия полей вложенной скалярной записи также перенесены в общий
@@ -60,7 +60,7 @@ ExternalFile принят: четыре свойства подключены к
 AdditionalIndexes принят после проверки идентичностей, корневого YAML-массива
 и внешнего документа. [Отчёт](../reports/2026-09-13-additional-indexes.md).
 
-Дата сверки: 2026-09-19. [Главный план](2026-09-10-rust-yaml-declarations.md) · [Журнал проверок](../reports/2026-09-10-rust-yaml-progress.md).
+Дата сверки: 2026-09-21. [Главный план](2026-09-10-rust-yaml-declarations.md) · [Журнал проверок](../reports/2026-09-10-rust-yaml-progress.md).
 
 ## Как читать
 
@@ -68,7 +68,7 @@ AdditionalIndexes принят после проверки идентичнос�
 - `[ ]` — объект не завершён. Промежуточные результаты учитываются только в журнале.
 - Служебные каталоги включены, чтобы не потерять их обязанности. Для них завершение означает перенос ответственности в общий Rust-механизм, а не обязательное создание отдельной YAML-декларации.
 
-Принят 21 common-объект: двусторонние интерфейсы I8nText, FormattedI8nText, MetadataName, StringOrNumber, PredefinedCode, MinMaxValue, boolean, number, dateTime, FieldsList, IndexField, WebSocketClientHeaders, XDTOPackages, UsePurposes, XDTOTypeName, Help, AdditionalIndex, String, TypeDescription и TypeLink (XML ↔ YAML, валидация и структурная схема), а также ExternalFile (перенос непрозрачных файлов в обе стороны). Enterprise исключён из реализации и условий готовности по решению пользователя. Наличие общего компилятора, синтетического примера или успешного теста отдельного свойства не означает завершение всего объекта. В частности, `common.code-type` — синтетический пример, а не перенесённое системное перечисление.
+Приняты 24 common-объекта: двусторонние интерфейсы I8nText, FormattedI8nText, MetadataName, StringOrNumber, PredefinedCode, MinMaxValue, boolean, number, dateTime, FieldsList, IndexField, WebSocketClientHeaders, XDTOPackages, UsePurposes, XDTOTypeName, Help, AdditionalIndex, String, TypeDescription, TypeLink, MetadataValue, ChoiceParameters и ChoiceParameterLinks (XML ↔ YAML, валидация и структурная схема), а также ExternalFile (перенос непрозрачных файлов в обе стороны). Enterprise исключён из реализации и условий готовности по решению пользователя. Наличие общего компилятора, синтетического примера или успешного теста отдельного свойства не означает завершение всего объекта. В частности, `common.code-type` — синтетический пример, а не перенесённое системное перечисление.
 
 ## Когда ставить галочку
 
@@ -93,8 +93,8 @@ AdditionalIndexes принят после проверки идентичнос�
 
 | Группа | Записей | Полностью завершено |
 |---|---:|---:|
-| Общие объекты (common) | 90 | 19 |
-| Вложенные части общих объектов | 27 | 0 |
+| Общие объекты (common) | 90 | 24 |
+| Вложенные части общих объектов | 27 | 2 |
 | Прикладные объекты и их вложенные части | 57 | 1 |
 | Формы, элементы и общие части форм | 66 | 0 |
 | Системные перечисления (весь каталог) | 1 | 1 |
@@ -162,7 +162,7 @@ AdditionalIndexes принят после проверки идентичнос�
 - [ ] [commonObjects/metadataTargetProjectResolvers](../../../packages/rules/metadata/commonObjects/metadataTargetProjectResolvers)
 - [ ] [commonObjects/metadataTargets](../../../packages/rules/metadata/commonObjects/metadataTargets)
 - [ ] [commonObjects/metadataTaskAddressingAttribute](../../../packages/rules/metadata/commonObjects/metadataTaskAddressingAttribute)
-- [ ] [commonObjects/metadataValue](../../../packages/rules/metadata/commonObjects/metadataValue)
+- [x] [commonObjects/metadataValue](../../../packages/rules/metadata/commonObjects/metadataValue) — 2026-09-21: [рекурсивная декларация](../../../rust/declarations/common/metadata-value.yaml), [879 неизменённых XML-вхождений и 17 выбранных скалярных/пустых случаев](../../../tests/migration/metadata-value-e2e.json), [оба направления, составы, рекурсия и аномалии](../../../rust/crates/compiled-rules/tests/sequences.rs), [приёмка](../reports/2026-09-20-recursive-value-runtime.md). Точные числа, календарные значения, ссылки, списки, FixedArray и FormChoiceList исполняются общим Rust-компилятором; неизвестная XML-форма сохраняется как выведенная аномалия.
 - [ ] [commonObjects/metadataWebServiceOperation](../../../packages/rules/metadata/commonObjects/metadataWebServiceOperation)
 - [x] [commonObjects/minMaxValue](../../../packages/rules/metadata/commonObjects/minMaxValue) — 2026-09-10: [decimal](../../../rust/declarations/common/min-max-value.yaml), [строковый XML с запятой](../../../rust/declarations/common/min-max-value-text.yaml), [проверки профилей](../../../rust/crates/compiled-rules/tests/scalars.rs), [1934 свойства e2e](../../../tests/migration/min-max-value-e2e.json). Пустой nil владельца и отсутствие различаются; числа точные.
 - [ ] [commonObjects/mobileDeviceCommandBarContent](../../../packages/rules/metadata/commonObjects/mobileDeviceCommandBarContent)
@@ -191,8 +191,8 @@ AdditionalIndexes принят после проверки идентичнос�
 - [x] [commonObjects/xDTOPackages](../../../packages/rules/metadata/commonObjects/xDTOPackages) — 2026-09-10: [декларация](../../../rust/declarations/common/xdto-packages.yaml), [профиль владельца](../../../rust/declarations/probes/xdto-packages-default.yaml), [проверки](../../../rust/crates/compiled-rules/tests/sequences.rs), [e2e](../../../tests/migration/text-collections-e2e.json).
 - [x] [commonObjects/xdtoTypeName](../../../packages/rules/metadata/commonObjects/xdtoTypeName) — декларация `common/xdto-type-name.yaml`, общий QName по URI и локальному имени; XML ↔ YAML, схема, валидация, вывод аномалий; 8 реальных свойств: `tests/migration/xdto-type-name-e2e.json`, независимые проверки QName в core/compiler/compiled-rules.
 - [ ] [commonObjects/xmlRoot](../../../packages/rules/metadata/commonObjects/xmlRoot)
-- [ ] [commonObjects/сhoiceParameterLinks](../../../packages/rules/metadata/commonObjects/сhoiceParameterLinks)
-- [ ] [commonObjects/сhoiceParameters](../../../packages/rules/metadata/commonObjects/сhoiceParameters)
+- [x] [commonObjects/сhoiceParameterLinks](../../../packages/rules/metadata/commonObjects/сhoiceParameterLinks) — 2026-09-21: [декларация](../../../rust/declarations/common/choice-parameter-links.yaml), [274 реальных вхождения](../../../tests/migration/choice-parameters-e2e.json), [оба направления и пустые состояния](../../../rust/crates/compiled-rules/tests/sequences.rs), [приёмка](../reports/2026-09-20-recursive-value-runtime.md).
+- [x] [commonObjects/сhoiceParameters](../../../packages/rules/metadata/commonObjects/сhoiceParameters) — 2026-09-21: [декларация](../../../rust/declarations/common/choice-parameters.yaml), [281 реальное вхождение](../../../tests/migration/choice-parameters-e2e.json), [словарь значений и рекурсивный MetadataValue](../../../rust/crates/compiled-rules/tests/sequences.rs), [приёмка](../reports/2026-09-20-recursive-value-runtime.md).
 
 ## Вложенные части общих объектов
 
@@ -221,8 +221,8 @@ AdditionalIndexes принят после проверки идентичнос�
 - [ ] [commonObjects/dataCompositionSystem/structureItemGroup/collection](../../../packages/rules/metadata/commonObjects/dataCompositionSystem/structureItemGroup/collection)
 - [ ] [commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemAuto](../../../packages/rules/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemAuto)
 - [ ] [commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemField](../../../packages/rules/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemField)
-- [ ] [commonObjects/metadataValue/fixedArray](../../../packages/rules/metadata/commonObjects/metadataValue/fixedArray)
-- [ ] [commonObjects/metadataValue/formChoiceList](../../../packages/rules/metadata/commonObjects/metadataValue/formChoiceList)
+- [x] [commonObjects/metadataValue/fixedArray](../../../packages/rules/metadata/commonObjects/metadataValue/fixedArray) — 2026-09-21: входит в [единую рекурсивную декларацию](../../../rust/declarations/common/metadata-value.yaml); один и несколько элементов, вложенные значения, `xsi:nil`, порядок и аномалии проверены в [приёмке](../reports/2026-09-20-recursive-value-runtime.md).
+- [x] [commonObjects/metadataValue/formChoiceList](../../../packages/rules/metadata/commonObjects/metadataValue/formChoiceList) — 2026-09-21: входит в [единую рекурсивную декларацию](../../../rust/declarations/common/metadata-value.yaml); представление I8nText, вложенное значение, пустые состояния и обратное преобразование проверены в [приёмке](../reports/2026-09-20-recursive-value-runtime.md).
 
 ## Прикладные объекты и их вложенные части
 

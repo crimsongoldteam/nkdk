@@ -45,7 +45,10 @@ pub(crate) fn validate_owner(owner: &LinkedEntry) -> Result<(), Diagnostic> {
             || !supported(&rule.xml_missing)
             || !supported(&rule.yaml_missing)
             || !supported_empty(rule)
-            || !rule.yaml_empty.is_empty()
+            || !rule.yaml_empty.iter().all(|empty| {
+                empty.form == EmptyKind::Null
+                    && matches!(empty.denotes.kind, LinkedExpressionKind::Absent)
+            })
             || !supported_canonical(rule)
         {
             return Err(unsupported(
@@ -241,6 +244,10 @@ pub(super) fn absent_form(rule: Option<&LinkedPresence>) -> XmlForm {
 
 pub(super) fn empty(rule: Option<&LinkedPresence>, kind: EmptyKind) -> bool {
     rule.is_some_and(|rule| rule.xml_empty.iter().any(|empty| empty.form == kind))
+}
+
+pub(super) fn yaml_empty(rule: Option<&LinkedPresence>, kind: EmptyKind) -> bool {
+    rule.is_some_and(|rule| rule.yaml_empty.iter().any(|empty| empty.form == kind))
 }
 
 pub(super) fn absent_attributes(form: &XmlForm) -> &'static str {

@@ -93,6 +93,7 @@ pub(crate) fn from_plan(program: &Program<'_>) -> Result<GeneratedSources, Vec<D
             local: root,
         }];
         let mut placed = entry.clone();
+        crate::link::scalar_parameters::bind_defaults(&mut placed).map_err(|error| vec![error])?;
         crate::plan::routes::place_record(&mut placed, &path).map_err(|error| vec![error])?;
         let body =
             value_record::generate(&placed, program, &path, None).map_err(|error| vec![error])?;

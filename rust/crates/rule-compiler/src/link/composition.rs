@@ -196,6 +196,7 @@ impl Substitution<'_> {
             }
             _ => {}
         }
+        super::scalar_parameters::fold(value);
         Ok(())
     }
 }

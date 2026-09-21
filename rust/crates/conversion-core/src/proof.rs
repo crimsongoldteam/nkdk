@@ -119,9 +119,11 @@ fn fingerprint<const OCCURRENCES: bool>(
                 }
                 if let Some(parent) = text_runs.last_mut() {
                     parent.children = true;
-                    if parent.qname.take().is_some() {
-                        parent.scalar = false;
-                    }
+                    parent.qname = None;
+                    // A route may be scalar for another branch of a choice.
+                    // Once an element has children, indentation is structural
+                    // formatting; meaningful mixed text is still retained.
+                    parent.scalar = false;
                     parent.flush(&mut hash, false);
                 }
                 text_runs.push(TextRun {
@@ -142,7 +144,10 @@ fn fingerprint<const OCCURRENCES: bool>(
                     hash.update((part.len() as u64).to_le_bytes());
                     hash.update(part.as_bytes());
                 }
-                if qname(path, &attribute.name) {
+                if (attribute.name.namespace == "http://www.w3.org/2001/XMLSchema-instance"
+                    && attribute.name.local == "type")
+                    || qname(path, &attribute.name)
+                {
                     let name = attribute.qname.ok_or_else(|| {
                         RuntimeDiagnostic::new(
                             "xml.qname",

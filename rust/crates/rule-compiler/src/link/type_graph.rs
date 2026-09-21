@@ -4,7 +4,7 @@ pub(super) fn validate(modules: &BTreeMap<&str, &Module>) -> Result<(), Vec<Diag
     let mut graph = BTreeMap::new();
     for (&name, module) in modules {
         let mut usages = vec![];
-        collect(&module.value, false, &mut usages);
+        collect_module_value(module, &mut usages);
         for item in module.types.iter().chain(&module.inputs) {
             collect(&item.definition, false, &mut usages);
         }
@@ -43,6 +43,20 @@ pub(super) fn validate(modules: &BTreeMap<&str, &Module>) -> Result<(), Vec<Diag
         visit(name, &graph, &mut states).map_err(|error| vec![error])?;
     }
     Ok(())
+}
+
+fn collect_module_value<'a>(module: &'a Module, usages: &mut Vec<(&'a TypeUse, bool)>) {
+    let TypeDefinition::Record(fields) = &module.value else {
+        collect(&module.value, false, usages);
+        return;
+    };
+    for field in fields {
+        let presence_bounded = module.presence.iter().any(|presence| {
+            matches!(&presence.target, PresenceTarget::Field(name) if name == &field.name)
+                && presence.yaml_missing.is_some()
+        });
+        collect(&field.definition, presence_bounded, usages);
+    }
 }
 
 fn collect<'a>(

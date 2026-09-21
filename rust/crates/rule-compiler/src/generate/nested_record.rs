@@ -14,6 +14,10 @@ pub(crate) fn lower(owner: &LinkedEntry, program: &Program) -> Result<Option<Lay
     let Some((common, bindings, arguments)) = composite::record(owner, program) else {
         return Ok(None);
     };
+    let owner_field = match &owner.value {
+        LinkedType::Record(fields) => fields.first().map(|field| field.name.as_str()),
+        _ => None,
+    };
     let LinkedType::Record(fields) = &common.value else {
         unreachable!()
     };
@@ -36,7 +40,7 @@ pub(crate) fn lower(owner: &LinkedEntry, program: &Program) -> Result<Option<Lay
             .iter()
             .filter(|rule| rule.target == LinkedPresenceTarget::SelfValue)
             .count()
-            != 1
+            > 1
     {
         return Err(unsupported(
             common,
@@ -67,10 +71,24 @@ pub(crate) fn lower(owner: &LinkedEntry, program: &Program) -> Result<Option<Lay
             ));
         }
     }
-    let (LinkedXml::Record(owner_xml), YamlRepresentation::Mapping(owner_yaml)) =
-        (&owner.xml, &owner.yaml)
-    else {
-        return Err(unsupported(owner, "Nested owner requires record mappings"));
+    let LinkedXml::Record(owner_xml) = &owner.xml else {
+        return Err(unsupported(owner, "Nested owner requires record XML"));
+    };
+    let key = match &owner.yaml {
+        YamlRepresentation::Mapping(owner_yaml) => owner_yaml
+            .first()
+            .ok_or_else(|| unsupported(owner, "Nested owner mapping requires a field"))?
+            .key
+            .clone(),
+        YamlRepresentation::Projection(field) if owner_field == Some(field.as_str()) => {
+            String::new()
+        }
+        _ => {
+            return Err(unsupported(
+                owner,
+                "Nested owner requires a record mapping or projection",
+            ));
+        }
     };
     let (xml, attrs) = attributes::content(&common.xml);
     let LinkedXml::Record(xml) = xml else {
@@ -83,7 +101,7 @@ pub(crate) fn lower(owner: &LinkedEntry, program: &Program) -> Result<Option<Lay
         ));
     }
     let path = owner_xml[0].path.clone();
-    if path.len() < 2 || owner_xml[0].attribute.is_some() {
+    if path.is_empty() || owner_xml[0].attribute.is_some() {
         return Err(unsupported(
             owner,
             "Nested record requires a property element",
@@ -106,7 +124,7 @@ pub(crate) fn lower(owner: &LinkedEntry, program: &Program) -> Result<Option<Lay
     );
     Ok(Some(Layout {
         entry: flat,
-        key: owner_yaml[0].key.clone(),
+        key,
         path,
         attributes: attrs.into_iter().cloned().collect(),
         qname_text: false,

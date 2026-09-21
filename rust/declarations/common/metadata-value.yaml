@@ -1,22 +1,372 @@
 format: nkdk-declarations/1
-kind: value
-id: common.metadata-value
-description: Значение заполнения; тип пустого XML выводится из соседнего описания типа
-namespaces:
-  xsi: http://www.w3.org/2001/XMLSchema-instance
-  xs: http://www.w3.org/2001/XMLSchema
-value: {kind: scalar, scalar: text}
-representations:
-  xml:
-    kind: with-attributes
-    attributes: [{name: xsi:type, value: {qname: xs:string}}]
-    content: {kind: text}
-  yaml: {kind: scalar, scalar: text}
-presence:
-- target: self
-  xml:
-    missing: {denotes: {absent: true}}
-    empty:
-    - {form: empty-element, denotes: {absent: true}}
-    - {form: nil, denotes: {absent: true}}
-  yaml: {missing: {denotes: {absent: true}}}
+kind: catalog
+declarations:
+- kind: value
+  id: common.metadata-empty-reference
+  value: {kind: enum, variants: [{name: Empty, value: empty}]}
+  representations:
+    xml: {kind: text, values: [{value: empty, text: ''}]}
+    yaml: {kind: scalar, values: [{value: empty, literal: '.'}]}
+- kind: value
+  id: common.metadata-reference-root
+  description: Корни ссылок, для которых значение не является элементом перечисления
+  enum:
+    Constant: Константа
+    Catalog: Справочник
+    Document: Документ
+    DefinedType: ОпределяемыйТип
+    Characteristic: Характеристика
+    CommandGroup: ГруппаКоманд
+    Role: Роль
+    InformationRegister: РегистрСведений
+    AccumulationRegister: РегистрНакопления
+    AccountingRegister: РегистрБухгалтерии
+    CalculationRegister: РегистрРасчета
+    ExchangePlan: ПланОбмена
+    ChartOfAccounts: ПланСчетов
+    ChartOfCharacteristicTypes: ПланВидовХарактеристик
+    ChartOfCalculationTypes: ПланВидовРасчета
+    BusinessProcess: БизнесПроцесс
+    BusinessProcessRoutePoint: ТочкаМаршрутаБизнесПроцесса
+    Task: Задача
+    DataProcessor: Обработка
+    Report: Отчет
+    DocumentNumerator: НумераторДокументов
+    CommonCommand: ОбщаяКоманда
+    CommonPicture: ОбщаяКартинка
+    CommonTemplate: ОбщийМакет
+    CommonModule: ОбщийМодуль
+    CommonAttribute: ОбщийРеквизит
+    CommonForm: ОбщаяФорма
+    FilterCriterion: КритерийОтбора
+    ScheduledJob: РегламентноеЗадание
+    IntegrationService: СервисИнтеграции
+    Language: Язык
+    Style: Стиль
+    Interface: Интерфейс
+    StyleItem: ЭлементСтиля
+    FunctionalOption: ФункциональнаяОпция
+    FunctionalOptionsParameter: ПараметрФункциональныхОпций
+    DocumentJournal: ЖурналДокументов
+    HTTPService: HTTPСервис
+    WebSocketClient: WebSocketКлиент
+    WebService: WebСервис
+    Bot: Бот
+    ExternalDataSource: ВнешнийИсточникДанных
+    EventSubscription: ПодпискаНаСобытие
+    XDTOPackage: ПакетXDTO
+    WSReference: WSСсылка
+    SessionParameter: ПараметрСеанса
+    SettingsStorage: ХранилищеНастроек
+    Subsystem: Подсистема
+    Sequence: Последовательность
+- kind: value
+  id: common.metadata-reference-generic-path
+  imports: {root: common.metadata-reference-root, name: common.metadata-name, value: common.metadata-value-name}
+  value:
+    kind: record
+    fields:
+    - {name: root, type: {use: root}}
+    - {name: owner, type: {use: name}}
+    - {name: value, type: {use: value}}
+  representations:
+    xml: {kind: text-pattern, separator: '.', parts: [{field: root}, {field: owner}, {field: value}]}
+    yaml: {kind: text-pattern, separator: '.', parts: [{field: root}, {field: owner}, {field: value}]}
+- kind: value
+  id: common.metadata-reference-path
+  imports:
+    enumValue: common.metadata-enum-value-path
+    generic: common.metadata-reference-generic-path
+  value:
+    kind: choice
+    variants:
+    - {name: enumValue, type: {use: enumValue}}
+    - {name: generic, type: {use: generic}}
+  representations: {xml: {kind: choice}, yaml: {kind: choice}}
+- kind: value
+  id: common.metadata-reference
+  imports:
+    path: common.metadata-reference-path
+    empty: common.metadata-empty-reference
+    text: common.string
+  value:
+    kind: choice
+    variants:
+    - {name: path, type: {use: path}}
+    - {name: empty, type: {use: empty}}
+    - {name: text, type: {use: text}}
+  representations: {xml: {kind: choice}, yaml: {kind: choice}}
+- kind: value
+  id: common.metadata-value-list
+  value: {kind: enum, variants: [{name: ValueList, value: value-list}]}
+  representations:
+    xml: {kind: text, values: [{value: value-list, text: ''}]}
+    yaml: {kind: scalar, values: [{value: value-list, literal: СписокЗначений}]}
+- kind: value
+  id: common.metadata-comparison-type
+  imports: {text: common.string, value: system.ComparisonType}
+  namespaces:
+    xsi: http://www.w3.org/2001/XMLSchema-instance
+    ent: http://v8.1c.ru/8.1/data/enterprise
+  value:
+    kind: record
+    fields:
+    - {name: kind, type: {use: text}}
+    - {name: value, type: {use: value}}
+  representations:
+    xml:
+      kind: record
+      fields: [{field: value, path: []}]
+    yaml:
+      kind: mapping
+      fields:
+      - {field: kind, key: Тип}
+      - {field: value, key: Значение}
+  presence:
+  - target: {field: kind}
+    xml: {missing: {denotes: {literal: ВидСравнения}}}
+    yaml: {missing: {denotes: {absent: true}}}
+- kind: value
+  id: common.metadata-account-type
+  imports: {text: common.string, value: system.AccountType}
+  namespaces:
+    xsi: http://www.w3.org/2001/XMLSchema-instance
+    ent: http://v8.1c.ru/8.1/data/enterprise
+  value:
+    kind: record
+    fields:
+    - {name: kind, type: {use: text}}
+    - {name: value, type: {use: value}}
+  representations:
+    xml:
+      kind: record
+      fields: [{field: value, path: []}]
+    yaml:
+      kind: mapping
+      fields:
+      - {field: kind, key: Тип}
+      - {field: value, key: Значение}
+  presence:
+  - target: {field: kind}
+    xml: {missing: {denotes: {literal: ВидСчета}}}
+    yaml: {missing: {denotes: {absent: true}}}
+- kind: value
+  id: common.metadata-dcs-comparison-type
+  imports: {text: common.string, value: system.DataCompositionComparisonType}
+  namespaces:
+    xsi: http://www.w3.org/2001/XMLSchema-instance
+    dcsset: http://v8.1c.ru/8.1/data-composition-system/settings
+  value:
+    kind: record
+    fields:
+    - {name: kind, type: {use: text}}
+    - {name: value, type: {use: value}}
+  representations:
+    xml:
+      kind: record
+      fields: [{field: value, path: []}]
+    yaml:
+      kind: mapping
+      fields:
+      - {field: kind, key: Тип}
+      - {field: value, key: Значение}
+  presence:
+  - target: {field: kind}
+    xml: {missing: {denotes: {literal: ВидСравненияКомпоновкиДанных}}}
+    yaml: {missing: {denotes: {absent: true}}}
+- kind: value
+  id: common.metadata-value-item
+  namespaces: {xsi: http://www.w3.org/2001/XMLSchema-instance}
+  imports: {value: common.metadata-value}
+  inputs:
+    defaultLanguage: {type: {kind: scalar, scalar: text}}
+    registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  value:
+    kind: record
+    fields:
+    - name: value
+      type:
+        use: value
+        with: {fixedArrayItem: true}
+        bind:
+          defaultLanguage: {input: defaultLanguage}
+          registeredLanguages: {input: registeredLanguages}
+  representations:
+    xml: {kind: record, fields: [{field: value, path: []}]}
+    yaml: {kind: projection, field: value}
+  presence:
+  - target: {field: value}
+    xml:
+      missing: {denotes: {absent: true}}
+      empty:
+      - {form: empty-element, denotes: {absent: true}}
+      - {form: nil, denotes: {absent: true}}
+      canonical:
+      - {when: {not: {present: {field: value}}}, form: nil}
+    yaml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: null, denotes: {absent: true}}]
+- kind: value
+  id: common.metadata-fixed-array
+  imports: {item: common.metadata-value-item}
+  namespaces: {v8: http://v8.1c.ru/8.1/data/core}
+  inputs:
+    defaultLanguage: {type: {kind: scalar, scalar: text}}
+    registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  value:
+    kind: sequence
+    item:
+      use: item
+      bind:
+        defaultLanguage: {input: defaultLanguage}
+        registeredLanguages: {input: registeredLanguages}
+  representations:
+    xml: {kind: element-sequence, path: [v8:Value], item: {kind: declared}}
+    yaml: {kind: sequence, item: {kind: declared}}
+- kind: value
+  id: common.metadata-form-choice-list-value
+  namespaces: {xsi: http://www.w3.org/2001/XMLSchema-instance}
+  imports: {text: common.string, presentation: common.i8n-text, value: common.metadata-value}
+  parameters:
+    fixedArrayItem: {type: {kind: scalar, scalar: boolean}, default: false}
+  inputs:
+    defaultLanguage: {type: {kind: scalar, scalar: text}}
+    registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  value:
+    kind: record
+    fields:
+    - {name: kind, type: {use: text}}
+    - name: presentation
+      type:
+        use: presentation
+        bind:
+          defaultLanguage: {input: defaultLanguage}
+          registeredLanguages: {input: registeredLanguages}
+          ownerName: {literal: ''}
+    - name: value
+      type:
+        use: value
+        with: {fixedArrayItem: false}
+        bind:
+          defaultLanguage: {input: defaultLanguage}
+          registeredLanguages: {input: registeredLanguages}
+  representations:
+    xml:
+      kind: record
+      fields:
+      - {field: presentation, path: [Presentation]}
+      - {field: value, path: [Value]}
+    yaml:
+      kind: mapping
+      fields:
+      - {field: kind, key: Тип}
+      - {field: presentation, key: Представление}
+      - {field: value, key: Значение}
+  presence:
+  - target: {field: kind}
+    xml:
+      missing:
+        denotes:
+          if: {parameter: fixedArrayItem}
+          then: {literal: ЗначениеСпискаВыбора}
+          else: {absent: true}
+    yaml:
+      missing:
+        denotes:
+          if: {parameter: fixedArrayItem}
+          then: {literal: ЗначениеСпискаВыбора}
+          else: {absent: true}
+  - target: {field: presentation}
+    xml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: empty-element, denotes: {absent: true}}]
+      canonical: [{when: {not: {present: {field: presentation}}}, form: empty-element}]
+    yaml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: empty-string, denotes: {absent: true}}]
+  - target: {field: value}
+    xml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: nil, denotes: {absent: true}}]
+      canonical: [{when: {not: {present: {field: value}}}, form: nil}]
+    yaml: {missing: {denotes: {absent: true}}}
+- kind: value
+  id: common.metadata-value
+  description: Полиморфное значение метаданных; ветвь выбирается только из декларации
+  namespaces:
+    xsi: http://www.w3.org/2001/XMLSchema-instance
+    xs: http://www.w3.org/2001/XMLSchema
+    xr: http://v8.1c.ru/8.3/xcf/readable
+    v8: http://v8.1c.ru/8.1/data/core
+    ent: http://v8.1c.ru/8.1/data/enterprise
+    dcsset: http://v8.1c.ru/8.1/data-composition-system/settings
+  imports:
+    text: common.string
+    decimal: common.exact-decimal
+    boolean: common.boolean
+    calendar: common.date-time-seconds
+    reference: common.metadata-reference
+    list: common.metadata-value-list
+    comparison: common.metadata-comparison-type
+    account: common.metadata-account-type
+    dcsComparison: common.metadata-dcs-comparison-type
+    fixedArray: common.metadata-fixed-array
+    formChoice: common.metadata-form-choice-list-value
+    period: common.standard-period
+  parameters:
+    fixedArrayItem: {type: {kind: scalar, scalar: boolean}, default: false}
+  inputs:
+    defaultLanguage: {type: {kind: scalar, scalar: text}}
+    registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  value:
+    kind: choice
+    variants:
+    - {name: reference, type: {use: reference}}
+    - {name: list, type: {use: list}}
+    - {name: comparison, type: {use: comparison}}
+    - {name: account, type: {use: account}}
+    - {name: dcsComparison, type: {use: dcsComparison}}
+    - {name: fixedArray, type: {use: fixedArray, bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}}}}
+    - {name: formChoice, type: {use: formChoice, with: {fixedArrayItem: {parameter: fixedArrayItem}}, bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}}}}
+    - {name: period, type: {use: period}}
+    - {name: boolean, type: {use: boolean}}
+    - {name: decimal, type: {use: decimal}}
+    - {name: calendar, type: {use: calendar}}
+    - {name: text, type: {use: text}}
+  representations:
+    xml:
+      kind: choice
+      attribute: xsi:type
+      variants:
+      - {variant: reference, in: [xr:DesignTimeRef], emit: xr:DesignTimeRef}
+      - {variant: list, in: [xr:ValueList], emit: xr:ValueList}
+      - {variant: comparison, in: [ent:ComparisonType], emit: ent:ComparisonType}
+      - {variant: account, in: [ent:AccountType], emit: ent:AccountType}
+      - {variant: dcsComparison, in: [dcsset:DataCompositionComparisonType], emit: dcsset:DataCompositionComparisonType}
+      - {variant: fixedArray, in: [v8:FixedArray], emit: v8:FixedArray}
+      - {variant: formChoice, in: [FormChoiceListDesTimeValue], emit: FormChoiceListDesTimeValue}
+      - {variant: period, in: [v8:StandardPeriod], emit: v8:StandardPeriod}
+      - {variant: boolean, in: [xs:boolean], emit: xs:boolean}
+      - {variant: decimal, in: [xs:decimal, xs:integer, xs:double, xs:float], emit: xs:decimal}
+      - {variant: calendar, in: [xs:dateTime], emit: xs:dateTime}
+      - {variant: text, in: [xs:string, xr:MDObjectRef, v8:Type, v8:UUID], emit: xs:string}
+      otherwise: text
+    yaml:
+      kind: choice
+      variants:
+      - {variant: fixedArray, form: sequence}
+      - {variant: formChoice, form: mapping, key: Тип, value: ЗначениеСпискаВыбора}
+      - {variant: formChoice, form: mapping, key: Представление}
+      - {variant: formChoice, form: mapping, key: Значение}
+      - {variant: comparison, form: mapping, key: Тип, value: ВидСравнения}
+      - {variant: account, form: mapping, key: Тип, value: ВидСчета}
+      - {variant: dcsComparison, form: mapping, key: Тип, value: ВидСравненияКомпоновкиДанных}
+      - {variant: period, form: mapping, key: Вариант}
+  presence:
+  - target: self
+    xml:
+      missing: {denotes: {absent: true}}
+      empty:
+      - {form: empty-element, denotes: {absent: true}}
+      - {form: nil, denotes: {absent: true}}
+    yaml: {missing: {denotes: {absent: true}}}

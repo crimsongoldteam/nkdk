@@ -4,6 +4,7 @@ pub(crate) struct RecordUsage {
     pub entry: LinkedEntry,
     pub path: Vec<ExpandedName>,
     pub key: String,
+    pub projected: bool,
     pub xml_missing: bool,
     pub yaml_missing: bool,
     pub xml_empty: bool,
@@ -44,9 +45,7 @@ pub(crate) fn record_usage(
     owner: &LinkedEntry,
     program: &Program,
 ) -> Result<Option<RecordUsage>, Diagnostic> {
-    let (LinkedType::Record(fields), LinkedXml::Record(xml), YamlRepresentation::Mapping(yaml)) =
-        (&owner.value, &owner.xml, &owner.yaml)
-    else {
+    let (LinkedType::Record(fields), LinkedXml::Record(xml)) = (&owner.value, &owner.xml) else {
         return Ok(None);
     };
     if fields.len() != 1 {
@@ -124,12 +123,27 @@ pub(crate) fn record_usage(
     let Some(mapping) = xml.iter().find(|mapping| mapping.field == fields[0].name) else {
         return Ok(None);
     };
-    let Some(key) = yaml.iter().find(|mapping| mapping.field == fields[0].name) else {
-        return Ok(None);
-    };
     if mapping.path.is_empty() || mapping.attribute.is_some() {
         return Ok(None);
     }
+    let (key, projected) = match &owner.yaml {
+        YamlRepresentation::Mapping(yaml) => {
+            let Some(key) = yaml.iter().find(|item| item.field == fields[0].name) else {
+                return Ok(None);
+            };
+            (key.key.clone(), false)
+        }
+        YamlRepresentation::Projection(field) if field == &fields[0].name => (
+            mapping
+                .path
+                .last()
+                .expect("non-empty record route")
+                .local
+                .clone(),
+            true,
+        ),
+        _ => return Ok(None),
+    };
     let rules: Vec<_> = common
         .presence
         .iter()
@@ -202,7 +216,8 @@ pub(crate) fn record_usage(
     Ok(Some(RecordUsage {
         entry,
         path: mapping.path.clone(),
-        key: key.key.clone(),
+        key,
+        projected,
         xml_missing,
         yaml_missing,
         xml_empty,

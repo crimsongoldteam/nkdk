@@ -90,10 +90,14 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
   const typeDescription=p.type==='TypeDescription';
   const choiceValue=p.type==='ChoiceParameterLinks' || p.type==='ChoiceParameters';
   const metadataValue=p.type==='MetadataValue';
-  const metadataNilDefault=metadataValue && p.exportNilValue===true && p.defaultValueXMLRaw &&
+  const metadataNilDefault=metadataValue && p.defaultValueXMLRaw &&
     !Array.isArray(p.defaultValueXMLRaw) && typeof p.defaultValueXMLRaw==='object' &&
     Object.keys(p.defaultValueXMLRaw).length===1 && p.defaultValueXMLRaw['_xsi:nil']===true;
-  if(metadataValue && !metadataNilDefault)return fail('metadata-value-profile');
+  const metadataStringDefault=metadataValue && p.defaultValueXMLRaw &&
+    !Array.isArray(p.defaultValueXMLRaw) && typeof p.defaultValueXMLRaw==='object' &&
+    Object.keys(p.defaultValueXMLRaw).length===1 && p.defaultValueXMLRaw['_xsi:type']==='xs:string';
+  if(metadataValue && p.exportNilValue===true && !metadataNilDefault)return fail('metadata-value-profile');
+  if(metadataValue && !metadataNilDefault && !metadataStringDefault)return fail('metadata-value-profile');
   const runtimeOnly=p.runtimeOnly===true;
   if(Object.hasOwn(p,'runtimeOnly') && !runtimeOnly)return fail('runtime-only-profile');
   if(runtimeOnly && (!typeDescription || ['xml','xmlParents','defaultValueXML','defaultValueXMLRaw','defaultValueAdoptedXML'].some(key=>Object.hasOwn(p,key))))return fail('runtime-only-profile');
@@ -173,7 +177,7 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
   if (minMax && Object.hasOwn(p,'defaultValueXMLRaw') && !nilDefault) return fail('raw-default-profile');
   if (fields && (Object.hasOwn(p,'implicitValueYAML') || Object.hasOwn(p,'defaultValueXML'))) return fail('collection-default-profile');
   const emptyTypeDescriptionRaw=typeDescription && p.defaultValueXMLRaw && !Array.isArray(p.defaultValueXMLRaw) && typeof p.defaultValueXMLRaw==='object' && Object.keys(p.defaultValueXMLRaw).length===0;
-  if (Object.hasOwn(p,'defaultValueXMLRaw') && p.defaultValueXMLRaw !== '' && !nilDefault && !metadataNilDefault && !rawEmptyList && !indexDefault && !basedOnDefault && !emptyTypeDescriptionRaw) return fail('raw-default-profile');
+  if (Object.hasOwn(p,'defaultValueXMLRaw') && p.defaultValueXMLRaw !== '' && !nilDefault && !metadataNilDefault && !metadataStringDefault && !rawEmptyList && !indexDefault && !basedOnDefault && !emptyTypeDescriptionRaw) return fail('raw-default-profile');
   if (!list && !purposes && !date && !xmlOnlyDefault && !emptyStringDefault && Object.hasOwn(p,'defaultValueXML') && (!Object.hasOwn(p,'implicitValueYAML') || p.defaultValueXML !== implicitValue)) return fail('asymmetric-defaults');
   if (text && !emptyTextDefault && (Object.hasOwn(p,'implicitValueYAML') || Object.hasOwn(p,'defaultValueXML'))) return fail('text-default-needs-expression');
   if (p.defaultValueXMLRaw === '' && Object.hasOwn(p,'implicitValueYAML') && p.implicitValueYAML !== '') return fail('asymmetric-raw-default');
@@ -208,7 +212,7 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
   }
   if(metadataValue) {
     mapped.presence.xml.canonical=[
-      {when:{not:{present:{field:property.name}}},form:'nil'},
+      {when:{not:{present:{field:property.name}}},form:metadataNilDefault?'nil':'empty-element'},
       {form:'ordinary'},
     ];
   }

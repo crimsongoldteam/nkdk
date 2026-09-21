@@ -1,7 +1,7 @@
 use super::*;
 
 fn read_value(field: &Field<'_>, index: usize, receiver: &str) -> String {
-    if matches!(field.codec, Codec::Choice(_)) {
+    let read = if matches!(field.codec, Codec::Choice(_)) {
         format!(
             "let (text,number)=value.into_choice_text().map_err(|error|error.field({:?}))?;{receiver}.number{index}=number;{receiver}.r{index}=Some(text);",
             field.key
@@ -27,6 +27,11 @@ fn read_value(field: &Field<'_>, index: usize, receiver: &str) -> String {
             field.codec.yaml_input(),
             field.key
         )
+    };
+    if super::super::scalar_presence::yaml_empty(field.presence, EmptyKind::Null) {
+        format!("if value.is_null(){{{receiver}.r{index}=None;}}else{{{read}}}")
+    } else {
+        read
     }
 }
 

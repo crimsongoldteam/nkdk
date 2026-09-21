@@ -1130,6 +1130,15 @@ fn generate_at(
         }
         out.push_str("}\n");
     }
+    if let Some((index, _)) = fields.iter().enumerate().find(|(_, field)| {
+        field.yaml_projected && super::scalar_presence::yaml_empty(field.presence, EmptyKind::Null)
+    }) {
+        writeln!(
+            out,
+            "if excluded != Some({index}) && out.len()==start {{out.push_str(indent);out.push_str(\"null\\n\");}}"
+        )
+        .unwrap();
+    }
     if layout.is_some() {
         out.push_str("if out.ends_with(\":\\n\") {out.push_str(\"  {}\\n\");}\n");
     }

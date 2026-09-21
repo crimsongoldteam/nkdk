@@ -136,7 +136,8 @@ fn bind(entry: &mut LinkedEntry, arguments: &[LinkedExpression]) -> Result<(), D
             "Static argument count differs from parameters",
         ));
     }
-    super::composition::instantiate_value(entry, &[], arguments)?;
+    let inputs = super::identity_bindings(entry);
+    super::composition::instantiate_value(entry, &inputs, arguments)?;
     for rule in &mut entry.presence {
         for value in [
             &mut rule.xml_missing,
@@ -174,6 +175,40 @@ fn bind(entry: &mut LinkedEntry, arguments: &[LinkedExpression]) -> Result<(), D
     attributes(&mut entry.xml, arguments)?;
     entry.parameters.clear();
     Ok(())
+}
+
+/// Instantiate a reusable declaration with its declared defaults.
+///
+/// Recursive records are emitted once as standalone generated modules. Their
+/// caller-specific uses are still specialized independently, but the reusable
+/// root needs one concrete profile so no parameter expression leaks into the
+/// runtime layer.
+pub(crate) fn bind_defaults(entry: &mut LinkedEntry) -> Result<(), Diagnostic> {
+    if entry.parameters.is_empty() {
+        return Ok(());
+    }
+    let arguments = entry
+        .parameters
+        .iter()
+        .map(|parameter| {
+            parameter
+                .default
+                .clone()
+                .map(|value| LinkedExpression {
+                    kind: LinkedExpressionKind::Literal(value),
+                    value_type: parameter.value_type.clone(),
+                    source: parameter.source.clone(),
+                })
+                .ok_or_else(|| {
+                    diagnostic(
+                        "missing_recursive_parameter_default",
+                        &parameter.source,
+                        "A reusable recursive declaration parameter requires a default",
+                    )
+                })
+        })
+        .collect::<Result<Vec<_>, _>>()?;
+    bind(entry, &arguments)
 }
 fn attributes(xml: &mut LinkedXml, arguments: &[LinkedExpression]) -> Result<(), Diagnostic> {
     if let LinkedXml::WithAttributes {
@@ -236,9 +271,9 @@ fn substitute(
 }
 
 /// Remove parameter-only decisions while retaining value-dependent expressions.
-fn fold(value: &mut LinkedExpression) {
+pub(crate) fn fold(value: &mut LinkedExpression) {
     use LinkedExpressionKind::{Literal, Operation};
-    use LinkedOperator::{And, Conditional, Equal, Not, Or};
+    use LinkedOperator::{And, Conditional, Equal, Not, Or, State};
     let boolean = |v: &LinkedExpression| match v.kind {
         Literal(ScalarLiteral::Boolean(v)) => Some(v),
         _ => None,
@@ -277,6 +312,11 @@ fn fold(value: &mut LinkedExpression) {
         Conditional => {
             boolean(&arguments[0]).map(|v| arguments[if v { 1 } else { 2 }].kind.clone())
         }
+        State(StatePredicate::IsReady) => match arguments[0].kind {
+            LinkedExpressionKind::Absent => Some(Literal(ScalarLiteral::Boolean(false))),
+            Literal(_) => Some(Literal(ScalarLiteral::Boolean(true))),
+            _ => None,
+        },
         _ => None,
     };
     if let Some(kind) = replacement {

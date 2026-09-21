@@ -409,6 +409,18 @@ impl<'a> Codec<'a> {
             out.push_str("_=>Err(RuntimeDiagnostic::new(\"value.choice\",\"No declared text form matches\")),}}\n");
         }
         if compact.is_none() {
+            out.push_str(
+                "#[allow(dead_code)] fn write_text(&self,xml:bool)->core::Result<String>{match self{\n",
+            );
+            for index in 0..self.variants.len() {
+                let write = if matches!(self.variants[index], Variant::Text(_)) {
+                    "Ok(value.clone())".into()
+                } else {
+                    self.variants[index].write_text("value", &format!("{name}V{index}"))
+                };
+                writeln!(out, "Self::V{index}(value)=>{write},").unwrap();
+            }
+            out.push_str("}}\n");
             out.push_str("fn write(&self,xml:bool)->core::Result<String>{match self{\n");
             for index in 0..self.variants.len() {
                 if matches!(self.variants[index], Variant::Text(_)) && self.discriminated() {
@@ -418,7 +430,7 @@ impl<'a> Codec<'a> {
                 let write = if matches!(self.variants[index], Variant::Text(_)) {
                     "Ok(value.clone())".into()
                 } else {
-                    self.variants[index].write("value")
+                    self.variants[index].write("value", &format!("{name}V{index}"))
                 };
                 if self.variants[index].writes_yaml_document() {
                     writeln!(out, "Self::V{index}(value)=>{write},").unwrap();

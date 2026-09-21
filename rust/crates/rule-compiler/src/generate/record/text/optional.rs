@@ -137,7 +137,7 @@ pub(super) fn write(entry: &LinkedEntry, fields: &[Field<'_>]) -> String {
         write!(out,"let piece_value{index}=value.f{index}.as_ref().ok_or_else(||RuntimeDiagnostic::new(\"value.text-pattern\",\"Text record field is absent\"))?;").unwrap();
         pieces[index] = format!(
             "Some({})",
-            fields[index].codec.write_reference(
+            fields[index].codec.write_text_reference(
                 &format!("E{id}F{index}"),
                 &format!("piece_value{index}"),
                 false

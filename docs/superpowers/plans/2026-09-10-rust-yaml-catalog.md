@@ -270,12 +270,27 @@ XML-свойства и родителя, число вхождений, при�
 
 ### Б3. Выразить MetadataValue и FillValue декларативно
 
+21 сентября полностью приняты `MetadataValue`, `ChoiceParameters`,
+`ChoiceParameterLinks` и вложенные рекурсивные варианты. Их корпус и доказательства
+собраны в [отчёте приёмки](../reports/2026-09-20-recursive-value-runtime.md).
+Оставшаяся часть Б3 — `FillValue` и его зависимости от типа владельца.
+Из e2e получены 1080 наблюдений FillValue (761 nil, 231 отсутствие, 51 пустой
+`xs:string`, 4 `v8:Null`, 33 прочих значений). XML полностью разобран;
+112 оценок старых rules остались `unresolved` из-за ограничений определения
+типа. [Таблица договора](../specs/2026-09-10-common-declarative/03-types-references.md#наблюдаемый-договор-fillvalue-на-e2e)
+разделяет факты и прежнюю оценку.
+
 **Files:** declarations/common/metadata-value/*.yaml, fill-value.yaml; профили Catalog/Document/Attribute; compiler/generate/relations.rs; compiled-rules/tests/fill_value.rs; tests/conversion-corpus/cases/fill-*.
 
 **Interfaces:** входы declared/effective type, owner policy, presence и PreparedFacts; результат содержит value/implicit/invalid/unresolved и диагностический адрес. Все варианты и ограничения принадлежат декларациям; никаких classifyFillValue в Rust.
 
 - [ ] Заполнить в единой спеке конечную таблицу классификации: string/number/boolean/date, UUID/reference, ValueStorage, nil/missing, соответствие ограничению типа, standard-member default, declared/effective состояния. Указать роль каждой ранее написанной предметной функции и её заменяющих общих узлов.
 - [ ] Ввести один независимый корпус для MetadataValue и FillValue: строковая лексика против YAML quoting, длина/точность числа, nullable, ссылка другого вида, unresolved DefinedType, default двух разных владельцев, одинаковое явное значение в cf и adopted. Ожидания брать из действующих тестов и ограничений, не из старой Rust-классификации.
+- [ ] Подключать `exportNilValue` как декларативный профиль свойства: `true`
+  задаёт канонический `xsi:nil`, `false` — пустой `xs:string`. Переносчик
+  выпускает таблицу присутствия автоматически из параметра `rules.ts`;
+  генератор Rust не знает ни имя свойства, ни `MetadataValue`. Проверять
+  частоты на неизменённом e2e: массовая пустая форма не считается аномалией.
 - [ ] Выполнить `cargo test --manifest-path rust/Cargo.toml -p nkdk-compiled-rules --test fill_value`; добавить недостающие общие predicate/match и декларации, не новые Rust-модули common.
 
   ```rust

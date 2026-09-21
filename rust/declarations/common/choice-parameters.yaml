@@ -6,11 +6,14 @@ declarations:
   namespaces:
     app: http://v8.1c.ru/8.2/managed-application/core
   imports: {value: common.metadata-value}
+  inputs:
+    defaultLanguage: {type: {kind: scalar, scalar: text}}
+    registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
   value:
     kind: record
     fields:
     - {name: name, type: {kind: scalar, scalar: text}}
-    - {name: value, type: {use: value}}
+    - {name: value, type: {use: value, bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}}}}
   representations:
     xml:
       kind: record
@@ -37,7 +40,10 @@ declarations:
   namespaces:
     app: http://v8.1c.ru/8.2/managed-application/core
   imports: {item: common.choice-parameter}
-  value: {kind: sequence, item: {use: item}}
+  inputs:
+    defaultLanguage: {type: {kind: scalar, scalar: text}}
+    registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  value: {kind: sequence, item: {use: item, bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}}}}
   representations:
     xml: {kind: element-sequence, path: [app:item]}
     yaml: {kind: record-mapping, key: name, value: value}

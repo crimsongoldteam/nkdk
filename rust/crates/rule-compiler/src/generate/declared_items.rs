@@ -78,6 +78,7 @@ pub(super) fn generate_at(
             ..
         }
     );
+    let projected_item = matches!(row.yaml, YamlRepresentation::Projection(_));
     let (key, root_yaml, hidden) = match &entry.yaml {
         YamlRepresentation::Mapping(fields) => match fields.first() {
             Some(field) => (field.key.as_str(), false, false),
@@ -91,6 +92,16 @@ pub(super) fn generate_at(
             ));
         }
     };
+    let flat_mapping_item = matches!(&row.value, LinkedType::Record(fields)
+        if fields.iter().all(|field| super::scalar::Codec::resolve(&field.value, &row, program).is_ok()));
+    let structured_scalar_item = matches!(&row.value, LinkedType::Record(fields)
+        if fields.iter().any(|field| matches!(super::scalar::Codec::resolve(&field.value, &row, program), Ok(super::scalar::Codec::Forms(_) | super::scalar::Codec::Pattern(_)))));
+    let compact_mapping_item = !root_yaml
+        && matches!(row.yaml, YamlRepresentation::Mapping(_))
+        && !super::value_record::is_recursive(&row.name)
+        && flat_mapping_item
+        && (row.constraints.is_empty() || structured_scalar_item);
+    let compact_item = projected_item || compact_mapping_item;
     if **item != LinkedXml::Declared
         || matches!(yaml, YamlRepresentation::Sequence { shorthand, .. } if !shorthand.is_empty())
         || !common.constraints.is_empty()
@@ -209,7 +220,6 @@ pub(super) fn generate_at(
         None
     };
     let body = super::value_record::generate(&row, program, &route, lifted.clone())?;
-    let item_writes_boundary = matches!(attributes::content(&row.xml).0, LinkedXml::Record(fields) if fields.iter().any(|field| field.attribute.is_none() && field.path == route));
     let mut presence = collection_presence::override_for(&common, entry, bindings, arguments)?
         .unwrap_or(common.clone());
     presence.value = LinkedType::Sequence(Box::new(row.value.clone()));
@@ -268,14 +278,7 @@ pub(super) fn generate_at(
                 "tree.write_at(out,@ancestor@,&item_@id@::qnames())?;"
             },
         )
-        .replace(
-            "@close_item@",
-            if item_writes_boundary {
-                ""
-            } else {
-                "out.container(@route@);out.end_container();"
-            },
-        )
+        .replace("@close_item@", "out.end_container_if_open(@route@);")
         .replace("@relative@", &record::path_code(relative))
         .replace("@document@", &(parent.len() == 1).to_string())
         .replace("@shared@", &shared.to_string())
@@ -295,6 +298,9 @@ pub(super) fn generate_at(
         .replace("@root_yaml@", &root_yaml.to_string())
         .replace("@hidden@", &hidden.to_string())
         .replace("@singleton@", &singleton.to_string())
+        .replace("@projected_item@", &projected_item.to_string())
+        .replace("@compact_mapping_item@", &compact_mapping_item.to_string())
+        .replace("@compact_item@", &compact_item.to_string())
         .replace("@semantic_only@", &semantic_only.to_string())
         .replace("@item@", &body.source)
         .replace(
@@ -414,13 +420,13 @@ if !@root_yaml@{out.push_str(indent);out.push_str(&core::yaml::scalar(@key@));ou
 if @lifted_key@.is_some(){return write_mapping_rows_@id@(value,inputs,out,indent);}
 if value.rows.is_empty(){if !@root_yaml@{out.push(' ');}out.push_str("[]");return Ok(())}
 if @singleton@ && value.rows.len()==1{if !@root_yaml@{out.push(' ');}return item_@id@::write_yaml(&value.rows[0],inputs,out,if @root_yaml@{indent}else{""});}
-let row_indent=format!("{indent}{}",if @root_yaml@{"  "}else{"    "});for (index,row) in value.rows.iter().enumerate(){if !@root_yaml@ || index>0{out.push('\n');}out.push_str(indent);out.push_str(if @root_yaml@{"-\n"}else{"  -\n"});let start=out.len();item_@id@::write_yaml(row,inputs,out,&row_indent)?;if out.len()==start{out.push_str(&row_indent);out.push_str("{}");}}Ok(())}
+let row_indent=format!("{indent}{}",if @root_yaml@{"  "}else{"    "});for (index,row) in value.rows.iter().enumerate(){if !@root_yaml@ || index>0{out.push('\n');}out.push_str(indent);out.push_str(if @root_yaml@{"-"}else{"  -"});if @compact_item@{let mut rendered=String::new();item_@id@::write_yaml(row,inputs,&mut rendered,"")?;if rendered.is_empty()||rendered.trim()=="null"{}else if @compact_mapping_item@{if let Some((first,rest))=rendered.split_once('\n'){out.push(' ');out.push_str(first);out.push('\n');core::yaml::Indented::new(out,&row_indent).push_str(rest);}else{out.push(' ');out.push_str(&rendered);}}else if rendered.contains('\n'){out.push('\n');core::yaml::Indented::new(out,&row_indent).push_str(&rendered);}else{out.push(' ');out.push_str(&rendered);}}else{out.push('\n');let start=out.len();item_@id@::write_yaml(row,inputs,out,&row_indent)?;if out.len()==start{out.push_str(&row_indent);out.push_str("{}");}}}Ok(())}
 fn write_mapping_rows_@id@(value:&V@id@,inputs:&InputView<'_>,out:&mut String,indent:&str)->core::Result<()>{
 if value.rows.is_empty(){if !@root_yaml@{out.push(' ');}out.push_str("{}");return Ok(())}
 let mut seen=std::collections::HashSet::new();let row_indent=format!("{indent}{}",if @root_yaml@{"  "}else{"    "});
 for row in &value.rows{if !item_@id@::key_can_be_lifted(row){continue;}
 let key=match item_@id@::text(row,@lifted_index@){Ok(key)=>key,Err(error) if error.code.as_deref()==Some("fact.unready")=>continue,Err(error)=>return Err(error)};if !seen.insert(key){continue;}
-if !@root_yaml@ || seen.len()>1{out.push('\n');}out.push_str(indent);if !@root_yaml@{out.push_str("  ");}out.push_str(&core::yaml::scalar(key));out.push_str(":\n");let start=out.len();item_@id@::write_mapping_value(row,inputs,out,&row_indent)?;if start==out.len(){out.push_str(&row_indent);out.push_str("{}");}}
+if !@root_yaml@ || seen.len()>1{out.push('\n');}out.push_str(indent);if !@root_yaml@{out.push_str("  ");}out.push_str(&core::yaml::scalar(key));out.push(':');let mut rendered=String::new();item_@id@::write_mapping_value(row,inputs,&mut rendered,"")?;let trimmed=rendered.trim_start();let structured=rendered.contains('\n')||trimmed.starts_with(['{','[','-'])||(!trimmed.starts_with(['\"','\''])&&trimmed.contains(':'));if rendered.is_empty(){out.push('\n');out.push_str(&row_indent);out.push_str("{}");}else if structured{out.push('\n');core::yaml::Indented::new(out,&row_indent).push_str(&rendered);}else{out.push(' ');out.push_str(&rendered);}}
 if seen.is_empty(){if !@root_yaml@{out.push(' ');}out.push_str("{}");}
 Ok(())}
 fn write_yaml_@id@(value:&V@id@,inputs:&InputView<'_>)->core::Result<Vec<u8>>{let mut out=String::new();write_yaml_into_@id@(value,inputs,&mut out)?;let bytes=out.into_bytes();if let Some(patch)=&value.raw{encode_raw_@id@(&bytes,patch.to_yaml().as_bytes())}else{Ok(bytes)}}

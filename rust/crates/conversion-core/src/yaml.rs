@@ -57,7 +57,7 @@ impl Scalar {
     pub fn is_empty(&self) -> bool {
         self.text.is_empty()
     }
-    pub(crate) fn is_null(&self) -> bool {
+    pub fn is_null(&self) -> bool {
         self.plain && matches!(Yaml::from_str(&self.text), Yaml::Null)
     }
     pub fn position(&self) -> crate::Position {

@@ -118,6 +118,21 @@ fn qname_proof_compares_expanded_names_and_keeps_invalid_text_literal() {
 }
 
 #[test]
+fn xsi_type_is_always_compared_as_an_expanded_qname() {
+    let original = br#"<Root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="urn:type"><Value xsi:type="p:Thing"><Child>text</Child></Value></Root>"#;
+    let renamed =
+        br#"<Root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:q="urn:type">
+  <Value xsi:type="q:Thing">
+    <Child>text</Child>
+  </Value>
+</Root>"#;
+    let other = br#"<Root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:q="urn:other"><Value xsi:type="q:Thing"/></Root>"#;
+
+    nkdk_conversion_core::proof::verify(original, renamed, |_| true).unwrap();
+    assert!(nkdk_conversion_core::proof::verify(original, other, |_| false).is_err());
+}
+
+#[test]
 fn qname_anomaly_patches_keep_namespace_meaning_without_lexical_guessing() {
     use xml::{Name, Patch, Tree};
     let target = &[("", "Root"), ("", "Value")];

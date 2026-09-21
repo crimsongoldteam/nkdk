@@ -1,0 +1,90 @@
+{
+  "scope": "Unique ordinary ChoiceParameters and ChoiceParameterLinks forms from immutable cf/cfe e2e sources",
+  "counts": {
+    "choiceParameters": 281,
+    "choiceParameterLinks": 274
+  },
+  "cases": [
+    {
+      "entry": "migration.choice-parameters",
+      "source": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерии1.xml",
+      "sourceSha256": "aeb6c5d6e4eca3aaf07f32953e2b1cc430fcdf578adbe2da901e1f2f3a5fb474",
+      "start": 4310,
+      "original": "<ChoiceParameters/>",
+      "xml": "<Root xmlns:app=\"http://v8.1c.ru/8.2/managed-application/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><ChoiceParameters/></Root>",
+      "yaml": "Параметры: {}"
+    },
+    {
+      "entry": "migration.choice-parameters",
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства.xml",
+      "sourceSha256": "a03527edc24990a7c2bbb21285d9dd179b7dac8e32848be870967e2b466ec3d6",
+      "start": 27130,
+      "original": "<ChoiceParameters>\n\t\t\t\t\t\t\t\t<app:item name=\"Отбор.Код\">\n\t\t\t\t\t\t\t\t\t<app:value xsi:type=\"xs:string\">456</app:value>\n\t\t\t\t\t\t\t\t</app:item>\n\t\t\t\t\t\t\t</ChoiceParameters>",
+      "xml": "<Root xmlns:app=\"http://v8.1c.ru/8.2/managed-application/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><ChoiceParameters>\n\t\t\t\t\t\t\t\t<app:item name=\"Отбор.Код\">\n\t\t\t\t\t\t\t\t\t<app:value xsi:type=\"xs:string\">456</app:value>\n\t\t\t\t\t\t\t\t</app:item>\n\t\t\t\t\t\t\t</ChoiceParameters></Root>",
+      "yaml": "Параметры:\n  Отбор.Код: \"456\""
+    },
+    {
+      "entry": "migration.choice-parameters",
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникВладелец.xml",
+      "sourceSha256": "c25865f1f70c463f8743596b3254d0749fbc0dbec32e5fd56b9fcfc92508e493",
+      "start": 15428,
+      "original": "<ChoiceParameters>\n\t\t\t\t\t\t<app:item name=\"Отбор.ПометкаУдаления\">\n\t\t\t\t\t\t\t<app:value xsi:type=\"xs:boolean\">false</app:value>\n\t\t\t\t\t\t</app:item>\n\t\t\t\t\t</ChoiceParameters>",
+      "xml": "<Root xmlns:app=\"http://v8.1c.ru/8.2/managed-application/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><ChoiceParameters>\n\t\t\t\t\t\t<app:item name=\"Отбор.ПометкаУдаления\">\n\t\t\t\t\t\t\t<app:value xsi:type=\"xs:boolean\">false</app:value>\n\t\t\t\t\t\t</app:item>\n\t\t\t\t\t</ChoiceParameters></Root>",
+      "yaml": "Параметры:\n  Отбор.ПометкаУдаления: Ложь"
+    },
+    {
+      "entry": "migration.choice-parameters",
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникВладелец.xml",
+      "sourceSha256": "c25865f1f70c463f8743596b3254d0749fbc0dbec32e5fd56b9fcfc92508e493",
+      "start": 23243,
+      "original": "<ChoiceParameters>\n\t\t\t\t\t\t<app:item name=\"Отбор.Ссылка\">\n\t\t\t\t\t\t\t<app:value xsi:type=\"xs:decimal\">10</app:value>\n\t\t\t\t\t\t</app:item>\n\t\t\t\t\t</ChoiceParameters>",
+      "xml": "<Root xmlns:app=\"http://v8.1c.ru/8.2/managed-application/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><ChoiceParameters>\n\t\t\t\t\t\t<app:item name=\"Отбор.Ссылка\">\n\t\t\t\t\t\t\t<app:value xsi:type=\"xs:decimal\">10</app:value>\n\t\t\t\t\t\t</app:item>\n\t\t\t\t\t</ChoiceParameters></Root>",
+      "yaml": "Параметры:\n  Отбор.Ссылка: 10"
+    },
+    {
+      "entry": "migration.choice-parameters",
+      "source": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты.xml",
+      "sourceSha256": "8ccfd7367b0d43ae6abea5f2df41ef7981057bce01f51be2c9a3fa62b5ba946e",
+      "start": 22014,
+      "original": "<ChoiceParameters>\n\t\t\t\t\t\t<app:item name=\"Отбор.Ссылка\">\n\t\t\t\t\t\t\t<app:value xsi:type=\"xs:dateTime\">2026-06-27T00:00:00</app:value>\n\t\t\t\t\t\t</app:item>\n\t\t\t\t\t</ChoiceParameters>",
+      "xml": "<Root xmlns:app=\"http://v8.1c.ru/8.2/managed-application/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><ChoiceParameters>\n\t\t\t\t\t\t<app:item name=\"Отбор.Ссылка\">\n\t\t\t\t\t\t\t<app:value xsi:type=\"xs:dateTime\">2026-06-27T00:00:00</app:value>\n\t\t\t\t\t\t</app:item>\n\t\t\t\t\t</ChoiceParameters></Root>",
+      "yaml": "Параметры:\n  Отбор.Ссылка:\n    27.06.2026 00:00:00"
+    },
+    {
+      "entry": "migration.choice-parameters",
+      "source": "e2e/fixtures/xml/cf/DataProcessors/ОбработкаВсеСвойства.xml",
+      "sourceSha256": "9a70ce3ab3fda19d59f75df003af943cf930723673ecec29a366017c8ae4867d",
+      "start": 11205,
+      "original": "<ChoiceParameters>\n\t\t\t\t\t\t\t\t<app:item name=\"Отбор.ЭтоГруппа\">\n\t\t\t\t\t\t\t\t\t<app:value xsi:type=\"xr:DesignTimeRef\">Catalog.ПараметрыВыбора.EmptyRef</app:value>\n\t\t\t\t\t\t\t\t</app:item>\n\t\t\t\t\t\t\t</ChoiceParameters>",
+      "xml": "<Root xmlns:app=\"http://v8.1c.ru/8.2/managed-application/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><ChoiceParameters>\n\t\t\t\t\t\t\t\t<app:item name=\"Отбор.ЭтоГруппа\">\n\t\t\t\t\t\t\t\t\t<app:value xsi:type=\"xr:DesignTimeRef\">Catalog.ПараметрыВыбора.EmptyRef</app:value>\n\t\t\t\t\t\t\t\t</app:item>\n\t\t\t\t\t\t\t</ChoiceParameters></Root>",
+      "yaml": "Параметры:\n  Отбор.ЭтоГруппа: Справочник.ПараметрыВыбора.ПустаяСсылка"
+    },
+    {
+      "entry": "migration.choice-parameter-links",
+      "source": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерии1.xml",
+      "sourceSha256": "aeb6c5d6e4eca3aaf07f32953e2b1cc430fcdf578adbe2da901e1f2f3a5fb474",
+      "start": 4281,
+      "original": "<ChoiceParameterLinks/>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><ChoiceParameterLinks/></Root>",
+      "yaml": "Связи: []"
+    },
+    {
+      "entry": "migration.choice-parameter-links",
+      "source": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты.xml",
+      "sourceSha256": "8ccfd7367b0d43ae6abea5f2df41ef7981057bce01f51be2c9a3fa62b5ba946e",
+      "start": 21645,
+      "original": "<ChoiceParameterLinks>\n\t\t\t\t\t\t<xr:Link>\n\t\t\t\t\t\t\t<xr:Name>ВидСубконто1</xr:Name>\n\t\t\t\t\t\t\t<xr:DataPath xsi:type=\"xs:string\">AccountingRegister.РегистрБухгалтерииВсеСвойстваОбороты.StandardAttribute.ExtDimensionType1</xr:DataPath>\n\t\t\t\t\t\t\t<xr:ValueChange>Clear</xr:ValueChange>\n\t\t\t\t\t\t</xr:Link>\n\t\t\t\t\t</ChoiceParameterLinks>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><ChoiceParameterLinks>\n\t\t\t\t\t\t<xr:Link>\n\t\t\t\t\t\t\t<xr:Name>ВидСубконто1</xr:Name>\n\t\t\t\t\t\t\t<xr:DataPath xsi:type=\"xs:string\">AccountingRegister.РегистрБухгалтерииВсеСвойстваОбороты.StandardAttribute.ExtDimensionType1</xr:DataPath>\n\t\t\t\t\t\t\t<xr:ValueChange>Clear</xr:ValueChange>\n\t\t\t\t\t\t</xr:Link>\n\t\t\t\t\t</ChoiceParameterLinks></Root>",
+      "yaml": "Связи:\n  - Имя: ВидСубконто1\n    ПутьКДанным: РегистрБухгалтерии.РегистрБухгалтерииВсеСвойстваОбороты.СтандартныйРеквизит.ExtDimensionType1"
+    },
+    {
+      "entry": "migration.choice-parameter-links",
+      "source": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВсеСвойства.xml",
+      "sourceSha256": "d304ae507ba211ffc86fb27d5568c6d8861da76b18ac95b5f546cecf43f21ecf",
+      "start": 24052,
+      "original": "<ChoiceParameterLinks>\n\t\t\t\t\t\t<xr:Link>\n\t\t\t\t\t\t\t<xr:Name>Отбор.ПометкаУдаления</xr:Name>\n\t\t\t\t\t\t\t<xr:DataPath xsi:type=\"xs:string\">CalculationRegister.РегистрРасчетаВсеСвойства.StandardAttribute.Active</xr:DataPath>\n\t\t\t\t\t\t\t<xr:ValueChange>Clear</xr:ValueChange>\n\t\t\t\t\t\t</xr:Link>\n\t\t\t\t\t\t<xr:Link>\n\t\t\t\t\t\t\t<xr:Name>БазовыйПериодНачало</xr:Name>\n\t\t\t\t\t\t\t<xr:DataPath xsi:type=\"xs:string\">CalculationRegister.РегистрРасчетаВсеСвойства.StandardAttribute.BegOfBasePeriod</xr:DataPath>\n\t\t\t\t\t\t\t<xr:ValueChange>Clear</xr:ValueChange>\n\t\t\t\t\t\t</xr:Link>\n\t\t\t\t\t</ChoiceParameterLinks>",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><ChoiceParameterLinks>\n\t\t\t\t\t\t<xr:Link>\n\t\t\t\t\t\t\t<xr:Name>Отбор.ПометкаУдаления</xr:Name>\n\t\t\t\t\t\t\t<xr:DataPath xsi:type=\"xs:string\">CalculationRegister.РегистрРасчетаВсеСвойства.StandardAttribute.Active</xr:DataPath>\n\t\t\t\t\t\t\t<xr:ValueChange>Clear</xr:ValueChange>\n\t\t\t\t\t\t</xr:Link>\n\t\t\t\t\t\t<xr:Link>\n\t\t\t\t\t\t\t<xr:Name>БазовыйПериодНачало</xr:Name>\n\t\t\t\t\t\t\t<xr:DataPath xsi:type=\"xs:string\">CalculationRegister.РегистрРасчетаВсеСвойства.StandardAttribute.BegOfBasePeriod</xr:DataPath>\n\t\t\t\t\t\t\t<xr:ValueChange>Clear</xr:ValueChange>\n\t\t\t\t\t\t</xr:Link>\n\t\t\t\t\t</ChoiceParameterLinks></Root>",
+      "yaml": "Связи:\n  - Имя: Отбор.ПометкаУдаления\n    ПутьКДанным: РегистрРасчета.РегистрРасчетаВсеСвойства.СтандартныйРеквизит.Активность\n  - Имя: БазовыйПериодНачало\n    ПутьКДанным: РегистрРасчета.РегистрРасчетаВсеСвойства.СтандартныйРеквизит.BegOfBasePeriod"
+    }
+  ]
+}

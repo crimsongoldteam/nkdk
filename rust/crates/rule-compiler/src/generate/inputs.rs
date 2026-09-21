@@ -104,17 +104,5 @@ fn literal_json(value: &ScalarLiteral) -> String {
 }
 
 pub(super) fn identity(entry: &LinkedEntry) -> Vec<LinkedBinding> {
-    entry
-        .inputs
-        .iter()
-        .enumerate()
-        .map(|(slot, input)| LinkedBinding {
-            slot: slot as u32,
-            value: LinkedExpression {
-                kind: LinkedExpressionKind::Input(slot as u32),
-                value_type: input.value.clone(),
-                source: input.source.clone(),
-            },
-        })
-        .collect()
+    crate::link::identity_bindings(entry)
 }

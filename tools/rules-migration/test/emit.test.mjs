@@ -119,6 +119,12 @@ test('candidate generation shares fragments, rejects unknown parameters and prot
   assert.equal(fillValue.id,'common.metadata-value');
   assert.deepEqual(fillValue.siblingBindings,{valueType:'type'});
   assert.equal(fillValue.presence.xml.canonical[0].form,'nil');
+  const emptyStringValue=mapProperty({...property,name:'fillValue',parameters:{type:'MetadataValue',yaml:'ЗначениеЗаполнения',xml:'FillValue',xmlParents:['Properties'],defaultValueXMLRaw:{'_xsi:type':'xs:string'}}},new Map([['common.metadata-value',{id:'common.metadata-value',inputs:{}}]]));
+  assert.equal(emptyStringValue.id,'common.metadata-value');
+  assert.equal(emptyStringValue.presence.xml.canonical[0].form,'empty-element');
+  const implicitNilValue=mapProperty({...property,name:'fillValue',parameters:{type:'MetadataValue',yaml:'ЗначениеЗаполнения',xml:'FillValue',xmlParents:['Properties'],defaultValueXMLRaw:{'_xsi:nil':true}}},new Map([['common.metadata-value',{id:'common.metadata-value',inputs:{}}]]));
+  assert.equal(implicitNilValue.id,'common.metadata-value');
+  assert.equal(implicitNilValue.presence.xml.canonical[0].form,'nil');
   const hiddenParameters={type:'SystemEnumeration',typeSE:'Example',yaml:'Скрытое',implicitValueYAML:'A',toYAML:false,fromYAML:false};
   const hiddenCatalog=new Map([['system.Example',{enum:{A:'А',B:'Б'}}]]);
   const hidden=mapProperty({...property,parameters:hiddenParameters},hiddenCatalog);

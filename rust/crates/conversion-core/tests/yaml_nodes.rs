@@ -1,6 +1,24 @@
 use nkdk_conversion_core::yaml::{Node, visit_nodes};
 
 #[test]
+fn empty_sequence_item_is_reported_as_yaml_null() {
+    let mut forms = Vec::new();
+    visit_nodes(b"- one\n-\n- two", |node, _| {
+        forms.push(match node {
+            Node::SequenceStart(_) => "start",
+            Node::SequenceEnd => "end",
+            Node::Scalar(value, _) if value.is_null() => "null",
+            Node::Scalar(..) => "scalar",
+            Node::MappingStart(_) => "mapping-start",
+            Node::MappingEnd => "mapping-end",
+        });
+        Ok(())
+    })
+    .unwrap();
+    assert_eq!(forms, ["start", "scalar", "null", "scalar", "end"]);
+}
+
+#[test]
 fn structured_choice_selects_one_branch_from_streamed_yaml() {
     use nkdk_conversion_core::yaml::{ChoiceReader, ChoiceSelection, ChoiceSelector};
     static SELECTORS: &[ChoiceSelector] = &[

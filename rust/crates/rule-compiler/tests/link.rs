@@ -748,6 +748,32 @@ fn value_recursion_requires_a_collection_boundary() {
 }
 
 #[test]
+fn value_recursion_accepts_a_declared_optional_record_field() {
+    let source = r#"format: nkdk-declarations/1
+kind: value
+id: common.optional-node
+imports: {node: common.optional-node}
+value:
+  kind: record
+  fields: [{name: value, type: {use: node}}]
+representations:
+  xml: {kind: record, fields: [{field: value, path: [Value]}]}
+  yaml: {kind: mapping, fields: [{field: value, key: Значение}]}
+presence:
+- target: {field: value}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {missing: {denotes: {absent: true}}}
+"#;
+    let module = parse(SourceFile {
+        path: "optional-node.yaml",
+        bytes: source.as_bytes(),
+    })
+    .unwrap();
+
+    link(&[module]).expect("presence-bounded recursion");
+}
+
+#[test]
 fn boolean_binding_expressions_are_typed_before_generation() {
     let common = format!(
         "{}\ninputs:\n  enabled: {{type: {{kind: scalar, scalar: boolean}}}}\n",
@@ -1286,20 +1312,11 @@ fn composition_substitutes_inputs_parameters_and_constraint_addresses() {
     let nkdk_rule_model::LinkedType::BoundReference { bindings, .. } = &fields[1].value else {
         panic!("bound field expected")
     };
-    let nkdk_rule_model::LinkedExpressionKind::Operation { arguments, .. } =
-        &bindings[0].value.kind
-    else {
-        panic!("conjunction expected")
-    };
     assert_eq!(
-        arguments[0].kind,
+        bindings[0].value.kind,
         nkdk_rule_model::LinkedExpressionKind::Literal(nkdk_rule_model::ScalarLiteral::Boolean(
             false
         ))
-    );
-    assert_eq!(
-        arguments[1].kind,
-        nkdk_rule_model::LinkedExpressionKind::Input(0)
     );
 }
 
@@ -2462,6 +2479,13 @@ declarations:
 "#;
     let modules = parse_catalog(source);
     link(&modules).unwrap();
+
+    let alternative_selectors = source.replace(
+        "variants: [{variant: mapped, form: mapping, key: Имя}]",
+        "variants: [{variant: mapped, form: mapping, key: Имя, value: Первый}, {variant: mapped, form: mapping, key: Имя, value: Второй}]",
+    );
+    link(&parse_catalog(&alternative_selectors))
+        .expect("one choice variant may have alternative structural selectors");
 
     let invalid_shape = source.replace(
         "{variant: mapped, form: mapping, key: Имя}",

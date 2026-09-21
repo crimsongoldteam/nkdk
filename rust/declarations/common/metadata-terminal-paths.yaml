@@ -10,8 +10,8 @@ declarations:
     - {name: root, type: {use: root}}
     - {name: owner, type: {use: name}}
   representations:
-    xml: {kind: text-pattern, parts: [{field: root}, {literal: '.'}, {field: owner}, {literal: '.EmptyRef'}]}
-    yaml: {kind: text-pattern, parts: [{field: root}, {literal: '.'}, {field: owner}, {literal: '.ПустаяСсылка'}]}
+    xml: {kind: text-pattern, separator: '.', parts: [{field: root}, {field: owner}, {literal: EmptyRef}]}
+    yaml: {kind: text-pattern, separator: '.', parts: [{field: root}, {field: owner}, {literal: ПустаяСсылка}]}
 - kind: value
   id: common.metadata-virtual-table-path
   imports: {root: common.path-root, name: common.metadata-name, table: common.path-virtual-table}

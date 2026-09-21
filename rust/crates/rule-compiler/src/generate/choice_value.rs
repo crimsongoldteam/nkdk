@@ -7,17 +7,20 @@ struct Shape<'a> {
     variants: &'a [LinkedField],
     xml: &'a DiscriminatedChoiceXml<ExpandedName>,
     yaml: &'a [YamlChoiceCase],
-    property: &'a str,
+    property: Option<&'a str>,
     route: &'a [ExpandedName],
 }
 
 fn shape<'a>(child: &'a LinkedEntry, program: &'a Program<'a>) -> Option<Shape<'a>> {
-    let (LinkedType::Record(fields), LinkedXml::Record(xml), YamlRepresentation::Mapping(yaml)) =
-        (&child.value, &child.xml, &child.yaml)
-    else {
+    let (LinkedType::Record(fields), LinkedXml::Record(xml)) = (&child.value, &child.xml) else {
         return None;
     };
     let field = fields.first()?;
+    let property = match &child.yaml {
+        YamlRepresentation::Mapping(yaml) => Some(yaml.first()?.key.as_str()),
+        YamlRepresentation::Projection(projected) if projected == &field.name => None,
+        _ => return None,
+    };
     let (target, _, _) = composite::reference(&field.value)?;
     let target = program.entries.iter().find(|entry| entry.id == target)?;
     let (
@@ -36,7 +39,7 @@ fn shape<'a>(child: &'a LinkedEntry, program: &'a Program<'a>) -> Option<Shape<'
         variants,
         xml: choice,
         yaml: selectors,
-        property: &yaml.first()?.key,
+        property,
         route: &xml.first()?.path,
     })
 }
@@ -66,6 +69,19 @@ fn accepts_discriminator(
     })
 }
 
+fn allows_absence(child: &LinkedEntry, empty: Option<EmptyKind>) -> bool {
+    child.presence.iter().any(|presence| {
+        presence.target == LinkedPresenceTarget::Field(0)
+            && presence
+                .yaml_missing
+                .as_ref()
+                .is_some_and(|value| matches!(value.kind, LinkedExpressionKind::Absent))
+            && empty
+                .as_ref()
+                .is_none_or(|kind| scalar_presence::yaml_empty(Some(presence), kind.clone()))
+    })
+}
+
 pub(super) fn emit(
     entry: &LinkedEntry,
     child: &LinkedEntry,
@@ -76,10 +92,26 @@ pub(super) fn emit(
     names: &[(&str, &str)],
 ) -> Result<value_adapters::ValueEmission, Diagnostic> {
     let shape = shape(child, program).expect("structured choice");
+    let fallback = shape
+        .variants
+        .iter()
+        .position(|field| field.name == shape.xml.otherwise);
     let mut nested = String::new();
     let mut accepts = Vec::new();
+    let mut scalar_variants = Vec::new();
     for (variant, field) in shape.variants.iter().enumerate() {
         let mut selected = child.clone();
+        // An absent discriminator selects the fallback, so only that branch
+        // retains the choice's outer absence contract. A selected branch owns
+        // the meaning of its empty representation (for example ValueList).
+        let scalar_variant = matches!(
+            target(field, program).value,
+            LinkedType::Scalar(_) | LinkedType::Enum(_) | LinkedType::ScalarChoice(_)
+        );
+        if Some(variant) != fallback {
+            selected.presence.clear();
+        }
+        selected.constraints.clear();
         let LinkedType::Record(fields) = &mut selected.value else {
             unreachable!()
         };
@@ -95,6 +127,7 @@ pub(super) fn emit(
         })?;
         nested.push_str(&emitted.source);
         accepts.push(accepts_discriminator(target(field, program), shape.xml));
+        scalar_variants.push(scalar_variant);
     }
 
     let variants = (0..shape.variants.len()).collect::<Vec<_>>();
@@ -125,10 +158,15 @@ pub(super) fn emit(
         })
         .collect::<Vec<_>>()
         .join(",");
-    let fallback = shape
-        .variants
-        .iter()
-        .position(|field| field.name == shape.xml.otherwise);
+    let allows_yaml_missing_absence = allows_absence(child, None);
+    let allows_null_absence = allows_absence(child, Some(EmptyKind::Null));
+    let null_variant = if allows_null_absence {
+        fallback
+            .map(|variant| format!("Some({variant})"))
+            .unwrap_or_else(|| "None".into())
+    } else {
+        "None".into()
+    };
     let mut xml_cases = String::new();
     for case in &shape.xml.variants {
         let variant = shape
@@ -248,6 +286,10 @@ pub(super) fn emit(
         write!(out, "V{variant}(part_{id}_{variant}::YamlReader),").unwrap();
     }
     out.push_str("}\nenum YamlState{Selecting{property:core::yaml::PropertyReader,choice:core::yaml::ChoiceReader,form:Option<bool>,events:Vec<(core::yaml::Node,core::Position)>},Selected(YamlSelected)}\npub(super) struct YamlReader{state:YamlState}\nimpl YamlReader{pub(super) fn new()->core::Result<Self>{Ok(Self{state:YamlState::Selecting{property:core::yaml::PropertyReader::default(),choice:core::yaml::ChoiceReader::new(SELECTORS),form:None,events:Vec::new()}})}\n");
+    let consume_payload = shape.property.map_or_else(
+        || "let payload=node;{".to_owned(),
+        |property| format!("if let Some(payload)=property.consume(node,{property:?},\"yaml.choice-property\")?{{"),
+    );
     writeln!(out,"pub(super) fn consume(&mut self,node:core::yaml::Node,position:core::Position,source:&[u8],inputs:&InputView<'_>)->core::Result<()>{{match &mut self.state{{YamlState::Selected(selected)=>match selected{{").unwrap();
     for variant in &variants {
         writeln!(
@@ -256,7 +298,7 @@ pub(super) fn emit(
         )
         .unwrap();
     }
-    writeln!(out,"}},YamlState::Selecting{{property,choice,form,events}}=>{{events.push((node.clone(),position));if let Some(payload)=property.consume(node,{:?},\"yaml.choice-property\")?{{let first=form.is_none();if first{{*form=Some(!matches!(payload,core::yaml::Node::Scalar(..)));}}let variant=if first{{match payload{{core::yaml::Node::Scalar(value,tag)=>Some(select_yaml_scalar(value,tag)?),payload=>match choice.consume(payload,position)?{{core::yaml::ChoiceSelection::Selected{{variant,..}}=>Some(variant),core::yaml::ChoiceSelection::Pending=>None,}}}}}}else{{match choice.consume(payload,position)?{{core::yaml::ChoiceSelection::Selected{{variant,..}}=>Some(variant),core::yaml::ChoiceSelection::Pending=>None,}}}};if let Some(variant)=variant{{let mut selected=match variant{{",shape.property).unwrap();
+    writeln!(out,"}},YamlState::Selecting{{property,choice,form,events}}=>{{events.push((node.clone(),position));{consume_payload}let first=form.is_none();if first{{*form=Some(!matches!(payload,core::yaml::Node::Scalar(..)));}}let variant=if first&&{allows_null_absence}&&matches!(&payload,core::yaml::Node::Scalar(value,_) if value.is_null()){{{null_variant}}}else if first{{match payload{{core::yaml::Node::Scalar(value,tag)=>Some(select_yaml_scalar(value,tag)?),payload=>match choice.consume(payload,position)?{{core::yaml::ChoiceSelection::Selected{{variant,..}}=>Some(variant),core::yaml::ChoiceSelection::Pending=>None,}}}}}}else{{match choice.consume(payload,position)?{{core::yaml::ChoiceSelection::Selected{{variant,..}}=>Some(variant),core::yaml::ChoiceSelection::Pending=>None,}}}};if let Some(variant)=variant{{let mut selected=match variant{{").unwrap();
     for variant in &variants {
         writeln!(
             out,
@@ -272,13 +314,26 @@ pub(super) fn emit(
         )
         .unwrap();
     }
-    out.push_str("}}self.state=YamlState::Selected(selected);}}Ok(())}}}\npub(super) fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<Stored>{match self.state{YamlState::Selecting{choice,..}=>{choice.finish()?;unreachable!()},YamlState::Selected(selected)=>match selected{");
+    out.push_str("}}self.state=YamlState::Selected(selected);}}Ok(())}}}\npub(super) fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<Stored>{match self.state{YamlState::Selecting{property,choice,events,..}=>{");
+    if allows_yaml_missing_absence && let Some(fallback) = fallback {
+        let missing = if shape.property.is_some() {
+            "!property.finish(\"yaml.choice-property\")?"
+        } else {
+            "events.is_empty()"
+        };
+        writeln!(out,"if {missing}{{let mut reader=part_{id}_{fallback}::YamlReader::new()?;for(node,position)in events{{reader.consume(node,position,source,inputs)?;}}return reader.finish(source,inputs).map(Stored::V{fallback});}}").unwrap();
+    }
+    out.push_str("choice.finish()?;unreachable!()},YamlState::Selected(selected)=>match selected{");
     for variant in &variants {
         writeln!(out,"YamlSelected::V{variant}(reader)=>reader.finish(source,inputs).map(Stored::V{variant}),").unwrap();
     }
     out.push_str("}}}}\n");
 
-    writeln!(out,"fn yaml_selection(source:&[u8])->core::Result<Option<usize>>{{let mut property=core::yaml::PropertyReader::default();let mut choice=core::yaml::ChoiceReader::new(SELECTORS);let mut form=None;let mut selected=None;core::yaml::visit_nodes(source,|node,position|{{if selected.is_some(){{return Ok(())}}if let Some(payload)=property.consume(node,{:?},\"yaml.choice-property\")?{{let first=form.is_none();if first{{form=Some(!matches!(payload,core::yaml::Node::Scalar(..)));}}selected=if first{{match payload{{core::yaml::Node::Scalar(value,tag)=>Some(select_yaml_scalar(value,tag)?),payload=>match choice.consume(payload,position)?{{core::yaml::ChoiceSelection::Selected{{variant,..}}=>Some(variant),core::yaml::ChoiceSelection::Pending=>None,}}}}}}else{{match choice.consume(payload,position)?{{core::yaml::ChoiceSelection::Selected{{variant,..}}=>Some(variant),core::yaml::ChoiceSelection::Pending=>None,}}}};}}Ok(())}})?;Ok(selected)}}",shape.property).unwrap();
+    let select_payload = shape.property.map_or_else(
+        || "let payload=node;{".to_owned(),
+        |property| format!("if let Some(payload)=property.consume(node,{property:?},\"yaml.choice-property\")?{{"),
+    );
+    writeln!(out,"fn yaml_selection(source:&[u8])->core::Result<Option<usize>>{{let mut property=core::yaml::PropertyReader::default();let mut choice=core::yaml::ChoiceReader::new(SELECTORS);let mut form=None;let mut selected=None;core::yaml::visit_nodes(source,|node,position|{{if selected.is_some(){{return Ok(())}}{select_payload}let first=form.is_none();if first{{form=Some(!matches!(payload,core::yaml::Node::Scalar(..)));}}selected=if first&&{allows_null_absence}&&matches!(&payload,core::yaml::Node::Scalar(value,_) if value.is_null()){{{null_variant}}}else if first{{match payload{{core::yaml::Node::Scalar(value,tag)=>Some(select_yaml_scalar(value,tag)?),payload=>match choice.consume(payload,position)?{{core::yaml::ChoiceSelection::Selected{{variant,..}}=>Some(variant),core::yaml::ChoiceSelection::Pending=>None,}}}}}}else{{match choice.consume(payload,position)?{{core::yaml::ChoiceSelection::Selected{{variant,..}}=>Some(variant),core::yaml::ChoiceSelection::Pending=>None,}}}};}}Ok(())}})?;Ok(selected)}}").unwrap();
 
     writeln!(out,"pub(super) fn read_xml(source:&[u8],inputs:&InputView<'_>,events:impl core::xml::ScopedSource)->core::Result<Stored>{{let mut reader=XmlReader::new();events.visit_scoped(|path,token,scope|reader.consume_scoped(path,token,Some(scope),source,inputs))?;reader.finish(source,inputs)}}").unwrap();
     writeln!(out,"pub(super) fn read_yaml(source:&[u8],inputs:&InputView<'_>,events:impl core::yaml::Source)->core::Result<Stored>{{let mut reader=YamlReader::new()?;events.visit(|node,position|reader.consume(node,position,source,inputs))?;reader.finish(source,inputs)}}").unwrap();
@@ -289,9 +344,9 @@ pub(super) fn emit(
     out.push_str(
         "_=>Err(RuntimeDiagnostic::new(\"xml.choice\",\"Missing XML choice discriminator\")),}}\n",
     );
-    writeln!(out,"pub(super) fn read_yaml_document(source:&[u8],inputs:&InputView<'_>)->core::Result<Stored>{{match read_yaml(source,inputs,core::yaml::DocumentSource(source)){{Ok(value)=>Ok(value),Err(error)=>match yaml_selection(source).ok().flatten().or({fallback:?}){{").unwrap();
+    writeln!(out,"pub(super) fn read_yaml_document(source:&[u8],inputs:&InputView<'_>)->core::Result<Stored>{{let document=if source.is_empty()&&{allows_null_absence}{{b\"null\".as_slice()}}else{{source}};match read_yaml(document,inputs,core::yaml::DocumentSource(document)){{Ok(value)=>Ok(value),Err(error)=>match yaml_selection(document).ok().flatten().or({fallback:?}){{").unwrap();
     for variant in &variants {
-        writeln!(out,"Some({variant})=>part_{id}_{variant}::read_yaml_document(source,inputs).map(Stored::V{variant}),").unwrap();
+        writeln!(out,"Some({variant})=>part_{id}_{variant}::read_yaml_document(document,inputs).map(Stored::V{variant}).or(Err(error)),").unwrap();
     }
     out.push_str("_=>Err(error),}}}\n");
 
@@ -411,7 +466,12 @@ pub(super) fn emit(
     }
     out.push_str("}\npub(super) fn write_xml<'a>(value:&Stored,prepared:&'a Prepared,inputs:&InputView<'_>,out:&mut core::xml::Writer<'a>)->core::Result<()>{match(value,prepared){");
     for variant in &variants {
-        writeln!(out,"(Stored::V{variant}(value),Prepared::V{variant}(prepared))=>{{let attributes:&[core::xml::WriteAttribute<'_>]={};if !attributes.is_empty()&&!part_{id}_{variant}::has_raw(value){{out.container_with_attributes({route},attributes);}}part_{id}_{variant}::write_xml(value,prepared,inputs,out)}},",emitted_attributes[*variant]).unwrap();
+        let semantic_present = if scalar_variants[*variant] {
+            format!("part_{id}_{variant}::semantic_present(value)")
+        } else {
+            "true".to_owned()
+        };
+        writeln!(out,"(Stored::V{variant}(value),Prepared::V{variant}(prepared))=>{{let attributes:&[core::xml::WriteAttribute<'_>]={};if !attributes.is_empty()&&!part_{id}_{variant}::has_raw(value)&&{semantic_present}{{out.container_with_attributes({route},attributes);}}part_{id}_{variant}::write_xml(value,prepared,inputs,out)}},",emitted_attributes[*variant]).unwrap();
     }
     out.push_str("_=>unreachable!(\"choice preparation variant\")}}\n");
     writeln!(out,"pub(super) fn project(source:&[u8])->core::Result<Vec<u8>>{{core::xml::project_property(source,{route},core::xml::PropertyProjection::Element,qname_attribute,qname_text)}}").unwrap();

@@ -20,7 +20,7 @@ mod presence;
 mod resources;
 mod scalar_contracts;
 mod scalar_inputs;
-mod scalar_parameters;
+pub(crate) mod scalar_parameters;
 pub(crate) mod sequence_item;
 mod shorthands;
 mod state_relations;
@@ -35,6 +35,22 @@ mod xml_tree;
 use bindings::resolve_bindings;
 use nkdk_rule_model::*;
 use std::collections::{BTreeMap, BTreeSet};
+
+pub(crate) fn identity_bindings(entry: &LinkedEntry) -> Vec<LinkedBinding> {
+    entry
+        .inputs
+        .iter()
+        .enumerate()
+        .map(|(slot, input)| LinkedBinding {
+            slot: slot as u32,
+            value: LinkedExpression {
+                kind: LinkedExpressionKind::Input(slot as u32),
+                value_type: input.value.clone(),
+                source: input.source.clone(),
+            },
+        })
+        .collect()
+}
 
 pub fn link(modules: &[Module]) -> Result<Program, Vec<Diagnostic>> {
     let mut indexed = BTreeMap::new();
@@ -1007,7 +1023,6 @@ fn validate_yaml(
             YamlRepresentation::Declared,
         ) => {}
         (LinkedType::Choice(variants), YamlRepresentation::Choice(selectors)) => {
-            let mut selected = BTreeSet::new();
             for selector in selectors {
                 let Some(variant) = variants
                     .iter()
@@ -1019,13 +1034,6 @@ fn validate_yaml(
                         "YAML choice selector names an unknown variant",
                     ));
                 };
-                if !selected.insert(selector.variant.as_str()) {
-                    return Err(diagnostic(
-                        "duplicate_choice_variant",
-                        &selector.source,
-                        "YAML choice variant has several structural selectors",
-                    ));
-                }
                 if !matches!(
                     variant.value,
                     LinkedType::Reference(_) | LinkedType::BoundReference { .. }

@@ -1,0 +1,142 @@
+{
+  "scope": "Unique MetadataValue scalar and absent forms from immutable cf/cfe e2e sources; owner tag normalized to Root/FillValue",
+  "count": 879,
+  "cases": [
+    {
+      "source": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты.xml",
+      "sourceSha256": "8ccfd7367b0d43ae6abea5f2df41ef7981057bce01f51be2c9a3fa62b5ba946e",
+      "start": 4808,
+      "original": "<xr:FillValue xsi:nil=\"true\"/>",
+      "xml": "<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><FillValue xsi:nil=\"true\"/></Root>",
+      "yaml": ""
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства/DimensionTables/ТаблицаИзмеренияВсеСвойства.xml",
+      "sourceSha256": "a7e3de3274b72eb4f7a14f9941323be9396b14a25a7db431af85683881285d52",
+      "start": 5608,
+      "original": "<FillValue xsi:type=\"v8:Null\"/>",
+      "xml": "<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><FillValue xsi:type=\"v8:Null\"/></Root>",
+      "yaml": "FillValue: !xml/raw\n  $xml:\n    _{http://www.w3.org/2001/XMLSchema-instance}type: \"{http://v8.1c.ru/8.1/data/core}Null\""
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства.xml",
+      "sourceSha256": "9c2920177c6974fc6941bd2f9d10d1ed1c0e69efe5a564b67a35daa5abc5f72d",
+      "start": 6383,
+      "original": "<xr:FillValue xsi:type=\"xr:DesignTimeRef\"/>",
+      "xml": "<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><FillValue xsi:type=\"xr:DesignTimeRef\"/></Root>",
+      "yaml": "Значение: ."
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникСВладельцем.xml",
+      "sourceSha256": "832d619313d9e4fd41b0204c5f8acdb3bfef4e1b6b63e9149d2cb9048a0aa221",
+      "start": 9163,
+      "original": "<xr:FillValue xsi:type=\"xr:DesignTimeRef\">Catalog.СправочникВладелец.EmptyRef</xr:FillValue>",
+      "xml": "<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><FillValue xsi:type=\"xr:DesignTimeRef\">Catalog.СправочникВладелец.EmptyRef</FillValue></Root>",
+      "yaml": "Значение: Справочник.СправочникВладелец.ПустаяСсылка"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+      "sourceSha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd",
+      "start": 9814,
+      "original": "<xr:FillValue xsi:type=\"xr:DesignTimeRef\">Catalog.СправочникВладелец.ПредопределенноеЗначение</xr:FillValue>",
+      "xml": "<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><FillValue xsi:type=\"xr:DesignTimeRef\">Catalog.СправочникВладелец.ПредопределенноеЗначение</FillValue></Root>",
+      "yaml": "Значение: Справочник.СправочникВладелец.ПредопределенноеЗначение"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+      "sourceSha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd",
+      "start": 11409,
+      "original": "<xr:FillValue xsi:type=\"xr:DesignTimeRef\">Catalog.СправочникПолный.EmptyRef</xr:FillValue>",
+      "xml": "<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><FillValue xsi:type=\"xr:DesignTimeRef\">Catalog.СправочникПолный.EmptyRef</FillValue></Root>",
+      "yaml": "Значение: Справочник.СправочникПолный.ПустаяСсылка"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства.xml",
+      "sourceSha256": "a03527edc24990a7c2bbb21285d9dd179b7dac8e32848be870967e2b466ec3d6",
+      "start": 15313,
+      "original": "<FillValue xsi:type=\"xr:DesignTimeRef\">Catalog.СправочникРеквизит.ПредопредленноеЗначение</FillValue>",
+      "xml": "<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><FillValue xsi:type=\"xr:DesignTimeRef\">Catalog.СправочникРеквизит.ПредопредленноеЗначение</FillValue></Root>",
+      "yaml": "Значение: Справочник.СправочникРеквизит.ПредопредленноеЗначение"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникВладелец.xml",
+      "sourceSha256": "c25865f1f70c463f8743596b3254d0749fbc0dbec32e5fd56b9fcfc92508e493",
+      "start": 22651,
+      "original": "<FillValue xsi:type=\"xr:DesignTimeRef\">Catalog.СправочникСПредопределенными.Предопределенный1</FillValue>",
+      "xml": "<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><FillValue xsi:type=\"xr:DesignTimeRef\">Catalog.СправочникСПредопределенными.Предопределенный1</FillValue></Root>",
+      "yaml": "Значение: Справочник.СправочникСПредопределенными.Предопределенный1"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникСХарактеристиками.xml",
+      "sourceSha256": "36dbc7844baf9eff30363b9416624b39ebcde4adb52886fba70d84e242978c3e",
+      "start": 3963,
+      "original": "<xr:TypesFilterValue xsi:type=\"xr:DesignTimeRef\">e199ca70-93cf-46ce-a54b-6edc88c3a296.00000000-0000-0000-0000-000000000000</xr:TypesFilterValue>",
+      "xml": "<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><FillValue xsi:type=\"xr:DesignTimeRef\">e199ca70-93cf-46ce-a54b-6edc88c3a296.00000000-0000-0000-0000-000000000000</FillValue></Root>",
+      "yaml": "Значение: !xml/raw\n  $значение: e199ca70-93cf-46ce-a54b-6edc88c3a296.00000000-0000-0000-0000-000000000000\n  $xml:\n    _{http://www.w3.org/2001/XMLSchema-instance}type: \"{http://v8.1c.ru/8.3/xcf/readable}DesignTimeRef\"\n    \"#text\": e199ca70-93cf-46ce-a54b-6edc88c3a296.00000000-0000-0000-0000-000000000000"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства.xml",
+      "sourceSha256": "fcd73718d1134a63afb433454d4d4d3fb14fb461b80620b33aa9c37f4750acdf",
+      "start": 37431,
+      "original": "<FillValue xsi:type=\"xs:boolean\">false</FillValue>",
+      "xml": "<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><FillValue xsi:type=\"xs:boolean\">false</FillValue></Root>",
+      "yaml": "Значение: Ложь"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникВладелец.xml",
+      "sourceSha256": "c25865f1f70c463f8743596b3254d0749fbc0dbec32e5fd56b9fcfc92508e493",
+      "start": 21001,
+      "original": "<FillValue xsi:type=\"xs:boolean\">true</FillValue>",
+      "xml": "<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><FillValue xsi:type=\"xs:boolean\">true</FillValue></Root>",
+      "yaml": "Значение: Истина"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый.xml",
+      "sourceSha256": "d88e5e7cd186df824284b5108f3554d7ff786d8eb53279cf6549946ba40e6fc5",
+      "start": 15021,
+      "original": "<FillValue xsi:type=\"xs:decimal\">1234</FillValue>",
+      "xml": "<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><FillValue xsi:type=\"xs:decimal\">1234</FillValue></Root>",
+      "yaml": "Значение: 1234"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства.xml",
+      "sourceSha256": "a03527edc24990a7c2bbb21285d9dd179b7dac8e32848be870967e2b466ec3d6",
+      "start": 18769,
+      "original": "<FillValue xsi:type=\"xs:string\"/>",
+      "xml": "<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><FillValue xsi:type=\"xs:string\"/></Root>",
+      "yaml": "FillValue: !xml/raw\n  $xml:\n    _{http://www.w3.org/2001/XMLSchema-instance}type: \"{http://www.w3.org/2001/XMLSchema}string\""
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый.xml",
+      "sourceSha256": "d88e5e7cd186df824284b5108f3554d7ff786d8eb53279cf6549946ba40e6fc5",
+      "start": 11385,
+      "original": "<FillValue xsi:type=\"xs:string\">Заполнение</FillValue>",
+      "xml": "<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><FillValue xsi:type=\"xs:string\">Заполнение</FillValue></Root>",
+      "yaml": "Значение: Заполнение"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/CommonAttributes/ОбщийРеквизитВсеСвойства.xml",
+      "sourceSha256": "6b26b485d8112c23839f23f10b235ae4f31a29c356fb494908a4ab5e0004316a",
+      "start": 2137,
+      "original": "<FillValue xsi:type=\"xs:string\">Значение</FillValue>",
+      "xml": "<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><FillValue xsi:type=\"xs:string\">Значение</FillValue></Root>",
+      "yaml": "Значение: Значение"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/DataProcessors/ОбработкаВсеСвойства.xml",
+      "sourceSha256": "9a70ce3ab3fda19d59f75df003af943cf930723673ecec29a366017c8ae4867d",
+      "start": 10676,
+      "original": "<FillValue xsi:type=\"xs:string\">Строка</FillValue>",
+      "xml": "<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><FillValue xsi:type=\"xs:string\">Строка</FillValue></Root>",
+      "yaml": "Значение: Строка"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+      "sourceSha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd",
+      "start": 15199,
+      "original": "<xr:TypesFilterValue xsi:type=\"xs:string\">Текст</xr:TypesFilterValue>",
+      "xml": "<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><FillValue xsi:type=\"xs:string\">Текст</FillValue></Root>",
+      "yaml": "Значение: Текст"
+    }
+  ]
+}

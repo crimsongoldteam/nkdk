@@ -2,12 +2,19 @@ use super::*;
 
 pub(super) enum Variant<'a> {
     Boolean(&'a [BooleanLexeme], &'a [BooleanLexeme]),
+    Enumeration(&'a [EnumVariant], &'a [EnumLexeme], &'a [EnumLexeme]),
     Calendar { seconds: bool, omit_zero: bool },
     Decimal,
     Pattern(text_pattern::Codec<'a>),
     Sequence(Box<text_sequence::Codec<'a>>),
     Choice(Box<super::Codec<'a>>),
     Text(&'a LinkedEntry),
+}
+
+fn word_parts<'a>(values: impl Iterator<Item = &'a str>) -> Vec<Vec<crate::automata::Part>> {
+    vec![vec![crate::automata::Part::Words(
+        values.map(str::to_owned).collect(),
+    )]]
 }
 
 impl<'a> Variant<'a> {
@@ -22,6 +29,14 @@ impl<'a> Variant<'a> {
         ) = (&entry.value, &entry.xml, &entry.yaml)
         {
             return Ok(Self::Boolean(xml, yaml));
+        }
+        if let (
+            LinkedType::Enum(variants),
+            LinkedXml::EnumTable(xml),
+            YamlRepresentation::EnumTable(yaml),
+        ) = (&entry.value, &entry.xml, &entry.yaml)
+        {
+            return Ok(Self::Enumeration(variants, xml, yaml));
         }
         if matches!(entry.value, LinkedType::Scalar(ScalarType::Decimal))
             && matches!(entry.xml, LinkedXml::Decimal)
@@ -85,12 +100,16 @@ impl<'a> Variant<'a> {
         entry: &LinkedEntry,
     ) -> Result<Vec<Vec<crate::automata::Part>>, Diagnostic> {
         match self {
-            Self::Boolean(xml_table, yaml_table) => Ok(vec![vec![crate::automata::Part::Words(
+            Self::Boolean(xml_table, yaml_table) => Ok(word_parts(
                 (if xml { *xml_table } else { *yaml_table })
                     .iter()
-                    .map(|item| item.text.clone())
-                    .collect(),
-            )]]),
+                    .map(|item| item.text.as_str()),
+            )),
+            Self::Enumeration(_, xml_table, yaml_table) => Ok(word_parts(
+                (if xml { *xml_table } else { *yaml_table })
+                    .iter()
+                    .map(|item| item.text.as_str()),
+            )),
             Self::Calendar { .. } if xml => Ok(Vec::new()),
             Self::Calendar { seconds, omit_zero } => {
                 let date = vec![
@@ -136,6 +155,13 @@ impl<'a> Variant<'a> {
     ) -> Result<String, Diagnostic> {
         match self {
             Self::Boolean(..) if !compact => Ok(format!("type {name}=bool;\n")),
+            Self::Enumeration(variants, ..) if !compact => Ok(format!(
+                "#[derive(Clone,Copy,PartialEq,Eq)] enum {name}{{{}}}\n",
+                (0..variants.len())
+                    .map(|index| format!("V{index}"))
+                    .collect::<Vec<_>>()
+                    .join(",")
+            )),
             Self::Calendar { .. } if !compact => {
                 Ok(format!("type {name}=core::calendar::Value;\n"))
             }
@@ -164,6 +190,7 @@ impl<'a> Variant<'a> {
     ) -> Result<String, Diagnostic> {
         match self {
             Self::Boolean(..) => Err(unsupported(entry, "Boolean has no record fields")),
+            Self::Enumeration(..) => Err(unsupported(entry, "Enumeration has no record fields")),
             Self::Calendar { .. } => Err(unsupported(entry, "Calendar has no record fields")),
             Self::Decimal => Err(unsupported(entry, "Decimal has no record fields")),
             Self::Pattern(pattern) => Ok(pattern.field_meaning(name, index, receiver)),
@@ -193,6 +220,27 @@ impl<'a> Variant<'a> {
                     table(yaml)
                 )
             }
+            Self::Enumeration(variants, xml, yaml) => {
+                let table = |items: &[EnumLexeme]| {
+                    items
+                        .iter()
+                        .flat_map(|item| {
+                            let index = variants
+                                .iter()
+                                .position(|variant| variant.value == item.value)
+                                .expect("linked enum choice table");
+                            std::iter::once(&item.text)
+                                .chain(item.accepted.iter())
+                                .map(move |text| format!("{text:?}=>{name}::V{index},"))
+                        })
+                        .collect::<String>()
+                };
+                format!(
+                    "if xml{{match text{{{}_=>return Err(RuntimeDiagnostic::new(\"value.enumeration\",\"Unknown enumeration literal\")),}}}}else{{match text{{{}_=>return Err(RuntimeDiagnostic::new(\"value.enumeration\",\"Unknown enumeration literal\")),}}}}",
+                    table(xml),
+                    table(yaml)
+                )
+            }
             Self::Decimal => "core::decimal::Decimal::parse_owned(text.to_owned()).map_err(|error|RuntimeDiagnostic::new(\"value.decimal\",error.to_string()))?".into(),
             Self::Calendar { seconds, omit_zero } => {
                 format!("if xml{{core::calendar::Value::from_xml(text)?}}else{{core::calendar::Value::from_yaml(text,{seconds},{omit_zero})?}}")
@@ -201,7 +249,7 @@ impl<'a> Variant<'a> {
         }
     }
 
-    pub(super) fn write(&self, value: &str) -> String {
+    pub(super) fn write(&self, value: &str, name: &str) -> String {
         match self {
             Self::Boolean(xml, yaml) => {
                 let literal = |items: &[BooleanLexeme], expected: bool| {
@@ -221,11 +269,42 @@ impl<'a> Variant<'a> {
                     literal(yaml, false)
                 )
             }
+            Self::Enumeration(variants, xml, yaml) => {
+                let arms = |items: &[EnumLexeme]| {
+                    variants
+                        .iter()
+                        .enumerate()
+                        .map(|(index, variant)| {
+                            let text = items
+                                .iter()
+                                .find(|item| item.value == variant.value)
+                                .map(|item| format!("{:?}", item.text))
+                                .unwrap_or_else(|| {
+                                    "return Err(RuntimeDiagnostic::new(\"value.unrepresented\",\"Enumeration has no canonical literal\"))".into()
+                                });
+                            format!("{name}::V{index}=>{text},")
+                        })
+                        .collect::<String>()
+                };
+                format!(
+                    "Ok((if xml{{match {value}{{{}}}}}else{{match {value}{{{}}}}}).to_owned())",
+                    arms(xml),
+                    arms(yaml)
+                )
+            }
             Self::Decimal => format!("Ok({value}.to_string())"),
             Self::Calendar { seconds, omit_zero } => {
                 format!("Ok(if xml{{{value}.xml()}}else{{{value}.yaml({seconds},{omit_zero})}})")
             }
             _ => format!("{value}.write(xml)"),
+        }
+    }
+
+    pub(super) fn write_text(&self, value: &str, name: &str) -> String {
+        if matches!(self, Self::Choice(_)) {
+            format!("{value}.write_text(xml)")
+        } else {
+            self.write(value, name)
         }
     }
 
