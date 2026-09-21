@@ -62,6 +62,7 @@ pub fn generate(program: &nkdk_rule_model::Program) -> Result<GeneratedSources, 
 }
 
 pub(crate) fn from_plan(program: &Program<'_>) -> Result<GeneratedSources, Vec<Diagnostic>> {
+    let automaton_assets = crate::automata::Assets::enter();
     let mut source = String::from(
         "pub use nkdk_conversion_core::{Direction, EntryId, PreparedInputs, InputValue, FileResult, RuntimeDiagnostic, Severity};\nuse nkdk_conversion_core as core;\nuse core::inputs::InputView;\n",
     );
@@ -127,17 +128,19 @@ pub(crate) fn from_plan(program: &Program<'_>) -> Result<GeneratedSources, Vec<D
     source.push_str(&resources::generate(&entries).map_err(|error| vec![error])?);
     let map = source_map::generate(program);
     source.push_str("include!(\"source_map.rs\");\n");
+    let mut files = vec![
+        GeneratedFile {
+            path: "generated.rs".into(),
+            contents: source.into_bytes(),
+        },
+        GeneratedFile {
+            path: "source_map.rs".into(),
+            contents: map.into_bytes(),
+        },
+    ];
+    files.extend(automaton_assets.finish());
     Ok(GeneratedSources {
-        files: vec![
-            GeneratedFile {
-                path: "generated.rs".into(),
-                contents: source.into_bytes(),
-            },
-            GeneratedFile {
-                path: "source_map.rs".into(),
-                contents: map.into_bytes(),
-            },
-        ],
+        files,
         dependencies: program
             .entries
             .iter()

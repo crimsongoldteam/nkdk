@@ -9,11 +9,18 @@ inputs:
   useNil: {type: {kind: scalar, scalar: boolean}}
 value:
   kind: record
-  fields: [{name: value, type: {use: text}}]
+  fields:
+  - {name: kind, type: {use: text}}
+  - {name: value, type: {use: text}}
 representations:
-  xml: {kind: record, fields: [{field: value, path: [Root, Value]}]}
-  yaml: {kind: mapping, fields: [{field: value, key: Значение}]}
+  xml: {kind: record, fields: [{field: kind, path: [Root, Kind]}, {field: value, path: [Root, Value]}]}
+  yaml: {kind: mapping, fields: [{field: kind, key: Вид}, {field: value, key: Значение}]}
 presence:
+- target: {field: kind}
+  xml:
+    missing: {denotes: {literal: ''}}
+    canonical: [{when: {eq: [{field: kind}, {literal: ''}]}, form: missing}]
+  yaml: {default: {literal: ''}}
 - target: {field: value}
   xml:
     missing: {denotes: {absent: true}}
@@ -21,6 +28,13 @@ presence:
     - {form: empty-element, denotes: {absent: true}}
     - {form: nil, denotes: {absent: true}}
     canonical:
+    - when:
+        and:
+        - {not: {present: {field: value}}}
+        - {present: {field: kind}}
+        - {eq: [{field: kind}, {literal: Строка}]}
+      form: empty-element
+      type: xs:string
     - {when: {and: [{not: {present: {field: value}}}, {input: useNil}]}, form: nil}
     - {when: {not: {present: {field: value}}}, form: empty-element, type: xs:string}
     - {form: ordinary}

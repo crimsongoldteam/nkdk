@@ -9,13 +9,15 @@ const allowed={
  'nkdk':{normal:['nkdk-compiled-rules','nkdk-conversion-core']},
  'nkdk-dev':{normal:['nkdk-compiled-rules','nkdk-conversion-core','nkdk-rule-compiler']},
 };
+const systemEnumShard={normal:['nkdk-conversion-core'],build:['nkdk-rule-compiler']};
 export function violations(metadata){
  const members=new Set(metadata.workspace_members);
  const packages=metadata.packages.filter(pkg=>members.has(pkg.id));
  const names=new Set(packages.map(pkg=>pkg.name));
  const errors=[];
  for(const pkg of packages){
-  if(!Object.hasOwn(allowed,pkg.name)){errors.push(`Unknown workspace package: ${pkg.name}`);continue;}
+  const policy=allowed[pkg.name]??(/^nkdk-system-enum-shard-[0-7]$/.test(pkg.name)?systemEnumShard:undefined);
+  if(!policy){errors.push(`Unknown workspace package: ${pkg.name}`);continue;}
   for(const dep of pkg.dependencies){
    // All targets, optional dependencies and aliases retain their actual package name.
    if(!names.has(dep.name) && !dep.path)continue;
@@ -27,7 +29,7 @@ export function violations(metadata){
       typeof metadata.workspace_root==='string' &&
       dep.path===resolve(metadata.workspace_root,'../third-party/yaml-rust2'))continue;
 
-   if(!names.has(dep.name) || !allowed[pkg.name][kind]?.includes(dep.name))errors.push(`Forbidden ${kind} dependency: ${pkg.name} -> ${dep.name}`);
+   if(!names.has(dep.name) || !policy[kind]?.includes(dep.name))errors.push(`Forbidden ${kind} dependency: ${pkg.name} -> ${dep.name}`);
   }
  }
  return errors;

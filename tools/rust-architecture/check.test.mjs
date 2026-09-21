@@ -8,6 +8,9 @@ test('Rust boundaries reject unknown packages and dependencies of every kind',()
  assert.deepEqual(violations(graph([pkg('nkdk-decimal'),pkg('nkdk-conversion-core',[dep('nkdk-decimal')])])),[]);
  for(const kind of [null,'build','dev'])assert.ok(violations(graph([pkg('nkdk-decimal',[dep('nkdk-conversion-core',kind,{rename:'innocent',target:'cfg(windows)'})]),pkg('nkdk-conversion-core')])).length);
  assert.ok(violations(graph([pkg('new-private-handler')])).length);
+ assert.ok(violations(graph([pkg('nkdk-system-enum-shard-8')])).length);
+ assert.deepEqual(violations(graph([pkg('nkdk-system-enum-shard-0',[dep('nkdk-rule-compiler','build')]),pkg('nkdk-rule-compiler')])),[]);
+ assert.ok(violations(graph([pkg('nkdk-system-enum-shard-0',[dep('nkdk-rule-model')]),pkg('nkdk-rule-model')])).length);
  assert.ok(violations(graph([pkg('nkdk',[dep('nkdk-rule-compiler')]),pkg('nkdk-rule-compiler')])).length);
  assert.deepEqual(violations(graph([pkg('nkdk-compiled-rules',[dep('nkdk-rule-compiler','build')]),pkg('nkdk-rule-compiler')])),[]);
  assert.ok(violations(graph([pkg('nkdk-compiled-rules',[dep('nkdk-rule-compiler')]),pkg('nkdk-rule-compiler')])).length);

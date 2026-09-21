@@ -2,7 +2,11 @@ use nkdk_compiled_rules::{Direction, PreparedInputs, convert_file, entry_id, val
 #[test]
 fn absent_scalar_uses_the_declared_contextual_xml_form_without_reference() {
     let entry = entry_id("migration.conditional-empty-scalar").unwrap();
-    for (use_nil, expected_attribute) in [(true, true), (false, false)] {
+    for (yaml, use_nil, expected_nil) in [
+        ("", true, true),
+        ("", false, false),
+        ("Вид: Строка", true, false),
+    ] {
         let inputs = nkdk_compiled_rules::prepare_inputs(
             entry,
             vec![(
@@ -11,7 +15,7 @@ fn absent_scalar_uses_the_declared_contextual_xml_form_without_reference() {
             )],
         )
         .unwrap();
-        let exported = convert_file(entry, Direction::YamlToXml, b"", &inputs).unwrap();
+        let exported = convert_file(entry, Direction::YamlToXml, yaml.as_bytes(), &inputs).unwrap();
         let mut has_nil = false;
         let mut has_value = false;
         let mut has_string_type = false;
@@ -38,13 +42,13 @@ fn absent_scalar_uses_the_declared_contextual_xml_form_without_reference() {
         assert!(has_value);
         assert_eq!(
             has_nil,
-            expected_attribute,
+            expected_nil,
             "{}",
             String::from_utf8_lossy(&exported.bytes)
         );
-        assert_eq!(has_string_type, !use_nil);
+        assert_eq!(has_string_type, !expected_nil);
         let imported = convert_file(entry, Direction::XmlToYaml, &exported.bytes, &inputs).unwrap();
-        assert!(imported.bytes.is_empty());
+        assert_eq!(imported.bytes, yaml.as_bytes());
     }
 }
 

@@ -1454,6 +1454,9 @@
                   "when": {
                     "$ref": "#/$defs/expression"
                   },
+                  "type": {
+                    "type": "string"
+                  },
                   "form": {
                     "enum": [
                       "ordinary",

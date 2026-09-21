@@ -4,9 +4,42 @@ use regex_automata::{
     dfa::{Automaton, dense::DFA},
 };
 use std::{
+    cell::RefCell,
     collections::{BTreeSet, VecDeque},
     fmt::Write,
 };
+
+use crate::generate::GeneratedFile;
+
+thread_local! {
+    static ASSETS: RefCell<Option<Vec<GeneratedFile>>> = const { RefCell::new(None) };
+}
+
+pub(crate) struct Assets;
+
+impl Assets {
+    pub(crate) fn enter() -> Self {
+        ASSETS.with(|assets| {
+            assert!(
+                assets.replace(Some(Vec::new())).is_none(),
+                "nested automaton asset session"
+            );
+        });
+        Self
+    }
+
+    pub(crate) fn finish(self) -> Vec<GeneratedFile> {
+        ASSETS.with(|assets| assets.borrow_mut().take().expect("automaton asset session"))
+    }
+}
+
+impl Drop for Assets {
+    fn drop(&mut self) {
+        ASSETS.with(|assets| {
+            assets.borrow_mut().take();
+        });
+    }
+}
 
 mod sequence;
 pub(crate) use sequence::{Part, compile_sequences};
@@ -110,7 +143,17 @@ pub(crate) fn declaration(name: &str, machine: &DFA<Vec<u32>>) -> String {
         little.len()
     );
     for (endian, bytes) in [("little", little), ("big", big)] {
-        writeln!(out,"#[cfg(target_endian={endian:?})] static {name}_BYTES:{name}Bytes={name}Bytes({bytes:?});").unwrap();
+        let path = ASSETS.with(|assets| {
+            let mut assets = assets.borrow_mut();
+            let assets = assets.as_mut().expect("automaton asset session");
+            let path = format!("automaton-{}-{endian}.bin", assets.len());
+            assets.push(GeneratedFile {
+                path: path.clone(),
+                contents: bytes.to_vec(),
+            });
+            path
+        });
+        writeln!(out,"#[cfg(target_endian={endian:?})] static {name}_BYTES:{name}Bytes={name}Bytes(*include_bytes!({path:?}));").unwrap();
     }
     writeln!(
         out,
@@ -123,6 +166,18 @@ pub(crate) fn declaration(name: &str, machine: &DFA<Vec<u32>>) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn automaton_table_is_stored_outside_rust_source() {
+        let machine = compile(&["left", "right"], 1024, 1 << 20).unwrap();
+        let assets = Assets::enter();
+        let source = declaration("Selection", &machine);
+        let files = assets.finish();
+        assert!(source.contains("include_bytes!"));
+        assert!(source.len() < 1000, "automaton expanded into Rust tokens");
+        assert_eq!(files.len(), 2);
+        assert!(files.iter().all(|file| !file.contents.is_empty()));
+    }
 
     #[test]
     fn selection_is_total_disjoint_and_bounded_at_compile_time() {

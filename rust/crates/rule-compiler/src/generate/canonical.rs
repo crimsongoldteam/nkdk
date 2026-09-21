@@ -29,7 +29,7 @@ pub(super) fn selection(
         if let Some(when) = &form.when {
             writeln!(body, "if {} {{ return Ok({mode}); }}", predicate(when)?).unwrap();
         } else {
-            writeln!(body, "return Ok({mode});").unwrap();
+            writeln!(body, "Ok({mode})").unwrap();
             return Ok(body);
         }
     }

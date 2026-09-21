@@ -1,6 +1,8 @@
+#[path = "../../build-support/compile.rs"]
+mod compile;
 #[path = "../../build-support/declarations.rs"]
 mod declarations;
-use std::{fs, path::PathBuf};
+use std::path::PathBuf;
 fn main() {
     let workspace = PathBuf::from(std::env::var_os("CARGO_MANIFEST_DIR").unwrap())
         .join("../..")
@@ -8,21 +10,12 @@ fn main() {
         .unwrap();
     let directory = workspace.join("declarations");
     println!("cargo::rerun-if-changed={}", directory.display());
-    let sources = declarations::load(&workspace, &directory).expect("read declaration sources");
-    let sources: Vec<_> = sources
-        .iter()
-        .map(|(path, bytes)| nkdk_rule_compiler::SourceFile { path, bytes })
-        .collect();
-    let generated = nkdk_rule_compiler::compile(&sources)
-        .unwrap_or_else(|errors| panic!("Declaration compilation failed: {errors:#?}"));
-    for dependency in generated.dependencies {
-        println!(
-            "cargo::rerun-if-changed={}",
-            workspace.join(dependency).display()
-        );
-    }
-    let output = PathBuf::from(std::env::var_os("OUT_DIR").unwrap());
-    for file in generated.files {
-        fs::write(output.join(file.path), file.contents).expect("write generated sources");
-    }
+    // The complete system-enumeration matrix is tested in bounded shards. It is
+    // not part of the production converter or its ordinary probe catalog.
+    let sources = declarations::load(&workspace, &directory)
+        .expect("read declaration sources")
+        .into_iter()
+        .filter(|(path, _)| path != "declarations/probes/system-enumerations.yaml")
+        .collect::<Vec<_>>();
+    compile::declarations(&workspace, &sources, 32 * 1024 * 1024);
 }

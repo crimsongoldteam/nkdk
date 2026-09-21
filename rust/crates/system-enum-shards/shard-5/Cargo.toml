@@ -1,0 +1,19 @@
+[package]
+name = "nkdk-system-enum-shard-5"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+[lib]
+name = "nkdk_system_enum_shard"
+test = false
+
+[dependencies]
+nkdk-conversion-core = { path = "../../../crates/conversion-core" }
+
+[build-dependencies]
+nkdk-rule-compiler = { path = "../../../crates/rule-compiler" }
+
+[dev-dependencies]
+serde_json = { version = "=1.0.150", features = ["arbitrary_precision"] }

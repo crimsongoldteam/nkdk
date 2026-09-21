@@ -1,4 +1,4 @@
-use nkdk_compiled_rules::{
+use nkdk_system_enum_shard::{
     Direction, EntryId, PreparedInputs, convert_file, entry_id, validate_file, verify_candidate,
 };
 
@@ -24,7 +24,7 @@ fn check(entry: EntryId, xml: &str, expected: Option<&str>, inputs: &PreparedInp
 #[test]
 fn complete_catalog_obeys_every_original_pair_and_preserves_unknown_xml() {
     let reference: serde_json::Value = serde_json::from_slice(include_bytes!(
-        "../../../../tests/migration/system-enumeration-tables.json"
+        "../../tests/migration/system-enumeration-tables.json"
     ))
     .unwrap();
     let records = reference["entries"].as_array().unwrap();
@@ -34,7 +34,11 @@ fn complete_catalog_obeys_every_original_pair_and_preserves_unknown_xml() {
     );
     let inputs = PreparedInputs::default();
     let mut count = 0;
-    for enumeration in records {
+    let shard: usize = env!("CARGO_PKG_NAME").rsplit('-').next().unwrap().parse().unwrap();
+    for (index, enumeration) in records.iter().enumerate() {
+        if index % 8 != shard {
+            continue;
+        }
         let name = enumeration["name"].as_str().unwrap();
         let entry = entry_id(&format!("migration.system.{name}")).unwrap();
         let dcs = entry_id(&format!("migration.system.{name}.dcs")).unwrap();
@@ -104,5 +108,11 @@ fn complete_catalog_obeys_every_original_pair_and_preserves_unknown_xml() {
             );
         }
     }
-    assert_eq!(count, reference["pairs"].as_u64().unwrap() as usize);
+    let expected: usize = records
+        .iter()
+        .enumerate()
+        .filter(|(index, _)| index % 8 == shard)
+        .map(|(_, enumeration)| enumeration["values"].as_array().unwrap().len())
+        .sum();
+    assert_eq!(count, expected);
 }
