@@ -215,6 +215,8 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
       ...(((text || fields) && p.defaultValueXMLRaw === '') || nilDefault ? {canonical:[{when:{not:{present:{field:property.name}}},form:nilDefault?'nil':'empty-element'}]} : {})},
       ...((text || fields) && !p.noImplicitValueYAML ? {} : {yaml:hasDefault ? {default:{literal:defaultValue}} : {missing:{denotes:{absent:true}}}})}};
   if(metadataValue) {
+    mapped.inputs.definedTypes=structuredClone(catalog.get('common.fill-value-compatibility')?.inputs?.definedTypes ?? {type:{kind:'index',key:{kind:'scalar',scalar:'text'},value:{kind:'sequence',item:{kind:'scalar',scalar:'text'}}}});
+    mapped.indexProviders={definedTypes:'metadata.defined-type-alternatives'};
     mapped.siblingExpressions={onlyStringType:{source:'type',sourceId:'common.type-description',value:{and:[
       {present:{field:'type'}},
       {one:{in:{get:{of:{field:'type'},field:'items'}},as:'item',where:{literal:true}}},
@@ -222,6 +224,7 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
     ]}}};
     const items={get:{of:{field:'type'},field:'items'}};
     mapped.ownerConstraints={use:'common.fill-value-compatibility',bindings:{
+      definedTypes:{input:'definedTypes'},
       typeItems:items,
       textValue:{isVariant:{value:{field:property.name},variant:'text'}},
       numberValue:{isVariant:{value:{field:property.name},variant:'decimal'}},

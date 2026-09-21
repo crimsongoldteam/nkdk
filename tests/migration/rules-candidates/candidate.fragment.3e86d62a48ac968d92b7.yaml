@@ -65,4 +65,15 @@ inputs:
     type:
       kind: scalar
       scalar: boolean
-id: candidate.fragment.81d72d589aafa2cb526d
+  definedTypes:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: sequence
+        item:
+          kind: scalar
+          scalar: text
+id: candidate.fragment.3e86d62a48ac968d92b7

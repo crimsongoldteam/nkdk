@@ -241,6 +241,36 @@ cases.push({...compositeReference,
 const textFillSource='e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства.xml';
 if(!source(textFillSource).includes('<FillValue xsi:type="xs:string">Строка</FillValue>') ||
    !source(compositeReferenceSource).includes('<v8:Type>cfg:CatalogRef.СправочникПолный</v8:Type>\n\t\t\t\t\t\t\t\t<v8:Type>xs:string</v8:Type>'))throw new Error('Changed independent composite text value source');
+const definedTypeXmlPath='e2e/fixtures/xml/cf/DefinedTypes/ОпределяемыйТипВсеСвойства.xml';
+const definedTypeYamlPath='e2e/fixtures/nkdk/cf/ОпределяемыйТип/ОпределяемыйТипВсеСвойства.yaml';
+const definedTypeXML=source(definedTypeXmlPath),definedTypeYAML=source(definedTypeYamlPath);
+if(!definedTypeXML.includes('<v8:Type>xs:string</v8:Type>') || !definedTypeXML.includes('<v8:Type>xs:decimal</v8:Type>') ||
+   !definedTypeYAML.includes('Строка(10)') || !definedTypeYAML.includes('Число(10, 0)'))throw new Error('Changed independent defined-type alternatives');
+const definedTypeAttribute={...referenceAttribute,
+  id:'fill-value-defined-type-as-text',
+  xml:referenceAttribute.xml.replace('<v8:Type>cfg:CatalogRef.СправочникРеквизит</v8:Type>','<v8:TypeSet>cfg:DefinedType.ОпределяемыйТипВсеСвойства</v8:TypeSet>')
+    .replace('<FillValue xsi:type="xr:DesignTimeRef">Catalog.СправочникРеквизит.ПредопредленноеЗначение</FillValue>','<FillValue xsi:type="xs:string">Строка</FillValue>'),
+  yaml:'Тип: ОпределяемыйТип.ОпределяемыйТипВсеСвойства\nЗначениеЗаполнения: Строка',
+  xmlQNamePaths:referenceAttribute.xmlQNamePaths.map(path=>path.map(segment=>segment==='{http://v8.1c.ru/8.1/data/core}Type'?'{http://v8.1c.ru/8.1/data/core}TypeSet':segment)),
+  source:[...referenceAttribute.source,{path:textFillSource},{path:definedTypeXmlPath},{path:definedTypeYamlPath}],
+  adaptation:'The immutable defined type supplies string and decimal alternatives; the observed text FillValue is valid through the prepared union',
+};
+cases.push(definedTypeAttribute);
+cases.push({...definedTypeAttribute,
+  id:'fill-value-defined-type-reference-mismatch',
+  xml:definedTypeAttribute.xml.replace('<FillValue xsi:type="xs:string">Строка</FillValue>','<FillValue xsi:type="xr:DesignTimeRef">Catalog.СправочникРеквизит.ПредопредленноеЗначение</FillValue>'),
+  yaml:definedTypeAttribute.yaml.replace('ЗначениеЗаполнения: Строка','ЗначениеЗаполнения: Справочник.СправочникРеквизит.ПредопредленноеЗначение'),
+  diagnostics:['fill-value.type-mismatch'],
+  adaptation:'The observed reference value is incompatible with both actual alternatives of the immutable defined type',
+});
+cases.push({...definedTypeAttribute,
+  id:'fill-value-defined-type-missing',
+  xml:definedTypeAttribute.xml.replaceAll('ОпределяемыйТипВсеСвойства','ОтсутствующийОпределяемыйТип'),
+  yaml:definedTypeAttribute.yaml.replaceAll('ОпределяемыйТипВсеСвойства','ОтсутствующийОпределяемыйТип'),
+  diagnostics:['fact.missing'],
+  noRaw:true,
+  adaptation:'Change only the declared name; an absent graph node is a semantic anomaly and must not also produce a type-mismatch diagnostic',
+});
 const compositeReferenceText={...compositeReference,
   id:'fill-value-reference-composite-as-text',
   xml:compositeReference.xml.replace('<FillValue xsi:type="xr:DesignTimeRef">Catalog.СправочникРеквизит.ПредопредленноеЗначение</FillValue>','<FillValue xsi:type="xs:string">Строка</FillValue>'),
@@ -261,6 +291,13 @@ const numericCompositeSource='e2e/fixtures/xml/cf/CalculationRegisters/Реги�
 const numericFillSource='e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый.xml';
 if(!source(numericCompositeSource).includes('<v8:Type>cfg:CatalogRef.СправочникПолный</v8:Type>\n\t\t\t\t\t\t<v8:Type>xs:decimal</v8:Type>') ||
    !source(numericFillSource).includes('<FillValue xsi:type="xs:decimal">1234</FillValue>'))throw new Error('Changed independent composite number source');
+cases.push({...definedTypeAttribute,
+  id:'fill-value-defined-type-as-number',
+  xml:definedTypeAttribute.xml.replace('<FillValue xsi:type="xs:string">Строка</FillValue>','<FillValue xsi:type="xs:decimal">1234</FillValue>'),
+  yaml:definedTypeAttribute.yaml.replace('ЗначениеЗаполнения: Строка','ЗначениеЗаполнения: 1234'),
+  source:[...definedTypeAttribute.source,{path:numericFillSource}],
+  adaptation:'The observed exact decimal FillValue is valid through the second alternative of the immutable defined type',
+});
 const compositeReferenceNumber={...compositeReferenceText,
   id:'fill-value-reference-or-number-as-text',
   xml:compositeReferenceText.xml.replace('<v8:Type>cfg:CatalogRef.СправочникРеквизит</v8:Type>', '<v8:Type>xs:decimal</v8:Type>\n\t\t\t\t\t\t<v8:NumberQualifiers>\n\t\t\t\t\t\t\t<v8:Digits>10</v8:Digits>\n\t\t\t\t\t\t\t<v8:FractionDigits>0</v8:FractionDigits>\n\t\t\t\t\t\t\t<v8:AllowedSign>Any</v8:AllowedSign>\n\t\t\t\t\t\t</v8:NumberQualifiers>'),
@@ -498,6 +535,12 @@ for(const [collection,kinds,fields] of [
   factSources.push({entry:provider.id,xml:'<Root>'+fields.map(field=>{const tag=field[0].toUpperCase()+field.slice(1);return `<${tag}>${escape(row[field])}</${tag}>`;}).join('')+'</Root>',source:row.source});
  }
 }
+const definedTypeProviderPath='rust/declarations/probes/defined-type-facts.yaml';
+const definedTypeProviderText=source(definedTypeProviderPath),definedTypeProvider=yaml.load(definedTypeProviderText);
+catalog.set(definedTypeProvider.id,definedTypeProvider);
+derivedTexts.set(definedTypeProvider.id,definedTypeProviderText);
+selected.push(definedTypeProvider);
+factSources.push({entry:definedTypeProvider.id,xml:definedTypeXML,inputs:{ownerName:'ОпределяемыйТипВсеСвойства',defaultLanguage:'ru',registeredLanguages:['ru','en']},source:definedTypeXmlPath});
 const modules=[...selected,...dependencyFiles(selected,catalog)];
 const files=Object.fromEntries(modules.map(m=>[m.id+'.yaml',derivedTexts.get(m.id)??manifest.generatedFiles[m.id+'.yaml']]));
 writeCandidates('tests/migration/rules-contract-catalog',files,{status:'test-only',derivedProjections,entries:selected.map(m=>m.id)});

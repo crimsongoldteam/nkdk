@@ -1,18 +1,14 @@
 format: nkdk-declarations/1
 kind: object
-id: candidate.projection.51bc576d82c11de95e58
+id: candidate.projection.a38b0b2e07e0ed16c8ac
 description: 'Кандидат проекции: относительный XML-корень Properties; не полный владелец'
 imports:
-  part0: candidate.fragment.005c1b164180436637b2
-  part1: candidate.fragment.52a2075291fd16c7818a
-  part2: candidate.fragment.e8b8bc7db0633e109fe8
-  part3: candidate.fragment.1765115867f73cbe2b6f
-  part4: candidate.fragment.75a4cde38b68731d8ce2
-  part5: candidate.fragment.26c6504dd1cbc2075885
-  part6: candidate.fragment.fa89a9cb2457e28e515f
-  part7: candidate.fragment.c0a1d23d8d7c79a213af
+  part0: candidate.fragment.26f2a0ec831699cb55dd
+  part1: candidate.fragment.37cf43a17d5ff0f84899
+  part2: candidate.fragment.752ee5111405cf252ccc
   inputType1f8ea46361ff: common.path-root
-  part8: candidate.fragment.139681ef0e44d2445a78
+  part3: candidate.fragment.a7934b48993a4f5da784
+  part4: candidate.fragment.5d1647c4012948d8e558
 compose:
   - use: part0
   - use: part1
@@ -24,16 +20,6 @@ compose:
       ownerName:
         input: ownerName
   - use: part2
-  - use: part3
-  - use: part4
-    bind:
-      defaultLanguage:
-        input: defaultLanguage
-      registeredLanguages:
-        input: registeredLanguages
-      ownerName:
-        input: ownerName
-  - use: part5
     bind:
       defaultLanguage:
         input: defaultLanguage
@@ -67,14 +53,15 @@ compose:
                         var: item
                       field: value
                   pattern: Строка|ФиксированнаяСтрока
-  - use: part6
-  - use: part7
-  - use: part8
+      definedTypes:
+        input: definedTypes
+  - use: part3
     bind:
       roots:
         input: roots
       forms:
         input: forms
+  - use: part4
 value:
   kind: record
   fields: []
@@ -442,7 +429,7 @@ constraints:
                           var: item
                         field: value
                     pattern: >-
-                      ^(Строка|ФиксированнаяСтрока|Число|ПоложительноеЧисло|Булево|Дата|Время|ДатаВремя|Справочник|Документ|Перечисление|ПланОбмена|ПланСчетов|ПланВидовХарактеристик|ПланВидовРасчета|БизнесПроцесс|Задача)(\..+)?$
+                      ^(Строка|ФиксированнаяСтрока|Число|ПоложительноеЧисло|Булево|Дата|Время|ДатаВремя|Справочник|Документ|Перечисление|ПланОбмена|ПланСчетов|ПланВидовХарактеристик|ПланВидовРасчета|БизнесПроцесс|Задача|ОпределяемыйТип)(\..+)?$
     assert:
       exists:
         in:
@@ -532,6 +519,96 @@ constraints:
                               var: item
                             field: value
                         separator: .
+            - and:
+                - matches:
+                    value:
+                      get:
+                        of:
+                          var: item
+                        field: value
+                    pattern: ^ОпределяемыйТип\..+$
+                - match:
+                    value:
+                      lookup:
+                        in:
+                          input: definedTypes
+                        key:
+                          get:
+                            of:
+                              var: item
+                            field: value
+                    present:
+                      as: alternatives
+                      then:
+                        exists:
+                          in:
+                            var: alternatives
+                          as: alternative
+                          where:
+                            or:
+                              - and:
+                                  - matches:
+                                      value:
+                                        var: alternative
+                                      pattern: Строка|ФиксированнаяСтрока
+                                  - isVariant:
+                                      value:
+                                        field: fillValue
+                                      variant: text
+                              - and:
+                                  - matches:
+                                      value:
+                                        var: alternative
+                                      pattern: Число|ПоложительноеЧисло
+                                  - isVariant:
+                                      value:
+                                        field: fillValue
+                                      variant: decimal
+                              - and:
+                                  - eq:
+                                      - var: alternative
+                                      - literal: Булево
+                                  - isVariant:
+                                      value:
+                                        field: fillValue
+                                      variant: boolean
+                              - and:
+                                  - matches:
+                                      value:
+                                        var: alternative
+                                      pattern: Дата|Время|ДатаВремя
+                                  - isVariant:
+                                      value:
+                                        field: fillValue
+                                      variant: calendar
+                              - and:
+                                  - matches:
+                                      value:
+                                        var: alternative
+                                      pattern: >-
+                                        ^(Справочник|Документ|Перечисление|ПланОбмена|ПланСчетов|ПланВидовХарактеристик|ПланВидовРасчета|БизнесПроцесс|Задача)(\..+)?$
+                                  - isVariant:
+                                      value:
+                                        field: fillValue
+                                      variant: reference
+                                  - or:
+                                      - eq:
+                                          - variantText:
+                                              value:
+                                                field: fillValue
+                                              variant: reference
+                                          - literal: .
+                                      - textSegmentPrefix:
+                                          value:
+                                            variantText:
+                                              value:
+                                                field: fillValue
+                                              variant: reference
+                                          prefix:
+                                            var: alternative
+                                          separator: .
+                    absent:
+                      literal: false
     diagnostic:
       code: fill-value.type-mismatch
       severity: warning
@@ -553,6 +630,18 @@ inputs:
     type:
       kind: scalar
       scalar: text
+  definedTypes:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: sequence
+        item:
+          kind: scalar
+          scalar: text
+    index: metadata.defined-type-alternatives
   roots:
     type:
       kind: index

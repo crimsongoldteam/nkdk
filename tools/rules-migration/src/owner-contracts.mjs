@@ -101,7 +101,10 @@ export function ownerContracts(manifest,catalog,snapshot) {
   const cases=results.map((result,index)=>{
     const request=requests[index],definition=catalog.get(request.entry);
     const values={defaultLanguage:'ru',registeredLanguages:['ru','en'],ownerName:request.name,...request.context?.values};
-    const factBindings=Object.fromEntries(['roots','children'].filter(name=>definition.inputs?.[name]).map(name=>[name,`metadata.${name}`]));
+    const factBindings=Object.fromEntries(Object.entries(definition.inputs??{}).flatMap(([name,input])=>{
+      const index=input.index??(['roots','children'].includes(name)?`metadata.${name}`:null);
+      return typeof index==='string'?[[name,index]]:[];
+    }));
     return {id:`e2e-properties-${request.name}`,entry:request.entry,...result,
       source:[...result.source,...(request.context?.sources??[]).map(row=>({path:row.source,sha256:row.sha256}))],
       ...(Object.keys(factBindings).length?{factBindings}:{}),

@@ -1174,6 +1174,19 @@
       "entry": "migration.metadata-child-index",
       "xml": "<Root><Kind>Table</Kind><Name>ТаблицаПоУмолчанию</Name><Parent>aa0a162f-bf96-4951-9c81-f6a8014ab7e8</Parent><Identity>272a84de-a65a-42b3-87a1-cf6be83ba9b3</Identity></Root>",
       "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаПоУмолчанию.xml"
+    },
+    {
+      "entry": "migration.defined-type-facts",
+      "xml": "﻿<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<MetaDataObject xmlns=\"http://v8.1c.ru/8.3/MDClasses\" xmlns:app=\"http://v8.1c.ru/8.2/managed-application/core\" xmlns:cfg=\"http://v8.1c.ru/8.1/data/enterprise/current-config\" xmlns:cmi=\"http://v8.1c.ru/8.2/managed-application/cmi\" xmlns:ent=\"http://v8.1c.ru/8.1/data/enterprise\" xmlns:lf=\"http://v8.1c.ru/8.2/managed-application/logform\" xmlns:style=\"http://v8.1c.ru/8.1/data/ui/style\" xmlns:sys=\"http://v8.1c.ru/8.1/data/ui/fonts/system\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:v8ui=\"http://v8.1c.ru/8.1/data/ui\" xmlns:web=\"http://v8.1c.ru/8.1/data/ui/colors/web\" xmlns:win=\"http://v8.1c.ru/8.1/data/ui/colors/windows\" xmlns:xen=\"http://v8.1c.ru/8.3/xcf/enums\" xmlns:xpr=\"http://v8.1c.ru/8.3/xcf/predef\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"2.20\">\n\t<DefinedType uuid=\"426da0c0-ee05-4af5-a132-c7874136d3bf\">\n\t\t<InternalInfo>\n\t\t\t<xr:GeneratedType name=\"DefinedType.ОпределяемыйТипВсеСвойства\" category=\"DefinedType\">\n\t\t\t\t<xr:TypeId>7d4376c6-b8b9-4df6-ada4-368fa6bac7a8</xr:TypeId>\n\t\t\t\t<xr:ValueId>065165d6-dc56-4036-ae10-c9464b0e9462</xr:ValueId>\n\t\t\t</xr:GeneratedType>\n\t\t</InternalInfo>\n\t\t<Properties>\n\t\t\t<Name>ОпределяемыйТипВсеСвойства</Name>\n\t\t\t<Synonym>\n\t\t\t\t<v8:item>\n\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t<v8:content>Синоним</v8:content>\n\t\t\t\t</v8:item>\n\t\t\t</Synonym>\n\t\t\t<Comment>Комментарий</Comment>\n\t\t\t<Type>\n\t\t\t\t<v8:Type>xs:string</v8:Type>\n\t\t\t\t<v8:Type>xs:decimal</v8:Type>\n\t\t\t\t<v8:NumberQualifiers>\n\t\t\t\t\t<v8:Digits>10</v8:Digits>\n\t\t\t\t\t<v8:FractionDigits>0</v8:FractionDigits>\n\t\t\t\t\t<v8:AllowedSign>Any</v8:AllowedSign>\n\t\t\t\t</v8:NumberQualifiers>\n\t\t\t\t<v8:StringQualifiers>\n\t\t\t\t\t<v8:Length>10</v8:Length>\n\t\t\t\t\t<v8:AllowedLength>Variable</v8:AllowedLength>\n\t\t\t\t</v8:StringQualifiers>\n\t\t\t</Type>\n\t\t</Properties>\n\t</DefinedType>\n</MetaDataObject>",
+      "inputs": {
+        "ownerName": "ОпределяемыйТипВсеСвойства",
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ]
+      },
+      "source": "e2e/fixtures/xml/cf/DefinedTypes/ОпределяемыйТипВсеСвойства.xml"
     }
   ],
   "sources": [
@@ -1328,6 +1341,14 @@
     {
       "path": "e2e/fixtures/xml/cf/Catalogs/СправочникСХарактеристиками.xml",
       "sha256": "36dbc7844baf9eff30363b9416624b39ebcde4adb52886fba70d84e242978c3e"
+    },
+    {
+      "path": "e2e/fixtures/xml/cf/DefinedTypes/ОпределяемыйТипВсеСвойства.xml",
+      "sha256": "4281d3bf6ad4186a7fccead935ce75e336ecdeb287d9af3aa10f492f987454cb"
+    },
+    {
+      "path": "e2e/fixtures/nkdk/cf/ОпределяемыйТип/ОпределяемыйТипВсеСвойства.yaml",
+      "sha256": "44a2e28b450aeb858044c765f968dba343c1fd4db5a61253b56aaff04947d537"
     },
     {
       "path": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВедущий.xml",
@@ -1916,6 +1937,10 @@
     {
       "path": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаПоУмолчанию.xml",
       "sha256": "0b34ff717e10e229ef8e80e89b0d8a3db14589a5e929e8a9bd9d0792f292d2eb"
+    },
+    {
+      "path": "rust/declarations/probes/defined-type-facts.yaml",
+      "sha256": "4a5e76d3c4500dd862e35cbfa230c8e265c0825659b6a6b533891115ecd80858"
     }
   ],
   "cases": [
@@ -4319,7 +4344,7 @@
     },
     {
       "id": "e2e-properties-СтроковыйРеквизит",
-      "entry": "candidate.projection.39bd862a5e2235a6a171",
+      "entry": "candidate.projection.2300f1102f68f4fbbf74",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Строковый реквизит</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:Type>xs:string</v8:Type>\n\t\t\t\t\t\t<v8:StringQualifiers>\n\t\t\t\t\t\t\t<v8:Length>10</v8:Length>\n\t\t\t\t\t\t\t<v8:AllowedLength>Variable</v8:AllowedLength>\n\t\t\t\t\t\t</v8:StringQualifiers>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>false</PasswordMode>\n\t\t\t\t\t<Format />\n\t\t\t\t\t<EditFormat />\n\t\t\t\t\t<ToolTip />\n\t\t\t\t\t<MarkNegatives>false</MarkNegatives>\n\t\t\t\t\t<Mask />\n\t\t\t\t\t<MultiLine>false</MultiLine>\n\t\t\t\t\t<ExtendedEdit>false</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<FillFromFillingValue>false</FillFromFillingValue>\n\t\t\t\t\t<FillValue xsi:type=\"xs:string\" />\n\t\t\t\t\t<FillChecking>DontCheck</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>Auto</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>Use</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t</Properties>",
       "yaml": "Тип: Строка(10)",
       "omittedXMLProperties": [
@@ -4346,6 +4371,7 @@
         }
       ],
       "factBindings": {
+        "definedTypes": "metadata.defined-type-alternatives",
         "roots": "metadata.roots"
       },
       "inputs": {
@@ -4360,7 +4386,7 @@
     },
     {
       "id": "e2e-properties-РеквизитБулево",
-      "entry": "candidate.projection.39bd862a5e2235a6a171",
+      "entry": "candidate.projection.2300f1102f68f4fbbf74",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Реквизит булево</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:Type>xs:boolean</v8:Type>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>false</PasswordMode>\n\t\t\t\t\t<Format />\n\t\t\t\t\t<EditFormat />\n\t\t\t\t\t<ToolTip />\n\t\t\t\t\t<MarkNegatives>false</MarkNegatives>\n\t\t\t\t\t<Mask />\n\t\t\t\t\t<MultiLine>false</MultiLine>\n\t\t\t\t\t<ExtendedEdit>false</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<FillFromFillingValue>false</FillFromFillingValue>\n\t\t\t\t\t<FillValue xsi:nil=\"true\" />\n\t\t\t\t\t<FillChecking>DontCheck</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>Auto</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>Use</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t</Properties>",
       "yaml": "Тип: Булево",
       "omittedXMLProperties": [
@@ -4387,6 +4413,7 @@
         }
       ],
       "factBindings": {
+        "definedTypes": "metadata.defined-type-alternatives",
         "roots": "metadata.roots"
       },
       "inputs": {
@@ -4401,7 +4428,7 @@
     },
     {
       "id": "e2e-properties-ПолныйРеквизит",
-      "entry": "candidate.projection.39bd862a5e2235a6a171",
+      "entry": "candidate.projection.2300f1102f68f4fbbf74",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Синоним</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<Comment>Комментарий</Comment>\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:Type>v8:ValueStorage</v8:Type>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>true</PasswordMode>\n\t\t\t\t\t<Format>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>ДФ=dd.MM.yyyy</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Format>\n\t\t\t\t\t<EditFormat>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>ДФ=d.M.yy</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</EditFormat>\n\t\t\t\t\t<ToolTip>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Подсказка</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</ToolTip>\n\t\t\t\t\t<MarkNegatives>true</MarkNegatives>\n\t\t\t\t\t<Mask>Маска</Mask>\n\t\t\t\t\t<MultiLine>true</MultiLine>\n\t\t\t\t\t<ExtendedEdit>true</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:type=\"xs:string\">1</MinValue>\n\t\t\t\t\t<MaxValue xsi:type=\"xs:string\">100</MaxValue>\n\t\t\t\t\t<FillFromFillingValue>true</FillFromFillingValue>\n\t\t\t\t\t<FillValue xsi:nil=\"true\" />\n\t\t\t\t\t<FillChecking>ShowError</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>DontUse</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>DontUse</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>DontUse</FullTextSearch>\n\t\t\t\t\t<DataHistory>DontUse</DataHistory>\n\t\t\t\t\t</Properties>",
       "yaml": "Синоним: Синоним\nКомментарий: Комментарий\nТип: ХранилищеЗначения\nРежимПароля: Истина\nФормат: ДФ=dd.MM.yyyy\nФорматРедактирования: ДФ=d.M.yy\nПодсказка: Подсказка\nВыделятьОтрицательные: Истина\nМаска: Маска\nМногострочныйРежим: Истина\nРасширенноеРедактирование: Истина\nМинимальноеЗначение: 1\nМаксимальноеЗначение: 100\nЗаполнятьИзДанныхЗаполнения: Истина\nПроверкаЗаполнения: ВыдаватьОшибку\nСозданиеПриВводе: НеИспользовать\nИсторияВыбораПриВводе: НеИспользовать\nПолнотекстовыйПоиск: НеИспользовать\nИсторияДанных: НеИспользовать",
       "omittedXMLProperties": [
@@ -4429,6 +4456,7 @@
         }
       ],
       "factBindings": {
+        "definedTypes": "metadata.defined-type-alternatives",
         "roots": "metadata.roots"
       },
       "inputs": {
@@ -4443,7 +4471,7 @@
     },
     {
       "id": "e2e-properties-РеквизитСправочника",
-      "entry": "candidate.projection.e0b523c657560bc43cd4",
+      "entry": "candidate.projection.9614f0499b7a6385d953",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Реквизит справочника</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:Type>xs:dateTime</v8:Type>\n\t\t\t\t\t\t<v8:DateQualifiers>\n\t\t\t\t\t\t\t<v8:DateFractions>Date</v8:DateFractions>\n\t\t\t\t\t\t</v8:DateQualifiers>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>false</PasswordMode>\n\t\t\t\t\t<Format />\n\t\t\t\t\t<EditFormat />\n\t\t\t\t\t<ToolTip />\n\t\t\t\t\t<MarkNegatives>false</MarkNegatives>\n\t\t\t\t\t<Mask />\n\t\t\t\t\t<MultiLine>false</MultiLine>\n\t\t\t\t\t<ExtendedEdit>false</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<FillFromFillingValue>false</FillFromFillingValue>\n\t\t\t\t\t<FillValue xsi:nil=\"true\" />\n\t\t\t\t\t<FillChecking>DontCheck</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>Auto</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>\n\t\t\t\t\t<Use>ForItem</Use>\n\t\t\t\t\t<Indexing>Index</Indexing>\n\t\t\t\t\t<FullTextSearch>Use</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t</Properties>",
       "yaml": "Тип: Дата\nИндексирование: Индексировать",
       "omittedXMLProperties": [
@@ -4470,6 +4498,7 @@
         }
       ],
       "factBindings": {
+        "definedTypes": "metadata.defined-type-alternatives",
         "roots": "metadata.roots"
       },
       "inputs": {
@@ -4484,7 +4513,7 @@
     },
     {
       "id": "e2e-properties-СтроковыйРеквизитСИндексом",
-      "entry": "candidate.projection.e0b523c657560bc43cd4",
+      "entry": "candidate.projection.9614f0499b7a6385d953",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Строковый реквизит с индексом</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:Type>xs:string</v8:Type>\n\t\t\t\t\t\t<v8:StringQualifiers>\n\t\t\t\t\t\t\t<v8:Length>10</v8:Length>\n\t\t\t\t\t\t\t<v8:AllowedLength>Variable</v8:AllowedLength>\n\t\t\t\t\t\t</v8:StringQualifiers>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>false</PasswordMode>\n\t\t\t\t\t<Format />\n\t\t\t\t\t<EditFormat />\n\t\t\t\t\t<ToolTip />\n\t\t\t\t\t<MarkNegatives>false</MarkNegatives>\n\t\t\t\t\t<Mask />\n\t\t\t\t\t<MultiLine>false</MultiLine>\n\t\t\t\t\t<ExtendedEdit>false</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<FillFromFillingValue>false</FillFromFillingValue>\n\t\t\t\t\t<FillValue xsi:type=\"xs:string\" />\n\t\t\t\t\t<FillChecking>DontCheck</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>Auto</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>\n\t\t\t\t\t<Use>ForItem</Use>\n\t\t\t\t\t<Indexing>Index</Indexing>\n\t\t\t\t\t<FullTextSearch>Use</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t</Properties>",
       "yaml": "Синоним: Строковый реквизит с индексом\nТип: Строка(10)\nИндексирование: Индексировать",
       "omittedXMLProperties": [
@@ -4511,6 +4540,7 @@
         }
       ],
       "factBindings": {
+        "definedTypes": "metadata.defined-type-alternatives",
         "roots": "metadata.roots"
       },
       "inputs": {
@@ -4525,7 +4555,7 @@
     },
     {
       "id": "e2e-properties-РеквизитВсеСвойства",
-      "entry": "candidate.projection.14f14efa663c42f72384",
+      "entry": "candidate.projection.a31bc37ac39fb90fb697",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Comment>Комментарий</Comment>\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:Type>xs:decimal</v8:Type>\n\t\t\t\t\t\t<v8:NumberQualifiers>\n\t\t\t\t\t\t\t<v8:Digits>10</v8:Digits>\n\t\t\t\t\t\t\t<v8:FractionDigits>0</v8:FractionDigits>\n\t\t\t\t\t\t\t<v8:AllowedSign>Any</v8:AllowedSign>\n\t\t\t\t\t\t</v8:NumberQualifiers>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>true</PasswordMode>\n\t\t\t\t\t<Format>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>ЧЦ=15; ЧДЦ=2</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Format>\n\t\t\t\t\t<EditFormat>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>ЧЦ=15; ЧДЦ=2</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</EditFormat>\n\t\t\t\t\t<ToolTip>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Подсказка</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</ToolTip>\n\t\t\t\t\t<MarkNegatives>true</MarkNegatives>\n\t\t\t\t\t<Mask>Маска</Mask>\n\t\t\t\t\t<MultiLine>true</MultiLine>\n\t\t\t\t\t<ExtendedEdit>true</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:type=\"xs:string\">4</MinValue>\n\t\t\t\t\t<MaxValue xsi:type=\"xs:string\">96</MaxValue>\n\t\t\t\t\t<FillFromFillingValue>true</FillFromFillingValue>\n\t\t\t\t\t<FillValue xsi:type=\"xs:decimal\">1234</FillValue>\n\t\t\t\t\t<FillChecking>ShowError</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>DontUse</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>DontUse</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>DontUse</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t\t<BinaryDataStorageLocationUse>DontUse</BinaryDataStorageLocationUse>\n\t\t\t\t\t<BinaryDataStorageLocationUseField>InformationRegister.РегистрСведенийВсеСвойстваНезависимый.Attribute.ИспользоватьХранилищеДвоичныхДанных</BinaryDataStorageLocationUseField>\n\t\t\t\t</Properties>",
       "yaml": "Комментарий: Комментарий\nТип: Число(10, 0)\nРежимПароля: Истина\nФормат: ЧЦ=15; ЧДЦ=2\nФорматРедактирования: ЧЦ=15; ЧДЦ=2\nПодсказка: Подсказка\nВыделятьОтрицательные: Истина\nМаска: Маска\nМногострочныйРежим: Истина\nРасширенноеРедактирование: Истина\nМинимальноеЗначение: 4\nМаксимальноеЗначение: 96\nЗаполнятьИзДанныхЗаполнения: Истина\nЗначениеЗаполнения: 1234\nПроверкаЗаполнения: ВыдаватьОшибку\nСозданиеПриВводе: НеИспользовать\nИсторияВыбораПриВводе: НеИспользовать\nПолнотекстовыйПоиск: НеИспользовать\nИспользованиеХраненияВХранилищеДвоичныхДанных: НеИспользовать\nПолеИспользованияХраненияВХранилищеДвоичныхДанных: InformationRegister.РегистрСведенийВсеСвойстваНезависимый.Attribute.ИспользоватьХранилищеДвоичныхДанных",
       "omittedXMLProperties": [
@@ -4553,6 +4583,7 @@
         }
       ],
       "factBindings": {
+        "definedTypes": "metadata.defined-type-alternatives",
         "roots": "metadata.roots"
       },
       "inputs": {
@@ -4567,7 +4598,7 @@
     },
     {
       "id": "e2e-properties-ИспользоватьХранилищеДвоичныхДанных",
-      "entry": "candidate.projection.14f14efa663c42f72384",
+      "entry": "candidate.projection.a31bc37ac39fb90fb697",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Comment />\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:Type>xs:boolean</v8:Type>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>false</PasswordMode>\n\t\t\t\t\t<Format />\n\t\t\t\t\t<EditFormat />\n\t\t\t\t\t<ToolTip />\n\t\t\t\t\t<MarkNegatives>false</MarkNegatives>\n\t\t\t\t\t<Mask />\n\t\t\t\t\t<MultiLine>false</MultiLine>\n\t\t\t\t\t<ExtendedEdit>false</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<FillFromFillingValue>false</FillFromFillingValue>\n\t\t\t\t\t<FillValue xsi:nil=\"true\" />\n\t\t\t\t\t<FillChecking>DontCheck</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>Auto</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>Use</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t</Properties>",
       "yaml": "Тип: Булево",
       "omittedXMLProperties": [
@@ -4595,6 +4626,7 @@
         }
       ],
       "factBindings": {
+        "definedTypes": "metadata.defined-type-alternatives",
         "roots": "metadata.roots"
       },
       "inputs": {
@@ -4889,7 +4921,7 @@
     },
     {
       "id": "fill-value-reference",
-      "entry": "candidate.projection.39bd862a5e2235a6a171",
+      "entry": "candidate.projection.2300f1102f68f4fbbf74",
       "xml": "<Properties xmlns:cfg=\"http://v8.1c.ru/8.1/data/enterprise/current-config\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Строковый реквизит</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:Type>cfg:CatalogRef.СправочникРеквизит</v8:Type>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>false</PasswordMode>\n\t\t\t\t\t<Format />\n\t\t\t\t\t<EditFormat />\n\t\t\t\t\t<ToolTip />\n\t\t\t\t\t<MarkNegatives>false</MarkNegatives>\n\t\t\t\t\t<Mask />\n\t\t\t\t\t<MultiLine>false</MultiLine>\n\t\t\t\t\t<ExtendedEdit>false</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<FillFromFillingValue>false</FillFromFillingValue>\n\t\t\t\t\t<FillValue xsi:type=\"xr:DesignTimeRef\">Catalog.СправочникРеквизит.ПредопредленноеЗначение</FillValue>\n\t\t\t\t\t<FillChecking>DontCheck</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>Auto</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>Use</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t</Properties>",
       "yaml": "Тип: Справочник.СправочникРеквизит\nЗначениеЗаполнения: Справочник.СправочникРеквизит.ПредопредленноеЗначение",
       "omittedXMLProperties": [
@@ -4922,6 +4954,7 @@
         }
       ],
       "factBindings": {
+        "definedTypes": "metadata.defined-type-alternatives",
         "roots": "metadata.roots"
       },
       "inputs": {
@@ -4936,7 +4969,7 @@
     },
     {
       "id": "fill-value-reference-wrong-kind",
-      "entry": "candidate.projection.39bd862a5e2235a6a171",
+      "entry": "candidate.projection.2300f1102f68f4fbbf74",
       "xml": "<Properties xmlns:cfg=\"http://v8.1c.ru/8.1/data/enterprise/current-config\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Строковый реквизит</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:Type>cfg:CatalogRef.СправочникРеквизит</v8:Type>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>false</PasswordMode>\n\t\t\t\t\t<Format />\n\t\t\t\t\t<EditFormat />\n\t\t\t\t\t<ToolTip />\n\t\t\t\t\t<MarkNegatives>false</MarkNegatives>\n\t\t\t\t\t<Mask />\n\t\t\t\t\t<MultiLine>false</MultiLine>\n\t\t\t\t\t<ExtendedEdit>false</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<FillFromFillingValue>false</FillFromFillingValue>\n\t\t\t\t\t<FillValue xsi:type=\"xr:DesignTimeRef\">Document.ДокументВсеСвойства.ПредопредленноеЗначение</FillValue>\n\t\t\t\t\t<FillChecking>DontCheck</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>Auto</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>Use</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t</Properties>",
       "yaml": "Тип: Справочник.СправочникРеквизит\nЗначениеЗаполнения: Документ.ДокументВсеСвойства.ПредопредленноеЗначение",
       "omittedXMLProperties": [
@@ -4969,6 +5002,7 @@
         }
       ],
       "factBindings": {
+        "definedTypes": "metadata.defined-type-alternatives",
         "roots": "metadata.roots"
       },
       "inputs": {
@@ -4986,7 +5020,7 @@
     },
     {
       "id": "fill-value-reference-composite-second",
-      "entry": "candidate.projection.39bd862a5e2235a6a171",
+      "entry": "candidate.projection.2300f1102f68f4fbbf74",
       "xml": "<Properties xmlns:cfg=\"http://v8.1c.ru/8.1/data/enterprise/current-config\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Строковый реквизит</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:Type>cfg:CatalogRef.СправочникПолный</v8:Type>\n\t\t\t\t\t\t<v8:Type>cfg:CatalogRef.СправочникРеквизит</v8:Type>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>false</PasswordMode>\n\t\t\t\t\t<Format />\n\t\t\t\t\t<EditFormat />\n\t\t\t\t\t<ToolTip />\n\t\t\t\t\t<MarkNegatives>false</MarkNegatives>\n\t\t\t\t\t<Mask />\n\t\t\t\t\t<MultiLine>false</MultiLine>\n\t\t\t\t\t<ExtendedEdit>false</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<FillFromFillingValue>false</FillFromFillingValue>\n\t\t\t\t\t<FillValue xsi:type=\"xr:DesignTimeRef\">Catalog.СправочникРеквизит.ПредопредленноеЗначение</FillValue>\n\t\t\t\t\t<FillChecking>DontCheck</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>Auto</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>Use</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t</Properties>",
       "yaml": "Тип:\n  - Справочник.СправочникПолный\n  - Справочник.СправочникРеквизит\nЗначениеЗаполнения: Справочник.СправочникРеквизит.ПредопредленноеЗначение",
       "omittedXMLProperties": [
@@ -5022,6 +5056,7 @@
         }
       ],
       "factBindings": {
+        "definedTypes": "metadata.defined-type-alternatives",
         "roots": "metadata.roots"
       },
       "inputs": {
@@ -5036,7 +5071,7 @@
     },
     {
       "id": "fill-value-reference-composite-wrong-kind",
-      "entry": "candidate.projection.39bd862a5e2235a6a171",
+      "entry": "candidate.projection.2300f1102f68f4fbbf74",
       "xml": "<Properties xmlns:cfg=\"http://v8.1c.ru/8.1/data/enterprise/current-config\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Строковый реквизит</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:Type>cfg:CatalogRef.СправочникПолный</v8:Type>\n\t\t\t\t\t\t<v8:Type>cfg:CatalogRef.СправочникРеквизит</v8:Type>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>false</PasswordMode>\n\t\t\t\t\t<Format />\n\t\t\t\t\t<EditFormat />\n\t\t\t\t\t<ToolTip />\n\t\t\t\t\t<MarkNegatives>false</MarkNegatives>\n\t\t\t\t\t<Mask />\n\t\t\t\t\t<MultiLine>false</MultiLine>\n\t\t\t\t\t<ExtendedEdit>false</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<FillFromFillingValue>false</FillFromFillingValue>\n\t\t\t\t\t<FillValue xsi:type=\"xr:DesignTimeRef\">Document.ДокументВсеСвойства.ПредопредленноеЗначение</FillValue>\n\t\t\t\t\t<FillChecking>DontCheck</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>Auto</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>Use</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t</Properties>",
       "yaml": "Тип:\n  - Справочник.СправочникПолный\n  - Справочник.СправочникРеквизит\nЗначениеЗаполнения: Документ.ДокументВсеСвойства.ПредопредленноеЗначение",
       "omittedXMLProperties": [
@@ -5072,6 +5107,7 @@
         }
       ],
       "factBindings": {
+        "definedTypes": "metadata.defined-type-alternatives",
         "roots": "metadata.roots"
       },
       "inputs": {
@@ -5088,8 +5124,186 @@
       ]
     },
     {
+      "id": "fill-value-defined-type-as-text",
+      "entry": "candidate.projection.2300f1102f68f4fbbf74",
+      "xml": "<Properties xmlns:cfg=\"http://v8.1c.ru/8.1/data/enterprise/current-config\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Строковый реквизит</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:TypeSet>cfg:DefinedType.ОпределяемыйТипВсеСвойства</v8:TypeSet>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>false</PasswordMode>\n\t\t\t\t\t<Format />\n\t\t\t\t\t<EditFormat />\n\t\t\t\t\t<ToolTip />\n\t\t\t\t\t<MarkNegatives>false</MarkNegatives>\n\t\t\t\t\t<Mask />\n\t\t\t\t\t<MultiLine>false</MultiLine>\n\t\t\t\t\t<ExtendedEdit>false</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<FillFromFillingValue>false</FillFromFillingValue>\n\t\t\t\t\t<FillValue xsi:type=\"xs:string\">Строка</FillValue>\n\t\t\t\t\t<FillChecking>DontCheck</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>Auto</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>Use</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t</Properties>",
+      "yaml": "Тип: ОпределяемыйТип.ОпределяемыйТипВсеСвойства\nЗначениеЗаполнения: Строка",
+      "omittedXMLProperties": [
+        "Name",
+        "ChoiceParameterLinks",
+        "ChoiceParameters",
+        "LinkByType"
+      ],
+      "xmlQNamePaths": [
+        [
+          "Properties",
+          "Type",
+          "{http://v8.1c.ru/8.1/data/core}TypeSet"
+        ]
+      ],
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства.xml",
+          "sha256": "346554c79ff22c0239e18eaa00e69bc203b161485dcbd6a482b191871f90b79e"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/Документ/ДокументВсеСвойства/Свойства.yaml",
+          "sha256": "5402cf710992add6b05ad677aa11a7ebbe4470cbfb7565dc753d80e539813abc"
+        },
+        {
+          "path": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства.xml"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/ПланОбмена/ПланОбменаВсеСвойства/Свойства.yaml"
+        },
+        {
+          "path": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства.xml"
+        },
+        {
+          "path": "e2e/fixtures/xml/cf/DefinedTypes/ОпределяемыйТипВсеСвойства.xml"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/ОпределяемыйТип/ОпределяемыйТипВсеСвойства.yaml"
+        }
+      ],
+      "factBindings": {
+        "definedTypes": "metadata.defined-type-alternatives",
+        "roots": "metadata.roots"
+      },
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ],
+        "ownerName": "СтроковыйРеквизит"
+      },
+      "adaptation": "The immutable defined type supplies string and decimal alternatives; the observed text FillValue is valid through the prepared union"
+    },
+    {
+      "id": "fill-value-defined-type-reference-mismatch",
+      "entry": "candidate.projection.2300f1102f68f4fbbf74",
+      "xml": "<Properties xmlns:cfg=\"http://v8.1c.ru/8.1/data/enterprise/current-config\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Строковый реквизит</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:TypeSet>cfg:DefinedType.ОпределяемыйТипВсеСвойства</v8:TypeSet>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>false</PasswordMode>\n\t\t\t\t\t<Format />\n\t\t\t\t\t<EditFormat />\n\t\t\t\t\t<ToolTip />\n\t\t\t\t\t<MarkNegatives>false</MarkNegatives>\n\t\t\t\t\t<Mask />\n\t\t\t\t\t<MultiLine>false</MultiLine>\n\t\t\t\t\t<ExtendedEdit>false</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<FillFromFillingValue>false</FillFromFillingValue>\n\t\t\t\t\t<FillValue xsi:type=\"xr:DesignTimeRef\">Catalog.СправочникРеквизит.ПредопредленноеЗначение</FillValue>\n\t\t\t\t\t<FillChecking>DontCheck</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>Auto</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>Use</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t</Properties>",
+      "yaml": "Тип: ОпределяемыйТип.ОпределяемыйТипВсеСвойства\nЗначениеЗаполнения: Справочник.СправочникРеквизит.ПредопредленноеЗначение",
+      "omittedXMLProperties": [
+        "Name",
+        "ChoiceParameterLinks",
+        "ChoiceParameters",
+        "LinkByType"
+      ],
+      "xmlQNamePaths": [
+        [
+          "Properties",
+          "Type",
+          "{http://v8.1c.ru/8.1/data/core}TypeSet"
+        ]
+      ],
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства.xml",
+          "sha256": "346554c79ff22c0239e18eaa00e69bc203b161485dcbd6a482b191871f90b79e"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/Документ/ДокументВсеСвойства/Свойства.yaml",
+          "sha256": "5402cf710992add6b05ad677aa11a7ebbe4470cbfb7565dc753d80e539813abc"
+        },
+        {
+          "path": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства.xml"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/ПланОбмена/ПланОбменаВсеСвойства/Свойства.yaml"
+        },
+        {
+          "path": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства.xml"
+        },
+        {
+          "path": "e2e/fixtures/xml/cf/DefinedTypes/ОпределяемыйТипВсеСвойства.xml"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/ОпределяемыйТип/ОпределяемыйТипВсеСвойства.yaml"
+        }
+      ],
+      "factBindings": {
+        "definedTypes": "metadata.defined-type-alternatives",
+        "roots": "metadata.roots"
+      },
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ],
+        "ownerName": "СтроковыйРеквизит"
+      },
+      "adaptation": "The observed reference value is incompatible with both actual alternatives of the immutable defined type",
+      "diagnostics": [
+        "fill-value.type-mismatch"
+      ]
+    },
+    {
+      "id": "fill-value-defined-type-missing",
+      "entry": "candidate.projection.2300f1102f68f4fbbf74",
+      "xml": "<Properties xmlns:cfg=\"http://v8.1c.ru/8.1/data/enterprise/current-config\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Строковый реквизит</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:TypeSet>cfg:DefinedType.ОтсутствующийОпределяемыйТип</v8:TypeSet>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>false</PasswordMode>\n\t\t\t\t\t<Format />\n\t\t\t\t\t<EditFormat />\n\t\t\t\t\t<ToolTip />\n\t\t\t\t\t<MarkNegatives>false</MarkNegatives>\n\t\t\t\t\t<Mask />\n\t\t\t\t\t<MultiLine>false</MultiLine>\n\t\t\t\t\t<ExtendedEdit>false</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<FillFromFillingValue>false</FillFromFillingValue>\n\t\t\t\t\t<FillValue xsi:type=\"xs:string\">Строка</FillValue>\n\t\t\t\t\t<FillChecking>DontCheck</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>Auto</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>Use</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t</Properties>",
+      "yaml": "Тип: ОпределяемыйТип.ОтсутствующийОпределяемыйТип\nЗначениеЗаполнения: Строка",
+      "omittedXMLProperties": [
+        "Name",
+        "ChoiceParameterLinks",
+        "ChoiceParameters",
+        "LinkByType"
+      ],
+      "xmlQNamePaths": [
+        [
+          "Properties",
+          "Type",
+          "{http://v8.1c.ru/8.1/data/core}TypeSet"
+        ]
+      ],
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства.xml",
+          "sha256": "346554c79ff22c0239e18eaa00e69bc203b161485dcbd6a482b191871f90b79e"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/Документ/ДокументВсеСвойства/Свойства.yaml",
+          "sha256": "5402cf710992add6b05ad677aa11a7ebbe4470cbfb7565dc753d80e539813abc"
+        },
+        {
+          "path": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства.xml"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/ПланОбмена/ПланОбменаВсеСвойства/Свойства.yaml"
+        },
+        {
+          "path": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства.xml"
+        },
+        {
+          "path": "e2e/fixtures/xml/cf/DefinedTypes/ОпределяемыйТипВсеСвойства.xml"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/ОпределяемыйТип/ОпределяемыйТипВсеСвойства.yaml"
+        }
+      ],
+      "factBindings": {
+        "definedTypes": "metadata.defined-type-alternatives",
+        "roots": "metadata.roots"
+      },
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ],
+        "ownerName": "СтроковыйРеквизит"
+      },
+      "adaptation": "Change only the declared name; an absent graph node is a semantic anomaly and must not also produce a type-mismatch diagnostic",
+      "diagnostics": [
+        "fact.missing"
+      ],
+      "noRaw": true
+    },
+    {
       "id": "fill-value-reference-composite-as-text",
-      "entry": "candidate.projection.39bd862a5e2235a6a171",
+      "entry": "candidate.projection.2300f1102f68f4fbbf74",
       "xml": "<Properties xmlns:cfg=\"http://v8.1c.ru/8.1/data/enterprise/current-config\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Строковый реквизит</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:Type>cfg:CatalogRef.СправочникПолный</v8:Type>\n\t\t\t\t\t\t<v8:Type>cfg:CatalogRef.СправочникРеквизит</v8:Type>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>false</PasswordMode>\n\t\t\t\t\t<Format />\n\t\t\t\t\t<EditFormat />\n\t\t\t\t\t<ToolTip />\n\t\t\t\t\t<MarkNegatives>false</MarkNegatives>\n\t\t\t\t\t<Mask />\n\t\t\t\t\t<MultiLine>false</MultiLine>\n\t\t\t\t\t<ExtendedEdit>false</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<FillFromFillingValue>false</FillFromFillingValue>\n\t\t\t\t\t<FillValue xsi:type=\"xs:string\">Строка</FillValue>\n\t\t\t\t\t<FillChecking>DontCheck</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>Auto</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>Use</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t</Properties>",
       "yaml": "Тип:\n  - Справочник.СправочникПолный\n  - Справочник.СправочникРеквизит\nЗначениеЗаполнения: Строка",
       "omittedXMLProperties": [
@@ -5128,6 +5342,7 @@
         }
       ],
       "factBindings": {
+        "definedTypes": "metadata.defined-type-alternatives",
         "roots": "metadata.roots"
       },
       "inputs": {
@@ -5145,7 +5360,7 @@
     },
     {
       "id": "fill-value-reference-or-string-as-text",
-      "entry": "candidate.projection.39bd862a5e2235a6a171",
+      "entry": "candidate.projection.2300f1102f68f4fbbf74",
       "xml": "<Properties xmlns:cfg=\"http://v8.1c.ru/8.1/data/enterprise/current-config\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Строковый реквизит</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:Type>cfg:CatalogRef.СправочникПолный</v8:Type>\n\t\t\t\t\t\t<v8:Type>xs:string</v8:Type>\n\t\t\t\t\t\t<v8:StringQualifiers>\n\t\t\t\t\t\t\t<v8:Length>10</v8:Length>\n\t\t\t\t\t\t\t<v8:AllowedLength>Variable</v8:AllowedLength>\n\t\t\t\t\t\t</v8:StringQualifiers>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>false</PasswordMode>\n\t\t\t\t\t<Format />\n\t\t\t\t\t<EditFormat />\n\t\t\t\t\t<ToolTip />\n\t\t\t\t\t<MarkNegatives>false</MarkNegatives>\n\t\t\t\t\t<Mask />\n\t\t\t\t\t<MultiLine>false</MultiLine>\n\t\t\t\t\t<ExtendedEdit>false</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<FillFromFillingValue>false</FillFromFillingValue>\n\t\t\t\t\t<FillValue xsi:type=\"xs:string\">Строка</FillValue>\n\t\t\t\t\t<FillChecking>DontCheck</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>Auto</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>Use</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t</Properties>",
       "yaml": "Тип:\n  - Справочник.СправочникПолный\n  - Строка(10)\nЗначениеЗаполнения: Строка",
       "omittedXMLProperties": [
@@ -5184,6 +5399,7 @@
         }
       ],
       "factBindings": {
+        "definedTypes": "metadata.defined-type-alternatives",
         "roots": "metadata.roots"
       },
       "inputs": {
@@ -5198,8 +5414,68 @@
       "diagnostics": []
     },
     {
+      "id": "fill-value-defined-type-as-number",
+      "entry": "candidate.projection.2300f1102f68f4fbbf74",
+      "xml": "<Properties xmlns:cfg=\"http://v8.1c.ru/8.1/data/enterprise/current-config\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Строковый реквизит</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:TypeSet>cfg:DefinedType.ОпределяемыйТипВсеСвойства</v8:TypeSet>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>false</PasswordMode>\n\t\t\t\t\t<Format />\n\t\t\t\t\t<EditFormat />\n\t\t\t\t\t<ToolTip />\n\t\t\t\t\t<MarkNegatives>false</MarkNegatives>\n\t\t\t\t\t<Mask />\n\t\t\t\t\t<MultiLine>false</MultiLine>\n\t\t\t\t\t<ExtendedEdit>false</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<FillFromFillingValue>false</FillFromFillingValue>\n\t\t\t\t\t<FillValue xsi:type=\"xs:decimal\">1234</FillValue>\n\t\t\t\t\t<FillChecking>DontCheck</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>Auto</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>Use</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t</Properties>",
+      "yaml": "Тип: ОпределяемыйТип.ОпределяемыйТипВсеСвойства\nЗначениеЗаполнения: 1234",
+      "omittedXMLProperties": [
+        "Name",
+        "ChoiceParameterLinks",
+        "ChoiceParameters",
+        "LinkByType"
+      ],
+      "xmlQNamePaths": [
+        [
+          "Properties",
+          "Type",
+          "{http://v8.1c.ru/8.1/data/core}TypeSet"
+        ]
+      ],
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства.xml",
+          "sha256": "346554c79ff22c0239e18eaa00e69bc203b161485dcbd6a482b191871f90b79e"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/Документ/ДокументВсеСвойства/Свойства.yaml",
+          "sha256": "5402cf710992add6b05ad677aa11a7ebbe4470cbfb7565dc753d80e539813abc"
+        },
+        {
+          "path": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства.xml"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/ПланОбмена/ПланОбменаВсеСвойства/Свойства.yaml"
+        },
+        {
+          "path": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства.xml"
+        },
+        {
+          "path": "e2e/fixtures/xml/cf/DefinedTypes/ОпределяемыйТипВсеСвойства.xml"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/ОпределяемыйТип/ОпределяемыйТипВсеСвойства.yaml"
+        },
+        {
+          "path": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый.xml"
+        }
+      ],
+      "factBindings": {
+        "definedTypes": "metadata.defined-type-alternatives",
+        "roots": "metadata.roots"
+      },
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ],
+        "ownerName": "СтроковыйРеквизит"
+      },
+      "adaptation": "The observed exact decimal FillValue is valid through the second alternative of the immutable defined type"
+    },
+    {
       "id": "fill-value-reference-or-number-as-text",
-      "entry": "candidate.projection.39bd862a5e2235a6a171",
+      "entry": "candidate.projection.2300f1102f68f4fbbf74",
       "xml": "<Properties xmlns:cfg=\"http://v8.1c.ru/8.1/data/enterprise/current-config\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Строковый реквизит</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:Type>cfg:CatalogRef.СправочникПолный</v8:Type>\n\t\t\t\t\t\t<v8:Type>xs:decimal</v8:Type>\n\t\t\t\t\t\t<v8:NumberQualifiers>\n\t\t\t\t\t\t\t<v8:Digits>10</v8:Digits>\n\t\t\t\t\t\t\t<v8:FractionDigits>0</v8:FractionDigits>\n\t\t\t\t\t\t\t<v8:AllowedSign>Any</v8:AllowedSign>\n\t\t\t\t\t\t</v8:NumberQualifiers>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>false</PasswordMode>\n\t\t\t\t\t<Format />\n\t\t\t\t\t<EditFormat />\n\t\t\t\t\t<ToolTip />\n\t\t\t\t\t<MarkNegatives>false</MarkNegatives>\n\t\t\t\t\t<Mask />\n\t\t\t\t\t<MultiLine>false</MultiLine>\n\t\t\t\t\t<ExtendedEdit>false</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<FillFromFillingValue>false</FillFromFillingValue>\n\t\t\t\t\t<FillValue xsi:type=\"xs:string\">Строка</FillValue>\n\t\t\t\t\t<FillChecking>DontCheck</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>Auto</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>Use</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t</Properties>",
       "yaml": "Тип:\n  - Справочник.СправочникПолный\n  - Число(10, 0)\nЗначениеЗаполнения: Строка",
       "omittedXMLProperties": [
@@ -5244,6 +5520,7 @@
         }
       ],
       "factBindings": {
+        "definedTypes": "metadata.defined-type-alternatives",
         "roots": "metadata.roots"
       },
       "inputs": {
@@ -5261,7 +5538,7 @@
     },
     {
       "id": "fill-value-reference-or-number-as-number",
-      "entry": "candidate.projection.39bd862a5e2235a6a171",
+      "entry": "candidate.projection.2300f1102f68f4fbbf74",
       "xml": "<Properties xmlns:cfg=\"http://v8.1c.ru/8.1/data/enterprise/current-config\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Строковый реквизит</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:Type>cfg:CatalogRef.СправочникПолный</v8:Type>\n\t\t\t\t\t\t<v8:Type>xs:decimal</v8:Type>\n\t\t\t\t\t\t<v8:NumberQualifiers>\n\t\t\t\t\t\t\t<v8:Digits>10</v8:Digits>\n\t\t\t\t\t\t\t<v8:FractionDigits>0</v8:FractionDigits>\n\t\t\t\t\t\t\t<v8:AllowedSign>Any</v8:AllowedSign>\n\t\t\t\t\t\t</v8:NumberQualifiers>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>false</PasswordMode>\n\t\t\t\t\t<Format />\n\t\t\t\t\t<EditFormat />\n\t\t\t\t\t<ToolTip />\n\t\t\t\t\t<MarkNegatives>false</MarkNegatives>\n\t\t\t\t\t<Mask />\n\t\t\t\t\t<MultiLine>false</MultiLine>\n\t\t\t\t\t<ExtendedEdit>false</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<FillFromFillingValue>false</FillFromFillingValue>\n\t\t\t\t\t<FillValue xsi:type=\"xs:decimal\">1234</FillValue>\n\t\t\t\t\t<FillChecking>DontCheck</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>Auto</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>Use</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t</Properties>",
       "yaml": "Тип:\n  - Справочник.СправочникПолный\n  - Число(10, 0)\nЗначениеЗаполнения: 1234",
       "omittedXMLProperties": [
@@ -5306,6 +5583,7 @@
         }
       ],
       "factBindings": {
+        "definedTypes": "metadata.defined-type-alternatives",
         "roots": "metadata.roots"
       },
       "inputs": {
@@ -5321,7 +5599,7 @@
     },
     {
       "id": "fill-value-reference-type-set",
-      "entry": "candidate.projection.39bd862a5e2235a6a171",
+      "entry": "candidate.projection.2300f1102f68f4fbbf74",
       "xml": "<Properties xmlns:cfg=\"http://v8.1c.ru/8.1/data/enterprise/current-config\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Строковый реквизит</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:TypeSet>cfg:CatalogRef</v8:TypeSet>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>false</PasswordMode>\n\t\t\t\t\t<Format />\n\t\t\t\t\t<EditFormat />\n\t\t\t\t\t<ToolTip />\n\t\t\t\t\t<MarkNegatives>false</MarkNegatives>\n\t\t\t\t\t<Mask />\n\t\t\t\t\t<MultiLine>false</MultiLine>\n\t\t\t\t\t<ExtendedEdit>false</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<FillFromFillingValue>false</FillFromFillingValue>\n\t\t\t\t\t<FillValue xsi:type=\"xr:DesignTimeRef\">Catalog.СправочникРеквизит.ПредопредленноеЗначение</FillValue>\n\t\t\t\t\t<FillChecking>DontCheck</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>Auto</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>Use</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t</Properties>",
       "yaml": "Тип: Справочник\nЗначениеЗаполнения: Справочник.СправочникРеквизит.ПредопредленноеЗначение",
       "omittedXMLProperties": [
@@ -5360,6 +5638,7 @@
         }
       ],
       "factBindings": {
+        "definedTypes": "metadata.defined-type-alternatives",
         "roots": "metadata.roots"
       },
       "inputs": {
@@ -5374,7 +5653,7 @@
     },
     {
       "id": "fill-value-reference-type-set-as-text",
-      "entry": "candidate.projection.39bd862a5e2235a6a171",
+      "entry": "candidate.projection.2300f1102f68f4fbbf74",
       "xml": "<Properties xmlns:cfg=\"http://v8.1c.ru/8.1/data/enterprise/current-config\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Строковый реквизит</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:TypeSet>cfg:CatalogRef</v8:TypeSet>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>false</PasswordMode>\n\t\t\t\t\t<Format />\n\t\t\t\t\t<EditFormat />\n\t\t\t\t\t<ToolTip />\n\t\t\t\t\t<MarkNegatives>false</MarkNegatives>\n\t\t\t\t\t<Mask />\n\t\t\t\t\t<MultiLine>false</MultiLine>\n\t\t\t\t\t<ExtendedEdit>false</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<FillFromFillingValue>false</FillFromFillingValue>\n\t\t\t\t\t<FillValue xsi:type=\"xs:string\">текст</FillValue>\n\t\t\t\t\t<FillChecking>DontCheck</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>Auto</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>Use</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t</Properties>",
       "yaml": "Тип: Справочник\nЗначениеЗаполнения: текст",
       "omittedXMLProperties": [
@@ -5413,6 +5692,7 @@
         }
       ],
       "factBindings": {
+        "definedTypes": "metadata.defined-type-alternatives",
         "roots": "metadata.roots"
       },
       "inputs": {
@@ -5430,7 +5710,7 @@
     },
     {
       "id": "fill-value-reference-as-text",
-      "entry": "candidate.projection.39bd862a5e2235a6a171",
+      "entry": "candidate.projection.2300f1102f68f4fbbf74",
       "xml": "<Properties xmlns:cfg=\"http://v8.1c.ru/8.1/data/enterprise/current-config\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Строковый реквизит</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:Type>cfg:CatalogRef.СправочникРеквизит</v8:Type>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>false</PasswordMode>\n\t\t\t\t\t<Format />\n\t\t\t\t\t<EditFormat />\n\t\t\t\t\t<ToolTip />\n\t\t\t\t\t<MarkNegatives>false</MarkNegatives>\n\t\t\t\t\t<Mask />\n\t\t\t\t\t<MultiLine>false</MultiLine>\n\t\t\t\t\t<ExtendedEdit>false</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<FillFromFillingValue>false</FillFromFillingValue>\n\t\t\t\t\t<FillValue xsi:type=\"xs:string\">текст</FillValue>\n\t\t\t\t\t<FillChecking>DontCheck</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>Auto</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>Use</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t</Properties>",
       "yaml": "Тип: Справочник.СправочникРеквизит\nЗначениеЗаполнения: текст",
       "omittedXMLProperties": [
@@ -5463,6 +5743,7 @@
         }
       ],
       "factBindings": {
+        "definedTypes": "metadata.defined-type-alternatives",
         "roots": "metadata.roots"
       },
       "inputs": {
@@ -5480,7 +5761,7 @@
     },
     {
       "id": "fill-value-string-too-long",
-      "entry": "candidate.projection.39bd862a5e2235a6a171",
+      "entry": "candidate.projection.2300f1102f68f4fbbf74",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Строковый реквизит</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:Type>xs:string</v8:Type>\n\t\t\t\t\t\t<v8:StringQualifiers>\n\t\t\t\t\t\t\t<v8:Length>10</v8:Length>\n\t\t\t\t\t\t\t<v8:AllowedLength>Variable</v8:AllowedLength>\n\t\t\t\t\t\t</v8:StringQualifiers>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>false</PasswordMode>\n\t\t\t\t\t<Format />\n\t\t\t\t\t<EditFormat />\n\t\t\t\t\t<ToolTip />\n\t\t\t\t\t<MarkNegatives>false</MarkNegatives>\n\t\t\t\t\t<Mask />\n\t\t\t\t\t<MultiLine>false</MultiLine>\n\t\t\t\t\t<ExtendedEdit>false</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<FillFromFillingValue>false</FillFromFillingValue>\n\t\t\t\t\t<FillValue xsi:type=\"xs:string\">12345678901</FillValue>\n\t\t\t\t\t<FillChecking>DontCheck</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>Auto</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>Use</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t</Properties>",
       "yaml": "Тип: Строка(10)\nЗначениеЗаполнения: '12345678901'",
       "omittedXMLProperties": [
@@ -5507,6 +5788,7 @@
         }
       ],
       "factBindings": {
+        "definedTypes": "metadata.defined-type-alternatives",
         "roots": "metadata.roots"
       },
       "inputs": {
@@ -5524,7 +5806,7 @@
     },
     {
       "id": "fill-value-string-at-limit",
-      "entry": "candidate.projection.39bd862a5e2235a6a171",
+      "entry": "candidate.projection.2300f1102f68f4fbbf74",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Строковый реквизит</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:Type>xs:string</v8:Type>\n\t\t\t\t\t\t<v8:StringQualifiers>\n\t\t\t\t\t\t\t<v8:Length>10</v8:Length>\n\t\t\t\t\t\t\t<v8:AllowedLength>Variable</v8:AllowedLength>\n\t\t\t\t\t\t</v8:StringQualifiers>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>false</PasswordMode>\n\t\t\t\t\t<Format />\n\t\t\t\t\t<EditFormat />\n\t\t\t\t\t<ToolTip />\n\t\t\t\t\t<MarkNegatives>false</MarkNegatives>\n\t\t\t\t\t<Mask />\n\t\t\t\t\t<MultiLine>false</MultiLine>\n\t\t\t\t\t<ExtendedEdit>false</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<FillFromFillingValue>false</FillFromFillingValue>\n\t\t\t\t\t<FillValue xsi:type=\"xs:string\">1234567890</FillValue>\n\t\t\t\t\t<FillChecking>DontCheck</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>Auto</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>Use</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t</Properties>",
       "yaml": "Тип: Строка(10)\nЗначениеЗаполнения: '1234567890'",
       "omittedXMLProperties": [
@@ -5551,6 +5833,7 @@
         }
       ],
       "factBindings": {
+        "definedTypes": "metadata.defined-type-alternatives",
         "roots": "metadata.roots"
       },
       "inputs": {
@@ -5565,7 +5848,7 @@
     },
     {
       "id": "fill-value-string-utf16-length",
-      "entry": "candidate.projection.39bd862a5e2235a6a171",
+      "entry": "candidate.projection.2300f1102f68f4fbbf74",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Строковый реквизит</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:Type>xs:string</v8:Type>\n\t\t\t\t\t\t<v8:StringQualifiers>\n\t\t\t\t\t\t\t<v8:Length>10</v8:Length>\n\t\t\t\t\t\t\t<v8:AllowedLength>Variable</v8:AllowedLength>\n\t\t\t\t\t\t</v8:StringQualifiers>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>false</PasswordMode>\n\t\t\t\t\t<Format />\n\t\t\t\t\t<EditFormat />\n\t\t\t\t\t<ToolTip />\n\t\t\t\t\t<MarkNegatives>false</MarkNegatives>\n\t\t\t\t\t<Mask />\n\t\t\t\t\t<MultiLine>false</MultiLine>\n\t\t\t\t\t<ExtendedEdit>false</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<FillFromFillingValue>false</FillFromFillingValue>\n\t\t\t\t\t<FillValue xsi:type=\"xs:string\">123456789😀</FillValue>\n\t\t\t\t\t<FillChecking>DontCheck</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>Auto</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>Use</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t</Properties>",
       "yaml": "Тип: Строка(10)\nЗначениеЗаполнения: '123456789😀'",
       "omittedXMLProperties": [
@@ -5592,6 +5875,7 @@
         }
       ],
       "factBindings": {
+        "definedTypes": "metadata.defined-type-alternatives",
         "roots": "metadata.roots"
       },
       "inputs": {
@@ -5609,7 +5893,7 @@
     },
     {
       "id": "fill-value-fixed-string",
-      "entry": "candidate.projection.39bd862a5e2235a6a171",
+      "entry": "candidate.projection.2300f1102f68f4fbbf74",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Строковый реквизит</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:Type>xs:string</v8:Type>\n\t\t\t\t\t\t<v8:StringQualifiers>\n\t\t\t\t\t\t\t<v8:Length>10</v8:Length>\n\t\t\t\t\t\t\t<v8:AllowedLength>Fixed</v8:AllowedLength>\n\t\t\t\t\t\t</v8:StringQualifiers>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>false</PasswordMode>\n\t\t\t\t\t<Format />\n\t\t\t\t\t<EditFormat />\n\t\t\t\t\t<ToolTip />\n\t\t\t\t\t<MarkNegatives>false</MarkNegatives>\n\t\t\t\t\t<Mask />\n\t\t\t\t\t<MultiLine>false</MultiLine>\n\t\t\t\t\t<ExtendedEdit>false</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<FillFromFillingValue>false</FillFromFillingValue>\n\t\t\t\t\t<FillValue xsi:type=\"xs:string\" />\n\t\t\t\t\t<FillChecking>DontCheck</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>Auto</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>Use</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t</Properties>",
       "yaml": "Тип: ФиксированнаяСтрока(10)",
       "omittedXMLProperties": [
@@ -5639,6 +5923,7 @@
         }
       ],
       "factBindings": {
+        "definedTypes": "metadata.defined-type-alternatives",
         "roots": "metadata.roots"
       },
       "inputs": {
@@ -5662,7 +5947,7 @@
     },
     {
       "id": "fill-value-fixed-string-at-limit",
-      "entry": "candidate.projection.39bd862a5e2235a6a171",
+      "entry": "candidate.projection.2300f1102f68f4fbbf74",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Строковый реквизит</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:Type>xs:string</v8:Type>\n\t\t\t\t\t\t<v8:StringQualifiers>\n\t\t\t\t\t\t\t<v8:Length>10</v8:Length>\n\t\t\t\t\t\t\t<v8:AllowedLength>Fixed</v8:AllowedLength>\n\t\t\t\t\t\t</v8:StringQualifiers>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>false</PasswordMode>\n\t\t\t\t\t<Format />\n\t\t\t\t\t<EditFormat />\n\t\t\t\t\t<ToolTip />\n\t\t\t\t\t<MarkNegatives>false</MarkNegatives>\n\t\t\t\t\t<Mask />\n\t\t\t\t\t<MultiLine>false</MultiLine>\n\t\t\t\t\t<ExtendedEdit>false</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<FillFromFillingValue>false</FillFromFillingValue>\n\t\t\t\t\t<FillValue xsi:type=\"xs:string\">1234567890</FillValue>\n\t\t\t\t\t<FillChecking>DontCheck</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>Auto</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>Use</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t</Properties>",
       "yaml": "Тип: ФиксированнаяСтрока(10)\nЗначениеЗаполнения: '1234567890'",
       "omittedXMLProperties": [
@@ -5692,6 +5977,7 @@
         }
       ],
       "factBindings": {
+        "definedTypes": "metadata.defined-type-alternatives",
         "roots": "metadata.roots"
       },
       "inputs": {
@@ -5707,7 +5993,7 @@
     },
     {
       "id": "fill-value-fixed-string-too-short",
-      "entry": "candidate.projection.39bd862a5e2235a6a171",
+      "entry": "candidate.projection.2300f1102f68f4fbbf74",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Строковый реквизит</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:Type>xs:string</v8:Type>\n\t\t\t\t\t\t<v8:StringQualifiers>\n\t\t\t\t\t\t\t<v8:Length>10</v8:Length>\n\t\t\t\t\t\t\t<v8:AllowedLength>Fixed</v8:AllowedLength>\n\t\t\t\t\t\t</v8:StringQualifiers>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>false</PasswordMode>\n\t\t\t\t\t<Format />\n\t\t\t\t\t<EditFormat />\n\t\t\t\t\t<ToolTip />\n\t\t\t\t\t<MarkNegatives>false</MarkNegatives>\n\t\t\t\t\t<Mask />\n\t\t\t\t\t<MultiLine>false</MultiLine>\n\t\t\t\t\t<ExtendedEdit>false</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<FillFromFillingValue>false</FillFromFillingValue>\n\t\t\t\t\t<FillValue xsi:type=\"xs:string\">123456789</FillValue>\n\t\t\t\t\t<FillChecking>DontCheck</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>Auto</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>Use</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t</Properties>",
       "yaml": "Тип: ФиксированнаяСтрока(10)\nЗначениеЗаполнения: '123456789'",
       "omittedXMLProperties": [
@@ -5737,6 +6023,7 @@
         }
       ],
       "factBindings": {
+        "definedTypes": "metadata.defined-type-alternatives",
         "roots": "metadata.roots"
       },
       "inputs": {
@@ -5755,7 +6042,7 @@
     },
     {
       "id": "fill-value-number-over-precision",
-      "entry": "candidate.projection.14f14efa663c42f72384",
+      "entry": "candidate.projection.a31bc37ac39fb90fb697",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Comment>Комментарий</Comment>\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:Type>xs:decimal</v8:Type>\n\t\t\t\t\t\t<v8:NumberQualifiers>\n\t\t\t\t\t\t\t<v8:Digits>10</v8:Digits>\n\t\t\t\t\t\t\t<v8:FractionDigits>0</v8:FractionDigits>\n\t\t\t\t\t\t\t<v8:AllowedSign>Any</v8:AllowedSign>\n\t\t\t\t\t\t</v8:NumberQualifiers>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>true</PasswordMode>\n\t\t\t\t\t<Format>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>ЧЦ=15; ЧДЦ=2</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Format>\n\t\t\t\t\t<EditFormat>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>ЧЦ=15; ЧДЦ=2</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</EditFormat>\n\t\t\t\t\t<ToolTip>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Подсказка</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</ToolTip>\n\t\t\t\t\t<MarkNegatives>true</MarkNegatives>\n\t\t\t\t\t<Mask>Маска</Mask>\n\t\t\t\t\t<MultiLine>true</MultiLine>\n\t\t\t\t\t<ExtendedEdit>true</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:type=\"xs:string\">4</MinValue>\n\t\t\t\t\t<MaxValue xsi:type=\"xs:string\">96</MaxValue>\n\t\t\t\t\t<FillFromFillingValue>true</FillFromFillingValue>\n\t\t\t\t\t<FillValue xsi:type=\"xs:decimal\">12345678901</FillValue>\n\t\t\t\t\t<FillChecking>ShowError</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>DontUse</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>DontUse</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>DontUse</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t\t<BinaryDataStorageLocationUse>DontUse</BinaryDataStorageLocationUse>\n\t\t\t\t\t<BinaryDataStorageLocationUseField>InformationRegister.РегистрСведенийВсеСвойстваНезависимый.Attribute.ИспользоватьХранилищеДвоичныхДанных</BinaryDataStorageLocationUseField>\n\t\t\t\t</Properties>",
       "yaml": "Комментарий: Комментарий\nТип: Число(10, 0)\nРежимПароля: Истина\nФормат: ЧЦ=15; ЧДЦ=2\nФорматРедактирования: ЧЦ=15; ЧДЦ=2\nПодсказка: Подсказка\nВыделятьОтрицательные: Истина\nМаска: Маска\nМногострочныйРежим: Истина\nРасширенноеРедактирование: Истина\nМинимальноеЗначение: 4\nМаксимальноеЗначение: 96\nЗаполнятьИзДанныхЗаполнения: Истина\nЗначениеЗаполнения: 12345678901\nПроверкаЗаполнения: ВыдаватьОшибку\nСозданиеПриВводе: НеИспользовать\nИсторияВыбораПриВводе: НеИспользовать\nПолнотекстовыйПоиск: НеИспользовать\nИспользованиеХраненияВХранилищеДвоичныхДанных: НеИспользовать\nПолеИспользованияХраненияВХранилищеДвоичныхДанных: InformationRegister.РегистрСведенийВсеСвойстваНезависимый.Attribute.ИспользоватьХранилищеДвоичныхДанных",
       "omittedXMLProperties": [
@@ -5783,6 +6070,7 @@
         }
       ],
       "factBindings": {
+        "definedTypes": "metadata.defined-type-alternatives",
         "roots": "metadata.roots"
       },
       "inputs": {
@@ -5800,7 +6088,7 @@
     },
     {
       "id": "fill-value-number-at-precision",
-      "entry": "candidate.projection.14f14efa663c42f72384",
+      "entry": "candidate.projection.a31bc37ac39fb90fb697",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Comment>Комментарий</Comment>\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:Type>xs:decimal</v8:Type>\n\t\t\t\t\t\t<v8:NumberQualifiers>\n\t\t\t\t\t\t\t<v8:Digits>10</v8:Digits>\n\t\t\t\t\t\t\t<v8:FractionDigits>0</v8:FractionDigits>\n\t\t\t\t\t\t\t<v8:AllowedSign>Any</v8:AllowedSign>\n\t\t\t\t\t\t</v8:NumberQualifiers>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>true</PasswordMode>\n\t\t\t\t\t<Format>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>ЧЦ=15; ЧДЦ=2</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Format>\n\t\t\t\t\t<EditFormat>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>ЧЦ=15; ЧДЦ=2</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</EditFormat>\n\t\t\t\t\t<ToolTip>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Подсказка</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</ToolTip>\n\t\t\t\t\t<MarkNegatives>true</MarkNegatives>\n\t\t\t\t\t<Mask>Маска</Mask>\n\t\t\t\t\t<MultiLine>true</MultiLine>\n\t\t\t\t\t<ExtendedEdit>true</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:type=\"xs:string\">4</MinValue>\n\t\t\t\t\t<MaxValue xsi:type=\"xs:string\">96</MaxValue>\n\t\t\t\t\t<FillFromFillingValue>true</FillFromFillingValue>\n\t\t\t\t\t<FillValue xsi:type=\"xs:decimal\">1234567890</FillValue>\n\t\t\t\t\t<FillChecking>ShowError</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>DontUse</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>DontUse</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>DontUse</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t\t<BinaryDataStorageLocationUse>DontUse</BinaryDataStorageLocationUse>\n\t\t\t\t\t<BinaryDataStorageLocationUseField>InformationRegister.РегистрСведенийВсеСвойстваНезависимый.Attribute.ИспользоватьХранилищеДвоичныхДанных</BinaryDataStorageLocationUseField>\n\t\t\t\t</Properties>",
       "yaml": "Комментарий: Комментарий\nТип: Число(10, 0)\nРежимПароля: Истина\nФормат: ЧЦ=15; ЧДЦ=2\nФорматРедактирования: ЧЦ=15; ЧДЦ=2\nПодсказка: Подсказка\nВыделятьОтрицательные: Истина\nМаска: Маска\nМногострочныйРежим: Истина\nРасширенноеРедактирование: Истина\nМинимальноеЗначение: 4\nМаксимальноеЗначение: 96\nЗаполнятьИзДанныхЗаполнения: Истина\nЗначениеЗаполнения: 1234567890\nПроверкаЗаполнения: ВыдаватьОшибку\nСозданиеПриВводе: НеИспользовать\nИсторияВыбораПриВводе: НеИспользовать\nПолнотекстовыйПоиск: НеИспользовать\nИспользованиеХраненияВХранилищеДвоичныхДанных: НеИспользовать\nПолеИспользованияХраненияВХранилищеДвоичныхДанных: InformationRegister.РегистрСведенийВсеСвойстваНезависимый.Attribute.ИспользоватьХранилищеДвоичныхДанных",
       "omittedXMLProperties": [
@@ -5828,6 +6116,7 @@
         }
       ],
       "factBindings": {
+        "definedTypes": "metadata.defined-type-alternatives",
         "roots": "metadata.roots"
       },
       "inputs": {
@@ -5842,7 +6131,7 @@
     },
     {
       "id": "fill-value-number-over-fraction",
-      "entry": "candidate.projection.14f14efa663c42f72384",
+      "entry": "candidate.projection.a31bc37ac39fb90fb697",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Comment>Комментарий</Comment>\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:Type>xs:decimal</v8:Type>\n\t\t\t\t\t\t<v8:NumberQualifiers>\n\t\t\t\t\t\t\t<v8:Digits>10</v8:Digits>\n\t\t\t\t\t\t\t<v8:FractionDigits>0</v8:FractionDigits>\n\t\t\t\t\t\t\t<v8:AllowedSign>Any</v8:AllowedSign>\n\t\t\t\t\t\t</v8:NumberQualifiers>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>true</PasswordMode>\n\t\t\t\t\t<Format>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>ЧЦ=15; ЧДЦ=2</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Format>\n\t\t\t\t\t<EditFormat>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>ЧЦ=15; ЧДЦ=2</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</EditFormat>\n\t\t\t\t\t<ToolTip>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Подсказка</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</ToolTip>\n\t\t\t\t\t<MarkNegatives>true</MarkNegatives>\n\t\t\t\t\t<Mask>Маска</Mask>\n\t\t\t\t\t<MultiLine>true</MultiLine>\n\t\t\t\t\t<ExtendedEdit>true</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:type=\"xs:string\">4</MinValue>\n\t\t\t\t\t<MaxValue xsi:type=\"xs:string\">96</MaxValue>\n\t\t\t\t\t<FillFromFillingValue>true</FillFromFillingValue>\n\t\t\t\t\t<FillValue xsi:type=\"xs:decimal\">12.5</FillValue>\n\t\t\t\t\t<FillChecking>ShowError</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>DontUse</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>DontUse</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>DontUse</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t\t<BinaryDataStorageLocationUse>DontUse</BinaryDataStorageLocationUse>\n\t\t\t\t\t<BinaryDataStorageLocationUseField>InformationRegister.РегистрСведенийВсеСвойстваНезависимый.Attribute.ИспользоватьХранилищеДвоичныхДанных</BinaryDataStorageLocationUseField>\n\t\t\t\t</Properties>",
       "yaml": "Комментарий: Комментарий\nТип: Число(10, 0)\nРежимПароля: Истина\nФормат: ЧЦ=15; ЧДЦ=2\nФорматРедактирования: ЧЦ=15; ЧДЦ=2\nПодсказка: Подсказка\nВыделятьОтрицательные: Истина\nМаска: Маска\nМногострочныйРежим: Истина\nРасширенноеРедактирование: Истина\nМинимальноеЗначение: 4\nМаксимальноеЗначение: 96\nЗаполнятьИзДанныхЗаполнения: Истина\nЗначениеЗаполнения: 12.5\nПроверкаЗаполнения: ВыдаватьОшибку\nСозданиеПриВводе: НеИспользовать\nИсторияВыбораПриВводе: НеИспользовать\nПолнотекстовыйПоиск: НеИспользовать\nИспользованиеХраненияВХранилищеДвоичныхДанных: НеИспользовать\nПолеИспользованияХраненияВХранилищеДвоичныхДанных: InformationRegister.РегистрСведенийВсеСвойстваНезависимый.Attribute.ИспользоватьХранилищеДвоичныхДанных",
       "omittedXMLProperties": [
@@ -5870,6 +6159,7 @@
         }
       ],
       "factBindings": {
+        "definedTypes": "metadata.defined-type-alternatives",
         "roots": "metadata.roots"
       },
       "inputs": {
@@ -5887,7 +6177,7 @@
     },
     {
       "id": "fill-value-exact-large-decimal",
-      "entry": "candidate.projection.14f14efa663c42f72384",
+      "entry": "candidate.projection.a31bc37ac39fb90fb697",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Comment>Комментарий</Comment>\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:Type>xs:decimal</v8:Type>\n\t\t\t\t\t\t<v8:NumberQualifiers>\n\t\t\t\t\t\t\t<v8:Digits>20</v8:Digits>\n\t\t\t\t\t\t\t<v8:FractionDigits>0</v8:FractionDigits>\n\t\t\t\t\t\t\t<v8:AllowedSign>Any</v8:AllowedSign>\n\t\t\t\t\t\t</v8:NumberQualifiers>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>true</PasswordMode>\n\t\t\t\t\t<Format>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>ЧЦ=15; ЧДЦ=2</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Format>\n\t\t\t\t\t<EditFormat>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>ЧЦ=15; ЧДЦ=2</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</EditFormat>\n\t\t\t\t\t<ToolTip>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Подсказка</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</ToolTip>\n\t\t\t\t\t<MarkNegatives>true</MarkNegatives>\n\t\t\t\t\t<Mask>Маска</Mask>\n\t\t\t\t\t<MultiLine>true</MultiLine>\n\t\t\t\t\t<ExtendedEdit>true</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:type=\"xs:string\">4</MinValue>\n\t\t\t\t\t<MaxValue xsi:type=\"xs:string\">96</MaxValue>\n\t\t\t\t\t<FillFromFillingValue>true</FillFromFillingValue>\n\t\t\t\t\t<FillValue xsi:type=\"xs:decimal\">9007199254740993</FillValue>\n\t\t\t\t\t<FillChecking>ShowError</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>DontUse</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>DontUse</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>DontUse</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t\t<BinaryDataStorageLocationUse>DontUse</BinaryDataStorageLocationUse>\n\t\t\t\t\t<BinaryDataStorageLocationUseField>InformationRegister.РегистрСведенийВсеСвойстваНезависимый.Attribute.ИспользоватьХранилищеДвоичныхДанных</BinaryDataStorageLocationUseField>\n\t\t\t\t</Properties>",
       "yaml": "Комментарий: Комментарий\nТип: Число(20, 0)\nРежимПароля: Истина\nФормат: ЧЦ=15; ЧДЦ=2\nФорматРедактирования: ЧЦ=15; ЧДЦ=2\nПодсказка: Подсказка\nВыделятьОтрицательные: Истина\nМаска: Маска\nМногострочныйРежим: Истина\nРасширенноеРедактирование: Истина\nМинимальноеЗначение: 4\nМаксимальноеЗначение: 96\nЗаполнятьИзДанныхЗаполнения: Истина\nЗначениеЗаполнения: 9007199254740993\nПроверкаЗаполнения: ВыдаватьОшибку\nСозданиеПриВводе: НеИспользовать\nИсторияВыбораПриВводе: НеИспользовать\nПолнотекстовыйПоиск: НеИспользовать\nИспользованиеХраненияВХранилищеДвоичныхДанных: НеИспользовать\nПолеИспользованияХраненияВХранилищеДвоичныхДанных: InformationRegister.РегистрСведенийВсеСвойстваНезависимый.Attribute.ИспользоватьХранилищеДвоичныхДанных",
       "omittedXMLProperties": [
@@ -5915,6 +6205,7 @@
         }
       ],
       "factBindings": {
+        "definedTypes": "metadata.defined-type-alternatives",
         "roots": "metadata.roots"
       },
       "inputs": {
@@ -5929,7 +6220,7 @@
     },
     {
       "id": "fill-value-negative-for-nonnegative-type",
-      "entry": "candidate.projection.14f14efa663c42f72384",
+      "entry": "candidate.projection.a31bc37ac39fb90fb697",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Comment>Комментарий</Comment>\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:Type>xs:decimal</v8:Type>\n\t\t\t\t\t\t<v8:NumberQualifiers>\n\t\t\t\t\t\t\t<v8:Digits>10</v8:Digits>\n\t\t\t\t\t\t\t<v8:FractionDigits>0</v8:FractionDigits>\n\t\t\t\t\t\t\t<v8:AllowedSign>Nonnegative</v8:AllowedSign>\n\t\t\t\t\t\t</v8:NumberQualifiers>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>true</PasswordMode>\n\t\t\t\t\t<Format>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>ЧЦ=15; ЧДЦ=2</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Format>\n\t\t\t\t\t<EditFormat>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>ЧЦ=15; ЧДЦ=2</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</EditFormat>\n\t\t\t\t\t<ToolTip>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Подсказка</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</ToolTip>\n\t\t\t\t\t<MarkNegatives>true</MarkNegatives>\n\t\t\t\t\t<Mask>Маска</Mask>\n\t\t\t\t\t<MultiLine>true</MultiLine>\n\t\t\t\t\t<ExtendedEdit>true</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:type=\"xs:string\">4</MinValue>\n\t\t\t\t\t<MaxValue xsi:type=\"xs:string\">96</MaxValue>\n\t\t\t\t\t<FillFromFillingValue>true</FillFromFillingValue>\n\t\t\t\t\t<FillValue xsi:type=\"xs:decimal\">-1</FillValue>\n\t\t\t\t\t<FillChecking>ShowError</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>DontUse</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>DontUse</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>DontUse</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t\t<BinaryDataStorageLocationUse>DontUse</BinaryDataStorageLocationUse>\n\t\t\t\t\t<BinaryDataStorageLocationUseField>InformationRegister.РегистрСведенийВсеСвойстваНезависимый.Attribute.ИспользоватьХранилищеДвоичныхДанных</BinaryDataStorageLocationUseField>\n\t\t\t\t</Properties>",
       "yaml": "Комментарий: Комментарий\nТип: ПоложительноеЧисло(10, 0)\nРежимПароля: Истина\nФормат: ЧЦ=15; ЧДЦ=2\nФорматРедактирования: ЧЦ=15; ЧДЦ=2\nПодсказка: Подсказка\nВыделятьОтрицательные: Истина\nМаска: Маска\nМногострочныйРежим: Истина\nРасширенноеРедактирование: Истина\nМинимальноеЗначение: 4\nМаксимальноеЗначение: 96\nЗаполнятьИзДанныхЗаполнения: Истина\nЗначениеЗаполнения: -1\nПроверкаЗаполнения: ВыдаватьОшибку\nСозданиеПриВводе: НеИспользовать\nИсторияВыбораПриВводе: НеИспользовать\nПолнотекстовыйПоиск: НеИспользовать\nИспользованиеХраненияВХранилищеДвоичныхДанных: НеИспользовать\nПолеИспользованияХраненияВХранилищеДвоичныхДанных: InformationRegister.РегистрСведенийВсеСвойстваНезависимый.Attribute.ИспользоватьХранилищеДвоичныхДанных",
       "omittedXMLProperties": [
@@ -5957,6 +6248,7 @@
         }
       ],
       "factBindings": {
+        "definedTypes": "metadata.defined-type-alternatives",
         "roots": "metadata.roots"
       },
       "inputs": {
@@ -5974,7 +6266,7 @@
     },
     {
       "id": "fill-value-negative-for-unbounded-nonnegative-type",
-      "entry": "candidate.projection.14f14efa663c42f72384",
+      "entry": "candidate.projection.a31bc37ac39fb90fb697",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Comment>Комментарий</Comment>\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:Type>xs:decimal</v8:Type>\n\t\t\t\t\t\t<v8:NumberQualifiers>\n\t\t\t\t\t\t\t<v8:Digits>0</v8:Digits>\n\t\t\t\t\t\t\t<v8:FractionDigits>0</v8:FractionDigits>\n\t\t\t\t\t\t\t<v8:AllowedSign>Nonnegative</v8:AllowedSign>\n\t\t\t\t\t\t</v8:NumberQualifiers>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>true</PasswordMode>\n\t\t\t\t\t<Format>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>ЧЦ=15; ЧДЦ=2</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Format>\n\t\t\t\t\t<EditFormat>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>ЧЦ=15; ЧДЦ=2</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</EditFormat>\n\t\t\t\t\t<ToolTip>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Подсказка</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</ToolTip>\n\t\t\t\t\t<MarkNegatives>true</MarkNegatives>\n\t\t\t\t\t<Mask>Маска</Mask>\n\t\t\t\t\t<MultiLine>true</MultiLine>\n\t\t\t\t\t<ExtendedEdit>true</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:type=\"xs:string\">4</MinValue>\n\t\t\t\t\t<MaxValue xsi:type=\"xs:string\">96</MaxValue>\n\t\t\t\t\t<FillFromFillingValue>true</FillFromFillingValue>\n\t\t\t\t\t<FillValue xsi:type=\"xs:decimal\">-1</FillValue>\n\t\t\t\t\t<FillChecking>ShowError</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>DontUse</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>DontUse</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>DontUse</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t\t<BinaryDataStorageLocationUse>DontUse</BinaryDataStorageLocationUse>\n\t\t\t\t\t<BinaryDataStorageLocationUseField>InformationRegister.РегистрСведенийВсеСвойстваНезависимый.Attribute.ИспользоватьХранилищеДвоичныхДанных</BinaryDataStorageLocationUseField>\n\t\t\t\t</Properties>",
       "yaml": "Комментарий: Комментарий\nТип: ПоложительноеЧисло(0, 0)\nРежимПароля: Истина\nФормат: ЧЦ=15; ЧДЦ=2\nФорматРедактирования: ЧЦ=15; ЧДЦ=2\nПодсказка: Подсказка\nВыделятьОтрицательные: Истина\nМаска: Маска\nМногострочныйРежим: Истина\nРасширенноеРедактирование: Истина\nМинимальноеЗначение: 4\nМаксимальноеЗначение: 96\nЗаполнятьИзДанныхЗаполнения: Истина\nЗначениеЗаполнения: -1\nПроверкаЗаполнения: ВыдаватьОшибку\nСозданиеПриВводе: НеИспользовать\nИсторияВыбораПриВводе: НеИспользовать\nПолнотекстовыйПоиск: НеИспользовать\nИспользованиеХраненияВХранилищеДвоичныхДанных: НеИспользовать\nПолеИспользованияХраненияВХранилищеДвоичныхДанных: InformationRegister.РегистрСведенийВсеСвойстваНезависимый.Attribute.ИспользоватьХранилищеДвоичныхДанных",
       "omittedXMLProperties": [
@@ -6002,6 +6294,7 @@
         }
       ],
       "factBindings": {
+        "definedTypes": "metadata.defined-type-alternatives",
         "roots": "metadata.roots"
       },
       "inputs": {
@@ -6019,7 +6312,7 @@
     },
     {
       "id": "fill-value-incompatible-explicit-text",
-      "entry": "candidate.projection.14f14efa663c42f72384",
+      "entry": "candidate.projection.a31bc37ac39fb90fb697",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Comment>Комментарий</Comment>\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:Type>xs:decimal</v8:Type>\n\t\t\t\t\t\t<v8:NumberQualifiers>\n\t\t\t\t\t\t\t<v8:Digits>10</v8:Digits>\n\t\t\t\t\t\t\t<v8:FractionDigits>0</v8:FractionDigits>\n\t\t\t\t\t\t\t<v8:AllowedSign>Any</v8:AllowedSign>\n\t\t\t\t\t\t</v8:NumberQualifiers>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>true</PasswordMode>\n\t\t\t\t\t<Format>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>ЧЦ=15; ЧДЦ=2</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Format>\n\t\t\t\t\t<EditFormat>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>ЧЦ=15; ЧДЦ=2</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</EditFormat>\n\t\t\t\t\t<ToolTip>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Подсказка</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</ToolTip>\n\t\t\t\t\t<MarkNegatives>true</MarkNegatives>\n\t\t\t\t\t<Mask>Маска</Mask>\n\t\t\t\t\t<MultiLine>true</MultiLine>\n\t\t\t\t\t<ExtendedEdit>true</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:type=\"xs:string\">4</MinValue>\n\t\t\t\t\t<MaxValue xsi:type=\"xs:string\">96</MaxValue>\n\t\t\t\t\t<FillFromFillingValue>true</FillFromFillingValue>\n\t\t\t\t\t<FillValue xsi:type=\"xs:string\">abc</FillValue>\n\t\t\t\t\t<FillChecking>ShowError</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>DontUse</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>DontUse</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>DontUse</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t\t<BinaryDataStorageLocationUse>DontUse</BinaryDataStorageLocationUse>\n\t\t\t\t\t<BinaryDataStorageLocationUseField>InformationRegister.РегистрСведенийВсеСвойстваНезависимый.Attribute.ИспользоватьХранилищеДвоичныхДанных</BinaryDataStorageLocationUseField>\n\t\t\t\t</Properties>",
       "yaml": "Комментарий: Комментарий\nТип: Число(10, 0)\nРежимПароля: Истина\nФормат: ЧЦ=15; ЧДЦ=2\nФорматРедактирования: ЧЦ=15; ЧДЦ=2\nПодсказка: Подсказка\nВыделятьОтрицательные: Истина\nМаска: Маска\nМногострочныйРежим: Истина\nРасширенноеРедактирование: Истина\nМинимальноеЗначение: 4\nМаксимальноеЗначение: 96\nЗаполнятьИзДанныхЗаполнения: Истина\nЗначениеЗаполнения: abc\nПроверкаЗаполнения: ВыдаватьОшибку\nСозданиеПриВводе: НеИспользовать\nИсторияВыбораПриВводе: НеИспользовать\nПолнотекстовыйПоиск: НеИспользовать\nИспользованиеХраненияВХранилищеДвоичныхДанных: НеИспользовать\nПолеИспользованияХраненияВХранилищеДвоичныхДанных: InformationRegister.РегистрСведенийВсеСвойстваНезависимый.Attribute.ИспользоватьХранилищеДвоичныхДанных",
       "omittedXMLProperties": [
@@ -6047,6 +6340,7 @@
         }
       ],
       "factBindings": {
+        "definedTypes": "metadata.defined-type-alternatives",
         "roots": "metadata.roots"
       },
       "inputs": {
@@ -6064,7 +6358,7 @@
     },
     {
       "id": "fill-value-quoted-numeric-text",
-      "entry": "candidate.projection.14f14efa663c42f72384",
+      "entry": "candidate.projection.a31bc37ac39fb90fb697",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Comment>Комментарий</Comment>\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:Type>xs:decimal</v8:Type>\n\t\t\t\t\t\t<v8:NumberQualifiers>\n\t\t\t\t\t\t\t<v8:Digits>10</v8:Digits>\n\t\t\t\t\t\t\t<v8:FractionDigits>0</v8:FractionDigits>\n\t\t\t\t\t\t\t<v8:AllowedSign>Any</v8:AllowedSign>\n\t\t\t\t\t\t</v8:NumberQualifiers>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>true</PasswordMode>\n\t\t\t\t\t<Format>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>ЧЦ=15; ЧДЦ=2</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Format>\n\t\t\t\t\t<EditFormat>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>ЧЦ=15; ЧДЦ=2</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</EditFormat>\n\t\t\t\t\t<ToolTip>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Подсказка</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</ToolTip>\n\t\t\t\t\t<MarkNegatives>true</MarkNegatives>\n\t\t\t\t\t<Mask>Маска</Mask>\n\t\t\t\t\t<MultiLine>true</MultiLine>\n\t\t\t\t\t<ExtendedEdit>true</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:type=\"xs:string\">4</MinValue>\n\t\t\t\t\t<MaxValue xsi:type=\"xs:string\">96</MaxValue>\n\t\t\t\t\t<FillFromFillingValue>true</FillFromFillingValue>\n\t\t\t\t\t<FillValue xsi:type=\"xs:string\">1234</FillValue>\n\t\t\t\t\t<FillChecking>ShowError</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>DontUse</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>DontUse</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>DontUse</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t\t<BinaryDataStorageLocationUse>DontUse</BinaryDataStorageLocationUse>\n\t\t\t\t\t<BinaryDataStorageLocationUseField>InformationRegister.РегистрСведенийВсеСвойстваНезависимый.Attribute.ИспользоватьХранилищеДвоичныхДанных</BinaryDataStorageLocationUseField>\n\t\t\t\t</Properties>",
       "yaml": "Комментарий: Комментарий\nТип: Число(10, 0)\nРежимПароля: Истина\nФормат: ЧЦ=15; ЧДЦ=2\nФорматРедактирования: ЧЦ=15; ЧДЦ=2\nПодсказка: Подсказка\nВыделятьОтрицательные: Истина\nМаска: Маска\nМногострочныйРежим: Истина\nРасширенноеРедактирование: Истина\nМинимальноеЗначение: 4\nМаксимальноеЗначение: 96\nЗаполнятьИзДанныхЗаполнения: Истина\nЗначениеЗаполнения: '1234'\nПроверкаЗаполнения: ВыдаватьОшибку\nСозданиеПриВводе: НеИспользовать\nИсторияВыбораПриВводе: НеИспользовать\nПолнотекстовыйПоиск: НеИспользовать\nИспользованиеХраненияВХранилищеДвоичныхДанных: НеИспользовать\nПолеИспользованияХраненияВХранилищеДвоичныхДанных: InformationRegister.РегистрСведенийВсеСвойстваНезависимый.Attribute.ИспользоватьХранилищеДвоичныхДанных",
       "omittedXMLProperties": [
@@ -6092,6 +6386,7 @@
         }
       ],
       "factBindings": {
+        "definedTypes": "metadata.defined-type-alternatives",
         "roots": "metadata.roots"
       },
       "inputs": {
@@ -6109,7 +6404,7 @@
     },
     {
       "id": "fill-value-date-with-time",
-      "entry": "candidate.projection.e0b523c657560bc43cd4",
+      "entry": "candidate.projection.9614f0499b7a6385d953",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Реквизит справочника</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:Type>xs:dateTime</v8:Type>\n\t\t\t\t\t\t<v8:DateQualifiers>\n\t\t\t\t\t\t\t<v8:DateFractions>Date</v8:DateFractions>\n\t\t\t\t\t\t</v8:DateQualifiers>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>false</PasswordMode>\n\t\t\t\t\t<Format />\n\t\t\t\t\t<EditFormat />\n\t\t\t\t\t<ToolTip />\n\t\t\t\t\t<MarkNegatives>false</MarkNegatives>\n\t\t\t\t\t<Mask />\n\t\t\t\t\t<MultiLine>false</MultiLine>\n\t\t\t\t\t<ExtendedEdit>false</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<FillFromFillingValue>false</FillFromFillingValue>\n\t\t\t\t\t<FillValue xsi:type=\"xs:dateTime\">2026-09-21T12:00:00</FillValue>\n\t\t\t\t\t<FillChecking>DontCheck</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>Auto</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>\n\t\t\t\t\t<Use>ForItem</Use>\n\t\t\t\t\t<Indexing>Index</Indexing>\n\t\t\t\t\t<FullTextSearch>Use</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t</Properties>",
       "yaml": "Тип: Дата\nЗначениеЗаполнения: 21.09.2026 12:00:00\nИндексирование: Индексировать",
       "omittedXMLProperties": [
@@ -6136,6 +6431,7 @@
         }
       ],
       "factBindings": {
+        "definedTypes": "metadata.defined-type-alternatives",
         "roots": "metadata.roots"
       },
       "inputs": {
@@ -6153,7 +6449,7 @@
     },
     {
       "id": "fill-value-date-at-midnight",
-      "entry": "candidate.projection.e0b523c657560bc43cd4",
+      "entry": "candidate.projection.9614f0499b7a6385d953",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Реквизит справочника</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:Type>xs:dateTime</v8:Type>\n\t\t\t\t\t\t<v8:DateQualifiers>\n\t\t\t\t\t\t\t<v8:DateFractions>Date</v8:DateFractions>\n\t\t\t\t\t\t</v8:DateQualifiers>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>false</PasswordMode>\n\t\t\t\t\t<Format />\n\t\t\t\t\t<EditFormat />\n\t\t\t\t\t<ToolTip />\n\t\t\t\t\t<MarkNegatives>false</MarkNegatives>\n\t\t\t\t\t<Mask />\n\t\t\t\t\t<MultiLine>false</MultiLine>\n\t\t\t\t\t<ExtendedEdit>false</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<FillFromFillingValue>false</FillFromFillingValue>\n\t\t\t\t\t<FillValue xsi:type=\"xs:dateTime\">2026-09-21T00:00:00</FillValue>\n\t\t\t\t\t<FillChecking>DontCheck</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>Auto</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>\n\t\t\t\t\t<Use>ForItem</Use>\n\t\t\t\t\t<Indexing>Index</Indexing>\n\t\t\t\t\t<FullTextSearch>Use</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t</Properties>",
       "yaml": "Тип: Дата\nЗначениеЗаполнения: 21.09.2026 00:00:00\nИндексирование: Индексировать",
       "omittedXMLProperties": [
@@ -6180,6 +6476,7 @@
         }
       ],
       "factBindings": {
+        "definedTypes": "metadata.defined-type-alternatives",
         "roots": "metadata.roots"
       },
       "inputs": {
@@ -6194,7 +6491,7 @@
     },
     {
       "id": "fill-value-incompatible-string",
-      "entry": "candidate.projection.39bd862a5e2235a6a171",
+      "entry": "candidate.projection.2300f1102f68f4fbbf74",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Строковый реквизит</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:Type>xs:string</v8:Type>\n\t\t\t\t\t\t<v8:StringQualifiers>\n\t\t\t\t\t\t\t<v8:Length>10</v8:Length>\n\t\t\t\t\t\t\t<v8:AllowedLength>Variable</v8:AllowedLength>\n\t\t\t\t\t\t</v8:StringQualifiers>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>false</PasswordMode>\n\t\t\t\t\t<Format />\n\t\t\t\t\t<EditFormat />\n\t\t\t\t\t<ToolTip />\n\t\t\t\t\t<MarkNegatives>false</MarkNegatives>\n\t\t\t\t\t<Mask />\n\t\t\t\t\t<MultiLine>false</MultiLine>\n\t\t\t\t\t<ExtendedEdit>false</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<FillFromFillingValue>false</FillFromFillingValue>\n\t\t\t\t\t<FillValue xsi:type=\"xs:decimal\">12</FillValue>\n\t\t\t\t\t<FillChecking>DontCheck</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>Auto</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>Use</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t</Properties>",
       "yaml": "Тип: Строка(10)\nЗначениеЗаполнения: 12",
       "omittedXMLProperties": [
@@ -6221,6 +6518,7 @@
         }
       ],
       "factBindings": {
+        "definedTypes": "metadata.defined-type-alternatives",
         "roots": "metadata.roots"
       },
       "inputs": {
@@ -6238,7 +6536,7 @@
     },
     {
       "id": "fill-value-incompatible-boolean",
-      "entry": "candidate.projection.39bd862a5e2235a6a171",
+      "entry": "candidate.projection.2300f1102f68f4fbbf74",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Реквизит булево</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:Type>xs:boolean</v8:Type>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>false</PasswordMode>\n\t\t\t\t\t<Format />\n\t\t\t\t\t<EditFormat />\n\t\t\t\t\t<ToolTip />\n\t\t\t\t\t<MarkNegatives>false</MarkNegatives>\n\t\t\t\t\t<Mask />\n\t\t\t\t\t<MultiLine>false</MultiLine>\n\t\t\t\t\t<ExtendedEdit>false</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<FillFromFillingValue>false</FillFromFillingValue>\n\t\t\t\t\t<FillValue xsi:type=\"xs:string\">abc</FillValue>\n\t\t\t\t\t<FillChecking>DontCheck</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>Auto</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>\n\t\t\t\t\t<Indexing>DontIndex</Indexing>\n\t\t\t\t\t<FullTextSearch>Use</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t</Properties>",
       "yaml": "Тип: Булево\nЗначениеЗаполнения: abc",
       "omittedXMLProperties": [
@@ -6265,6 +6563,7 @@
         }
       ],
       "factBindings": {
+        "definedTypes": "metadata.defined-type-alternatives",
         "roots": "metadata.roots"
       },
       "inputs": {
@@ -6282,7 +6581,7 @@
     },
     {
       "id": "fill-value-incompatible-date",
-      "entry": "candidate.projection.e0b523c657560bc43cd4",
+      "entry": "candidate.projection.9614f0499b7a6385d953",
       "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Реквизит справочника</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</Synonym>\n\t\t\t\t\t<Comment />\n\t\t\t\t\t<Type>\n\t\t\t\t\t\t<v8:Type>xs:dateTime</v8:Type>\n\t\t\t\t\t\t<v8:DateQualifiers>\n\t\t\t\t\t\t\t<v8:DateFractions>Date</v8:DateFractions>\n\t\t\t\t\t\t</v8:DateQualifiers>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<PasswordMode>false</PasswordMode>\n\t\t\t\t\t<Format />\n\t\t\t\t\t<EditFormat />\n\t\t\t\t\t<ToolTip />\n\t\t\t\t\t<MarkNegatives>false</MarkNegatives>\n\t\t\t\t\t<Mask />\n\t\t\t\t\t<MultiLine>false</MultiLine>\n\t\t\t\t\t<ExtendedEdit>false</ExtendedEdit>\n\t\t\t\t\t<MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<FillFromFillingValue>false</FillFromFillingValue>\n\t\t\t\t\t<FillValue xsi:type=\"xs:decimal\">12</FillValue>\n\t\t\t\t\t<FillChecking>DontCheck</FillChecking>\n\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>\n\t\t\t\t\t<QuickChoice>Auto</QuickChoice>\n\t\t\t\t\t<CreateOnInput>Auto</CreateOnInput>\n\t\t\t\t\t<ChoiceForm />\n\t\t\t\t\t<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>\n\t\t\t\t\t<Use>ForItem</Use>\n\t\t\t\t\t<Indexing>Index</Indexing>\n\t\t\t\t\t<FullTextSearch>Use</FullTextSearch>\n\t\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t</Properties>",
       "yaml": "Тип: Дата\nЗначениеЗаполнения: 12\nИндексирование: Индексировать",
       "omittedXMLProperties": [
@@ -6309,6 +6608,7 @@
         }
       ],
       "factBindings": {
+        "definedTypes": "metadata.defined-type-alternatives",
         "roots": "metadata.roots"
       },
       "inputs": {

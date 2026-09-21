@@ -38,7 +38,11 @@ export function mergeMappedInputs(target, mapped) {
         if(value.input===name)value.input=alias;
         for(const child of Object.values(value))rename(child);
       };
-      for(const field of ['type','presence','constraints'])rename(mapped[field]);
+      for(const field of ['type','presence','constraints','ownerConstraints'])rename(mapped[field]);
+      if(Object.hasOwn(mapped.indexProviders??{},name)) {
+        mapped.indexProviders[alias]=mapped.indexProviders[name];
+        delete mapped.indexProviders[name];
+      }
       delete source[name];source[alias]=type;
     }
     target[alias]=type;

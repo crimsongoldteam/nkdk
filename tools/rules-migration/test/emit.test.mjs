@@ -122,6 +122,9 @@ test('candidate generation shares fragments, rejects unknown parameters and prot
   assert.equal(fillValue.id,'common.metadata-value');
   assert.deepEqual(fillValue.type.with,{exportNilValue:true});
   assert.equal(fillValue.siblingExpressions.onlyStringType.source,'type');
+  assert.equal(fillValue.inputs.definedTypes.type.kind,'index');
+  assert.deepEqual(fillValue.indexProviders,{definedTypes:'metadata.defined-type-alternatives'});
+  assert.deepEqual(fillValue.ownerConstraints.bindings.definedTypes,{input:'definedTypes'});
   assert.equal(fillValue.presence,undefined);
   const emptyStringValue=mapProperty({...property,name:'fillValue',parameters:{type:'MetadataValue',yaml:'ЗначениеЗаполнения',xml:'FillValue',xmlParents:['Properties'],defaultValueXMLRaw:{'_xsi:type':'xs:string'}}},new Map([['common.metadata-value',{id:'common.metadata-value',inputs:{onlyStringType:{type:{kind:'scalar',scalar:'boolean'}}}}]]));
   assert.equal(emptyStringValue.status,'candidate');
@@ -153,6 +156,8 @@ test('candidate generation shares fragments, rejects unknown parameters and prot
   assert.deepEqual(fillFragment.value.fields[1].type.bind.onlyStringType,realProfile.siblingExpressions.onlyStringType.value);
   assert.equal(fillFragment.inputs?.onlyStringType,undefined);
   assert.equal(fillFragment.presence.some(rule=>rule.target.field==='fillValue'),false);
+  assert.equal(fillFragment.inputs.definedTypes.type.kind,'index');
+  assert.equal(fillOwner.modules.find(module=>module.kind==='object').inputs.definedTypes.index,'metadata.defined-type-alternatives');
   const splitOwner=emitCandidates([{
     symbol:'AttributeRules',path:'attribute.ts',comparison:{status:'keys-match'},properties:[
       {...property,name:'type',parameters:{type:'TypeDescription',yaml:'Тип',xmlParents:['Properties']}},

@@ -83,12 +83,16 @@ fn type_description_restores_default_and_explicit_qualifiers_from_yaml() {
             "Тип: ДвоичныеДанные",
             "<v8:Type>xs:base64Binary</v8:Type><v8:BinaryDataQualifiers><v8:Length>0</v8:Length><v8:AllowedLength>Variable</v8:AllowedLength></v8:BinaryDataQualifiers>",
         ),
+        (
+            "Тип: ОпределяемыйТип.ОпределяемыйТипВсеСвойства",
+            "<v8:TypeSet>cfg:DefinedType.ОпределяемыйТипВсеСвойства</v8:TypeSet>",
+        ),
     ];
 
     for (yaml, body) in cases {
         convert(Direction::YamlToXml, yaml);
         let xml = format!(
-            r#"<Root xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:xs="http://www.w3.org/2001/XMLSchema"><Type>{body}</Type></Root>"#
+            r#"<Root xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:xs="http://www.w3.org/2001/XMLSchema"><Type>{body}</Type></Root>"#
         );
         verify_candidate(
             entry_id("migration.type-description").unwrap(),

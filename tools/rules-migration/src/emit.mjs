@@ -95,7 +95,7 @@ export function emitCandidates(entries, catalog, origin = p => p.source.path, xm
         if (chunks.at(-1)?.origin === field.origin) chunks.at(-1).fields.push(field);
         else chunks.push({origin:field.origin, fields:[field]});
       }
-      const imports = {}, compose = [], inputs = {};
+      const imports = {}, compose = [], inputs = {}, indexProviders = new Map();
       for (const chunk of chunks) {
         const ownerBindings={};
         bindSiblingExpressions(chunk.fields,(input,sibling,spec)=>{
@@ -126,7 +126,17 @@ export function emitCandidates(entries, catalog, origin = p => p.source.path, xm
         const alias = `part${compose.length}`;
         imports[alias] = fragment.id;
         const bind=bindFragmentInputs(inputs,fragmentInputs,ownerBindings);
+        for(const {mapped} of chunk.fields) for(const [name,index] of Object.entries(mapped.indexProviders??{})) {
+          const ownerName=bind[name]?.input;
+          if(!ownerName)throw new Error(`Missing declared index input: ${name}`);
+          const previous=indexProviders.get(ownerName);
+          if(previous && previous!==index)throw new Error(`Conflicting index provider: ${ownerName}`);
+          indexProviders.set(ownerName,index);
+        }
         compose.push({use:alias,...(Object.keys(bind).length ? {bind} : {})});
+      }
+      for(const [name,index] of indexProviders) {
+        inputs[name]={...inputs[name],index};
       }
       const constraints=instantiateOwnerConstraints(eligibleFields,catalog);
       const id = `candidate.projection.${hash(constraints.length?[root,imports,compose,inputs,constraints]:[root,imports,compose,inputs])}`;

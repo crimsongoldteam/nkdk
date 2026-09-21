@@ -702,6 +702,17 @@ inputs:
     type:
       kind: scalar
       scalar: text
+  definedTypes:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: sequence
+        item:
+          kind: scalar
+          scalar: text
   roots:
     type:
       kind: index
@@ -735,4 +746,4 @@ inputs:
       value:
         kind: scalar
         scalar: text
-id: candidate.fragment.ef0da0092dc0ad152768
+id: candidate.fragment.200be2e16fff2c6dc619

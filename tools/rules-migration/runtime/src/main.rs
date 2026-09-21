@@ -1,4 +1,6 @@
-#[allow(dead_code)]
+// Generated declarations are checked through their compiler and contract tests.
+// Keep Clippy focused on this hand-written runner and its dependencies.
+#[allow(warnings)]
 mod rules {
     include!(concat!(env!("OUT_DIR"), "/generated.rs"));
 }

@@ -1,8 +1,13 @@
 format: nkdk-declarations/1
 kind: fragment
 id: common.fill-value-compatibility
-description: Совместимость явного значения заполнения с единственным объявленным типом
+description: Совместимость явного значения заполнения с объявленным типом и альтернативами определяемого типа
 inputs:
+  definedTypes:
+    type:
+      kind: index
+      key: {kind: scalar, scalar: text}
+      value: {kind: sequence, item: {kind: scalar, scalar: text}}
   typeItems:
     type:
       kind: sequence
@@ -95,7 +100,7 @@ constraints:
             not:
               matches:
                 value: {get: {of: {var: item}, field: value}}
-                pattern: '^(Строка|ФиксированнаяСтрока|Число|ПоложительноеЧисло|Булево|Дата|Время|ДатаВремя|Справочник|Документ|Перечисление|ПланОбмена|ПланСчетов|ПланВидовХарактеристик|ПланВидовРасчета|БизнесПроцесс|Задача)(\..+)?$'
+                pattern: '^(Строка|ФиксированнаяСтрока|Число|ПоложительноеЧисло|Булево|Дата|Время|ДатаВремя|Справочник|Документ|Перечисление|ПланОбмена|ПланСчетов|ПланВидовХарактеристик|ПланВидовРасчета|БизнесПроцесс|Задача|ОпределяемыйТип)(\..+)?$'
   assert:
     exists:
       in: {input: typeItems}
@@ -115,4 +120,30 @@ constraints:
                 value: {input: referenceContent}
                 prefix: {get: {of: {var: item}, field: value}}
                 separator: '.'
+        - and:
+          - {matches: {value: {get: {of: {var: item}, field: value}}, pattern: '^ОпределяемыйТип\..+$'}}
+          - match:
+              value: {lookup: {in: {input: definedTypes}, key: {get: {of: {var: item}, field: value}}}}
+              present:
+                as: alternatives
+                then:
+                  exists:
+                    in: {var: alternatives}
+                    as: alternative
+                    where:
+                      or:
+                      - {and: [{matches: {value: {var: alternative}, pattern: 'Строка|ФиксированнаяСтрока'}}, {input: textValue}]}
+                      - {and: [{matches: {value: {var: alternative}, pattern: 'Число|ПоложительноеЧисло'}}, {input: numberValue}]}
+                      - {and: [{eq: [{var: alternative}, {literal: Булево}]}, {input: booleanValue}]}
+                      - {and: [{matches: {value: {var: alternative}, pattern: 'Дата|Время|ДатаВремя'}}, {input: calendarValue}]}
+                      - and:
+                        - {matches: {value: {var: alternative}, pattern: '^(Справочник|Документ|Перечисление|ПланОбмена|ПланСчетов|ПланВидовХарактеристик|ПланВидовРасчета|БизнесПроцесс|Задача)(\..+)?$'}}
+                        - {input: referenceValue}
+                        - or:
+                          - {eq: [{input: referenceContent}, {literal: '.'}]}
+                          - textSegmentPrefix:
+                              value: {input: referenceContent}
+                              prefix: {var: alternative}
+                              separator: '.'
+              absent: {literal: false}
   diagnostic: {code: fill-value.type-mismatch, severity: warning, at: {self: true}, message: Значение заполнения не соответствует объявленному типу}

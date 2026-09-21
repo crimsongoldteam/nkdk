@@ -51,14 +51,23 @@ pub fn prepare(entry: EntryId, case: &Value, manifest: &Value) -> PreparedInputs
     let facts = prepared.facts;
     let mut values = nkdk_conversion_core::inputs::read(&input).unwrap();
     for (name, index) in bindings {
-        values.push((
-            name.clone(),
+        let index = rules::fact_id(index.as_str().unwrap()).unwrap();
+        let value = if rules::fact_is_union(index) {
+            InputValue::TextUnionIndex(
+                nkdk_conversion_core::facts::prepared::TextUnionIndexInput::new(
+                    facts.clone(),
+                    generation,
+                    index,
+                ),
+            )
+        } else {
             InputValue::TextIndex(nkdk_conversion_core::facts::prepared::TextIndexInput::new(
                 facts.clone(),
                 generation,
-                rules::fact_id(index.as_str().unwrap()).unwrap(),
-            )),
-        ));
+                index,
+            ))
+        };
+        values.push((name.clone(), value));
     }
     rules::prepare_inputs(entry, values).unwrap()
 }
