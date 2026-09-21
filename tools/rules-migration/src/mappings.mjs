@@ -96,8 +96,10 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
   const metadataStringDefault=metadataValue && p.defaultValueXMLRaw &&
     !Array.isArray(p.defaultValueXMLRaw) && typeof p.defaultValueXMLRaw==='object' &&
     Object.keys(p.defaultValueXMLRaw).length===1 && p.defaultValueXMLRaw['_xsi:type']==='xs:string';
-  if(metadataValue && p.exportNilValue===true && !metadataNilDefault)return fail('metadata-value-profile');
+  if(metadataValue && Object.hasOwn(p,'exportNilValue') &&
+    (typeof p.exportNilValue!=='boolean' || p.exportNilValue!==metadataNilDefault))return fail('metadata-value-profile');
   if(metadataValue && !metadataNilDefault && !metadataStringDefault)return fail('metadata-value-profile');
+  if(metadataStringDefault)return fail('metadata-value-typed-empty-profile');
   const runtimeOnly=p.runtimeOnly===true;
   if(Object.hasOwn(p,'runtimeOnly') && !runtimeOnly)return fail('runtime-only-profile');
   if(runtimeOnly && (!typeDescription || ['xml','xmlParents','defaultValueXML','defaultValueXMLRaw','defaultValueAdoptedXML'].some(key=>Object.hasOwn(p,key))))return fail('runtime-only-profile');

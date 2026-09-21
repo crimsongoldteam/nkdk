@@ -120,8 +120,13 @@ test('candidate generation shares fragments, rejects unknown parameters and prot
   assert.deepEqual(fillValue.siblingBindings,{valueType:'type'});
   assert.equal(fillValue.presence.xml.canonical[0].form,'nil');
   const emptyStringValue=mapProperty({...property,name:'fillValue',parameters:{type:'MetadataValue',yaml:'ЗначениеЗаполнения',xml:'FillValue',xmlParents:['Properties'],defaultValueXMLRaw:{'_xsi:type':'xs:string'}}},new Map([['common.metadata-value',{id:'common.metadata-value',inputs:{}}]]));
-  assert.equal(emptyStringValue.id,'common.metadata-value');
-  assert.equal(emptyStringValue.presence.xml.canonical[0].form,'empty-element');
+  assert.equal(emptyStringValue.status,'blocked');
+  assert.equal(emptyStringValue.reason,'metadata-value-typed-empty-profile');
+  for(const exportNilValue of [false,'true']) {
+    const incompatible=mapProperty({...property,name:'fillValue',parameters:{type:'MetadataValue',yaml:'ЗначениеЗаполнения',defaultValueXMLRaw:{'_xsi:nil':true},exportNilValue}},new Map([['common.metadata-value',{id:'common.metadata-value'}]]));
+    assert.equal(incompatible.status,'blocked');
+    assert.equal(incompatible.reason,'metadata-value-profile');
+  }
   const implicitNilValue=mapProperty({...property,name:'fillValue',parameters:{type:'MetadataValue',yaml:'ЗначениеЗаполнения',xml:'FillValue',xmlParents:['Properties'],defaultValueXMLRaw:{'_xsi:nil':true}}},new Map([['common.metadata-value',{id:'common.metadata-value',inputs:{}}]]));
   assert.equal(implicitNilValue.id,'common.metadata-value');
   assert.equal(implicitNilValue.presence.xml.canonical[0].form,'nil');
