@@ -310,7 +310,12 @@ impl TextUnionIndexInput {
             .lookup_union(self.0.generation, self.0.index, name)
         {
             FactState::Ready(values) => Ok(Some(values)),
-            FactState::Missing => Ok(None),
+            FactState::Missing => Err(crate::RuntimeDiagnostic::declared(
+                Some("fact.missing"),
+                None,
+                crate::Severity::Warning,
+                "The named union is not defined",
+            )),
             FactState::Ambiguous => Err(crate::RuntimeDiagnostic::declared(
                 Some("fact.ambiguous"),
                 None,

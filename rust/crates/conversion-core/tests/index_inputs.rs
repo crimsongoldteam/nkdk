@@ -55,15 +55,16 @@ fn prepared_union_input_borrows_expanded_values_without_a_second_context() {
         .unwrap()
         .unwrap();
     assert_eq!(values.collect::<Vec<_>>(), vec!["Строка"]);
-    assert!(
-        inputs
-            .view()
-            .text_union_index(0)
-            .unwrap()
-            .lookup("Нет")
-            .unwrap()
-            .is_none()
-    );
+    let Err(issue) = inputs
+        .view()
+        .text_union_index(0)
+        .unwrap()
+        .lookup("ОпределяемыйТип.Нет")
+    else {
+        panic!("unknown named type must be unresolved")
+    };
+    assert_eq!(issue.code.as_deref(), Some("fact.missing"));
+    assert_eq!(issue.severity, nkdk_conversion_core::Severity::Warning);
     assert_eq!(Arc::strong_count(&facts), 2);
 }
 

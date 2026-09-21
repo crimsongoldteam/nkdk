@@ -46,6 +46,7 @@ representations:
 
 const TYPE_DESCRIPTION_FILES: &[&str] = &[
     "string",
+    "i8n-text",
     "type-description-name",
     "type-description-item",
     "type-description-items",
@@ -255,18 +256,27 @@ fn real_defined_type_fixture_contributes_declared_alternatives() {
     let generated = compile(&sources).expect("real defined type paths must compile");
     let fixture = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("../../../e2e/fixtures/xml/cf/DefinedTypes/ОпределяемыйТипВсеСвойства.xml");
+    let yaml_fixture = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../../e2e/fixtures/nkdk/cf/ОпределяемыйТип/ОпределяемыйТипВсеСвойства.yaml");
     let main = format!(
         r#"include!("generated.rs");
 fn main() {{
     let entry=entry_id("migration.defined-type-facts").unwrap();
-    let xml=std::fs::read({fixture:?}).unwrap();
-    let generation=core::facts::Generation(1);
-    let mut builder=fact_builder(generation,core::facts::prepared::FactBudget{{text:core::facts::text::TextBudget{{entries:20,bytes:1000}},rows:10}});
-    let issues=contribute_file(entry,Direction::XmlToYaml,&xml,&PreparedInputs::default(),&mut builder);
-    assert!(issues.is_empty(),"{{issues:?}}");
-    let facts=builder.finish();
-    let core::facts::FactState::Ready(values)=facts.lookup_union(generation,fact_id("metadata.defined-type-alternatives").unwrap(),"ОпределяемыйТип.ОпределяемыйТипВсеСвойства") else {{panic!("real defined type unavailable")}};
-    assert_eq!(values.collect::<Vec<_>>(),vec!["Строка","Число"]);
+    for (direction,path) in [(Direction::XmlToYaml,{fixture:?}),(Direction::YamlToXml,{yaml_fixture:?})] {{
+        let source=std::fs::read(path).unwrap();
+        let generation=core::facts::Generation(1);
+        let mut builder=fact_builder(generation,core::facts::prepared::FactBudget{{text:core::facts::text::TextBudget{{entries:20,bytes:1000}},rows:10}});
+        let inputs=prepare_inputs(entry,vec![
+            ("ownerName".into(),InputValue::Text("ОпределяемыйТипВсеСвойства".into())),
+            ("defaultLanguage".into(),InputValue::Text("ru".into())),
+            ("registeredLanguages".into(),InputValue::Sequence(vec![InputValue::Text("ru".into())])),
+        ]).unwrap();
+        let issues=contribute_file(entry,direction,&source,&inputs,&mut builder);
+        assert!(issues.is_empty(),"{{direction:?}} {{issues:?}}");
+        let facts=builder.finish();
+        let core::facts::FactState::Ready(values)=facts.lookup_union(generation,fact_id("metadata.defined-type-alternatives").unwrap(),"ОпределяемыйТип.ОпределяемыйТипВсеСвойства") else {{panic!("real defined type unavailable")}};
+        assert_eq!(values.collect::<Vec<_>>(),vec!["Строка","Число"]);
+    }}
 }}
 "#
     );
@@ -370,6 +380,9 @@ constraints:
         let inputs=prepare_fact_inputs(consumer,facts,generation,vec![]).unwrap();
         assert!(validate_file(consumer,"Name: A\nValue: Число".as_bytes(),&inputs).is_empty());
         assert!(validate_file(consumer,"Name: A\nValue: Булево".as_bytes(),&inputs).iter().any(|issue|issue.code.as_deref()==Some("type.mismatch")));
+        let unresolved=validate_file(consumer,"Name: Нет\nValue: Булево".as_bytes(),&inputs);
+        assert!(unresolved.iter().any(|issue|issue.code.as_deref()==Some("fact.missing")&&issue.severity==core::Severity::Warning));
+        assert!(!unresolved.iter().any(|issue|issue.code.as_deref()==Some("type.mismatch")));
     }
 }
 "#;

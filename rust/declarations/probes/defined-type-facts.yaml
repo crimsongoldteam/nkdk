@@ -5,23 +5,35 @@ description: Подготовка альтернатив определяемо�
 namespaces:
   md: http://v8.1c.ru/8.3/MDClasses
   v8: http://v8.1c.ru/8.1/data/core
-imports: {description: common.type-description}
+imports: {description: common.type-description, text: common.i8n-text, string: common.string}
+inputs:
+  ownerName: {type: {kind: scalar, scalar: text}}
+  defaultLanguage: {type: {kind: scalar, scalar: text}}
+  registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
 value:
   kind: record
   fields:
   - {name: name, type: {kind: scalar, scalar: text}}
+  - {name: synonym, type: {use: text, with: {excludeIfEqualNameYAML: true}, bind: {ownerName: {input: ownerName}, defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}}}}
+  - {name: comment, type: {use: string}}
   - {name: type, type: {use: description}}
 representations:
   xml:
     kind: record
     fields:
     - {field: name, path: [md:MetaDataObject, md:DefinedType, md:Properties, md:Name]}
+    - {field: synonym, path: [md:MetaDataObject, md:DefinedType, md:Properties, md:Synonym]}
+    - {field: comment, path: [md:MetaDataObject, md:DefinedType, md:Properties, md:Comment]}
     - {field: type, path: [md:MetaDataObject, md:DefinedType, md:Properties, md:Type]}
   yaml:
     kind: mapping
     fields:
-    - {field: name, key: Имя}
+    - {field: synonym, key: Синоним}
+    - {field: comment, key: Комментарий}
     - {field: type, key: Тип}
+presence:
+- target: {field: name}
+  yaml: {missing: {denotes: {input: ownerName}}}
 contributions:
 - index: metadata.defined-type-alternatives
   forEach: {in: {get: {of: {field: type}, field: items}}, as: item}
