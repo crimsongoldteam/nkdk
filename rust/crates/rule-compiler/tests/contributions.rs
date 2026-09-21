@@ -1,7 +1,186 @@
-use nkdk_rule_compiler::{SourceFile, compile, link, parse};
+use nkdk_rule_compiler::{GeneratedSources, SourceFile, compile, link, parse};
 
 const CODE: &str = include_str!("fixtures/fact-code.yaml");
 const OWNER: &str = include_str!("fixtures/fact-owner.yaml");
+const NESTED_OWNER: &str = r#"format: nkdk-declarations/1
+kind: object
+id: test.nested-fact-owner
+imports: {nested: test.nested-fact-rows}
+value: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}, {name: type, type: {use: nested}}]}
+representations:
+  xml: {kind: record, fields: [{field: name, path: [Root, Name]}, {field: type, path: [Root, Type]}]}
+  yaml: {kind: mapping, fields: [{field: name, key: Name}, {field: type, key: Type}]}
+contributions:
+- index: test.nested-names
+  forEach: {in: {get: {of: {field: type}, field: items}}, as: item}
+  key: {field: name}
+  value: {get: {of: {var: item}, field: code}}
+"#;
+
+const FACT_MAIN: &str = r#"include!("generated.rs");
+fn main() {
+    let entry=entry_id(@ENTRY@).unwrap();
+    for (direction,source) in [(Direction::XmlToYaml,@XML@),(Direction::YamlToXml,@YAML@)] {
+        let generation=core::facts::Generation(1);
+        let mut builder=fact_builder(generation,core::facts::prepared::FactBudget{text:core::facts::text::TextBudget{entries:10,bytes:1000},rows:10});
+        let errors=contribute_file(entry,direction,source.as_bytes(),&PreparedInputs::default(),&mut builder);
+        assert!(errors.is_empty(),"{errors:?}");
+        let facts=builder.finish();
+        assert_eq!(facts.lookup(generation,fact_id(@INDEX@).unwrap(),"A"),core::facts::FactState::Ready(@EXPECTED@));
+    }
+    let generation=core::facts::Generation(2);
+    let mut builder=fact_builder(generation,core::facts::prepared::FactBudget{text:core::facts::text::TextBudget{entries:10,bytes:1000},rows:10});
+    let errors=contribute_file(entry,Direction::XmlToYaml,b"<Root><Name>A</Name></Root>",&PreparedInputs::default(),&mut builder);
+    assert!(!errors.is_empty(),"Missing nested value must not become a known empty index");
+    assert_eq!(builder.finish().lookup(generation,fact_id(@INDEX@).unwrap(),"A"),core::facts::FactState::Unready);
+}
+"#;
+
+fn fact_main(entry: &str, index: &str, xml: &str, yaml: &str, expected: &str) -> String {
+    FACT_MAIN
+        .replace("@ENTRY@", &format!("{entry:?}"))
+        .replace("@INDEX@", &format!("{index:?}"))
+        .replace("@XML@", &format!("{xml:?}"))
+        .replace("@YAML@", &format!("{yaml:?}"))
+        .replace("@EXPECTED@", &format!("{expected:?}"))
+}
+
+fn run_generated(generated: GeneratedSources, name: &str, main: &str) {
+    let root = std::env::temp_dir().join(format!("nkdk-{name}-{}", std::process::id()));
+    let sources = root.join("src");
+    std::fs::create_dir_all(&sources).unwrap();
+    let core = std::path::PathBuf::from(concat!(env!("CARGO_MANIFEST_DIR"), "/../conversion-core"));
+    std::fs::write(root.join("Cargo.toml"), format!("[package]\nname='{name}'\nversion='0.0.0'\nedition='2024'\n[dependencies]\nnkdk-conversion-core={{path={core:?}}}\n[workspace]\n")).unwrap();
+    for file in generated.files {
+        std::fs::write(sources.join(file.path), file.contents).unwrap();
+    }
+    std::fs::write(sources.join("main.rs"), main).unwrap();
+    let output = std::process::Command::new(env!("CARGO"))
+        .args(["run", "--offline", "--quiet"])
+        .current_dir(&root)
+        .env(
+            "CARGO_TARGET_DIR",
+            std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../target"),
+        )
+        .env("CARGO_BUILD_JOBS", "1")
+        .output()
+        .unwrap();
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    std::fs::remove_dir_all(root).unwrap();
+}
+
+#[test]
+fn owner_can_contribute_rows_from_nested_declared_record() {
+    let row = r#"format: nkdk-declarations/1
+kind: value
+id: test.nested-fact-row
+value: {kind: record, fields: [{name: code, type: {kind: scalar, scalar: text}}, {name: title, type: {kind: scalar, scalar: text}}]}
+representations:
+  xml: {kind: record, fields: [{field: code, path: [Code]}, {field: title, path: [Title]}]}
+  yaml: {kind: mapping, fields: [{field: code, key: Code}, {field: title, key: Title}]}
+"#;
+    let rows = r#"format: nkdk-declarations/1
+kind: value
+id: common.project-rows
+imports: {row: test.nested-fact-row}
+value: {kind: sequence, item: {use: row}}
+representations:
+  xml: {kind: element-sequence, path: [Item], item: {kind: declared}}
+  yaml: {kind: sequence, item: {kind: declared}}
+"#;
+    let nested = r#"format: nkdk-declarations/1
+kind: value
+id: test.nested-fact-rows
+imports: {rows: common.project-rows}
+value: {kind: record, fields: [{name: items, type: {use: rows}}]}
+representations:
+  xml: {kind: record, fields: [{field: items, path: [Items]}]}
+  yaml: {kind: mapping, fields: [{field: items, key: Items}]}
+"#;
+    let owner = NESTED_OWNER;
+    let generated = compile(&[
+        SourceFile {
+            path: "row.yaml",
+            bytes: row.as_bytes(),
+        },
+        SourceFile {
+            path: "rows.yaml",
+            bytes: rows.as_bytes(),
+        },
+        SourceFile {
+            path: "nested.yaml",
+            bytes: nested.as_bytes(),
+        },
+        SourceFile {
+            path: "owner.yaml",
+            bytes: owner.as_bytes(),
+        },
+    ])
+    .expect("nested declared rows must be usable as an index contribution");
+    run_generated(
+        generated,
+        "nested-facts-contract",
+        &fact_main(
+            "test.nested-fact-owner",
+            "test.nested-names",
+            "<Root><Name>A</Name><Type><Items><Item><Code>one</Code><Title>First</Title></Item></Items></Type></Root>",
+            "Name: A\nType:\n  Items:\n    - Code: one\n      Title: First",
+            "one",
+        ),
+    );
+}
+
+#[test]
+fn type_description_items_can_be_declared_as_an_owner_fact_source() {
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../declarations/common");
+    let names = [
+        "string",
+        "type-description-name",
+        "type-description-item",
+        "type-description-items",
+        "type-description-qname-item",
+        "type-description-types",
+        "type-description-type-sets",
+        "type-description-identifier-item",
+        "type-description-identifiers",
+        "type-description",
+    ];
+    let contents: Vec<_> = names
+        .iter()
+        .map(|name| std::fs::read(root.join(format!("{name}.yaml"))).unwrap())
+        .collect();
+    let owner = NESTED_OWNER
+        .replace("test.nested-fact-owner", "test.real-nested-fact-owner")
+        .replace("test.nested-fact-rows", "common.type-description")
+        .replace("test.nested-names", "test.real-nested-type-items")
+        .replace("field: code", "field: value");
+    let sources: Vec<_> = names
+        .iter()
+        .zip(&contents)
+        .map(|(name, bytes)| SourceFile { path: name, bytes })
+        .chain(std::iter::once(SourceFile {
+            path: "owner.yaml",
+            bytes: owner.as_bytes(),
+        }))
+        .collect();
+    let generated = compile(&sources)
+        .expect("actual TypeDescription item collection must support declared contribution");
+    run_generated(
+        generated,
+        "type-facts-contract",
+        &fact_main(
+            "test.real-nested-fact-owner",
+            "test.real-nested-type-items",
+            "<Root xmlns:v8='http://v8.1c.ru/8.1/data/core' xmlns:xs='http://www.w3.org/2001/XMLSchema'><Name>A</Name><Type><v8:Type>xs:string</v8:Type></Type></Root>",
+            "Name: A\nType:\n  - Строка",
+            "Строка",
+        ),
+    );
+}
 
 #[test]
 fn contributions_bind_declared_fields_and_reject_untyped_or_hidden_context() {

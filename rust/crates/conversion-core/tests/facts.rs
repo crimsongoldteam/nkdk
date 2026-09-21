@@ -175,6 +175,60 @@ fn nested_graph_keeps_first_occurrence_order_across_shared_branches() {
 }
 
 #[test]
+fn named_union_exposes_borrowed_effective_values_in_declaration_order() {
+    let generation = Generation(8);
+    let graph = NamedUnionGraph::prepare(
+        generation,
+        vec![
+            (
+                "Основной".to_owned(),
+                vec![
+                    NamedAlternative::Value("Строка"),
+                    NamedAlternative::Reference("Дополнительный".to_owned()),
+                    NamedAlternative::Value("Строка"),
+                ],
+            ),
+            (
+                "Дополнительный".to_owned(),
+                vec![
+                    NamedAlternative::Value("Число"),
+                    NamedAlternative::Value("Булево"),
+                ],
+            ),
+            (
+                "Цикл".to_owned(),
+                vec![NamedAlternative::Reference("Цикл".to_owned())],
+            ),
+        ],
+        GraphBudget {
+            nodes: 16,
+            edges: 16,
+            members: 16,
+        },
+    )
+    .unwrap();
+    let FactState::Ready(values) = graph.lookup_values(generation, "Основной") else {
+        panic!("effective type must be ready")
+    };
+    assert_eq!(
+        values.collect::<Vec<_>>(),
+        vec![&"Строка", &"Число", &"Булево"]
+    );
+    assert!(matches!(
+        graph.lookup_values(generation, "Цикл"),
+        FactState::Cycle
+    ));
+    assert!(matches!(
+        graph.lookup_values(generation, "Нет"),
+        FactState::Missing
+    ));
+    assert!(matches!(
+        graph.lookup_values(Generation(9), "Основной"),
+        FactState::Unready
+    ));
+}
+
+#[test]
 fn graph_deduplicates_equal_values_from_distinct_sources() {
     let generation = Generation(6);
     let graph = UnionGraph::prepare(

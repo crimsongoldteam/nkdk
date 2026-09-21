@@ -29,6 +29,33 @@ pub struct NamedUnionGraph<T> {
     graph: UnionGraph<T>,
 }
 
+pub struct NamedValues<'a, T> {
+    graph: &'a NamedUnionGraph<T>,
+    ids: &'a [NodeId],
+    cursor: usize,
+}
+
+impl<'a, T> Iterator for NamedValues<'a, T> {
+    type Item = &'a T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let node = *self.ids.get(self.cursor)?;
+        self.cursor += 1;
+        Some(
+            self.graph
+                .value(node)
+                .expect("expanded node must contain a value"),
+        )
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let remaining = self.ids.len() - self.cursor;
+        (remaining, Some(remaining))
+    }
+}
+
+impl<T> ExactSizeIterator for NamedValues<'_, T> {}
+
 impl<T> NamedUnionGraph<T> {
     pub fn prepare(
         generation: Generation,
@@ -105,6 +132,25 @@ impl<T> NamedUnionGraph<T> {
 
     pub fn value(&self, node: NodeId) -> Option<&T> {
         self.graph.value(node)
+    }
+
+    /// Borrow effective alternatives without allocating a second value list.
+    pub fn lookup_values(
+        &self,
+        generation: Generation,
+        name: &str,
+    ) -> FactState<NamedValues<'_, T>> {
+        match self.lookup(generation, name) {
+            FactState::Ready(ids) => FactState::Ready(NamedValues {
+                graph: self,
+                ids,
+                cursor: 0,
+            }),
+            FactState::Missing => FactState::Missing,
+            FactState::Ambiguous => FactState::Ambiguous,
+            FactState::Cycle => FactState::Cycle,
+            FactState::Unready => FactState::Unready,
+        }
     }
 }
 

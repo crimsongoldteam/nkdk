@@ -260,10 +260,10 @@ pub(super) fn generate_at(
         let Some(iteration) = &contribution.for_each else {
             continue;
         };
-        let LinkedExpressionKind::Field(field) = iteration.input.kind else {
+        let Some((field, _)) = super::facts::collection_path(&iteration.input) else {
             return Err(unsupported(
                 entry,
-                "Owner contribution must iterate a field",
+                "Owner contribution must iterate a declared field path",
             ));
         };
         let slot=parts.iter().position(|part|matches!(&part.value,LinkedType::Record(fields) if fields.iter().any(|candidate|candidate.name==owner_fields[field as usize].name))).unwrap();

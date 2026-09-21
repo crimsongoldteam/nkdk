@@ -17,6 +17,9 @@ pub(super) struct Expressions<'a> {
     pub(super) fallible: bool,
 }
 impl<'a> Expressions<'a> {
+    pub(super) fn borrow_record_row(&mut self, slot: u32, fields: &[LinkedField]) {
+        self.borrowed_rows.insert(slot, fields.to_vec());
+    }
     pub(super) fn new(
         entry: &'a LinkedEntry,
         program: &'a Program<'a>,

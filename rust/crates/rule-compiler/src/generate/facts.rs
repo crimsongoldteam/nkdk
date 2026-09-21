@@ -4,6 +4,23 @@ use super::*;
 pub(super) use owners::accessors as owner_accessors;
 use std::{collections::BTreeMap, fmt::Write};
 
+/// A collection contribution may traverse declared record fields before
+/// reaching its rows. The indices are linked field slots, not XML/YAML names.
+pub(super) fn collection_path(expression: &LinkedExpression) -> Option<(u32, Vec<u32>)> {
+    match &expression.kind {
+        LinkedExpressionKind::Field(slot) => Some((*slot, Vec::new())),
+        LinkedExpressionKind::Operation {
+            operator: LinkedOperator::Get(slot),
+            arguments,
+        } if arguments.len() == 1 => {
+            let (root, mut path) = collection_path(&arguments[0])?;
+            path.push(*slot);
+            Some((root, path))
+        }
+        _ => None,
+    }
+}
+
 fn text(
     expression: &LinkedExpression,
     entry: &LinkedEntry,
@@ -216,14 +233,30 @@ pub(super) fn generate(entries: &[&LinkedEntry], program: &Program) -> Result<St
             if super::owner::applies(entry, program)
                 && let Some(iteration) = &contribution.for_each
             {
-                let LinkedExpressionKind::Field(field) = iteration.input.kind else {
+                let Some((field, path)) = collection_path(&iteration.input) else {
                     return Err(unsupported(
                         entry,
-                        "Owner contribution must iterate a field",
+                        "Owner contribution must iterate a declared field path",
                     ));
                 };
                 let (part, _) = owners::field(entry, field, program)?;
-                writeln!(out,"if matches!(direction,Direction::XmlToYaml) && value.containers[{part}]!=1 {{return Err(vec![RuntimeDiagnostic::new(\"fact.unready\",\"Contribution owner container is missing or repeated\")]);}}part_{id}_{part}::contribute_{ordinal}(&value.p{part},direction,source,inputs,builder)?;").unwrap();
+                writeln!(out,"if matches!(direction,Direction::XmlToYaml) && value.containers[{part}]!=1 {{return Err(vec![RuntimeDiagnostic::new(\"fact.unready\",\"Contribution owner container is missing or repeated\")]);}}").unwrap();
+                if path.is_empty() {
+                    writeln!(out,"part_{id}_{part}::contribute_{ordinal}(&value.p{part},direction,source,inputs,builder)?;").unwrap();
+                } else {
+                    writeln!(out, "let mut context=[None;{}];", fields.len()).unwrap();
+                    for slot in owners::context_fields(contribution) {
+                        let field = &fields[slot as usize];
+                        let expression = LinkedExpression {
+                            kind: LinkedExpressionKind::Field(slot),
+                            value_type: field.value.clone(),
+                            source: contribution.source.clone(),
+                        };
+                        let projected = text(&expression, entry, program)?;
+                        writeln!(out, "context[{slot}]=Some({projected});").unwrap();
+                    }
+                    writeln!(out,"part_{id}_{part}::contribute_{ordinal}(&value.p{part},&context,direction,source,inputs,builder)?;").unwrap();
+                }
                 continue;
             }
             let index = names.binary_search(&contribution.index.as_str()).unwrap();
