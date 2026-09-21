@@ -12,3 +12,11 @@ publish = false
 nkdk-rule-model = { path = "crates/rule-model" }
 yaml-rust2 = { version = "=0.11.0", path = "../third-party/yaml-rust2" }
 nkdk-decimal = { path = "crates/decimal" }
+
+[profile.dev]
+debug = 0
+incremental = false
+
+[profile.test]
+debug = 0
+incremental = false

@@ -17,6 +17,17 @@ pub trait RecordInput {
             )),
         }
     }
+
+    fn records(&self, index: usize) -> Result<Records<'_>> {
+        match self.field(index) {
+            Some(InputRef::Records(value)) => Ok(value),
+            Some(InputRef::MissingValue) | None => Ok(Records::empty()),
+            _ => Err(RuntimeDiagnostic::new(
+                "input.type",
+                format!("Record field {index} is not a record sequence"),
+            )),
+        }
+    }
 }
 trait RecordSequence {
     fn len(&self) -> usize;
@@ -31,25 +42,29 @@ impl<T: RecordInput> RecordSequence for Vec<T> {
     }
 }
 #[derive(Clone, Copy)]
-pub struct Records<'a>(&'a dyn RecordSequence);
+pub struct Records<'a>(Option<&'a dyn RecordSequence>);
 impl std::fmt::Debug for Records<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("Records")
-            .field("len", &self.0.len())
-            .finish()
+        f.debug_struct("Records").field("len", &self.len()).finish()
     }
 }
 impl<'a> Records<'a> {
     pub fn new<T: RecordInput>(rows: &'a Vec<T>) -> Self {
-        Self(rows)
+        Self(Some(rows))
+    }
+    pub fn empty() -> Self {
+        Self(None)
+    }
+    fn len(&self) -> usize {
+        self.0.map_or(0, RecordSequence::len)
     }
     pub fn is_empty(&self) -> bool {
-        self.0.len() == 0
+        self.len() == 0
     }
     pub fn selected(&self, selection: crate::sequence_pattern::Selection) -> Option<Row<'a>> {
         match selection {
-            crate::sequence_pattern::Selection::Unique(index) if index < self.0.len() => {
-                Some(Row(self.0.row(index)))
+            crate::sequence_pattern::Selection::Unique(index) if index < self.len() => {
+                Some(Row(self.0?.row(index)))
             }
             _ => None,
         }
@@ -72,10 +87,10 @@ impl<'a> IntoIterator for Records<'a> {
 impl<'a> Iterator for Rows<'a> {
     type Item = Row<'a>;
     fn next(&mut self) -> Option<Self::Item> {
-        if self.index == self.records.0.len() {
+        if self.index == self.records.len() {
             return None;
         }
-        let row = Row(self.records.0.row(self.index));
+        let row = Row(self.records.0?.row(self.index));
         self.index += 1;
         Some(row)
     }
@@ -157,6 +172,7 @@ mod tests {
             },
         ];
         assert!(Records::new(&Vec::<Stored>::new()).is_empty());
+        assert!(Records::empty().into_iter().next().is_none());
         let rows = Records::new(&stored);
         assert!(!rows.is_empty());
         let mut iter = rows.into_iter();
@@ -168,6 +184,12 @@ mod tests {
             ));
             assert_eq!(row.boolean(1).unwrap(), original.enabled);
             assert!(std::ptr::eq(row.decimal(2).unwrap(), &original.amount));
+            assert!(original.records(3).unwrap().is_empty());
+            assert!(original.records(4).unwrap().is_empty());
+            assert_eq!(
+                original.records(0).unwrap_err().code.as_deref(),
+                Some("input.type")
+            );
             for field in [3, 4] {
                 assert_eq!(
                     row.text(field).unwrap_err().code.as_deref(),

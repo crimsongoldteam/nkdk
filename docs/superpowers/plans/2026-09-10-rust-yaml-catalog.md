@@ -314,8 +314,11 @@ XML-свойства и родителя, число вхождений, при�
 `xs:string` без XML-референса. Тот же общий доступ к записи теперь работает
 для составного `TypeDescription`: проверено условие от его поля
 `stringLength`, без отдельного обработчика в оркестраторе. Для полного
-`FillValue` ещё требуется брать из вложенного `items` набор альтернатив,
-а затем выполнять проверки значения и графа ссылок.
+`FillValue` общий заимствованный доступ теперь читает и вложенный `items`:
+одно строковое значение выбирает пустой `xs:string`, число и составной тип —
+`xsi:nil`. Проверка создаёт XML из YAML без референса. Следующие зависимости —
+подключение этой формы к переиспользуемому `FillValue`, проверки значения и
+графа ссылок.
 
 **Files:** declarations/common/metadata-value/*.yaml, fill-value.yaml; профили Catalog/Document/Attribute; compiler/generate/relations.rs; compiled-rules/tests/fill_value.rs; tests/conversion-corpus/cases/fill-*.
 

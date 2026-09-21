@@ -3,29 +3,34 @@ use nkdk_compiled_rules::{Direction, PreparedInputs, convert_file, entry_id, val
 #[test]
 fn nested_sibling_record_selects_empty_xml_form_without_reference() {
     let inputs = PreparedInputs::default();
-    for (name, typed_yaml) in [
+    for (name, yaml, expected_type) in [
         (
             "migration.conditional-nested-empty-scalar",
             "Тип:\n  Вид: Строка",
+            true,
         ),
-        ("migration.conditional-composed-record", "Тип: Строка(10)"),
+        ("migration.conditional-nested-empty-scalar", "", false),
+        ("migration.conditional-composed-record", "Тип: Строка", true),
+        ("migration.conditional-composed-record", "Тип: Число", false),
+        (
+            "migration.conditional-composed-record",
+            "Тип:\n  -\n    Строка\n  -\n    Число",
+            false,
+        ),
+        ("migration.conditional-composed-record", "", false),
     ] {
         let entry = entry_id(name).unwrap();
-        for (yaml, expected_type) in [(typed_yaml, true), ("", false)] {
-            let exported =
-                convert_file(entry, Direction::YamlToXml, yaml.as_bytes(), &inputs).unwrap();
-            let xml = String::from_utf8_lossy(&exported.bytes);
-            assert!(xml.contains("<Value"), "{xml}");
-            if expected_type {
-                assert!(xml.contains("string"), "{xml}");
-                assert!(!xml.contains("nil=\"true\""), "{xml}");
-            } else {
-                assert!(xml.contains("nil=\"true\""), "{xml}");
-            }
-            let imported =
-                convert_file(entry, Direction::XmlToYaml, &exported.bytes, &inputs).unwrap();
-            assert_eq!(imported.bytes, yaml.as_bytes(), "{xml}");
+        let exported = convert_file(entry, Direction::YamlToXml, yaml.as_bytes(), &inputs).unwrap();
+        let xml = String::from_utf8_lossy(&exported.bytes);
+        assert!(xml.contains("<Value"), "{xml}");
+        if expected_type {
+            assert!(xml.contains("string"), "{xml}");
+            assert!(!xml.contains("nil=\"true\""), "{xml}");
+        } else {
+            assert!(xml.contains("nil=\"true\""), "{xml}");
         }
+        let imported = convert_file(entry, Direction::XmlToYaml, &exported.bytes, &inputs).unwrap();
+        assert_eq!(imported.bytes, yaml.as_bytes(), "{xml}");
     }
 }
 #[test]

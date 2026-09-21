@@ -23,7 +23,11 @@ presence:
     - when:
         and:
         - {present: {field: description}}
-        - {eq: [{get: {of: {field: description}, field: stringLength}}, {literal: '10'}]}
+        - one: {in: {get: {of: {field: description}, field: items}}, as: item, where: {literal: true}}
+        - exists:
+            in: {get: {of: {field: description}, field: items}}
+            as: item
+            where: {eq: [{get: {of: {var: item}, field: value}}, {literal: Строка}]}
       form: empty-element
       type: xs:string
     - {form: nil}

@@ -34,7 +34,9 @@ impl<'a> Expressions<'a> {
         }
     }
     fn bind_typed_row(&mut self, input: &LinkedExpression, slot: u32) -> Result<bool, Diagnostic> {
-        if matches!(input.kind, LinkedExpressionKind::Input(_))
+        let borrowed = matches!(input.kind, LinkedExpressionKind::Input(_))
+            || matches!(&input.kind, LinkedExpressionKind::Operation { operator: LinkedOperator::Get(_), arguments } if matches!(arguments[0].kind, LinkedExpressionKind::Input(_)));
+        if borrowed
             && let LinkedType::Sequence(item) = &input.value_type
             && let LinkedType::Record(fields) = item.as_ref()
         {
@@ -913,6 +915,12 @@ impl<'a> Expressions<'a> {
                         {
                             self.fallible = true;
                             return Ok(format!("_inputs.record({slot})?.text({index})?"));
+                        }
+                        if let LinkedExpressionKind::Input(slot) = arguments[0].kind
+                            && matches!(&value.value_type, LinkedType::Sequence(item) if matches!(item.as_ref(), LinkedType::Record(_)))
+                        {
+                            self.fallible = true;
+                            return Ok(format!("_inputs.record({slot})?.records({index})?"));
                         }
                         if let LinkedExpressionKind::Variable(slot) = arguments[0].kind
                             && self.borrowed_rows.contains_key(&slot)
