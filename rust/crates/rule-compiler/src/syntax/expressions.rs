@@ -23,6 +23,7 @@ pub(super) fn expression(path: &str, value: &Node) -> Result<Expression, Diagnos
             "input",
             "lookup",
             "matches",
+            "isVariant",
             "match",
             "present",
             "isNull",
@@ -70,6 +71,13 @@ pub(super) fn expression(path: &str, value: &Node) -> Result<Expression, Diagnos
     }
     let (operator, operand) = &fields[0];
     let kind = match operator.text(path)? {
+        "isVariant" => {
+            let fields = operand.mapping(path, &["value", "variant"])?;
+            ExpressionKind::IsVariant {
+                value: Box::new(expression(path, operand.field(path, fields, "value")?)?),
+                variant: operand.field(path, fields, "variant")?.text(path)?.into(),
+            }
+        }
         "require" => ExpressionKind::Require(Box::new(expression(path, operand)?)),
         "lookup" => {
             let fields = operand.mapping(path, &["in", "key"])?;

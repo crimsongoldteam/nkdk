@@ -16,6 +16,32 @@ function bindFragmentInputs(ownerInputs, fragmentInputs, overrides={}) {
   return bindings;
 }
 
+function instantiateOwnerConstraints(fields,catalog) {
+  const result=[];
+  for(const {property,mapped} of fields) {
+    const specification=mapped.ownerConstraints;
+    if(!specification)continue;
+    const source=catalog.get(specification.use);
+    if(source?.kind!=='fragment' || !Array.isArray(source.constraints))throw new Error(`Missing owner constraint declaration: ${specification.use}`);
+    const substitute=value=>{
+      if(Array.isArray(value))return value.map(substitute);
+      if(!value || typeof value!=='object')return value;
+      if(typeof value.input==='string') {
+        if(!Object.hasOwn(specification.bindings,value.input))throw new Error(`Unbound owner constraint input: ${value.input}`);
+        return structuredClone(specification.bindings[value.input]);
+      }
+      return Object.fromEntries(Object.entries(value).map(([key,child])=>[key,substitute(child)]));
+    };
+    for(const original of source.constraints) {
+      const constraint=substitute(original);
+      constraint.id=`${property.name}.${constraint.id}`;
+      if(constraint.diagnostic?.at?.self===true)constraint.diagnostic.at={field:property.name};
+      result.push(constraint);
+    }
+  }
+  return result;
+}
+
 export function emitCandidates(entries, catalog, origin = p => p.source.path, xmlNamespaces={}) {
   const modules = new Map(), results = [];
   for (const entry of entries) {
@@ -102,10 +128,12 @@ export function emitCandidates(entries, catalog, origin = p => p.source.path, xm
         const bind=bindFragmentInputs(inputs,fragmentInputs,ownerBindings);
         compose.push({use:alias,...(Object.keys(bind).length ? {bind} : {})});
       }
-      const id = `candidate.projection.${hash([root,imports,compose,inputs])}`;
+      const constraints=instantiateOwnerConstraints(eligibleFields,catalog);
+      const id = `candidate.projection.${hash(constraints.length?[root,imports,compose,inputs,constraints]:[root,imports,compose,inputs])}`;
       const projection = {format:'nkdk-declarations/1',kind:'object',id,
         description:`Кандидат проекции: относительный XML-корень ${root}; не полный владелец`,imports,compose,
-        value:{kind:'record',fields:[]},representations:{xml:{kind:'record',fields:[]},yaml:{kind:'mapping',fields:[]}}};
+        value:{kind:'record',fields:[]},representations:{xml:{kind:'record',fields:[]},yaml:{kind:'mapping',fields:[]}},
+        ...(constraints.length?{constraints}:{})};
       if (Object.keys(inputs).length) projection.inputs = inputs;
       modules.set(id,projection);
       result.projections.push({id,root,...(sourceTag?{sourceTag}:{}),context:'relative-path; owner namespaces and wrapper not bound',fields:eligibleFields.map(f => f.property.name), fragments:compose.map(part=>imports[part.use])});

@@ -213,6 +213,36 @@ cases.push({...stringAttribute,
   source:[...stringAttribute.source,{path:fixedTypeSource}],
   adaptation:'Use immutable e2e string attribute with the Fixed qualifier established by the existing FillValue type test; reverse export uses freshly prepared inputs without an XML reference',
 });
+const numericAttribute=owners.cases.find(row=>row.id==='e2e-properties-РеквизитВсеСвойства');
+if(!numericAttribute?.xml.includes('<FillValue xsi:type="xs:decimal">1234</FillValue>') ||
+   !numericAttribute.yaml.includes('ЗначениеЗаполнения: 1234'))throw new Error('Changed independent numeric FillValue source');
+cases.push({...numericAttribute,
+  id:'fill-value-incompatible-explicit-text',
+  xml:numericAttribute.xml.replace('<FillValue xsi:type="xs:decimal">1234</FillValue>','<FillValue xsi:type="xs:string">abc</FillValue>'),
+  yaml:numericAttribute.yaml.replace('ЗначениеЗаполнения: 1234','ЗначениеЗаполнения: abc'),
+  diagnostics:['fill-value.type-mismatch'],
+  adaptation:'Change only the explicit FillValue of an immutable e2e numeric attribute to a typed string; the declared Type and all sibling properties retain their independent expectations',
+});
+const booleanAttribute=owners.cases.find(row=>row.id==='e2e-properties-РеквизитБулево');
+if(!booleanAttribute?.xml.includes('<FillValue xsi:nil="true" />') || !booleanAttribute.yaml.includes('Тип: Булево'))throw new Error('Changed independent boolean FillValue source');
+const dateAttribute=owners.cases.find(row=>row.id==='e2e-properties-РеквизитСправочника');
+if(!dateAttribute?.xml.includes('<FillValue xsi:nil="true" />') || !dateAttribute.yaml.includes('Тип: Дата'))throw new Error('Changed independent date FillValue source');
+for(const [id,owner,oldXML,newXML,newYAML] of [
+  ['string',stringAttribute,'<FillValue xsi:type="xs:string" />','<FillValue xsi:type="xs:decimal">12</FillValue>','ЗначениеЗаполнения: 12'],
+  ['boolean',booleanAttribute,'<FillValue xsi:nil="true" />','<FillValue xsi:type="xs:string">abc</FillValue>','ЗначениеЗаполнения: abc'],
+  ['date',dateAttribute,'<FillValue xsi:nil="true" />','<FillValue xsi:type="xs:decimal">12</FillValue>','ЗначениеЗаполнения: 12'],
+]) {
+  if(!owner.xml.includes(oldXML) || owner.yaml.includes('ЗначениеЗаполнения:'))throw new Error(`Changed independent ${id} FillValue source`);
+  const typeLine=owner.yaml.split('\n').find(line=>line.startsWith('Тип: '));
+  if(!typeLine)throw new Error(`Missing independent ${id} type expectation`);
+  cases.push({...owner,
+    id:`fill-value-incompatible-${id}`,
+    xml:owner.xml.replace(oldXML,newXML),
+    yaml:owner.yaml.replace(typeLine,`${typeLine}\n${newYAML}`),
+    diagnostics:['fill-value.type-mismatch'],
+    adaptation:`Change only the explicit FillValue of an immutable e2e ${id} attribute to a different typed value; preserve the declared Type and sibling expectations`,
+  });
+}
 const formEntry=select('MetadataDocumentJournalRules','defaultForm');
 const formOwner=owners.cases.find(row=>row.id==='e2e-properties-ЖурналДокументовВсеСвойства');
 const formInputs=Object.fromEntries(Object.keys(catalog.get(formEntry).inputs??{}).filter(key=>key!=='roots').map(key=>[key,formOwner.inputs[key]]));

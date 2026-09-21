@@ -107,16 +107,19 @@ fn check_case(case: &Value, manifest: &Value) {
     let xml = case["xml"].as_str().unwrap().as_bytes();
     let forward = rules::convert_file(entry, Direction::XmlToYaml, xml, &inputs).unwrap();
     let actual = std::str::from_utf8(&forward.bytes).unwrap().trim_end();
+    let expected_diagnostics: Vec<_> = case["diagnostics"]
+        .as_array()
+        .map(|items| items.iter().map(|item| item.as_str().unwrap().to_owned()).collect())
+        .unwrap_or_default();
+    let diagnostic_codes = |diagnostics: &[nkdk_conversion_core::RuntimeDiagnostic]| {
+        diagnostics.iter().map(|issue| issue.code.as_deref().unwrap_or("").to_owned()).collect::<Vec<_>>()
+    };
     if case["noRaw"].as_bool() == Some(true) {
         assert!(!actual.contains("$xml"), "unexpected raw XML: {actual}");
     }
     if let Some(expected) = case["yaml"].as_str() {
         compare_yaml(expected, actual);
-        assert!(
-            forward.diagnostics.is_empty(),
-            "unexpected diagnostics: {:?}",
-            forward.diagnostics
-        );
+        assert_eq!(diagnostic_codes(&forward.diagnostics), expected_diagnostics, "forward diagnostics");
     } else {
         assert!(
             actual
@@ -138,6 +141,7 @@ fn check_case(case: &Value, manifest: &Value) {
             &fresh,
         )
         .unwrap();
+        assert_eq!(diagnostic_codes(&reverse.diagnostics), expected_diagnostics, "reverse diagnostics");
         compare_xml(xml, &reverse.bytes, &qname_paths);
         compare_documents(case, &reverse.documents);
     }
@@ -159,7 +163,7 @@ fn check_case(case: &Value, manifest: &Value) {
             );
         }
     }
-    assert!(rules::validate_file(entry, &forward.bytes, &inputs).is_empty());
+    assert_eq!(diagnostic_codes(&rules::validate_file(entry, &forward.bytes, &inputs)), expected_diagnostics, "validation diagnostics");
     for input in std::iter::once(forward.bytes.as_slice()).chain(
         case["reverseYAML"]
             .as_str()
@@ -168,6 +172,7 @@ fn check_case(case: &Value, manifest: &Value) {
     ) {
         let fresh = facts::prepare(entry, case, manifest);
         let restored = rules::convert_file(entry, Direction::YamlToXml, input, &fresh).unwrap();
+        assert_eq!(diagnostic_codes(&restored.diagnostics), expected_diagnostics, "restoration diagnostics");
         compare_xml(xml, &restored.bytes, &qname_paths);
     }
 }

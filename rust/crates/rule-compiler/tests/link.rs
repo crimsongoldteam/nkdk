@@ -2443,6 +2443,60 @@ declarations:
 }
 
 #[test]
+fn choice_variant_predicate_is_checked_against_the_declaration() {
+    let source = r#"format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: test.number
+  value: {kind: scalar, scalar: number, profile: decimal}
+  representations: {xml: {kind: text}, yaml: {kind: scalar, scalar: number}}
+- kind: value
+  id: test.choice
+  imports: {number: test.number}
+  value: {kind: choice, variants: [{name: number, type: {use: number}}]}
+  representations: {xml: {kind: choice}, yaml: {kind: choice}}
+- kind: object
+  id: test.owner
+  imports: {choice: test.choice}
+  value: {kind: record, fields: [{name: value, type: {use: choice}}]}
+  representations:
+    xml: {kind: record, fields: [{field: value, path: [Value]}]}
+    yaml: {kind: mapping, fields: [{field: value, key: Значение}]}
+  constraints:
+  - id: allowed
+    appliesTo: [yaml-validation]
+    assert: {isVariant: {value: {field: value}, variant: number}}
+    diagnostic: {code: test.choice, severity: error, at: {field: value}, message: Unexpected variant}
+"#;
+    let modules = parse_catalog(source);
+    let program = link(&modules).expect("declared variant can be tested");
+    let owner = program
+        .entries
+        .iter()
+        .find(|entry| entry.name == "test.owner")
+        .unwrap();
+    assert!(matches!(
+        owner.constraints[0].assertion.kind,
+        nkdk_rule_model::LinkedExpressionKind::Operation {
+            operator: nkdk_rule_model::LinkedOperator::IsVariant(0),
+            ..
+        }
+    ));
+    assert_catalog_error(
+        &source.replace("variant: number}}", "variant: missing}}"),
+        "unknown_choice_variant",
+    );
+    assert_catalog_error(
+        &source.replace(
+            "value: {field: value}, variant: number",
+            "value: {literal: abc}, variant: number",
+        ),
+        "expression_type_mismatch",
+    );
+}
+
+#[test]
 fn yaml_choice_structural_selectors_are_checked_at_link_time() {
     let source = r#"format: nkdk-declarations/1
 kind: catalog

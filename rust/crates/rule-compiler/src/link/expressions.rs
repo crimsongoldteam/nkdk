@@ -43,6 +43,50 @@ pub(super) fn resolve_expression_in(
     scope: &Scope,
 ) -> Result<LinkedExpression, Diagnostic> {
     let (kind, value_type) = match &expression.kind {
+        ExpressionKind::IsVariant { value, variant } => {
+            let value = resolve_expression_in(module, value, modules, ids, scope)?;
+            let mut shape = value.value_type.clone();
+            let mut visited = BTreeSet::new();
+            while let Some((id, _, _)) = shape.as_reference() {
+                if !visited.insert(id) {
+                    return Err(diagnostic(
+                        "expression_type_mismatch",
+                        &expression.source,
+                        "Choice reference is cyclic",
+                    ));
+                }
+                let referenced = modules
+                    .iter()
+                    .find(|(name, _)| ids.get(**name) == Some(&id))
+                    .map(|(_, module)| *module)
+                    .expect("linked choice reference");
+                shape = module_shape(referenced, modules, ids, &mut BTreeSet::new())?;
+            }
+            let LinkedType::Choice(variants) = shape else {
+                return Err(diagnostic(
+                    "expression_type_mismatch",
+                    &expression.source,
+                    "Variant test requires a choice value",
+                ));
+            };
+            let index = variants
+                .iter()
+                .position(|item| item.name == *variant)
+                .ok_or_else(|| {
+                    diagnostic(
+                        "unknown_choice_variant",
+                        &expression.source,
+                        "Choice variant is not declared",
+                    )
+                })?;
+            (
+                LinkedExpressionKind::Operation {
+                    operator: LinkedOperator::IsVariant(index as u32),
+                    arguments: vec![value],
+                },
+                LinkedType::Scalar(ScalarType::Boolean),
+            )
+        }
         ExpressionKind::Lookup { input, key } => {
             let input = resolve_expression_in(module, input, modules, ids, scope)?;
             let mut key = resolve_expression_in(module, key, modules, ids, scope)?;

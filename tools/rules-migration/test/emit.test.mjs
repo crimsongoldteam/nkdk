@@ -7,6 +7,7 @@ import { safeUpdate } from '../src/candidate-output.mjs';
 import { mapProperty, METADATA_ATTRIBUTE_TYPE_DESCRIPTION_TYPES } from '../src/mappings.mjs';
 import { checkSnapshot } from '../src/source-snapshot.mjs';
 import { candidateDiff } from '../src/candidate-diff.mjs';
+import { candidateCatalog } from '../src/candidate-catalog.mjs';
 
 test('candidate generation shares fragments, rejects unknown parameters and protects edits', () => {
   const property = {name:'enabled', source:{path:'shared.ts',line:1,column:1}, status:'static-parameters',
@@ -135,6 +136,7 @@ test('candidate generation shares fragments, rejects unknown parameters and prot
   assert.equal(implicitNilValue.presence,undefined);
   const realProfile=mapProperty({...property,name:'fillValue',parameters:{type:'MetadataValue',yaml:'ЗначениеЗаполнения',xml:'FillValue',xmlParents:['Properties'],defaultValueXMLRaw:{'_xsi:type':'xs:string'},exportNilValue:true}},new Map([['common.metadata-value',{id:'common.metadata-value',inputs:{onlyStringType:{type:{kind:'scalar',scalar:'boolean'}}}}]]));
   assert.equal(realProfile.status,'candidate');
+  const fillCompatibility=candidateCatalog().catalog.get('common.fill-value-compatibility');
   const fillOwner=emitCandidates([{
     symbol:'AttributeRules',path:'attribute.ts',comparison:{status:'keys-match'},properties:[
       {...property,name:'type',parameters:{type:'TypeDescription',yaml:'Тип',xmlParents:['Properties']}},
@@ -143,6 +145,7 @@ test('candidate generation shares fragments, rejects unknown parameters and prot
   }],new Map([
     ['common.type-description',{id:'common.type-description'}],
     ['common.metadata-value',{id:'common.metadata-value',inputs:{onlyStringType:{type:{kind:'scalar',scalar:'boolean'}}}}],
+    ['common.fill-value-compatibility',fillCompatibility],
   ]),()=> 'attribute.ts');
   const fillFragment=fillOwner.modules.find(module=>module.kind==='fragment');
   assert.equal(fillOwner.entries[0].properties[1].status,'candidate');
@@ -158,6 +161,7 @@ test('candidate generation shares fragments, rejects unknown parameters and prot
   }],new Map([
     ['common.type-description',{id:'common.type-description'}],
     ['common.metadata-value',{id:'common.metadata-value',inputs:{onlyStringType:{type:{kind:'scalar',scalar:'boolean'}}}}],
+    ['common.fill-value-compatibility',fillCompatibility],
   ]),property=>property.name);
   const splitProjection=splitOwner.modules.find(module=>module.kind==='object');
   assert.deepEqual(splitProjection.compose[1].bind.onlyStringType,realProfile.siblingExpressions.onlyStringType.value);

@@ -414,18 +414,28 @@ pub(super) fn emit(
         "->core::Result<()>",
         ",inputs,out,indent"
     );
-    delegate_value!(
-        "check_xml",
-        ",source:&[u8],inputs:&InputView<'_>",
-        "->Vec<RuntimeDiagnostic>",
-        ",source,inputs"
-    );
-    delegate_value!(
-        "check_yaml",
-        ",source:&[u8],inputs:&InputView<'_>",
-        "->Vec<RuntimeDiagnostic>",
-        ",source,inputs"
-    );
+    if child.constraints.is_empty() {
+        delegate_value!(
+            "check_xml",
+            ",source:&[u8],inputs:&InputView<'_>",
+            "->Vec<RuntimeDiagnostic>",
+            ",source,inputs"
+        );
+        delegate_value!(
+            "check_yaml",
+            ",source:&[u8],inputs:&InputView<'_>",
+            "->Vec<RuntimeDiagnostic>",
+            ",source,inputs"
+        );
+    } else {
+        out.push_str(&generate_checks(
+            child,
+            program,
+            id,
+            shape.property,
+            shape.variants.len(),
+        )?);
+    }
     out.push_str("pub(super) fn finalize(source:&[u8],value:&Stored,inputs:&InputView<'_>)->core::Result<Vec<u8>>{match value{");
     for variant in &variants {
         writeln!(
@@ -508,4 +518,144 @@ pub(super) fn emit(
         xml_stateful: true,
         yaml_stateful: true,
     })
+}
+
+fn generate_checks(
+    child: &LinkedEntry,
+    program: &Program,
+    id: u32,
+    property: Option<&str>,
+    count: usize,
+) -> Result<String, Diagnostic> {
+    let LinkedType::Record(fields) = &child.value else {
+        unreachable!("choice property is a record");
+    };
+    let mut out = String::new();
+    for (side, phase, form) in [
+        ("xml", ValidationPhase::XmlImport, LinkedForm::XmlRecord),
+        (
+            "yaml",
+            ValidationPhase::YamlValidation,
+            LinkedForm::YamlMapping,
+        ),
+    ] {
+        writeln!(out, "pub(super) fn check_{side}(value:&Stored,source:&[u8],inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{{let _inputs=inputs;let mut errors=match value{{").unwrap();
+        for variant in 0..count {
+            writeln!(
+                out,
+                "Stored::V{variant}(value)=>part_{id}_{variant}::check_{side}(value,source,inputs),"
+            )
+            .unwrap();
+        }
+        out.push_str("};match value{");
+        for variant in 0..count {
+            writeln!(out, "Stored::V{variant}(value)=>{{").unwrap();
+            let mut expressions =
+                super::expressions::Expressions::new(child, program, fields, None);
+            for original in &child.constraints {
+                if !original.applies_to.contains(&phase)
+                    || (!original.forms.is_empty() && !original.forms.contains(&form))
+                {
+                    continue;
+                }
+                if original.for_each.is_some() {
+                    return Err(unsupported(
+                        child,
+                        "Choice property iterations need a declared collection",
+                    ));
+                }
+                let mut rule = original.clone();
+                crate::expressions::map_constraint(&mut rule, |expression| {
+                    specialize_variant_test(expression, variant as u32)
+                });
+                if rule.expressions().any(uses_owner_field) {
+                    return Err(unsupported(
+                        child,
+                        "Choice property contract must use a variant test or a bound input",
+                    ));
+                }
+                expressions.fallible = false;
+                let message = expressions.message(&rule.diagnostic.message)?;
+                if expressions.fallible {
+                    return Err(unsupported(
+                        child,
+                        "Choice diagnostic message must be available without a fallible lookup",
+                    ));
+                }
+                let when = if let Some(condition) = &rule.when {
+                    expressions.lower(condition)?
+                } else {
+                    "true".to_owned()
+                };
+                let assertion = expressions.lower(&rule.assertion)?;
+                let mut reads = BTreeSet::new();
+                for expression in rule.expressions() {
+                    super::constraints::read_inputs(expression, &mut reads);
+                }
+                let ready = reads.iter().map(|slot| format!("!matches!(_inputs.slot({slot}),Some(core::inputs::InputRef::MissingValue))")).collect::<Vec<_>>().join("&&");
+                let guard = if ready.is_empty() {
+                    when
+                } else {
+                    format!("({ready})&&({when})")
+                };
+                let violation = super::constraints::violation(&guard, &assertion);
+                let code = rule.diagnostic.code.as_deref();
+                let source_name = rule.diagnostic.source.as_deref();
+                let severity = super::constraints::severity_name(&rule.diagnostic.severity);
+                let path = match rule.diagnostic.at {
+                    LinkedDiagnosticTarget::SelfValue => String::new(),
+                    LinkedDiagnosticTarget::Field(0) => property
+                        .map(|name| format!(".field({name:?})"))
+                        .unwrap_or_default(),
+                    _ => {
+                        return Err(unsupported(
+                            child,
+                            "Choice diagnostic must address its value",
+                        ));
+                    }
+                };
+                let diagnostic = format!(
+                    "RuntimeDiagnostic::declared({code:?},{source_name:?},core::Severity::{severity},{message}){path}"
+                );
+                if expressions.fallible {
+                    writeln!(out, "if part_{id}_{variant}::input_field(value,0).is_some(){{let evaluate=||->core::Result<bool>{{Ok({violation})}};match evaluate(){{Ok(true)=>errors.push({diagnostic}),Ok(false)=>{{}},Err(error)=>errors.push(error{path}),}}}}").unwrap();
+                } else {
+                    writeln!(out, "if part_{id}_{variant}::input_field(value,0).is_some()&&({violation}){{errors.push({diagnostic});}}").unwrap();
+                }
+            }
+            out.push_str(&expressions.constants);
+            out.push_str("},");
+        }
+        out.push_str("}errors}\n");
+    }
+    Ok(out)
+}
+
+fn uses_owner_field(value: &LinkedExpression) -> bool {
+    match &value.kind {
+        LinkedExpressionKind::Field(_) | LinkedExpressionKind::SelfValue => true,
+        LinkedExpressionKind::Operation { arguments, .. } => arguments.iter().any(uses_owner_field),
+        _ => false,
+    }
+}
+
+fn specialize_variant_test(value: &mut LinkedExpression, selected: u32) {
+    if let LinkedExpressionKind::Operation {
+        operator: LinkedOperator::IsVariant(variant),
+        arguments,
+    } = &value.kind
+        && matches!(
+            arguments.as_slice(),
+            [LinkedExpression {
+                kind: LinkedExpressionKind::Field(0),
+                ..
+            }]
+        )
+    {
+        value.kind = LinkedExpressionKind::Literal(ScalarLiteral::Boolean(*variant == selected));
+    } else if let LinkedExpressionKind::Operation { arguments, .. } = &mut value.kind {
+        for argument in arguments {
+            specialize_variant_test(argument, selected);
+        }
+    }
 }

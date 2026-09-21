@@ -220,6 +220,14 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
       {one:{in:{get:{of:{field:'type'},field:'items'}},as:'item',where:{literal:true}}},
       {exists:{in:{get:{of:{field:'type'},field:'items'}},as:'item',where:{matches:{value:{get:{of:{var:'item'},field:'value'}},pattern:'Строка|ФиксированнаяСтрока'}}}},
     ]}}};
+    const items={get:{of:{field:'type'},field:'items'}};
+    mapped.ownerConstraints={use:'common.fill-value-compatibility',bindings:{
+      typeItems:items,
+      textValue:{isVariant:{value:{field:property.name},variant:'text'}},
+      numberValue:{isVariant:{value:{field:property.name},variant:'decimal'}},
+      booleanValue:{isVariant:{value:{field:property.name},variant:'boolean'}},
+      calendarValue:{isVariant:{value:{field:property.name},variant:'calendar'}},
+    }};
   }
   if(Object.hasOwn(p,'ownerFactRole')) {
     if(typeof p.ownerFactRole!=='string' || !p.ownerFactRole)return fail('owner-fact-role-profile');

@@ -1,0 +1,284 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.e0f440b821b914e1645b
+description: 'Кандидат проекции: относительный XML-корень Properties; не полный владелец'
+imports:
+  part0: candidate.fragment.26f2a0ec831699cb55dd
+  part1: candidate.fragment.fb762ef0ba548a5b86e9
+  part2: candidate.fragment.26c6504dd1cbc2075885
+  inputType1f8ea46361ff: common.path-root
+  part3: candidate.fragment.a7934b48993a4f5da784
+  part4: candidate.fragment.5d1647c4012948d8e558
+compose:
+  - use: part0
+  - use: part1
+    bind:
+      defaultLanguage:
+        input: defaultLanguage
+      registeredLanguages:
+        input: registeredLanguages
+      ownerName:
+        input: ownerName
+  - use: part2
+    bind:
+      defaultLanguage:
+        input: defaultLanguage
+      registeredLanguages:
+        input: registeredLanguages
+      onlyStringType:
+        and:
+          - present:
+              field: type
+          - one:
+              in:
+                get:
+                  of:
+                    field: type
+                  field: items
+              as: item
+              where:
+                literal: true
+          - exists:
+              in:
+                get:
+                  of:
+                    field: type
+                  field: items
+              as: item
+              where:
+                matches:
+                  value:
+                    get:
+                      of:
+                        var: item
+                      field: value
+                  pattern: Строка|ФиксированнаяСтрока
+  - use: part3
+    bind:
+      roots:
+        input: roots
+      forms:
+        input: forms
+  - use: part4
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []
+constraints:
+  - id: fillValue.string-value
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      and:
+        - one:
+            in:
+              get:
+                of:
+                  field: type
+                field: items
+            as: item
+            where:
+              literal: true
+        - exists:
+            in:
+              get:
+                of:
+                  field: type
+                field: items
+            as: item
+            where:
+              matches:
+                value:
+                  get:
+                    of:
+                      var: item
+                    field: value
+                pattern: Строка|ФиксированнаяСтрока
+    assert:
+      isVariant:
+        value:
+          field: fillValue
+        variant: text
+    diagnostic:
+      code: fill-value.type-mismatch
+      severity: warning
+      at:
+        field: fillValue
+      message: Значение заполнения не соответствует строковому типу
+  - id: fillValue.number-value
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      and:
+        - one:
+            in:
+              get:
+                of:
+                  field: type
+                field: items
+            as: item
+            where:
+              literal: true
+        - exists:
+            in:
+              get:
+                of:
+                  field: type
+                field: items
+            as: item
+            where:
+              matches:
+                value:
+                  get:
+                    of:
+                      var: item
+                    field: value
+                pattern: Число|ПоложительноеЧисло
+    assert:
+      isVariant:
+        value:
+          field: fillValue
+        variant: decimal
+    diagnostic:
+      code: fill-value.type-mismatch
+      severity: warning
+      at:
+        field: fillValue
+      message: Значение заполнения не соответствует числовому типу
+  - id: fillValue.boolean-value
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      and:
+        - one:
+            in:
+              get:
+                of:
+                  field: type
+                field: items
+            as: item
+            where:
+              literal: true
+        - exists:
+            in:
+              get:
+                of:
+                  field: type
+                field: items
+            as: item
+            where:
+              eq:
+                - get:
+                    of:
+                      var: item
+                    field: value
+                - literal: Булево
+    assert:
+      isVariant:
+        value:
+          field: fillValue
+        variant: boolean
+    diagnostic:
+      code: fill-value.type-mismatch
+      severity: warning
+      at:
+        field: fillValue
+      message: Значение заполнения не соответствует булевому типу
+  - id: fillValue.calendar-value
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      and:
+        - one:
+            in:
+              get:
+                of:
+                  field: type
+                field: items
+            as: item
+            where:
+              literal: true
+        - exists:
+            in:
+              get:
+                of:
+                  field: type
+                field: items
+            as: item
+            where:
+              matches:
+                value:
+                  get:
+                    of:
+                      var: item
+                    field: value
+                pattern: Дата|Время|ДатаВремя
+    assert:
+      isVariant:
+        value:
+          field: fillValue
+        variant: calendar
+    diagnostic:
+      code: fill-value.type-mismatch
+      severity: warning
+      at:
+        field: fillValue
+      message: Значение заполнения не соответствует календарному типу
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  ownerName:
+    type:
+      kind: scalar
+      scalar: text
+  roots:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: kind
+            type:
+              use: inputType1f8ea46361ff
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  forms:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: parent
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
