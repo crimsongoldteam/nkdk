@@ -1,6 +1,10 @@
 //! Generation-scoped union expansion over projected node identifiers.
 use super::{FactState, Generation};
-use std::{collections::VecDeque, sync::Arc};
+use std::{
+    collections::{HashMap, HashSet, VecDeque},
+    hash::Hash,
+    sync::Arc,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct NodeId(pub u32);
@@ -11,6 +15,97 @@ pub enum UnionNode<T> {
     Missing,
     Ambiguous,
     Unready,
+}
+
+/// A named declaration contains direct values and references to other names.
+/// The subject-specific syntax is decoded before constructing this graph.
+pub enum NamedAlternative<T> {
+    Value(T),
+    Reference(String),
+}
+
+pub struct NamedUnionGraph<T> {
+    names: HashMap<String, NodeId>,
+    graph: UnionGraph<T>,
+}
+
+impl<T> NamedUnionGraph<T> {
+    pub fn prepare(
+        generation: Generation,
+        definitions: Vec<(String, Vec<NamedAlternative<T>>)>,
+        budget: GraphBudget,
+    ) -> Result<Self, GraphLimit>
+    where
+        T: Eq + Hash,
+    {
+        if definitions.len() > budget.nodes || definitions.len() > u32::MAX as usize {
+            return Err(GraphLimit::Nodes);
+        }
+        let mut names = HashMap::with_capacity(definitions.len());
+        let mut duplicates = HashSet::new();
+        for (index, (name, _)) in definitions.iter().enumerate() {
+            if names.insert(name.clone(), NodeId(index as u32)).is_some() {
+                duplicates.insert(name.clone());
+            }
+        }
+        let value_count = definitions
+            .iter()
+            .filter(|(name, _)| !duplicates.contains(name))
+            .try_fold(0usize, |count, (_, alternatives)| {
+                count.checked_add(
+                    alternatives
+                        .iter()
+                        .filter(|item| matches!(item, NamedAlternative::Value(_)))
+                        .count(),
+                )
+            })
+            .ok_or(GraphLimit::Nodes)?;
+        let total = definitions
+            .len()
+            .checked_add(value_count)
+            .ok_or(GraphLimit::Nodes)?;
+        if total > budget.nodes || total > u32::MAX as usize {
+            return Err(GraphLimit::Nodes);
+        }
+        let mut nodes = (0..definitions.len())
+            .map(|_| UnionNode::Unready)
+            .collect::<Vec<_>>();
+        for (index, (name, alternatives)) in definitions.into_iter().enumerate() {
+            if duplicates.contains(&name) {
+                nodes[index] = UnionNode::Ambiguous;
+                continue;
+            }
+            if alternatives.is_empty() {
+                continue;
+            }
+            let mut edges = Vec::with_capacity(alternatives.len());
+            for alternative in alternatives {
+                match alternative {
+                    NamedAlternative::Value(value) => {
+                        edges.push(NodeId(nodes.len() as u32));
+                        nodes.push(UnionNode::Value(value));
+                    }
+                    NamedAlternative::Reference(name) => {
+                        edges.push(names.get(&name).copied().unwrap_or(NodeId(u32::MAX)));
+                    }
+                }
+            }
+            nodes[index] = UnionNode::Union(edges);
+        }
+        let graph = UnionGraph::prepare(generation, nodes, budget)?;
+        Ok(Self { names, graph })
+    }
+
+    pub fn lookup(&self, generation: Generation, name: &str) -> FactState<&[NodeId]> {
+        self.graph.lookup(
+            generation,
+            self.names.get(name).copied().unwrap_or(NodeId(u32::MAX)),
+        )
+    }
+
+    pub fn value(&self, node: NodeId) -> Option<&T> {
+        self.graph.value(node)
+    }
 }
 
 pub struct GraphBudget {
@@ -38,7 +133,10 @@ impl<T> UnionGraph<T> {
         generation: Generation,
         nodes: Vec<UnionNode<T>>,
         budget: GraphBudget,
-    ) -> Result<Self, GraphLimit> {
+    ) -> Result<Self, GraphLimit>
+    where
+        T: Eq + Hash,
+    {
         if nodes.len() > budget.nodes || nodes.len() > u32::MAX as usize {
             return Err(GraphLimit::Nodes);
         }
@@ -53,6 +151,20 @@ impl<T> UnionGraph<T> {
                 }
             }
         }
+        // Repeated leaves share one identity. A union therefore removes equal
+        // alternatives even when they came from different declarations.
+        let mut unique = HashMap::<&T, NodeId>::new();
+        let canonical: Vec<_> = nodes
+            .iter()
+            .enumerate()
+            .map(|(index, node)| match node {
+                UnionNode::Value(value) => {
+                    Some(*unique.entry(value).or_insert(NodeId(index as u32)))
+                }
+                _ => None,
+            })
+            .collect();
+        drop(unique);
         let mut parents = vec![Vec::new(); nodes.len()];
         let mut pending = vec![0usize; nodes.len()];
         for (index, node) in nodes.iter().enumerate() {
@@ -75,10 +187,14 @@ impl<T> UnionGraph<T> {
         let mut seen = vec![false; nodes.len()];
         while let Some(index) = ready.pop_front() {
             expansions[index] = match &nodes[index] {
-                UnionNode::Value(_) => {
-                    available = available.checked_sub(1).ok_or(GraphLimit::Members)?;
-                    FactState::Ready(Arc::from([NodeId(index as u32)]))
-                }
+                UnionNode::Value(_) => match canonical[index] {
+                    Some(NodeId(id)) if id as usize != index => expansions[id as usize].clone(),
+                    Some(id) => {
+                        available = available.checked_sub(1).ok_or(GraphLimit::Members)?;
+                        FactState::Ready(Arc::from([id]))
+                    }
+                    None => unreachable!("value has a canonical identity"),
+                },
                 UnionNode::Missing => FactState::Missing,
                 UnionNode::Ambiguous => FactState::Ambiguous,
                 UnionNode::Unready => FactState::Unready,
@@ -172,7 +288,6 @@ fn expand(
     for value in &members {
         seen[value.0 as usize] = false;
     }
-    members.sort_unstable();
     *available -= members.len();
     Ok(FactState::Ready(members.into()))
 }

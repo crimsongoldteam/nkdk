@@ -1,4 +1,6 @@
-use nkdk_conversion_core::facts::graph::{GraphBudget, GraphLimit, NodeId, UnionGraph, UnionNode};
+use nkdk_conversion_core::facts::graph::{
+    GraphBudget, GraphLimit, NamedAlternative, NamedUnionGraph, NodeId, UnionGraph, UnionNode,
+};
 use nkdk_conversion_core::facts::{FactIndexBuilder, FactState, Generation};
 
 #[test]
@@ -57,7 +59,7 @@ fn graph_unions_keep_unresolved_states_and_share_single_child_expansions() {
     let FactState::Ready(pair) = graph.lookup(generation, NodeId(2)) else {
         panic!("ready union")
     };
-    assert_eq!(pair, [NodeId(0), NodeId(1)]);
+    assert_eq!(pair, [NodeId(1), NodeId(0)]);
     let FactState::Ready(alias) = graph.lookup(generation, NodeId(3)) else {
         panic!("ready alias")
     };
@@ -145,4 +147,111 @@ fn graph_preparation_is_bounded_and_does_not_recurse_down_long_chains() {
         ),
         Err(GraphLimit::Members)
     ));
+}
+
+#[test]
+fn nested_graph_keeps_first_occurrence_order_across_shared_branches() {
+    let generation = Generation(5);
+    let graph = UnionGraph::prepare(
+        generation,
+        vec![
+            UnionNode::Value("first"),
+            UnionNode::Value("second"),
+            UnionNode::Value("third"),
+            UnionNode::Union(vec![NodeId(2), NodeId(0)]),
+            UnionNode::Union(vec![NodeId(1), NodeId(3), NodeId(2), NodeId(0)]),
+        ],
+        GraphBudget {
+            nodes: 5,
+            edges: 6,
+            members: 9,
+        },
+    )
+    .unwrap();
+    assert_eq!(
+        graph.lookup(generation, NodeId(4)),
+        FactState::Ready(&[NodeId(1), NodeId(2), NodeId(0)][..])
+    );
+}
+
+#[test]
+fn graph_deduplicates_equal_values_from_distinct_sources() {
+    let generation = Generation(6);
+    let graph = UnionGraph::prepare(
+        generation,
+        vec![
+            UnionNode::Value("CatalogRef.Goods"),
+            UnionNode::Value("CatalogRef.Goods"),
+            UnionNode::Value("EnumRef.Status"),
+            UnionNode::Union(vec![NodeId(2), NodeId(1), NodeId(0)]),
+        ],
+        GraphBudget {
+            nodes: 4,
+            edges: 3,
+            members: 5,
+        },
+    )
+    .unwrap();
+    assert_eq!(
+        graph.lookup(generation, NodeId(3)),
+        FactState::Ready(&[NodeId(2), NodeId(0)][..])
+    );
+}
+
+#[test]
+fn named_graph_resolves_chains_and_preserves_distinct_failure_states() {
+    use NamedAlternative::{Reference, Value};
+    let generation = Generation(7);
+    let graph = NamedUnionGraph::prepare(
+        generation,
+        vec![
+            (
+                "Owner".into(),
+                vec![
+                    Value("string"),
+                    Reference("A".into()),
+                    Reference("B".into()),
+                ],
+            ),
+            ("A".into(), vec![Reference("B".into())]),
+            ("B".into(), vec![Value("CatalogRef.Goods")]),
+            ("Missing".into(), vec![Reference("NoSuchType".into())]),
+            ("Empty".into(), vec![]),
+            ("CycleA".into(), vec![Reference("CycleB".into())]),
+            ("CycleB".into(), vec![Reference("CycleA".into())]),
+            ("Duplicate".into(), vec![Value("one")]),
+            ("Duplicate".into(), vec![Value("two")]),
+        ],
+        GraphBudget {
+            nodes: 20,
+            edges: 20,
+            members: 20,
+        },
+    )
+    .unwrap();
+    let FactState::Ready(members) = graph.lookup(generation, "Owner") else {
+        panic!("resolved owner")
+    };
+    assert_eq!(
+        members
+            .iter()
+            .map(|id| graph.value(*id).unwrap())
+            .copied()
+            .collect::<Vec<_>>(),
+        ["string", "CatalogRef.Goods"]
+    );
+    for (name, state) in [
+        ("Missing", FactState::Missing),
+        ("NoSuchType", FactState::Missing),
+        ("Empty", FactState::Unready),
+        ("CycleA", FactState::Cycle),
+        ("CycleB", FactState::Cycle),
+        ("Duplicate", FactState::Ambiguous),
+    ] {
+        assert_eq!(graph.lookup(generation, name), state);
+    }
+    assert_eq!(
+        graph.lookup(Generation(8), "NoSuchType"),
+        FactState::Unready
+    );
 }
