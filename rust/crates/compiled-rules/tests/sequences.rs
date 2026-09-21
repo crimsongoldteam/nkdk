@@ -75,6 +75,7 @@ fn metadata_value_restores_absent_fill_value_from_declared_type_without_referenc
     let inputs = metadata_value_inputs(entry);
     for (yaml, string_only) in [
         ("Тип: Строка", true),
+        ("Тип: ФиксированнаяСтрока(3)", true),
         ("Тип: Число", false),
         ("Тип:\n  -\n    Строка\n  -\n    Число", false),
     ] {

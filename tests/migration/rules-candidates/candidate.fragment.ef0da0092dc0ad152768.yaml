@@ -113,12 +113,13 @@ value:
                       field: items
                   as: item
                   where:
-                    eq:
-                      - get:
+                    matches:
+                      value:
+                        get:
                           of:
                             var: item
                           field: value
-                      - literal: Строка
+                      pattern: Строка|ФиксированнаяСтрока
         with:
           exportNilValue: true
     - name: fillChecking
@@ -734,4 +735,4 @@ inputs:
       value:
         kind: scalar
         scalar: text
-id: candidate.fragment.e63ca245c0aaf75727b9
+id: candidate.fragment.ef0da0092dc0ad152768

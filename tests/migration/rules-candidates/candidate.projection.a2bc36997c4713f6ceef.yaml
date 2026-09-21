@@ -1,6 +1,6 @@
 format: nkdk-declarations/1
 kind: object
-id: candidate.projection.aa73dfa6c99c875d8a38
+id: candidate.projection.a2bc36997c4713f6ceef
 description: 'Кандидат проекции: относительный XML-корень Properties; не полный владелец'
 imports:
   part0: candidate.fragment.7c451bae36cbe6851ab7
@@ -50,12 +50,13 @@ compose:
                   field: items
               as: item
               where:
-                eq:
-                  - get:
+                matches:
+                  value:
+                    get:
                       of:
                         var: item
                       field: value
-                  - literal: Строка
+                  pattern: Строка|ФиксированнаяСтрока
   - use: part3
     bind:
       roots:

@@ -1,20 +1,22 @@
 format: nkdk-declarations/1
 kind: object
-id: candidate.projection.57b9b91522bfd2af4db0
+id: candidate.projection.ab15dbd1a6881d869ecb
 description: 'Кандидат проекции: относительный XML-корень Properties; не полный владелец'
 imports:
-  part0: candidate.fragment.7c451bae36cbe6851ab7
-  part1: candidate.fragment.ffb1bac13e045080446c
-  part2: candidate.fragment.81d72d589aafa2cb526d
+  part0: candidate.fragment.26f2a0ec831699cb55dd
+  part1: candidate.fragment.e8b8bc7db0633e109fe8
+  part2: candidate.fragment.1b7d3cc30864a8dd2a70
+  part3: candidate.fragment.75a4cde38b68731d8ce2
+  part4: candidate.fragment.26c6504dd1cbc2075885
   inputType1f8ea46361ff: common.path-root
-  part3: candidate.fragment.92ebe1610e39f3cea8e9
-  part4: candidate.fragment.506dc78255a4fe133b20
-  part5: candidate.fragment.a889c49be08ffa2f63c7
-  part6: candidate.fragment.8670582480f963458bc6
-  part7: candidate.fragment.4070ee2c3faabd96b56d
+  part5: candidate.fragment.a7934b48993a4f5da784
+  part6: candidate.fragment.5d1647c4012948d8e558
+  part7: candidate.fragment.872cce32286a95e0e8cf
 compose:
   - use: part0
   - use: part1
+  - use: part2
+  - use: part3
     bind:
       defaultLanguage:
         input: defaultLanguage
@@ -22,7 +24,7 @@ compose:
         input: registeredLanguages
       ownerName:
         input: ownerName
-  - use: part2
+  - use: part4
     bind:
       defaultLanguage:
         input: defaultLanguage
@@ -49,20 +51,19 @@ compose:
                   field: items
               as: item
               where:
-                eq:
-                  - get:
+                matches:
+                  value:
+                    get:
                       of:
                         var: item
                       field: value
-                  - literal: Строка
-  - use: part3
+                  pattern: Строка|ФиксированнаяСтрока
+  - use: part5
     bind:
       roots:
         input: roots
       forms:
         input: forms
-  - use: part4
-  - use: part5
   - use: part6
   - use: part7
 value:

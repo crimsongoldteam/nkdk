@@ -192,6 +192,18 @@ httpDefault.reverseYAML=httpDefault.yaml.split('\n').filter(line=>line!=='HTTPМ
 httpDefault.adaptation+='; independently omit the HTTP method in reverse input: XML restores GET while forward YAML retains an explicit GET';
 selected.push(...owners.modules);
 cases.push(...owners.cases);
+const stringAttribute=owners.cases.find(row=>row.id==='e2e-properties-СтроковыйРеквизит');
+const fixedTypeSource='packages/rules/metadata/commonObjects/fillValue/effectiveType.test.ts';
+if(!stringAttribute?.xml.includes('<v8:AllowedLength>Variable</v8:AllowedLength>') ||
+   !stringAttribute.yaml.includes('Тип: Строка(10)') ||
+   !source(fixedTypeSource).includes('allowedLength: "Fixed"'))throw new Error('Changed independent fixed-string source');
+cases.push({...stringAttribute,
+  id:'fill-value-fixed-string',
+  xml:stringAttribute.xml.replace('<v8:AllowedLength>Variable</v8:AllowedLength>','<v8:AllowedLength>Fixed</v8:AllowedLength>'),
+  yaml:stringAttribute.yaml.replace('Тип: Строка(10)','Тип: ФиксированнаяСтрока(10)'),
+  source:[...stringAttribute.source,{path:fixedTypeSource}],
+  adaptation:'Use immutable e2e string attribute with the Fixed qualifier established by the existing FillValue type test; reverse export uses freshly prepared inputs without an XML reference',
+});
 const formEntry=select('MetadataDocumentJournalRules','defaultForm');
 const formOwner=owners.cases.find(row=>row.id==='e2e-properties-ЖурналДокументовВсеСвойства');
 const formInputs=Object.fromEntries(Object.keys(catalog.get(formEntry).inputs??{}).filter(key=>key!=='roots').map(key=>[key,formOwner.inputs[key]]));

@@ -1,18 +1,17 @@
 format: nkdk-declarations/1
 kind: object
-id: candidate.projection.395c868f666b857f9bd7
+id: candidate.projection.43207bd1f14ebffc11b5
 description: 'Кандидат проекции: относительный XML-корень Properties; не полный владелец'
 imports:
-  part0: candidate.fragment.7c451bae36cbe6851ab7
-  part1: candidate.fragment.ffb1bac13e045080446c
-  part2: candidate.fragment.81d72d589aafa2cb526d
+  part0: candidate.fragment.005c1b164180436637b2
+  part1: candidate.fragment.52a2075291fd16c7818a
+  part2: candidate.fragment.e8b8bc7db0633e109fe8
+  part3: candidate.fragment.1765115867f73cbe2b6f
+  part4: candidate.fragment.75a4cde38b68731d8ce2
+  part5: candidate.fragment.26c6504dd1cbc2075885
   inputType1f8ea46361ff: common.path-root
-  part3: candidate.fragment.92ebe1610e39f3cea8e9
-  part4: candidate.fragment.be44808be2465a5ff828
-  part5: candidate.fragment.506dc78255a4fe133b20
-  part6: candidate.fragment.a889c49be08ffa2f63c7
-  part7: candidate.fragment.8670582480f963458bc6
-  part8: candidate.fragment.4070ee2c3faabd96b56d
+  part6: candidate.fragment.d59efb3522a04df62d46
+  part7: candidate.fragment.c11f9ef55f78feb34918
 compose:
   - use: part0
   - use: part1
@@ -24,6 +23,16 @@ compose:
       ownerName:
         input: ownerName
   - use: part2
+  - use: part3
+  - use: part4
+    bind:
+      defaultLanguage:
+        input: defaultLanguage
+      registeredLanguages:
+        input: registeredLanguages
+      ownerName:
+        input: ownerName
+  - use: part5
     bind:
       defaultLanguage:
         input: defaultLanguage
@@ -50,23 +59,20 @@ compose:
                   field: items
               as: item
               where:
-                eq:
-                  - get:
+                matches:
+                  value:
+                    get:
                       of:
                         var: item
                       field: value
-                  - literal: Строка
-  - use: part3
+                  pattern: Строка|ФиксированнаяСтрока
+  - use: part6
     bind:
       roots:
         input: roots
       forms:
         input: forms
-  - use: part4
-  - use: part5
-  - use: part6
   - use: part7
-  - use: part8
 value:
   kind: record
   fields: []

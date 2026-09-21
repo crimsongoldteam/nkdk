@@ -1,12 +1,14 @@
 format: nkdk-declarations/1
 kind: object
-id: candidate.projection.bd26809cd78eae7eb43e
+id: candidate.projection.41240745a930644fe0dd
 description: 'Кандидат проекции: относительный XML-корень Properties; не полный владелец'
 imports:
-  part0: candidate.fragment.8d0d2ec2113aed788d91
-  part1: candidate.fragment.381457343c6174fef16a
+  part0: candidate.fragment.26f2a0ec831699cb55dd
+  part1: candidate.fragment.37cf43a17d5ff0f84899
+  part2: candidate.fragment.26c6504dd1cbc2075885
   inputType1f8ea46361ff: common.path-root
-  part2: candidate.fragment.e63ca245c0aaf75727b9
+  part3: candidate.fragment.a7934b48993a4f5da784
+  part4: candidate.fragment.5d1647c4012948d8e558
 compose:
   - use: part0
   - use: part1
@@ -23,12 +25,41 @@ compose:
         input: defaultLanguage
       registeredLanguages:
         input: registeredLanguages
-      ownerName:
-        input: ownerName
+      onlyStringType:
+        and:
+          - present:
+              field: type
+          - one:
+              in:
+                get:
+                  of:
+                    field: type
+                  field: items
+              as: item
+              where:
+                literal: true
+          - exists:
+              in:
+                get:
+                  of:
+                    field: type
+                  field: items
+              as: item
+              where:
+                matches:
+                  value:
+                    get:
+                      of:
+                        var: item
+                      field: value
+                  pattern: Строка|ФиксированнаяСтрока
+  - use: part3
+    bind:
       roots:
         input: roots
       forms:
         input: forms
+  - use: part4
 value:
   kind: record
   fields: []

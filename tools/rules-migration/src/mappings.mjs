@@ -218,7 +218,7 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
     mapped.siblingExpressions={onlyStringType:{source:'type',sourceId:'common.type-description',value:{and:[
       {present:{field:'type'}},
       {one:{in:{get:{of:{field:'type'},field:'items'}},as:'item',where:{literal:true}}},
-      {exists:{in:{get:{of:{field:'type'},field:'items'}},as:'item',where:{eq:[{get:{of:{var:'item'},field:'value'}},{literal:'Строка'}]}}},
+      {exists:{in:{get:{of:{field:'type'},field:'items'}},as:'item',where:{matches:{value:{get:{of:{var:'item'},field:'value'}},pattern:'Строка|ФиксированнаяСтрока'}}}},
     ]}}};
   }
   if(Object.hasOwn(p,'ownerFactRole')) {
