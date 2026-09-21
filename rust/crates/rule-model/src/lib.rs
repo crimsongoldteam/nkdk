@@ -598,6 +598,7 @@ pub enum PresenceTarget {
 pub struct CanonicalForm {
     pub when: Option<Expression>,
     pub form: XmlForm,
+    pub xml_type: Option<String>,
     pub source: SourceLocation,
 }
 

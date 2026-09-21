@@ -65,7 +65,7 @@ pub(super) fn presence(path: &str, fields: &[(Node, Node)]) -> Result<Vec<Presen
                 .iter()
                 .enumerate()
                 .map(|(index, form)| {
-                    let fields = form.mapping(path, &["when", "form"])?;
+                    let fields = form.mapping(path, &["when", "form", "type"])?;
                     let when = fields
                         .iter()
                         .find_map(|(key, value)| match &key.shape {
@@ -97,9 +97,21 @@ pub(super) fn presence(path: &str, fields: &[(Node, Node)]) -> Result<Vec<Presen
                             ));
                         }
                     };
+                    let xml_type = optional_field(fields, "type")
+                        .map(|value| value.text(path).map(str::to_owned))
+                        .transpose()?;
+                    if xml_type.is_some() && kind != XmlForm::EmptyElement {
+                        return Err(error(
+                            path,
+                            form.mark,
+                            "invalid_xml_form_type",
+                            "An XML type is allowed only for an empty element",
+                        ));
+                    }
                     Ok(CanonicalForm {
                         when,
                         form: kind,
+                        xml_type,
                         source: location(path, name),
                     })
                 })

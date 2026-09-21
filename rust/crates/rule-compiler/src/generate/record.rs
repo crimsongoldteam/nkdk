@@ -312,24 +312,17 @@ fn generate_at(
                 expression, i, entry, program,
             )?);
         }
-        if let Some(canonical) = field
-            .presence
-            .and_then(|presence| presence.canonical.first())
-            && canonical.form == XmlForm::Missing
-            && let Some(expression) = &canonical.when
+        if let Some(presence) = field.presence
+            && !presence.canonical.is_empty()
         {
             if field.attribute.is_some() {
                 return Err(unsupported(
                     entry,
-                    "Conditional scalar omission requires an XML element",
+                    "Canonical scalar XML form requires an XML element",
                 ));
             }
-            out.push_str(&super::scalar_presence::predicate(
-                expression,
-                i,
-                entry,
-                program,
-                &format!("xml_omit_{id}_{i}"),
+            out.push_str(&super::scalar_presence::canonical(
+                presence, i, entry, program,
             )?);
         }
         for (j, attribute) in field.attributes.iter().enumerate() {
@@ -754,9 +747,23 @@ fn generate_at(
                 namespaces.insert(name.namespace.as_str());
             }
         }
+        if let Some(presence) = field.presence {
+            for canonical in &presence.canonical {
+                if let Some(name) = &canonical.xml_type {
+                    namespaces.insert("http://www.w3.org/2001/XMLSchema-instance");
+                    namespaces.insert(name.namespace.as_str());
+                }
+            }
+        }
     }
     if fields.iter().any(|field| {
-        field.xml.is_some() && super::scalar_presence::absent_form(field.presence) == XmlForm::Nil
+        field.xml.is_some()
+            && field.presence.is_some_and(|presence| {
+                presence
+                    .canonical
+                    .iter()
+                    .any(|form| form.form == XmlForm::Nil)
+            })
     }) {
         namespaces.insert("http://www.w3.org/2001/XMLSchema-instance");
     }
@@ -819,16 +826,24 @@ fn generate_at(
             } else {
                 format!("value.f{i}.as_ref().map(|field_value|{tree})")
             };
-            let base = match super::scalar_presence::absent_form(field.presence) {
-                XmlForm::Nil | XmlForm::EmptyElement => format!(
-                    "({base}).or_else(||Some(core::xml::Tree::scalar(name.clone(),\"\",{})))",
-                    super::scalar_presence::absent_attributes(
-                        &super::scalar_presence::absent_form(field.presence)
-                    )
-                ),
-                _ => base,
+            let conditional = field
+                .presence
+                .is_some_and(|presence| !presence.canonical.is_empty());
+            let base = if conditional {
+                let typed = field.presence.into_iter().flat_map(|presence| presence.canonical.iter().enumerate())
+                    .filter_map(|(index, form)| form.xml_type.as_ref().map(|name| {
+                        let mode = super::canonical::mode(form, index);
+                        let attribute = super::canonical::type_attribute(name);
+                        format!("{mode}=>Some(core::xml::Tree::scalar(name.clone(),\"\",&[{attribute}])),")
+                    })).collect::<String>();
+                format!(
+                    "({base}).or_else(||match xml_form {{2=>Some(core::xml::Tree::scalar(name.clone(),\"\",&[])),3=>Some(core::xml::Tree::scalar(name.clone(),\"\",{})),{typed}_=>None}})",
+                    super::scalar_presence::absent_attributes(&XmlForm::Nil)
+                )
+            } else {
+                base
             };
-            writeln!(out,"let name=core::xml::Name{{namespace:{:?}.into(),local:{:?}.into()}}; let base={base}; Some(patch.apply(base,name,&[],Q{id})?) }} }} else {{ None }};",physical.namespace,physical.local).unwrap();
+            writeln!(out,"let name=core::xml::Name{{namespace:{:?}.into(),local:{:?}.into()}}; {} let base={base}; Some(patch.apply(base,name,&[],Q{id})?) }} }} else {{ None }};",physical.namespace,physical.local,if conditional {format!("let xml_form=xml_form_{id}_{i}(value,_inputs)?;")} else {String::new()}).unwrap();
         }
     }
     writeln!(
@@ -967,14 +982,13 @@ fn generate_at(
             continue;
         }
         writeln!(out,"fn write_xml_field_{id}_{i}<'a>(value:&V{id},prepared:&'a {prepared_type},_inputs:&InputView<'_>,out:&mut core::xml::Writer<'a>)->core::Result<()> {{").unwrap();
-        if field.presence.is_some_and(|presence| {
-            presence.canonical.first().is_some_and(|canonical| {
-                canonical.form == XmlForm::Missing && canonical.when.is_some()
-            })
-        }) {
+        if field
+            .presence
+            .is_some_and(|presence| !presence.canonical.is_empty())
+        {
             writeln!(
                 out,
-                "if {}xml_omit_{id}_{i}(value,_inputs)? {{return Ok(());}}",
+                "if {}xml_form_{id}_{i}(value,_inputs)? == 1 {{return Ok(());}}",
                 if preserve {
                     format!("value.raw.get({i}).is_none() && ")
                 } else {
@@ -1044,9 +1058,26 @@ fn generate_at(
         if field.optional || preserve {
             out.push_str("}\n");
         }
-        let form = super::scalar_presence::absent_form(field.presence);
-        if matches!(form, XmlForm::Nil | XmlForm::EmptyElement) {
-            writeln!(out,"if value.f{i}.is_none() && value.raw.get({i}).is_none() {{out.field_with_attributes({},\"\",{});}}",path_code(field.path),super::scalar_presence::absent_attributes(&form)).unwrap();
+        if field
+            .presence
+            .is_some_and(|presence| !presence.canonical.is_empty())
+        {
+            let typed = field
+                .presence
+                .into_iter()
+                .flat_map(|presence| presence.canonical.iter().enumerate())
+                .filter_map(|(index, form)| {
+                    form.xml_type.as_ref().map(|name| {
+                        let mode = super::canonical::mode(form, index);
+                        let attribute = super::canonical::type_attribute(name);
+                        format!(
+                            "{mode}=>out.field_with_attributes({},\"\",&[{attribute}]),",
+                            path_code(field.path)
+                        )
+                    })
+                })
+                .collect::<String>();
+            writeln!(out,"if value.f{i}.is_none() && value.raw.get({i}).is_none() {{match xml_form_{id}_{i}(value,_inputs)? {{2=>out.field_with_attributes({},\"\",&[]),3=>out.field_with_attributes({},\"\",{}),{typed}_=>{{}}}}}}",path_code(field.path),path_code(field.path),super::scalar_presence::absent_attributes(&XmlForm::Nil)).unwrap();
         }
         if preserve {
             writeln!(

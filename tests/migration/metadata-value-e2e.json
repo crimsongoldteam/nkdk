@@ -104,7 +104,7 @@
       "start": 18769,
       "original": "<FillValue xsi:type=\"xs:string\"/>",
       "xml": "<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><FillValue xsi:type=\"xs:string\"/></Root>",
-      "yaml": "FillValue: !xml/raw\n  $xml:\n    _{http://www.w3.org/2001/XMLSchema-instance}type: \"{http://www.w3.org/2001/XMLSchema}string\""
+      "yaml": ""
     },
     {
       "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый.xml",

@@ -1,5 +1,54 @@
 use nkdk_compiled_rules::{Direction, PreparedInputs, convert_file, entry_id, validate_file};
 #[test]
+fn absent_scalar_uses_the_declared_contextual_xml_form_without_reference() {
+    let entry = entry_id("migration.conditional-empty-scalar").unwrap();
+    for (use_nil, expected_attribute) in [(true, true), (false, false)] {
+        let inputs = nkdk_compiled_rules::prepare_inputs(
+            entry,
+            vec![(
+                "useNil".into(),
+                nkdk_compiled_rules::InputValue::Boolean(use_nil),
+            )],
+        )
+        .unwrap();
+        let exported = convert_file(entry, Direction::YamlToXml, b"", &inputs).unwrap();
+        let mut has_nil = false;
+        let mut has_value = false;
+        let mut has_string_type = false;
+        nkdk_conversion_core::xml::visit(&exported.bytes, |path, token| {
+            if path.last().is_some_and(|name| name.local == "Value") {
+                has_value = true;
+                if let nkdk_conversion_core::xml::Token::Attribute(attribute) = token {
+                    has_nil |= attribute.name.namespace
+                        == "http://www.w3.org/2001/XMLSchema-instance"
+                        && attribute.name.local == "nil"
+                        && attribute.text == "true";
+                    has_string_type |= attribute.name.namespace
+                        == "http://www.w3.org/2001/XMLSchema-instance"
+                        && attribute.name.local == "type"
+                        && attribute.qname.as_ref().is_some_and(|name| {
+                            name.namespace == "http://www.w3.org/2001/XMLSchema"
+                                && name.local == "string"
+                        });
+                }
+            }
+            Ok(())
+        })
+        .unwrap();
+        assert!(has_value);
+        assert_eq!(
+            has_nil,
+            expected_attribute,
+            "{}",
+            String::from_utf8_lossy(&exported.bytes)
+        );
+        assert_eq!(has_string_type, !use_nil);
+        let imported = convert_file(entry, Direction::XmlToYaml, &exported.bytes, &inputs).unwrap();
+        assert!(imported.bytes.is_empty());
+    }
+}
+
+#[test]
 fn existing_boolean_corpus_matches_exact_bytes_in_both_directions() {
     let inputs = PreparedInputs::default();
     let entry = entry_id("pilot.boolean").unwrap();

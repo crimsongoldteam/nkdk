@@ -236,6 +236,36 @@ pub(super) fn predicate(
 
 pub(super) use crate::presence::{supported_canonical, supported_empty};
 
+pub(super) fn canonical(
+    rule: &LinkedPresence,
+    index: usize,
+    owner: &LinkedEntry,
+    program: &Program,
+) -> Result<String, Diagnostic> {
+    let storage = scalar_storage(owner, program, false)?;
+    let mut context = match &owner.value {
+        LinkedType::Record(fields) => {
+            expressions::Expressions::new(owner, program, fields, Some(&storage))
+        }
+        _ => unreachable!(),
+    };
+    let body = super::canonical::selection(&rule.canonical, |when| {
+        let mut expression = when.clone();
+        replace_self(&mut expression, index);
+        context.lower(&expression)
+    })?;
+    if !context.transforms.is_empty() {
+        return Err(unsupported(
+            owner,
+            "Canonical XML form requires an unsupported transform",
+        ));
+    }
+    Ok(format!(
+        "fn xml_form_{}_{index}(_value:&V{},_inputs:&InputView<'_>)->core::Result<usize>{{{}{body}}}\n",
+        owner.id, owner.id, context.constants
+    ))
+}
+
 pub(super) fn absent_form(rule: Option<&LinkedPresence>) -> XmlForm {
     rule.and_then(|rule| rule.canonical.first())
         .map(|rule| rule.form.clone())

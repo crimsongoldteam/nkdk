@@ -321,6 +321,7 @@ impl LinkedPresence {
 pub struct LinkedCanonical {
     pub when: Option<LinkedExpression>,
     pub form: crate::XmlForm,
+    pub xml_type: Option<crate::ExpandedName>,
     pub source: SourceLocation,
 }
 

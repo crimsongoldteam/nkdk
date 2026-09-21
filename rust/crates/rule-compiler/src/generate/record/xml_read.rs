@@ -116,6 +116,13 @@ pub(super) fn generate(
         if super::super::scalar_presence::empty(field.presence, EmptyKind::Nil) {
             writeln!(out,"if core::xml::matches(path,{}) && _attribute.name.namespace==\"http://www.w3.org/2001/XMLSchema-instance\" && _attribute.name.local==\"nil\" && _attribute.text==\"true\" {{self.nil{i}=true;return Ok(());}}",path_code(field.path)).unwrap();
         }
+        if let Some(presence) = field.presence {
+            for canonical in &presence.canonical {
+                if let Some(name) = &canonical.xml_type {
+                    writeln!(out,"if core::xml::matches(path,{}) && _attribute.name.namespace==\"http://www.w3.org/2001/XMLSchema-instance\" && _attribute.name.local==\"type\" && _attribute.qname.as_ref().is_some_and(|name|name.namespace=={:?} && name.local=={:?}) {{return Ok(());}}",path_code(field.path),name.namespace,name.local).unwrap();
+                }
+            }
+        }
         for expected in &field.attributes {
             let valid = match &expected.value {
                 LinkedXmlAttributeValue::Text(text) => {

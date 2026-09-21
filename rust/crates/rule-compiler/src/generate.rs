@@ -1,4 +1,5 @@
 mod attributes;
+mod canonical;
 mod choice_value;
 mod collection_presence;
 mod collection_values;

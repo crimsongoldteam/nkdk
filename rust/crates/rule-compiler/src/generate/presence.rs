@@ -202,32 +202,30 @@ pub(super) fn generate(
         }
         // Canonical conditions are ordered; ordinary terminates selection as well.
         if !rule.canonical.is_empty() {
-            let mut select = String::from("let canonical = || -> core::Result<u8> {\n");
-            for form in &rule.canonical {
-                let mode = match form.form {
-                    XmlForm::Ordinary => 0,
-                    XmlForm::Missing => 1,
-                    XmlForm::EmptyElement => 2,
-                    XmlForm::Nil => {
-                        result
-                            .namespaces
-                            .insert("http://www.w3.org/2001/XMLSchema-instance".into());
-                        3
-                    }
-                };
-                if let Some(when) = &form.when {
-                    writeln!(select, "if {} {{ return Ok({mode}); }}", expression(when)?).unwrap();
-                } else {
-                    writeln!(select, "Ok({mode})").unwrap();
-                    break;
+            let mut select = String::from("let canonical = || -> core::Result<usize> {\n");
+            if rule.canonical.iter().any(|form| form.form == XmlForm::Nil) {
+                result
+                    .namespaces
+                    .insert("http://www.w3.org/2001/XMLSchema-instance".into());
+            }
+            select.push_str(&super::canonical::selection(
+                &rule.canonical,
+                &mut expression,
+            )?);
+            select.push_str("};\n");
+            let mut typed = String::new();
+            for (index, form) in rule.canonical.iter().enumerate() {
+                if let Some(name) = &form.xml_type {
+                    result.namespaces.insert(name.namespace.clone());
+                    result
+                        .namespaces
+                        .insert("http://www.w3.org/2001/XMLSchema-instance".into());
+                    let mode = super::canonical::mode(form, index);
+                    let attribute = super::canonical::type_attribute(name);
+                    writeln!(typed, "{mode}=>{{let mut attributes=attributes;attributes.push({attribute});out.container_with_attributes({property},&attributes);return Ok(());}},").unwrap();
                 }
             }
-            // A final unconditional arm is handled without emitting unreachable code.
-            if rule.canonical.last().is_none_or(|form| form.when.is_some()) {
-                select.push_str("Ok(0)\n");
-            }
-            select.push_str("};\n");
-            writeln!(select, "match canonical()? {{ 1 => {{ if _retain_wrapper {{out.container_with_attributes({property}, &attributes);}} else {{out.ensure_container({root});}} return Ok(()); }}, 2 => {{ out.container_with_attributes({property}, &attributes); return Ok(()); }}, 3 => {{ let mut attributes=attributes; attributes.push(core::xml::WriteAttribute {{name:(\"http://www.w3.org/2001/XMLSchema-instance\", \"nil\"), value:core::xml::AttributeValue::Text(\"true\")}}); out.container_with_attributes({property}, &attributes); return Ok(()); }}, _ => {{}} }}").unwrap();
+            writeln!(select, "match canonical()? {{ 1 => {{ if _retain_wrapper {{out.container_with_attributes({property}, &attributes);}} else {{out.ensure_container({root});}} return Ok(()); }}, 2 => {{ out.container_with_attributes({property}, &attributes); return Ok(()); }}, 3 => {{ let mut attributes=attributes; attributes.push(core::xml::WriteAttribute {{name:(\"http://www.w3.org/2001/XMLSchema-instance\", \"nil\"), value:core::xml::AttributeValue::Text(\"true\")}}); out.container_with_attributes({property}, &attributes); return Ok(()); }}, {typed} _ => {{}} }}").unwrap();
             result.xml_write.push_str(&select);
         }
     }

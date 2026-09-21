@@ -64,6 +64,14 @@ pub(super) fn resolve(
                     Ok(LinkedCanonical {
                         when: form.when.as_ref().map(predicate).transpose()?,
                         form: form.form.clone(),
+                        xml_type: form
+                            .xml_type
+                            .as_ref()
+                            .map(|name| {
+                                expand_path(module, std::slice::from_ref(name), &form.source)
+                                    .map(|mut path| path.remove(0))
+                            })
+                            .transpose()?,
                         source: form.source.clone(),
                     })
                 })

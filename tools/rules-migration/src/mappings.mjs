@@ -99,7 +99,6 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
   if(metadataValue && Object.hasOwn(p,'exportNilValue') &&
     (typeof p.exportNilValue!=='boolean' || p.exportNilValue!==metadataNilDefault))return fail('metadata-value-profile');
   if(metadataValue && !metadataNilDefault && !metadataStringDefault)return fail('metadata-value-profile');
-  if(metadataStringDefault)return fail('metadata-value-typed-empty-profile');
   const runtimeOnly=p.runtimeOnly===true;
   if(Object.hasOwn(p,'runtimeOnly') && !runtimeOnly)return fail('runtime-only-profile');
   if(runtimeOnly && (!typeDescription || ['xml','xmlParents','defaultValueXML','defaultValueXMLRaw','defaultValueAdoptedXML'].some(key=>Object.hasOwn(p,key))))return fail('runtime-only-profile');
@@ -169,6 +168,10 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
   const parents = runtimeOnly ? [] : p.xmlParents ?? [];
   if (!Array.isArray(parents) || [...parents,...(xml?[xml]:[])].some(part => typeof part !== 'string' || !/^(?:[A-Za-z][A-Za-z0-9]*:)?[A-Za-z][A-Za-z0-9]*$/.test(part))) return fail('xml-path-profile');
   const namespaces={};
+  if(metadataStringDefault) {
+    namespaces.xs='http://www.w3.org/2001/XMLSchema';
+    namespaces.xsi='http://www.w3.org/2001/XMLSchema-instance';
+  }
   for(const part of [...parents,...(xml?[xml]:[])].filter(part=>part.includes(':'))) {
     const prefix=part.split(':')[0];
     if(typeof xmlNamespaces[prefix]!=='string' || !xmlNamespaces[prefix])return fail(`unknown-xml-prefix:${prefix}`);
@@ -214,7 +217,7 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
   }
   if(metadataValue) {
     mapped.presence.xml.canonical=[
-      {when:{not:{present:{field:property.name}}},form:metadataNilDefault?'nil':'empty-element'},
+      {when:{not:{present:{field:property.name}}},form:metadataNilDefault?'nil':'empty-element',...(metadataStringDefault?{type:'xs:string'}:{})},
       {form:'ordinary'},
     ];
   }

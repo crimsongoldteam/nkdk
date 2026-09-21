@@ -284,6 +284,27 @@ fn metadata_value_covers_every_scalar_and_absent_e2e_form() {
 }
 
 #[test]
+fn metadata_value_typed_empty_string_is_ordinary_absence() {
+    let corpus: serde_json::Value = serde_json::from_slice(include_bytes!(
+        "../../../../tests/migration/metadata-value-e2e.json"
+    ))
+    .unwrap();
+    let case = &corpus["cases"][12];
+    assert_corpus_source_unchanged(case);
+    assert_eq!(case["original"], "<FillValue xsi:type=\"xs:string\"/>");
+    let entry = entry_id("migration.metadata-value-full").unwrap();
+    let inputs = metadata_value_inputs(entry);
+    let xml = case["xml"].as_str().unwrap().as_bytes();
+    let imported = convert_file(entry, Direction::XmlToYaml, xml, &inputs).unwrap();
+    assert!(
+        imported.bytes.is_empty(),
+        "{}",
+        String::from_utf8_lossy(&imported.bytes)
+    );
+    verify_candidate(entry, xml, &imported.bytes, &inputs).unwrap();
+}
+
+#[test]
 fn choice_parameters_use_a_keyed_yaml_mapping_for_declared_values() {
     let entry = entry_id("migration.choice-parameters").unwrap();
     let inputs = metadata_value_inputs(entry);

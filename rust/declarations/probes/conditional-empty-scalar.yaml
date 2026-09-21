@@ -1,0 +1,27 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.conditional-empty-scalar
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  xs: http://www.w3.org/2001/XMLSchema
+imports: {text: common.string}
+inputs:
+  useNil: {type: {kind: scalar, scalar: boolean}}
+value:
+  kind: record
+  fields: [{name: value, type: {use: text}}]
+representations:
+  xml: {kind: record, fields: [{field: value, path: [Root, Value]}]}
+  yaml: {kind: mapping, fields: [{field: value, key: Значение}]}
+presence:
+- target: {field: value}
+  xml:
+    missing: {denotes: {absent: true}}
+    empty:
+    - {form: empty-element, denotes: {absent: true}}
+    - {form: nil, denotes: {absent: true}}
+    canonical:
+    - {when: {and: [{not: {present: {field: value}}}, {input: useNil}]}, form: nil}
+    - {when: {not: {present: {field: value}}}, form: empty-element, type: xs:string}
+    - {form: ordinary}
+  yaml: {missing: {denotes: {absent: true}}}

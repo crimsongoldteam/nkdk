@@ -120,8 +120,9 @@ test('candidate generation shares fragments, rejects unknown parameters and prot
   assert.deepEqual(fillValue.siblingBindings,{valueType:'type'});
   assert.equal(fillValue.presence.xml.canonical[0].form,'nil');
   const emptyStringValue=mapProperty({...property,name:'fillValue',parameters:{type:'MetadataValue',yaml:'ЗначениеЗаполнения',xml:'FillValue',xmlParents:['Properties'],defaultValueXMLRaw:{'_xsi:type':'xs:string'}}},new Map([['common.metadata-value',{id:'common.metadata-value',inputs:{}}]]));
-  assert.equal(emptyStringValue.status,'blocked');
-  assert.equal(emptyStringValue.reason,'metadata-value-typed-empty-profile');
+  assert.equal(emptyStringValue.status,'candidate');
+  assert.deepEqual(emptyStringValue.presence.xml.canonical[0],{when:{not:{present:{field:'fillValue'}}},form:'empty-element',type:'xs:string'});
+  assert.equal(emptyStringValue.namespaces.xs,'http://www.w3.org/2001/XMLSchema');
   for(const exportNilValue of [false,'true']) {
     const incompatible=mapProperty({...property,name:'fillValue',parameters:{type:'MetadataValue',yaml:'ЗначениеЗаполнения',defaultValueXMLRaw:{'_xsi:nil':true},exportNilValue}},new Map([['common.metadata-value',{id:'common.metadata-value'}]]));
     assert.equal(incompatible.status,'blocked');
