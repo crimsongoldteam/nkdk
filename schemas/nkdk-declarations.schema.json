@@ -1105,6 +1105,16 @@
         {
           "type": "object",
           "properties": {
+            "calendarFits": {
+              "$ref": "#/$defs/calendarExpression"
+            }
+          },
+          "required": ["calendarFits"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
             "lookup": {
               "type": "object",
               "properties": {
@@ -4518,6 +4528,15 @@
         "limit": {"$ref": "#/$defs/expression"}
       },
       "required": ["value", "limit"],
+      "additionalProperties": false
+    },
+    "calendarExpression": {
+      "type": "object",
+      "properties": {
+        "value": {"$ref": "#/$defs/expression"},
+        "fraction": {"$ref": "#/$defs/expression"}
+      },
+      "required": ["value", "fraction"],
       "additionalProperties": false
     },
     "textPatternPart": {

@@ -1322,6 +1322,26 @@ fn generate_at(
         out.push('}');
     }
     out.push('\n');
+    let has_calendar = fields
+        .iter()
+        .any(|field| matches!(field.codec, Codec::Calendar { .. }));
+    writeln!(out,"#[allow(dead_code)] fn calendar_field_{id}(value:&V{id},field:usize)->core::Result<&core::calendar::Value>{{let _=(value,field);").unwrap();
+    if has_calendar {
+        out.push_str("match field{");
+    }
+    for (index, field) in fields.iter().enumerate() {
+        if matches!(field.codec, Codec::Calendar { .. }) {
+            writeln!(out,"{index}=>value.f{index}.as_ref().ok_or_else(||RuntimeDiagnostic::new(\"fact.unready\",\"Calendar field is unavailable\")),").unwrap();
+        }
+    }
+    if has_calendar {
+        out.push_str("_=>");
+    }
+    out.push_str("Err(RuntimeDiagnostic::new(\"fact.field-type\",\"Expected a calendar field\"))}");
+    if has_calendar {
+        out.push('}');
+    }
+    out.push('\n');
     let mut input_arms = String::new();
     for (index, field) in fields.iter().enumerate() {
         let variant = match &field.codec {

@@ -57,3 +57,17 @@ fn malformed_calendar_values_return_diagnostics_without_index_panics() {
         assert!(Value::from_yaml(source, false, true).is_err(), "{source}");
     }
 }
+
+#[test]
+fn calendar_fraction_checks_reuse_parsed_components() {
+    for (xml, fraction, accepted) in [
+        ("2026-09-21T00:00:00", "Date", true),
+        ("2026-09-21T12:00:00", "Date", false),
+        ("0001-01-01T12:00:00", "Time", true),
+        ("2026-09-21T12:00:00", "Time", false),
+        ("2026-09-21T12:00:00", "DateTime", true),
+    ] {
+        let value = Value::from_xml(xml).unwrap();
+        assert_eq!(value.fits_fraction(fraction), accepted, "{xml} {fraction}");
+    }
+}

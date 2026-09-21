@@ -271,6 +271,19 @@ const booleanAttribute=owners.cases.find(row=>row.id==='e2e-properties-Рекв�
 if(!booleanAttribute?.xml.includes('<FillValue xsi:nil="true" />') || !booleanAttribute.yaml.includes('Тип: Булево'))throw new Error('Changed independent boolean FillValue source');
 const dateAttribute=owners.cases.find(row=>row.id==='e2e-properties-РеквизитСправочника');
 if(!dateAttribute?.xml.includes('<FillValue xsi:nil="true" />') || !dateAttribute.yaml.includes('Тип: Дата'))throw new Error('Changed independent date FillValue source');
+cases.push({...dateAttribute,
+  id:'fill-value-date-with-time',
+  xml:dateAttribute.xml.replace('<FillValue xsi:nil="true" />','<FillValue xsi:type="xs:dateTime">2026-09-21T12:00:00</FillValue>'),
+  yaml:dateAttribute.yaml.replace('Тип: Дата','Тип: Дата\nЗначениеЗаполнения: 21.09.2026 12:00:00'),
+  diagnostics:['fill-value.calendar-fraction'],
+  adaptation:'Keep the immutable e2e date-only Type and set an explicit XML calendar value with a nonzero time; the mismatch must be diagnosed while retaining round-trip',
+});
+cases.push({...dateAttribute,
+  id:'fill-value-date-at-midnight',
+  xml:dateAttribute.xml.replace('<FillValue xsi:nil="true" />','<FillValue xsi:type="xs:dateTime">2026-09-21T00:00:00</FillValue>'),
+  yaml:dateAttribute.yaml.replace('Тип: Дата','Тип: Дата\nЗначениеЗаполнения: 21.09.2026 00:00:00'),
+  adaptation:'The same immutable date-only Type accepts an explicit midnight value without a calendar-fraction diagnostic',
+});
 for(const [id,owner,oldXML,newXML,newYAML] of [
   ['string',stringAttribute,'<FillValue xsi:type="xs:string" />','<FillValue xsi:type="xs:decimal">12</FillValue>','ЗначениеЗаполнения: 12'],
   ['boolean',booleanAttribute,'<FillValue xsi:nil="true" />','<FillValue xsi:type="xs:string">abc</FillValue>','ЗначениеЗаполнения: abc'],

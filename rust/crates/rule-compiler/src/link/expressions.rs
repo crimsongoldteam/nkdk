@@ -155,6 +155,26 @@ pub(super) fn resolve_expression_in(
                 LinkedType::Scalar(ScalarType::Boolean),
             )
         }
+        ExpressionKind::CalendarFits { value, fraction } => {
+            let value = resolve_expression_in(module, value, modules, ids, scope)?;
+            let fraction = resolve_expression_in(module, fraction, modules, ids, scope)?;
+            if value.value_type != LinkedType::Scalar(ScalarType::Text)
+                || fraction.value_type != LinkedType::Scalar(ScalarType::Text)
+            {
+                return Err(diagnostic(
+                    "expression_type_mismatch",
+                    &expression.source,
+                    "Calendar value and fraction must be text",
+                ));
+            }
+            (
+                LinkedExpressionKind::Operation {
+                    operator: LinkedOperator::CalendarFits,
+                    arguments: vec![value, fraction],
+                },
+                LinkedType::Scalar(ScalarType::Boolean),
+            )
+        }
         ExpressionKind::Lookup { input, key } => {
             let input = resolve_expression_in(module, input, modules, ids, scope)?;
             let mut key = resolve_expression_in(module, key, modules, ids, scope)?;

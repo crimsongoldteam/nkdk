@@ -8,6 +8,7 @@ pub(super) struct Expressions<'a> {
     pub(super) local_fields: std::collections::BTreeMap<u32, Vec<String>>,
     borrowed_rows: std::collections::BTreeMap<u32, Vec<LinkedField>>,
     pub(super) field_storage: Option<&'a [(String, String)]>,
+    pub(super) calendar_field_storage: Option<String>,
     pub(super) constants: String,
     pub(super) next_constant: usize,
     pub(super) transforms: BTreeSet<(u32, u32)>,
@@ -25,6 +26,7 @@ impl<'a> Expressions<'a> {
             program,
             fields,
             field_storage,
+            calendar_field_storage: None,
             local_fields: Default::default(),
             borrowed_rows: Default::default(),
             constants: String::new(),
@@ -1007,6 +1009,19 @@ impl<'a> Expressions<'a> {
                         format!(
                             "({limit}).parse::<usize>().ok().is_some_and(|maximum| ({text}).encode_utf16().count() {comparison} maximum)"
                         )
+                    }
+                    LinkedOperator::CalendarFits => {
+                        let fraction = Self::text_reference(&arguments[1], values[1].clone());
+                        if matches!(arguments[0].kind, LinkedExpressionKind::Field(0))
+                            && let Some(calendar) = &self.calendar_field_storage
+                        {
+                            format!(
+                                "match {calendar}{{Ok(date)=>date.fits_fraction({fraction}),Err(_)=>false}}"
+                            )
+                        } else {
+                            let date = Self::text_reference(&arguments[0], values[0].clone());
+                            format!("core::calendar::fits_fraction({date}, {fraction})")
+                        }
                     }
                     LinkedOperator::MatchOptional(_) => {
                         unreachable!("optional match lowered before scalar operators")

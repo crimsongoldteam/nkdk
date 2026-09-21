@@ -69,6 +69,15 @@ impl Value {
             self.second as u16,
         ]
     }
+    pub fn fits_fraction(&self, fraction: &str) -> bool {
+        let [year, month, day, hour, minute, second] = self.parts();
+        match fraction {
+            "Date" => hour == 0 && minute == 0 && second == 0,
+            "Time" => year == 1 && month == 1 && day == 1,
+            "DateTime" => true,
+            _ => false,
+        }
+    }
     pub fn from_xml(source: &str) -> Result<Self> {
         if !source.is_ascii()
             || source.len() < 19
@@ -161,4 +170,12 @@ impl Value {
             format!("{date} {:02}:{:02}", self.hour, self.minute)
         }
     }
+}
+
+/// Check the date/time shape of a semantic YAML calendar value.
+pub fn fits_fraction(source: &str, fraction: &str) -> bool {
+    let Ok(value) = Value::from_yaml(source, true, false) else {
+        return false;
+    };
+    value.fits_fraction(fraction)
 }

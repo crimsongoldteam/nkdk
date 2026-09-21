@@ -1,6 +1,6 @@
 format: nkdk-declarations/1
 kind: object
-id: candidate.projection.6901c246e59b0de904e3
+id: candidate.projection.c56c41c6a222d52ab05c
 description: 'Кандидат проекции: относительный XML-корень Properties; не полный владелец'
 imports:
   part0: candidate.fragment.7c451bae36cbe6851ab7
@@ -247,6 +247,58 @@ constraints:
       at:
         field: fillValue
       message: Значение заполнения имеет неверную фиксированную длину
+  - id: fillValue.calendar-fraction
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      and:
+        - isVariant:
+            value:
+              field: fillValue
+            variant: calendar
+        - one:
+            in:
+              get:
+                of:
+                  field: type
+                field: items
+            as: item
+            where:
+              literal: true
+        - exists:
+            in:
+              get:
+                of:
+                  field: type
+                field: items
+            as: item
+            where:
+              matches:
+                value:
+                  get:
+                    of:
+                      var: item
+                    field: value
+                pattern: Дата|Время|ДатаВремя
+    assert:
+      calendarFits:
+        value:
+          variantValue:
+            value:
+              field: fillValue
+            variant: calendar
+        fraction:
+          get:
+            of:
+              field: type
+            field: dateFractions
+    diagnostic:
+      code: fill-value.calendar-fraction
+      severity: warning
+      at:
+        field: fillValue
+      message: Значение заполнения не соответствует календарному типу
   - id: fillValue.number-value
     appliesTo:
       - xml-import

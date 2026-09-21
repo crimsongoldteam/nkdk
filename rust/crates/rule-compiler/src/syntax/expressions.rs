@@ -27,6 +27,7 @@ pub(super) fn expression(path: &str, value: &Node) -> Result<Expression, Diagnos
             "variantValue",
             "textLengthAtMost",
             "textLengthEquals",
+            "calendarFits",
             "match",
             "present",
             "isNull",
@@ -92,6 +93,13 @@ pub(super) fn expression(path: &str, value: &Node) -> Result<Expression, Diagnos
                 ExpressionKind::TextLengthAtMost { value, limit }
             } else {
                 ExpressionKind::TextLengthEquals { value, limit }
+            }
+        }
+        "calendarFits" => {
+            let fields = operand.mapping(path, &["value", "fraction"])?;
+            ExpressionKind::CalendarFits {
+                value: Box::new(expression(path, operand.field(path, fields, "value")?)?),
+                fraction: Box::new(expression(path, operand.field(path, fields, "fraction")?)?),
             }
         }
         "require" => ExpressionKind::Require(Box::new(expression(path, operand)?)),

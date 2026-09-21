@@ -1,18 +1,13 @@
 format: nkdk-declarations/1
 kind: object
-id: candidate.projection.8d5d0eb47e66bdda6fca
+id: candidate.projection.0a0161748084d9ab2b18
 description: 'Кандидат проекции: относительный XML-корень Properties; не полный владелец'
 imports:
-  part0: candidate.fragment.7c451bae36cbe6851ab7
-  part1: candidate.fragment.ffb1bac13e045080446c
-  part2: candidate.fragment.81d72d589aafa2cb526d
+  part0: candidate.fragment.26f2a0ec831699cb55dd
+  part1: candidate.fragment.fb762ef0ba548a5b86e9
+  part2: candidate.fragment.26c6504dd1cbc2075885
   inputType1f8ea46361ff: common.path-root
-  part3: candidate.fragment.92ebe1610e39f3cea8e9
-  part4: candidate.fragment.133b24388e9d251d58cb
-  part5: candidate.fragment.506dc78255a4fe133b20
-  part6: candidate.fragment.a889c49be08ffa2f63c7
-  part7: candidate.fragment.8670582480f963458bc6
-  part8: candidate.fragment.4070ee2c3faabd96b56d
+  part3: candidate.fragment.a7934b48993a4f5da784
 compose:
   - use: part0
   - use: part1
@@ -63,11 +58,6 @@ compose:
         input: roots
       forms:
         input: forms
-  - use: part4
-  - use: part5
-  - use: part6
-  - use: part7
-  - use: part8
 value:
   kind: record
   fields: []
@@ -249,6 +239,58 @@ constraints:
       at:
         field: fillValue
       message: Значение заполнения имеет неверную фиксированную длину
+  - id: fillValue.calendar-fraction
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      and:
+        - isVariant:
+            value:
+              field: fillValue
+            variant: calendar
+        - one:
+            in:
+              get:
+                of:
+                  field: type
+                field: items
+            as: item
+            where:
+              literal: true
+        - exists:
+            in:
+              get:
+                of:
+                  field: type
+                field: items
+            as: item
+            where:
+              matches:
+                value:
+                  get:
+                    of:
+                      var: item
+                    field: value
+                pattern: Дата|Время|ДатаВремя
+    assert:
+      calendarFits:
+        value:
+          variantValue:
+            value:
+              field: fillValue
+            variant: calendar
+        fraction:
+          get:
+            of:
+              field: type
+            field: dateFractions
+    diagnostic:
+      code: fill-value.calendar-fraction
+      severity: warning
+      at:
+        field: fillValue
+      message: Значение заполнения не соответствует календарному типу
   - id: fillValue.number-value
     appliesTo:
       - xml-import

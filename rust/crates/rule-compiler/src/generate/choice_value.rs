@@ -556,6 +556,8 @@ fn generate_checks(
             )];
             let mut expressions =
                 super::expressions::Expressions::new(child, program, fields, Some(&storage));
+            expressions.calendar_field_storage =
+                Some(format!("part_{id}_{variant}::calendar_field(value,0)"));
             for original in &child.constraints {
                 if !original.applies_to.contains(&phase)
                     || (!original.forms.is_empty() && !original.forms.contains(&form))
@@ -622,9 +624,9 @@ fn generate_checks(
                     "RuntimeDiagnostic::declared({code:?},{source_name:?},core::Severity::{severity},{message}){path}"
                 );
                 if expressions.fallible {
-                    writeln!(out, "if part_{id}_{variant}::input_field(value,0).is_some(){{let evaluate=||->core::Result<bool>{{Ok({violation})}};match evaluate(){{Ok(true)=>errors.push({diagnostic}),Ok(false)=>{{}},Err(error)=>errors.push(error{path}),}}}}").unwrap();
+                    writeln!(out, "if part_{id}_{variant}::semantic_present(value){{let evaluate=||->core::Result<bool>{{Ok({violation})}};match evaluate(){{Ok(true)=>errors.push({diagnostic}),Ok(false)=>{{}},Err(error)=>errors.push(error{path}),}}}}").unwrap();
                 } else {
-                    writeln!(out, "if part_{id}_{variant}::input_field(value,0).is_some()&&({violation}){{errors.push({diagnostic});}}").unwrap();
+                    writeln!(out, "if part_{id}_{variant}::semantic_present(value)&&({violation}){{errors.push({diagnostic});}}").unwrap();
                 }
             }
             out.push_str(&expressions.constants);

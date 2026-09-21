@@ -188,6 +188,7 @@ pub enum LinkedOperator {
     VariantValue(u32),
     TextLengthAtMost,
     TextLengthEquals,
+    CalendarFits,
     VariantField { variant: u32, field: u32 },
     Lookup,
     Matches(String),

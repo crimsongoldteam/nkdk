@@ -230,6 +230,8 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
       textContent:{variantValue:{value:{field:property.name},variant:'text'}},
       stringLength:{get:{of:{field:'type'},field:'stringLength'}},
       stringAllowedLength:{get:{of:{field:'type'},field:'stringAllowedLength'}},
+      calendarContent:{variantValue:{value:{field:property.name},variant:'calendar'}},
+      dateFractions:{get:{of:{field:'type'},field:'dateFractions'}},
     }};
   }
   if(Object.hasOwn(p,'ownerFactRole')) {

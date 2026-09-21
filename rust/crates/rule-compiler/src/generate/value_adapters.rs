@@ -343,6 +343,16 @@ pub(super) fn emit_standard_usage(request: UsageRequest<'_>) -> Result<ValueEmis
     } else {
         "let _=(value,field);Err(RuntimeDiagnostic::new(\"fact.field-type\",\"Expected a scalar field\"))".into()
     };
+    let calendar_accessor = if !record_value
+        && !nested
+        && !qname
+        && !composite
+        && sequence.is_none()
+    {
+        format!("calendar_field_{id}(&value.0,field)")
+    } else {
+        "let _=(value,field);Err(RuntimeDiagnostic::new(\"fact.field-type\",\"Expected a calendar field\"))".into()
+    };
     let input_accessor = if declared_items {
         "if field==0 && value.0.present { Some(core::inputs::InputRef::Records(core::inputs::Records::new(&value.0.rows))) } else { None }".into()
     } else if record_value && record.is_some() {
@@ -399,6 +409,7 @@ pub(super) fn has_raw(value:&Stored)->bool{{{raw_test}}}
 pub(super) fn semantic_present(value:&Stored)->bool{{let _=value;{semantic_present}}}
 pub(super) fn input_field(value:&Stored,field:usize)->Option<core::inputs::InputRef<'_>>{{{input_accessor}}}
 pub(super) fn text_field(value:&Stored,field:usize)->core::Result<&str>{{{text_accessor}}}
+pub(super) fn calendar_field(value:&Stored,field:usize)->core::Result<&core::calendar::Value>{{{calendar_accessor}}}
 pub(super) fn field_has_annotation(value:&Stored,field:usize)->bool{{{annotation_accessor}}}
 pub(super) struct Prepared({prepared});
 pub(super) fn read_xml(source:&[u8],inputs:&InputView<'_>,events:impl core::xml::ScopedSource)->core::Result<Stored> {{{xml_reader}(source,inputs,{xml_events}{xml_extra}).map(|value|Stored(value,true))}}

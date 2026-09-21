@@ -353,6 +353,10 @@ pub enum ExpressionKind {
         value: Box<Expression>,
         limit: Box<Expression>,
     },
+    CalendarFits {
+        value: Box<Expression>,
+        fraction: Box<Expression>,
+    },
     Lookup {
         input: Box<Expression>,
         key: Box<Expression>,
