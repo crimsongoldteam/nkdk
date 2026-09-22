@@ -2,6 +2,18 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readyAttachment} from '../src/ready-attachment.mjs';
 
+test('document owner binds the complete attribute fragment through declared inputs',async()=>{
+  const {readFileSync}=await import('node:fs');
+  const {candidateCatalog}=await import('../src/candidate-catalog.mjs');
+  const {verifyCollectionOwnerAttachment}=await import('../src/owner-collection-attachment.mjs');
+  const profiles=JSON.parse(readFileSync('tools/rules-migration/profiles/owner-attachments.json','utf8'));
+  const profile=profiles.find(item=>item.symbol==='MetadataDocumentRules'&&item.property==='attributes');
+  assert.ok(profile);
+  const graph=JSON.parse(readFileSync('tests/migration/collection-links.json','utf8'));
+  assert.equal(verifyCollectionOwnerAttachment(profile,graph,candidateCatalog().catalog).status,'bound');
+  assert.equal(verifyCollectionOwnerAttachment(profile,{edges:[]},candidateCatalog().catalog).reason,'missing-collection-link');
+});
+
 test('ready attachments preserve fragments and reject unreviewed source parameters',()=>{
   const profile={type:'Example',parameters:{type:'Example',filePath:'Ext/Data.xml'},fragment:'fragment.example'};
   const catalog=new Map([['fragment.example',{id:'fragment.example',inputs:{owner:{type:{kind:'scalar',scalar:'text'}}}}]]);
@@ -35,6 +47,11 @@ test('owner attachment binding checks actual composition and complete input mapp
   assert.equal(verifyOwnerAttachment(profile,new Map([...catalog,['owner',broken]])).reason,'missing-owner-attachment');
   broken.compose=owner.compose;broken.inputs={context:{type:{kind:'scalar',scalar:'boolean'}}};
   assert.equal(verifyOwnerAttachment(profile,new Map([...catalog,['owner',broken]])).reason,'owner-input-type-mismatch:context');
+  const aliases=new Map([
+    ['owner',{id:'owner',imports:{part:'fragment.example',root:'common.path-root'},inputs:{context:{type:{use:'root'}}},compose:[{use:'part',bind:{source:{input:'context'}}}]}],
+    ['fragment.example',{id:'fragment.example',imports:{kind:'common.path-root'},inputs:{source:{type:{use:'kind'}}}}],
+  ]);
+  assert.equal(verifyOwnerAttachment(profile,aliases).status,'bound');
 });
 
 test('fixed routes distinguish repeated fragments and reject ambiguity',async()=>{

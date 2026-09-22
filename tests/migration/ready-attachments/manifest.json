@@ -4164,7 +4164,7 @@
     },
     {
       "path": "packages/rules/metadata/commonObjects/fillValue/ordinaryItemTypes.ts",
-      "sha256": "d6d6c0d296e4709057fdf6fd064da08e27cdaf2a8e6810890ac7329a1cde0110"
+      "sha256": "af463ff9379a272c1c7cbd1182b9c50f1e0beb087030802a4c0e4c58a2bfd487"
     },
     {
       "path": "packages/rules/metadata/commonObjects/fillValue/register.test.ts",
@@ -4712,7 +4712,7 @@
     },
     {
       "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/fromXMLToYAML.integration.test.ts",
-      "sha256": "dd0e1f89af5d5fad9421016074f18b09dd1943310139c092b846af3c6a60e254"
+      "sha256": "e215a8ae7d488f63f12ef08439da1e5f733afd6cc4e80f790e316d6b65a597b4"
     },
     {
       "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/index.ts",
@@ -4728,7 +4728,7 @@
     },
     {
       "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-      "sha256": "ce1263678dd952b7e8ef7a748e1f49b34bf00de06ae0250dbd0d55a26ae59cef"
+      "sha256": "c7cdaa9f54260d7085e3d7f493acaa2bb932a0f326b3b254ae971637bd7c610d"
     },
     {
       "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/types.ts",
@@ -13002,7 +13002,7 @@
   "declarationHashes": [
     {
       "path": "rust/declarations/candidates/document-attributes.generated.yaml",
-      "sha256": "2bee1f4b346e015598882434676a701a0edc56da9f87a30197b93df99a6925aa"
+      "sha256": "78d01ec97f2c3d42ae838fc9bffef637531fd37a387feddad488136f2744fc14"
     },
     {
       "path": "rust/declarations/common/additional-index-row.yaml",
@@ -13082,7 +13082,11 @@
     },
     {
       "path": "rust/declarations/common/fill-value-compatibility.yaml",
-      "sha256": "6bdaf3f0bd41452ae2f22602332d0ab2231160bcbb95074925ac07f3345abf28"
+      "sha256": "4cc5251c715a83176decfac8ec7bb895ed5b0bd8afae0d7a5218248deacfdb96"
+    },
+    {
+      "path": "rust/declarations/common/fill-value-profile.yaml",
+      "sha256": "7c36a7832ac52b27bf26af7f814a50ccc2fb4e0000ce736d714ca0ce273e2784"
     },
     {
       "path": "rust/declarations/common/formatted-i8n-text.yaml",
@@ -13441,6 +13445,10 @@
       "sha256": "fa660c977c96a32127cab82493b1a016ac57f59cf46d2c30b75aecdfcd3cba73"
     },
     {
+      "path": "rust/declarations/fragments/standard-attribute-fill-value.yaml",
+      "sha256": "a9db6cc6bc9405331c77c0a6ef4c718ef673e7f7b658180d580221a24b552297"
+    },
+    {
       "path": "rust/declarations/fragments/value-manager-module-resource.yaml",
       "sha256": "c2a278e73f2e7d8b1c50fc3fc878c6727a103e101f0b5860cbc69be0f939ec82"
     },
@@ -13475,6 +13483,10 @@
     {
       "path": "rust/declarations/probes/boolean.yaml",
       "sha256": "fc6a6f06b804b4dcf33000fa0c3f475efad367b6861a44830f37254c6c524572"
+    },
+    {
+      "path": "rust/declarations/probes/choice-default.yaml",
+      "sha256": "b84cc756feadf74f17a941c120fec4698a423929f94f007478c6b4b273fbb6f3"
     },
     {
       "path": "rust/declarations/probes/choice-parameter-links.yaml",
@@ -13546,7 +13558,7 @@
     },
     {
       "path": "rust/declarations/probes/document-identity-and-children.yaml",
-      "sha256": "d2cbd667b6e67208227ff991a67bbe50d9938360e9052afea745355274d8de3d"
+      "sha256": "c0310a567cbbfdb1adc0a47c8e56aae4c6aefb2ea37c7885c5f4e42ee3796501"
     },
     {
       "path": "rust/declarations/probes/document-internal-info.yaml",
@@ -13957,7 +13969,34 @@
       "sha256": "b6d63aaf0a5a106f5d95fab27d8b1a4e32d1ac953773e575924303274447fff7"
     }
   ],
-  "ownerProfileHash": "c8f52d1b9d317c8596f4802c748ac9c236485beacda57ab75937a162f4c4077b",
+  "collectionOwnerAttachments": [
+    {
+      "symbol": "MetadataDocumentRules",
+      "property": "attributes",
+      "status": "bound",
+      "declaration": "migration.document-identity-and-children",
+      "fragment": "fragment.document-attributes",
+      "bindings": {
+        "defaultLanguage": "defaultLanguage",
+        "registeredLanguages": "registeredLanguages",
+        "definedTypes": "definedTypes",
+        "roots": "roots",
+        "forms": "formTargets",
+        "ownerRoot": "ownerRoot",
+        "attributes": "attributeNames",
+        "containingOwnerName": "name",
+        "identities": "attributeIds",
+        "component": "component",
+        "owner": "owner"
+      },
+      "indexes": {
+        "roots": "metadata.roots",
+        "formTargets": "metadata.forms",
+        "attributeIds": "metadata.own-identities"
+      }
+    }
+  ],
+  "ownerProfileHash": "d27c2681afcdb2bdf6e32dc77aebcb1a39d4ad5d8f7333847eb023c032365faf",
   "profileHash": "2acce413980a23f1803e3a91fcc86da0944f2cbe5b3e76bde2b84b1d93173902",
   "entries": [
     {
@@ -28863,6 +28902,7 @@
     "readyOccurrences": 120,
     "blockedOccurrences": 46,
     "boundOwnerOccurrences": 65,
+    "boundCollectionOwnerOccurrences": 1,
     "joinedPropertyCandidates": 2,
     "joinedCases": 4,
     "candidates": 36,

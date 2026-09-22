@@ -2,7 +2,7 @@
 
 Готовность кандидата не означает подключение к рабочему владельцу.
 
-{"readyOccurrences":120,"blockedOccurrences":46,"boundOwnerOccurrences":65,"joinedPropertyCandidates":2,"joinedCases":4,"candidates":36,"testProviders":1,"dependencies":40,"totalCompiledDeclarations":112,"newProductionConnections":0}
+{"readyOccurrences":120,"blockedOccurrences":46,"boundOwnerOccurrences":65,"boundCollectionOwnerOccurrences":1,"joinedPropertyCandidates":2,"joinedCases":4,"candidates":36,"testProviders":1,"dependencies":40,"totalCompiledDeclarations":112,"newProductionConnections":0}
 
 | Владелец | Свойство | Результат | Осталось |
 |---|---|---|---|
@@ -172,3 +172,4 @@
 | MetadataExternalDataSourceTableCollectionRules | help | ready | owner-context-and-resource-binding, independent-owner-contract |
 | MetadataIntegrationServiceChannelRules | internalInfo | blocked | internal-info-owner-root-required |
 | MetadataTabularSectionRules | internalInfo | blocked | internal-info-owner-root-required |
+| MetadataDocumentRules | attributes | bound | owner-behavior-check |

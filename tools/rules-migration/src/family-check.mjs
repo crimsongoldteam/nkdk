@@ -18,10 +18,16 @@ export function selectExecutableFamily(families,args) {
 function run() {
   const root=fileURLToPath(new URL('../../../',import.meta.url));
   process.chdir(root);
-  const family=selectExecutableFamily(JSON.parse(readFileSync('tests/migration/unified-families.json','utf8')),process.argv.slice(2));
+  const families=JSON.parse(readFileSync('tests/migration/unified-families.json','utf8'));
+  const family=selectExecutableFamily(families,process.argv.slice(2));
   const generator=family==='enum-values'?enumValueCases:documentAttributeOperation;
   const {catalog}=candidateCatalog();
   const {modules,cases,factSources}=generator(catalog);
+  for(const id of families.find(item=>item.id===family).compilerRoots??[]) {
+    const root=catalog.get(id);
+    if(!root)throw new Error(`Missing family compiler root: ${id}`);
+    if(!modules.some(module=>module.id===id))modules.push(root);
+  }
   const declarations=[...modules,...dependencyFiles(modules,catalog)];
   const files=Object.fromEntries(declarations.map(module=>[`${module.id}.yaml`,yaml.dump(module,{noRefs:true})]));
   const paths=writeFocused(join(root,'rust/target/migration-family',family),files,{cases,factSources});

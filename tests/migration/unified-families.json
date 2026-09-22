@@ -1,6 +1,7 @@
 [
   {"id":"enum-values","role":"accept-first","path":"packages/rules/metadata/appliedObjects/metadataEnumeration/rules.ts","symbol":"MetadataEnumerationValueRules"},
-  {"id":"document-attributes","role":"accept-next","path":"packages/rules/metadata/appliedObjects/metadataDocument/childRules.ts","symbol":"MetadataDocumentAttributeRules"},
+  {"id":"document-attributes","role":"accept-next","path":"packages/rules/metadata/appliedObjects/metadataDocument/childRules.ts","symbol":"MetadataDocumentAttributeRules",
+    "compilerRoots":["migration.document-identity-and-children","migration.document-internal-types","migration.metadata-root-index","migration.metadata-child-index","migration.form-metadata-header","migration.additional-indexes"]},
   {"id":"input-field","role":"requirements","path":"packages/rules/metadata/forms/elements/inputField/rules.ts","symbol":"InputFieldRules"},
   {"id":"table-input-field","role":"requirements","path":"packages/rules/metadata/forms/elements/inputField/rules.ts","symbol":"TableInputFieldRules"},
   {"id":"form-attribute","role":"requirements","path":"packages/rules/metadata/forms/commonObjects/formAttribute/rules.ts","symbol":"FormAttributeRules"},

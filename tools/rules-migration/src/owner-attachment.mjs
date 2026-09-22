@@ -1,5 +1,12 @@
 import {isDeepStrictEqual} from 'node:util';
 
+function resolvedInput(value,imports) {
+  if(Array.isArray(value))return value.map(item=>resolvedInput(item,imports));
+  if(!value || typeof value!=='object')return value;
+  return Object.fromEntries(Object.entries(value).map(([key,item])=>
+    [key,key==='use'&&typeof item==='string'?(imports?.[item]??item):resolvedInput(item,imports)]));
+}
+
 export function verifyOwnerAttachment(profile,catalog) {
   const fail=reason=>({status:'blocked',reason});
   const owner=catalog.get(profile.declaration),fragment=catalog.get(profile.fragment);
@@ -18,7 +25,7 @@ export function verifyOwnerAttachment(profile,catalog) {
     if(!actual)return fail(`missing-owner-input:${input}`);
     if(actual.index) {
       if(inputs[name].type?.kind!=='index' || profile.indexes?.[input]!==actual.index)return fail(`owner-index-mismatch:${input}`);
-    } else if(!isDeepStrictEqual(actual,inputs[name]))return fail(`owner-input-type-mismatch:${input}`);
+    } else if(!isDeepStrictEqual(resolvedInput(actual,owner.imports),resolvedInput(inputs[name],fragment.imports)))return fail(`owner-input-type-mismatch:${input}`);
   }
   return {status:'bound',declaration:owner.id,fragment:fragment.id,bindings,...(Object.keys(fixed).length?{fixedBindings:fixed}:{}), ...(profile.indexes?{indexes:profile.indexes}:{})};
 }

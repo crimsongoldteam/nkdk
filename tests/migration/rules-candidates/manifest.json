@@ -13559,7 +13559,7 @@
     },
     {
       "path": "rust/declarations/probes/document-identity-and-children.yaml",
-      "sha256": "d2cbd667b6e67208227ff991a67bbe50d9938360e9052afea745355274d8de3d"
+      "sha256": "c0310a567cbbfdb1adc0a47c8e56aae4c6aefb2ea37c7885c5f4e42ee3796501"
     },
     {
       "path": "rust/declarations/probes/document-internal-info.yaml",

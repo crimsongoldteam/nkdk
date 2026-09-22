@@ -1,6 +1,30 @@
 [
   {
     "symbol": "MetadataDocumentRules",
+    "property": "attributes",
+    "declaration": "migration.document-identity-and-children",
+    "fragment": "fragment.document-attributes",
+    "bindings": {
+      "defaultLanguage": "defaultLanguage",
+      "registeredLanguages": "registeredLanguages",
+      "definedTypes": "definedTypes",
+      "roots": "roots",
+      "forms": "formTargets",
+      "ownerRoot": "ownerRoot",
+      "attributes": "attributeNames",
+      "containingOwnerName": "name",
+      "identities": "attributeIds",
+      "component": "component",
+      "owner": "owner"
+    },
+    "indexes": {
+      "roots": "metadata.roots",
+      "formTargets": "metadata.forms",
+      "attributeIds": "metadata.own-identities"
+    }
+  },
+  {
+    "symbol": "MetadataDocumentRules",
     "property": "help",
     "declaration": "migration.document-identity-and-children",
     "fragment": "fragment.help",
