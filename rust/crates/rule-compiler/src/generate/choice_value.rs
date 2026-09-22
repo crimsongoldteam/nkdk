@@ -134,6 +134,13 @@ struct ConstructedMissing {
     omission: Option<String>,
 }
 
+fn never_omit(expression: &LinkedExpression) -> bool {
+    matches!(
+        expression.kind,
+        LinkedExpressionKind::Literal(ScalarLiteral::Boolean(false))
+    )
+}
+
 fn constructed_missing_expression(
     expression: &LinkedExpression,
     omission: Option<&LinkedExpression>,
@@ -175,6 +182,12 @@ fn constructed_missing_expression(
             };
             guard.equivalent_to(condition).then_some((yes, no))
         });
+        if omission.is_some_and(|value| !never_omit(value)) && branch_omissions.is_none() {
+            return Err(unsupported(
+                child,
+                "Choice omission condition cannot be generated",
+            ));
+        }
         let yes = constructed_missing_expression(
             yes,
             branch_omissions.map(|pair| pair.0),
@@ -205,6 +218,12 @@ fn constructed_missing_expression(
         });
     }
     if matches!(expression.kind, LinkedExpressionKind::Absent) {
+        if omission.is_some_and(|value| !never_omit(value)) {
+            return Err(unsupported(
+                child,
+                "Absent choice default cannot satisfy the omission condition",
+            ));
+        }
         let fallback = shape
             .variants
             .iter()
@@ -288,9 +307,18 @@ fn constructed_missing_expression(
     let yaml = shape
         .property
         .map_or(literal.clone(), |property| format!("{property}: {literal}"));
-    let comparison = omission
-        .filter(|omit| matches_default_omission(omit, *index, &arguments[0]))
-        .map(|_| format!("match value{{Stored::V{variant}(selected) if !part_{id}_{variant}::has_raw(selected)=>{comparison},_=>false}}"));
+    let comparison = match omission {
+        Some(omit) if matches_default_omission(omit, *index, &arguments[0]) => Some(format!(
+            "match value{{Stored::V{variant}(selected) if !part_{id}_{variant}::has_raw(selected)=>{comparison},_=>false}}"
+        )),
+        Some(omit) if !never_omit(omit) => {
+            return Err(unsupported(
+                child,
+                "Choice omission rule cannot be generated",
+            ));
+        }
+        _ => None,
+    };
     Ok(ConstructedMissing {
         code: format!(
             "part_{id}_{variant}::read_yaml_document({yaml:?}.as_bytes(),inputs).map(Stored::V{variant})"

@@ -2540,6 +2540,21 @@ fn missing_choice_can_construct_a_typed_variant_from_its_declaration() {
         ),
         "unknown_choice_variant",
     );
+    let unsupported_omission = source.replace(
+        "      omitWhen:\n        and:\n        - {isVariant: {value: {field: value}, variant: number}}\n        - {eq: [{variantValue: {value: {field: value}, variant: number}}, {literal: 0}]}",
+        "      omitWhen: {literal: true}",
+    );
+    assert_ne!(unsupported_omission, source);
+    let linked = link(&parse_catalog(&unsupported_omission)).unwrap();
+    let errors = generate(&linked)
+        .err()
+        .expect("unsupported omission must fail compilation");
+    assert!(
+        errors
+            .iter()
+            .any(|error| error.code == "unsupported_generation_feature"),
+        "{errors:?}"
+    );
 }
 
 #[test]

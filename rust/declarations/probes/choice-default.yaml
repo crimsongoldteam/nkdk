@@ -16,10 +16,16 @@ declarations:
     xml: {kind: text-pattern, parts: [{literal: 'Ref.'}, {field: name}]}
     yaml: {kind: text-pattern, parts: [{literal: 'Ссылка.'}, {field: name}]}
 - kind: value
+  id: probe.default-mapped
+  value: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}]}
+  representations:
+    xml: {kind: record, fields: [{field: name, path: [Name]}]}
+    yaml: {kind: mapping, fields: [{field: name, key: Имя}]}
+- kind: value
   id: probe.default-choice
   namespaces: {xsi: http://www.w3.org/2001/XMLSchema-instance, xs: http://www.w3.org/2001/XMLSchema}
-  imports: {number: probe.default-number, text: probe.default-text, pattern: probe.default-pattern}
-  value: {kind: choice, variants: [{name: number, type: {use: number}}, {name: text, type: {use: text}}, {name: pattern, type: {use: pattern}}]}
+  imports: {number: probe.default-number, text: probe.default-text, pattern: probe.default-pattern, mapped: probe.default-mapped}
+  value: {kind: choice, variants: [{name: number, type: {use: number}}, {name: text, type: {use: text}}, {name: pattern, type: {use: pattern}}, {name: mapped, type: {use: mapped}}]}
   representations:
     xml:
       kind: choice
@@ -28,8 +34,9 @@ declarations:
       - {variant: number, in: [xs:decimal], emit: xs:decimal}
       - {variant: text, in: [xs:string], emit: xs:string}
       - {variant: pattern, in: [xs:record], emit: xs:record}
+      - {variant: mapped, in: [xs:mapped], emit: xs:mapped}
       otherwise: text
-    yaml: {kind: choice}
+    yaml: {kind: choice, variants: [{variant: mapped, form: mapping, key: Имя}]}
 - kind: object
   id: probe.choice-default
   imports: {choice: probe.default-choice}
