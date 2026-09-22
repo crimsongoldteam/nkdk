@@ -90,6 +90,13 @@ pub(super) fn missing(
     let value = match (&expression.kind, codec) {
         (LinkedExpressionKind::Absent, _) => return Ok("None".into()),
         (
+            LinkedExpressionKind::Operation {
+                operator: LinkedOperator::ConstructVariant(index),
+                arguments,
+            },
+            scalar::Codec::Forms(choice),
+        ) if arguments.len() == 1 => choice.scalar_default(*index, &arguments[0], name)?,
+        (
             LinkedExpressionKind::Literal(ScalarLiteral::Boolean(value)),
             scalar::Codec::Boolean(..),
         ) => value.to_string(),

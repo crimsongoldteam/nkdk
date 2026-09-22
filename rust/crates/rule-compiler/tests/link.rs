@@ -1,4 +1,4 @@
-use nkdk_rule_compiler::{SourceFile, link, parse, parse_many};
+use nkdk_rule_compiler::{SourceFile, generate, link, parse, parse_many};
 
 fn parse_catalog(source: &str) -> Vec<nkdk_rule_model::Module> {
     parse_many(SourceFile {
@@ -2517,6 +2517,28 @@ declarations:
     assert_catalog_error(
         &source.replace("limit: {literal: '10'}", "limit: {literal: true}"),
         "expression_type_mismatch",
+    );
+}
+
+#[test]
+fn missing_choice_can_construct_a_typed_variant_from_its_declaration() {
+    let source = include_str!("../../../declarations/probes/choice-default.yaml");
+    let modules = parse_catalog(source);
+    let linked = link(&modules).expect("number variant must be constructible");
+    generate(&linked).expect("number variant must be generated");
+    assert_catalog_error(
+        &source.replace(
+            "name: number, value: {literal: 0}",
+            "name: number, value: {literal: wrong}",
+        ),
+        "expression_type_mismatch",
+    );
+    assert_catalog_error(
+        &source.replace(
+            "name: number, value: {literal: 0}",
+            "name: missing, value: {literal: 0}",
+        ),
+        "unknown_choice_variant",
     );
 }
 

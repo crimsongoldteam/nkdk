@@ -186,6 +186,7 @@ pub struct LinkedParameter {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum LinkedOperator {
+    ConstructVariant(u32),
     IsVariant(u32),
     VariantValue(u32),
     VariantText(u32),

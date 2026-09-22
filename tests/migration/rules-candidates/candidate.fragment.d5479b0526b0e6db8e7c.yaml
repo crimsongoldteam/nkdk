@@ -1,0 +1,72 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.string
+  value1: system.Indexing
+  value2: system.UseFullTextSearch
+value:
+  kind: record
+  fields:
+    - name: scheduleLink
+      type:
+        use: value0
+    - name: indexing
+      type:
+        use: value1
+    - name: fullTextSearch
+      type:
+        use: value2
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: scheduleLink
+        path:
+          - Properties
+          - ScheduleLink
+      - field: indexing
+        path:
+          - Properties
+          - Indexing
+      - field: fullTextSearch
+        path:
+          - Properties
+          - FullTextSearch
+  yaml:
+    kind: mapping
+    fields:
+      - field: scheduleLink
+        key: СвязьСГрафиком
+      - field: indexing
+        key: Индексирование
+      - field: fullTextSearch
+        key: ПолнотекстовыйПоиск
+presence:
+  - target:
+      field: scheduleLink
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: ''
+  - target:
+      field: indexing
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: DontIndex
+  - target:
+      field: fullTextSearch
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Use
+id: candidate.fragment.d5479b0526b0e6db8e7c

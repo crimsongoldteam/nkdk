@@ -610,6 +610,103 @@ declarations:
           default:
             literal: false
       - target:
+          field: fillValue
+        xml:
+          missing:
+            denotes:
+              absent: true
+          empty:
+            - form: nil
+              denotes:
+                absent: true
+          canonical:
+            - when:
+                not:
+                  present:
+                    field: fillValue
+              form: nil
+        yaml:
+          missing:
+            denotes:
+              if:
+                and:
+                  - present:
+                      field: type
+                  - one:
+                      in:
+                        get:
+                          of:
+                            field: type
+                          field: items
+                      as: item
+                      where:
+                        literal: true
+                  - exists:
+                      in:
+                        get:
+                          of:
+                            field: type
+                          field: items
+                      as: item
+                      where:
+                        matches:
+                          value:
+                            get:
+                              of:
+                                var: item
+                              field: value
+                          pattern: ^(Строка|ФиксированнаяСтрока)$
+              then:
+                variant:
+                  name: text
+                  value:
+                    literal: ''
+              else:
+                absent: true
+          omitWhen:
+            if:
+              and:
+                - present:
+                    field: type
+                - one:
+                    in:
+                      get:
+                        of:
+                          field: type
+                        field: items
+                    as: item
+                    where:
+                      literal: true
+                - exists:
+                    in:
+                      get:
+                        of:
+                          field: type
+                        field: items
+                    as: item
+                    where:
+                      matches:
+                        value:
+                          get:
+                            of:
+                              var: item
+                            field: value
+                        pattern: ^(Строка|ФиксированнаяСтрока)$
+            then:
+              and:
+                - isVariant:
+                    value:
+                      field: fillValue
+                    variant: text
+                - eq:
+                    - variantValue:
+                        value:
+                          field: fillValue
+                        variant: text
+                    - literal: ''
+            else:
+              literal: false
+      - target:
           field: fillChecking
         xml:
           missing:
@@ -892,11 +989,11 @@ declarations:
           scalar: text
     namespaces:
       md: http://v8.1c.ru/8.3/MDClasses
-    id: candidate.collection.item.0b7deec0b19f078e07e9
+    id: candidate.collection.item.17597f63a93e1d127f04
   - format: nkdk-declarations/1
     kind: value
     imports:
-      item: candidate.collection.item.0b7deec0b19f078e07e9
+      item: candidate.collection.item.17597f63a93e1d127f04
       inputType1f8ea46361ff: common.path-root
     value:
       kind: sequence
@@ -1036,11 +1133,11 @@ declarations:
           scalar: text
     namespaces:
       md: http://v8.1c.ru/8.3/MDClasses
-    id: candidate.collection.list.e6ce3fba07b66db946d2
+    id: candidate.collection.list.2f6b04588db31eb504f9
   - format: nkdk-declarations/1
     kind: object
     imports:
-      items: candidate.collection.list.e6ce3fba07b66db946d2
+      items: candidate.collection.list.2f6b04588db31eb504f9
       inputType1f8ea46361ff: common.path-root
     value:
       kind: record
@@ -1238,7 +1335,7 @@ declarations:
   - format: nkdk-declarations/1
     kind: fragment
     imports:
-      items: candidate.collection.list.e6ce3fba07b66db946d2
+      items: candidate.collection.list.2f6b04588db31eb504f9
       inputType1f8ea46361ff: common.path-root
     value:
       kind: record

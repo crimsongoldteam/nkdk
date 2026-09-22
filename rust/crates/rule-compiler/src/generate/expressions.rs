@@ -931,8 +931,14 @@ impl<'a> Expressions<'a> {
                                 "Scalar variant projection requires an owning field",
                             ));
                         };
+                        let selected =
+                            if matches!(value.value_type, LinkedType::Scalar(ScalarType::Text)) {
+                                "selected.as_str()"
+                            } else {
+                                "selected"
+                            };
                         format!(
-                            "match {} {{ E{}F{owner}::V{variant}(selected)=>selected.as_str(), _=>unreachable!(\"guarded scalar variant\") }}",
+                            "match {} {{ E{}F{owner}::V{variant}(selected)=>{selected}, _=>unreachable!(\"guarded scalar variant\") }}",
                             values[0], self.entry.id
                         )
                     }

@@ -1065,6 +1065,22 @@
         {
           "type": "object",
           "properties": {
+            "variant": {
+              "type": "object",
+              "properties": {
+                "name": {"type": "string", "minLength": 1},
+                "value": {"$ref": "#/$defs/expression"}
+              },
+              "required": ["name", "value"],
+              "additionalProperties": false
+            }
+          },
+          "required": ["variant"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
             "isVariant": {
               "$ref": "#/$defs/variantExpression"
             }

@@ -3,6 +3,33 @@ import { createHash } from 'node:crypto';
 import { mapProperty } from './mappings.mjs';
 
 const hash = value => createHash('sha256').update(JSON.stringify(value)).digest('hex').slice(0,20);
+function referencedFields(value, result=new Set()) {
+  if(Array.isArray(value))for(const item of value)referencedFields(item,result);
+  else if(value && typeof value==='object') {
+    if(Object.keys(value).length===1 && typeof value.field==='string')result.add(value.field);
+    else for(const item of Object.values(value))referencedFields(item,result);
+  }
+  return result;
+}
+function joinDependentChunks(chunks) {
+  for(let changed=true;changed;) {
+    changed=false;
+    const positions=new Map(chunks.flatMap((chunk,index)=>chunk.fields.map(field=>[field.property.name,index])));
+    for(const [last,chunk] of chunks.entries())for(const field of chunk.fields) {
+      const dependencies=referencedFields(field.mapped.presence);
+      for(const sibling of dependencies) {
+        const first=positions.get(sibling);
+        if(first===undefined || first===last)continue;
+        const start=Math.min(first,last),end=Math.max(first,last);
+        const joined=chunks.slice(start,end+1);
+        chunks.splice(start,joined.length,{origin:joined.map(part=>part.origin).join('+'),fields:joined.flatMap(part=>part.fields)});
+        changed=true;
+        break;
+      }
+      if(changed)break;
+    }
+  }
+}
 function bindFragmentInputs(ownerInputs, fragmentInputs, overrides={}) {
   const bindings={};
   for(const [name,type] of Object.entries(fragmentInputs)) {
@@ -95,6 +122,7 @@ export function emitCandidates(entries, catalog, origin = p => p.source.path, xm
         if (chunks.at(-1)?.origin === field.origin) chunks.at(-1).fields.push(field);
         else chunks.push({origin:field.origin, fields:[field]});
       }
+      joinDependentChunks(chunks);
       const imports = {}, compose = [], inputs = {}, indexProviders = new Map();
       for (const chunk of chunks) {
         const ownerBindings={};

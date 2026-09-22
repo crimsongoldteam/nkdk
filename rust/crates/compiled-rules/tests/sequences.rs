@@ -20,6 +20,87 @@ fn metadata_value_inputs(entry: nkdk_compiled_rules::EntryId) -> PreparedInputs 
     .unwrap()
 }
 
+#[test]
+fn typed_choice_default_restores_xml_without_reference() {
+    let entry = entry_id("probe.choice-default").unwrap();
+    let inputs = PreparedInputs::default();
+    let xml = br#"<Root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema"><Value xsi:type="xs:decimal">0</Value></Root>"#;
+    let yaml = convert_file(entry, Direction::XmlToYaml, xml, &inputs).unwrap();
+    assert!(!String::from_utf8_lossy(&yaml.bytes).contains("Значение:"));
+    verify_candidate(entry, xml, &yaml.bytes, &inputs).unwrap();
+    let restored = convert_file(entry, Direction::YamlToXml, &yaml.bytes, &inputs).unwrap();
+    assert!(String::from_utf8_lossy(&restored.bytes).contains(">0</Value>"));
+}
+
+#[test]
+fn fill_value_keeps_explicit_zero_distinct_from_nil() {
+    let entry = entry_id("common.fill-value-profile").unwrap();
+    let inputs = metadata_value_inputs(entry);
+    let xml = convert_file(
+        entry,
+        Direction::YamlToXml,
+        "Тип: Число".as_bytes(),
+        &inputs,
+    )
+    .unwrap();
+    assert!(String::from_utf8_lossy(&xml.bytes).contains(":nil=\"true\""));
+    let yaml = convert_file(entry, Direction::XmlToYaml, &xml.bytes, &inputs).unwrap();
+    assert!(!String::from_utf8_lossy(&yaml.bytes).contains("Значение:"));
+    verify_candidate(entry, &xml.bytes, &yaml.bytes, &inputs).unwrap();
+    let explicit = convert_file(
+        entry,
+        Direction::YamlToXml,
+        "Тип: Число\nЗначение: 0".as_bytes(),
+        &inputs,
+    )
+    .unwrap();
+    let explicit_yaml =
+        convert_file(entry, Direction::XmlToYaml, &explicit.bytes, &inputs).unwrap();
+    assert!(String::from_utf8_lossy(&explicit_yaml.bytes).contains("Значение: 0"));
+    verify_candidate(entry, &explicit.bytes, &explicit_yaml.bytes, &inputs).unwrap();
+}
+
+#[test]
+fn fill_value_default_uses_type_only_for_empty_string() {
+    let entry = entry_id("common.fill-value-profile").unwrap();
+    for (type_name, expected_type) in [
+        ("Число", None),
+        ("ДатаВремя", None),
+        ("Строка", Some("string")),
+    ] {
+        let inputs = metadata_value_inputs(entry);
+        let yaml = format!("Тип: {type_name}");
+        let xml = convert_file(entry, Direction::YamlToXml, yaml.as_bytes(), &inputs).unwrap();
+        let restored = String::from_utf8_lossy(&xml.bytes);
+        if let Some(expected_type) = expected_type {
+            assert!(restored.contains(expected_type), "{restored}");
+        } else {
+            assert!(restored.contains(":nil=\"true\""), "{restored}");
+        }
+        let roundtrip = convert_file(entry, Direction::XmlToYaml, &xml.bytes, &inputs).unwrap();
+        assert!(!String::from_utf8_lossy(&roundtrip.bytes).contains("Значение:"));
+        verify_candidate(entry, &xml.bytes, &roundtrip.bytes, &inputs).unwrap();
+    }
+}
+
+#[test]
+fn structured_choice_does_not_invent_a_default_for_composite_or_boolean_types() {
+    let entry = entry_id("common.fill-value-profile").unwrap();
+    let inputs = metadata_value_inputs(entry);
+    for yaml in ["Тип: Булево", "Тип:\n  - Число\n  - Строка"] {
+        let xml = convert_file(entry, Direction::YamlToXml, yaml.as_bytes(), &inputs).unwrap();
+        let output = String::from_utf8_lossy(&xml.bytes);
+        assert!(!output.contains("dateTime"), "{output}");
+        assert!(
+            output.contains("<Value ") && output.contains(":nil=\"true\""),
+            "{output}"
+        );
+        let imported = convert_file(entry, Direction::XmlToYaml, &xml.bytes, &inputs).unwrap();
+        assert!(!String::from_utf8_lossy(&imported.bytes).contains("!xml/raw"));
+        verify_candidate(entry, &xml.bytes, yaml.as_bytes(), &inputs).unwrap();
+    }
+}
+
 fn assert_corpus_source_unchanged(case: &serde_json::Value) {
     let relative = case["source"].as_str().unwrap();
     let source_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))

@@ -99,6 +99,13 @@ pub(super) fn resolve_expression_in(
     scope: &Scope,
 ) -> Result<LinkedExpression, Diagnostic> {
     let (kind, value_type) = match &expression.kind {
+        ExpressionKind::ConstructVariant { .. } => {
+            return Err(diagnostic(
+                "expression_type_mismatch",
+                &expression.source,
+                "Variant construction requires a declared choice target",
+            ));
+        }
         ExpressionKind::IsVariant { value, variant } => {
             let (value, index, _) =
                 resolve_choice_variant(module, value, variant, expression, modules, ids, scope)?;

@@ -50,6 +50,7 @@ constraints:
   when:
     and:
     - {input: textValue}
+    - {not: {eq: [{input: textContent}, {literal: ''}]}}
     - {one: {in: {input: typeItems}, as: item, where: {literal: true}}}
     - {exists: {in: {input: typeItems}, as: item, where: {eq: [{get: {of: {var: item}, field: value}}, {literal: ФиксированнаяСтрока}]}}}
     - {eq: [{input: stringAllowedLength}, {literal: Fixed}]}

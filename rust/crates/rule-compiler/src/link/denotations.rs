@@ -40,6 +40,30 @@ fn resolve_scoped(
     };
     let (kind, value_type) = match &expression.kind {
         ExpressionKind::Absent => (LinkedExpressionKind::Absent, LinkedType::Absent),
+        ExpressionKind::ConstructVariant { name, value } => {
+            let LinkedType::Choice(variants) = &expected_shape else {
+                return Err(type_error(expression));
+            };
+            let index = variants
+                .iter()
+                .position(|variant| variant.name == *name)
+                .ok_or_else(|| {
+                    diagnostic(
+                        "unknown_choice_variant",
+                        &expression.source,
+                        "Choice variant is not declared",
+                    )
+                })?;
+            let selected =
+                resolve_scoped(module, value, &variants[index].value, modules, ids, scope)?;
+            (
+                LinkedExpressionKind::Operation {
+                    operator: LinkedOperator::ConstructVariant(index as u32),
+                    arguments: vec![selected],
+                },
+                expected.clone(),
+            )
+        }
         ExpressionKind::Conditional {
             condition,
             then_value,

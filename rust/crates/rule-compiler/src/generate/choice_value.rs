@@ -82,6 +82,253 @@ fn allows_absence(child: &LinkedEntry, empty: Option<EmptyKind>) -> bool {
     })
 }
 
+fn matches_default_omission(
+    expression: &LinkedExpression,
+    variant: u32,
+    literal: &LinkedExpression,
+) -> bool {
+    let LinkedExpressionKind::Operation {
+        operator: LinkedOperator::And,
+        arguments,
+    } = &expression.kind
+    else {
+        return false;
+    };
+    if arguments.len() != 2 {
+        return false;
+    }
+    let LinkedExpressionKind::Operation {
+        operator: LinkedOperator::IsVariant(selected),
+        arguments: guard,
+    } = &arguments[0].kind
+    else {
+        return false;
+    };
+    if *selected != variant
+        || !matches!(
+            guard.as_slice(),
+            [LinkedExpression {
+                kind: LinkedExpressionKind::Field(0),
+                ..
+            }]
+        )
+    {
+        return false;
+    }
+    let LinkedExpressionKind::Operation {
+        operator: LinkedOperator::Equal,
+        arguments: pair,
+    } = &arguments[1].kind
+    else {
+        return false;
+    };
+    let [left, right] = pair.as_slice() else {
+        return false;
+    };
+    matches!(&left.kind, LinkedExpressionKind::Operation { operator: LinkedOperator::VariantValue(selected), arguments } if *selected == variant && matches!(arguments.as_slice(), [LinkedExpression { kind: LinkedExpressionKind::Field(0), .. }]))
+        && right.equivalent_to(literal)
+}
+
+struct ConstructedMissing {
+    code: String,
+    omission: Option<String>,
+}
+
+fn constructed_missing_expression(
+    expression: &LinkedExpression,
+    omission: Option<&LinkedExpression>,
+    child: &LinkedEntry,
+    shape: &Shape<'_>,
+    program: &Program,
+    id: u32,
+) -> Result<ConstructedMissing, Diagnostic> {
+    if let LinkedExpressionKind::Operation {
+        operator: LinkedOperator::Conditional,
+        arguments,
+    } = &expression.kind
+    {
+        let [condition, yes, no] = arguments.as_slice() else {
+            return Err(unsupported(child, "Invalid conditional choice default"));
+        };
+        let LinkedType::Record(fields) = &child.value else {
+            unreachable!("choice owner")
+        };
+        let mut context = expressions::Expressions::new(child, program, fields, None);
+        let predicate = context.lower(condition)?;
+        if !context.transforms.is_empty() {
+            return Err(unsupported(
+                child,
+                "Choice default condition needs a generated transform",
+            ));
+        }
+        let constants = context.constants;
+        let branch_omissions = omission.and_then(|expression| {
+            let LinkedExpressionKind::Operation {
+                operator: LinkedOperator::Conditional,
+                arguments,
+            } = &expression.kind
+            else {
+                return None;
+            };
+            let [guard, yes, no] = arguments.as_slice() else {
+                return None;
+            };
+            guard.equivalent_to(condition).then_some((yes, no))
+        });
+        let yes = constructed_missing_expression(
+            yes,
+            branch_omissions.map(|pair| pair.0),
+            child,
+            shape,
+            program,
+            id,
+        )?;
+        let no = constructed_missing_expression(
+            no,
+            branch_omissions.map(|pair| pair.1),
+            child,
+            shape,
+            program,
+            id,
+        )?;
+        let omit_code = branch_omissions.map(|_| {
+            let yes = yes.omission.as_deref().unwrap_or("false");
+            let no = no.omission.as_deref().unwrap_or("false");
+            format!("{{let _inputs=inputs;{constants}if {predicate} {{{yes}}} else {{{no}}}}}")
+        });
+        return Ok(ConstructedMissing {
+            code: format!(
+                "{{let _inputs=inputs;{constants}if {predicate} {{{}}} else {{{}}}}}",
+                yes.code, no.code
+            ),
+            omission: omit_code,
+        });
+    }
+    if matches!(expression.kind, LinkedExpressionKind::Absent) {
+        let fallback = shape
+            .variants
+            .iter()
+            .position(|field| field.name == shape.xml.otherwise)
+            .ok_or_else(|| unsupported(child, "Absent choice default requires a fallback"))?;
+        return Ok(ConstructedMissing {
+            code: format!(
+                "part_{id}_{fallback}::read_yaml_document(b\"{{}}\",inputs).map(Stored::V{fallback})"
+            ),
+            omission: None,
+        });
+    }
+    let LinkedExpressionKind::Operation {
+        operator: LinkedOperator::ConstructVariant(index),
+        arguments,
+    } = &expression.kind
+    else {
+        return Err(unsupported(
+            child,
+            "Choice default requires a typed variant",
+        ));
+    };
+    let selected = &shape.variants[*index as usize];
+    let variant = *index as usize;
+    let target = target(selected, program);
+    let (literal, comparison) = match (&target.yaml, &arguments[0].kind) {
+        (
+            YamlRepresentation::Decimal,
+            LinkedExpressionKind::Literal(ScalarLiteral::Number(value)),
+        ) => {
+            let number = nkdk_decimal::Decimal::parse(value)
+                .map_err(|_| unsupported(child, "Invalid decimal choice default"))?;
+            let (negative, digits, exponent) = number.parts();
+            (
+                value.clone(),
+                format!(
+                    "matches!(part_{id}_{variant}::input_field(selected,0),Some(core::inputs::InputRef::Decimal(actual)) if actual==&core::decimal::Decimal::constant({negative},{digits:?},{exponent}))"
+                ),
+            )
+        }
+        (
+            YamlRepresentation::Calendar { seconds, omit_zero },
+            LinkedExpressionKind::Literal(ScalarLiteral::Text(value)),
+        ) => {
+            let date = nkdk_conversion_core::calendar::Value::from_xml(value)
+                .map_err(|_| unsupported(child, "Invalid calendar choice default"))?;
+            (
+                date.yaml(*seconds, *omit_zero),
+                format!(
+                    "part_{id}_{variant}::calendar_field(selected,0).is_ok_and(|actual|actual==&core::calendar::Value::from_parts({:?}).expect(\"validated calendar default\"))",
+                    date.parts()
+                ),
+            )
+        }
+        (
+            YamlRepresentation::BooleanTable(lexemes),
+            LinkedExpressionKind::Literal(ScalarLiteral::Boolean(value)),
+        ) => (
+            lexemes
+                .iter()
+                .find(|lexeme| lexeme.value == *value)
+                .map(|lexeme| lexeme.text.clone())
+                .ok_or_else(|| unsupported(child, "Undeclared boolean choice default"))?,
+            format!(
+                "matches!(part_{id}_{variant}::input_field(selected,0),Some(core::inputs::InputRef::Boolean({value})))"
+            ),
+        ),
+        (YamlRepresentation::Text, LinkedExpressionKind::Literal(ScalarLiteral::Text(value))) => (
+            serde_json::to_string(value).expect("text literal is JSON-compatible"),
+            format!(
+                "matches!(part_{id}_{variant}::input_field(selected,0),Some(core::inputs::InputRef::Text(actual)) if actual=={value:?})"
+            ),
+        ),
+        _ => {
+            return Err(unsupported(
+                child,
+                "Choice default requires a declared scalar YAML form",
+            ));
+        }
+    };
+    let yaml = shape
+        .property
+        .map_or(literal.clone(), |property| format!("{property}: {literal}"));
+    let comparison = omission
+        .filter(|omit| matches_default_omission(omit, *index, &arguments[0]))
+        .map(|_| format!("match value{{Stored::V{variant}(selected) if !part_{id}_{variant}::has_raw(selected)=>{comparison},_=>false}}"));
+    Ok(ConstructedMissing {
+        code: format!(
+            "part_{id}_{variant}::read_yaml_document({yaml:?}.as_bytes(),inputs).map(Stored::V{variant})"
+        ),
+        omission: comparison,
+    })
+}
+
+fn constructed_missing(
+    child: &LinkedEntry,
+    shape: &Shape<'_>,
+    program: &Program,
+    id: u32,
+) -> Result<Option<ConstructedMissing>, Diagnostic> {
+    let Some(rule) = child
+        .presence
+        .iter()
+        .find(|rule| rule.target == LinkedPresenceTarget::Field(0))
+    else {
+        return Ok(None);
+    };
+    let Some(expression) = rule.yaml_missing.as_ref() else {
+        return Ok(None);
+    };
+    if matches!(expression.kind, LinkedExpressionKind::Absent) {
+        return Ok(None);
+    }
+    constructed_missing_expression(
+        expression,
+        rule.yaml_omit_when.as_ref(),
+        child,
+        shape,
+        program,
+        id,
+    )
+    .map(Some)
+}
+
 pub(super) fn emit(
     entry: &LinkedEntry,
     child: &LinkedEntry,
@@ -96,6 +343,7 @@ pub(super) fn emit(
         .variants
         .iter()
         .position(|field| field.name == shape.xml.otherwise);
+    let missing_default = constructed_missing(child, &shape, program, id)?;
     let mut nested = String::new();
     let mut accepts = Vec::new();
     let mut scalar_variants = Vec::new();
@@ -108,7 +356,18 @@ pub(super) fn emit(
             target(field, program).value,
             LinkedType::Scalar(_) | LinkedType::Enum(_) | LinkedType::ScalarChoice(_)
         );
-        if Some(variant) != fallback {
+        if missing_default.is_some() && Some(variant) == fallback {
+            for rule in &mut selected.presence {
+                if rule.target == LinkedPresenceTarget::Field(0) {
+                    rule.yaml_missing = Some(LinkedExpression {
+                        kind: LinkedExpressionKind::Absent,
+                        value_type: LinkedType::Absent,
+                        source: rule.source.clone(),
+                    });
+                    rule.yaml_omit_when = None;
+                }
+            }
+        } else if Some(variant) != fallback || missing_default.is_some() {
             selected.presence.clear();
         }
         selected.constraints.clear();
@@ -315,7 +574,14 @@ pub(super) fn emit(
         .unwrap();
     }
     out.push_str("}}self.state=YamlState::Selected(selected);}}Ok(())}}}\npub(super) fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<Stored>{match self.state{YamlState::Selecting{property,choice,events,..}=>{");
-    if allows_yaml_missing_absence && let Some(fallback) = fallback {
+    if let Some(default) = &missing_default {
+        let missing = if shape.property.is_some() {
+            "!property.finish(\"yaml.choice-property\")?"
+        } else {
+            "events.is_empty()"
+        };
+        writeln!(out, "if {missing}{{return {};}}", default.code).unwrap();
+    } else if allows_yaml_missing_absence && let Some(fallback) = fallback {
         let missing = if shape.property.is_some() {
             "!property.finish(\"yaml.choice-property\")?"
         } else {
@@ -344,7 +610,15 @@ pub(super) fn emit(
     out.push_str(
         "_=>Err(RuntimeDiagnostic::new(\"xml.choice\",\"Missing XML choice discriminator\")),}}\n",
     );
-    writeln!(out,"pub(super) fn read_yaml_document(source:&[u8],inputs:&InputView<'_>)->core::Result<Stored>{{let document=if source.is_empty()&&{allows_null_absence}{{b\"null\".as_slice()}}else{{source}};match read_yaml(document,inputs,core::yaml::DocumentSource(document)){{Ok(value)=>Ok(value),Err(error)=>match yaml_selection(document).ok().flatten().or({fallback:?}){{").unwrap();
+    let empty_document = if missing_default.is_some() {
+        "if source.is_empty(){return YamlReader::new()?.finish(source,inputs);}let document=source;"
+            .to_owned()
+    } else {
+        format!(
+            "let document=if source.is_empty()&&{allows_null_absence}{{b\"null\".as_slice()}}else{{source}};"
+        )
+    };
+    writeln!(out,"pub(super) fn read_yaml_document(source:&[u8],inputs:&InputView<'_>)->core::Result<Stored>{{{empty_document}match read_yaml(document,inputs,core::yaml::DocumentSource(document)){{Ok(value)=>Ok(value),Err(error)=>match yaml_selection(document).ok().flatten().or({fallback:?}){{").unwrap();
     for variant in &variants {
         writeln!(out,"Some({variant})=>part_{id}_{variant}::read_yaml_document(document,inputs).map(Stored::V{variant}).or(Err(error)),").unwrap();
     }
@@ -383,18 +657,29 @@ pub(super) fn emit(
     );
     delegate_value!("field_has_annotation", ",field:usize", "->bool", ",field");
     delegate_value!("has_raw", "", "->bool", "");
+    if let Some(comparison) = missing_default
+        .as_ref()
+        .and_then(|default| default.omission.as_ref())
+    {
+        writeln!(out,"fn omit_default(value:&Stored,inputs:&InputView<'_>)->core::Result<bool>{{Ok({comparison})}}").unwrap();
+    } else {
+        out.push_str("fn omit_default(_value:&Stored,_inputs:&InputView<'_>)->core::Result<bool>{Ok(false)}\n");
+    }
     delegate_value!(
         "document",
         ",inputs:&InputView<'_>",
         "->core::Result<Vec<u8>>",
         ",inputs"
     );
-    delegate_value!(
-        "write_yaml",
-        ",inputs:&InputView<'_>,out:&mut String",
-        "->core::Result<()>",
-        ",inputs,out"
-    );
+    out.push_str("pub(super) fn write_yaml(value:&Stored,inputs:&InputView<'_>,out:&mut String)->core::Result<()>{if omit_default(value,inputs)?{return Ok(());}match value{");
+    for variant in &variants {
+        writeln!(
+            out,
+            "Stored::V{variant}(selected)=>part_{id}_{variant}::write_yaml(selected,inputs,out),"
+        )
+        .unwrap();
+    }
+    out.push_str("}}\n");
     delegate_value!(
         "scalar_at",
         ",path:&[core::xml::Name],occurrences:&[usize]",
@@ -408,12 +693,11 @@ pub(super) fn emit(
         "->core::Result<()>",
         ",before,after"
     );
-    delegate_value!(
-        "write_yaml_indented",
-        ",inputs:&InputView<'_>,out:&mut String,indent:&str",
-        "->core::Result<()>",
-        ",inputs,out,indent"
-    );
+    out.push_str("pub(super) fn write_yaml_indented(value:&Stored,inputs:&InputView<'_>,out:&mut String,indent:&str)->core::Result<()>{if omit_default(value,inputs)?{return Ok(());}match value{");
+    for variant in &variants {
+        writeln!(out,"Stored::V{variant}(selected)=>part_{id}_{variant}::write_yaml_indented(selected,inputs,out,indent),").unwrap();
+    }
+    out.push_str("}}\n");
     if child.constraints.is_empty() {
         delegate_value!(
             "check_xml",

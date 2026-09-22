@@ -23,6 +23,16 @@ export const METADATA_ATTRIBUTE_TYPE_DESCRIPTION_TYPES = [
   'BusinessProcessRoutePointRef','BusinessProcessRoutePointRef.*','TaskRef','TaskRef.*','ExchangePlanRef','ExchangePlanRef.*',
   'AnyIBRef','DefinedType.*','Characteristic.*','ExternalDataSourceTableRef.*','ExternalDataSourceCubeDimensionTableRef.*',
 ];
+function instantiateFieldProfile(value, names) {
+  if(Array.isArray(value))return value.map(item=>instantiateFieldProfile(item,names));
+  if(value===null || typeof value!=='object')return value;
+  if(Object.keys(value).length===1 && typeof value.field==='string' && Object.hasOwn(names,value.field)) {
+    return {field:names[value.field]};
+  }
+  return Object.fromEntries(Object.entries(value).map(([key,item])=>[
+    key, instantiateFieldProfile(item,names),
+  ]));
+}
 export function mapProperty(property, catalog, xmlNamespaces={}) {
   let p = property.parameters, fail = reason => ({status:'blocked', reason});
   const profiles=[];
@@ -220,6 +230,10 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
     mapped.type.bind.ownerName={input:'containingOwnerName'};
   }
   if(metadataValue) {
+    const profile=catalog.get('common.fill-value-profile');
+    const defaultRule=profile?.presence?.find(rule=>rule.target?.field==='value');
+    if(!defaultRule)return fail('fill-value-default-profile');
+    mapped.presence=instantiateFieldProfile(defaultRule,{value:property.name,type:'type'});
     mapped.inputs.definedTypes=structuredClone(catalog.get('common.fill-value-compatibility')?.inputs?.definedTypes ?? {type:{kind:'index',key:{kind:'scalar',scalar:'text'},value:{kind:'sequence',item:{kind:'scalar',scalar:'text'}}}});
     mapped.indexProviders={definedTypes:'metadata.defined-type-alternatives'};
     mapped.siblingExpressions={onlyStringType:{source:'type',sourceId:'common.type-description',value:{and:[
@@ -289,7 +303,8 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
     diagnostic:{code:'value.required',severity:'warning',at:{field:property.name},message:'Обязательное значение отсутствует'},
   }];
   for(const profile of profiles) {
-    if(!mapped.presence && ['xml-when-property-present','xml-when-input-equals','yaml-default-when-input-equals'].includes(profile.kind))return fail('common-presence-profile-composition');
+    if((!mapped.presence?.xml && ['xml-when-property-present','xml-when-input-equals'].includes(profile.kind)) ||
+      (!mapped.presence?.yaml && profile.kind==='yaml-default-when-input-equals'))return fail('common-presence-profile-composition');
     if(profile.kind==='xml-when-property-present' || profile.kind==='xml-when-input-equals') {
       const condition=profile.kind==='xml-when-property-present' ? {present:{field:property.name}} : {eq:[{input:profile.input},{literal:profile.value}]};
       const fallback=profile.kind==='xml-when-property-present' ? [] : (mapped.presence.xml.canonical??[]);

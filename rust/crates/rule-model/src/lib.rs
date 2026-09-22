@@ -337,6 +337,10 @@ pub struct Expression {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ExpressionKind {
+    ConstructVariant {
+        name: String,
+        value: Box<Expression>,
+    },
     IsVariant {
         value: Box<Expression>,
         variant: String,

@@ -1,0 +1,982 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.type-description
+  value1: common.boolean
+  value2: common.i8n-text
+  value3: common.string
+  value4: common.choice-parameter-links
+  value5: common.choice-parameters
+  value6: system.UseQuickChoice
+  inputType1f8ea46361ff: common.path-root
+  value8: common.metadata-form-link
+  value9: common.min-max-value-text
+  value10: common.metadata-value
+  value11: system.FillChecking
+  value12: system.CreateOnInput
+  value13: system.ChoiceHistoryOnInput
+  value14: system.FoldersAndItemsUse
+  value15: common.type-link
+  value16: system.UseFullTextSearch
+  value17: system.Indexing
+  value18: system.DataHistoryUse
+  value19: system.BinaryDataStorageLocationUse
+value:
+  kind: record
+  fields:
+    - name: type
+      type:
+        use: value0
+        bind: {}
+    - name: passwordMode
+      type:
+        use: value1
+    - name: format
+      type:
+        use: value2
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            input: ownerName
+    - name: editFormat
+      type:
+        use: value2
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            input: ownerName
+    - name: toolTip
+      type:
+        use: value2
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            input: ownerName
+    - name: markNegatives
+      type:
+        use: value1
+    - name: mask
+      type:
+        use: value3
+    - name: multiLine
+      type:
+        use: value1
+    - name: choiceParameterLinks
+      type:
+        use: value4
+        bind: {}
+    - name: choiceParameters
+      type:
+        use: value5
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+    - name: quickChoice
+      type:
+        use: value6
+    - name: choiceForm
+      type:
+        use: value8
+        bind:
+          roots:
+            input: roots
+          forms:
+            input: forms
+    - name: extendedEdit
+      type:
+        use: value1
+    - name: nameInDataSource
+      type:
+        use: value3
+    - name: minValue
+      type:
+        use: value9
+    - name: maxValue
+      type:
+        use: value9
+    - name: fillFromFillingValue
+      type:
+        use: value1
+    - name: fillValue
+      type:
+        use: value10
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          onlyStringType:
+            and:
+              - present:
+                  field: type
+              - one:
+                  in:
+                    get:
+                      of:
+                        field: type
+                      field: items
+                  as: item
+                  where:
+                    literal: true
+              - exists:
+                  in:
+                    get:
+                      of:
+                        field: type
+                      field: items
+                  as: item
+                  where:
+                    matches:
+                      value:
+                        get:
+                          of:
+                            var: item
+                          field: value
+                      pattern: Строка|ФиксированнаяСтрока
+        with:
+          exportNilValue: true
+    - name: fillChecking
+      type:
+        use: value11
+    - name: createOnInput
+      type:
+        use: value12
+    - name: choiceHistoryOnInput
+      type:
+        use: value13
+    - name: choiceFoldersAndItems
+      type:
+        use: value14
+    - name: linkByType
+      type:
+        use: value15
+        bind: {}
+    - name: fullTextSearch
+      type:
+        use: value16
+    - name: indexing
+      type:
+        use: value17
+    - name: dataHistory
+      type:
+        use: value18
+    - name: binaryDataStorageLocationUse
+      type:
+        use: value19
+    - name: binaryDataStorageLocationUseField
+      type:
+        use: value3
+    - name: balance
+      type:
+        use: value1
+    - name: accountingFlag
+      type:
+        use: value3
+    - name: extDimensionAccountingFlag
+      type:
+        use: value3
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: type
+        path:
+          - Properties
+          - Type
+      - field: passwordMode
+        path:
+          - Properties
+          - PasswordMode
+      - field: format
+        path:
+          - Properties
+          - Format
+      - field: editFormat
+        path:
+          - Properties
+          - EditFormat
+      - field: toolTip
+        path:
+          - Properties
+          - ToolTip
+      - field: markNegatives
+        path:
+          - Properties
+          - MarkNegatives
+      - field: mask
+        path:
+          - Properties
+          - Mask
+      - field: multiLine
+        path:
+          - Properties
+          - MultiLine
+      - field: choiceParameterLinks
+        path:
+          - Properties
+          - ChoiceParameterLinks
+      - field: choiceParameters
+        path:
+          - Properties
+          - ChoiceParameters
+      - field: quickChoice
+        path:
+          - Properties
+          - QuickChoice
+      - field: choiceForm
+        path:
+          - Properties
+          - ChoiceForm
+      - field: extendedEdit
+        path:
+          - Properties
+          - ExtendedEdit
+      - field: nameInDataSource
+        path:
+          - Properties
+          - NameInDataSource
+      - field: minValue
+        path:
+          - Properties
+          - MinValue
+      - field: maxValue
+        path:
+          - Properties
+          - MaxValue
+      - field: fillFromFillingValue
+        path:
+          - Properties
+          - FillFromFillingValue
+      - field: fillValue
+        path:
+          - Properties
+          - FillValue
+      - field: fillChecking
+        path:
+          - Properties
+          - FillChecking
+      - field: createOnInput
+        path:
+          - Properties
+          - CreateOnInput
+      - field: choiceHistoryOnInput
+        path:
+          - Properties
+          - ChoiceHistoryOnInput
+      - field: choiceFoldersAndItems
+        path:
+          - Properties
+          - ChoiceFoldersAndItems
+      - field: linkByType
+        path:
+          - Properties
+          - LinkByType
+      - field: fullTextSearch
+        path:
+          - Properties
+          - FullTextSearch
+      - field: indexing
+        path:
+          - Properties
+          - Indexing
+      - field: dataHistory
+        path:
+          - Properties
+          - DataHistory
+      - field: binaryDataStorageLocationUse
+        path:
+          - Properties
+          - BinaryDataStorageLocationUse
+      - field: binaryDataStorageLocationUseField
+        path:
+          - Properties
+          - BinaryDataStorageLocationUseField
+      - field: balance
+        path:
+          - Properties
+          - Balance
+      - field: accountingFlag
+        path:
+          - Properties
+          - AccountingFlag
+      - field: extDimensionAccountingFlag
+        path:
+          - Properties
+          - ExtDimensionAccountingFlag
+  yaml:
+    kind: mapping
+    fields:
+      - field: type
+        key: Тип
+      - field: passwordMode
+        key: РежимПароля
+      - field: format
+        key: Формат
+      - field: editFormat
+        key: ФорматРедактирования
+      - field: toolTip
+        key: Подсказка
+      - field: markNegatives
+        key: ВыделятьОтрицательные
+      - field: mask
+        key: Маска
+      - field: multiLine
+        key: МногострочныйРежим
+      - field: choiceParameterLinks
+        key: СвязиПараметровВыбора
+      - field: choiceParameters
+        key: ПараметрыВыбора
+      - field: quickChoice
+        key: БыстрыйВыбор
+      - field: choiceForm
+        key: ФормаВыбора
+      - field: extendedEdit
+        key: РасширенноеРедактирование
+      - field: nameInDataSource
+        key: ИмяВИсточникеДанных
+      - field: minValue
+        key: МинимальноеЗначение
+      - field: maxValue
+        key: МаксимальноеЗначение
+      - field: fillFromFillingValue
+        key: ЗаполнятьИзДанныхЗаполнения
+      - field: fillValue
+        key: ЗначениеЗаполнения
+      - field: fillChecking
+        key: ПроверкаЗаполнения
+      - field: createOnInput
+        key: СозданиеПриВводе
+      - field: choiceHistoryOnInput
+        key: ИсторияВыбораПриВводе
+      - field: choiceFoldersAndItems
+        key: ВыборГруппИЭлементов
+      - field: linkByType
+        key: СвязьПоТипу
+      - field: fullTextSearch
+        key: ПолнотекстовыйПоиск
+      - field: indexing
+        key: Индексирование
+      - field: dataHistory
+        key: ИсторияДанных
+      - field: binaryDataStorageLocationUse
+        key: ИспользованиеХраненияВХранилищеДвоичныхДанных
+      - field: binaryDataStorageLocationUseField
+        key: ПолеИспользованияХраненияВХранилищеДвоичныхДанных
+      - field: balance
+        key: Балансовый
+      - field: accountingFlag
+        key: ПризнакУчета
+      - field: extDimensionAccountingFlag
+        key: ПризнакУчетаСубконто
+presence:
+  - target:
+      field: type
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: passwordMode
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+  - target:
+      field: format
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: format
+          form: empty-element
+  - target:
+      field: editFormat
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: editFormat
+          form: empty-element
+  - target:
+      field: toolTip
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: toolTip
+          form: empty-element
+  - target:
+      field: markNegatives
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+  - target:
+      field: mask
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: ''
+  - target:
+      field: multiLine
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+  - target:
+      field: choiceParameterLinks
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: choiceParameterLinks
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: choiceParameters
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: choiceParameters
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: quickChoice
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Auto
+  - target:
+      field: choiceForm
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: choiceForm
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: extendedEdit
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+  - target:
+      field: nameInDataSource
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: minValue
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: minValue
+          form: missing
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: maxValue
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: maxValue
+          form: missing
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: fillFromFillingValue
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: fillFromFillingValue
+          form: missing
+    yaml:
+      default:
+        literal: false
+  - target:
+      field: fillValue
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: nil
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: fillValue
+          form: missing
+    yaml:
+      missing:
+        denotes:
+          if:
+            and:
+              - present:
+                  field: type
+              - one:
+                  in:
+                    get:
+                      of:
+                        field: type
+                      field: items
+                  as: item
+                  where:
+                    literal: true
+              - exists:
+                  in:
+                    get:
+                      of:
+                        field: type
+                      field: items
+                  as: item
+                  where:
+                    matches:
+                      value:
+                        get:
+                          of:
+                            var: item
+                          field: value
+                      pattern: ^(Строка|ФиксированнаяСтрока)$
+          then:
+            variant:
+              name: text
+              value:
+                literal: ''
+          else:
+            absent: true
+      omitWhen:
+        if:
+          and:
+            - present:
+                field: type
+            - one:
+                in:
+                  get:
+                    of:
+                      field: type
+                    field: items
+                as: item
+                where:
+                  literal: true
+            - exists:
+                in:
+                  get:
+                    of:
+                      field: type
+                    field: items
+                as: item
+                where:
+                  matches:
+                    value:
+                      get:
+                        of:
+                          var: item
+                        field: value
+                    pattern: ^(Строка|ФиксированнаяСтрока)$
+        then:
+          and:
+            - isVariant:
+                value:
+                  field: fillValue
+                variant: text
+            - eq:
+                - variantValue:
+                    value:
+                      field: fillValue
+                    variant: text
+                - literal: ''
+        else:
+          literal: false
+  - target:
+      field: fillChecking
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: fillChecking
+          form: missing
+    yaml:
+      default:
+        literal: DontCheck
+  - target:
+      field: createOnInput
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: createOnInput
+          form: missing
+    yaml:
+      default:
+        literal: Auto
+  - target:
+      field: choiceHistoryOnInput
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: choiceHistoryOnInput
+          form: missing
+    yaml:
+      default:
+        literal: Auto
+  - target:
+      field: choiceFoldersAndItems
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: choiceFoldersAndItems
+          form: missing
+    yaml:
+      default:
+        literal: Items
+  - target:
+      field: linkByType
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: linkByType
+          form: missing
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: fullTextSearch
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: fullTextSearch
+          form: missing
+    yaml:
+      default:
+        literal: Use
+  - target:
+      field: indexing
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: indexing
+          form: missing
+    yaml:
+      default:
+        literal: DontIndex
+  - target:
+      field: dataHistory
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: dataHistory
+          form: missing
+    yaml:
+      default:
+        literal: Use
+  - target:
+      field: binaryDataStorageLocationUse
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: binaryDataStorageLocationUseField
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: binaryDataStorageLocationUseField
+          form: missing
+    yaml:
+      default:
+        literal: ''
+  - target:
+      field: balance
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: balance
+          form: missing
+    yaml:
+      default:
+        literal: true
+  - target:
+      field: accountingFlag
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: accountingFlag
+          form: missing
+    yaml:
+      default:
+        literal: ''
+  - target:
+      field: extDimensionAccountingFlag
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: extDimensionAccountingFlag
+          form: missing
+    yaml:
+      default:
+        literal: ''
+constraints:
+  - id: type-required
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    assert:
+      present:
+        field: type
+    diagnostic:
+      code: value.required
+      severity: warning
+      at:
+        field: type
+      message: Обязательное значение отсутствует
+  - id: nameInDataSource-required
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    assert:
+      present:
+        field: nameInDataSource
+    diagnostic:
+      code: value.required
+      severity: warning
+      at:
+        field: nameInDataSource
+      message: Обязательное значение отсутствует
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  ownerName:
+    type:
+      kind: scalar
+      scalar: text
+  roots:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: kind
+            type:
+              use: inputType1f8ea46361ff
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  forms:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: parent
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  definedTypes:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: sequence
+        item:
+          kind: scalar
+          scalar: text
+id: candidate.fragment.0f84a7fc27009b651835

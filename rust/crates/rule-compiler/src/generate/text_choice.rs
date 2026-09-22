@@ -102,6 +102,51 @@ pub(super) struct Codec<'a> {
 }
 
 impl<'a> Codec<'a> {
+    pub(super) fn scalar_default(
+        &self,
+        index: u32,
+        expression: &LinkedExpression,
+        name: &str,
+    ) -> Result<String, Diagnostic> {
+        let selected = self
+            .variants
+            .get(index as usize)
+            .ok_or_else(|| unsupported(self.entry, "Unknown choice default variant"))?;
+        let value = match (selected, &expression.kind) {
+            (Variant::Decimal, LinkedExpressionKind::Literal(ScalarLiteral::Number(value))) => {
+                let number = nkdk_decimal::Decimal::parse(value)
+                    .map_err(|_| unsupported(self.entry, "Invalid decimal choice default"))?;
+                let (negative, digits, exponent) = number.parts();
+                format!("core::decimal::Decimal::constant({negative},{digits:?},{exponent})")
+            }
+            (
+                Variant::Calendar { .. },
+                LinkedExpressionKind::Literal(ScalarLiteral::Text(value)),
+            ) => {
+                let date = nkdk_conversion_core::calendar::Value::from_xml(value)
+                    .map_err(|_| unsupported(self.entry, "Invalid calendar choice default"))?;
+                format!(
+                    "const {{core::calendar::Value::from_parts({:?}).expect(\"validated calendar default\")}}",
+                    date.parts()
+                )
+            }
+            (
+                Variant::Boolean(..),
+                LinkedExpressionKind::Literal(ScalarLiteral::Boolean(value)),
+            ) => value.to_string(),
+            (Variant::Text(_), LinkedExpressionKind::Literal(ScalarLiteral::Text(value))) => {
+                format!("String::from({value:?})")
+            }
+            _ => {
+                return Err(unsupported(
+                    self.entry,
+                    "Choice default requires a declared scalar literal",
+                ));
+            }
+        };
+        Ok(format!("{name}::V{index}({value})"))
+    }
+
     pub(super) fn resolve(
         entry: &'a LinkedEntry,
         program: &'a Program<'a>,

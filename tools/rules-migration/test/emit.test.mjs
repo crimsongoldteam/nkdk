@@ -126,26 +126,32 @@ test('candidate generation shares fragments, rejects unknown parameters and prot
     const actualShape=new Map([[id,{id,imports:{item:'common.choice-item'},value:{kind:'sequence',item:{use:'item'}},representations:{yaml:{kind:type==='ChoiceParameters'?'record-mapping':'sequence'}}}],['common.choice-item',{value:{kind:'record'}}]]);
     assert.equal(mapProperty({...property,name:'choices',parameters:{type,yaml:'Выбор',xml:'Choice',xmlParents:['Properties'],defaultValueXMLRaw:''}},actualShape).status,'candidate');
   }
-  const fillValue=mapProperty({...property,name:'fillValue',parameters:{type:'MetadataValue',yaml:'ЗначениеЗаполнения',xml:'FillValue',xmlParents:['Properties'],defaultValueXMLRaw:{'_xsi:nil':true},exportNilValue:true}},new Map([['common.metadata-value',{id:'common.metadata-value',inputs:{onlyStringType:{type:{kind:'scalar',scalar:'boolean'}}}}]]));
+  const fillProfile=candidateCatalog().catalog.get('common.fill-value-profile');
+  const metadataValueCatalog=new Map([
+    ['common.metadata-value',{id:'common.metadata-value',inputs:{onlyStringType:{type:{kind:'scalar',scalar:'boolean'}}}}],
+    ['common.fill-value-profile',fillProfile],
+  ]);
+  const fillValue=mapProperty({...property,name:'fillValue',parameters:{type:'MetadataValue',yaml:'ЗначениеЗаполнения',xml:'FillValue',xmlParents:['Properties'],defaultValueXMLRaw:{'_xsi:nil':true},exportNilValue:true}},metadataValueCatalog);
   assert.equal(fillValue.id,'common.metadata-value');
   assert.deepEqual(fillValue.type.with,{exportNilValue:true});
   assert.equal(fillValue.siblingExpressions.onlyStringType.source,'type');
   assert.equal(fillValue.inputs.definedTypes.type.kind,'index');
   assert.deepEqual(fillValue.indexProviders,{definedTypes:'metadata.defined-type-alternatives'});
   assert.deepEqual(fillValue.ownerConstraints.bindings.definedTypes,{input:'definedTypes'});
-  assert.equal(fillValue.presence,undefined);
-  const emptyStringValue=mapProperty({...property,name:'fillValue',parameters:{type:'MetadataValue',yaml:'ЗначениеЗаполнения',xml:'FillValue',xmlParents:['Properties'],defaultValueXMLRaw:{'_xsi:type':'xs:string'}}},new Map([['common.metadata-value',{id:'common.metadata-value',inputs:{onlyStringType:{type:{kind:'scalar',scalar:'boolean'}}}}]]));
+  assert.equal(fillValue.presence.target.field,'fillValue');
+  assert.equal(fillValue.presence.yaml.missing.denotes.then.variant.name,'text');
+  const emptyStringValue=mapProperty({...property,name:'fillValue',parameters:{type:'MetadataValue',yaml:'ЗначениеЗаполнения',xml:'FillValue',xmlParents:['Properties'],defaultValueXMLRaw:{'_xsi:type':'xs:string'}}},metadataValueCatalog);
   assert.equal(emptyStringValue.status,'candidate');
-  assert.equal(emptyStringValue.presence,undefined);
+  assert.equal(emptyStringValue.presence.target.field,'fillValue');
   for(const exportNilValue of [false,'true']) {
     const incompatible=mapProperty({...property,name:'fillValue',parameters:{type:'MetadataValue',yaml:'ЗначениеЗаполнения',defaultValueXMLRaw:{'_xsi:nil':true},exportNilValue}},new Map([['common.metadata-value',{id:'common.metadata-value'}]]));
     assert.equal(incompatible.status,'blocked');
     assert.equal(incompatible.reason,'metadata-value-profile');
   }
-  const implicitNilValue=mapProperty({...property,name:'fillValue',parameters:{type:'MetadataValue',yaml:'ЗначениеЗаполнения',xml:'FillValue',xmlParents:['Properties'],defaultValueXMLRaw:{'_xsi:nil':true}}},new Map([['common.metadata-value',{id:'common.metadata-value',inputs:{onlyStringType:{type:{kind:'scalar',scalar:'boolean'}}}}]]));
+  const implicitNilValue=mapProperty({...property,name:'fillValue',parameters:{type:'MetadataValue',yaml:'ЗначениеЗаполнения',xml:'FillValue',xmlParents:['Properties'],defaultValueXMLRaw:{'_xsi:nil':true}}},metadataValueCatalog);
   assert.equal(implicitNilValue.id,'common.metadata-value');
-  assert.equal(implicitNilValue.presence,undefined);
-  const realProfile=mapProperty({...property,name:'fillValue',parameters:{type:'MetadataValue',yaml:'ЗначениеЗаполнения',xml:'FillValue',xmlParents:['Properties'],defaultValueXMLRaw:{'_xsi:type':'xs:string'},exportNilValue:true}},new Map([['common.metadata-value',{id:'common.metadata-value',inputs:{onlyStringType:{type:{kind:'scalar',scalar:'boolean'}}}}]]));
+  assert.equal(implicitNilValue.presence.target.field,'fillValue');
+  const realProfile=mapProperty({...property,name:'fillValue',parameters:{type:'MetadataValue',yaml:'ЗначениеЗаполнения',xml:'FillValue',xmlParents:['Properties'],defaultValueXMLRaw:{'_xsi:type':'xs:string'},exportNilValue:true}},metadataValueCatalog);
   assert.equal(realProfile.status,'candidate');
   const fillCompatibility=candidateCatalog().catalog.get('common.fill-value-compatibility');
   const fillOwner=emitCandidates([{
@@ -156,6 +162,7 @@ test('candidate generation shares fragments, rejects unknown parameters and prot
   }],new Map([
     ['common.type-description',{id:'common.type-description'}],
     ['common.metadata-value',{id:'common.metadata-value',inputs:{onlyStringType:{type:{kind:'scalar',scalar:'boolean'}}}}],
+    ['common.fill-value-profile',fillProfile],
     ['common.fill-value-compatibility',fillCompatibility],
   ]),()=> 'attribute.ts');
   const fillFragment=fillOwner.modules.find(module=>module.kind==='fragment');
@@ -163,7 +170,7 @@ test('candidate generation shares fragments, rejects unknown parameters and prot
   assert.equal(fillFragment.value.fields[1].type.with.exportNilValue,true);
   assert.deepEqual(fillFragment.value.fields[1].type.bind.onlyStringType,realProfile.siblingExpressions.onlyStringType.value);
   assert.equal(fillFragment.inputs?.onlyStringType,undefined);
-  assert.equal(fillFragment.presence.some(rule=>rule.target.field==='fillValue'),false);
+  assert.equal(fillFragment.presence.some(rule=>rule.target.field==='fillValue'),true);
   assert.equal(fillFragment.inputs.definedTypes.type.kind,'index');
   assert.equal(fillOwner.modules.find(module=>module.kind==='object').inputs.definedTypes.index,'metadata.defined-type-alternatives');
   const splitOwner=emitCandidates([{
@@ -174,16 +181,18 @@ test('candidate generation shares fragments, rejects unknown parameters and prot
   }],new Map([
     ['common.type-description',{id:'common.type-description'}],
     ['common.metadata-value',{id:'common.metadata-value',inputs:{onlyStringType:{type:{kind:'scalar',scalar:'boolean'}}}}],
+    ['common.fill-value-profile',fillProfile],
     ['common.fill-value-compatibility',fillCompatibility],
   ]),property=>property.name);
   const splitProjection=splitOwner.modules.find(module=>module.kind==='object');
-  assert.deepEqual(splitProjection.compose[1].bind.onlyStringType,realProfile.siblingExpressions.onlyStringType.value);
+  assert.equal(splitProjection.compose.length,1);
+  assert.deepEqual(splitProjection.compose[0].bind?.onlyStringType,undefined);
   assert.equal(splitProjection.inputs?.onlyStringType,undefined);
   const orphanValue=emitCandidates([{
     symbol:'OrphanRules',path:'orphan.ts',comparison:{status:'keys-match'},properties:[
       {...property,name:'fillValue',parameters:{type:'MetadataValue',yaml:'Значение',xml:'FillValue',xmlParents:['Properties'],defaultValueXMLRaw:{'_xsi:nil':true}}},
     ],
-  }],new Map([['common.metadata-value',{id:'common.metadata-value',inputs:{onlyStringType:{type:{kind:'scalar',scalar:'boolean'}}}}]]));
+  }],metadataValueCatalog);
   assert.equal(orphanValue.entries[0].properties[0].reason,'sibling-expression-required');
   assert.equal(orphanValue.entries[0].projections.length,0);
   const hiddenParameters={type:'SystemEnumeration',typeSE:'Example',yaml:'Скрытое',implicitValueYAML:'A',toYAML:false,fromYAML:false};
