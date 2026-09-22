@@ -217,6 +217,7 @@ pub(super) fn generate(entries: &[&LinkedEntry], program: &Program) -> Result<St
         }}
         core::facts::dependencies::DependencyPlan::new(dependencies,edge_budget).map_err(|error|RuntimeDiagnostic::new("fact.plan",format!("{{error:?}}")))
     }}"#).unwrap();
+    let mut snapshot_sources = Vec::new();
     for entry in entries
         .iter()
         .filter(|entry| !entry.contributions.is_empty())
@@ -225,6 +226,7 @@ pub(super) fn generate(entries: &[&LinkedEntry], program: &Program) -> Result<St
             && let Some(projection) = collections::generate(entry, program, &names)?
         {
             out.push_str(&projection);
+            snapshot_sources.push((entry.id, format!("read_xml_fact_{}", entry.id)));
             continue;
         }
         // Other generated layouts have distinct storage; never silently project
@@ -249,6 +251,9 @@ pub(super) fn generate(entries: &[&LinkedEntry], program: &Program) -> Result<St
         } else {
             format!("read_xml_{id}")
         };
+        if scalar_xml_projection(entry, program) {
+            snapshot_sources.push((id, read_xml.clone()));
+        }
         let checks = if super::owner::applies(entry, program) {
             format!(
                 "if matches!(direction,Direction::YamlToXml) && value.root.is_some() {{let issues=check_yaml_{id}(&value,source,inputs);if issues.iter().any(|issue|issue.severity==Severity::Error) {{return Err(issues);}}}}"
@@ -313,5 +318,18 @@ pub(super) fn generate(entries: &[&LinkedEntry], program: &Program) -> Result<St
         }
     }
     out.push_str("_=>Err(vec![RuntimeDiagnostic::new(\"entry.unknown\",\"Unknown generated entry\")])});match result {Ok(())=>Vec::new(),Err(errors)=>{for index in contribution_indexes(entry) {let _=builder.mark_unready(*index);}errors}}}\n");
+    if snapshot_sources.is_empty() {
+        out.push_str("pub fn snapshot_fact_source(entry:EntryId,source:&[u8],inputs:&PreparedInputs)->core::Result<Vec<u8>> {let _=source;inputs.check_entry(entry)?;Err(RuntimeDiagnostic::new(\"fact.snapshot\",\"Source does not have a supported fact snapshot\"))}\n");
+    } else {
+        out.push_str("pub fn snapshot_fact_source(entry:EntryId,source:&[u8],inputs:&PreparedInputs)->core::Result<Vec<u8>> {inputs.check_entry(entry)?;let view=inputs.view();match entry.0 {\n");
+        for (id, read_xml) in snapshot_sources {
+            writeln!(
+                out,
+                "{id}=>{{let value={read_xml}(source,&view)?;write_yaml_{id}(&value,&view)}},"
+            )
+            .unwrap();
+        }
+        out.push_str("_=>Err(RuntimeDiagnostic::new(\"fact.snapshot\",\"Source does not have a supported fact snapshot\"))}}\n");
+    }
     Ok(out)
 }

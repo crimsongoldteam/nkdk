@@ -124,6 +124,7 @@ pub(in crate::generate) fn accessors(
                 owner,
                 part,
                 program,
+                slot,
                 &path,
             )?);
             continue;
@@ -144,6 +145,7 @@ fn nested_contribution(
     owner: &LinkedEntry,
     part: &LinkedEntry,
     program: &Program,
+    owner_root: u32,
     path: &[u32],
 ) -> Result<String, Diagnostic> {
     let Some(iteration) = &contribution.for_each else {
@@ -160,14 +162,14 @@ fn nested_contribution(
     };
     let (root, _) = super::collection_path(&iteration.input).expect("validated path");
     let xml_missing = owner.presence.iter().any(|rule| {
-        rule.target == LinkedPresenceTarget::Field(root)
+        rule.target == LinkedPresenceTarget::Field(owner_root)
             && rule
                 .xml_missing
                 .as_ref()
                 .is_some_and(|value| matches!(value.kind, LinkedExpressionKind::Absent))
     });
     let yaml_missing = owner.presence.iter().any(|rule| {
-        rule.target == LinkedPresenceTarget::Field(root)
+        rule.target == LinkedPresenceTarget::Field(owner_root)
             && rule
                 .yaml_missing
                 .as_ref()
@@ -197,7 +199,7 @@ fn nested_contribution(
     let value = lowered.lower(&contribution.value)?;
     let value = super::super::expressions::Expressions::text_reference(&contribution.value, value);
     let mut out = format!(
-        "pub(super) fn contribute_{ordinal}(value:&Stored,context:&[Option<&str>],direction:Direction,source:&[u8],inputs:&InputView<'_>,builder:&mut core::facts::prepared::TextFactsBuilder)->std::result::Result<(),Vec<RuntimeDiagnostic>> {{let issues=match direction {{Direction::XmlToYaml=>check_xml(value,source,inputs),Direction::YamlToXml=>check_yaml(value,source,inputs)}};if issues.iter().any(|issue|issue.severity==Severity::Error) {{return Err(issues);}}let normal_missing=match direction {{Direction::XmlToYaml=>{xml_missing},Direction::YamlToXml=>{yaml_missing}}};let record=match input_field(value,{root}) {{Some(core::inputs::InputRef::Record(record))=>Some(record),None if issues.is_empty()&&normal_missing=>None,_=>return Err(vec![RuntimeDiagnostic::new(\"fact.unready\",\"Contribution record is unavailable\")])}};"
+        "pub(super) fn contribute_{ordinal}(value:&Stored,context:&[Option<&str>],direction:Direction,source:&[u8],inputs:&InputView<'_>,builder:&mut core::facts::prepared::TextFactsBuilder)->std::result::Result<(),Vec<RuntimeDiagnostic>> {{let issues=match direction {{Direction::XmlToYaml=>check_xml(value,source,inputs),Direction::YamlToXml=>check_yaml(value,source,inputs)}};if issues.iter().any(|issue|issue.severity==Severity::Error) {{return Err(issues);}}let normal_missing=match direction {{Direction::XmlToYaml=>{xml_missing},Direction::YamlToXml=>{yaml_missing}}};let record=match input_field(value,{root}) {{Some(core::inputs::InputRef::Record(record))=>Some(record),None if normal_missing=>None,_=>return Err(vec![RuntimeDiagnostic::new(\"fact.unready\",\"Contribution record is unavailable\")])}};"
     );
     for slot in &path[..path.len() - 1] {
         writeln!(out,"let record=match record {{Some(record)=>match record.field({slot}) {{Some(core::inputs::InputRef::Record(record))=>Some(record),_=>return Err(vec![RuntimeDiagnostic::new(\"fact.unready\",\"Contribution record is unavailable\")])}},None=>None}};").unwrap();

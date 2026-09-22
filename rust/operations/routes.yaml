@@ -1,0 +1,21 @@
+format: nkdk-operation-routes/1
+routes:
+- xmlDir: DefinedTypes
+  yamlDir: ОпределяемыйТип
+  owners:
+    cf: metadata.defined-type
+    cfe: metadata.defined-type-extension
+  inputs:
+    ownerName: name
+    component: component
+    parent: parent
+    defaultLanguage: defaultLanguage
+    registeredLanguages: registeredLanguages
+  sources:
+  - entry: migration.defined-type-own-identity
+    inputs: {component: component, parent: parent}
+  - entry: migration.defined-type-base-identity
+    only: [cfe]
+    inputs: {component: component}
+  - entry: migration.defined-type-internal-types
+    inputs: {ownerName: name, component: component, parent: parent}

@@ -483,6 +483,7 @@ dependencies = [
  "nkdk-compiled-rules",
  "nkdk-conversion-core",
  "serde_json",
+ "yaml-rust2",
 ]
 
 [[package]]

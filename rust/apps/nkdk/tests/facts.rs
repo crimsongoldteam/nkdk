@@ -302,13 +302,13 @@ fn complete_enumeration_values_use_the_working_operation_in_both_directions() {
 #[test]
 fn defined_type_owner_receives_prepared_internal_ids_in_the_working_operation() {
     use nkdk::operation::{Conversion, Request, prepare as convert};
+    use nkdk::route::{Context, Material, catalog};
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..");
     let cases = [
         (
             "ОпределяемыйТипВсеСвойства",
             "cf",
             "426da0c0-ee05-4af5-a132-c7874136d3bf",
-            None,
             include_bytes!(
                 "../../../../e2e/fixtures/xml/cf/DefinedTypes/ОпределяемыйТипВсеСвойства.xml"
             ) as &[u8],
@@ -320,7 +320,6 @@ fn defined_type_owner_receives_prepared_internal_ids_in_the_working_operation() 
             "ОпределяемыйТипПоУмолчанию",
             "cf",
             "61ac73bb-6f4a-4cde-8559-f04443dbc1cc",
-            None,
             include_bytes!(
                 "../../../../e2e/fixtures/xml/cf/DefinedTypes/ОпределяемыйТипПоУмолчанию.xml"
             ),
@@ -332,7 +331,6 @@ fn defined_type_owner_receives_prepared_internal_ids_in_the_working_operation() 
             "ОпределяемыйТипВсеСвойства",
             "cfe",
             "4ca2ea3b-664b-4f27-b272-21d4943b0e30",
-            Some("426da0c0-ee05-4af5-a132-c7874136d3bf"),
             include_bytes!(
                 "../../../../e2e/fixtures/xml/cfe/all-extension/DefinedTypes/ОпределяемыйТипВсеСвойства.xml"
             ),
@@ -344,7 +342,6 @@ fn defined_type_owner_receives_prepared_internal_ids_in_the_working_operation() 
             "ОпределяемыйТипПоУмолчанию",
             "cfe",
             "56b53617-eb69-452b-873e-35aa362c7001",
-            Some("61ac73bb-6f4a-4cde-8559-f04443dbc1cc"),
             include_bytes!(
                 "../../../../e2e/fixtures/xml/cfe/all-extension/DefinedTypes/ОпределяемыйТипПоУмолчанию.xml"
             ),
@@ -353,63 +350,71 @@ fn defined_type_owner_receives_prepared_internal_ids_in_the_working_operation() 
             ),
         ),
     ];
-    for (name, component, own_id, base_id, xml, yaml) in cases {
-        let owner = entry_id(if base_id.is_some() {
-            "metadata.defined-type-extension"
-        } else {
-            "metadata.defined-type"
-        })
-        .unwrap();
-        let internal = entry_id("migration.defined-type-internal-types").unwrap();
-        let identity = entry_id("migration.defined-type-own-identity").unwrap();
-        let context = serde_json::json!({
-            "ownerName": name,
-            "component": component,
-            "parent": "configuration",
-            "defaultLanguage": "ru",
-            "registeredLanguages": ["ru", "en"]
-        });
-        let sources = || {
-            let mut sources = vec![
-                Source {
-                    entry: internal,
-                    direction: Direction::XmlToYaml,
-                    bytes: xml,
-                    inputs: read_inputs(internal, &serde_json::to_vec(&serde_json::json!({"ownerName": name, "component": component, "parent": "configuration"})).unwrap()).unwrap(),
-                },
-                Source {
-                    entry: identity,
-                    direction: Direction::XmlToYaml,
-                    bytes: xml,
-                    inputs: read_inputs(identity, &serde_json::to_vec(&serde_json::json!({"component": component, "parent": "configuration"})).unwrap()).unwrap(),
-                },
-            ];
-            if base_id.is_some() {
-                let entry = entry_id("migration.defined-type-base-identity").unwrap();
-                sources.push(Source {
-                    entry,
-                    direction: Direction::XmlToYaml,
-                    bytes: xml,
-                    inputs: read_inputs(
-                        entry,
-                        &serde_json::to_vec(&serde_json::json!({"component": component})).unwrap(),
-                    )
-                    .unwrap(),
-                });
-            }
-            sources.push(Source {
-                entry: owner,
-                direction: Direction::XmlToYaml,
-                bytes: xml,
-                inputs: read_inputs(owner, &serde_json::to_vec(&context).unwrap()).unwrap(),
-            });
-            sources
+    for (name, component, own_id, xml, yaml) in cases {
+        let context = Context {
+            component,
+            parent: "configuration",
+            default_language: "ru",
+            registered_languages: &["ru", "en"],
         };
+        let import_path = format!("DefinedTypes/{name}.xml");
+        let import_route = catalog()
+            .resolve(
+                std::path::Path::new(&import_path),
+                Direction::XmlToYaml,
+                Material::Xml(xml),
+                &context,
+            )
+            .unwrap()
+            .expect("declared route");
+        assert_eq!(
+            import_route.source_names.len(),
+            import_route.owner_source_index
+        );
+        let captured = catalog()
+            .capture(std::path::Path::new(&import_path), xml, &context)
+            .unwrap()
+            .expect("declared source snapshots");
+        let yaml_path = format!("ОпределяемыйТип/{name}.yaml");
+        let temp_root = std::env::temp_dir().join(format!(
+            "nkdk-facts-{}-{component}-{name}",
+            std::process::id()
+        ));
+        catalog()
+            .save_snapshots(
+                &temp_root,
+                std::path::Path::new(&yaml_path),
+                component,
+                &captured,
+            )
+            .unwrap();
+        let loaded = catalog()
+            .load_snapshots(&temp_root, std::path::Path::new(&yaml_path), component)
+            .unwrap();
+        std::fs::remove_dir_all(&temp_root).unwrap();
+        let snapshots: Vec<_> = loaded.iter().map(|snapshot| snapshot.borrow()).collect();
         for (direction, source) in [(Direction::XmlToYaml, xml), (Direction::YamlToXml, yaml)] {
+            let path = if matches!(direction, Direction::XmlToYaml) {
+                format!("DefinedTypes/{name}.xml")
+            } else {
+                yaml_path.clone()
+            };
+            let material = if matches!(direction, Direction::XmlToYaml) {
+                Material::Xml(xml)
+            } else {
+                Material::Yaml {
+                    owner: yaml,
+                    snapshots: &snapshots,
+                }
+            };
+            let routed = catalog()
+                .resolve(std::path::Path::new(&path), direction, material, &context)
+                .unwrap()
+                .expect("declared route");
             let result = convert(Request {
-                sources: sources(),
+                sources: routed.sources,
                 conversions: vec![Conversion {
-                    consumer_source_index: if base_id.is_some() { 3 } else { 2 },
+                    consumer_source_index: routed.owner_source_index,
                     direction,
                     primary: source,
                 }],
@@ -471,5 +476,106 @@ fn fact_projection_ignores_other_owner_fields_but_rejects_repeated_declared_fiel
             .iter()
             .any(|error| error.code.as_deref() == Some("xml.duplicate-field")),
         "{errors:?}"
+    );
+}
+
+#[test]
+fn declared_route_selects_the_owner_and_fact_sources_from_a_file_path() {
+    use nkdk::route::{Context, Material, catalog};
+    let xml = include_bytes!(
+        "../../../../e2e/fixtures/xml/cfe/all-extension/DefinedTypes/ОпределяемыйТипВсеСвойства.xml"
+    );
+    let context = Context {
+        component: "cfe",
+        parent: "configuration",
+        default_language: "ru",
+        registered_languages: &["ru", "en"],
+    };
+    let resolved = catalog()
+        .resolve(
+            std::path::Path::new("DefinedTypes/ОпределяемыйТипВсеСвойства.xml"),
+            Direction::XmlToYaml,
+            Material::Xml(xml),
+            &context,
+        )
+        .unwrap()
+        .expect("declared owner route");
+    assert_eq!(
+        resolved.sources[resolved.owner_source_index].entry.0,
+        entry_id("metadata.defined-type-extension").unwrap().0
+    );
+    assert_eq!(resolved.sources.len(), 4);
+    assert_eq!(
+        resolved.target_path,
+        std::path::Path::new("ОпределяемыйТип/ОпределяемыйТипВсеСвойства.yaml")
+    );
+}
+
+#[test]
+fn operation_route_grammar_works_for_an_unrelated_owner() {
+    use nkdk::route::{Catalog, Context, Material};
+    let catalog = Catalog::parse(
+        "format: nkdk-operation-routes/1\nroutes:\n- xmlDir: Other\n  yamlDir: Иное\n  owners: {cf: migration.metadata-uuid}\n  inputs: {component: component, owner: parent, kind: name}\n  sources: []\n",
+    )
+    .unwrap();
+    let context = Context {
+        component: "cf",
+        parent: "configuration",
+        default_language: "ru",
+        registered_languages: &["ru"],
+    };
+    let result = catalog
+        .resolve(
+            std::path::Path::new("Other/Example.xml"),
+            Direction::XmlToYaml,
+            Material::Xml(b"<Root/>"),
+            &context,
+        )
+        .unwrap()
+        .expect("second declarative route");
+    assert_eq!(result.sources.len(), 1);
+    assert_eq!(
+        result.target_path,
+        std::path::Path::new("Иное/Example.yaml")
+    );
+    assert!(Catalog::parse("format: nkdk-operation-routes/1\nroutes:\n- xmlDir: Other\n  yamlDir: ..\n  owners: {cf: migration.metadata-uuid}\n  inputs: {}\n  sources: []\n").is_err());
+}
+
+#[test]
+fn fact_source_snapshot_keeps_identity_without_the_original_xml() {
+    let entry = entry_id("migration.defined-type-own-identity").unwrap();
+    let xml = include_bytes!(
+        "../../../../e2e/fixtures/xml/cf/DefinedTypes/ОпределяемыйТипВсеСвойства.xml"
+    );
+    let inputs = read_inputs(entry, br#"{"component":"cf","parent":"configuration"}"#).unwrap();
+    let yaml = nkdk_compiled_rules::snapshot_fact_source(entry, xml, &inputs).unwrap();
+    let text = std::str::from_utf8(&yaml).unwrap();
+    assert!(text.contains("426da0c0-ee05-4af5-a132-c7874136d3bf"));
+    let prepared = prepare(
+        vec![Source {
+            entry,
+            direction: Direction::YamlToXml,
+            bytes: &yaml,
+            inputs,
+        }],
+        &[entry],
+        Generation(1),
+        operation_budget(10000),
+        10000,
+    )
+    .unwrap_or_else(|errors| panic!("{errors:?}"));
+    let identity = nkdk_compiled_rules::fact_id("metadata.own-identities").unwrap();
+    assert_eq!(
+        prepared.facts.lookup_parts(
+            Generation(1),
+            identity,
+            &[
+                "cf",
+                "DefinedType",
+                "ОпределяемыйТипВсеСвойства",
+                "configuration"
+            ]
+        ),
+        nkdk_conversion_core::facts::FactState::Ready("426da0c0-ee05-4af5-a132-c7874136d3bf")
     );
 }

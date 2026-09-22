@@ -1,4 +1,4 @@
-mod publication;
+use nkdk::publication;
 use nkdk_compiled_rules::{
     Direction, PreparedInputs, RuntimeDiagnostic, Severity, convert_file, entry_id, read_inputs,
     validate_file,
