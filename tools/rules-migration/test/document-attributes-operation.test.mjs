@@ -9,11 +9,17 @@ test('document attribute operation publishes its source-derived declarations and
   const catalog=yaml.load(readFileSync('rust/declarations/candidates/document-attributes.generated.yaml','utf8'));
   const owner=catalog.declarations.find(module=>module.id==='metadata.document-attributes');
   const fragment=catalog.declarations.find(module=>module.id==='fragment.document-attributes');
+  const joined=catalog.declarations.find(module=>module.id==='migration.document-attribute-form-links');
   assert.ok(owner);
+  assert.ok(joined);
+  assert.deepEqual(joined.compose.map(part=>part.use),['formLinks','attributes']);
   assert.deepEqual(fragment.representations.xml.fields[0].path,['md:MetaDataObject','md:Document','md:ChildObjects']);
   const cases=JSON.parse(readFileSync('tests/migration/document-attributes-operation.json','utf8'));
-  assert.equal(cases.cases.length,1);
+  assert.equal(cases.cases.length,3);
   assert.equal(cases.cases[0].entry,owner.id);
+  assert.equal(cases.cases[1].entry,joined.id);
+  assert.equal(cases.cases[2].entry,joined.id);
+  assert.match(cases.cases[2].id,/cfe$/);
   assert.equal(owner.contributions.some(item=>item.index==='metadata.owner-members'),true);
   assert.equal(cases.requirements.owner.operationTarget.kind,'namedCollectionTarget');
 });

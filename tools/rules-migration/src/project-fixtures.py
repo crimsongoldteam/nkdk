@@ -61,6 +61,59 @@ def select(request):
         }
         if not link_context['containingOwnerName'] or any(name is None for name in boolean_attributes):
             raise ValueError('Incomplete owner link context')
+    if 'ownerFields' in request:
+        contract = request['ownerFields']
+        selected = ET.Element(root.tag)
+        nested = ET.SubElement(selected, owner.tag)
+        properties = ET.SubElement(nested, MD + 'Properties')
+        source_properties = owner.find(MD + 'Properties')
+        for field in contract['properties']:
+            matches = source_properties.findall(MD + field['xml'])
+            if len(matches) != 1:
+                raise ValueError('Ambiguous owner property: ' + field['xml'])
+            properties.append(copy.deepcopy(matches[0]))
+        collection = contract['collection']
+        source_collection = owner.find(MD + 'ChildObjects')
+        if source_collection is None:
+            raise ValueError('Missing owner collection')
+        child_objects = ET.SubElement(nested, MD + 'ChildObjects')
+        for element in source_collection.findall(MD + collection['item']):
+            child_objects.append(copy.deepcopy(element))
+        serialized = ET.tostring(selected, encoding='unicode')
+        for prefix, uri in bindings.items():
+            if prefix and 'xmlns:' + prefix + '=' not in serialized and re.search(r'(?<![\w:])' + re.escape(prefix) + r':[\w.]+', serialized):
+                selected.set('xmlns:' + prefix, uri)
+        qname_paths = set()
+        def visit(element, path):
+            current = path + (element.tag,)
+            value = (element.text or '').strip()
+            if ':' in value and value.split(':', 1)[0] in bindings:
+                qname_paths.add(current)
+            for child in element:
+                visit(child, current)
+        visit(selected, ())
+        text = yaml_bytes.decode('utf-8-sig')
+        starts = list(re.finditer(r'^([^\s:#][^:\n]*):', text, re.M))
+        blocks = {}
+        for index, match in enumerate(starts):
+            end = starts[index + 1].start() if index + 1 < len(starts) else len(text)
+            blocks[match.group(1)] = text[match.start():end].rstrip()
+        keys = [field['yaml'] for field in contract['properties'] if field.get('yaml')] + [collection['yaml']]
+        if any(key not in blocks for key in keys):
+            raise ValueError('Missing owner YAML property')
+        owner_name = owner.findtext(MD + 'Properties/' + MD + 'Name')
+        owner_forms = [(form.text or '').strip() for form in source_collection.findall(MD + 'Form')]
+        if not owner_name or any(not name for name in owner_forms):
+            raise ValueError('Incomplete owner form context')
+        return {'xml': ET.tostring(selected, encoding='unicode'),
+                'yaml': '\n'.join(blocks[key] for key in keys),
+                'ownerIdentity': owner.attrib['uuid'],
+                'ownerPath': owner.tag.removeprefix(MD) + '.' + owner_name,
+                'ownerForms': owner_forms,
+                'xmlQNamePaths': [list(path) for path in sorted(qname_paths)],
+                **({'linkContext': link_context} if link_context is not None else {}),
+                'source': [{'path': str(path), 'sha256': hashlib.sha256(data).hexdigest()}
+                           for path, data in [(xml_path, xml_bytes), (yaml_path, yaml_bytes)]]}
     if request.get('internalTypes'):
         selected = ET.Element(root.tag)
         nested = ET.SubElement(selected, owner.tag)

@@ -1531,3 +1531,187 @@ declarations:
               var: row
             field: name
     id: fragment.document-attributes
+  - format: nkdk-declarations/1
+    kind: object
+    id: migration.document-attribute-form-links
+    imports:
+      formLinks: fragment.document-form-links
+      formLinks_rootKind: common.path-root
+      attributes: fragment.document-attributes
+      attributes_inputType1f8ea46361ff: common.path-root
+    inputs:
+      containingOwnerName:
+        type:
+          kind: scalar
+          scalar: text
+      formRoots:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: kind
+                type:
+                  use: formLinks_rootKind
+              - name: name
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+      attributeForms:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: parent
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: name
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+      ownerPath:
+        type:
+          kind: scalar
+          scalar: text
+      ownerForms:
+        type:
+          kind: sequence
+          item:
+            kind: scalar
+            scalar: text
+      defaultLanguage:
+        type:
+          kind: scalar
+          scalar: text
+      registeredLanguages:
+        type:
+          kind: sequence
+          item:
+            kind: scalar
+            scalar: text
+      definedTypes:
+        type:
+          kind: index
+          key:
+            kind: scalar
+            scalar: text
+          value:
+            kind: sequence
+            item:
+              kind: scalar
+              scalar: text
+      roots:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: kind
+                type:
+                  use: attributes_inputType1f8ea46361ff
+              - name: name
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+      ownerRoot:
+        type:
+          use: attributes_inputType1f8ea46361ff
+      attributes:
+        type:
+          kind: sequence
+          item:
+            kind: scalar
+            scalar: text
+      identities:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: component
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: kind
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: name
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+    compose:
+      - use: formLinks
+        bind:
+          ownerName:
+            input: containingOwnerName
+          roots:
+            input: formRoots
+          formTargets:
+            input: attributeForms
+          ownerPath:
+            input: ownerPath
+          forms:
+            input: ownerForms
+      - use: attributes
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          definedTypes:
+            input: definedTypes
+          roots:
+            input: roots
+          forms:
+            input: attributeForms
+          ownerRoot:
+            input: ownerRoot
+          attributes:
+            input: attributes
+          containingOwnerName:
+            input: containingOwnerName
+          identities:
+            input: identities
+          component:
+            input: component
+          owner:
+            input: owner
+    value:
+      kind: record
+      fields: []
+    representations:
+      xml:
+        kind: record
+        fields: []
+      yaml:
+        kind: mapping
+        fields: []
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses

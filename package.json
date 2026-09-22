@@ -31,6 +31,7 @@
     "migration:extract": "node tools/rules-migration/src/extract-cli.mjs",
     "migration:candidates": "node tools/rules-migration/src/emit-cli.mjs",
     "migration:families": "node tools/rules-migration/src/family-requirements-cli.mjs",
+    "test:migration-family": "node tools/rules-migration/src/family-check.mjs",
     "test:round-trip-batch": "node --test scripts/round-trip-batch.test.mjs scripts/round-trip-statistics.test.mjs scripts/normalize-xml-line-endings.test.mjs .agents/tools/mcp/build-compiled.test.mjs",
     "test:duplicates-script": "node --test scripts/check-new-duplicates.test.mjs",
     "test:unit-boundaries": "node --test scripts/unit-test-dependency-boundaries.test.mjs && node scripts/check-unit-test-dependencies.mjs",

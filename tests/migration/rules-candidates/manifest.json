@@ -13003,7 +13003,7 @@
   "declarationHashes": [
     {
       "path": "rust/declarations/candidates/document-attributes.generated.yaml",
-      "sha256": "16d257424c3a5fab2230411615e5138964087b0a091005930d6f941a5b1d9ba4"
+      "sha256": "78d01ec97f2c3d42ae838fc9bffef637531fd37a387feddad488136f2744fc14"
     },
     {
       "path": "rust/declarations/common/additional-index-row.yaml",
