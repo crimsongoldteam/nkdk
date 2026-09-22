@@ -95,7 +95,7 @@ AdditionalIndexes принят после проверки идентичнос�
 |---|---:|---:|
 | Общие объекты (common) | 90 | 24 |
 | Вложенные части общих объектов | 27 | 2 |
-| Прикладные объекты и их вложенные части | 57 | 1 |
+| Прикладные объекты и их вложенные части | 57 | 2 |
 | Формы, элементы и общие части форм | 66 | 0 |
 | Системные перечисления (весь каталог) | 1 | 1 |
 
@@ -252,7 +252,7 @@ AdditionalIndexes принят после проверки идентичнос�
 - [ ] [appliedObjects/metadataCommonTemplate](../../../packages/rules/metadata/appliedObjects/metadataCommonTemplate)
 - [ ] [appliedObjects/metadataConstant](../../../packages/rules/metadata/appliedObjects/metadataConstant)
 - [ ] [appliedObjects/metadataDataProcessor](../../../packages/rules/metadata/appliedObjects/metadataDataProcessor)
-- [ ] [appliedObjects/metadataDefinedType](../../../packages/rules/metadata/appliedObjects/metadataDefinedType)
+- [x] [appliedObjects/metadataDefinedType](../../../packages/rules/metadata/appliedObjects/metadataDefinedType) — 2026-09-22: [декларации](../../../rust/declarations/objects/defined-type.yaml), [проектные e2e-проверки](../../../rust/apps/nkdk/tests/facts.rs), [приёмка](../reports/2026-09-22-defined-type-owner.md).
 - [ ] [appliedObjects/metadataDocument](../../../packages/rules/metadata/appliedObjects/metadataDocument)
 - [ ] [appliedObjects/metadataDocumentJournal](../../../packages/rules/metadata/appliedObjects/metadataDocumentJournal)
 - [ ] [appliedObjects/metadataDocumentNumerator](../../../packages/rules/metadata/appliedObjects/metadataDocumentNumerator)
@@ -604,7 +604,12 @@ common не меняется: **24/90**. Пройдены 165 проверок �
 по `DefinedTypes/Имя.xml` или `ОпределяемыйТип/Имя.yaml` он выбирает профиль
 cf/cfe, имя из адреса и нужные источники фактов. Источники сохраняются одним
 YAML-снимком со стабильными именами деклараций в
-`.nkdk/facts/<компонент>/<путь объекта>.yaml`. Четыре e2e-пары проходят
-через атомарную запись и повторное чтение: обратный экспорт не получает
-исходный XML. Грамматика также проверена на другом владельце. Полный обход
-каталогов проекта ещё не подключён, поэтому флажок полного переноса пустой.
+`.nkdk/facts/<компонент>/<путь объекта>.yaml` внутри корня компонента. Общая
+операция обходит объявленные каталоги, готовит результаты до публикации и
+записывает ресурсы потоком. Два файла cf и два файла cfe проходят через запись
+и повторное открытие созданного YAML-проекта: обратный экспорт не получает
+исходный XML, а полные деревья XML совпадают по пространствам имён,
+атрибутам, значениям и порядку. Грамматика также проверена на другом
+владельце. Аномалия незарегистрированного языка также проходит полный
+проектный цикл. [Приёмка](../reports/2026-09-22-defined-type-owner.md)
+завершена; флажок `MetadataDefinedType` установлен, итог common — **24/90**.

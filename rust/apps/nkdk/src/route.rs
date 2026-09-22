@@ -396,6 +396,51 @@ impl Catalog {
         Ok(Some(snapshots))
     }
 
+    pub fn paths(
+        &self,
+        component_root: &Path,
+        component: &str,
+        direction: Direction,
+    ) -> Result<Vec<PathBuf>, String> {
+        let mut paths = Vec::new();
+        let extension = if matches!(direction, Direction::XmlToYaml) {
+            "xml"
+        } else {
+            "yaml"
+        };
+        for route in &self.routes {
+            if !route.owners.contains_key(component) {
+                continue;
+            }
+            let directory = if matches!(direction, Direction::XmlToYaml) {
+                &route.xml_dir
+            } else {
+                &route.yaml_dir
+            };
+            let entries = match fs::read_dir(component_root.join(directory)) {
+                Ok(entries) => entries,
+                Err(error) if error.kind() == std::io::ErrorKind::NotFound => continue,
+                Err(error) => return Err(error.to_string()),
+            };
+            for entry in entries {
+                let entry = entry.map_err(|error| error.to_string())?;
+                if entry
+                    .file_type()
+                    .map_err(|error| error.to_string())?
+                    .is_file()
+                    && entry
+                        .path()
+                        .extension()
+                        .is_some_and(|value| value == extension)
+                {
+                    paths.push(PathBuf::from(directory).join(entry.file_name()));
+                }
+            }
+        }
+        paths.sort();
+        Ok(paths)
+    }
+
     pub fn sidecar_path(
         &self,
         yaml_relative_path: &Path,

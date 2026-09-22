@@ -23,6 +23,93 @@ fn operation_limits() -> Limits {
     }
 }
 
+fn expanded_xml_name(namespace: quick_xml::name::ResolveResult<'_>, local: &str) -> String {
+    match namespace {
+        quick_xml::name::ResolveResult::Bound(namespace) => {
+            format!("{{{}}}{local}", namespace.as_ref())
+        }
+        quick_xml::name::ResolveResult::Unbound => local.into(),
+        quick_xml::name::ResolveResult::Unknown(prefix) => {
+            panic!("Unbound XML prefix: {prefix}")
+        }
+    }
+}
+
+fn normalized_xml(source: &str) -> Vec<String> {
+    use quick_xml::{events::Event, name::QName, reader::NsReader};
+    let mut reader = NsReader::from_str(source);
+    let mut result = Vec::new();
+    loop {
+        let event = reader.read_event().unwrap();
+        let empty = matches!(&event, Event::Empty(_));
+        match event {
+            Event::Start(element) | Event::Empty(element) => {
+                let (namespace, local) = reader.resolver().resolve_element(element.name());
+                let name = expanded_xml_name(namespace, local.as_ref());
+                let mut attributes = Vec::new();
+                for attribute in element.attributes() {
+                    let attribute = attribute.unwrap();
+                    let key = attribute.key.as_ref();
+                    if key == "xmlns" || key.starts_with("xmlns:") {
+                        continue;
+                    }
+                    let (namespace, local) = reader.resolver().resolve_attribute(attribute.key);
+                    let name = expanded_xml_name(namespace, local.as_ref());
+                    let value = attribute
+                        .normalized_value(quick_xml::XmlVersion::Implicit1_0)
+                        .unwrap();
+                    let value = if value.contains(':') && !value.contains(char::is_whitespace) {
+                        let (namespace, local) =
+                            reader.resolver().resolve_element(QName(value.as_ref()));
+                        if matches!(namespace, quick_xml::name::ResolveResult::Bound(_)) {
+                            expanded_xml_name(namespace, local.as_ref())
+                        } else {
+                            value.into_owned()
+                        }
+                    } else {
+                        value.into_owned()
+                    };
+                    attributes.push(format!("{name}={value}"));
+                }
+                attributes.sort();
+                result.push(format!("start {name} {attributes:?}"));
+                if empty {
+                    result.push(format!("end {name}"));
+                }
+            }
+            Event::End(element) => {
+                let (namespace, local) = reader.resolver().resolve_element(element.name());
+                result.push(format!(
+                    "end {}",
+                    expanded_xml_name(namespace, local.as_ref())
+                ));
+            }
+            Event::Text(content) => {
+                let value = quick_xml::escape::unescape(content.xml10_content().as_ref())
+                    .unwrap()
+                    .into_owned();
+                if value.trim().is_empty() {
+                    continue;
+                }
+                let value = if value.contains(':') && !value.contains(char::is_whitespace) {
+                    let (namespace, local) = reader.resolver().resolve_element(QName(&value));
+                    if matches!(namespace, quick_xml::name::ResolveResult::Bound(_)) {
+                        expanded_xml_name(namespace, local.as_ref())
+                    } else {
+                        value
+                    }
+                } else {
+                    value
+                };
+                result.push(format!("text {value}"));
+            }
+            Event::Eof => break,
+            _ => {}
+        }
+    }
+    result
+}
+
 #[test]
 fn operation_prepares_identity_once_and_returns_context_ready_for_reverse_conversion() {
     let entry = entry_id("migration.metadata-uuid").unwrap();
@@ -578,4 +665,178 @@ fn fact_source_snapshot_keeps_identity_without_the_original_xml() {
         ),
         nkdk_conversion_core::facts::FactState::Ready("426da0c0-ee05-4af5-a132-c7874136d3bf")
     );
+}
+
+#[test]
+fn declared_project_route_converts_a_component_after_reopening_its_yaml() {
+    use nkdk::{project, route::Context};
+    let repository = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..");
+    for (component, xml_root, fixture_yaml_root, expected_uuid) in [
+        (
+            "cf",
+            "e2e/fixtures/xml/cf",
+            "e2e/fixtures/nkdk/cf",
+            "426da0c0-ee05-4af5-a132-c7874136d3bf",
+        ),
+        (
+            "cfe",
+            "e2e/fixtures/xml/cfe/all-extension",
+            "e2e/fixtures/nkdk/cfe/Расширение_All",
+            "4ca2ea3b-664b-4f27-b272-21d4943b0e30",
+        ),
+    ] {
+        let temp_root = std::env::temp_dir().join(format!(
+            "nkdk-project-route-{}-{component}",
+            std::process::id()
+        ));
+        std::fs::create_dir_all(&temp_root).unwrap();
+        let yaml_root = temp_root.join("yaml");
+        let rebuilt_xml_root = temp_root.join("xml");
+        let context = || Context {
+            component,
+            parent: "configuration",
+            default_language: "ru",
+            registered_languages: &["ru", "en"],
+        };
+        let convert = |direction, source_root: &std::path::Path, target_root: &std::path::Path| {
+            project::convert_component(project::Request {
+                source_root,
+                target_root,
+                temporary_parent: &temp_root,
+                context: context(),
+                direction,
+                generation: Generation(1),
+                fact_budget: operation_budget(10000),
+                edge_budget: 10000,
+                limits: operation_limits(),
+                xml_bytes: 1000000,
+            })
+            .unwrap_or_else(|errors| panic!("{component} {direction:?}: {errors:?}"))
+        };
+        let imported = convert(Direction::XmlToYaml, &repository.join(xml_root), &yaml_root);
+        assert_eq!(imported.outputs.len(), 2);
+        for path in &imported.outputs {
+            let expected =
+                std::fs::read_to_string(repository.join(fixture_yaml_root).join(path)).unwrap();
+            let actual = std::fs::read_to_string(yaml_root.join(path)).unwrap();
+            assert_eq!(
+                yaml_rust2::YamlLoader::load_from_str(&expected).unwrap(),
+                yaml_rust2::YamlLoader::load_from_str(&actual).unwrap(),
+                "{component}: {}",
+                path.display()
+            );
+        }
+        let exported = convert(Direction::YamlToXml, &yaml_root, &rebuilt_xml_root);
+        assert_eq!(exported.outputs.len(), 2);
+        for path in &exported.outputs {
+            let original = std::fs::read_to_string(repository.join(xml_root).join(path)).unwrap();
+            let rebuilt = std::fs::read_to_string(rebuilt_xml_root.join(path)).unwrap();
+            assert_eq!(
+                normalized_xml(&original),
+                normalized_xml(&rebuilt),
+                "{component}: {}",
+                path.display()
+            );
+        }
+        let result = std::fs::read_to_string(
+            rebuilt_xml_root.join("DefinedTypes/ОпределяемыйТипВсеСвойства.xml"),
+        )
+        .unwrap();
+        assert!(result.contains(expected_uuid), "{result}");
+        assert!(result.contains("InternalInfo>"), "{result}");
+        let owner_path = std::path::Path::new("ОпределяемыйТип/ОпределяемыйТипВсеСвойства.yaml");
+        let sidecar = nkdk::route::catalog()
+            .sidecar_path(owner_path, component)
+            .unwrap()
+            .unwrap();
+        std::fs::remove_file(yaml_root.join(sidecar)).unwrap();
+        let incomplete = project::convert_component(project::Request {
+            source_root: &yaml_root,
+            target_root: &temp_root.join("incomplete"),
+            temporary_parent: &temp_root,
+            context: context(),
+            direction: Direction::YamlToXml,
+            generation: Generation(1),
+            fact_budget: operation_budget(10000),
+            edge_budget: 10000,
+            limits: operation_limits(),
+            xml_bytes: 1000000,
+        })
+        .err()
+        .expect("missing prepared identities must be reported");
+        assert!(
+            incomplete
+                .iter()
+                .any(|error| error.code.as_deref() == Some("project.snapshot"))
+        );
+        assert!(!temp_root.join("incomplete").exists());
+        std::fs::remove_dir_all(temp_root).unwrap();
+    }
+}
+
+#[test]
+fn declared_project_route_reports_invalid_language_as_an_anomaly() {
+    use nkdk::{project, route::Context};
+    let xml =
+        include_str!("../../../../e2e/fixtures/xml/cf/DefinedTypes/ОпределяемыйТипВсеСвойства.xml")
+            .replace("<v8:lang>ru</v8:lang>", "<v8:lang>zz</v8:lang>");
+    let temp_root =
+        std::env::temp_dir().join(format!("nkdk-project-anomaly-{}", std::process::id()));
+    let source_root = temp_root.join("source");
+    let target_root = temp_root.join("target");
+    std::fs::create_dir_all(source_root.join("DefinedTypes")).unwrap();
+    std::fs::write(
+        source_root.join("DefinedTypes/ОпределяемыйТипВсеСвойства.xml"),
+        &xml,
+    )
+    .unwrap();
+    let report = project::convert_component(project::Request {
+        source_root: &source_root,
+        target_root: &target_root,
+        temporary_parent: &temp_root,
+        context: Context {
+            component: "cf",
+            parent: "configuration",
+            default_language: "ru",
+            registered_languages: &["ru", "en"],
+        },
+        direction: Direction::XmlToYaml,
+        generation: Generation(1),
+        fact_budget: operation_budget(10000),
+        edge_budget: 10000,
+        limits: operation_limits(),
+        xml_bytes: 1000000,
+    })
+    .unwrap_or_else(|errors| panic!("{errors:?}"));
+    assert_eq!(report.outputs.len(), 1);
+    let yaml = std::fs::read_to_string(
+        target_root.join("ОпределяемыйТип/ОпределяемыйТипВсеСвойства.yaml"),
+    )
+    .unwrap();
+    assert!(yaml.contains("!xml/invalid zz"), "{yaml}");
+    let rebuilt_root = temp_root.join("rebuilt");
+    let exported = project::convert_component(project::Request {
+        source_root: &target_root,
+        target_root: &rebuilt_root,
+        temporary_parent: &temp_root,
+        context: Context {
+            component: "cf",
+            parent: "configuration",
+            default_language: "ru",
+            registered_languages: &["ru", "en"],
+        },
+        direction: Direction::YamlToXml,
+        generation: Generation(1),
+        fact_budget: operation_budget(10000),
+        edge_budget: 10000,
+        limits: operation_limits(),
+        xml_bytes: 1000000,
+    })
+    .unwrap_or_else(|errors| panic!("{errors:?}"));
+    assert_eq!(exported.outputs.len(), 1);
+    let rebuilt =
+        std::fs::read_to_string(rebuilt_root.join("DefinedTypes/ОпределяемыйТипВсеСвойства.xml"))
+            .unwrap();
+    assert_eq!(normalized_xml(&xml), normalized_xml(&rebuilt));
+    std::fs::remove_dir_all(temp_root).unwrap();
 }

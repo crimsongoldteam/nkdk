@@ -482,6 +482,7 @@ version = "0.1.0"
 dependencies = [
  "nkdk-compiled-rules",
  "nkdk-conversion-core",
+ "quick-xml",
  "serde_json",
  "yaml-rust2",
 ]
