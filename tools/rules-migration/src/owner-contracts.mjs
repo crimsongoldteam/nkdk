@@ -58,7 +58,7 @@ export function ownerContracts(manifest,catalog,snapshot) {
       continue;
     }
     if(symbol==='MetadataDocumentAttributeRules') {
-      for(const name of ['СтроковыйРеквизит','РеквизитБулево','ПолныйРеквизит'])requests.push({entry:projection.id,name,fields,xmlItems:[{type:'Attribute',name}],yamlPath:['Реквизиты',name],xml:'e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства.xml',yaml:'e2e/fixtures/nkdk/cf/Документ/ДокументВсеСвойства/Свойства.yaml'});
+      for(const name of ['СтроковыйРеквизит','РеквизитБулево','ПолныйРеквизит'])requests.push({entry:projection.id,name,fields,linkContext:true,xmlItems:[{type:'Attribute',name}],yamlPath:['Реквизиты',name],xml:'e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства.xml',yaml:'e2e/fixtures/nkdk/cf/Документ/ДокументВсеСвойства/Свойства.yaml'});
       continue;
     }
     if(symbol==='MetadataCatalogAttributeRules') {
@@ -100,7 +100,7 @@ export function ownerContracts(manifest,catalog,snapshot) {
   const results=JSON.parse(execFileSync('python3',['tools/rules-migration/src/project-fixtures.py'],{input:JSON.stringify(requests),encoding:'utf8'}));
   const cases=results.map((result,index)=>{
     const request=requests[index],definition=catalog.get(request.entry);
-    const values={defaultLanguage:'ru',registeredLanguages:['ru','en'],ownerName:request.name,...request.context?.values};
+    const values={defaultLanguage:'ru',registeredLanguages:['ru','en'],ownerName:request.name,...request.context?.values,...result.linkContext};
     const factBindings=Object.fromEntries(Object.entries(definition.inputs??{}).flatMap(([name,input])=>{
       const index=input.index??(['roots','children'].includes(name)?`metadata.${name}`:null);
       return typeof index==='string'?[[name,index]]:[];

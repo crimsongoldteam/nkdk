@@ -1,0 +1,17 @@
+format: nkdk-declarations/1
+kind: object
+id: test.declared-empty-rows
+imports: {rows: common.rows}
+value: {kind: record, fields: [{name: rows, type: {use: rows}}]}
+representations:
+  xml: {kind: record, fields: [{field: rows, path: [Root, Rows]}]}
+  yaml: {kind: mapping, fields: [{field: rows, key: Rows}]}
+presence:
+- target: {field: rows}
+  xml:
+    missing: {denotes: {absent: true}}
+    empty: [{form: empty-element, denotes: {absent: true}}]
+    canonical:
+    - {when: {not: {present: {field: rows}}}, form: empty-element}
+    - {form: ordinary}
+  yaml: {missing: {denotes: {absent: true}}}

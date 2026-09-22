@@ -109,14 +109,22 @@ test('candidate generation shares fragments, rejects unknown parameters and prot
   assert.deepEqual(Object.keys(choiceForm.inputs),['roots','forms']);
   const storageField=mapProperty({...property,name:'binaryDataStorageLocationUseField',parameters:{type:'MetadataItemLink',yaml:'Поле',xml:'BinaryDataStorageLocationUseField',xmlParents:['Properties'],metadataTarget:{kind:'member',owner:'this',memberKinds:['Attribute'],filters:[{kind:'directMember'},{kind:'hasType',type:'boolean'}]}}},metadataLinkCatalog);
   assert.equal(storageField.id,'common.owner-attribute-link');
-  assert.deepEqual(Object.keys(storageField.inputs),['ownerRoot','ownerName','attributes']);
+  assert.deepEqual(Object.keys(storageField.inputs),['ownerRoot','attributes','containingOwnerName']);
+  assert.deepEqual(storageField.type.bind.ownerName,{input:'containingOwnerName'});
+  const mixedPresence=new Map([[storageField.id,{
+    id:storageField.id,value:{kind:'record'},presence:[
+      {target:{field:'owner'},yaml:{default:{input:'ownerName'}}},
+      {target:'self',xml:{missing:{denotes:{absent:true}}}},
+    ],
+  }]]);
+  assert.equal(mapProperty({...property,name:'binaryDataStorageLocationUseField',parameters:{type:'MetadataItemLink',yaml:'Поле',xml:'BinaryDataStorageLocationUseField',xmlParents:['Properties'],metadataTarget:{kind:'member',owner:'this',memberKinds:['Attribute'],filters:[{kind:'directMember'},{kind:'hasType',type:'boolean'}]}}},mixedPresence).status,'candidate');
   for(const [type,id] of [['ChoiceParameterLinks','common.choice-parameter-links'],['ChoiceParameters','common.choice-parameters']]) {
     const mapped=mapProperty({...property,name:'choices',parameters:{type,yaml:'Выбор',xml:'Choice',xmlParents:['Properties'],defaultValueXMLRaw:''}},new Map([[id,{id}]]));
     assert.equal(mapped.id,id);
     assert.deepEqual(mapped.presence.xml.canonical,[{when:{not:{present:{field:'choices'}}},form:'empty-element'}]);
     assert.deepEqual(mapped.presence.yaml.missing,{denotes:{absent:true}});
     const actualShape=new Map([[id,{id,imports:{item:'common.choice-item'},value:{kind:'sequence',item:{use:'item'}},representations:{yaml:{kind:type==='ChoiceParameters'?'record-mapping':'sequence'}}}],['common.choice-item',{value:{kind:'record'}}]]);
-    assert.equal(mapProperty({...property,name:'choices',parameters:{type,yaml:'Выбор',xml:'Choice',xmlParents:['Properties'],defaultValueXMLRaw:''}},actualShape).reason,'declared-collection-presence-backend');
+    assert.equal(mapProperty({...property,name:'choices',parameters:{type,yaml:'Выбор',xml:'Choice',xmlParents:['Properties'],defaultValueXMLRaw:''}},actualShape).status,'candidate');
   }
   const fillValue=mapProperty({...property,name:'fillValue',parameters:{type:'MetadataValue',yaml:'ЗначениеЗаполнения',xml:'FillValue',xmlParents:['Properties'],defaultValueXMLRaw:{'_xsi:nil':true},exportNilValue:true}},new Map([['common.metadata-value',{id:'common.metadata-value',inputs:{onlyStringType:{type:{kind:'scalar',scalar:'boolean'}}}}]]));
   assert.equal(fillValue.id,'common.metadata-value');

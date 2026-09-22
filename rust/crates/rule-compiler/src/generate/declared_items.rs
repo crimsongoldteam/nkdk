@@ -223,17 +223,48 @@ pub(super) fn generate_at(
     let mut presence = collection_presence::override_for(&common, entry, bindings, arguments)?
         .unwrap_or(common.clone());
     presence.value = LinkedType::Sequence(Box::new(row.value.clone()));
-    if presence.presence.iter().any(|rule| {
-        !rule.xml_empty.is_empty()
-            || !rule.yaml_empty.is_empty()
-            || rule.yaml_omit_when.is_some()
-            || !rule.canonical.is_empty()
-    }) {
+    if presence
+        .presence
+        .iter()
+        .any(|rule| !rule.yaml_empty.is_empty() || rule.yaml_omit_when.is_some())
+    {
         return Err(unsupported(
             entry,
             "This collection presence contract requires an additional sequence expression backend",
         ));
     }
+    let self_presence = presence
+        .presence
+        .iter()
+        .find(|rule| rule.target == LinkedPresenceTarget::SelfValue);
+    let empty_xml = self_presence
+        .and_then(|rule| {
+            rule.xml_empty
+                .iter()
+                .find(|form| form.form == EmptyKind::Element)
+        })
+        .map(|form| {
+            super::declared_construction::missing(
+                Some(&form.denotes),
+                &presence,
+                &row,
+                program,
+                body.constructible,
+                entry.id,
+            )
+        })
+        .transpose()?;
+    if self_presence.is_some_and(|rule| {
+        rule.xml_empty
+            .iter()
+            .any(|form| form.form != EmptyKind::Element)
+    }) {
+        return Err(unsupported(
+            entry,
+            "Declared collection supports an empty XML element but not another empty form",
+        ));
+    }
+    let canonical = collection_canonical(entry, program, self_presence)?;
     let missing = |xml: bool| -> Result<String, Diagnostic> {
         let rule = presence
             .presence
@@ -284,6 +315,14 @@ pub(super) fn generate_at(
         .replace("@shared@", &shared.to_string())
         .replace("@headers@", &headers)
         .replace("@extra_namespaces@", &namespace_code)
+        .replace("@canonical_function@", &canonical.0)
+        .replace("@canonical_guard@", &canonical.1)
+        .replace(
+            "@empty_xml@",
+            empty_xml
+                .as_deref()
+                .unwrap_or("V@id@{rows:Vec::new(),present:true,raw:None}"),
+        )
         .replace(
             "@yaml_present@",
             if hidden {
@@ -352,8 +391,64 @@ pub(super) fn generate_at(
     Ok(Some(code))
 }
 
+fn collection_canonical(
+    entry: &LinkedEntry,
+    program: &Program,
+    presence: Option<&LinkedPresence>,
+) -> Result<(String, String), Diagnostic> {
+    let Some(presence) = presence else {
+        return Ok((String::new(), String::new()));
+    };
+    if presence.canonical.is_empty() {
+        return Ok((String::new(), String::new()));
+    }
+    if presence
+        .canonical
+        .iter()
+        .any(|form| form.xml_type.is_some())
+    {
+        return Err(unsupported(
+            entry,
+            "Typed collection boundary is not generated",
+        ));
+    }
+    let LinkedType::Record(fields) = &entry.value else {
+        unreachable!()
+    };
+    let storage = vec![("_value.rows".into(), "_value.present".into())];
+    let mut context = expressions::Expressions::new(entry, program, fields, Some(&storage));
+    let body = canonical::selection(&presence.canonical, |condition| {
+        let mut condition = condition.clone();
+        collection_owner_expression(&mut condition);
+        context.lower(&condition)
+    })?;
+    let definition = format!(
+        "{}fn collection_form_{}(_value:&V{},_inputs:&InputView<'_>)->core::Result<usize>{{{body}}}\n",
+        context.constants, entry.id, entry.id
+    );
+    let guard = format!(
+        "match collection_form_{}(value,inputs)?{{1=>return Ok(()),2=>{{out.ensure_container(@parent@);return Ok(())}},3=>{{out.field_with_attributes(@parent@,\"\",{});return Ok(())}},_=>{{}}}}",
+        entry.id,
+        super::scalar_presence::absent_attributes(&XmlForm::Nil)
+    );
+    Ok((definition, guard))
+}
+
+fn collection_owner_expression(value: &mut LinkedExpression) {
+    match &mut value.kind {
+        LinkedExpressionKind::SelfValue => value.kind = LinkedExpressionKind::Field(0),
+        LinkedExpressionKind::Operation { arguments, .. } => {
+            for argument in arguments {
+                collection_owner_expression(argument);
+            }
+        }
+        _ => {}
+    }
+}
+
 const RUNTIME: &str = r#"
 @item@
+@canonical_function@
 fn decode_raw_@id@(source:&[u8])->core::Result<Option<core::raw::Document>>{if @root_yaml@{core::raw::Document::decode(source)}else{Ok(core::raw::Property::decode(source,@key@,@physical@)?.map(|v|core::raw::Document{meaning:v.meaning,payload:v.payload}))}}
 fn encode_raw_@id@(meaning:&[u8],payload:&[u8])->core::Result<Vec<u8>>{if @root_yaml@{core::raw::Document::encode(meaning,payload)}else{core::raw::Property::encode(@key@,@physical@,meaning,payload)}}
 struct V@id@{rows:Vec<item_@id@::Stored>,present:bool,raw:Option<core::xml::Patch>}
@@ -371,7 +466,9 @@ if matches!(token,core::xml::Token::End) && core::xml::matches(path,@route@){sel
 Ok(())
 }}
 fn finish_xml_@id@(state:XmlCollection@id@,source:&[u8],inputs:&InputView<'_>)->core::Result<V@id@>{if state.active.is_some(){return Err(RuntimeDiagnostic::new("value.missing","Missing collection"));}
-if !state.present{return Ok(@xml_missing@)}Ok(V@id@{rows:state.rows.into_iter().map(|reader|reader.finish(source,inputs)).collect::<core::Result<Vec<_>>>()?,present:state.present,raw:None})}
+if !state.present{return Ok(@xml_missing@)}
+if state.rows.is_empty(){return Ok(@empty_xml@)}
+Ok(V@id@{rows:state.rows.into_iter().map(|reader|reader.finish(source,inputs)).collect::<core::Result<Vec<_>>>()?,present:state.present,raw:None})}
 fn read_xml_events_scoped_@id@(source:&[u8],inputs:&InputView<'_>,events:impl core::xml::ScopedSource,mut other:impl FnMut(&[core::xml::Name],&core::xml::Token<'_>)->core::Result<bool>)->core::Result<V@id@>{let mut state=XmlCollection@id@::new();events.visit_scoped(|path,token,scope|{if !other(path,token)?{state.consume_scoped(path,token,Some(scope),source,inputs)?;}Ok(())})?;finish_xml_@id@(state,source,inputs)}
 #[allow(dead_code)] fn read_xml_events_@id@(source:&[u8],inputs:&InputView<'_>,events:impl core::xml::Source,mut other:impl FnMut(&[core::xml::Name],&core::xml::Token<'_>)->core::Result<bool>)->core::Result<V@id@>{let mut state=XmlCollection@id@::new();events.visit(|path,token|{if !other(path,token)?{state.consume_scoped(path,token,None,source,inputs)?;}Ok(())})?;finish_xml_@id@(state,source,inputs)}
 #[allow(dead_code)] fn read_xml_with_@id@(source:&[u8],inputs:&InputView<'_>,other:impl FnMut(&[core::xml::Name],&core::xml::Token<'_>)->core::Result<bool>)->core::Result<V@id@>{read_xml_events_scoped_@id@(source,inputs,core::xml::DocumentSource(source),other)}
@@ -410,7 +507,7 @@ fn read_yaml_@id@(source:&[u8],inputs:&InputView<'_>)->core::Result<V@id@>{if @h
 struct PreparedRows@id@{rows:Vec<item_@id@::Prepared>,raw:Option<core::xml::Tree>}
 fn prepare_xml_@id@(value:&V@id@,inputs:&InputView<'_>)->core::Result<PreparedRows@id@>{let rows=value.rows.iter().map(|row|item_@id@::prepare(row,inputs)).collect::<core::Result<Vec<_>>>()?;let mut result=PreparedRows@id@{rows,raw:None};if let Some(patch)=&value.raw{let ordinary=write_plain_xml_@id@(value,&result,inputs)?;if !patch.is_null(){result.raw=Some(patch.apply(core::xml::Tree::capture(&ordinary,@parent@)?,core::xml::Name{namespace:@namespace@.into(),local:@physical@.into()},&[],&item_@id@::qnames())?);}}Ok(result)}
 fn namespaces_xml_@id@<'a>(value:&'a V@id@,prepared:&'a PreparedRows@id@,names:&mut Vec<&'a str>){@extra_namespaces@for name in @route@{if !name.0.is_empty() && !names.contains(&name.0){names.push(name.0);}}for (row,prepared) in value.rows.iter().zip(&prepared.rows){item_@id@::namespaces(row,prepared,names);}if let Some(tree)=&prepared.raw{tree.collect_namespaces(names);}}
-fn write_plain_fields_@id@<'a>(value:&V@id@,prepared:&'a PreparedRows@id@,inputs:&InputView<'_>,out:&mut core::xml::Writer<'a>)->core::Result<()>{if !value.present{return Ok(())}@open_parent@for (row,prepared) in value.rows.iter().zip(&prepared.rows){item_@id@::write_xml(row,prepared,inputs,out)?;@close_item@}Ok(())}
+fn write_plain_fields_@id@<'a>(value:&V@id@,prepared:&'a PreparedRows@id@,inputs:&InputView<'_>,out:&mut core::xml::Writer<'a>)->core::Result<()>{@canonical_guard@ if !value.present{return Ok(())}@open_parent@for (row,prepared) in value.rows.iter().zip(&prepared.rows){item_@id@::write_xml(row,prepared,inputs,out)?;@close_item@}Ok(())}
 fn write_xml_into_@id@<'a>(value:&V@id@,prepared:&'a PreparedRows@id@,inputs:&InputView<'_>,out:&mut core::xml::Writer<'a>)->core::Result<()>{if value.raw.is_some(){if let Some(tree)=&prepared.raw{@raw_write@}Ok(())}else{write_plain_fields_@id@(value,prepared,inputs,out)}}
 fn write_plain_xml_@id@(value:&V@id@,prepared:&PreparedRows@id@,inputs:&InputView<'_>)->core::Result<Vec<u8>>{if @document@ && !value.present{return Ok(Vec::new())}let mut names=Vec::new();namespaces_xml_@id@(value,prepared,&mut names);let mut out=core::xml::Writer::new(&names);write_plain_fields_@id@(value,prepared,inputs,&mut out)?;Ok(out.finish_with_root((@parent@)[0]))}
 fn write_xml_@id@(value:&V@id@,inputs:&InputView<'_>)->core::Result<Vec<u8>>{if @document@ && (!value.present || value.raw.as_ref().is_some_and(|patch|patch.is_null())){return Ok(Vec::new())}let prepared=prepare_xml_@id@(value,inputs)?;let mut names=Vec::new();namespaces_xml_@id@(value,&prepared,&mut names);let mut out=core::xml::Writer::new(&names);write_xml_into_@id@(value,&prepared,inputs,&mut out)?;Ok(out.finish_with_root((@parent@)[0]))}

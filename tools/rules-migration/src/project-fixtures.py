@@ -37,6 +37,20 @@ def select(request):
                 'source': [{'path': str(xml_path), 'sha256': hashlib.sha256(xml_bytes).hexdigest()}]}
 
     owner = root[0]
+    link_context = None
+    if request.get('linkContext'):
+        boolean_attributes = [
+            attribute.findtext(MD + 'Properties/' + MD + 'Name')
+            for attribute in owner.findall(MD + 'ChildObjects/' + MD + 'Attribute')
+            if attribute.findtext(MD + 'Properties/' + MD + 'Type/{http://v8.1c.ru/8.1/data/core}Type') == 'xs:boolean'
+        ]
+        link_context = {
+            'ownerRoot': owner.tag.removeprefix(MD),
+            'containingOwnerName': owner.findtext(MD + 'Properties/' + MD + 'Name'),
+            'attributes': boolean_attributes,
+        }
+        if not link_context['containingOwnerName'] or any(name is None for name in boolean_attributes):
+            raise ValueError('Incomplete owner link context')
     if request.get('internalTypes'):
         selected = ET.Element(root.tag)
         nested = ET.SubElement(selected, owner.tag)
@@ -147,6 +161,7 @@ def select(request):
         blocks[key] = text[match.start():end].rstrip()
     expected = '\n'.join(blocks[field['yaml']] for field in request['fields'] if field.get('yaml') in blocks)
     return {'xml': ET.tostring(selected, encoding='unicode'), 'yaml': expected,
+            **({'linkContext': link_context} if link_context is not None else {}),
             'omittedXMLProperties': omitted,
             'xmlQNamePaths': qname_paths,
             'source': [{'path': str(path), 'sha256': hashlib.sha256(data).hexdigest()}

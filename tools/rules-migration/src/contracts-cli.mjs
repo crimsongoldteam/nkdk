@@ -37,6 +37,28 @@ const [requiredButtonXML]=JSON.parse(execFileSync('python3',['tools/rules-migrat
 if(!source(buttonYAMLPath).includes('ТипКнопки: ОбычнаяКнопка'))throw new Error('Changed independent button kind');
 cases.push({id:'required-button-kind',entry:select('ButtonRules','type'),...requiredButtonXML,yaml:'Вид: ОбычнаяКнопка',rejectedYAML:['{}'],source:[...requiredButtonXML.source,{path:buttonYAMLPath}],adaptation:'Isolated property uses the rules.ts key Вид; the form owner exposes the same enum as ТипКнопки. Owner key disambiguation is not tested by this projection.'});
 const bool=select('PredefinedExtDimensionTypeRules','turnover');
+for (const [property,xmlName] of [
+ ['choiceParameterLinks','ChoiceParameterLinks'],
+ ['choiceParameters','ChoiceParameters'],
+]) {
+ const entry=select('MetadataDocumentAttributeRules',property);
+ cases.push({id:`document-attribute-${property}-empty`,entry,
+   xml:`<Properties><${xmlName}/></Properties>`,yaml:'',
+   source:[{path:'packages/rules/metadata/appliedObjects/metadataDocument/childRules.ts'}],
+   contract:'A declared record collection uses its owner XML empty-element contract to denote absence; YAML export restores the element without a reference'});
+}
+for (const [property,xmlName] of [
+ ['linkByType','LinkByType'],
+ ['binaryDataStorageLocationUseField','BinaryDataStorageLocationUseField'],
+]) {
+ const entry=select('MetadataDocumentAttributeRules',property);
+ const rawEmpty=property==='binaryDataStorageLocationUseField';
+ cases.push({id:`document-attribute-${property}-empty`,entry,
+   xml:`<Properties><${xmlName}/></Properties>`,
+   yaml:rawEmpty?`${xmlName}: !xml/raw\n  $xml: ''`:'',
+   source:[{path:'packages/rules/metadata/appliedObjects/metadataDocument/childRules.ts'}],
+   contract:rawEmpty?'An empty source link differs from the owner default of omitted XML; generic raw preservation restores it':'A text-pattern reference can have defaults for its fields and a separate absence rule for the whole value'});
+}
 const string=select('AdditionalIndexItemRules','table');
 const number=select('ButtonRules','width');
 const enumeration=select('ButtonRules','representation');

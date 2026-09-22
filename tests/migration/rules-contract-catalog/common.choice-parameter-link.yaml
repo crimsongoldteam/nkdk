@@ -1,0 +1,60 @@
+format: nkdk-declarations/1
+kind: value
+id: common.choice-parameter-link
+namespaces:
+  xr: http://v8.1c.ru/8.3/xcf/readable
+imports:
+  path: common.type-link-path
+  mode: system.LinkedValueChangeMode
+value:
+  kind: record
+  fields:
+    - name: name
+      type:
+        kind: scalar
+        scalar: text
+    - name: dataPath
+      type:
+        use: path
+        with:
+          typedXML: true
+    - name: valueChange
+      type:
+        use: mode
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: name
+        path:
+          - xr:Name
+      - field: dataPath
+        path:
+          - xr:DataPath
+      - field: valueChange
+        path:
+          - xr:ValueChange
+  yaml:
+    kind: mapping
+    fields:
+      - field: name
+        key: Имя
+      - field: dataPath
+        key: ПутьКДанным
+      - field: valueChange
+        key: РежимИзменения
+presence:
+  - target:
+      field: valueChange
+    xml:
+      missing:
+        denotes:
+          literal: Clear
+    yaml:
+      missing:
+        denotes:
+          literal: Clear
+      omitWhen:
+        eq:
+          - field: valueChange
+          - literal: Clear

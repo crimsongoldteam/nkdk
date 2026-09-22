@@ -18,6 +18,8 @@ test('Rust boundaries reject unknown packages and dependencies of every kind',()
  assert.deepEqual(violations(graph([pkg('nkdk-conversion-core',[dep('quick-xml')])])),[]);
  const vendor=path=>({...graph([pkg('nkdk-conversion-core',[dep('yaml-rust2',null,{path})])]),workspace_root:'/project/rust'});
  assert.deepEqual(violations(vendor('/project/third-party/yaml-rust2')),[]);
+ const cliVendor={...graph([pkg('nkdk',[dep('yaml-rust2',null,{path:'/project/third-party/yaml-rust2'})])]),workspace_root:'/project/rust'};
+ assert.deepEqual(violations(cliVendor),[]);
  assert.ok(violations(vendor('/project/other/yaml-rust2')).length);
 
 });

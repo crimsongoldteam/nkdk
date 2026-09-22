@@ -1,0 +1,287 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.FillChecking
+  value1: system.FoldersAndItemsUse
+  value2: common.choice-parameter-links
+  value3: common.choice-parameters
+  value4: system.UseQuickChoice
+  value5: system.CreateOnInput
+  inputType1f8ea46361ff: common.path-root
+  value7: common.metadata-form-link
+  value8: common.type-link
+  value9: system.ChoiceHistoryOnInput
+value:
+  kind: record
+  fields:
+    - name: fillChecking
+      type:
+        use: value0
+    - name: choiceFoldersAndItems
+      type:
+        use: value1
+    - name: choiceParameterLinks
+      type:
+        use: value2
+        bind: {}
+    - name: choiceParameters
+      type:
+        use: value3
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+    - name: quickChoice
+      type:
+        use: value4
+    - name: createOnInput
+      type:
+        use: value5
+    - name: choiceForm
+      type:
+        use: value7
+        bind:
+          roots:
+            input: roots
+          forms:
+            input: forms
+    - name: linkByType
+      type:
+        use: value8
+        bind: {}
+    - name: choiceHistoryOnInput
+      type:
+        use: value9
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: fillChecking
+        path:
+          - Properties
+          - FillChecking
+      - field: choiceFoldersAndItems
+        path:
+          - Properties
+          - ChoiceFoldersAndItems
+      - field: choiceParameterLinks
+        path:
+          - Properties
+          - ChoiceParameterLinks
+      - field: choiceParameters
+        path:
+          - Properties
+          - ChoiceParameters
+      - field: quickChoice
+        path:
+          - Properties
+          - QuickChoice
+      - field: createOnInput
+        path:
+          - Properties
+          - CreateOnInput
+      - field: choiceForm
+        path:
+          - Properties
+          - ChoiceForm
+      - field: linkByType
+        path:
+          - Properties
+          - LinkByType
+      - field: choiceHistoryOnInput
+        path:
+          - Properties
+          - ChoiceHistoryOnInput
+  yaml:
+    kind: mapping
+    fields:
+      - field: fillChecking
+        key: ПроверкаЗаполнения
+      - field: choiceFoldersAndItems
+        key: ВыборГруппИЭлементов
+      - field: choiceParameterLinks
+        key: СвязиПараметровВыбора
+      - field: choiceParameters
+        key: ПараметрыВыбора
+      - field: quickChoice
+        key: БыстрыйВыбор
+      - field: createOnInput
+        key: СозданиеПриВводе
+      - field: choiceForm
+        key: ФормаВыбора
+      - field: linkByType
+        key: СвязьПоТипу
+      - field: choiceHistoryOnInput
+        key: ИсторияВыбораПриВводе
+presence:
+  - target:
+      field: fillChecking
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: DontCheck
+  - target:
+      field: choiceFoldersAndItems
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Items
+  - target:
+      field: choiceParameterLinks
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: choiceParameterLinks
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: choiceParameters
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: choiceParameters
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: quickChoice
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Auto
+  - target:
+      field: createOnInput
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Auto
+  - target:
+      field: choiceForm
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: choiceForm
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: linkByType
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: linkByType
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: choiceHistoryOnInput
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Auto
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  roots:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: kind
+            type:
+              use: inputType1f8ea46361ff
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  forms:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: parent
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+id: candidate.fragment.34e62c631149ad13fd71

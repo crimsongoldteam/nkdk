@@ -193,6 +193,23 @@ fn referenced_sequence_items_keep_their_own_contract() {
 }
 
 #[test]
+fn declared_record_collection_inherits_owner_empty_xml_contract() {
+    let row = include_str!("fixtures/declared-row.yaml");
+    let list = include_str!("fixtures/declared-rows.yaml");
+    let mut modules = referenced_modules(row, list);
+    let owner = include_str!("fixtures/declared-empty-owner.yaml");
+    modules[2] = parse(SourceFile {
+        path: "owner-presence.yaml",
+        bytes: owner.as_bytes(),
+    })
+    .unwrap();
+    let program = link(&modules).unwrap();
+    let generated = nkdk_rule_compiler::generate(&program).unwrap();
+    let source = std::str::from_utf8(&generated.files[0].contents).unwrap();
+    assert!(source.contains("out.ensure_container"));
+}
+
+#[test]
 fn named_records_validate_the_key_and_describe_the_remaining_body() {
     let authoring: serde_json::Value =
         serde_json::from_slice(nkdk_rule_compiler::declaration_schema()).unwrap();

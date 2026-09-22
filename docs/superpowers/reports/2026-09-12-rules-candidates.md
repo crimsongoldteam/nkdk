@@ -6,9 +6,9 @@
 
 ## Результат генерации
 
-- 3723 вхождений свойств получили кандидаты.
-- 893 уникальных фрагментов и 845 уникальных проекций.
-- 239 существующих common/перечислений подключены как снимки зависимостей.
+- 3869 вхождений свойств получили кандидаты.
+- 903 уникальных фрагментов и 853 уникальных проекций.
+- 259 существующих common/перечислений подключены как снимки зависимостей.
 
 Проекция — только поддержанные свойства под относительным XML-корнем.
 Это не полный Document, DocumentJournal, реквизит или элемент формы.
@@ -73,8 +73,6 @@ excludedParameters у свойства; остальные неизвестны�
 | owner-root-required | 136 |
 | runtime-only-profile | 131 |
 | hidden-scalar-default-required | 110 |
-| declared-collection-presence-backend | 96 |
-| mixed-record-presence-backend | 50 |
 | xml-path-profile | 46 |
 | asymmetric-defaults | 11 |
 | unsupported-parameters:xmlAliases | 10 |

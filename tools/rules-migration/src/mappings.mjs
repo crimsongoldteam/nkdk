@@ -214,6 +214,11 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
       yaml:{missing:{denotes:{sequence:[]}},omitWhen:{not:{exists:{in:{field:property.name},as:'row',where:{literal:true}}}}}} : {target:{field:property.name}, xml:{missing:{denotes:{absent:true}},
       ...(((text || fields) && p.defaultValueXMLRaw === '') || nilDefault ? {canonical:[{when:{not:{present:{field:property.name}}},form:nilDefault?'nil':'empty-element'}]} : {})},
       ...((text || fields) && !p.noImplicitValueYAML ? {} : {yaml:hasDefault ? {default:{literal:defaultValue}} : {missing:{denotes:{absent:true}}}})}};
+  if(reference && p.metadataTarget?.kind==='member' && p.metadataTarget.owner==='this' && mapped.inputs?.ownerName) {
+    mapped.inputs.containingOwnerName=mapped.inputs.ownerName;
+    delete mapped.inputs.ownerName;
+    mapped.type.bind.ownerName={input:'containingOwnerName'};
+  }
   if(metadataValue) {
     mapped.inputs.definedTypes=structuredClone(catalog.get('common.fill-value-compatibility')?.inputs?.definedTypes ?? {type:{kind:'index',key:{kind:'scalar',scalar:'text'},value:{kind:'sequence',item:{kind:'scalar',scalar:'text'}}}});
     mapped.indexProviders={definedTypes:'metadata.defined-type-alternatives'};
@@ -299,22 +304,16 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
         {parameter:profile.parameter,equivalentTo:'owner-name-shorthand',via:'common.i8n-text'}];
     }
   }
-  // The declared-record collection generator cannot yet apply an owner's
-  // empty/canonical presence contract. Keep such fields explicitly blocked
-  // until that generic backend exists, instead of emitting a candidate that
-  // fails only when its complete owner is compiled.
+  // Declared records now honor owner XML empty and canonical forms. YAML
+  // empty/omit expressions still need a sequence backend before emission.
   const common=catalog.get(id);
   const itemId=common?.value?.kind==='sequence' && common.value.item?.use
     ? common.imports?.[common.value.item.use] : undefined;
   const declaredRecordCollection=itemId && catalog.get(itemId)?.value?.kind==='record' &&
     ['sequence','record-mapping'].includes(common.representations?.yaml?.kind);
   if(declaredRecordCollection && mapped.presence && (
-    mapped.presence.xml?.empty?.length || mapped.presence.yaml?.empty?.length ||
-    mapped.presence.yaml?.omitWhen || mapped.presence.xml?.canonical?.length
+    mapped.presence.yaml?.empty?.length || mapped.presence.yaml?.omitWhen
   ))return fail('declared-collection-presence-backend');
-  if(common?.value?.kind==='record' && mapped.presence &&
-    common.presence?.some(rule=>typeof rule.target==='object' && rule.target?.field) &&
-    common.presence?.some(rule=>rule.target==='self'))return fail('mixed-record-presence-backend');
   if(emptyTextXMLDefault)mapped.parameterEquivalences=[...(mapped.parameterEquivalences??[]),
     {parameter:'defaultValueXMLEmpty',equivalentTo:'empty-sequence',via:'common.i8n-text'}];
   return mapped;

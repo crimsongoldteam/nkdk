@@ -1,0 +1,29 @@
+format: nkdk-declarations/1
+kind: value
+id: common.type-link-path
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  xs: http://www.w3.org/2001/XMLSchema
+imports:
+  path: common.open-metadata-field-path
+parameters:
+  typedXML:
+    type:
+      kind: scalar
+      scalar: boolean
+    default: false
+value:
+  use: path
+representations:
+  xml:
+    kind: with-attributes
+    attributes:
+      - name: xsi:type
+        value:
+          qname: xs:string
+        when:
+          parameter: typedXML
+    content:
+      kind: choice
+  yaml:
+    kind: choice

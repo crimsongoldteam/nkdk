@@ -1,0 +1,74 @@
+format: nkdk-declarations/1
+kind: value
+id: common.type-link
+namespaces:
+  xr: http://v8.1c.ru/8.3/xcf/readable
+imports:
+  path: common.type-link-path
+parameters:
+  typedXML:
+    type:
+      kind: scalar
+      scalar: boolean
+    default: false
+value:
+  kind: record
+  fields:
+    - name: path
+      type:
+        use: path
+        with:
+          typedXML:
+            parameter: typedXML
+    - name: index
+      type:
+        kind: scalar
+        scalar: number
+        profile: decimal
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: path
+        path:
+          - xr:DataPath
+      - field: index
+        path:
+          - xr:LinkItem
+  yaml:
+    kind: text-pattern
+    parts:
+      - field: path
+      - optional: index
+        parts:
+          - literal: (
+          - field: index
+          - literal: )
+presence:
+  - target:
+      field: index
+    xml:
+      missing:
+        denotes:
+          literal: 0
+    yaml:
+      missing:
+        denotes:
+          literal: 0
+      omitWhen:
+        eq:
+          - field: index
+          - literal: 0
+  - target: self
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true

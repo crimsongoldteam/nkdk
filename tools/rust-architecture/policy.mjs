@@ -25,7 +25,7 @@ export function violations(metadata){
    // Existing third-party parser with a documented Unicode-tag compatibility
    // patch. This is not a general exemption for path dependencies.
    if(dep.name==='yaml-rust2' && kind==='normal' &&
-      ['nkdk-conversion-core','nkdk-rule-compiler'].includes(pkg.name) &&
+      ['nkdk-conversion-core','nkdk-rule-compiler','nkdk'].includes(pkg.name) &&
       typeof metadata.workspace_root==='string' &&
       dep.path===resolve(metadata.workspace_root,'../third-party/yaml-rust2'))continue;
 

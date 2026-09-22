@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.choice-parameter-links
+value:
+  kind: record
+  fields:
+    - name: choiceParameterLinks
+      type:
+        use: value0
+        bind: {}
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: choiceParameterLinks
+        path:
+          - ChoiceParameterLinks
+  yaml:
+    kind: mapping
+    fields:
+      - field: choiceParameterLinks
+        key: СвязиПараметровВыбора
+presence:
+  - target:
+      field: choiceParameterLinks
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+id: candidate.fragment.d5e2b83cfae9ee777988

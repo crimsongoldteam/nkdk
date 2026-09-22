@@ -45,7 +45,7 @@ impl<'a> Codec<'a> {
         match value {
             LinkedType::Scalar(ScalarType::Text) => Ok(Self::Text),
             LinkedType::Scalar(ScalarType::Decimal) => Ok(Self::Decimal),
-            LinkedType::Reference(id) => {
+            LinkedType::Reference(id) | LinkedType::BoundReference { entry: id, .. } => {
                 let target = program.value(ValueId(*id)).expect("linked reference").entry;
                 optional(target)?;
                 let (xml, _) = super::attributes::content(&target.xml);
@@ -662,19 +662,45 @@ pub(crate) fn optional(entry: &LinkedEntry) -> Result<bool, Diagnostic> {
         plain(entry)?;
         return Ok(false);
     }
-    if matches!(entry.xml, LinkedXml::TextPattern(_))
-        && entry.presence.iter().all(|rule| {
-            matches!(rule.target, LinkedPresenceTarget::Field(_))
-                && rule.xml_missing.is_none()
-                && rule.xml_empty.is_empty()
-                && rule.canonical.is_empty()
-                && rule.yaml_empty.is_empty()
-                && rule
-                    .yaml_missing
-                    .as_ref()
-                    .is_some_and(|value| value.value_type == LinkedType::Scalar(ScalarType::Text))
-        })
+    let field_defaults = matches!(entry.xml, LinkedXml::TextPattern(_))
+        && entry
+            .presence
+            .iter()
+            .any(|rule| matches!(rule.target, LinkedPresenceTarget::Field(_)))
+        && entry
+            .presence
+            .iter()
+            .filter(|rule| matches!(rule.target, LinkedPresenceTarget::Field(_)))
+            .all(|rule| {
+                matches!(rule.target, LinkedPresenceTarget::Field(_))
+                    && rule.xml_missing.is_none()
+                    && rule.xml_empty.is_empty()
+                    && rule.canonical.is_empty()
+                    && rule.yaml_empty.is_empty()
+                    && rule.yaml_missing.as_ref().is_some_and(|value| {
+                        matches!(
+                            value.value_type,
+                            LinkedType::Scalar(ScalarType::Text) | LinkedType::Enum(_)
+                        )
+                    })
+            });
+    if entry
+        .presence
+        .iter()
+        .any(|rule| matches!(rule.target, LinkedPresenceTarget::Field(_)))
+        && !field_defaults
     {
+        return Err(unsupported(
+            entry,
+            "Text-pattern field defaults require prepared text values",
+        ));
+    }
+    let whole = entry
+        .presence
+        .iter()
+        .filter(|rule| rule.target == LinkedPresenceTarget::SelfValue)
+        .collect::<Vec<_>>();
+    if whole.is_empty() && field_defaults {
         let mut shape = entry.clone();
         shape.presence.clear();
         plain(&shape)?;
@@ -685,8 +711,8 @@ pub(crate) fn optional(entry: &LinkedEntry) -> Result<bool, Diagnostic> {
             .as_ref()
             .is_some_and(super::scalar_presence::independent)
     };
-    if entry.presence.len() != 1
-        || !entry.presence.iter().all(|p| {
+    if whole.len() != 1
+        || !whole.iter().all(|p| {
             p.target == LinkedPresenceTarget::SelfValue
                 && missing(&p.xml_missing)
                 && missing(&p.yaml_missing)
@@ -707,7 +733,7 @@ pub(crate) fn optional(entry: &LinkedEntry) -> Result<bool, Diagnostic> {
 }
 
 pub(crate) fn field_optional(value: &LinkedType, program: &Program) -> Result<bool, Diagnostic> {
-    if let LinkedType::Reference(id) = value {
+    if let LinkedType::Reference(id) | LinkedType::BoundReference { entry: id, .. } = value {
         optional(program.value(ValueId(*id)).expect("linked reference").entry)
     } else {
         Ok(false)

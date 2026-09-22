@@ -1,0 +1,47 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.type-link
+value:
+  kind: record
+  fields:
+    - name: linkByType
+      type:
+        use: value0
+        bind: {}
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: linkByType
+        path:
+          - xr:LinkByType
+  yaml:
+    kind: mapping
+    fields:
+      - field: linkByType
+        key: СвязьПоТипу
+presence:
+  - target:
+      field: linkByType
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: linkByType
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+namespaces:
+  xr: http://v8.1c.ru/8.3/xcf/readable
+id: candidate.fragment.c1af13f32d5fb0444ef4

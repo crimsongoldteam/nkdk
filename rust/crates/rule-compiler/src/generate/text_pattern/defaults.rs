@@ -38,7 +38,12 @@ pub(super) fn definition(codec: &Codec<'_>, name: &str) -> Result<String, Diagno
                 .ok_or_else(|| {
                     unsupported(codec.common, "Omitted text slot requires a YAML default")
                 })?;
-            if !prepared(value) || value.value_type != LinkedType::Scalar(ScalarType::Text) {
+            if !prepared(value)
+                || !matches!(
+                    value.value_type,
+                    LinkedType::Scalar(ScalarType::Text) | LinkedType::Enum(_)
+                )
+            {
                 return Err(unsupported(
                     codec.common,
                     "Text slot defaults require prepared text expressions",
@@ -51,14 +56,32 @@ pub(super) fn definition(codec: &Codec<'_>, name: &str) -> Result<String, Diagno
                 "let default_{index}={{ {definitions} {expression} }};"
             )
             .unwrap();
-            slots.push(expressions::Expressions::text_reference(
-                value,
-                format!("default_{index}"),
-            ));
+            let slot = if let scalar::Codec::Enumeration(variants, _, yaml) = &codec.fields[index] {
+                let arms = variants
+                    .iter()
+                    .map(|variant| {
+                        let spelling = yaml
+                            .iter()
+                            .find(|item| item.value == variant.value)
+                            .ok_or_else(|| {
+                                unsupported(
+                                    codec.common,
+                                    "Projected enum default needs a YAML lexeme",
+                                )
+                            })?;
+                        Ok(format!("{:?}=>{:?},", variant.value, spelling.text))
+                    })
+                    .collect::<Result<String, Diagnostic>>()?;
+                writeln!(defaults,"let default_{index}_yaml=match &*default_{index}{{{arms}_=>return Err(RuntimeDiagnostic::new(\"value.enum\",\"Unknown projected enum default\"))}};").unwrap();
+                format!("default_{index}_yaml")
+            } else {
+                format!("default_{index}")
+            };
+            slots.push(expressions::Expressions::text_reference(value, slot));
             checks.push(format!(
                 "std::cmp::PartialEq::<str>::eq({}, {})",
                 codec.field_meaning(name, index, "self"),
-                slots.last().unwrap()
+                expressions::Expressions::text_reference(value, format!("default_{index}"))
             ));
         }
     }

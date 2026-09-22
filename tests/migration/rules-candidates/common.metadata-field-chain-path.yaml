@@ -1,0 +1,36 @@
+format: nkdk-declarations/1
+kind: value
+id: common.metadata-field-chain-path
+imports:
+  root: common.path-root
+  name: common.metadata-name
+  segments: common.metadata-field-segments
+value:
+  kind: record
+  fields:
+    - name: root
+      type:
+        use: root
+    - name: owner
+      type:
+        use: name
+    - name: tail
+      type:
+        use: segments
+representations:
+  xml:
+    kind: text-pattern
+    parts:
+      - field: root
+      - literal: .
+      - field: owner
+      - literal: .
+      - field: tail
+  yaml:
+    kind: text-pattern
+    parts:
+      - field: root
+      - literal: .
+      - field: owner
+      - literal: .
+      - field: tail

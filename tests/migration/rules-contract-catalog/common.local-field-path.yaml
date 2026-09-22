@@ -1,0 +1,13 @@
+format: nkdk-declarations/1
+kind: value
+id: common.local-field-path
+value:
+  kind: scalar
+  scalar: text
+  pattern: .+
+representations:
+  xml:
+    kind: text
+  yaml:
+    kind: scalar
+    scalar: text

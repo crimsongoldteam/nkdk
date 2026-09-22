@@ -915,6 +915,7 @@ presence:
             ("declared-deep-row.yaml", declared_deep.as_str()),
             ("declared-deep-rows.yaml", declared_deep_list.as_str()),
             ("declared-deep-owner.yaml", declared_deep_owner.as_str()),
+            ("declared-empty-owner.yaml", include_str!("fixtures/declared-empty-owner.yaml")),
             ("declared-nested-row.yaml", declared_nested.as_str()),
             ("declared-nested-rows.yaml", declared_nested_list.as_str()),
             ("declared-nested-owner.yaml", declared_nested_owner),
@@ -1118,6 +1119,7 @@ presence:
                 "declared-deep-owner.yaml",
                 "declared-deep-row.yaml",
                 "declared-deep-rows.yaml",
+                "declared-empty-owner.yaml",
                 "declared-nested-owner.yaml",
                 "declared-nested-row.yaml",
                 "declared-nested-rows.yaml",
@@ -1593,6 +1595,16 @@ fn main() {
             assert_eq!(result.bytes,yaml);
             let result=convert_file(entry,Direction::YamlToXml,yaml,&inputs).unwrap();
             core::proof::verify(xml,&result.bytes,|_|false).unwrap();
+            let empty_entry=entry_id("test.declared-empty-rows").unwrap();
+            let empty_inputs=prepare_inputs(empty_entry,vec![]).unwrap();
+            let empty_import=convert_file(empty_entry,Direction::XmlToYaml,b"<Root><Rows/></Root>",&empty_inputs).unwrap();
+            assert!(empty_import.bytes.is_empty(),"{}",String::from_utf8_lossy(&empty_import.bytes));
+            let empty_export=convert_file(empty_entry,Direction::YamlToXml,b"",&empty_inputs).unwrap();
+            core::proof::verify(b"<Root><Rows/></Root>",&empty_export.bytes,|_|false).unwrap();
+            let absent_import=convert_file(empty_entry,Direction::XmlToYaml,b"<Root/>",&empty_inputs).unwrap();
+            assert!(String::from_utf8_lossy(&absent_import.bytes).contains("$xml"),"{}",String::from_utf8_lossy(&absent_import.bytes));
+            let absent_export=convert_file(empty_entry,Direction::YamlToXml,&absent_import.bytes,&empty_inputs).unwrap();
+            core::proof::verify(b"<Root/>",&absent_export.bytes,|_|false).unwrap();
             let derived=convert_file(entry,Direction::YamlToXml,b"Rows: [{Name: derived}]",&inputs).unwrap();
             core::proof::verify(b"<Root xmlns:r='urn:row'><Rows><Item><r:Name>derived</r:Name><r:Mode>derived</r:Mode></Item></Rows></Root>",&derived.bytes,|_|false).unwrap();
             let identified=String::from_utf8_lossy(xml).replacen("<Item>","<Item uuid='one'>",1);
