@@ -113,6 +113,17 @@ test('static extraction retains fragments, shadowing, unknowns and comparison fa
   assert.equal(changed[0].blockers[0].detail, 'reviewed-helper-changed');
 });
 
+test('object rest keeps known fields of a partially resolved shared fragment', () => {
+  const sources = {
+    'rules.ts': `const base = {kept: {type: 'string', yaml: 'Сохранено'}, excluded: {type: 'string', yaml: 'Исключено'}, ...unresolved()};
+      const {excluded: _excluded, ...rest} = base;
+      export const Rules = {properties: {...rest, own: {type: 'boolean', yaml: 'Своё'}}};`,
+  };
+  const [rule] = extract(sources, [{path: 'rules.ts', symbol: 'Rules'}]);
+  assert.deepEqual(rule.properties.map(property => property.name), ['kept', 'own']);
+  assert.equal(rule.shapeComplete, false);
+});
+
 // The source registry adds contracts outside rules.ts. Losing them must not
 // turn a structurally complete rule into an accepted conversion candidate.
 test('runtime state extraction retains profiles, compatibility patches and order', () => {

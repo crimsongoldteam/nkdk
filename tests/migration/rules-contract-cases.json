@@ -1352,6 +1352,14 @@
       "sha256": "091fe37e640e89fd74877ec9c7676e7ee0d5018e6c21f576eceec646b8409011"
     },
     {
+      "path": "e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml",
+      "sha256": "676e1d3cb950fab9b2c46065d64824982e2146ade8db6f08d5f296b8added776"
+    },
+    {
+      "path": "packages/rules/metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.integration.test.ts",
+      "sha256": "278690b7f26c1b96094fa00760c8b7c929c33efc19841ea3c2bdb570e2e9187a"
+    },
+    {
       "path": "packages/rules/metadata/commonObjects/fillValue/effectiveType.test.ts",
       "sha256": "694fb808c64804c1088343505891f959a7fca0be82921f588ac2461c69695f2e"
     },
@@ -5013,6 +5021,469 @@
         "ownerName": "Button"
       },
       "adaptation": "Select supported direct Properties children; remove MDClasses namespace only; select original YAML blocks in declaration order; omitted fields remain unaccepted"
+    },
+    {
+      "id": "fill-value-family-common-attribute",
+      "entry": "common.fill-value-profile",
+      "xml": "<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Type>\n\t\t\t\t<v8:Type>xs:string</v8:Type>\n\t\t\t\t<v8:StringQualifiers>\n\t\t\t\t\t<v8:Length>10</v8:Length>\n\t\t\t\t\t<v8:AllowedLength>Variable</v8:AllowedLength>\n\t\t\t\t</v8:StringQualifiers>\n\t\t\t</Type>\n\t\t\t<Value xsi:type=\"xs:string\">Значение</Value>\n\t\t\t</Root>",
+      "yaml": "Тип: Строка(10)\nЗначение: \"Значение\"",
+      "xmlQNamePaths": [
+        [
+          "Root",
+          "Type",
+          "{http://v8.1c.ru/8.1/data/core}Type"
+        ]
+      ],
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cf/CommonAttributes/ОбщийРеквизитВсеСвойства.xml",
+          "sha256": "6b26b485d8112c23839f23f10b235ae4f31a29c356fb494908a4ab5e0004316a"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/ОбщийРеквизит/ОбщийРеквизитВсеСвойства.yaml",
+          "sha256": "c097a48d6ea6b46df6082eb691ff170583c8f6e0d7221d7912b89d00443a9e05"
+        }
+      ],
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ]
+      },
+      "adaptation": "Preserve the original Type/FillValue pair and change only the outer wrapper and FillValue property names to the common profile; export without an XML reference"
+    },
+    {
+      "id": "fill-value-family-task-attribute",
+      "entry": "common.fill-value-profile",
+      "xml": "<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:cfg=\"http://v8.1c.ru/8.1/data/enterprise/current-config\"><Type>\n\t\t\t\t\t\t<v8:Type>cfg:CatalogRef.СправочникРеквизит</v8:Type>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<Value xsi:type=\"xr:DesignTimeRef\">Catalog.СправочникРеквизит.ПредопредленноеЗначение</Value>\n\t\t\t\t\t</Root>",
+      "yaml": "Тип: Справочник.СправочникРеквизит\nЗначение: Справочник.СправочникРеквизит.ПредопредленноеЗначение",
+      "xmlQNamePaths": [
+        [
+          "Root",
+          "Type",
+          "{http://v8.1c.ru/8.1/data/core}Type"
+        ]
+      ],
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства.xml",
+          "sha256": "9c2920177c6974fc6941bd2f9d10d1ed1c0e69efe5a564b67a35daa5abc5f72d"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/Задача/ЗадачаВсеСвойства/Свойства.yaml",
+          "sha256": "a9e638f154b7ae067a0d1134320060c1922440ac923b03d367fb13ff9465d0c8"
+        }
+      ],
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ]
+      },
+      "adaptation": "Preserve the original Type/FillValue pair and change only the outer wrapper and FillValue property names to the common profile; export without an XML reference"
+    },
+    {
+      "id": "fill-value-family-task-addressing",
+      "entry": "common.fill-value-profile",
+      "xml": "<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:cfg=\"http://v8.1c.ru/8.1/data/enterprise/current-config\"><Type>\n\t\t\t\t\t\t<v8:Type>cfg:CatalogRef.СправочникРеквизит</v8:Type>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<Value xsi:type=\"xr:DesignTimeRef\">Catalog.СправочникРеквизит.ПредопредленноеЗначение</Value>\n\t\t\t\t\t</Root>",
+      "yaml": "Тип: Справочник.СправочникРеквизит\nЗначение: Справочник.СправочникРеквизит.ПредопредленноеЗначение",
+      "xmlQNamePaths": [
+        [
+          "Root",
+          "Type",
+          "{http://v8.1c.ru/8.1/data/core}Type"
+        ]
+      ],
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства.xml",
+          "sha256": "9c2920177c6974fc6941bd2f9d10d1ed1c0e69efe5a564b67a35daa5abc5f72d"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/Задача/ЗадачаВсеСвойства/Свойства.yaml",
+          "sha256": "a9e638f154b7ae067a0d1134320060c1922440ac923b03d367fb13ff9465d0c8"
+        }
+      ],
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ]
+      },
+      "adaptation": "Preserve the original Type/FillValue pair and change only the outer wrapper and FillValue property names to the common profile; export without an XML reference"
+    },
+    {
+      "id": "fill-value-family-register-attribute",
+      "entry": "common.fill-value-profile",
+      "xml": "<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Type>\n\t\t\t\t\t\t<v8:Type>xs:decimal</v8:Type>\n\t\t\t\t\t\t<v8:NumberQualifiers>\n\t\t\t\t\t\t\t<v8:Digits>10</v8:Digits>\n\t\t\t\t\t\t\t<v8:FractionDigits>0</v8:FractionDigits>\n\t\t\t\t\t\t\t<v8:AllowedSign>Any</v8:AllowedSign>\n\t\t\t\t\t\t</v8:NumberQualifiers>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<Value xsi:type=\"xs:decimal\">1234</Value>\n\t\t\t\t\t</Root>",
+      "yaml": "Тип: Число(10, 0)\nЗначение: 1234",
+      "xmlQNamePaths": [
+        [
+          "Root",
+          "Type",
+          "{http://v8.1c.ru/8.1/data/core}Type"
+        ]
+      ],
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый.xml",
+          "sha256": "d88e5e7cd186df824284b5108f3554d7ff786d8eb53279cf6549946ba40e6fc5"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/РегистрСведений/РегистрСведенийВсеСвойстваНезависимый/Свойства.yaml",
+          "sha256": "8f4d22915538234698c0a97a73ee794c2ad90b97ee0a1c91752385f5e6a7e096"
+        }
+      ],
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ]
+      },
+      "adaptation": "Preserve the original Type/FillValue pair and change only the outer wrapper and FillValue property names to the common profile; export without an XML reference"
+    },
+    {
+      "id": "fill-value-family-register-dimension",
+      "entry": "common.fill-value-profile",
+      "xml": "<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:cfg=\"http://v8.1c.ru/8.1/data/enterprise/current-config\"><Type>\n\t\t\t\t\t\t<v8:Type>cfg:CatalogRef.СправочникПолный</v8:Type>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<Value xsi:nil=\"true\" />\n\t\t\t\t\t</Root>",
+      "yaml": "Тип: Справочник.СправочникПолный",
+      "xmlQNamePaths": [
+        [
+          "Root",
+          "Type",
+          "{http://v8.1c.ru/8.1/data/core}Type"
+        ]
+      ],
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый.xml",
+          "sha256": "d88e5e7cd186df824284b5108f3554d7ff786d8eb53279cf6549946ba40e6fc5"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/РегистрСведений/РегистрСведенийВсеСвойстваНезависимый/Свойства.yaml",
+          "sha256": "8f4d22915538234698c0a97a73ee794c2ad90b97ee0a1c91752385f5e6a7e096"
+        }
+      ],
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ]
+      },
+      "adaptation": "Preserve the original Type/FillValue pair and change only the outer wrapper and FillValue property names to the common profile; export without an XML reference"
+    },
+    {
+      "id": "fill-value-family-register-resource",
+      "entry": "common.fill-value-profile",
+      "xml": "<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Type>\n\t\t\t\t\t\t<v8:Type>xs:string</v8:Type>\n\t\t\t\t\t\t<v8:StringQualifiers>\n\t\t\t\t\t\t\t<v8:Length>10</v8:Length>\n\t\t\t\t\t\t\t<v8:AllowedLength>Variable</v8:AllowedLength>\n\t\t\t\t\t\t</v8:StringQualifiers>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<Value xsi:type=\"xs:string\">Заполнение</Value>\n\t\t\t\t\t</Root>",
+      "yaml": "Тип: Строка(10)\nЗначение: \"Заполнение\"",
+      "xmlQNamePaths": [
+        [
+          "Root",
+          "Type",
+          "{http://v8.1c.ru/8.1/data/core}Type"
+        ]
+      ],
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый.xml",
+          "sha256": "d88e5e7cd186df824284b5108f3554d7ff786d8eb53279cf6549946ba40e6fc5"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/РегистрСведений/РегистрСведенийВсеСвойстваНезависимый/Свойства.yaml",
+          "sha256": "8f4d22915538234698c0a97a73ee794c2ad90b97ee0a1c91752385f5e6a7e096"
+        }
+      ],
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ]
+      },
+      "adaptation": "Preserve the original Type/FillValue pair and change only the outer wrapper and FillValue property names to the common profile; export without an XML reference"
+    },
+    {
+      "id": "fill-value-family-accounting-flag",
+      "entry": "common.fill-value-profile",
+      "xml": "<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Type>\n\t\t\t\t\t\t<v8:Type>xs:boolean</v8:Type>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<Value xsi:type=\"xs:boolean\">false</Value>\n\t\t\t\t\t</Root>",
+      "yaml": "Тип: Булево\nЗначение: Ложь",
+      "xmlQNamePaths": [
+        [
+          "Root",
+          "Type",
+          "{http://v8.1c.ru/8.1/data/core}Type"
+        ]
+      ],
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства.xml",
+          "sha256": "fcd73718d1134a63afb433454d4d4d3fb14fb461b80620b33aa9c37f4750acdf"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/ПланСчетов/ПланСчетовВсеСвойства/Свойства.yaml",
+          "sha256": "c7f4aee531d05798f8341a776f0954ce61270fcc271340b4863542600fc7c134"
+        }
+      ],
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ]
+      },
+      "adaptation": "Preserve the original Type/FillValue pair and change only the outer wrapper and FillValue property names to the common profile; export without an XML reference"
+    },
+    {
+      "id": "fill-value-family-ext-accounting-flag",
+      "entry": "common.fill-value-profile",
+      "xml": "<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Type>\n\t\t\t\t\t\t<v8:Type>xs:boolean</v8:Type>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<Value xsi:type=\"xs:boolean\">false</Value>\n\t\t\t\t\t</Root>",
+      "yaml": "Тип: Булево\nЗначение: Ложь",
+      "xmlQNamePaths": [
+        [
+          "Root",
+          "Type",
+          "{http://v8.1c.ru/8.1/data/core}Type"
+        ]
+      ],
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства.xml",
+          "sha256": "fcd73718d1134a63afb433454d4d4d3fb14fb461b80620b33aa9c37f4750acdf"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/ПланСчетов/ПланСчетовВсеСвойства/Свойства.yaml",
+          "sha256": "c7f4aee531d05798f8341a776f0954ce61270fcc271340b4863542600fc7c134"
+        }
+      ],
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ]
+      },
+      "adaptation": "Preserve the original Type/FillValue pair and change only the outer wrapper and FillValue property names to the common profile; export without an XML reference"
+    },
+    {
+      "id": "fill-value-family-external-field",
+      "entry": "common.fill-value-profile",
+      "xml": "<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Type>\n\t\t\t\t\t\t<v8:Type>xs:base64Binary</v8:Type>\n\t\t\t\t\t\t<v8:BinaryDataQualifiers>\n\t\t\t\t\t\t\t<v8:Length>0</v8:Length>\n\t\t\t\t\t\t\t<v8:AllowedLength>Variable</v8:AllowedLength>\n\t\t\t\t\t\t</v8:BinaryDataQualifiers>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<Value xsi:type=\"v8:Null\" />\n\t\t\t\t\t</Root>",
+      "yaml": "Тип: ДвоичныеДанные\nЗначение: !xml/raw\n  $значение: ''\n  $xml:\n    _{http://www.w3.org/2001/XMLSchema-instance}type: '{http://v8.1c.ru/8.1/data/core}Null'",
+      "xmlQNamePaths": [
+        [
+          "Root",
+          "Type",
+          "{http://v8.1c.ru/8.1/data/core}Type"
+        ]
+      ],
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства.xml",
+          "sha256": "1e2e310995587efd1dd1fcd8349b9878930fb609ba109b31bc6d0d1173c2b102"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/ВнешнийИсточникДанных/ВнешнийИсточникДанныхВсеСвойства/Таблицы/ТаблицаВсеСвойства/Свойства.yaml",
+          "sha256": "032f09ebd4fef4acc8282cad23d7949e599cf0f17eeb202bd9d1552c7bb1c4b9"
+        }
+      ],
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ]
+      },
+      "adaptation": "Preserve the original Type/FillValue pair and change only the outer wrapper and FillValue property names to the common profile; export without an XML reference; generic raw XML uses expanded namespace names and explicitly records the empty semantic value, unlike the existing lexical owner YAML"
+    },
+    {
+      "id": "fill-value-family-external-cube-dimension",
+      "entry": "common.fill-value-profile",
+      "xml": "<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:cfg=\"http://v8.1c.ru/8.1/data/enterprise/current-config\"><Type>\n\t\t\t\t\t\t<v8:Type>cfg:ExternalDataSourceCubeDimensionTableRef.ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства.ТаблицаИзмеренияВсеСвойства</v8:Type>\n\t\t\t\t\t</Type>\n\t\t\t\t\t<Value xsi:nil=\"true\" />\n\t\t\t\t\t</Root>",
+      "yaml": "Тип: ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства.ТаблицаИзмеренияВсеСвойства",
+      "xmlQNamePaths": [
+        [
+          "Root",
+          "Type",
+          "{http://v8.1c.ru/8.1/data/core}Type"
+        ]
+      ],
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства.xml",
+          "sha256": "d28dfd79e7a5a2bdfb5f5cafee33dcc38c55abf6c8d911171ac8199580460be8"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/ВнешнийИсточникДанных/ВнешнийИсточникДанныхВсеСвойства/Кубы/КубВсеСвойства/Свойства.yaml",
+          "sha256": "7d46afeb3781379849f28c1aac5d74c94c3e748da67f92afbf1e7cd9f4c9b3ae"
+        }
+      ],
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ]
+      },
+      "adaptation": "Preserve the original Type/FillValue pair and change only the outer wrapper and FillValue property names to the common profile; export without an XML reference"
+    },
+    {
+      "id": "fill-value-standard-owner",
+      "entry": "common.standard-attribute-fill-value",
+      "xml": "<Root><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"xr:DesignTimeRef\">Catalog.СправочникВладелец.ПредопределенноеЗначение</xr:FillValue></Root>",
+      "yaml": "ЗначениеЗаполнения: Справочник.СправочникВладелец.ПредопределенноеЗначение",
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ],
+        "owners": [
+          "Справочник.СправочникВладелец"
+        ],
+        "componentKind": "configuration",
+        "policy": "ownerReference"
+      },
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+          "sha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml"
+        }
+      ],
+      "adaptation": "Select the immutable standard-attribute FillValue subtree and its independent owner YAML scalar; retain the xr namespace and test reverse export without a source XML reference"
+    },
+    {
+      "id": "fill-value-standard-parent",
+      "entry": "common.standard-attribute-fill-value",
+      "xml": "<Root><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"xr:DesignTimeRef\">Catalog.СправочникПолный.EmptyRef</xr:FillValue></Root>",
+      "yaml": "ЗначениеЗаполнения: Справочник.СправочникПолный.ПустаяСсылка",
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ],
+        "owners": [
+          "Справочник.СправочникВладелец"
+        ],
+        "componentKind": "configuration",
+        "policy": "notSpecified"
+      },
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+          "sha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml"
+        }
+      ],
+      "adaptation": "Select the immutable standard-attribute FillValue subtree and its independent owner YAML scalar; retain the xr namespace and test reverse export without a source XML reference"
+    },
+    {
+      "id": "fill-value-standard-code",
+      "entry": "common.standard-attribute-fill-value",
+      "xml": "<Root><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\" /></Root>",
+      "yaml": "",
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ],
+        "owners": [
+          "Справочник.СправочникВладелец"
+        ],
+        "componentKind": "configuration",
+        "policy": "codeFromOwner"
+      },
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+          "sha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml"
+        }
+      ],
+      "adaptation": "Select the immutable standard-attribute FillValue subtree and its independent owner YAML scalar; retain the xr namespace and test reverse export without a source XML reference"
+    },
+    {
+      "id": "fill-value-standard-owner-implicit",
+      "entry": "common.standard-attribute-fill-value",
+      "xml": "<Root><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"xr:DesignTimeRef\">Catalog.СправочникВладелец.EmptyRef</xr:FillValue></Root>",
+      "yaml": "",
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ],
+        "owners": [
+          "Справочник.СправочникВладелец"
+        ],
+        "componentKind": "configuration",
+        "policy": "ownerReference"
+      },
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+          "sha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.integration.test.ts"
+        }
+      ],
+      "adaptation": "Keep the immutable Owner wrapper and the independently tested Owner EmptyRef default; omitting the YAML value must restore the typed XML reference from owner facts"
+    },
+    {
+      "id": "fill-value-standard-owner-extension",
+      "entry": "common.standard-attribute-fill-value",
+      "xml": "<Root><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\" /></Root>",
+      "yaml": "",
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ],
+        "owners": [
+          "Справочник.СправочникВладелец"
+        ],
+        "componentKind": "configurationExtension",
+        "policy": "ownerReference"
+      },
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+          "sha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml"
+        },
+        {
+          "path": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+          "sha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.integration.test.ts"
+        }
+      ],
+      "adaptation": "Use the immutable nil standard-attribute FillValue form and the independent Owner extension expectation; the same owner facts must not create a reference in an extension"
     },
     {
       "id": "fill-value-reference",

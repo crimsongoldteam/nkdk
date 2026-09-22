@@ -27,6 +27,7 @@ pub(super) fn expression(path: &str, value: &Node) -> Result<Expression, Diagnos
             "isVariant",
             "variantValue",
             "variantText",
+            "parseYaml",
             "textSegmentPrefix",
             "textLengthAtMost",
             "textLengthEquals",
@@ -96,6 +97,7 @@ pub(super) fn expression(path: &str, value: &Node) -> Result<Expression, Diagnos
                 _ => ExpressionKind::VariantValue { value, variant },
             }
         }
+        "parseYaml" => ExpressionKind::ParseYaml(Box::new(expression(path, operand)?)),
         "textSegmentPrefix" => {
             let fields = operand.mapping(path, &["value", "prefix", "separator"])?;
             let separator = operand

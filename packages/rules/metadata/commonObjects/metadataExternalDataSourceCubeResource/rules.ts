@@ -20,6 +20,7 @@ const hasProperty = (source: YAMLPropertySource | unknown, propertyKey: string):
   ("has" in source && typeof source.has === "function"
     ? source.has(propertyKey)
     : Object.prototype.hasOwnProperty.call(source, propertyKey))
+const { fillValue: _unsupportedFillValue, ...cubeResourceBaseProperties } = externalDataSourceFieldBaseProperties
 export const MetadataExternalDataSourceCubeResourceRules = {
   itemType: "MetadataExternalDataSourceCubeResource",
   externalMetadata: { segment: "Resource", placement: "ownerChild" },
@@ -45,7 +46,7 @@ export const MetadataExternalDataSourceCubeResourceRules = {
     "uuid",
   ],
   properties: {
-    ...externalDataSourceFieldBaseProperties,
+    ...cubeResourceBaseProperties,
     fillFromFillingValue: {
       ...externalDataSourceFieldBaseProperties.fillFromFillingValue,
       toXML: hasOwnMetadataProperty("fillFromFillingValue"),
@@ -69,10 +70,6 @@ export const MetadataExternalDataSourceCubeResourceRules = {
     maxValue: {
       ...externalDataSourceFieldBaseProperties.maxValue,
       toXML: hasOwnMetadataProperty("maxValue"),
-    },
-    fillValue: {
-      ...externalDataSourceFieldBaseProperties.fillValue,
-      toXML: hasOwnMetadataProperty("fillValue"),
     },
     choiceFoldersAndItems: systemEnumerationRule({
       yaml: "ВыборГруппИЭлементов",

@@ -204,7 +204,7 @@ fn constructed_missing_expression(
             program,
             id,
         )?;
-        let omit_code = branch_omissions.map(|_| {
+        let omit_code = (branch_omissions.is_some() || yes.omission.is_some() || no.omission.is_some()).then(|| {
             let yes = yes.omission.as_deref().unwrap_or("false");
             let no = no.omission.as_deref().unwrap_or("false");
             format!("{{let _inputs=inputs;{constants}if {predicate} {{{yes}}} else {{{no}}}}}")
@@ -234,6 +234,35 @@ fn constructed_missing_expression(
                 "part_{id}_{fallback}::read_yaml_document(b\"{{}}\",inputs).map(Stored::V{fallback})"
             ),
             omission: None,
+        });
+    }
+    if let LinkedExpressionKind::Operation {
+        operator: LinkedOperator::ParseYaml,
+        arguments,
+    } = &expression.kind
+        && arguments.len() == 1
+    {
+        if omission.is_some_and(|value| !never_omit(value)) {
+            return Err(unsupported(child, "Parsed YAML default uses inferred equality for omission"));
+        }
+        let LinkedType::Record(fields) = &child.value else { unreachable!("choice owner") };
+        let mut context = expressions::Expressions::new(child, program, fields, None);
+        let lexical = context.lower(&arguments[0])?;
+        if !context.transforms.is_empty() {
+            return Err(unsupported(child, "Parsed YAML default requires a generated transform"));
+        }
+        let constants = context.constants;
+        let document = shape.property.map_or_else(
+            || format!("core::yaml::scalar(&({lexical}).to_string())"),
+            |property| format!("format!(\"{{}}: {{}}\",{property:?},core::yaml::scalar(&({lexical}).to_string()))"),
+        );
+        let parse = format!("{{let _inputs=inputs;{constants}let document={document};read_yaml_document(document.as_bytes(),inputs)}}");
+        let comparisons = (0..shape.variants.len()).map(|variant| format!(
+            "(Stored::V{variant}(actual),Stored::V{variant}(default)) if !part_{id}_{variant}::has_raw(actual)=>{{let mut left=String::new();let mut right=String::new();part_{id}_{variant}::write_yaml(actual,inputs,&mut left)?;part_{id}_{variant}::write_yaml(default,inputs,&mut right)?;left==right}},"
+        )).collect::<String>();
+        return Ok(ConstructedMissing {
+            code: parse.clone(),
+            omission: Some(format!("{{let expected={parse}?;match(value,&expected){{{comparisons}_=>false,}}}}")),
         });
     }
     let LinkedExpressionKind::Operation {

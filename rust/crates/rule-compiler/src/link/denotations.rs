@@ -40,6 +40,22 @@ fn resolve_scoped(
     };
     let (kind, value_type) = match &expression.kind {
         ExpressionKind::Absent => (LinkedExpressionKind::Absent, LinkedType::Absent),
+        ExpressionKind::ParseYaml(value) => {
+            if !matches!(expected_shape, LinkedType::Choice(_)) {
+                return Err(type_error(expression));
+            }
+            let selected = expressions::resolve_expression_in(module, value, modules, ids, scope)?;
+            if !matches!(selected.value_type, LinkedType::Scalar(ScalarType::Text)) {
+                return Err(type_error(value));
+            }
+            (
+                LinkedExpressionKind::Operation {
+                    operator: LinkedOperator::ParseYaml,
+                    arguments: vec![selected],
+                },
+                expected.clone(),
+            )
+        }
         ExpressionKind::ConstructVariant { name, value } => {
             let LinkedType::Choice(variants) = &expected_shape else {
                 return Err(type_error(expression));

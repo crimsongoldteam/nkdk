@@ -190,6 +190,7 @@ pub enum LinkedOperator {
     IsVariant(u32),
     VariantValue(u32),
     VariantText(u32),
+    ParseYaml,
     TextSegmentPrefix(String),
     TextLengthAtMost,
     TextLengthEquals,

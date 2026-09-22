@@ -33,7 +33,7 @@ export function evaluator(program) {
       if (!declaration && node.text === 'undefined') return scalar(undefined);
       if (declaration && ts.isBindingElement(declaration) && ts.isObjectBindingPattern(declaration.parent) && ts.isVariableDeclaration(declaration.parent.parent)) {
         const source=run(declaration.parent.parent.initializer);
-        if(source.kind!=='object' || !source.complete)return unknown(node,'unknown-destructured-object');
+        if(source.kind!=='object')return unknown(node,'unknown-destructured-object');
         const keyOf=element=>{
           const key=element.propertyName??element.name;
           return ts.isIdentifier(key)||ts.isStringLiteral(key)?key.text:undefined;
@@ -43,6 +43,7 @@ export function evaluator(program) {
           if(excluded.includes(undefined))return unknown(node,'dynamic-destructuring-key');
           return {...source,fields:new Map([...source.fields].filter(([key])=>!excluded.includes(key)))};
         }
+        if(!source.complete)return unknown(node,'unknown-destructured-object');
         const key=keyOf(declaration);
         if(key===undefined)return unknown(node,'dynamic-destructuring-key');
         const value=source.fields.get(key)?.value??scalar(undefined);

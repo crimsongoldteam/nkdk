@@ -158,6 +158,13 @@ pub(super) fn resolve_expression_in(
                 },
             )
         }
+        ExpressionKind::ParseYaml(_) => {
+            return Err(diagnostic(
+                "expression_type_mismatch",
+                &expression.source,
+                "YAML parsing is only allowed in a typed denotation",
+            ));
+        }
         ExpressionKind::TextSegmentPrefix {
             value,
             prefix,

@@ -1,6 +1,6 @@
 # Извлечение свойств и сравнение с собранными TS-правилами
 
-Команда: `pnpm migration:extract`. База Git: `3ed62e9ecbe0089dcf625e1f190ad2688477f666`.
+Команда: `pnpm migration:extract`. База Git: `809c31492e8b96cfccfc69c2452393c232a59248`.
 Машинный результат: [rules-extraction.json](../../../tests/migration/rules-extraction.json).
 Статический анализ не исполняет TS. Отдельный процесс Node/tsx загружает
 локальные модули для независимого чтения ключей properties, itemType и
@@ -221,7 +221,7 @@ blocked означает нераскрытую форму; известные �
 | MetadataExternalDataSourceCubeRules | 27 | 26 | keys-match |
 | MetadataExternalDataSourceCubeCollectionRules | 26 | 25 | keys-match |
 | MetadataExternalDataSourceCubeDimensionRules | 44 | 28 | keys-match |
-| MetadataExternalDataSourceCubeResourceRules | 37 | 21 | keys-match |
+| MetadataExternalDataSourceCubeResourceRules | 36 | 21 | keys-match |
 | MetadataExternalDataSourceDimensionTableCommandRules | 15 | 14 | keys-match |
 | MetadataExternalDataSourceDimensionTableRules | 31 | 30 | keys-match |
 | MetadataExternalDataSourceDimensionTableCollectionRules | 30 | 29 | keys-match |

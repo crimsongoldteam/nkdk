@@ -1,7 +1,7 @@
 {
   "version": 1,
   "status": "candidates-only",
-  "sourceRevision": "3ed62e9ecbe0089dcf625e1f190ad2688477f666",
+  "sourceRevision": "809c31492e8b96cfccfc69c2452393c232a59248",
   "sourceHashes": [
     {
       "path": "e2e/finalImportReferences.test.ts",
@@ -4165,7 +4165,7 @@
     },
     {
       "path": "packages/rules/metadata/commonObjects/fillValue/ordinaryItemTypes.ts",
-      "sha256": "d6d6c0d296e4709057fdf6fd064da08e27cdaf2a8e6810890ac7329a1cde0110"
+      "sha256": "af463ff9379a272c1c7cbd1182b9c50f1e0beb087030802a4c0e4c58a2bfd487"
     },
     {
       "path": "packages/rules/metadata/commonObjects/fillValue/register.test.ts",
@@ -4713,7 +4713,7 @@
     },
     {
       "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/fromXMLToYAML.integration.test.ts",
-      "sha256": "dd0e1f89af5d5fad9421016074f18b09dd1943310139c092b846af3c6a60e254"
+      "sha256": "e215a8ae7d488f63f12ef08439da1e5f733afd6cc4e80f790e316d6b65a597b4"
     },
     {
       "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/index.ts",
@@ -4729,7 +4729,7 @@
     },
     {
       "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-      "sha256": "ce1263678dd952b7e8ef7a748e1f49b34bf00de06ae0250dbd0d55a26ae59cef"
+      "sha256": "c7cdaa9f54260d7085e3d7f493acaa2bb932a0f326b3b254ae971637bd7c610d"
     },
     {
       "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/types.ts",
@@ -13006,6 +13006,10 @@
       "sha256": "16d257424c3a5fab2230411615e5138964087b0a091005930d6f941a5b1d9ba4"
     },
     {
+      "path": "rust/declarations/candidates/standard-attribute-fill-value.yaml",
+      "sha256": "7b69e39e35c7d2e3c8ab952e1af7dec0104eca503fde00f18eb1d14497fd218d"
+    },
+    {
       "path": "rust/declarations/common/additional-index-row.yaml",
       "sha256": "8a04decc9f2c123354b7041ca15108e3c9700b5bc189d3cd713b9598705c751d"
     },
@@ -13483,7 +13487,7 @@
     },
     {
       "path": "rust/declarations/probes/choice-default.yaml",
-      "sha256": "daabbaf3eff1e06bd24bf5c593c01eac63bfcd7a06f567a6ba97866cf126a363"
+      "sha256": "b84cc756feadf74f17a941c120fec4698a423929f94f007478c6b4b273fbb6f3"
     },
     {
       "path": "rust/declarations/probes/choice-parameter-links.yaml",
@@ -36249,7 +36253,7 @@
   },
   "existingComparison": {
     "status": "structural-review-only",
-    "matchedFields": 698,
+    "matchedFields": 697,
     "entries": [
       {
         "candidate": "candidate.fragment.000a2f9941fead941e22",
@@ -37143,471 +37147,6 @@
         "reviewTargets": []
       },
       {
-        "candidate": "candidate.fragment.0f84a7fc27009b651835",
-        "field": "type",
-        "matchCount": 4,
-        "reviewTargets": [
-          {
-            "id": "candidate.collection.item.17597f63a93e1d127f04",
-            "field": "type",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "parameters",
-              "constraints"
-            ]
-          },
-          {
-            "id": "metadata.defined-type-extension",
-            "field": "type",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "constraints"
-            ]
-          },
-          {
-            "id": "metadata.defined-type",
-            "field": "type",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "constraints"
-            ]
-          }
-        ]
-      },
-      {
-        "candidate": "candidate.fragment.0f84a7fc27009b651835",
-        "field": "passwordMode",
-        "matchCount": 1,
-        "reviewTargets": [
-          {
-            "id": "candidate.collection.item.17597f63a93e1d127f04",
-            "field": "passwordMode",
-            "differences": [
-              "path"
-            ]
-          }
-        ]
-      },
-      {
-        "candidate": "candidate.fragment.0f84a7fc27009b651835",
-        "field": "format",
-        "matchCount": 1,
-        "reviewTargets": [
-          {
-            "id": "candidate.collection.item.17597f63a93e1d127f04",
-            "field": "format",
-            "differences": [
-              "path",
-              "bindings"
-            ]
-          }
-        ]
-      },
-      {
-        "candidate": "candidate.fragment.0f84a7fc27009b651835",
-        "field": "editFormat",
-        "matchCount": 1,
-        "reviewTargets": [
-          {
-            "id": "candidate.collection.item.17597f63a93e1d127f04",
-            "field": "editFormat",
-            "differences": [
-              "path",
-              "bindings"
-            ]
-          }
-        ]
-      },
-      {
-        "candidate": "candidate.fragment.0f84a7fc27009b651835",
-        "field": "toolTip",
-        "matchCount": 2,
-        "reviewTargets": [
-          {
-            "id": "candidate.collection.item.17597f63a93e1d127f04",
-            "field": "toolTip",
-            "differences": [
-              "path",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.command-base-properties",
-            "field": "ToolTip",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "bindings"
-            ]
-          }
-        ]
-      },
-      {
-        "candidate": "candidate.fragment.0f84a7fc27009b651835",
-        "field": "markNegatives",
-        "matchCount": 1,
-        "reviewTargets": [
-          {
-            "id": "candidate.collection.item.17597f63a93e1d127f04",
-            "field": "markNegatives",
-            "differences": [
-              "path"
-            ]
-          }
-        ]
-      },
-      {
-        "candidate": "candidate.fragment.0f84a7fc27009b651835",
-        "field": "mask",
-        "matchCount": 1,
-        "reviewTargets": [
-          {
-            "id": "candidate.collection.item.17597f63a93e1d127f04",
-            "field": "mask",
-            "differences": [
-              "path"
-            ]
-          }
-        ]
-      },
-      {
-        "candidate": "candidate.fragment.0f84a7fc27009b651835",
-        "field": "multiLine",
-        "matchCount": 1,
-        "reviewTargets": [
-          {
-            "id": "candidate.collection.item.17597f63a93e1d127f04",
-            "field": "multiLine",
-            "differences": [
-              "path"
-            ]
-          }
-        ]
-      },
-      {
-        "candidate": "candidate.fragment.0f84a7fc27009b651835",
-        "field": "choiceParameterLinks",
-        "matchCount": 1,
-        "reviewTargets": [
-          {
-            "id": "candidate.collection.item.17597f63a93e1d127f04",
-            "field": "choiceParameterLinks",
-            "differences": [
-              "path"
-            ]
-          }
-        ]
-      },
-      {
-        "candidate": "candidate.fragment.0f84a7fc27009b651835",
-        "field": "choiceParameters",
-        "matchCount": 1,
-        "reviewTargets": [
-          {
-            "id": "candidate.collection.item.17597f63a93e1d127f04",
-            "field": "choiceParameters",
-            "differences": [
-              "path"
-            ]
-          }
-        ]
-      },
-      {
-        "candidate": "candidate.fragment.0f84a7fc27009b651835",
-        "field": "quickChoice",
-        "matchCount": 1,
-        "reviewTargets": [
-          {
-            "id": "candidate.collection.item.17597f63a93e1d127f04",
-            "field": "quickChoice",
-            "differences": [
-              "path"
-            ]
-          }
-        ]
-      },
-      {
-        "candidate": "candidate.fragment.0f84a7fc27009b651835",
-        "field": "choiceForm",
-        "matchCount": 1,
-        "reviewTargets": [
-          {
-            "id": "candidate.collection.item.17597f63a93e1d127f04",
-            "field": "choiceForm",
-            "differences": [
-              "path"
-            ]
-          }
-        ]
-      },
-      {
-        "candidate": "candidate.fragment.0f84a7fc27009b651835",
-        "field": "extendedEdit",
-        "matchCount": 1,
-        "reviewTargets": [
-          {
-            "id": "candidate.collection.item.17597f63a93e1d127f04",
-            "field": "extendedEdit",
-            "differences": [
-              "path"
-            ]
-          }
-        ]
-      },
-      {
-        "candidate": "candidate.fragment.0f84a7fc27009b651835",
-        "field": "nameInDataSource",
-        "matchCount": 0,
-        "reviewTargets": []
-      },
-      {
-        "candidate": "candidate.fragment.0f84a7fc27009b651835",
-        "field": "minValue",
-        "matchCount": 1,
-        "reviewTargets": [
-          {
-            "id": "candidate.collection.item.17597f63a93e1d127f04",
-            "field": "minValue",
-            "differences": [
-              "path",
-              "xmlPresence"
-            ]
-          }
-        ]
-      },
-      {
-        "candidate": "candidate.fragment.0f84a7fc27009b651835",
-        "field": "maxValue",
-        "matchCount": 1,
-        "reviewTargets": [
-          {
-            "id": "candidate.collection.item.17597f63a93e1d127f04",
-            "field": "maxValue",
-            "differences": [
-              "path",
-              "xmlPresence"
-            ]
-          }
-        ]
-      },
-      {
-        "candidate": "candidate.fragment.0f84a7fc27009b651835",
-        "field": "fillFromFillingValue",
-        "matchCount": 1,
-        "reviewTargets": [
-          {
-            "id": "candidate.collection.item.17597f63a93e1d127f04",
-            "field": "fillFromFillingValue",
-            "differences": [
-              "path",
-              "xmlPresence"
-            ]
-          }
-        ]
-      },
-      {
-        "candidate": "candidate.fragment.0f84a7fc27009b651835",
-        "field": "fillValue",
-        "matchCount": 1,
-        "reviewTargets": [
-          {
-            "id": "candidate.collection.item.17597f63a93e1d127f04",
-            "field": "fillValue",
-            "differences": [
-              "path",
-              "xmlPresence"
-            ]
-          }
-        ]
-      },
-      {
-        "candidate": "candidate.fragment.0f84a7fc27009b651835",
-        "field": "fillChecking",
-        "matchCount": 1,
-        "reviewTargets": [
-          {
-            "id": "candidate.collection.item.17597f63a93e1d127f04",
-            "field": "fillChecking",
-            "differences": [
-              "path",
-              "xmlPresence"
-            ]
-          }
-        ]
-      },
-      {
-        "candidate": "candidate.fragment.0f84a7fc27009b651835",
-        "field": "createOnInput",
-        "matchCount": 2,
-        "reviewTargets": [
-          {
-            "id": "candidate.collection.item.17597f63a93e1d127f04",
-            "field": "createOnInput",
-            "differences": [
-              "path",
-              "xmlPresence"
-            ]
-          },
-          {
-            "id": "fragment.document-base-properties",
-            "field": "CreateOnInput",
-            "differences": [
-              "path",
-              "presence",
-              "xmlPresence"
-            ]
-          }
-        ]
-      },
-      {
-        "candidate": "candidate.fragment.0f84a7fc27009b651835",
-        "field": "choiceHistoryOnInput",
-        "matchCount": 2,
-        "reviewTargets": [
-          {
-            "id": "candidate.collection.item.17597f63a93e1d127f04",
-            "field": "choiceHistoryOnInput",
-            "differences": [
-              "path",
-              "xmlPresence"
-            ]
-          },
-          {
-            "id": "fragment.document-base-properties",
-            "field": "ChoiceHistoryOnInput",
-            "differences": [
-              "path",
-              "xmlPresence"
-            ]
-          }
-        ]
-      },
-      {
-        "candidate": "candidate.fragment.0f84a7fc27009b651835",
-        "field": "choiceFoldersAndItems",
-        "matchCount": 1,
-        "reviewTargets": [
-          {
-            "id": "candidate.collection.item.17597f63a93e1d127f04",
-            "field": "choiceFoldersAndItems",
-            "differences": [
-              "path",
-              "xmlPresence"
-            ]
-          }
-        ]
-      },
-      {
-        "candidate": "candidate.fragment.0f84a7fc27009b651835",
-        "field": "linkByType",
-        "matchCount": 1,
-        "reviewTargets": [
-          {
-            "id": "candidate.collection.item.17597f63a93e1d127f04",
-            "field": "linkByType",
-            "differences": [
-              "path",
-              "xmlPresence"
-            ]
-          }
-        ]
-      },
-      {
-        "candidate": "candidate.fragment.0f84a7fc27009b651835",
-        "field": "fullTextSearch",
-        "matchCount": 2,
-        "reviewTargets": [
-          {
-            "id": "candidate.collection.item.17597f63a93e1d127f04",
-            "field": "fullTextSearch",
-            "differences": [
-              "path",
-              "xmlPresence"
-            ]
-          },
-          {
-            "id": "fragment.document-base-properties",
-            "field": "FullTextSearch",
-            "differences": [
-              "path",
-              "xmlPresence"
-            ]
-          }
-        ]
-      },
-      {
-        "candidate": "candidate.fragment.0f84a7fc27009b651835",
-        "field": "indexing",
-        "matchCount": 1,
-        "reviewTargets": [
-          {
-            "id": "candidate.collection.item.17597f63a93e1d127f04",
-            "field": "indexing",
-            "differences": [
-              "path",
-              "xmlPresence"
-            ]
-          }
-        ]
-      },
-      {
-        "candidate": "candidate.fragment.0f84a7fc27009b651835",
-        "field": "dataHistory",
-        "matchCount": 2,
-        "reviewTargets": [
-          {
-            "id": "candidate.collection.item.17597f63a93e1d127f04",
-            "field": "dataHistory",
-            "differences": [
-              "path",
-              "xmlPresence"
-            ]
-          },
-          {
-            "id": "fragment.document-base-properties",
-            "field": "DataHistory",
-            "differences": [
-              "path",
-              "presence",
-              "xmlPresence"
-            ]
-          }
-        ]
-      },
-      {
-        "candidate": "candidate.fragment.0f84a7fc27009b651835",
-        "field": "binaryDataStorageLocationUse",
-        "matchCount": 0,
-        "reviewTargets": []
-      },
-      {
-        "candidate": "candidate.fragment.0f84a7fc27009b651835",
-        "field": "binaryDataStorageLocationUseField",
-        "matchCount": 0,
-        "reviewTargets": []
-      },
-      {
-        "candidate": "candidate.fragment.0f84a7fc27009b651835",
-        "field": "balance",
-        "matchCount": 0,
-        "reviewTargets": []
-      },
-      {
-        "candidate": "candidate.fragment.0f84a7fc27009b651835",
-        "field": "accountingFlag",
-        "matchCount": 0,
-        "reviewTargets": []
-      },
-      {
-        "candidate": "candidate.fragment.0f84a7fc27009b651835",
-        "field": "extDimensionAccountingFlag",
-        "matchCount": 0,
-        "reviewTargets": []
-      },
-      {
         "candidate": "candidate.fragment.10275e3e65728fe0608d",
         "field": "state",
         "matchCount": 0,
@@ -38092,6 +37631,41 @@
         "field": "representation",
         "matchCount": 0,
         "reviewTargets": []
+      },
+      {
+        "candidate": "candidate.fragment.1765115867f73cbe2b6f",
+        "field": "type",
+        "matchCount": 4,
+        "reviewTargets": [
+          {
+            "id": "candidate.collection.item.17597f63a93e1d127f04",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence",
+              "parameters",
+              "constraints"
+            ]
+          },
+          {
+            "id": "metadata.defined-type-extension",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence",
+              "constraints"
+            ]
+          },
+          {
+            "id": "metadata.defined-type",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence",
+              "constraints"
+            ]
+          }
+        ]
       },
       {
         "candidate": "candidate.fragment.177c7fbe801de84da6e6",
@@ -44561,7 +44135,7 @@
       {
         "candidate": "candidate.fragment.55e0435660009f1f5fb6",
         "field": "name",
-        "matchCount": 13,
+        "matchCount": 14,
         "reviewTargets": [
           {
             "id": "common.additional-index-row",
@@ -45787,6 +45361,241 @@
       {
         "candidate": "candidate.fragment.6c435e22d0913f541c9e",
         "field": "initialListView",
+        "matchCount": 0,
+        "reviewTargets": []
+      },
+      {
+        "candidate": "candidate.fragment.6cf1ab15d981ab40d12f",
+        "field": "nameInDataSource",
+        "matchCount": 0,
+        "reviewTargets": []
+      },
+      {
+        "candidate": "candidate.fragment.6cf1ab15d981ab40d12f",
+        "field": "minValue",
+        "matchCount": 1,
+        "reviewTargets": [
+          {
+            "id": "candidate.collection.item.17597f63a93e1d127f04",
+            "field": "minValue",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          }
+        ]
+      },
+      {
+        "candidate": "candidate.fragment.6cf1ab15d981ab40d12f",
+        "field": "maxValue",
+        "matchCount": 1,
+        "reviewTargets": [
+          {
+            "id": "candidate.collection.item.17597f63a93e1d127f04",
+            "field": "maxValue",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          }
+        ]
+      },
+      {
+        "candidate": "candidate.fragment.6cf1ab15d981ab40d12f",
+        "field": "fillFromFillingValue",
+        "matchCount": 1,
+        "reviewTargets": [
+          {
+            "id": "candidate.collection.item.17597f63a93e1d127f04",
+            "field": "fillFromFillingValue",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          }
+        ]
+      },
+      {
+        "candidate": "candidate.fragment.6cf1ab15d981ab40d12f",
+        "field": "fillChecking",
+        "matchCount": 1,
+        "reviewTargets": [
+          {
+            "id": "candidate.collection.item.17597f63a93e1d127f04",
+            "field": "fillChecking",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          }
+        ]
+      },
+      {
+        "candidate": "candidate.fragment.6cf1ab15d981ab40d12f",
+        "field": "createOnInput",
+        "matchCount": 2,
+        "reviewTargets": [
+          {
+            "id": "candidate.collection.item.17597f63a93e1d127f04",
+            "field": "createOnInput",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          },
+          {
+            "id": "fragment.document-base-properties",
+            "field": "CreateOnInput",
+            "differences": [
+              "path",
+              "presence",
+              "xmlPresence"
+            ]
+          }
+        ]
+      },
+      {
+        "candidate": "candidate.fragment.6cf1ab15d981ab40d12f",
+        "field": "choiceHistoryOnInput",
+        "matchCount": 2,
+        "reviewTargets": [
+          {
+            "id": "candidate.collection.item.17597f63a93e1d127f04",
+            "field": "choiceHistoryOnInput",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          },
+          {
+            "id": "fragment.document-base-properties",
+            "field": "ChoiceHistoryOnInput",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          }
+        ]
+      },
+      {
+        "candidate": "candidate.fragment.6cf1ab15d981ab40d12f",
+        "field": "choiceFoldersAndItems",
+        "matchCount": 1,
+        "reviewTargets": [
+          {
+            "id": "candidate.collection.item.17597f63a93e1d127f04",
+            "field": "choiceFoldersAndItems",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          }
+        ]
+      },
+      {
+        "candidate": "candidate.fragment.6cf1ab15d981ab40d12f",
+        "field": "linkByType",
+        "matchCount": 1,
+        "reviewTargets": [
+          {
+            "id": "candidate.collection.item.17597f63a93e1d127f04",
+            "field": "linkByType",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          }
+        ]
+      },
+      {
+        "candidate": "candidate.fragment.6cf1ab15d981ab40d12f",
+        "field": "fullTextSearch",
+        "matchCount": 2,
+        "reviewTargets": [
+          {
+            "id": "candidate.collection.item.17597f63a93e1d127f04",
+            "field": "fullTextSearch",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          },
+          {
+            "id": "fragment.document-base-properties",
+            "field": "FullTextSearch",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          }
+        ]
+      },
+      {
+        "candidate": "candidate.fragment.6cf1ab15d981ab40d12f",
+        "field": "indexing",
+        "matchCount": 1,
+        "reviewTargets": [
+          {
+            "id": "candidate.collection.item.17597f63a93e1d127f04",
+            "field": "indexing",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          }
+        ]
+      },
+      {
+        "candidate": "candidate.fragment.6cf1ab15d981ab40d12f",
+        "field": "dataHistory",
+        "matchCount": 2,
+        "reviewTargets": [
+          {
+            "id": "candidate.collection.item.17597f63a93e1d127f04",
+            "field": "dataHistory",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          },
+          {
+            "id": "fragment.document-base-properties",
+            "field": "DataHistory",
+            "differences": [
+              "path",
+              "presence",
+              "xmlPresence"
+            ]
+          }
+        ]
+      },
+      {
+        "candidate": "candidate.fragment.6cf1ab15d981ab40d12f",
+        "field": "binaryDataStorageLocationUse",
+        "matchCount": 0,
+        "reviewTargets": []
+      },
+      {
+        "candidate": "candidate.fragment.6cf1ab15d981ab40d12f",
+        "field": "binaryDataStorageLocationUseField",
+        "matchCount": 0,
+        "reviewTargets": []
+      },
+      {
+        "candidate": "candidate.fragment.6cf1ab15d981ab40d12f",
+        "field": "balance",
+        "matchCount": 0,
+        "reviewTargets": []
+      },
+      {
+        "candidate": "candidate.fragment.6cf1ab15d981ab40d12f",
+        "field": "accountingFlag",
+        "matchCount": 0,
+        "reviewTargets": []
+      },
+      {
+        "candidate": "candidate.fragment.6cf1ab15d981ab40d12f",
+        "field": "extDimensionAccountingFlag",
         "matchCount": 0,
         "reviewTargets": []
       },
@@ -47985,6 +47794,116 @@
         ]
       },
       {
+        "candidate": "candidate.fragment.9ad6da348830d9104819",
+        "field": "passwordMode",
+        "matchCount": 1,
+        "reviewTargets": [
+          {
+            "id": "candidate.collection.item.17597f63a93e1d127f04",
+            "field": "passwordMode",
+            "differences": [
+              "path"
+            ]
+          }
+        ]
+      },
+      {
+        "candidate": "candidate.fragment.9ad6da348830d9104819",
+        "field": "format",
+        "matchCount": 1,
+        "reviewTargets": [
+          {
+            "id": "candidate.collection.item.17597f63a93e1d127f04",
+            "field": "format",
+            "differences": [
+              "path",
+              "bindings"
+            ]
+          }
+        ]
+      },
+      {
+        "candidate": "candidate.fragment.9ad6da348830d9104819",
+        "field": "editFormat",
+        "matchCount": 1,
+        "reviewTargets": [
+          {
+            "id": "candidate.collection.item.17597f63a93e1d127f04",
+            "field": "editFormat",
+            "differences": [
+              "path",
+              "bindings"
+            ]
+          }
+        ]
+      },
+      {
+        "candidate": "candidate.fragment.9ad6da348830d9104819",
+        "field": "toolTip",
+        "matchCount": 2,
+        "reviewTargets": [
+          {
+            "id": "candidate.collection.item.17597f63a93e1d127f04",
+            "field": "toolTip",
+            "differences": [
+              "path",
+              "bindings"
+            ]
+          },
+          {
+            "id": "fragment.command-base-properties",
+            "field": "ToolTip",
+            "differences": [
+              "path",
+              "xmlPresence",
+              "bindings"
+            ]
+          }
+        ]
+      },
+      {
+        "candidate": "candidate.fragment.9ad6da348830d9104819",
+        "field": "markNegatives",
+        "matchCount": 1,
+        "reviewTargets": [
+          {
+            "id": "candidate.collection.item.17597f63a93e1d127f04",
+            "field": "markNegatives",
+            "differences": [
+              "path"
+            ]
+          }
+        ]
+      },
+      {
+        "candidate": "candidate.fragment.9ad6da348830d9104819",
+        "field": "mask",
+        "matchCount": 1,
+        "reviewTargets": [
+          {
+            "id": "candidate.collection.item.17597f63a93e1d127f04",
+            "field": "mask",
+            "differences": [
+              "path"
+            ]
+          }
+        ]
+      },
+      {
+        "candidate": "candidate.fragment.9ad6da348830d9104819",
+        "field": "multiLine",
+        "matchCount": 1,
+        "reviewTargets": [
+          {
+            "id": "candidate.collection.item.17597f63a93e1d127f04",
+            "field": "multiLine",
+            "differences": [
+              "path"
+            ]
+          }
+        ]
+      },
+      {
         "candidate": "candidate.fragment.9aec6bf9eff9403654b1",
         "field": "choiceAvailable",
         "matchCount": 0,
@@ -50093,6 +50012,20 @@
         "reviewTargets": []
       },
       {
+        "candidate": "candidate.fragment.b25981ecee7e0a4504cf",
+        "field": "extendedEdit",
+        "matchCount": 1,
+        "reviewTargets": [
+          {
+            "id": "candidate.collection.item.17597f63a93e1d127f04",
+            "field": "extendedEdit",
+            "differences": [
+              "path"
+            ]
+          }
+        ]
+      },
+      {
         "candidate": "candidate.fragment.b2c895dccf9b2197af6d",
         "field": "autoMaxWidth",
         "matchCount": 0,
@@ -50109,6 +50042,62 @@
             "differences": [
               "path",
               "presence"
+            ]
+          }
+        ]
+      },
+      {
+        "candidate": "candidate.fragment.b3bca85e5ee9efeccc30",
+        "field": "choiceParameterLinks",
+        "matchCount": 1,
+        "reviewTargets": [
+          {
+            "id": "candidate.collection.item.17597f63a93e1d127f04",
+            "field": "choiceParameterLinks",
+            "differences": [
+              "path"
+            ]
+          }
+        ]
+      },
+      {
+        "candidate": "candidate.fragment.b3bca85e5ee9efeccc30",
+        "field": "choiceParameters",
+        "matchCount": 1,
+        "reviewTargets": [
+          {
+            "id": "candidate.collection.item.17597f63a93e1d127f04",
+            "field": "choiceParameters",
+            "differences": [
+              "path"
+            ]
+          }
+        ]
+      },
+      {
+        "candidate": "candidate.fragment.b3bca85e5ee9efeccc30",
+        "field": "quickChoice",
+        "matchCount": 1,
+        "reviewTargets": [
+          {
+            "id": "candidate.collection.item.17597f63a93e1d127f04",
+            "field": "quickChoice",
+            "differences": [
+              "path"
+            ]
+          }
+        ]
+      },
+      {
+        "candidate": "candidate.fragment.b3bca85e5ee9efeccc30",
+        "field": "choiceForm",
+        "matchCount": 1,
+        "reviewTargets": [
+          {
+            "id": "candidate.collection.item.17597f63a93e1d127f04",
+            "field": "choiceForm",
+            "differences": [
+              "path"
             ]
           }
         ]
@@ -56345,8 +56334,8 @@
     ]
   },
   "summary": {
-    "properties": 3870,
-    "fragments": 902,
+    "properties": 3869,
+    "fragments": 906,
     "projections": 853,
     "dependencies": 259,
     "blockers": [
@@ -110289,7 +110278,7 @@
           "name": "nameInDataSource",
           "source": {
             "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 93,
+            "line": 90,
             "column": 5
           },
           "status": "candidate"
@@ -110308,7 +110297,7 @@
           "name": "minValue",
           "source": {
             "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 65,
+            "line": 66,
             "column": 5
           },
           "status": "candidate"
@@ -110317,7 +110306,7 @@
           "name": "maxValue",
           "source": {
             "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 69,
+            "line": 70,
             "column": 5
           },
           "status": "candidate"
@@ -110326,16 +110315,7 @@
           "name": "fillFromFillingValue",
           "source": {
             "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 49,
-            "column": 5
-          },
-          "status": "candidate"
-        },
-        {
-          "name": "fillValue",
-          "source": {
-            "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 73,
+            "line": 50,
             "column": 5
           },
           "status": "candidate"
@@ -110344,7 +110324,7 @@
           "name": "fillChecking",
           "source": {
             "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 53,
+            "line": 54,
             "column": 5
           },
           "status": "candidate"
@@ -110353,7 +110333,7 @@
           "name": "createOnInput",
           "source": {
             "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 57,
+            "line": 58,
             "column": 5
           },
           "status": "candidate"
@@ -110362,7 +110342,7 @@
           "name": "choiceHistoryOnInput",
           "source": {
             "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 61,
+            "line": 62,
             "column": 5
           },
           "status": "candidate"
@@ -110371,7 +110351,7 @@
           "name": "choiceFoldersAndItems",
           "source": {
             "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 77,
+            "line": 74,
             "column": 5
           },
           "status": "candidate"
@@ -110380,7 +110360,7 @@
           "name": "linkByType",
           "source": {
             "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 86,
+            "line": 83,
             "column": 5
           },
           "status": "candidate"
@@ -110389,7 +110369,7 @@
           "name": "fullTextSearch",
           "source": {
             "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 99,
+            "line": 96,
             "column": 5
           },
           "status": "candidate"
@@ -110398,7 +110378,7 @@
           "name": "indexing",
           "source": {
             "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 108,
+            "line": 105,
             "column": 5
           },
           "status": "candidate"
@@ -110407,7 +110387,7 @@
           "name": "dataHistory",
           "source": {
             "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 117,
+            "line": 114,
             "column": 5
           },
           "status": "candidate"
@@ -110416,7 +110396,7 @@
           "name": "binaryDataStorageLocationUse",
           "source": {
             "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 126,
+            "line": 123,
             "column": 5
           },
           "status": "candidate"
@@ -110425,7 +110405,7 @@
           "name": "binaryDataStorageLocationUseField",
           "source": {
             "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 133,
+            "line": 130,
             "column": 5
           },
           "status": "candidate"
@@ -110434,7 +110414,7 @@
           "name": "balance",
           "source": {
             "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 140,
+            "line": 137,
             "column": 5
           },
           "status": "candidate"
@@ -110443,7 +110423,7 @@
           "name": "accountingFlag",
           "source": {
             "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 148,
+            "line": 145,
             "column": 5
           },
           "status": "candidate"
@@ -110452,7 +110432,7 @@
           "name": "extDimensionAccountingFlag",
           "source": {
             "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 155,
+            "line": 152,
             "column": 5
           },
           "status": "candidate"
@@ -110470,7 +110450,7 @@
       ],
       "projections": [
         {
-          "id": "candidate.projection.f739d54be1992c361d9f",
+          "id": "candidate.projection.438d6d6ec02ec03dac1b",
           "root": "Properties",
           "context": "relative-path; owner namespaces and wrapper not bound",
           "fields": [
@@ -110494,7 +110474,6 @@
             "minValue",
             "maxValue",
             "fillFromFillingValue",
-            "fillValue",
             "fillChecking",
             "createOnInput",
             "choiceHistoryOnInput",
@@ -110513,7 +110492,11 @@
             "candidate.fragment.005c1b164180436637b2",
             "candidate.fragment.52a2075291fd16c7818a",
             "candidate.fragment.e8b8bc7db0633e109fe8",
-            "candidate.fragment.0f84a7fc27009b651835"
+            "candidate.fragment.1765115867f73cbe2b6f",
+            "candidate.fragment.9ad6da348830d9104819",
+            "candidate.fragment.b3bca85e5ee9efeccc30",
+            "candidate.fragment.b25981ecee7e0a4504cf",
+            "candidate.fragment.6cf1ab15d981ab40d12f"
           ]
         }
       ]
@@ -161627,7 +161610,6 @@
     "candidate.fragment.0ed5dad56efc1bc8ae8b.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: common.exact-decimal\nvalue:\n  kind: record\n  fields:\n    - name: choiceListHeight\n      type:\n        use: value0\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: choiceListHeight\n        path:\n          - ChoiceListHeight\n  yaml:\n    kind: mapping\n    fields:\n      - field: choiceListHeight\n        key: ВысотаСпискаВыбора\npresence:\n  - target:\n      field: choiceListHeight\n    xml:\n      missing:\n        denotes:\n          literal: 0\n      canonical:\n        - when:\n            eq:\n              - field: choiceListHeight\n              - literal: 0\n          form: missing\n    yaml:\n      default:\n        literal: 0\nid: candidate.fragment.0ed5dad56efc1bc8ae8b\n",
     "candidate.fragment.0edff66d7a0e2a2a3070.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: common.boolean\nvalue:\n  kind: record\n  fields:\n    - name: autoSaveUserSettings\n      type:\n        use: value0\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: autoSaveUserSettings\n        path:\n          - AutoSaveUserSettings\n  yaml:\n    kind: mapping\n    fields:\n      - field: autoSaveUserSettings\n        key: АвтоматическоеСохранениеПользовательскихНастроек\npresence:\n  - target:\n      field: autoSaveUserSettings\n    xml:\n      missing:\n        denotes:\n          literal: true\n      canonical:\n        - when:\n            eq:\n              - field: autoSaveUserSettings\n              - literal: true\n          form: missing\n    yaml:\n      default:\n        literal: true\nid: candidate.fragment.0edff66d7a0e2a2a3070\n",
     "candidate.fragment.0f6554ef3a5975a9d4e2.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: common.exact-decimal\nvalue:\n  kind: record\n  fields:\n    - name: height\n      type:\n        use: value0\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: height\n        path:\n          - Height\n  yaml:\n    kind: mapping\n    fields:\n      - field: height\n        key: Высота\npresence:\n  - target:\n      field: height\n    xml:\n      missing:\n        denotes:\n          literal: 9\n      canonical:\n        - when:\n            eq:\n              - field: height\n              - literal: 9\n          form: missing\n    yaml:\n      default:\n        literal: 9\nid: candidate.fragment.0f6554ef3a5975a9d4e2\n",
-    "candidate.fragment.0f84a7fc27009b651835.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: common.type-description\n  value1: common.boolean\n  value2: common.i8n-text\n  value3: common.string\n  value4: common.choice-parameter-links\n  value5: common.choice-parameters\n  value6: system.UseQuickChoice\n  inputType1f8ea46361ff: common.path-root\n  value8: common.metadata-form-link\n  value9: common.min-max-value-text\n  value10: common.metadata-value\n  value11: system.FillChecking\n  value12: system.CreateOnInput\n  value13: system.ChoiceHistoryOnInput\n  value14: system.FoldersAndItemsUse\n  value15: common.type-link\n  value16: system.UseFullTextSearch\n  value17: system.Indexing\n  value18: system.DataHistoryUse\n  value19: system.BinaryDataStorageLocationUse\nvalue:\n  kind: record\n  fields:\n    - name: type\n      type:\n        use: value0\n        bind: {}\n    - name: passwordMode\n      type:\n        use: value1\n    - name: format\n      type:\n        use: value2\n        bind:\n          defaultLanguage:\n            input: defaultLanguage\n          registeredLanguages:\n            input: registeredLanguages\n          ownerName:\n            input: ownerName\n    - name: editFormat\n      type:\n        use: value2\n        bind:\n          defaultLanguage:\n            input: defaultLanguage\n          registeredLanguages:\n            input: registeredLanguages\n          ownerName:\n            input: ownerName\n    - name: toolTip\n      type:\n        use: value2\n        bind:\n          defaultLanguage:\n            input: defaultLanguage\n          registeredLanguages:\n            input: registeredLanguages\n          ownerName:\n            input: ownerName\n    - name: markNegatives\n      type:\n        use: value1\n    - name: mask\n      type:\n        use: value3\n    - name: multiLine\n      type:\n        use: value1\n    - name: choiceParameterLinks\n      type:\n        use: value4\n        bind: {}\n    - name: choiceParameters\n      type:\n        use: value5\n        bind:\n          defaultLanguage:\n            input: defaultLanguage\n          registeredLanguages:\n            input: registeredLanguages\n    - name: quickChoice\n      type:\n        use: value6\n    - name: choiceForm\n      type:\n        use: value8\n        bind:\n          roots:\n            input: roots\n          forms:\n            input: forms\n    - name: extendedEdit\n      type:\n        use: value1\n    - name: nameInDataSource\n      type:\n        use: value3\n    - name: minValue\n      type:\n        use: value9\n    - name: maxValue\n      type:\n        use: value9\n    - name: fillFromFillingValue\n      type:\n        use: value1\n    - name: fillValue\n      type:\n        use: value10\n        bind:\n          defaultLanguage:\n            input: defaultLanguage\n          registeredLanguages:\n            input: registeredLanguages\n          onlyStringType:\n            and:\n              - present:\n                  field: type\n              - one:\n                  in:\n                    get:\n                      of:\n                        field: type\n                      field: items\n                  as: item\n                  where:\n                    literal: true\n              - exists:\n                  in:\n                    get:\n                      of:\n                        field: type\n                      field: items\n                  as: item\n                  where:\n                    matches:\n                      value:\n                        get:\n                          of:\n                            var: item\n                          field: value\n                      pattern: Строка|ФиксированнаяСтрока\n        with:\n          exportNilValue: true\n    - name: fillChecking\n      type:\n        use: value11\n    - name: createOnInput\n      type:\n        use: value12\n    - name: choiceHistoryOnInput\n      type:\n        use: value13\n    - name: choiceFoldersAndItems\n      type:\n        use: value14\n    - name: linkByType\n      type:\n        use: value15\n        bind: {}\n    - name: fullTextSearch\n      type:\n        use: value16\n    - name: indexing\n      type:\n        use: value17\n    - name: dataHistory\n      type:\n        use: value18\n    - name: binaryDataStorageLocationUse\n      type:\n        use: value19\n    - name: binaryDataStorageLocationUseField\n      type:\n        use: value3\n    - name: balance\n      type:\n        use: value1\n    - name: accountingFlag\n      type:\n        use: value3\n    - name: extDimensionAccountingFlag\n      type:\n        use: value3\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: type\n        path:\n          - Properties\n          - Type\n      - field: passwordMode\n        path:\n          - Properties\n          - PasswordMode\n      - field: format\n        path:\n          - Properties\n          - Format\n      - field: editFormat\n        path:\n          - Properties\n          - EditFormat\n      - field: toolTip\n        path:\n          - Properties\n          - ToolTip\n      - field: markNegatives\n        path:\n          - Properties\n          - MarkNegatives\n      - field: mask\n        path:\n          - Properties\n          - Mask\n      - field: multiLine\n        path:\n          - Properties\n          - MultiLine\n      - field: choiceParameterLinks\n        path:\n          - Properties\n          - ChoiceParameterLinks\n      - field: choiceParameters\n        path:\n          - Properties\n          - ChoiceParameters\n      - field: quickChoice\n        path:\n          - Properties\n          - QuickChoice\n      - field: choiceForm\n        path:\n          - Properties\n          - ChoiceForm\n      - field: extendedEdit\n        path:\n          - Properties\n          - ExtendedEdit\n      - field: nameInDataSource\n        path:\n          - Properties\n          - NameInDataSource\n      - field: minValue\n        path:\n          - Properties\n          - MinValue\n      - field: maxValue\n        path:\n          - Properties\n          - MaxValue\n      - field: fillFromFillingValue\n        path:\n          - Properties\n          - FillFromFillingValue\n      - field: fillValue\n        path:\n          - Properties\n          - FillValue\n      - field: fillChecking\n        path:\n          - Properties\n          - FillChecking\n      - field: createOnInput\n        path:\n          - Properties\n          - CreateOnInput\n      - field: choiceHistoryOnInput\n        path:\n          - Properties\n          - ChoiceHistoryOnInput\n      - field: choiceFoldersAndItems\n        path:\n          - Properties\n          - ChoiceFoldersAndItems\n      - field: linkByType\n        path:\n          - Properties\n          - LinkByType\n      - field: fullTextSearch\n        path:\n          - Properties\n          - FullTextSearch\n      - field: indexing\n        path:\n          - Properties\n          - Indexing\n      - field: dataHistory\n        path:\n          - Properties\n          - DataHistory\n      - field: binaryDataStorageLocationUse\n        path:\n          - Properties\n          - BinaryDataStorageLocationUse\n      - field: binaryDataStorageLocationUseField\n        path:\n          - Properties\n          - BinaryDataStorageLocationUseField\n      - field: balance\n        path:\n          - Properties\n          - Balance\n      - field: accountingFlag\n        path:\n          - Properties\n          - AccountingFlag\n      - field: extDimensionAccountingFlag\n        path:\n          - Properties\n          - ExtDimensionAccountingFlag\n  yaml:\n    kind: mapping\n    fields:\n      - field: type\n        key: Тип\n      - field: passwordMode\n        key: РежимПароля\n      - field: format\n        key: Формат\n      - field: editFormat\n        key: ФорматРедактирования\n      - field: toolTip\n        key: Подсказка\n      - field: markNegatives\n        key: ВыделятьОтрицательные\n      - field: mask\n        key: Маска\n      - field: multiLine\n        key: МногострочныйРежим\n      - field: choiceParameterLinks\n        key: СвязиПараметровВыбора\n      - field: choiceParameters\n        key: ПараметрыВыбора\n      - field: quickChoice\n        key: БыстрыйВыбор\n      - field: choiceForm\n        key: ФормаВыбора\n      - field: extendedEdit\n        key: РасширенноеРедактирование\n      - field: nameInDataSource\n        key: ИмяВИсточникеДанных\n      - field: minValue\n        key: МинимальноеЗначение\n      - field: maxValue\n        key: МаксимальноеЗначение\n      - field: fillFromFillingValue\n        key: ЗаполнятьИзДанныхЗаполнения\n      - field: fillValue\n        key: ЗначениеЗаполнения\n      - field: fillChecking\n        key: ПроверкаЗаполнения\n      - field: createOnInput\n        key: СозданиеПриВводе\n      - field: choiceHistoryOnInput\n        key: ИсторияВыбораПриВводе\n      - field: choiceFoldersAndItems\n        key: ВыборГруппИЭлементов\n      - field: linkByType\n        key: СвязьПоТипу\n      - field: fullTextSearch\n        key: ПолнотекстовыйПоиск\n      - field: indexing\n        key: Индексирование\n      - field: dataHistory\n        key: ИсторияДанных\n      - field: binaryDataStorageLocationUse\n        key: ИспользованиеХраненияВХранилищеДвоичныхДанных\n      - field: binaryDataStorageLocationUseField\n        key: ПолеИспользованияХраненияВХранилищеДвоичныхДанных\n      - field: balance\n        key: Балансовый\n      - field: accountingFlag\n        key: ПризнакУчета\n      - field: extDimensionAccountingFlag\n        key: ПризнакУчетаСубконто\npresence:\n  - target:\n      field: type\n    xml:\n      missing:\n        denotes:\n          absent: true\n      empty:\n        - form: empty-element\n          denotes:\n            absent: true\n    yaml:\n      missing:\n        denotes:\n          absent: true\n  - target:\n      field: passwordMode\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      default:\n        literal: false\n  - target:\n      field: format\n    xml:\n      missing:\n        denotes:\n          absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: format\n          form: empty-element\n  - target:\n      field: editFormat\n    xml:\n      missing:\n        denotes:\n          absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: editFormat\n          form: empty-element\n  - target:\n      field: toolTip\n    xml:\n      missing:\n        denotes:\n          absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: toolTip\n          form: empty-element\n  - target:\n      field: markNegatives\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      default:\n        literal: false\n  - target:\n      field: mask\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      default:\n        literal: ''\n  - target:\n      field: multiLine\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      default:\n        literal: false\n  - target:\n      field: choiceParameterLinks\n    xml:\n      missing:\n        denotes:\n          absent: true\n      empty:\n        - form: empty-element\n          denotes:\n            absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: choiceParameterLinks\n          form: empty-element\n    yaml:\n      missing:\n        denotes:\n          absent: true\n  - target:\n      field: choiceParameters\n    xml:\n      missing:\n        denotes:\n          absent: true\n      empty:\n        - form: empty-element\n          denotes:\n            absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: choiceParameters\n          form: empty-element\n    yaml:\n      missing:\n        denotes:\n          absent: true\n  - target:\n      field: quickChoice\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      default:\n        literal: Auto\n  - target:\n      field: choiceForm\n    xml:\n      missing:\n        denotes:\n          absent: true\n      empty:\n        - form: empty-element\n          denotes:\n            absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: choiceForm\n          form: empty-element\n    yaml:\n      missing:\n        denotes:\n          absent: true\n  - target:\n      field: extendedEdit\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      default:\n        literal: false\n  - target:\n      field: nameInDataSource\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      missing:\n        denotes:\n          absent: true\n  - target:\n      field: minValue\n    xml:\n      missing:\n        denotes:\n          absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: minValue\n          form: missing\n    yaml:\n      missing:\n        denotes:\n          absent: true\n  - target:\n      field: maxValue\n    xml:\n      missing:\n        denotes:\n          absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: maxValue\n          form: missing\n    yaml:\n      missing:\n        denotes:\n          absent: true\n  - target:\n      field: fillFromFillingValue\n    xml:\n      missing:\n        denotes:\n          absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: fillFromFillingValue\n          form: missing\n    yaml:\n      default:\n        literal: false\n  - target:\n      field: fillValue\n    xml:\n      missing:\n        denotes:\n          absent: true\n      empty:\n        - form: nil\n          denotes:\n            absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: fillValue\n          form: missing\n    yaml:\n      missing:\n        denotes:\n          if:\n            and:\n              - present:\n                  field: type\n              - one:\n                  in:\n                    get:\n                      of:\n                        field: type\n                      field: items\n                  as: item\n                  where:\n                    literal: true\n              - exists:\n                  in:\n                    get:\n                      of:\n                        field: type\n                      field: items\n                  as: item\n                  where:\n                    matches:\n                      value:\n                        get:\n                          of:\n                            var: item\n                          field: value\n                      pattern: ^(Строка|ФиксированнаяСтрока)$\n          then:\n            variant:\n              name: text\n              value:\n                literal: ''\n          else:\n            absent: true\n      omitWhen:\n        if:\n          and:\n            - present:\n                field: type\n            - one:\n                in:\n                  get:\n                    of:\n                      field: type\n                    field: items\n                as: item\n                where:\n                  literal: true\n            - exists:\n                in:\n                  get:\n                    of:\n                      field: type\n                    field: items\n                as: item\n                where:\n                  matches:\n                    value:\n                      get:\n                        of:\n                          var: item\n                        field: value\n                    pattern: ^(Строка|ФиксированнаяСтрока)$\n        then:\n          and:\n            - isVariant:\n                value:\n                  field: fillValue\n                variant: text\n            - eq:\n                - variantValue:\n                    value:\n                      field: fillValue\n                    variant: text\n                - literal: ''\n        else:\n          literal: false\n  - target:\n      field: fillChecking\n    xml:\n      missing:\n        denotes:\n          absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: fillChecking\n          form: missing\n    yaml:\n      default:\n        literal: DontCheck\n  - target:\n      field: createOnInput\n    xml:\n      missing:\n        denotes:\n          absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: createOnInput\n          form: missing\n    yaml:\n      default:\n        literal: Auto\n  - target:\n      field: choiceHistoryOnInput\n    xml:\n      missing:\n        denotes:\n          absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: choiceHistoryOnInput\n          form: missing\n    yaml:\n      default:\n        literal: Auto\n  - target:\n      field: choiceFoldersAndItems\n    xml:\n      missing:\n        denotes:\n          absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: choiceFoldersAndItems\n          form: missing\n    yaml:\n      default:\n        literal: Items\n  - target:\n      field: linkByType\n    xml:\n      missing:\n        denotes:\n          absent: true\n      empty:\n        - form: empty-element\n          denotes:\n            absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: linkByType\n          form: missing\n    yaml:\n      missing:\n        denotes:\n          absent: true\n  - target:\n      field: fullTextSearch\n    xml:\n      missing:\n        denotes:\n          absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: fullTextSearch\n          form: missing\n    yaml:\n      default:\n        literal: Use\n  - target:\n      field: indexing\n    xml:\n      missing:\n        denotes:\n          absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: indexing\n          form: missing\n    yaml:\n      default:\n        literal: DontIndex\n  - target:\n      field: dataHistory\n    xml:\n      missing:\n        denotes:\n          absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: dataHistory\n          form: missing\n    yaml:\n      default:\n        literal: Use\n  - target:\n      field: binaryDataStorageLocationUse\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      missing:\n        denotes:\n          absent: true\n  - target:\n      field: binaryDataStorageLocationUseField\n    xml:\n      missing:\n        denotes:\n          absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: binaryDataStorageLocationUseField\n          form: missing\n    yaml:\n      default:\n        literal: ''\n  - target:\n      field: balance\n    xml:\n      missing:\n        denotes:\n          absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: balance\n          form: missing\n    yaml:\n      default:\n        literal: true\n  - target:\n      field: accountingFlag\n    xml:\n      missing:\n        denotes:\n          absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: accountingFlag\n          form: missing\n    yaml:\n      default:\n        literal: ''\n  - target:\n      field: extDimensionAccountingFlag\n    xml:\n      missing:\n        denotes:\n          absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: extDimensionAccountingFlag\n          form: missing\n    yaml:\n      default:\n        literal: ''\nconstraints:\n  - id: type-required\n    appliesTo:\n      - xml-import\n      - yaml-validation\n    assert:\n      present:\n        field: type\n    diagnostic:\n      code: value.required\n      severity: warning\n      at:\n        field: type\n      message: Обязательное значение отсутствует\n  - id: nameInDataSource-required\n    appliesTo:\n      - xml-import\n      - yaml-validation\n    assert:\n      present:\n        field: nameInDataSource\n    diagnostic:\n      code: value.required\n      severity: warning\n      at:\n        field: nameInDataSource\n      message: Обязательное значение отсутствует\ninputs:\n  defaultLanguage:\n    type:\n      kind: scalar\n      scalar: text\n  registeredLanguages:\n    type:\n      kind: sequence\n      item:\n        kind: scalar\n        scalar: text\n  ownerName:\n    type:\n      kind: scalar\n      scalar: text\n  roots:\n    type:\n      kind: index\n      key:\n        kind: record\n        fields:\n          - name: kind\n            type:\n              use: inputType1f8ea46361ff\n          - name: name\n            type:\n              kind: scalar\n              scalar: text\n      value:\n        kind: scalar\n        scalar: text\n  forms:\n    type:\n      kind: index\n      key:\n        kind: record\n        fields:\n          - name: parent\n            type:\n              kind: scalar\n              scalar: text\n          - name: name\n            type:\n              kind: scalar\n              scalar: text\n      value:\n        kind: scalar\n        scalar: text\n  definedTypes:\n    type:\n      kind: index\n      key:\n        kind: scalar\n        scalar: text\n      value:\n        kind: sequence\n        item:\n          kind: scalar\n          scalar: text\nid: candidate.fragment.0f84a7fc27009b651835\n",
     "candidate.fragment.10275e3e65728fe0608d.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: common.string\nvalue:\n  kind: record\n  fields:\n    - name: state\n      type:\n        use: value0\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: state\n        path:\n          - State\n  yaml:\n    kind: mapping\n    fields:\n      - field: state\n        key: state\npresence:\n  - target:\n      field: state\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      missing:\n        denotes:\n          absent: true\nconstraints:\n  - id: state-required\n    appliesTo:\n      - xml-import\n      - yaml-validation\n    assert:\n      present:\n        field: state\n    diagnostic:\n      code: value.required\n      severity: warning\n      at:\n        field: state\n      message: Обязательное значение отсутствует\nid: candidate.fragment.10275e3e65728fe0608d\n",
     "candidate.fragment.1035c053d367e3b61fe3.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: common.i8n-text\nvalue:\n  kind: record\n  fields:\n    - name: nonselectedPictureText\n      type:\n        use: value0\n        bind:\n          defaultLanguage:\n            input: defaultLanguage\n          registeredLanguages:\n            input: registeredLanguages\n          ownerName:\n            input: ownerName\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: nonselectedPictureText\n        path:\n          - NonselectedPictureText\n  yaml:\n    kind: mapping\n    fields:\n      - field: nonselectedPictureText\n        key: ТекстНевыбраннойКартинки\npresence:\n  - target:\n      field: nonselectedPictureText\n    xml:\n      missing:\n        denotes:\n          absent: true\ninputs:\n  defaultLanguage:\n    type:\n      kind: scalar\n      scalar: text\n  registeredLanguages:\n    type:\n      kind: sequence\n      item:\n        kind: scalar\n        scalar: text\n  ownerName:\n    type:\n      kind: scalar\n      scalar: text\nid: candidate.fragment.1035c053d367e3b61fe3\n",
     "candidate.fragment.10b589ff92af699fefa7.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: common.i8n-text\nvalue:\n  kind: record\n  fields:\n    - name: objectPresentation\n      type:\n        use: value0\n        bind:\n          defaultLanguage:\n            input: defaultLanguage\n          registeredLanguages:\n            input: registeredLanguages\n          ownerName:\n            input: ownerName\n    - name: extendedObjectPresentation\n      type:\n        use: value0\n        bind:\n          defaultLanguage:\n            input: defaultLanguage\n          registeredLanguages:\n            input: registeredLanguages\n          ownerName:\n            input: ownerName\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: objectPresentation\n        path:\n          - Properties\n          - ObjectPresentation\n      - field: extendedObjectPresentation\n        path:\n          - Properties\n          - ExtendedObjectPresentation\n  yaml:\n    kind: mapping\n    fields:\n      - field: objectPresentation\n        key: ПредставлениеОбъекта\n      - field: extendedObjectPresentation\n        key: РасширенноеПредставлениеОбъекта\npresence:\n  - target:\n      field: objectPresentation\n    xml:\n      missing:\n        denotes:\n          absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: objectPresentation\n          form: empty-element\n  - target:\n      field: extendedObjectPresentation\n    xml:\n      missing:\n        denotes:\n          absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: extendedObjectPresentation\n          form: empty-element\ninputs:\n  defaultLanguage:\n    type:\n      kind: scalar\n      scalar: text\n  registeredLanguages:\n    type:\n      kind: sequence\n      item:\n        kind: scalar\n        scalar: text\n  ownerName:\n    type:\n      kind: scalar\n      scalar: text\nid: candidate.fragment.10b589ff92af699fefa7\n",
@@ -161655,6 +161637,7 @@
     "candidate.fragment.16f62dec4f79dcdd101a.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: common.exact-decimal\nvalue:\n  kind: record\n  fields:\n    - name: width\n      type:\n        use: value0\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: width\n        path:\n          - Width\n  yaml:\n    kind: mapping\n    fields:\n      - field: width\n        key: Ширина\npresence:\n  - target:\n      field: width\n    xml:\n      missing:\n        denotes:\n          literal: 0\n      canonical:\n        - when:\n            eq:\n              - field: width\n              - literal: 0\n          form: missing\n    yaml:\n      default:\n        literal: 0\nid: candidate.fragment.16f62dec4f79dcdd101a\n",
     "candidate.fragment.17007eb1695963e41a12.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: common.formatted-i8n-text\nvalue:\n  kind: record\n  fields:\n    - name: title\n      type:\n        use: value0\n        bind:\n          defaultLanguage:\n            input: defaultLanguage\n          languages:\n            input: registeredLanguages\n          name:\n            input: ownerName\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: title\n        path:\n          - Title\n  yaml:\n    kind: mapping\n    fields:\n      - field: title\n        key: Заголовок\npresence: []\ninputs:\n  defaultLanguage:\n    type:\n      kind: scalar\n      scalar: text\n  registeredLanguages:\n    type:\n      kind: sequence\n      item:\n        kind: scalar\n        scalar: text\n  ownerName:\n    type:\n      kind: scalar\n      scalar: text\nid: candidate.fragment.17007eb1695963e41a12\n",
     "candidate.fragment.17567e78911e67d09c87.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: system.TableRepresentation\nvalue:\n  kind: record\n  fields:\n    - name: representation\n      type:\n        use: value0\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: representation\n        path:\n          - Representation\n  yaml:\n    kind: mapping\n    fields:\n      - field: representation\n        key: Отображение\npresence:\n  - target:\n      field: representation\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      missing:\n        denotes:\n          absent: true\nid: candidate.fragment.17567e78911e67d09c87\n",
+    "candidate.fragment.1765115867f73cbe2b6f.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: common.type-description\nvalue:\n  kind: record\n  fields:\n    - name: type\n      type:\n        use: value0\n        bind: {}\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: type\n        path:\n          - Properties\n          - Type\n  yaml:\n    kind: mapping\n    fields:\n      - field: type\n        key: Тип\npresence:\n  - target:\n      field: type\n    xml:\n      missing:\n        denotes:\n          absent: true\n      empty:\n        - form: empty-element\n          denotes:\n            absent: true\n    yaml:\n      missing:\n        denotes:\n          absent: true\nconstraints:\n  - id: type-required\n    appliesTo:\n      - xml-import\n      - yaml-validation\n    assert:\n      present:\n        field: type\n    diagnostic:\n      code: value.required\n      severity: warning\n      at:\n        field: type\n      message: Обязательное значение отсутствует\nid: candidate.fragment.1765115867f73cbe2b6f\n",
     "candidate.fragment.177c7fbe801de84da6e6.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: common.string\nvalue:\n  kind: record\n  fields:\n    - name: dataPath\n      type:\n        use: value0\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: dataPath\n        path:\n          - dcssch:dataPath\n  yaml:\n    kind: mapping\n    fields:\n      - field: dataPath\n        key: ПутьКДанным\npresence:\n  - target:\n      field: dataPath\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      missing:\n        denotes:\n          absent: true\nnamespaces:\n  dcssch: http://v8.1c.ru/8.1/data-composition-system/schema\nid: candidate.fragment.177c7fbe801de84da6e6\n",
     "candidate.fragment.179d139960376ced08bf.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: common.exact-decimal\nvalue:\n  kind: record\n  fields:\n    - name: maxWidth\n      type:\n        use: value0\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: maxWidth\n        path:\n          - MaxWidth\n  yaml:\n    kind: mapping\n    fields:\n      - field: maxWidth\n        key: МаксимальнаяШирина\npresence:\n  - target:\n      field: maxWidth\n    xml:\n      missing:\n        denotes:\n          literal: 0\n      canonical:\n        - when:\n            eq:\n              - field: maxWidth\n              - literal: 0\n          form: missing\n    yaml:\n      default:\n        literal: 0\nid: candidate.fragment.179d139960376ced08bf\n",
     "candidate.fragment.17a0b285ce5904057bd7.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: common.exact-decimal\nvalue:\n  kind: record\n  fields:\n    - name: width\n      type:\n        use: value0\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: width\n        path:\n          - Width\n  yaml:\n    kind: mapping\n    fields:\n      - field: width\n        key: Ширина\npresence:\n  - target:\n      field: width\n    xml:\n      missing:\n        denotes:\n          literal: 0\n      canonical:\n        - when:\n            eq:\n              - field: width\n              - literal: 0\n          form: missing\n    yaml:\n      default:\n        literal: 0\nid: candidate.fragment.17a0b285ce5904057bd7\n",
@@ -161959,6 +161942,7 @@
     "candidate.fragment.6b93a92c41d41c44cc46.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: common.boolean\nvalue:\n  kind: record\n  fields:\n    - name: visible\n      type:\n        use: value0\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: visible\n        path:\n          - Visible\n  yaml:\n    kind: mapping\n    fields:\n      - field: visible\n        key: Видимость\npresence:\n  - target:\n      field: visible\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      missing:\n        denotes:\n          absent: true\nid: candidate.fragment.6b93a92c41d41c44cc46\n",
     "candidate.fragment.6bfea75ec0dbd2ecf5e5.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: common.string\nvalue:\n  kind: record\n  fields:\n    - name: groupList\n      type:\n        use: value0\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: groupList\n        path:\n          - GroupList\n  yaml:\n    kind: mapping\n    fields:\n      - field: groupList\n        key: СписокГрупп\npresence:\n  - target:\n      field: groupList\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      missing:\n        denotes:\n          absent: true\nid: candidate.fragment.6bfea75ec0dbd2ecf5e5\n",
     "candidate.fragment.6c435e22d0913f541c9e.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: system.InitialListView\nvalue:\n  kind: record\n  fields:\n    - name: initialListView\n      type:\n        use: value0\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: initialListView\n        path:\n          - InitialListView\n  yaml:\n    kind: mapping\n    fields:\n      - field: initialListView\n        key: НачальноеОтображениеСписка\npresence:\n  - target:\n      field: initialListView\n    xml:\n      missing:\n        denotes:\n          literal: Auto\n      canonical:\n        - when:\n            eq:\n              - field: initialListView\n              - literal: Auto\n          form: missing\n    yaml:\n      default:\n        literal: Auto\nid: candidate.fragment.6c435e22d0913f541c9e\n",
+    "candidate.fragment.6cf1ab15d981ab40d12f.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: common.string\n  value1: common.min-max-value-text\n  value2: common.boolean\n  value3: system.FillChecking\n  value4: system.CreateOnInput\n  value5: system.ChoiceHistoryOnInput\n  value6: system.FoldersAndItemsUse\n  value7: common.type-link\n  value8: system.UseFullTextSearch\n  value9: system.Indexing\n  value10: system.DataHistoryUse\n  value11: system.BinaryDataStorageLocationUse\nvalue:\n  kind: record\n  fields:\n    - name: nameInDataSource\n      type:\n        use: value0\n    - name: minValue\n      type:\n        use: value1\n    - name: maxValue\n      type:\n        use: value1\n    - name: fillFromFillingValue\n      type:\n        use: value2\n    - name: fillChecking\n      type:\n        use: value3\n    - name: createOnInput\n      type:\n        use: value4\n    - name: choiceHistoryOnInput\n      type:\n        use: value5\n    - name: choiceFoldersAndItems\n      type:\n        use: value6\n    - name: linkByType\n      type:\n        use: value7\n        bind: {}\n    - name: fullTextSearch\n      type:\n        use: value8\n    - name: indexing\n      type:\n        use: value9\n    - name: dataHistory\n      type:\n        use: value10\n    - name: binaryDataStorageLocationUse\n      type:\n        use: value11\n    - name: binaryDataStorageLocationUseField\n      type:\n        use: value0\n    - name: balance\n      type:\n        use: value2\n    - name: accountingFlag\n      type:\n        use: value0\n    - name: extDimensionAccountingFlag\n      type:\n        use: value0\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: nameInDataSource\n        path:\n          - Properties\n          - NameInDataSource\n      - field: minValue\n        path:\n          - Properties\n          - MinValue\n      - field: maxValue\n        path:\n          - Properties\n          - MaxValue\n      - field: fillFromFillingValue\n        path:\n          - Properties\n          - FillFromFillingValue\n      - field: fillChecking\n        path:\n          - Properties\n          - FillChecking\n      - field: createOnInput\n        path:\n          - Properties\n          - CreateOnInput\n      - field: choiceHistoryOnInput\n        path:\n          - Properties\n          - ChoiceHistoryOnInput\n      - field: choiceFoldersAndItems\n        path:\n          - Properties\n          - ChoiceFoldersAndItems\n      - field: linkByType\n        path:\n          - Properties\n          - LinkByType\n      - field: fullTextSearch\n        path:\n          - Properties\n          - FullTextSearch\n      - field: indexing\n        path:\n          - Properties\n          - Indexing\n      - field: dataHistory\n        path:\n          - Properties\n          - DataHistory\n      - field: binaryDataStorageLocationUse\n        path:\n          - Properties\n          - BinaryDataStorageLocationUse\n      - field: binaryDataStorageLocationUseField\n        path:\n          - Properties\n          - BinaryDataStorageLocationUseField\n      - field: balance\n        path:\n          - Properties\n          - Balance\n      - field: accountingFlag\n        path:\n          - Properties\n          - AccountingFlag\n      - field: extDimensionAccountingFlag\n        path:\n          - Properties\n          - ExtDimensionAccountingFlag\n  yaml:\n    kind: mapping\n    fields:\n      - field: nameInDataSource\n        key: ИмяВИсточникеДанных\n      - field: minValue\n        key: МинимальноеЗначение\n      - field: maxValue\n        key: МаксимальноеЗначение\n      - field: fillFromFillingValue\n        key: ЗаполнятьИзДанныхЗаполнения\n      - field: fillChecking\n        key: ПроверкаЗаполнения\n      - field: createOnInput\n        key: СозданиеПриВводе\n      - field: choiceHistoryOnInput\n        key: ИсторияВыбораПриВводе\n      - field: choiceFoldersAndItems\n        key: ВыборГруппИЭлементов\n      - field: linkByType\n        key: СвязьПоТипу\n      - field: fullTextSearch\n        key: ПолнотекстовыйПоиск\n      - field: indexing\n        key: Индексирование\n      - field: dataHistory\n        key: ИсторияДанных\n      - field: binaryDataStorageLocationUse\n        key: ИспользованиеХраненияВХранилищеДвоичныхДанных\n      - field: binaryDataStorageLocationUseField\n        key: ПолеИспользованияХраненияВХранилищеДвоичныхДанных\n      - field: balance\n        key: Балансовый\n      - field: accountingFlag\n        key: ПризнакУчета\n      - field: extDimensionAccountingFlag\n        key: ПризнакУчетаСубконто\npresence:\n  - target:\n      field: nameInDataSource\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      missing:\n        denotes:\n          absent: true\n  - target:\n      field: minValue\n    xml:\n      missing:\n        denotes:\n          absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: minValue\n          form: missing\n    yaml:\n      missing:\n        denotes:\n          absent: true\n  - target:\n      field: maxValue\n    xml:\n      missing:\n        denotes:\n          absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: maxValue\n          form: missing\n    yaml:\n      missing:\n        denotes:\n          absent: true\n  - target:\n      field: fillFromFillingValue\n    xml:\n      missing:\n        denotes:\n          absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: fillFromFillingValue\n          form: missing\n    yaml:\n      default:\n        literal: false\n  - target:\n      field: fillChecking\n    xml:\n      missing:\n        denotes:\n          absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: fillChecking\n          form: missing\n    yaml:\n      default:\n        literal: DontCheck\n  - target:\n      field: createOnInput\n    xml:\n      missing:\n        denotes:\n          absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: createOnInput\n          form: missing\n    yaml:\n      default:\n        literal: Auto\n  - target:\n      field: choiceHistoryOnInput\n    xml:\n      missing:\n        denotes:\n          absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: choiceHistoryOnInput\n          form: missing\n    yaml:\n      default:\n        literal: Auto\n  - target:\n      field: choiceFoldersAndItems\n    xml:\n      missing:\n        denotes:\n          absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: choiceFoldersAndItems\n          form: missing\n    yaml:\n      default:\n        literal: Items\n  - target:\n      field: linkByType\n    xml:\n      missing:\n        denotes:\n          absent: true\n      empty:\n        - form: empty-element\n          denotes:\n            absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: linkByType\n          form: missing\n    yaml:\n      missing:\n        denotes:\n          absent: true\n  - target:\n      field: fullTextSearch\n    xml:\n      missing:\n        denotes:\n          absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: fullTextSearch\n          form: missing\n    yaml:\n      default:\n        literal: Use\n  - target:\n      field: indexing\n    xml:\n      missing:\n        denotes:\n          absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: indexing\n          form: missing\n    yaml:\n      default:\n        literal: DontIndex\n  - target:\n      field: dataHistory\n    xml:\n      missing:\n        denotes:\n          absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: dataHistory\n          form: missing\n    yaml:\n      default:\n        literal: Use\n  - target:\n      field: binaryDataStorageLocationUse\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      missing:\n        denotes:\n          absent: true\n  - target:\n      field: binaryDataStorageLocationUseField\n    xml:\n      missing:\n        denotes:\n          absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: binaryDataStorageLocationUseField\n          form: missing\n    yaml:\n      default:\n        literal: ''\n  - target:\n      field: balance\n    xml:\n      missing:\n        denotes:\n          absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: balance\n          form: missing\n    yaml:\n      default:\n        literal: true\n  - target:\n      field: accountingFlag\n    xml:\n      missing:\n        denotes:\n          absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: accountingFlag\n          form: missing\n    yaml:\n      default:\n        literal: ''\n  - target:\n      field: extDimensionAccountingFlag\n    xml:\n      missing:\n        denotes:\n          absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: extDimensionAccountingFlag\n          form: missing\n    yaml:\n      default:\n        literal: ''\nconstraints:\n  - id: nameInDataSource-required\n    appliesTo:\n      - xml-import\n      - yaml-validation\n    assert:\n      present:\n        field: nameInDataSource\n    diagnostic:\n      code: value.required\n      severity: warning\n      at:\n        field: nameInDataSource\n      message: Обязательное значение отсутствует\nid: candidate.fragment.6cf1ab15d981ab40d12f\n",
     "candidate.fragment.6d3c0156876dcd5c6a18.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: common.boolean\nvalue:\n  kind: record\n  fields:\n    - name: dropListButton\n      type:\n        use: value0\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: dropListButton\n        path:\n          - DropListButton\n  yaml:\n    kind: mapping\n    fields:\n      - field: dropListButton\n        key: КнопкаВыпадающегоСписка\npresence:\n  - target:\n      field: dropListButton\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      missing:\n        denotes:\n          absent: true\nid: candidate.fragment.6d3c0156876dcd5c6a18\n",
     "candidate.fragment.6d9930e4a8e62635894f.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: system.ObjectBelonging\n  value1: common.i8n-text\n  value2: common.string\n  inputType1f8ea46361ff: common.path-root\n  value4: common.metadata-command-group\n  value5: common.type-description\n  value6: system.CommandParameterUseMode\n  value7: common.boolean\n  value8: system.ButtonRepresentation\n  value9: system.OnMainServerUnavalableBehavior\nvalue:\n  kind: record\n  fields:\n    - name: objectBelonging\n      type:\n        use: value0\n    - name: synonym\n      type:\n        use: value1\n        with:\n          excludeIfEqualNameYAML: true\n        bind:\n          defaultLanguage:\n            input: defaultLanguage\n          registeredLanguages:\n            input: registeredLanguages\n          ownerName:\n            input: ownerName\n    - name: comment\n      type:\n        use: value2\n    - name: group\n      type:\n        use: value4\n        bind:\n          roots:\n            input: roots\n    - name: commandParameterType\n      type:\n        use: value5\n        bind: {}\n    - name: parameterUseMode\n      type:\n        use: value6\n    - name: modifiesData\n      type:\n        use: value7\n    - name: representation\n      type:\n        use: value8\n    - name: toolTip\n      type:\n        use: value1\n        bind:\n          defaultLanguage:\n            input: defaultLanguage\n          registeredLanguages:\n            input: registeredLanguages\n          ownerName:\n            input: ownerName\n    - name: shortcut\n      type:\n        use: value2\n    - name: onMainServerUnavalableBehavior\n      type:\n        use: value9\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: objectBelonging\n        path:\n          - Properties\n          - ObjectBelonging\n      - field: synonym\n        path:\n          - Properties\n          - Synonym\n      - field: comment\n        path:\n          - Properties\n          - Comment\n      - field: group\n        path:\n          - Properties\n          - Group\n      - field: commandParameterType\n        path:\n          - Properties\n          - CommandParameterType\n      - field: parameterUseMode\n        path:\n          - Properties\n          - ParameterUseMode\n      - field: modifiesData\n        path:\n          - Properties\n          - ModifiesData\n      - field: representation\n        path:\n          - Properties\n          - Representation\n      - field: toolTip\n        path:\n          - Properties\n          - ToolTip\n      - field: shortcut\n        path:\n          - Properties\n          - Shortcut\n      - field: onMainServerUnavalableBehavior\n        path:\n          - Properties\n          - OnMainServerUnavalableBehavior\n  yaml:\n    kind: mapping\n    fields:\n      - field: synonym\n        key: Синоним\n      - field: comment\n        key: Комментарий\n      - field: group\n        key: Группа\n      - field: commandParameterType\n        key: ТипПараметраКоманды\n      - field: parameterUseMode\n        key: РежимИспользованияПараметра\n      - field: modifiesData\n        key: ИзменяетДанные\n      - field: representation\n        key: Отображение\n      - field: toolTip\n        key: Подсказка\n      - field: shortcut\n        key: СочетаниеКлавиш\n      - field: onMainServerUnavalableBehavior\n        key: ПоведениеПриНедоступностиОсновногоСервера\npresence:\n  - target:\n      field: objectBelonging\n    xml:\n      missing:\n        denotes:\n          literal: Native\n      canonical:\n        - when:\n            eq:\n              - field: objectBelonging\n              - literal: Native\n          form: missing\n    yaml:\n      default:\n        literal: Native\n  - target:\n      field: synonym\n    xml:\n      missing:\n        denotes:\n          absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: synonym\n          form: empty-element\n  - target:\n      field: comment\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      default:\n        literal: ''\n  - target:\n      field: commandParameterType\n    xml:\n      missing:\n        denotes:\n          absent: true\n      empty:\n        - form: empty-element\n          denotes:\n            absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: commandParameterType\n          form: empty-element\n    yaml:\n      missing:\n        denotes:\n          absent: true\n  - target:\n      field: parameterUseMode\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      default:\n        literal: Single\n  - target:\n      field: modifiesData\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      default:\n        literal: false\n  - target:\n      field: representation\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      default:\n        literal: Auto\n  - target:\n      field: toolTip\n    xml:\n      missing:\n        denotes:\n          absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: toolTip\n          form: empty-element\n  - target:\n      field: shortcut\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      default:\n        literal: ''\n  - target:\n      field: onMainServerUnavalableBehavior\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      default:\n        literal: Auto\ninputs:\n  defaultLanguage:\n    type:\n      kind: scalar\n      scalar: text\n  registeredLanguages:\n    type:\n      kind: sequence\n      item:\n        kind: scalar\n        scalar: text\n  ownerName:\n    type:\n      kind: scalar\n      scalar: text\n  roots:\n    type:\n      kind: index\n      key:\n        kind: record\n        fields:\n          - name: kind\n            type:\n              use: inputType1f8ea46361ff\n          - name: name\n            type:\n              kind: scalar\n              scalar: text\n      value:\n        kind: scalar\n        scalar: text\nid: candidate.fragment.6d9930e4a8e62635894f\n",
     "candidate.fragment.6db2ae6f9d738a231121.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: common.string\n  value1: common.exact-decimal\n  value2: common.boolean\n  inputType1f8ea46361ff: common.path-root\n  value4: common.owner-or-common-form-link\nvalue:\n  kind: record\n  fields:\n    - name: nameInDataSource\n      type:\n        use: value0\n    - name: presentationField\n      type:\n        use: value0\n    - name: hierarchyNameInDataSource\n      type:\n        use: value0\n    - name: levelNumber\n      type:\n        use: value1\n    - name: hierarchical\n      type:\n        use: value2\n    - name: useStandardCommands\n      type:\n        use: value2\n    - name: quickChoice\n      type:\n        use: value2\n    - name: defaultObjectForm\n      type:\n        use: value4\n        bind:\n          owner:\n            input: owner\n          forms:\n            input: forms\n          roots:\n            input: roots\n    - name: defaultListForm\n      type:\n        use: value4\n        bind:\n          owner:\n            input: owner\n          forms:\n            input: forms\n          roots:\n            input: roots\n    - name: defaultChoiceForm\n      type:\n        use: value4\n        bind:\n          owner:\n            input: owner\n          forms:\n            input: forms\n          roots:\n            input: roots\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: nameInDataSource\n        path:\n          - Properties\n          - NameInDataSource\n      - field: presentationField\n        path:\n          - Properties\n          - PresentationField\n      - field: hierarchyNameInDataSource\n        path:\n          - Properties\n          - HierarchyNameInDataSource\n      - field: levelNumber\n        path:\n          - Properties\n          - LevelNumber\n      - field: hierarchical\n        path:\n          - Properties\n          - Hierarchical\n      - field: useStandardCommands\n        path:\n          - Properties\n          - UseStandardCommands\n      - field: quickChoice\n        path:\n          - Properties\n          - QuickChoice\n      - field: defaultObjectForm\n        path:\n          - Properties\n          - DefaultObjectForm\n      - field: defaultListForm\n        path:\n          - Properties\n          - DefaultListForm\n      - field: defaultChoiceForm\n        path:\n          - Properties\n          - DefaultChoiceForm\n  yaml:\n    kind: mapping\n    fields:\n      - field: nameInDataSource\n        key: ИмяВИсточникеДанных\n      - field: presentationField\n        key: ПолеПредставления\n      - field: hierarchyNameInDataSource\n        key: ИмяИерархииВИсточникеДанных\n      - field: levelNumber\n        key: НомерУровня\n      - field: hierarchical\n        key: Иерархический\n      - field: useStandardCommands\n        key: ИспользоватьСтандартныеКоманды\n      - field: quickChoice\n        key: БыстрыйВыбор\n      - field: defaultObjectForm\n        key: ОсновнаяФормаОбъекта\n      - field: defaultListForm\n        key: ОсновнаяФормаСписка\n      - field: defaultChoiceForm\n        key: ОсновнаяФормаВыбора\npresence:\n  - target:\n      field: nameInDataSource\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      missing:\n        denotes:\n          absent: true\n  - target:\n      field: presentationField\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      default:\n        literal: ''\n  - target:\n      field: hierarchyNameInDataSource\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      default:\n        literal: ''\n  - target:\n      field: levelNumber\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      default:\n        literal: 0\n  - target:\n      field: hierarchical\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      default:\n        literal: false\n  - target:\n      field: useStandardCommands\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      default:\n        literal: false\n  - target:\n      field: quickChoice\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      default:\n        literal: false\n  - target:\n      field: defaultObjectForm\n    xml:\n      missing:\n        denotes:\n          absent: true\n      empty:\n        - form: empty-element\n          denotes:\n            absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: defaultObjectForm\n          form: empty-element\n    yaml:\n      missing:\n        denotes:\n          absent: true\n  - target:\n      field: defaultListForm\n    xml:\n      missing:\n        denotes:\n          absent: true\n      empty:\n        - form: empty-element\n          denotes:\n            absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: defaultListForm\n          form: empty-element\n    yaml:\n      missing:\n        denotes:\n          absent: true\n  - target:\n      field: defaultChoiceForm\n    xml:\n      missing:\n        denotes:\n          absent: true\n      empty:\n        - form: empty-element\n          denotes:\n            absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: defaultChoiceForm\n          form: empty-element\n    yaml:\n      missing:\n        denotes:\n          absent: true\nconstraints:\n  - id: nameInDataSource-required\n    appliesTo:\n      - xml-import\n      - yaml-validation\n    assert:\n      present:\n        field: nameInDataSource\n    diagnostic:\n      code: value.required\n      severity: warning\n      at:\n        field: nameInDataSource\n      message: Обязательное значение отсутствует\ninputs:\n  owner:\n    type:\n      kind: scalar\n      scalar: text\n  forms:\n    type:\n      kind: sequence\n      item:\n        kind: scalar\n        scalar: text\n  roots:\n    type:\n      kind: index\n      key:\n        kind: record\n        fields:\n          - name: kind\n            type:\n              use: inputType1f8ea46361ff\n          - name: name\n            type:\n              kind: scalar\n              scalar: text\n      value:\n        kind: scalar\n        scalar: text\nid: candidate.fragment.6db2ae6f9d738a231121\n",
@@ -162119,6 +162103,7 @@
     "candidate.fragment.9a0e04b922e490b98fb8.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: common.exact-decimal\nvalue:\n  kind: record\n  fields:\n    - name: maxHeight\n      type:\n        use: value0\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: maxHeight\n        path:\n          - MaxHeight\n  yaml:\n    kind: mapping\n    fields:\n      - field: maxHeight\n        key: МаксимальнаяВысота\npresence:\n  - target:\n      field: maxHeight\n    xml:\n      missing:\n        denotes:\n          literal: 0\n      canonical:\n        - when:\n            eq:\n              - field: maxHeight\n              - literal: 0\n          form: missing\n    yaml:\n      default:\n        literal: 0\nid: candidate.fragment.9a0e04b922e490b98fb8\n",
     "candidate.fragment.9a79aacb608862c648f0.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: common.boolean\nvalue:\n  kind: record\n  fields:\n    - name: horizontalStretch\n      type:\n        use: value0\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: horizontalStretch\n        path:\n          - HorizontalStretch\n  yaml:\n    kind: mapping\n    fields:\n      - field: horizontalStretch\n        key: РастягиватьПоГоризонтали\npresence:\n  - target:\n      field: horizontalStretch\n    xml:\n      missing:\n        denotes:\n          literal: true\n      canonical:\n        - when:\n            eq:\n              - field: horizontalStretch\n              - literal: true\n          form: missing\n    yaml:\n      default:\n        literal: true\nid: candidate.fragment.9a79aacb608862c648f0\n",
     "candidate.fragment.9ac5047245d1adffb143.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: common.type-description\nvalue:\n  kind: record\n  fields:\n    - name: type\n      type:\n        use: value0\n        bind: {}\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: type\n        path:\n          - Properties\n          - Type\n  yaml:\n    kind: mapping\n    fields:\n      - field: type\n        key: Тип\npresence:\n  - target:\n      field: type\n    xml:\n      missing:\n        denotes:\n          absent: true\n      empty:\n        - form: empty-element\n          denotes:\n            absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: type\n          form: empty-element\n    yaml:\n      missing:\n        denotes:\n          absent: true\nid: candidate.fragment.9ac5047245d1adffb143\n",
+    "candidate.fragment.9ad6da348830d9104819.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: common.boolean\n  value1: common.i8n-text\n  value2: common.string\nvalue:\n  kind: record\n  fields:\n    - name: passwordMode\n      type:\n        use: value0\n    - name: format\n      type:\n        use: value1\n        bind:\n          defaultLanguage:\n            input: defaultLanguage\n          registeredLanguages:\n            input: registeredLanguages\n          ownerName:\n            input: ownerName\n    - name: editFormat\n      type:\n        use: value1\n        bind:\n          defaultLanguage:\n            input: defaultLanguage\n          registeredLanguages:\n            input: registeredLanguages\n          ownerName:\n            input: ownerName\n    - name: toolTip\n      type:\n        use: value1\n        bind:\n          defaultLanguage:\n            input: defaultLanguage\n          registeredLanguages:\n            input: registeredLanguages\n          ownerName:\n            input: ownerName\n    - name: markNegatives\n      type:\n        use: value0\n    - name: mask\n      type:\n        use: value2\n    - name: multiLine\n      type:\n        use: value0\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: passwordMode\n        path:\n          - Properties\n          - PasswordMode\n      - field: format\n        path:\n          - Properties\n          - Format\n      - field: editFormat\n        path:\n          - Properties\n          - EditFormat\n      - field: toolTip\n        path:\n          - Properties\n          - ToolTip\n      - field: markNegatives\n        path:\n          - Properties\n          - MarkNegatives\n      - field: mask\n        path:\n          - Properties\n          - Mask\n      - field: multiLine\n        path:\n          - Properties\n          - MultiLine\n  yaml:\n    kind: mapping\n    fields:\n      - field: passwordMode\n        key: РежимПароля\n      - field: format\n        key: Формат\n      - field: editFormat\n        key: ФорматРедактирования\n      - field: toolTip\n        key: Подсказка\n      - field: markNegatives\n        key: ВыделятьОтрицательные\n      - field: mask\n        key: Маска\n      - field: multiLine\n        key: МногострочныйРежим\npresence:\n  - target:\n      field: passwordMode\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      default:\n        literal: false\n  - target:\n      field: format\n    xml:\n      missing:\n        denotes:\n          absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: format\n          form: empty-element\n  - target:\n      field: editFormat\n    xml:\n      missing:\n        denotes:\n          absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: editFormat\n          form: empty-element\n  - target:\n      field: toolTip\n    xml:\n      missing:\n        denotes:\n          absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: toolTip\n          form: empty-element\n  - target:\n      field: markNegatives\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      default:\n        literal: false\n  - target:\n      field: mask\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      default:\n        literal: ''\n  - target:\n      field: multiLine\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      default:\n        literal: false\ninputs:\n  defaultLanguage:\n    type:\n      kind: scalar\n      scalar: text\n  registeredLanguages:\n    type:\n      kind: sequence\n      item:\n        kind: scalar\n        scalar: text\n  ownerName:\n    type:\n      kind: scalar\n      scalar: text\nid: candidate.fragment.9ad6da348830d9104819\n",
     "candidate.fragment.9aec6bf9eff9403654b1.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: common.boolean\nvalue:\n  kind: record\n  fields:\n    - name: choiceAvailable\n      type:\n        use: value0\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: choiceAvailable\n        path:\n          - ChoiceAvailable\n  yaml:\n    kind: mapping\n    fields:\n      - field: choiceAvailable\n        key: ВыборДоступен\npresence:\n  - target:\n      field: choiceAvailable\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      missing:\n        denotes:\n          absent: true\nid: candidate.fragment.9aec6bf9eff9403654b1\n",
     "candidate.fragment.9b4a17da6f49db215905.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: common.boolean\nvalue:\n  kind: record\n  fields:\n    - name: enableStartDrag\n      type:\n        use: value0\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: enableStartDrag\n        path:\n          - EnableStartDrag\n  yaml:\n    kind: mapping\n    fields:\n      - field: enableStartDrag\n        key: РазрешитьНачалоПеретаскивания\npresence:\n  - target:\n      field: enableStartDrag\n    xml:\n      missing:\n        denotes:\n          literal: false\n      canonical:\n        - when:\n            eq:\n              - field: enableStartDrag\n              - literal: false\n          form: missing\n    yaml:\n      default:\n        literal: false\nid: candidate.fragment.9b4a17da6f49db215905\n",
     "candidate.fragment.9b4cdf359b13c63c8ac2.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: common.i8n-text\nvalue:\n  kind: record\n  fields:\n    - name: title\n      type:\n        use: value0\n        bind:\n          defaultLanguage:\n            input: defaultLanguage\n          registeredLanguages:\n            input: registeredLanguages\n          ownerName:\n            input: ownerName\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: title\n        path:\n          - Title\n  yaml:\n    kind: mapping\n    fields:\n      - field: title\n        key: Заголовок\npresence:\n  - target:\n      field: title\n    xml:\n      missing:\n        denotes:\n          absent: true\ninputs:\n  defaultLanguage:\n    type:\n      kind: scalar\n      scalar: text\n  registeredLanguages:\n    type:\n      kind: sequence\n      item:\n        kind: scalar\n        scalar: text\n  ownerName:\n    type:\n      kind: scalar\n      scalar: text\nid: candidate.fragment.9b4cdf359b13c63c8ac2\n",
@@ -162206,8 +162191,10 @@
     "candidate.fragment.b1446f3987442d070f1d.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: common.string\nvalue:\n  kind: record\n  fields:\n    - name: windowOptionsKey\n      type:\n        use: value0\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: windowOptionsKey\n        path:\n          - WindowOptionsKey\n  yaml:\n    kind: mapping\n    fields:\n      - field: windowOptionsKey\n        key: КлючСохраненияПоложенияОкна\npresence:\n  - target:\n      field: windowOptionsKey\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      missing:\n        denotes:\n          absent: true\nid: candidate.fragment.b1446f3987442d070f1d\n",
     "candidate.fragment.b1e20cd8e6c6ba816243.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: system.FillChecking\nvalue:\n  kind: record\n  fields:\n    - name: fillChecking\n      type:\n        use: value0\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: fillChecking\n        path:\n          - xr:FillChecking\n  yaml:\n    kind: mapping\n    fields:\n      - field: fillChecking\n        key: ПроверкаЗаполнения\npresence:\n  - target:\n      field: fillChecking\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      default:\n        literal: DontCheck\nnamespaces:\n  xr: http://v8.1c.ru/8.3/xcf/readable\nid: candidate.fragment.b1e20cd8e6c6ba816243\n",
     "candidate.fragment.b20673c5594e72cfc52c.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: system.FormItemSpacing\nvalue:\n  kind: record\n  fields:\n    - name: verticalSpacing\n      type:\n        use: value0\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: verticalSpacing\n        path:\n          - VerticalSpacing\n  yaml:\n    kind: mapping\n    fields:\n      - field: verticalSpacing\n        key: ВертикальныйИнтервал\npresence:\n  - target:\n      field: verticalSpacing\n    xml:\n      missing:\n        denotes:\n          literal: Auto\n      canonical:\n        - when:\n            eq:\n              - field: verticalSpacing\n              - literal: Auto\n          form: missing\n    yaml:\n      default:\n        literal: Auto\nid: candidate.fragment.b20673c5594e72cfc52c\n",
+    "candidate.fragment.b25981ecee7e0a4504cf.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: common.boolean\nvalue:\n  kind: record\n  fields:\n    - name: extendedEdit\n      type:\n        use: value0\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: extendedEdit\n        path:\n          - Properties\n          - ExtendedEdit\n  yaml:\n    kind: mapping\n    fields:\n      - field: extendedEdit\n        key: РасширенноеРедактирование\npresence:\n  - target:\n      field: extendedEdit\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      default:\n        literal: false\nid: candidate.fragment.b25981ecee7e0a4504cf\n",
     "candidate.fragment.b2c895dccf9b2197af6d.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: common.boolean\nvalue:\n  kind: record\n  fields:\n    - name: autoMaxWidth\n      type:\n        use: value0\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: autoMaxWidth\n        path:\n          - AutoMaxWidth\n  yaml:\n    kind: mapping\n    fields:\n      - field: autoMaxWidth\n        key: АвтоМаксимальнаяШирина\npresence:\n  - target:\n      field: autoMaxWidth\n    xml:\n      missing:\n        denotes:\n          literal: true\n      canonical:\n        - when:\n            eq:\n              - field: autoMaxWidth\n              - literal: true\n          form: missing\n    yaml:\n      default:\n        literal: true\nid: candidate.fragment.b2c895dccf9b2197af6d\n",
     "candidate.fragment.b31e8e51c148a28b805b.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: common.string\nvalue:\n  kind: record\n  fields:\n    - name: shortcut\n      type:\n        use: value0\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: shortcut\n        path:\n          - Shortcut\n  yaml:\n    kind: mapping\n    fields:\n      - field: shortcut\n        key: СочетаниеКлавиш\npresence:\n  - target:\n      field: shortcut\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      missing:\n        denotes:\n          absent: true\nid: candidate.fragment.b31e8e51c148a28b805b\n",
+    "candidate.fragment.b3bca85e5ee9efeccc30.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: common.choice-parameter-links\n  value1: common.choice-parameters\n  value2: system.UseQuickChoice\n  inputType1f8ea46361ff: common.path-root\n  value4: common.metadata-form-link\nvalue:\n  kind: record\n  fields:\n    - name: choiceParameterLinks\n      type:\n        use: value0\n        bind: {}\n    - name: choiceParameters\n      type:\n        use: value1\n        bind:\n          defaultLanguage:\n            input: defaultLanguage\n          registeredLanguages:\n            input: registeredLanguages\n    - name: quickChoice\n      type:\n        use: value2\n    - name: choiceForm\n      type:\n        use: value4\n        bind:\n          roots:\n            input: roots\n          forms:\n            input: forms\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: choiceParameterLinks\n        path:\n          - Properties\n          - ChoiceParameterLinks\n      - field: choiceParameters\n        path:\n          - Properties\n          - ChoiceParameters\n      - field: quickChoice\n        path:\n          - Properties\n          - QuickChoice\n      - field: choiceForm\n        path:\n          - Properties\n          - ChoiceForm\n  yaml:\n    kind: mapping\n    fields:\n      - field: choiceParameterLinks\n        key: СвязиПараметровВыбора\n      - field: choiceParameters\n        key: ПараметрыВыбора\n      - field: quickChoice\n        key: БыстрыйВыбор\n      - field: choiceForm\n        key: ФормаВыбора\npresence:\n  - target:\n      field: choiceParameterLinks\n    xml:\n      missing:\n        denotes:\n          absent: true\n      empty:\n        - form: empty-element\n          denotes:\n            absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: choiceParameterLinks\n          form: empty-element\n    yaml:\n      missing:\n        denotes:\n          absent: true\n  - target:\n      field: choiceParameters\n    xml:\n      missing:\n        denotes:\n          absent: true\n      empty:\n        - form: empty-element\n          denotes:\n            absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: choiceParameters\n          form: empty-element\n    yaml:\n      missing:\n        denotes:\n          absent: true\n  - target:\n      field: quickChoice\n    xml:\n      missing:\n        denotes:\n          absent: true\n    yaml:\n      default:\n        literal: Auto\n  - target:\n      field: choiceForm\n    xml:\n      missing:\n        denotes:\n          absent: true\n      empty:\n        - form: empty-element\n          denotes:\n            absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: choiceForm\n          form: empty-element\n    yaml:\n      missing:\n        denotes:\n          absent: true\ninputs:\n  defaultLanguage:\n    type:\n      kind: scalar\n      scalar: text\n  registeredLanguages:\n    type:\n      kind: sequence\n      item:\n        kind: scalar\n        scalar: text\n  roots:\n    type:\n      kind: index\n      key:\n        kind: record\n        fields:\n          - name: kind\n            type:\n              use: inputType1f8ea46361ff\n          - name: name\n            type:\n              kind: scalar\n              scalar: text\n      value:\n        kind: scalar\n        scalar: text\n  forms:\n    type:\n      kind: index\n      key:\n        kind: record\n        fields:\n          - name: parent\n            type:\n              kind: scalar\n              scalar: text\n          - name: name\n            type:\n              kind: scalar\n              scalar: text\n      value:\n        kind: scalar\n        scalar: text\nid: candidate.fragment.b3bca85e5ee9efeccc30\n",
     "candidate.fragment.b4623cf98f18521acf45.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: common.i8n-text\nvalue:\n  kind: record\n  fields:\n    - name: title\n      type:\n        use: value0\n        bind:\n          defaultLanguage:\n            input: defaultLanguage\n          registeredLanguages:\n            input: registeredLanguages\n          ownerName:\n            input: ownerName\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: title\n        path:\n          - Title\n  yaml:\n    kind: mapping\n    fields:\n      - field: title\n        key: Заголовок\npresence:\n  - target:\n      field: title\n    xml:\n      missing:\n        denotes:\n          absent: true\ninputs:\n  defaultLanguage:\n    type:\n      kind: scalar\n      scalar: text\n  registeredLanguages:\n    type:\n      kind: sequence\n      item:\n        kind: scalar\n        scalar: text\n  ownerName:\n    type:\n      kind: scalar\n      scalar: text\nid: candidate.fragment.b4623cf98f18521acf45\n",
     "candidate.fragment.b52d221747262160b7ee.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: common.choice-parameters\nvalue:\n  kind: record\n  fields:\n    - name: choiceParameters\n      type:\n        use: value0\n        bind:\n          defaultLanguage:\n            input: defaultLanguage\n          registeredLanguages:\n            input: registeredLanguages\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: choiceParameters\n        path:\n          - ChoiceParameters\n  yaml:\n    kind: mapping\n    fields:\n      - field: choiceParameters\n        key: ПараметрыВыбора\npresence:\n  - target:\n      field: choiceParameters\n    xml:\n      missing:\n        denotes:\n          absent: true\n      empty:\n        - form: empty-element\n          denotes:\n            absent: true\n    yaml:\n      missing:\n        denotes:\n          absent: true\ninputs:\n  defaultLanguage:\n    type:\n      kind: scalar\n      scalar: text\n  registeredLanguages:\n    type:\n      kind: sequence\n      item:\n        kind: scalar\n        scalar: text\nid: candidate.fragment.b52d221747262160b7ee\n",
     "candidate.fragment.b5ad6b103d3ced3c9f41.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: common.boolean\nvalue:\n  kind: record\n  fields:\n    - name: readOnly\n      type:\n        use: value0\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: readOnly\n        path:\n          - ReadOnly\n  yaml:\n    kind: mapping\n    fields:\n      - field: readOnly\n        key: ТолькоПросмотр\npresence:\n  - target:\n      field: readOnly\n    xml:\n      missing:\n        denotes:\n          literal: false\n      canonical:\n        - when:\n            eq:\n              - field: readOnly\n              - literal: false\n          form: missing\n    yaml:\n      default:\n        literal: false\nid: candidate.fragment.b5ad6b103d3ced3c9f41\n",
@@ -162705,6 +162692,7 @@
     "candidate.projection.42d6e0f5c71dfad83322.yaml": "format: nkdk-declarations/1\nkind: object\nid: candidate.projection.42d6e0f5c71dfad83322\ndescription: 'Кандидат проекции: относительный XML-корень LargeStep; не полный владелец'\nimports:\n  part0: candidate.fragment.a982748e340eb98ce1f1\ncompose:\n  - use: part0\nvalue:\n  kind: record\n  fields: []\nrepresentations:\n  xml:\n    kind: record\n    fields: []\n  yaml:\n    kind: mapping\n    fields: []\n",
     "candidate.projection.42da94bfe6a9a1f422a8.yaml": "format: nkdk-declarations/1\nkind: object\nid: candidate.projection.42da94bfe6a9a1f422a8\ndescription: 'Кандидат проекции: относительный XML-корень United; не полный владелец'\nimports:\n  part0: candidate.fragment.ec77a6252fc610a9dafc\ncompose:\n  - use: part0\nvalue:\n  kind: record\n  fields: []\nrepresentations:\n  xml:\n    kind: record\n    fields: []\n  yaml:\n    kind: mapping\n    fields: []\n",
     "candidate.projection.4345474b7b7c39943f1c.yaml": "format: nkdk-declarations/1\nkind: object\nid: candidate.projection.4345474b7b7c39943f1c\ndescription: 'Кандидат проекции: относительный XML-корень MaxValue; не полный владелец'\nimports:\n  part0: candidate.fragment.ebe976b02d879f54af54\ncompose:\n  - use: part0\nvalue:\n  kind: record\n  fields: []\nrepresentations:\n  xml:\n    kind: record\n    fields: []\n  yaml:\n    kind: mapping\n    fields: []\n",
+    "candidate.projection.438d6d6ec02ec03dac1b.yaml": "format: nkdk-declarations/1\nkind: object\nid: candidate.projection.438d6d6ec02ec03dac1b\ndescription: 'Кандидат проекции: относительный XML-корень Properties; не полный владелец'\nimports:\n  part0: candidate.fragment.005c1b164180436637b2\n  part1: candidate.fragment.52a2075291fd16c7818a\n  part2: candidate.fragment.e8b8bc7db0633e109fe8\n  part3: candidate.fragment.1765115867f73cbe2b6f\n  part4: candidate.fragment.9ad6da348830d9104819\n  inputType1f8ea46361ff: common.path-root\n  part5: candidate.fragment.b3bca85e5ee9efeccc30\n  part6: candidate.fragment.b25981ecee7e0a4504cf\n  part7: candidate.fragment.6cf1ab15d981ab40d12f\ncompose:\n  - use: part0\n  - use: part1\n    bind:\n      defaultLanguage:\n        input: defaultLanguage\n      registeredLanguages:\n        input: registeredLanguages\n      ownerName:\n        input: ownerName\n  - use: part2\n  - use: part3\n  - use: part4\n    bind:\n      defaultLanguage:\n        input: defaultLanguage\n      registeredLanguages:\n        input: registeredLanguages\n      ownerName:\n        input: ownerName\n  - use: part5\n    bind:\n      defaultLanguage:\n        input: defaultLanguage\n      registeredLanguages:\n        input: registeredLanguages\n      roots:\n        input: roots\n      forms:\n        input: forms\n  - use: part6\n  - use: part7\nvalue:\n  kind: record\n  fields: []\nrepresentations:\n  xml:\n    kind: record\n    fields: []\n  yaml:\n    kind: mapping\n    fields: []\ninputs:\n  defaultLanguage:\n    type:\n      kind: scalar\n      scalar: text\n  registeredLanguages:\n    type:\n      kind: sequence\n      item:\n        kind: scalar\n        scalar: text\n  ownerName:\n    type:\n      kind: scalar\n      scalar: text\n  roots:\n    type:\n      kind: index\n      key:\n        kind: record\n        fields:\n          - name: kind\n            type:\n              use: inputType1f8ea46361ff\n          - name: name\n            type:\n              kind: scalar\n              scalar: text\n      value:\n        kind: scalar\n        scalar: text\n  forms:\n    type:\n      kind: index\n      key:\n        kind: record\n        fields:\n          - name: parent\n            type:\n              kind: scalar\n              scalar: text\n          - name: name\n            type:\n              kind: scalar\n              scalar: text\n      value:\n        kind: scalar\n        scalar: text\n",
     "candidate.projection.44269bea01300edb31c1.yaml": "format: nkdk-declarations/1\nkind: object\nid: candidate.projection.44269bea01300edb31c1\ndescription: 'Кандидат проекции: относительный XML-корень GroupHorizontalAlign; не полный владелец'\nimports:\n  part0: candidate.fragment.29f90edabce00be1bfb4\ncompose:\n  - use: part0\nvalue:\n  kind: record\n  fields: []\nrepresentations:\n  xml:\n    kind: record\n    fields: []\n  yaml:\n    kind: mapping\n    fields: []\n",
     "candidate.projection.444848dcce89d820002d.yaml": "format: nkdk-declarations/1\nkind: object\nid: candidate.projection.444848dcce89d820002d\ndescription: 'Кандидат проекции: относительный XML-корень AutoMaxHeight; не полный владелец'\nimports:\n  part0: candidate.fragment.1de23e3d5c24c7b3fec0\ncompose:\n  - use: part0\nvalue:\n  kind: record\n  fields: []\nrepresentations:\n  xml:\n    kind: record\n    fields: []\n  yaml:\n    kind: mapping\n    fields: []\n",
     "candidate.projection.446610fcee0cdac05a4b.yaml": "format: nkdk-declarations/1\nkind: object\nid: candidate.projection.446610fcee0cdac05a4b\ndescription: 'Кандидат проекции: относительный XML-корень MaxWidth; не полный владелец'\nimports:\n  part0: candidate.fragment.c357b13d96ddbc5d8bd7\ncompose:\n  - use: part0\nvalue:\n  kind: record\n  fields: []\nrepresentations:\n  xml:\n    kind: record\n    fields: []\n  yaml:\n    kind: mapping\n    fields: []\n",
@@ -163304,7 +163292,6 @@
     "candidate.projection.f607074e344db8fdff69.yaml": "format: nkdk-declarations/1\nkind: object\nid: candidate.projection.f607074e344db8fdff69\ndescription: 'Кандидат проекции: относительный XML-корень AllowInputEmptyMultipleValues; не полный владелец'\nimports:\n  part0: candidate.fragment.ae7f14f71dc63746c139\ncompose:\n  - use: part0\nvalue:\n  kind: record\n  fields: []\nrepresentations:\n  xml:\n    kind: record\n    fields: []\n  yaml:\n    kind: mapping\n    fields: []\n",
     "candidate.projection.f658fae4a9e2a5352754.yaml": "format: nkdk-declarations/1\nkind: object\nid: candidate.projection.f658fae4a9e2a5352754\ndescription: 'Кандидат проекции: относительный XML-корень dcsset:viewMode; не полный владелец'\nimports:\n  part0: candidate.fragment.6e78f9c07fcb804938a1\ncompose:\n  - use: part0\nvalue:\n  kind: record\n  fields: []\nrepresentations:\n  xml:\n    kind: record\n    fields: []\n  yaml:\n    kind: mapping\n    fields: []\n",
     "candidate.projection.f6aa39f3d01e970ed101.yaml": "format: nkdk-declarations/1\nkind: object\nid: candidate.projection.f6aa39f3d01e970ed101\ndescription: 'Кандидат проекции: относительный XML-корень Properties; не полный владелец'\nimports:\n  inputType1f8ea46361ff: common.path-root\n  part0: candidate.fragment.a73c09e51f0461f1f771\n  part1: candidate.fragment.600a43b93e8d949000c3\ncompose:\n  - use: part0\n    bind:\n      defaultLanguage:\n        input: defaultLanguage\n      registeredLanguages:\n        input: registeredLanguages\n      ownerName:\n        input: ownerName\n      roots:\n        input: roots\n  - use: part1\nvalue:\n  kind: record\n  fields: []\nrepresentations:\n  xml:\n    kind: record\n    fields: []\n  yaml:\n    kind: mapping\n    fields: []\ninputs:\n  defaultLanguage:\n    type:\n      kind: scalar\n      scalar: text\n  registeredLanguages:\n    type:\n      kind: sequence\n      item:\n        kind: scalar\n        scalar: text\n  ownerName:\n    type:\n      kind: scalar\n      scalar: text\n  roots:\n    type:\n      kind: index\n      key:\n        kind: record\n        fields:\n          - name: kind\n            type:\n              use: inputType1f8ea46361ff\n          - name: name\n            type:\n              kind: scalar\n              scalar: text\n      value:\n        kind: scalar\n        scalar: text\n",
-    "candidate.projection.f739d54be1992c361d9f.yaml": "format: nkdk-declarations/1\nkind: object\nid: candidate.projection.f739d54be1992c361d9f\ndescription: 'Кандидат проекции: относительный XML-корень Properties; не полный владелец'\nimports:\n  part0: candidate.fragment.005c1b164180436637b2\n  part1: candidate.fragment.52a2075291fd16c7818a\n  part2: candidate.fragment.e8b8bc7db0633e109fe8\n  inputType1f8ea46361ff: common.path-root\n  part3: candidate.fragment.0f84a7fc27009b651835\ncompose:\n  - use: part0\n  - use: part1\n    bind:\n      defaultLanguage:\n        input: defaultLanguage\n      registeredLanguages:\n        input: registeredLanguages\n      ownerName:\n        input: ownerName\n  - use: part2\n  - use: part3\n    bind:\n      defaultLanguage:\n        input: defaultLanguage\n      registeredLanguages:\n        input: registeredLanguages\n      ownerName:\n        input: ownerName\n      roots:\n        input: roots\n      forms:\n        input: forms\n      definedTypes:\n        input: definedTypes\nvalue:\n  kind: record\n  fields: []\nrepresentations:\n  xml:\n    kind: record\n    fields: []\n  yaml:\n    kind: mapping\n    fields: []\nconstraints:\n  - id: fillValue.string-length\n    appliesTo:\n      - xml-import\n      - yaml-validation\n    when:\n      and:\n        - isVariant:\n            value:\n              field: fillValue\n            variant: text\n        - one:\n            in:\n              get:\n                of:\n                  field: type\n                field: items\n            as: item\n            where:\n              literal: true\n        - exists:\n            in:\n              get:\n                of:\n                  field: type\n                field: items\n            as: item\n            where:\n              matches:\n                value:\n                  get:\n                    of:\n                      var: item\n                    field: value\n                pattern: Строка|ФиксированнаяСтрока\n        - eq:\n            - get:\n                of:\n                  field: type\n                field: stringAllowedLength\n            - literal: Variable\n        - matches:\n            value:\n              get:\n                of:\n                  field: type\n                field: stringLength\n            pattern: '[1-9][0-9]*'\n    assert:\n      textLengthAtMost:\n        value:\n          variantValue:\n            value:\n              field: fillValue\n            variant: text\n        limit:\n          get:\n            of:\n              field: type\n            field: stringLength\n    diagnostic:\n      code: fill-value.string-length\n      severity: warning\n      at:\n        field: fillValue\n      message: Значение заполнения превышает длину строкового типа\n  - id: fillValue.fixed-string-length\n    appliesTo:\n      - xml-import\n      - yaml-validation\n    when:\n      and:\n        - isVariant:\n            value:\n              field: fillValue\n            variant: text\n        - not:\n            eq:\n              - variantValue:\n                  value:\n                    field: fillValue\n                  variant: text\n              - literal: ''\n        - one:\n            in:\n              get:\n                of:\n                  field: type\n                field: items\n            as: item\n            where:\n              literal: true\n        - exists:\n            in:\n              get:\n                of:\n                  field: type\n                field: items\n            as: item\n            where:\n              eq:\n                - get:\n                    of:\n                      var: item\n                    field: value\n                - literal: ФиксированнаяСтрока\n        - eq:\n            - get:\n                of:\n                  field: type\n                field: stringAllowedLength\n            - literal: Fixed\n        - matches:\n            value:\n              get:\n                of:\n                  field: type\n                field: stringLength\n            pattern: '[1-9][0-9]*'\n    assert:\n      textLengthEquals:\n        value:\n          variantValue:\n            value:\n              field: fillValue\n            variant: text\n        limit:\n          get:\n            of:\n              field: type\n            field: stringLength\n    diagnostic:\n      code: fill-value.string-length\n      severity: warning\n      at:\n        field: fillValue\n      message: Значение заполнения имеет неверную фиксированную длину\n  - id: fillValue.calendar-fraction\n    appliesTo:\n      - xml-import\n      - yaml-validation\n    when:\n      and:\n        - isVariant:\n            value:\n              field: fillValue\n            variant: calendar\n        - one:\n            in:\n              get:\n                of:\n                  field: type\n                field: items\n            as: item\n            where:\n              literal: true\n        - exists:\n            in:\n              get:\n                of:\n                  field: type\n                field: items\n            as: item\n            where:\n              matches:\n                value:\n                  get:\n                    of:\n                      var: item\n                    field: value\n                pattern: Дата|Время|ДатаВремя\n    assert:\n      calendarFits:\n        value:\n          variantValue:\n            value:\n              field: fillValue\n            variant: calendar\n        fraction:\n          get:\n            of:\n              field: type\n            field: dateFractions\n    diagnostic:\n      code: fill-value.calendar-fraction\n      severity: warning\n      at:\n        field: fillValue\n      message: Значение заполнения не соответствует календарному типу\n  - id: fillValue.number-qualifiers\n    appliesTo:\n      - xml-import\n      - yaml-validation\n    when:\n      and:\n        - isVariant:\n            value:\n              field: fillValue\n            variant: decimal\n        - one:\n            in:\n              get:\n                of:\n                  field: type\n                field: items\n            as: item\n            where:\n              literal: true\n        - exists:\n            in:\n              get:\n                of:\n                  field: type\n                field: items\n            as: item\n            where:\n              matches:\n                value:\n                  get:\n                    of:\n                      var: item\n                    field: value\n                pattern: Число|ПоложительноеЧисло\n        - matches:\n            value:\n              get:\n                of:\n                  field: type\n                field: numberDigits\n            pattern: '[1-9][0-9]*'\n        - matches:\n            value:\n              get:\n                of:\n                  field: type\n                field: numberFractionDigits\n            pattern: '[0-9]+'\n    assert:\n      decimalFits:\n        value:\n          variantValue:\n            value:\n              field: fillValue\n            variant: decimal\n        digits:\n          get:\n            of:\n              field: type\n            field: numberDigits\n        fraction:\n          get:\n            of:\n              field: type\n            field: numberFractionDigits\n        sign:\n          get:\n            of:\n              field: type\n            field: numberAllowedSign\n    diagnostic:\n      code: fill-value.number-qualifiers\n      severity: warning\n      at:\n        field: fillValue\n      message: Значение заполнения не соответствует числовому типу\n  - id: fillValue.unbounded-number-sign\n    appliesTo:\n      - xml-import\n      - yaml-validation\n    when:\n      and:\n        - isVariant:\n            value:\n              field: fillValue\n            variant: decimal\n        - one:\n            in:\n              get:\n                of:\n                  field: type\n                field: items\n            as: item\n            where:\n              literal: true\n        - exists:\n            in:\n              get:\n                of:\n                  field: type\n                field: items\n            as: item\n            where:\n              eq:\n                - get:\n                    of:\n                      var: item\n                    field: value\n                - literal: ПоложительноеЧисло\n        - eq:\n            - get:\n                of:\n                  field: type\n                field: numberDigits\n            - literal: '0'\n        - eq:\n            - get:\n                of:\n                  field: type\n                field: numberAllowedSign\n            - literal: Nonnegative\n    assert:\n      decimalFits:\n        value:\n          variantValue:\n            value:\n              field: fillValue\n            variant: decimal\n        digits:\n          literal: '0'\n        fraction:\n          literal: '0'\n        sign:\n          get:\n            of:\n              field: type\n            field: numberAllowedSign\n    diagnostic:\n      code: fill-value.number-qualifiers\n      severity: warning\n      at:\n        field: fillValue\n      message: Отрицательное значение заполнения не соответствует числовому типу\n  - id: fillValue.compatible-value\n    appliesTo:\n      - xml-import\n      - yaml-validation\n    when:\n      and:\n        - exists:\n            in:\n              get:\n                of:\n                  field: type\n                field: items\n            as: item\n            where:\n              literal: true\n        - not:\n            exists:\n              in:\n                get:\n                  of:\n                    field: type\n                  field: items\n              as: item\n              where:\n                not:\n                  matches:\n                    value:\n                      get:\n                        of:\n                          var: item\n                        field: value\n                    pattern: >-\n                      ^(Строка|ФиксированнаяСтрока|Число|ПоложительноеЧисло|Булево|Дата|Время|ДатаВремя|Справочник|Документ|Перечисление|ПланОбмена|ПланСчетов|ПланВидовХарактеристик|ПланВидовРасчета|БизнесПроцесс|Задача|ОпределяемыйТип)(\\..+)?$\n    assert:\n      exists:\n        in:\n          get:\n            of:\n              field: type\n            field: items\n        as: item\n        where:\n          or:\n            - and:\n                - matches:\n                    value:\n                      get:\n                        of:\n                          var: item\n                        field: value\n                    pattern: Строка|ФиксированнаяСтрока\n                - isVariant:\n                    value:\n                      field: fillValue\n                    variant: text\n            - and:\n                - matches:\n                    value:\n                      get:\n                        of:\n                          var: item\n                        field: value\n                    pattern: Число|ПоложительноеЧисло\n                - isVariant:\n                    value:\n                      field: fillValue\n                    variant: decimal\n            - and:\n                - eq:\n                    - get:\n                        of:\n                          var: item\n                        field: value\n                    - literal: Булево\n                - isVariant:\n                    value:\n                      field: fillValue\n                    variant: boolean\n            - and:\n                - matches:\n                    value:\n                      get:\n                        of:\n                          var: item\n                        field: value\n                    pattern: Дата|Время|ДатаВремя\n                - isVariant:\n                    value:\n                      field: fillValue\n                    variant: calendar\n            - and:\n                - matches:\n                    value:\n                      get:\n                        of:\n                          var: item\n                        field: value\n                    pattern: >-\n                      ^(Справочник|Документ|Перечисление|ПланОбмена|ПланСчетов|ПланВидовХарактеристик|ПланВидовРасчета|БизнесПроцесс|Задача)(\\..+)?$\n                - isVariant:\n                    value:\n                      field: fillValue\n                    variant: reference\n                - or:\n                    - eq:\n                        - variantText:\n                            value:\n                              field: fillValue\n                            variant: reference\n                        - literal: .\n                    - textSegmentPrefix:\n                        value:\n                          variantText:\n                            value:\n                              field: fillValue\n                            variant: reference\n                        prefix:\n                          get:\n                            of:\n                              var: item\n                            field: value\n                        separator: .\n            - and:\n                - matches:\n                    value:\n                      get:\n                        of:\n                          var: item\n                        field: value\n                    pattern: ^ОпределяемыйТип\\..+$\n                - match:\n                    value:\n                      lookup:\n                        in:\n                          input: definedTypes\n                        key:\n                          get:\n                            of:\n                              var: item\n                            field: value\n                    present:\n                      as: alternatives\n                      then:\n                        exists:\n                          in:\n                            var: alternatives\n                          as: alternative\n                          where:\n                            or:\n                              - and:\n                                  - matches:\n                                      value:\n                                        var: alternative\n                                      pattern: Строка|ФиксированнаяСтрока\n                                  - isVariant:\n                                      value:\n                                        field: fillValue\n                                      variant: text\n                              - and:\n                                  - matches:\n                                      value:\n                                        var: alternative\n                                      pattern: Число|ПоложительноеЧисло\n                                  - isVariant:\n                                      value:\n                                        field: fillValue\n                                      variant: decimal\n                              - and:\n                                  - eq:\n                                      - var: alternative\n                                      - literal: Булево\n                                  - isVariant:\n                                      value:\n                                        field: fillValue\n                                      variant: boolean\n                              - and:\n                                  - matches:\n                                      value:\n                                        var: alternative\n                                      pattern: Дата|Время|ДатаВремя\n                                  - isVariant:\n                                      value:\n                                        field: fillValue\n                                      variant: calendar\n                              - and:\n                                  - matches:\n                                      value:\n                                        var: alternative\n                                      pattern: >-\n                                        ^(Справочник|Документ|Перечисление|ПланОбмена|ПланСчетов|ПланВидовХарактеристик|ПланВидовРасчета|БизнесПроцесс|Задача)(\\..+)?$\n                                  - isVariant:\n                                      value:\n                                        field: fillValue\n                                      variant: reference\n                                  - or:\n                                      - eq:\n                                          - variantText:\n                                              value:\n                                                field: fillValue\n                                              variant: reference\n                                          - literal: .\n                                      - textSegmentPrefix:\n                                          value:\n                                            variantText:\n                                              value:\n                                                field: fillValue\n                                              variant: reference\n                                          prefix:\n                                            var: alternative\n                                          separator: .\n                    absent:\n                      literal: false\n    diagnostic:\n      code: fill-value.type-mismatch\n      severity: warning\n      at:\n        field: fillValue\n      message: Значение заполнения не соответствует объявленному типу\ninputs:\n  defaultLanguage:\n    type:\n      kind: scalar\n      scalar: text\n  registeredLanguages:\n    type:\n      kind: sequence\n      item:\n        kind: scalar\n        scalar: text\n  ownerName:\n    type:\n      kind: scalar\n      scalar: text\n  roots:\n    type:\n      kind: index\n      key:\n        kind: record\n        fields:\n          - name: kind\n            type:\n              use: inputType1f8ea46361ff\n          - name: name\n            type:\n              kind: scalar\n              scalar: text\n      value:\n        kind: scalar\n        scalar: text\n  forms:\n    type:\n      kind: index\n      key:\n        kind: record\n        fields:\n          - name: parent\n            type:\n              kind: scalar\n              scalar: text\n          - name: name\n            type:\n              kind: scalar\n              scalar: text\n      value:\n        kind: scalar\n        scalar: text\n  definedTypes:\n    type:\n      kind: index\n      key:\n        kind: scalar\n        scalar: text\n      value:\n        kind: sequence\n        item:\n          kind: scalar\n          scalar: text\n    index: metadata.defined-type-alternatives\n",
     "candidate.projection.f79d816d6b26afc8f297.yaml": "format: nkdk-declarations/1\nkind: object\nid: candidate.projection.f79d816d6b26afc8f297\ndescription: 'Кандидат проекции: относительный XML-корень AutoMaxWidth; не полный владелец'\nimports:\n  part0: candidate.fragment.46d409a3b6f4b4078b82\ncompose:\n  - use: part0\nvalue:\n  kind: record\n  fields: []\nrepresentations:\n  xml:\n    kind: record\n    fields: []\n  yaml:\n    kind: mapping\n    fields: []\n",
     "candidate.projection.f7a226d01e4cf9a77f35.yaml": "format: nkdk-declarations/1\nkind: object\nid: candidate.projection.f7a226d01e4cf9a77f35\ndescription: 'Кандидат проекции: относительный XML-корень MaxHeight; не полный владелец'\nimports:\n  part0: candidate.fragment.03952e098a84452b136d\ncompose:\n  - use: part0\nvalue:\n  kind: record\n  fields: []\nrepresentations:\n  xml:\n    kind: record\n    fields: []\n  yaml:\n    kind: mapping\n    fields: []\n",
     "candidate.projection.f7aa621f618a165c5614.yaml": "format: nkdk-declarations/1\nkind: object\nid: candidate.projection.f7aa621f618a165c5614\ndescription: 'Кандидат проекции: относительный XML-корень VerticalStretch; не полный владелец'\nimports:\n  part0: candidate.fragment.eab847db3ae0935b8b5f\ncompose:\n  - use: part0\nvalue:\n  kind: record\n  fields: []\nrepresentations:\n  xml:\n    kind: record\n    fields: []\n  yaml:\n    kind: mapping\n    fields: []\n",

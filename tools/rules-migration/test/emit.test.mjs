@@ -363,7 +363,7 @@ test('candidate generation shares fragments, rejects unknown parameters and prot
   assert.deepEqual(conditionalTypeDescription.inputs,{ownerKind:{type:{kind:'scalar',scalar:'text'}}});
   const ownMinMax=mapProperty({...property,status:'requires-expression-mapping',name:'minimum',parameters:{
     type:'MinMaxValue',yaml:'Минимум',typedXML:'xs:string',defaultValueXMLRaw:{'_xsi:nil':true},
-    toXML:{$unresolved:{kind:'expression',source:{path:'packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts',line:14,column:3},sourceHash:'ce1263678dd952b7e8ef7a748e1f49b34bf00de06ae0250dbd0d55a26ae59cef',expression:'reviewed callback'}},
+    toXML:{$unresolved:{kind:'expression',source:{path:'packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts',line:14,column:3},sourceHash:'c7cdaa9f54260d7085e3d7f493acaa2bb932a0f326b3b254ae971637bd7c610d',expression:'reviewed callback'}},
   }},new Map([['common.min-max-value-text',{}]]));
   assert.deepEqual(ownMinMax.presence.xml.canonical,[
     {when:{not:{present:{field:'minimum'}}},form:'missing'},

@@ -9,7 +9,6 @@ export const ordinaryFillValueItemTypes = [
   "ExtDimensionAccountingFlag",
   "MetadataExternalDataSourceField",
   "MetadataExternalDataSourceCubeDimension",
-  "MetadataExternalDataSourceCubeResource",
 ] as const
 
 export type OrdinaryFillValueItemType = (typeof ordinaryFillValueItemTypes)[number]

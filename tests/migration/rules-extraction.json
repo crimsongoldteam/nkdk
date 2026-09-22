@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "sourceRevision": "3ed62e9ecbe0089dcf625e1f190ad2688477f666",
+  "sourceRevision": "809c31492e8b96cfccfc69c2452393c232a59248",
   "scope": "Item *Rules variables in inventoried rules.ts and childRules.ts, including local rules exposed through owners; key/order comparison is not semantic migration acceptance",
   "sourceHashes": [
     {
@@ -4165,7 +4165,7 @@
     },
     {
       "path": "packages/rules/metadata/commonObjects/fillValue/ordinaryItemTypes.ts",
-      "sha256": "d6d6c0d296e4709057fdf6fd064da08e27cdaf2a8e6810890ac7329a1cde0110"
+      "sha256": "af463ff9379a272c1c7cbd1182b9c50f1e0beb087030802a4c0e4c58a2bfd487"
     },
     {
       "path": "packages/rules/metadata/commonObjects/fillValue/register.test.ts",
@@ -4713,7 +4713,7 @@
     },
     {
       "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/fromXMLToYAML.integration.test.ts",
-      "sha256": "dd0e1f89af5d5fad9421016074f18b09dd1943310139c092b846af3c6a60e254"
+      "sha256": "e215a8ae7d488f63f12ef08439da1e5f733afd6cc4e80f790e316d6b65a597b4"
     },
     {
       "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/index.ts",
@@ -4729,7 +4729,7 @@
     },
     {
       "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-      "sha256": "ce1263678dd952b7e8ef7a748e1f49b34bf00de06ae0250dbd0d55a26ae59cef"
+      "sha256": "c7cdaa9f54260d7085e3d7f493acaa2bb932a0f326b3b254ae971637bd7c610d"
     },
     {
       "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/types.ts",
@@ -129430,7 +129430,7 @@
       "exportStatus": "owner-candidate",
       "source": {
         "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-        "line": 23,
+        "line": 24,
         "column": 14
       },
       "xmlOrder": {
@@ -129726,7 +129726,7 @@
           "name": "minValue",
           "source": {
             "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 65,
+            "line": 66,
             "column": 5
           },
           "type": "MinMaxValue",
@@ -129749,7 +129749,7 @@
                   "line": 14,
                   "column": 3
                 },
-                "sourceHash": "ce1263678dd952b7e8ef7a748e1f49b34bf00de06ae0250dbd0d55a26ae59cef",
+                "sourceHash": "c7cdaa9f54260d7085e3d7f493acaa2bb932a0f326b3b254ae971637bd7c610d",
                 "expression": "(source: YAMLPropertySource | unknown): boolean =>\n    hasProperty(source, propertyKey)"
               }
             }
@@ -129762,7 +129762,7 @@
                 "line": 14,
                 "column": 3
               },
-              "sourceHash": "ce1263678dd952b7e8ef7a748e1f49b34bf00de06ae0250dbd0d55a26ae59cef",
+              "sourceHash": "c7cdaa9f54260d7085e3d7f493acaa2bb932a0f326b3b254ae971637bd7c610d",
               "expression": "(source: YAMLPropertySource | unknown): boolean =>\n    hasProperty(source, propertyKey)"
             }
           ],
@@ -129772,7 +129772,7 @@
           "name": "maxValue",
           "source": {
             "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 69,
+            "line": 70,
             "column": 5
           },
           "type": "MinMaxValue",
@@ -129795,7 +129795,7 @@
                   "line": 14,
                   "column": 3
                 },
-                "sourceHash": "ce1263678dd952b7e8ef7a748e1f49b34bf00de06ae0250dbd0d55a26ae59cef",
+                "sourceHash": "c7cdaa9f54260d7085e3d7f493acaa2bb932a0f326b3b254ae971637bd7c610d",
                 "expression": "(source: YAMLPropertySource | unknown): boolean =>\n    hasProperty(source, propertyKey)"
               }
             }
@@ -129808,7 +129808,7 @@
                 "line": 14,
                 "column": 3
               },
-              "sourceHash": "ce1263678dd952b7e8ef7a748e1f49b34bf00de06ae0250dbd0d55a26ae59cef",
+              "sourceHash": "c7cdaa9f54260d7085e3d7f493acaa2bb932a0f326b3b254ae971637bd7c610d",
               "expression": "(source: YAMLPropertySource | unknown): boolean =>\n    hasProperty(source, propertyKey)"
             }
           ],
@@ -129818,7 +129818,7 @@
           "name": "fillFromFillingValue",
           "source": {
             "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 49,
+            "line": 50,
             "column": 5
           },
           "type": "boolean",
@@ -129839,7 +129839,7 @@
                   "line": 14,
                   "column": 3
                 },
-                "sourceHash": "ce1263678dd952b7e8ef7a748e1f49b34bf00de06ae0250dbd0d55a26ae59cef",
+                "sourceHash": "c7cdaa9f54260d7085e3d7f493acaa2bb932a0f326b3b254ae971637bd7c610d",
                 "expression": "(source: YAMLPropertySource | unknown): boolean =>\n    hasProperty(source, propertyKey)"
               }
             }
@@ -129852,53 +129852,7 @@
                 "line": 14,
                 "column": 3
               },
-              "sourceHash": "ce1263678dd952b7e8ef7a748e1f49b34bf00de06ae0250dbd0d55a26ae59cef",
-              "expression": "(source: YAMLPropertySource | unknown): boolean =>\n    hasProperty(source, propertyKey)"
-            }
-          ],
-          "status": "requires-expression-mapping"
-        },
-        {
-          "name": "fillValue",
-          "source": {
-            "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 73,
-            "column": 5
-          },
-          "type": "MetadataValue",
-          "parameters": {
-            "yaml": "ЗначениеЗаполнения",
-            "xml": "FillValue",
-            "type": "MetadataValue",
-            "xmlParents": [
-              "Properties"
-            ],
-            "defaultValueXMLRaw": {
-              "_xsi:nil": true
-            },
-            "exportNilValue": true,
-            "toXML": {
-              "$unresolved": {
-                "kind": "expression",
-                "source": {
-                  "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-                  "line": 14,
-                  "column": 3
-                },
-                "sourceHash": "ce1263678dd952b7e8ef7a748e1f49b34bf00de06ae0250dbd0d55a26ae59cef",
-                "expression": "(source: YAMLPropertySource | unknown): boolean =>\n    hasProperty(source, propertyKey)"
-              }
-            }
-          },
-          "issues": [
-            {
-              "kind": "expression",
-              "source": {
-                "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-                "line": 14,
-                "column": 3
-              },
-              "sourceHash": "ce1263678dd952b7e8ef7a748e1f49b34bf00de06ae0250dbd0d55a26ae59cef",
+              "sourceHash": "c7cdaa9f54260d7085e3d7f493acaa2bb932a0f326b3b254ae971637bd7c610d",
               "expression": "(source: YAMLPropertySource | unknown): boolean =>\n    hasProperty(source, propertyKey)"
             }
           ],
@@ -129908,7 +129862,7 @@
           "name": "fillChecking",
           "source": {
             "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 53,
+            "line": 54,
             "column": 5
           },
           "type": "SystemEnumeration",
@@ -129930,7 +129884,7 @@
                   "line": 14,
                   "column": 3
                 },
-                "sourceHash": "ce1263678dd952b7e8ef7a748e1f49b34bf00de06ae0250dbd0d55a26ae59cef",
+                "sourceHash": "c7cdaa9f54260d7085e3d7f493acaa2bb932a0f326b3b254ae971637bd7c610d",
                 "expression": "(source: YAMLPropertySource | unknown): boolean =>\n    hasProperty(source, propertyKey)"
               }
             }
@@ -129943,7 +129897,7 @@
                 "line": 14,
                 "column": 3
               },
-              "sourceHash": "ce1263678dd952b7e8ef7a748e1f49b34bf00de06ae0250dbd0d55a26ae59cef",
+              "sourceHash": "c7cdaa9f54260d7085e3d7f493acaa2bb932a0f326b3b254ae971637bd7c610d",
               "expression": "(source: YAMLPropertySource | unknown): boolean =>\n    hasProperty(source, propertyKey)"
             }
           ],
@@ -130015,7 +129969,7 @@
           "name": "createOnInput",
           "source": {
             "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 57,
+            "line": 58,
             "column": 5
           },
           "type": "SystemEnumeration",
@@ -130037,7 +129991,7 @@
                   "line": 14,
                   "column": 3
                 },
-                "sourceHash": "ce1263678dd952b7e8ef7a748e1f49b34bf00de06ae0250dbd0d55a26ae59cef",
+                "sourceHash": "c7cdaa9f54260d7085e3d7f493acaa2bb932a0f326b3b254ae971637bd7c610d",
                 "expression": "(source: YAMLPropertySource | unknown): boolean =>\n    hasProperty(source, propertyKey)"
               }
             }
@@ -130050,7 +130004,7 @@
                 "line": 14,
                 "column": 3
               },
-              "sourceHash": "ce1263678dd952b7e8ef7a748e1f49b34bf00de06ae0250dbd0d55a26ae59cef",
+              "sourceHash": "c7cdaa9f54260d7085e3d7f493acaa2bb932a0f326b3b254ae971637bd7c610d",
               "expression": "(source: YAMLPropertySource | unknown): boolean =>\n    hasProperty(source, propertyKey)"
             }
           ],
@@ -130060,7 +130014,7 @@
           "name": "choiceHistoryOnInput",
           "source": {
             "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 61,
+            "line": 62,
             "column": 5
           },
           "type": "SystemEnumeration",
@@ -130082,7 +130036,7 @@
                   "line": 14,
                   "column": 3
                 },
-                "sourceHash": "ce1263678dd952b7e8ef7a748e1f49b34bf00de06ae0250dbd0d55a26ae59cef",
+                "sourceHash": "c7cdaa9f54260d7085e3d7f493acaa2bb932a0f326b3b254ae971637bd7c610d",
                 "expression": "(source: YAMLPropertySource | unknown): boolean =>\n    hasProperty(source, propertyKey)"
               }
             }
@@ -130095,7 +130049,7 @@
                 "line": 14,
                 "column": 3
               },
-              "sourceHash": "ce1263678dd952b7e8ef7a748e1f49b34bf00de06ae0250dbd0d55a26ae59cef",
+              "sourceHash": "c7cdaa9f54260d7085e3d7f493acaa2bb932a0f326b3b254ae971637bd7c610d",
               "expression": "(source: YAMLPropertySource | unknown): boolean =>\n    hasProperty(source, propertyKey)"
             }
           ],
@@ -130133,7 +130087,7 @@
           "name": "choiceFoldersAndItems",
           "source": {
             "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 77,
+            "line": 74,
             "column": 5
           },
           "type": "SystemEnumeration",
@@ -130155,7 +130109,7 @@
                   "line": 14,
                   "column": 3
                 },
-                "sourceHash": "ce1263678dd952b7e8ef7a748e1f49b34bf00de06ae0250dbd0d55a26ae59cef",
+                "sourceHash": "c7cdaa9f54260d7085e3d7f493acaa2bb932a0f326b3b254ae971637bd7c610d",
                 "expression": "(source: YAMLPropertySource | unknown): boolean =>\n    hasProperty(source, propertyKey)"
               }
             }
@@ -130168,7 +130122,7 @@
                 "line": 14,
                 "column": 3
               },
-              "sourceHash": "ce1263678dd952b7e8ef7a748e1f49b34bf00de06ae0250dbd0d55a26ae59cef",
+              "sourceHash": "c7cdaa9f54260d7085e3d7f493acaa2bb932a0f326b3b254ae971637bd7c610d",
               "expression": "(source: YAMLPropertySource | unknown): boolean =>\n    hasProperty(source, propertyKey)"
             }
           ],
@@ -130178,7 +130132,7 @@
           "name": "linkByType",
           "source": {
             "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 86,
+            "line": 83,
             "column": 5
           },
           "type": "TypeLink",
@@ -130198,7 +130152,7 @@
                   "line": 14,
                   "column": 3
                 },
-                "sourceHash": "ce1263678dd952b7e8ef7a748e1f49b34bf00de06ae0250dbd0d55a26ae59cef",
+                "sourceHash": "c7cdaa9f54260d7085e3d7f493acaa2bb932a0f326b3b254ae971637bd7c610d",
                 "expression": "(source: YAMLPropertySource | unknown): boolean =>\n    hasProperty(source, propertyKey)"
               }
             }
@@ -130211,7 +130165,7 @@
                 "line": 14,
                 "column": 3
               },
-              "sourceHash": "ce1263678dd952b7e8ef7a748e1f49b34bf00de06ae0250dbd0d55a26ae59cef",
+              "sourceHash": "c7cdaa9f54260d7085e3d7f493acaa2bb932a0f326b3b254ae971637bd7c610d",
               "expression": "(source: YAMLPropertySource | unknown): boolean =>\n    hasProperty(source, propertyKey)"
             }
           ],
@@ -130221,7 +130175,7 @@
           "name": "nameInDataSource",
           "source": {
             "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 93,
+            "line": 90,
             "column": 5
           },
           "type": "string",
@@ -130241,7 +130195,7 @@
           "name": "fullTextSearch",
           "source": {
             "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 99,
+            "line": 96,
             "column": 5
           },
           "type": "SystemEnumeration",
@@ -130263,7 +130217,7 @@
                   "line": 14,
                   "column": 3
                 },
-                "sourceHash": "ce1263678dd952b7e8ef7a748e1f49b34bf00de06ae0250dbd0d55a26ae59cef",
+                "sourceHash": "c7cdaa9f54260d7085e3d7f493acaa2bb932a0f326b3b254ae971637bd7c610d",
                 "expression": "(source: YAMLPropertySource | unknown): boolean =>\n    hasProperty(source, propertyKey)"
               }
             }
@@ -130276,7 +130230,7 @@
                 "line": 14,
                 "column": 3
               },
-              "sourceHash": "ce1263678dd952b7e8ef7a748e1f49b34bf00de06ae0250dbd0d55a26ae59cef",
+              "sourceHash": "c7cdaa9f54260d7085e3d7f493acaa2bb932a0f326b3b254ae971637bd7c610d",
               "expression": "(source: YAMLPropertySource | unknown): boolean =>\n    hasProperty(source, propertyKey)"
             }
           ],
@@ -130286,7 +130240,7 @@
           "name": "indexing",
           "source": {
             "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 108,
+            "line": 105,
             "column": 5
           },
           "type": "SystemEnumeration",
@@ -130308,7 +130262,7 @@
                   "line": 14,
                   "column": 3
                 },
-                "sourceHash": "ce1263678dd952b7e8ef7a748e1f49b34bf00de06ae0250dbd0d55a26ae59cef",
+                "sourceHash": "c7cdaa9f54260d7085e3d7f493acaa2bb932a0f326b3b254ae971637bd7c610d",
                 "expression": "(source: YAMLPropertySource | unknown): boolean =>\n    hasProperty(source, propertyKey)"
               }
             }
@@ -130321,7 +130275,7 @@
                 "line": 14,
                 "column": 3
               },
-              "sourceHash": "ce1263678dd952b7e8ef7a748e1f49b34bf00de06ae0250dbd0d55a26ae59cef",
+              "sourceHash": "c7cdaa9f54260d7085e3d7f493acaa2bb932a0f326b3b254ae971637bd7c610d",
               "expression": "(source: YAMLPropertySource | unknown): boolean =>\n    hasProperty(source, propertyKey)"
             }
           ],
@@ -130331,7 +130285,7 @@
           "name": "dataHistory",
           "source": {
             "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 117,
+            "line": 114,
             "column": 5
           },
           "type": "SystemEnumeration",
@@ -130353,7 +130307,7 @@
                   "line": 14,
                   "column": 3
                 },
-                "sourceHash": "ce1263678dd952b7e8ef7a748e1f49b34bf00de06ae0250dbd0d55a26ae59cef",
+                "sourceHash": "c7cdaa9f54260d7085e3d7f493acaa2bb932a0f326b3b254ae971637bd7c610d",
                 "expression": "(source: YAMLPropertySource | unknown): boolean =>\n    hasProperty(source, propertyKey)"
               }
             }
@@ -130366,7 +130320,7 @@
                 "line": 14,
                 "column": 3
               },
-              "sourceHash": "ce1263678dd952b7e8ef7a748e1f49b34bf00de06ae0250dbd0d55a26ae59cef",
+              "sourceHash": "c7cdaa9f54260d7085e3d7f493acaa2bb932a0f326b3b254ae971637bd7c610d",
               "expression": "(source: YAMLPropertySource | unknown): boolean =>\n    hasProperty(source, propertyKey)"
             }
           ],
@@ -130376,7 +130330,7 @@
           "name": "binaryDataStorageLocationUse",
           "source": {
             "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 126,
+            "line": 123,
             "column": 5
           },
           "type": "SystemEnumeration",
@@ -130397,7 +130351,7 @@
           "name": "binaryDataStorageLocationUseField",
           "source": {
             "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 133,
+            "line": 130,
             "column": 5
           },
           "type": "string",
@@ -130417,7 +130371,7 @@
                   "line": 14,
                   "column": 3
                 },
-                "sourceHash": "ce1263678dd952b7e8ef7a748e1f49b34bf00de06ae0250dbd0d55a26ae59cef",
+                "sourceHash": "c7cdaa9f54260d7085e3d7f493acaa2bb932a0f326b3b254ae971637bd7c610d",
                 "expression": "(source: YAMLPropertySource | unknown): boolean =>\n    hasProperty(source, propertyKey)"
               }
             }
@@ -130430,7 +130384,7 @@
                 "line": 14,
                 "column": 3
               },
-              "sourceHash": "ce1263678dd952b7e8ef7a748e1f49b34bf00de06ae0250dbd0d55a26ae59cef",
+              "sourceHash": "c7cdaa9f54260d7085e3d7f493acaa2bb932a0f326b3b254ae971637bd7c610d",
               "expression": "(source: YAMLPropertySource | unknown): boolean =>\n    hasProperty(source, propertyKey)"
             }
           ],
@@ -130440,7 +130394,7 @@
           "name": "balance",
           "source": {
             "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 140,
+            "line": 137,
             "column": 5
           },
           "type": "boolean",
@@ -130461,7 +130415,7 @@
                   "line": 14,
                   "column": 3
                 },
-                "sourceHash": "ce1263678dd952b7e8ef7a748e1f49b34bf00de06ae0250dbd0d55a26ae59cef",
+                "sourceHash": "c7cdaa9f54260d7085e3d7f493acaa2bb932a0f326b3b254ae971637bd7c610d",
                 "expression": "(source: YAMLPropertySource | unknown): boolean =>\n    hasProperty(source, propertyKey)"
               }
             }
@@ -130474,7 +130428,7 @@
                 "line": 14,
                 "column": 3
               },
-              "sourceHash": "ce1263678dd952b7e8ef7a748e1f49b34bf00de06ae0250dbd0d55a26ae59cef",
+              "sourceHash": "c7cdaa9f54260d7085e3d7f493acaa2bb932a0f326b3b254ae971637bd7c610d",
               "expression": "(source: YAMLPropertySource | unknown): boolean =>\n    hasProperty(source, propertyKey)"
             }
           ],
@@ -130484,7 +130438,7 @@
           "name": "accountingFlag",
           "source": {
             "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 148,
+            "line": 145,
             "column": 5
           },
           "type": "string",
@@ -130504,7 +130458,7 @@
                   "line": 14,
                   "column": 3
                 },
-                "sourceHash": "ce1263678dd952b7e8ef7a748e1f49b34bf00de06ae0250dbd0d55a26ae59cef",
+                "sourceHash": "c7cdaa9f54260d7085e3d7f493acaa2bb932a0f326b3b254ae971637bd7c610d",
                 "expression": "(source: YAMLPropertySource | unknown): boolean =>\n    hasProperty(source, propertyKey)"
               }
             }
@@ -130517,7 +130471,7 @@
                 "line": 14,
                 "column": 3
               },
-              "sourceHash": "ce1263678dd952b7e8ef7a748e1f49b34bf00de06ae0250dbd0d55a26ae59cef",
+              "sourceHash": "c7cdaa9f54260d7085e3d7f493acaa2bb932a0f326b3b254ae971637bd7c610d",
               "expression": "(source: YAMLPropertySource | unknown): boolean =>\n    hasProperty(source, propertyKey)"
             }
           ],
@@ -130527,7 +130481,7 @@
           "name": "extDimensionAccountingFlag",
           "source": {
             "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 155,
+            "line": 152,
             "column": 5
           },
           "type": "string",
@@ -130547,7 +130501,7 @@
                   "line": 14,
                   "column": 3
                 },
-                "sourceHash": "ce1263678dd952b7e8ef7a748e1f49b34bf00de06ae0250dbd0d55a26ae59cef",
+                "sourceHash": "c7cdaa9f54260d7085e3d7f493acaa2bb932a0f326b3b254ae971637bd7c610d",
                 "expression": "(source: YAMLPropertySource | unknown): boolean =>\n    hasProperty(source, propertyKey)"
               }
             }
@@ -130560,7 +130514,7 @@
                 "line": 14,
                 "column": 3
               },
-              "sourceHash": "ce1263678dd952b7e8ef7a748e1f49b34bf00de06ae0250dbd0d55a26ae59cef",
+              "sourceHash": "c7cdaa9f54260d7085e3d7f493acaa2bb932a0f326b3b254ae971637bd7c610d",
               "expression": "(source: YAMLPropertySource | unknown): boolean =>\n    hasProperty(source, propertyKey)"
             }
           ],
@@ -130613,10 +130567,10 @@
         {
           "source": {
             "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 48,
+            "line": 49,
             "column": 5
           },
-          "expression": "externalDataSourceFieldBaseProperties"
+          "expression": "cubeResourceBaseProperties"
         },
         {
           "source": {
@@ -130637,7 +130591,7 @@
         {
           "source": {
             "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 162,
+            "line": 159,
             "column": 5
           },
           "expression": "externalDataSourceObjectServiceProperties"
@@ -130679,7 +130633,7 @@
           },
           "next": {
             "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 49,
+            "line": 50,
             "column": 5
           }
         },
@@ -130692,7 +130646,7 @@
           },
           "next": {
             "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 53,
+            "line": 54,
             "column": 5
           }
         },
@@ -130705,7 +130659,7 @@
           },
           "next": {
             "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 57,
+            "line": 58,
             "column": 5
           }
         },
@@ -130718,7 +130672,7 @@
           },
           "next": {
             "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 61,
+            "line": 62,
             "column": 5
           }
         },
@@ -130731,7 +130685,7 @@
           },
           "next": {
             "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 65,
+            "line": 66,
             "column": 5
           }
         },
@@ -130744,20 +130698,7 @@
           },
           "next": {
             "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 69,
-            "column": 5
-          }
-        },
-        {
-          "name": "fillValue",
-          "previous": {
-            "path": "packages/rules/metadata/commonObjects/metadataAttribute/fragments.ts",
-            "line": 227,
-            "column": 5
-          },
-          "next": {
-            "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts",
-            "line": 73,
+            "line": 70,
             "column": 5
           }
         }
@@ -130914,7 +130855,7 @@
         "orderMatches": true,
         "itemTypeMatches": true,
         "xmlOrderMatches": true,
-        "assembledCount": 37
+        "assembledCount": 36
       }
     },
     {

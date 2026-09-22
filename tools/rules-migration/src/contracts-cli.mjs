@@ -5,7 +5,7 @@ import { ownerContracts } from './owner-contracts.mjs';
 import { i8nContracts } from './i8n-contracts.mjs';
 import { readFileSync,writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
-import { yaml,dependencyFiles } from './candidate-catalog.mjs';
+import { yaml,dependencyFiles,candidateCatalog } from './candidate-catalog.mjs';
 import { writeCandidates } from './candidate-output.mjs';
 import { loadSources } from './source-snapshot.mjs';
 import { literalTables,booleanExpectations,literalFixture } from './test-cases.mjs';
@@ -214,6 +214,79 @@ httpDefault.reverseYAML=httpDefault.yaml.split('\n').filter(line=>line!=='HTTPМ
 httpDefault.adaptation+='; independently omit the HTTP method in reverse input: XML restores GET while forward YAML retains an explicit GET';
 selected.push(...owners.modules);
 cases.push(...owners.cases);
+// Every ordinary FillValue owner uses the same common declaration. Keep the
+// original e2e XML/YAML pairs as the independent source of expectations.
+const baseCatalog=candidateCatalog().catalog;
+const fillValueProfile=baseCatalog.get('common.fill-value-profile');
+catalog.set(fillValueProfile.id,fillValueProfile);
+selected.push(fillValueProfile);
+const fillValueFamilies=[
+ ['common-attribute','CommonAttributes/ОбщийРеквизитВсеСвойства.xml','ОбщийРеквизит/ОбщийРеквизитВсеСвойства.yaml',null,[]],
+ ['task-attribute','Tasks/ЗадачаВсеСвойства.xml','Задача/ЗадачаВсеСвойства/Свойства.yaml',['Attribute','РеквизитВсеСвойства'],['Реквизиты','РеквизитВсеСвойства']],
+ ['task-addressing','Tasks/ЗадачаВсеСвойства.xml','Задача/ЗадачаВсеСвойства/Свойства.yaml',['AddressingAttribute','РеквизитАдресацииВсеСвойства'],['РеквизитыАдресации','РеквизитАдресацииВсеСвойства']],
+ ['register-attribute','InformationRegisters/РегистрСведенийВсеСвойстваНезависимый.xml','РегистрСведений/РегистрСведенийВсеСвойстваНезависимый/Свойства.yaml',['Attribute','РеквизитВсеСвойства'],['Реквизиты','РеквизитВсеСвойства']],
+ ['register-dimension','InformationRegisters/РегистрСведенийВсеСвойстваНезависимый.xml','РегистрСведений/РегистрСведенийВсеСвойстваНезависимый/Свойства.yaml',['Dimension','ИзмерениеВсеСвойства'],['Измерения','ИзмерениеВсеСвойства']],
+ ['register-resource','InformationRegisters/РегистрСведенийВсеСвойстваНезависимый.xml','РегистрСведений/РегистрСведенийВсеСвойстваНезависимый/Свойства.yaml',['Resource','РесурсВсеСвойства'],['Ресурсы','РесурсВсеСвойства']],
+ ['accounting-flag','ChartsOfAccounts/ПланСчетовВсеСвойства.xml','ПланСчетов/ПланСчетовВсеСвойства/Свойства.yaml',['AccountingFlag','ПризнакУчетаВсеСвойства'],['ПризнакиУчета','ПризнакУчетаВсеСвойства']],
+ ['ext-accounting-flag','ChartsOfAccounts/ПланСчетовВсеСвойства.xml','ПланСчетов/ПланСчетовВсеСвойства/Свойства.yaml',['ExtDimensionAccountingFlag','ПризнакУчетаСубконтоВсеСвойства'],['ПризнакиУчетаСубконто','ПризнакУчетаСубконтоВсеСвойства']],
+ ['external-field','ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства.xml','ВнешнийИсточникДанных/ВнешнийИсточникДанныхВсеСвойства/Таблицы/ТаблицаВсеСвойства/Свойства.yaml',['Field','ПолеВсеСвойства'],['Поля','ПолеВсеСвойства']],
+ ['external-cube-dimension','ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства.xml','ВнешнийИсточникДанных/ВнешнийИсточникДанныхВсеСвойства/Кубы/КубВсеСвойства/Свойства.yaml',['Dimension','ИзмерениеВсеСвойства'],['Измерения','ИзмерениеВсеСвойства']],
+];
+const fillValueRequests=fillValueFamilies.map(([,xmlPath,yamlPath,item,yamlPathParts])=>({
+ xml:`e2e/fixtures/xml/cf/${xmlPath}`,yaml:`e2e/fixtures/nkdk/cf/${yamlPath}`,
+ ...(item?{xmlItems:[{type:item[0],name:item[1]}]}:{}),yamlPath:yamlPathParts,
+ fields:[{xml:'Type',yaml:'Тип',qname:true},{xml:'FillValue',yaml:'ЗначениеЗаполнения'}],
+}));
+const fillValueFixtures=JSON.parse(execFileSync('python3',['tools/rules-migration/src/project-fixtures.py'],{input:JSON.stringify(fillValueRequests),encoding:'utf8'}));
+for(const [index,fixture] of fillValueFixtures.entries()) {
+ const [family]=fillValueFamilies[index];
+ const expectedYAML=family==='external-field'
+   ? 'Тип: ДвоичныеДанные\nЗначение: !xml/raw\n  $значение: \'\'\n  $xml:\n    _{http://www.w3.org/2001/XMLSchema-instance}type: \'{http://v8.1c.ru/8.1/data/core}Null\''
+   : fixture.yaml.replace(/^ЗначениеЗаполнения:/m,'Значение:');
+ cases.push({id:`fill-value-family-${family}`,entry:fillValueProfile.id,
+   xml:fixture.xml.replace('<Properties','<Root').replace('</Properties>','</Root>').replaceAll('<FillValue','<Value').replaceAll('</FillValue>','</Value>'),
+   yaml:expectedYAML,
+   xmlQNamePaths:fixture.xmlQNamePaths.map(path=>['Root',...path.slice(1)]),
+   source:fixture.source,inputs:{defaultLanguage:'ru',registeredLanguages:['ru','en']},
+   adaptation:'Preserve the original Type/FillValue pair and change only the outer wrapper and FillValue property names to the common profile; export without an XML reference'+(family==='external-field'?'; generic raw XML uses expanded namespace names and explicitly records the empty semantic value, unlike the existing lexical owner YAML':''),
+ });
+}
+const standardFillProfile=baseCatalog.get('common.standard-attribute-fill-value');
+catalog.set(standardFillProfile.id,standardFillProfile);
+selected.push(standardFillProfile);
+const standardXMLPath='e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml';
+const standardYAMLPath='e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml';
+const standardYAML=source(standardYAMLPath);
+for(const [internal,name,expected] of [
+ ['Owner','Владелец','Справочник.СправочникВладелец.ПредопределенноеЗначение'],
+ ['Parent','Родитель','Справочник.СправочникПолный.ПустаяСсылка'],
+ ['Code','Код',null],
+]) {
+ if(expected!==null && (!standardYAML.includes(`  ${name}:`) || !standardYAML.includes(`    ЗначениеЗаполнения: ${expected}`)))throw new Error(`Changed independent standard attribute ${name}`);
+ const [fixture]=JSON.parse(execFileSync('python3',['tools/rules-migration/src/project-fixtures.py'],{input:JSON.stringify([{
+   xml:standardXMLPath,propertySelector:`.//{http://v8.1c.ru/8.3/xcf/readable}StandardAttribute[@name='${internal}']/{http://v8.1c.ru/8.3/xcf/readable}FillValue`,root:'{http://v8.1c.ru/8.3/xcf/readable}FillValue',
+ }]),encoding:'utf8'}));
+ cases.push({id:`fill-value-standard-${internal.toLowerCase()}`,entry:standardFillProfile.id,
+   xml:`<Root>${fixture.xml}</Root>`,yaml:expected===null?'':`ЗначениеЗаполнения: ${expected}`,
+   inputs:{defaultLanguage:'ru',registeredLanguages:['ru','en'],owners:['Справочник.СправочникВладелец'],componentKind:'configuration',policy:internal==='Owner'?'ownerReference':internal==='Code'?'codeFromOwner':'notSpecified'},source:[...fixture.source,{path:standardYAMLPath}],
+   adaptation:'Select the immutable standard-attribute FillValue subtree and its independent owner YAML scalar; retain the xr namespace and test reverse export without a source XML reference',
+ });
+}
+const standardOwner=cases.find(row=>row.id==='fill-value-standard-owner');
+const standardDefaultSource='packages/rules/metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.integration.test.ts';
+if(!source(standardDefaultSource).includes('Catalog.СправочникВладелец.EmptyRef'))throw new Error('Changed independent standard Owner default');
+cases.push({...standardOwner,id:'fill-value-standard-owner-implicit',
+ xml:standardOwner.xml.replace('Catalog.СправочникВладелец.ПредопределенноеЗначение','Catalog.СправочникВладелец.EmptyRef'),
+ yaml:'',inputs:{...standardOwner.inputs,owners:['Справочник.СправочникВладелец'],componentKind:'configuration'},
+ source:[...standardOwner.source,{path:standardDefaultSource}],
+ adaptation:'Keep the immutable Owner wrapper and the independently tested Owner EmptyRef default; omitting the YAML value must restore the typed XML reference from owner facts',
+});
+const standardCode=cases.find(row=>row.id==='fill-value-standard-code');
+cases.push({...standardOwner,id:'fill-value-standard-owner-extension',
+ xml:standardCode.xml,yaml:'',inputs:{...standardOwner.inputs,componentKind:'configurationExtension'},
+ source:[...standardOwner.source,...standardCode.source,{path:standardDefaultSource}],
+ adaptation:'Use the immutable nil standard-attribute FillValue form and the independent Owner extension expectation; the same owner facts must not create a reference in an extension',
+});
 const stringAttribute=owners.cases.find(row=>row.id==='e2e-properties-СтроковыйРеквизит');
 const fixedTypeSource='packages/rules/metadata/commonObjects/fillValue/effectiveType.test.ts';
 if(!stringAttribute?.xml.includes('<v8:AllowedLength>Variable</v8:AllowedLength>') ||
@@ -563,8 +636,9 @@ catalog.set(definedTypeProvider.id,definedTypeProvider);
 derivedTexts.set(definedTypeProvider.id,definedTypeProviderText);
 selected.push(definedTypeProvider);
 factSources.push({entry:definedTypeProvider.id,xml:definedTypeXML,inputs:{ownerName:'ОпределяемыйТипВсеСвойства',defaultLanguage:'ru',registeredLanguages:['ru','en']},source:definedTypeXmlPath});
+for(const [id,module] of baseCatalog)if(!catalog.has(id))catalog.set(id,module);
 const modules=[...selected,...dependencyFiles(selected,catalog)];
-const files=Object.fromEntries(modules.map(m=>[m.id+'.yaml',derivedTexts.get(m.id)??manifest.generatedFiles[m.id+'.yaml']]));
+const files=Object.fromEntries(modules.map(m=>[m.id+'.yaml',derivedTexts.get(m.id)??manifest.generatedFiles[m.id+'.yaml']??yaml.dump(m)]));
 writeCandidates('tests/migration/rules-contract-catalog',files,{status:'test-only',derivedProjections,entries:selected.map(m=>m.id)});
 const result={version:1,status:'limited-profile; original tests retained',derivedProjections,sharedProfiles,factSources,sources,cases,pendingRows,pending:['Dynamic test helpers and unselected tables','I8nText profiles absent from one-property candidates; complete-owner integration','Typed scalar XML and old invalid-input exceptions','Date timezone, invalid and empty-state contracts need candidate coverage','Full owners and other collection families; e2e integration'],xmlEquality:'Namespace-aware structure; no source XML reference passed to reverse operation'};
 writeFileSync('tests/migration/rules-contract-cases.json',JSON.stringify(result,null,2)+'\n');

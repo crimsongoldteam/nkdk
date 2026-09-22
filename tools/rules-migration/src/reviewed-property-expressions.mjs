@@ -8,7 +8,7 @@ const profiles = new Map([
     parameter: 'toXML', kind: 'xml-when-input-equals', input: 'ownerKind', value: 'ПолеНабораДанныхСхемыКомпоновкиДанных',
   }],
   ['packages/rules/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts:14\0' +
-    'ce1263678dd952b7e8ef7a748e1f49b34bf00de06ae0250dbd0d55a26ae59cef', {
+    'c7cdaa9f54260d7085e3d7f493acaa2bb932a0f326b3b254ae971637bd7c610d', {
     parameter: 'toXML', kind: 'xml-when-property-present',
   }],
   ['packages/rules/metadata/forms/commonObjects/formAttribute/valueListSettings.ts:19\0' +

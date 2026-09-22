@@ -2546,9 +2546,7 @@ fn missing_choice_can_construct_a_typed_variant_from_its_declaration() {
     );
     assert_ne!(unsupported_omission, source);
     let linked = link(&parse_catalog(&unsupported_omission)).unwrap();
-    let errors = generate(&linked)
-        .err()
-        .expect("unsupported omission must fail compilation");
+    let errors = generate(&linked).expect_err("unsupported omission must fail compilation");
     assert!(
         errors
             .iter()

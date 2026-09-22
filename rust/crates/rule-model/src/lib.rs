@@ -353,6 +353,7 @@ pub enum ExpressionKind {
         value: Box<Expression>,
         variant: String,
     },
+    ParseYaml(Box<Expression>),
     TextSegmentPrefix {
         value: Box<Expression>,
         prefix: Box<Expression>,

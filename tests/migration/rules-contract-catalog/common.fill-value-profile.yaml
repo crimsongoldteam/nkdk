@@ -1,0 +1,152 @@
+format: nkdk-declarations/1
+kind: object
+id: common.fill-value-profile
+imports:
+  choice: common.metadata-value
+  typeDescription: common.type-description
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+value:
+  kind: record
+  fields:
+    - name: type
+      type:
+        use: typeDescription
+    - name: value
+      type:
+        use: choice
+        with:
+          exportNilValue: true
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          onlyStringType:
+            literal: false
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: type
+        path:
+          - Root
+          - Type
+      - field: value
+        path:
+          - Root
+          - Value
+  yaml:
+    kind: mapping
+    fields:
+      - field: type
+        key: Тип
+      - field: value
+        key: Значение
+presence:
+  - target:
+      field: value
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: nil
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: value
+          form: nil
+    yaml:
+      missing:
+        denotes:
+          if:
+            and:
+              - present:
+                  field: type
+              - one:
+                  in:
+                    get:
+                      of:
+                        field: type
+                      field: items
+                  as: item
+                  where:
+                    literal: true
+              - exists:
+                  in:
+                    get:
+                      of:
+                        field: type
+                      field: items
+                  as: item
+                  where:
+                    matches:
+                      value:
+                        get:
+                          of:
+                            var: item
+                          field: value
+                      pattern: ^(Строка|ФиксированнаяСтрока)$
+          then:
+            variant:
+              name: text
+              value:
+                literal: ''
+          else:
+            absent: true
+      omitWhen:
+        if:
+          and:
+            - present:
+                field: type
+            - one:
+                in:
+                  get:
+                    of:
+                      field: type
+                    field: items
+                as: item
+                where:
+                  literal: true
+            - exists:
+                in:
+                  get:
+                    of:
+                      field: type
+                    field: items
+                as: item
+                where:
+                  matches:
+                    value:
+                      get:
+                        of:
+                          var: item
+                        field: value
+                    pattern: ^(Строка|ФиксированнаяСтрока)$
+        then:
+          and:
+            - isVariant:
+                value:
+                  field: value
+                variant: text
+            - eq:
+                - variantValue:
+                    value:
+                      field: value
+                    variant: text
+                - literal: ''
+        else:
+          literal: false

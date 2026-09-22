@@ -1,8 +1,12 @@
 import { describe, expect, it } from "vitest"
 import { testPropertyFixtureThroughYAML } from "../../../tests/directConversion"
+import { MetadataExternalDataSourceCubeResourceRules } from "./rules"
 import "./register"
 
 describe("MetadataExternalDataSourceCubeResource XML → YAML → XML", () => {
+  it("не объявляет FillValue у ресурса куба", () => {
+    expect(MetadataExternalDataSourceCubeResourceRules.properties).not.toHaveProperty("fillValue")
+  })
   it.each(["full.xml", "minimal.xml"])("round-trips %s", (fixture) => {
     const result = convert(fixture)
     expect(normalize(result.result)).toBe(normalize(result.expected))

@@ -657,6 +657,16 @@ impl<'a> Expressions<'a> {
                     ));
                 }
                 if let LinkedOperator::Find(slot) = operator {
+                    if matches!(arguments[0].kind, LinkedExpressionKind::Input(_))
+                        && matches!(&arguments[0].value_type, LinkedType::Sequence(item) if matches!(item.as_ref(), LinkedType::Scalar(ScalarType::Text)))
+                    {
+                        let sequence = self.lower(&arguments[0])?;
+                        let predicate = self.lower(&arguments[1])?;
+                        self.fallible = true;
+                        return Ok(format!(
+                            "{{let mut found=None;for item in {sequence}{{let InputValue::Text(v{slot})=item else{{return Err(RuntimeDiagnostic::new(\"input.type\",\"Unexpected sequence item type\"));}};if {predicate}{{found=Some(v{slot}.as_str());break;}}}}found}}"
+                        ));
+                    }
                     if !matches!(arguments[0].kind, LinkedExpressionKind::Input(_))
                         || !self.bind_typed_row(&arguments[0], *slot)?
                     {
@@ -954,6 +964,9 @@ impl<'a> Expressions<'a> {
                             "match {} {{ E{}F{owner}::V{variant}(selected)=>selected.write_text(false)?, _=>unreachable!(\"guarded text variant\") }}",
                             values[0], self.entry.id
                         )
+                    }
+                    LinkedOperator::ParseYaml => {
+                        return Err(unsupported(self.entry, "YAML parsing is only generated for typed missing values"));
                     }
                     LinkedOperator::TextSegmentPrefix(separator) => {
                         let value = Self::text_reference(&arguments[0], values[0].clone());
