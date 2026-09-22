@@ -558,7 +558,7 @@ pub(super) fn sequence_shape(
     common: &LinkedEntry,
     presence: &[LinkedPresence],
 ) -> Result<Value, Diagnostic> {
-    if let YamlRepresentation::RecordMapping { key, value } = &common.yaml {
+    if let YamlRepresentation::RecordMapping { key, value, .. } = &common.yaml {
         let item = crate::link::sequence_item::resolve(common, program)?
             .ok_or_else(|| unsupported(common))?;
         let YamlRepresentation::Mapping(fields) = &item.yaml else {

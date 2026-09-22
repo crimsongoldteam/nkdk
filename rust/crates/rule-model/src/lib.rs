@@ -169,6 +169,8 @@ pub enum YamlRepresentation {
     RecordMapping {
         key: String,
         value: Option<String>,
+        omit_empty_for: Option<String>,
+        empty_tag: Option<String>,
     },
     KeyedMapping {
         key: String,

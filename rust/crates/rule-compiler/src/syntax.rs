@@ -1014,14 +1014,22 @@ fn yaml_collection(path: &str, node: &Node) -> Result<YamlRepresentation, Diagno
             "value",
             "shorthand",
             "singleton",
+            "omitEmptyFor",
+            "emptyTag",
         ],
     )?;
     match node.field(path, fields, "kind")?.text(path)? {
         "record-mapping" => {
-            node.mapping(path, &["kind", "key", "value"])?;
+            node.mapping(path, &["kind", "key", "value", "omitEmptyFor", "emptyTag"])?;
             Ok(YamlRepresentation::RecordMapping {
                 key: node.field(path, fields, "key")?.text(path)?.into(),
                 value: optional_field(fields, "value")
+                    .map(|value| value.text(path).map(str::to_owned))
+                    .transpose()?,
+                omit_empty_for: optional_field(fields, "omitEmptyFor")
+                    .map(|value| value.text(path).map(str::to_owned))
+                    .transpose()?,
+                empty_tag: optional_field(fields, "emptyTag")
                     .map(|value| value.text(path).map(str::to_owned))
                     .transpose()?,
             })

@@ -18,7 +18,32 @@ pub(crate) fn resolve(
         .expect("linked item")
         .clone();
     instantiate(&mut entry, bindings, arguments)?;
-    if let YamlRepresentation::RecordMapping { key, value } = &collection.yaml {
+    if let YamlRepresentation::RecordMapping {
+        key,
+        value,
+        omit_empty_for,
+        empty_tag,
+    } = &collection.yaml
+    {
+        if empty_tag.is_some() != omit_empty_for.is_some() {
+            return Err(diagnostic(
+                "incomplete_item_contract",
+                &collection.source,
+                "A sparse record mapping requires both omitEmptyFor and emptyTag",
+            ));
+        }
+        if empty_tag.as_ref().is_some_and(|tag| {
+            tag.is_empty()
+                || tag.chars().any(|character| {
+                    character.is_whitespace() || matches!(character, '!' | ':' | '{' | '}')
+                })
+        }) {
+            return Err(diagnostic(
+                "invalid_tag",
+                &collection.source,
+                "emptyTag must be a nonempty YAML tag suffix",
+            ));
+        }
         let LinkedType::Record(fields) = &entry.value else {
             return Err(diagnostic(
                 "expression_type_mismatch",

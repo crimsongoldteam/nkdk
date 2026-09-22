@@ -17,6 +17,8 @@ representations:
   yaml:
     kind: record-mapping
     key: name
+    omitEmptyFor: canonicalNames
+    emptyTag: xml/standard-attributes
 inputs:
   canonicalNames:
     type:

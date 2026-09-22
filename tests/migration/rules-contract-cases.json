@@ -5760,8 +5760,8 @@
       "id": "standard-attribute-canonical-names-from-empty-yaml",
       "entry": "contract.standard-canonical-names-owner",
       "xml": "<StandardAttributes xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:StandardAttribute name=\"Owner\"/><xr:StandardAttribute name=\"Parent\"/></StandardAttributes>",
-      "yaml": "СтандартныеРеквизиты:\n  Владелец: {}\n  Родитель: {}",
-      "reverseYAML": "",
+      "yaml": "СтандартныеРеквизиты: !xml/standard-attributes",
+      "reverseYAML": "СтандартныеРеквизиты: !xml/standard-attributes",
       "inputs": {
         "canonicalNames": [
           "Owner",
@@ -5777,6 +5777,48 @@
         }
       ],
       "adaptation": "The two observed standard member names remain explicit on import; with an empty YAML owner the declarative canonical member list must restore their XML elements"
+    },
+    {
+      "id": "standard-attribute-sparse-with-unlisted-member",
+      "entry": "contract.standard-canonical-names-owner",
+      "xml": "<StandardAttributes xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:StandardAttribute name=\"Owner\"/><xr:StandardAttribute name=\"Parent\"/><xr:StandardAttribute name=\"FutureMember\"/></StandardAttributes>",
+      "yaml": "СтандартныеРеквизиты:\n  FutureMember: {}",
+      "inputs": {
+        "canonicalNames": [
+          "Owner",
+          "Parent"
+        ]
+      },
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml"
+        }
+      ],
+      "adaptation": "An unfamiliar member stays explicit while omitted canonical empty rows are restored from the declared owner input"
+    },
+    {
+      "id": "standard-attribute-explicit-empty-collection",
+      "entry": "contract.standard-canonical-names-owner",
+      "xml": "<StandardAttributes xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"/>",
+      "yaml": "СтандартныеРеквизиты: {}",
+      "inputs": {
+        "canonicalNames": [
+          "Owner",
+          "Parent"
+        ]
+      },
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml"
+        }
+      ],
+      "adaptation": "An explicitly empty XML collection is distinct from the complete default set represented by the existing shape tag"
     },
     {
       "id": "standard-attribute-named-owner-fill-value",

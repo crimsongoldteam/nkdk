@@ -241,7 +241,7 @@ pub(super) fn generate_at(
     let LinkedType::Record(row_fields) = &row.value else {
         return Err(unsupported(&row, "The item requires a record value"));
     };
-    let lifted = if let YamlRepresentation::RecordMapping { key, value } = &common.yaml {
+    let lifted = if let YamlRepresentation::RecordMapping { key, value, .. } = &common.yaml {
         let index = row_fields
             .iter()
             .position(|field| &field.name == key)
@@ -272,6 +272,33 @@ pub(super) fn generate_at(
         ))
     } else {
         None
+    };
+    let (omit_empty_slot, empty_tag) = match &common.yaml {
+        YamlRepresentation::RecordMapping {
+            omit_empty_for: Some(input),
+            empty_tag: Some(tag),
+            ..
+        } => {
+            let slot = entry
+                .inputs
+                .iter()
+                .position(|field| &field.name == input)
+                .ok_or_else(|| {
+                    unsupported(
+                        entry,
+                        "Sparse record mapping input is not bound by its owner",
+                    )
+                })?;
+            if !matches!(&entry.inputs[slot].value, LinkedType::Sequence(item) if **item == LinkedType::Scalar(ScalarType::Text))
+            {
+                return Err(unsupported(
+                    entry,
+                    "Sparse record mapping input must be a text sequence",
+                ));
+            }
+            (format!("Some({slot})"), format!("Some({tag:?})"))
+        }
+        _ => ("None::<usize>".into(), "None::<&str>".into()),
     };
     let key_mapper = lifted
         .as_ref()
@@ -439,6 +466,8 @@ pub(super) fn generate_at(
         )
         .replace("@key@", &format!("{key:?}"))
         .replace("@key_mapper@", &key_mapper)
+        .replace("@omit_empty_slot@", &omit_empty_slot)
+        .replace("@empty_tag@", &empty_tag)
         .replace("@physical@", &format!("{:?}", parent.last().unwrap().local))
         .replace(
             "@namespace@",
@@ -554,12 +583,13 @@ fn read_xml_events_scoped_@id@(source:&[u8],inputs:&InputView<'_>,events:impl co
 #[allow(dead_code)] fn read_xml_events_@id@(source:&[u8],inputs:&InputView<'_>,events:impl core::xml::Source,mut other:impl FnMut(&[core::xml::Name],&core::xml::Token<'_>)->core::Result<bool>)->core::Result<V@id@>{let mut state=XmlCollection@id@::new();events.visit(|path,token|{if !other(path,token)?{state.consume_scoped(path,token,None,source,inputs)?;}Ok(())})?;finish_xml_@id@(state,source,inputs)}
 #[allow(dead_code)] fn read_xml_with_@id@(source:&[u8],inputs:&InputView<'_>,other:impl FnMut(&[core::xml::Name],&core::xml::Token<'_>)->core::Result<bool>)->core::Result<V@id@>{read_xml_events_scoped_@id@(source,inputs,core::xml::DocumentSource(source),other)}
 fn read_xml_@id@(source:&[u8],inputs:&InputView<'_>)->core::Result<V@id@>{match read_xml_events_scoped_@id@(source,inputs,core::xml::DocumentSource(source),|_,_|Ok(false)){Ok(value)=>Ok(value),Err(error) if matches!(error.code.as_deref(),Some("xml.unknown-field"|"xml.unknown-attribute"|"xml.unexpected-text"|"xml.duplicate-field"|"value.missing"))=>Ok(V@id@{rows:Vec::new(),present:true,raw:None}),Err(error)=>Err(error)}}
-struct YamlSequence@id@{mapping:core::yaml::RecordMappingReader,property:core::yaml::PropertyReader,depth:usize,opened:bool,rows:Vec<core::Result<item_@id@::YamlReader>>,active:Option<item_@id@::YamlReader>,error:Option<RuntimeDiagnostic>}
+struct YamlSequence@id@{mapping:core::yaml::RecordMappingReader,property:core::yaml::PropertyReader,depth:usize,opened:bool,marker:bool,rows:Vec<core::Result<item_@id@::YamlReader>>,active:Option<item_@id@::YamlReader>,error:Option<RuntimeDiagnostic>}
 impl YamlSequence@id@ {
-fn new()->Self{Self{mapping:core::yaml::RecordMappingReader::default(),property:core::yaml::PropertyReader::default(),depth:0,opened:false,rows:Vec::new(),active:None,error:None}}
+fn new()->Self{Self{mapping:core::yaml::RecordMappingReader::default(),property:core::yaml::PropertyReader::default(),depth:0,opened:false,marker:false,rows:Vec::new(),active:None,error:None}}
 fn consume(&mut self,node:core::yaml::Node,position:core::Position,source:&[u8],inputs:&InputView<'_>)->core::Result<()>{
 if @hidden@{return Ok(())}
 let node=if @root_yaml@{node}else{let Some(node)=self.property.consume(node,@key@,"yaml.collection-form")? else{return Ok(())};node};
+if let Some(tag)=@empty_tag@ {if let core::yaml::Node::Scalar(value,Some(actual))=&node {if actual==&format!("!{tag}") && value.is_null() {if self.opened{return Err(RuntimeDiagnostic::new("yaml.collection-form","Repeated collection"));}self.opened=true;self.marker=true;return Ok(());}}}
 if let Some(key)=@lifted_key@ {let mut mapping=std::mem::take(&mut self.mapping);let result=mapping.consume(node,position,key,@lifted_value@,|node,position|self.consume_item(node,position,source,inputs));self.mapping=mapping;return result;}
 self.consume_item(node,position,source,inputs)}
 fn consume_item(&mut self,node:core::yaml::Node,position:core::Position,source:&[u8],inputs:&InputView<'_>)->core::Result<()>{
@@ -575,10 +605,11 @@ match &node{core::yaml::Node::MappingStart(_)|core::yaml::Node::SequenceStart(_)
 if self.error.is_none() && let Err(error)=self.active.as_mut().expect("started item").consume(node,position,source,inputs){self.error=Some(error);}
 if self.depth==1{let reader=self.active.take().expect("started item");self.rows.push(match self.error.take(){Some(error)=>Err(error),None=>Ok(reader)});}
 Ok(())}
-fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<V@id@>{let present=@yaml_present@;if present && @lifted_key@.is_some(){self.mapping.finish()?;}
+fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<V@id@>{let present=@yaml_present@;if self.marker {let mut value=@yaml_missing@;value.present=true;return Ok(value);}if present && @lifted_key@.is_some(){self.mapping.finish()?;}
 if self.depth!=0 || self.active.is_some(){return Err(RuntimeDiagnostic::new("value.missing","Incomplete collection"));}
 if !present{return Ok(@yaml_missing@)}let rows=self.rows.into_iter().enumerate().map(|(index,reader)|match reader.and_then(|reader|reader.finish(source,inputs)){
 Ok(row)=>Ok(row),Err(error)=>{if source.is_empty(){return Err(error)}let property=if @root_yaml@{None}else{Some(@key@)};let bytes=if let Some(key)=@lifted_key@{core::yaml::preserved_record_mapping_item(source,property,index,key,@lifted_value@)?}else{core::yaml::preserved_sequence_item(source,property,index)?};item_@id@::read_yaml(&bytes,inputs)}}).collect::<core::Result<Vec<_>>>()?;
+let rows=if @omit_empty_slot@.is_some() && !rows.is_empty(){let canonical=@yaml_missing@;let mut remaining=rows.into_iter().map(Some).collect::<Vec<_>>();let mut positions=std::collections::HashMap::with_capacity(remaining.len());for (index,row) in remaining.iter().enumerate(){if let Some(row)=row {if let Ok(name)=item_@id@::text(row,@lifted_index@){positions.entry(name.to_owned()).or_insert(index);}}}let mut merged=Vec::with_capacity(canonical.rows.len()+remaining.len());for default in canonical.rows{let name=item_@id@::text(&default,@lifted_index@)?;if let Some(index)=positions.get(name).copied(){merged.push(remaining[index].take().unwrap_or(default));}else{merged.push(default);}}merged.extend(remaining.into_iter().flatten());merged}else{rows};
 Ok(V@id@{rows,present,raw:None})}
 }
 fn read_yaml_events_@id@(source:&[u8],inputs:&InputView<'_>,events:impl core::yaml::Source)->core::Result<V@id@>{let mut state=YamlSequence@id@::new();events.visit(|node,position|state.consume(node,position,source,inputs))?;state.finish(source,inputs)}
@@ -601,11 +632,13 @@ if @singleton@ && value.rows.len()==1{if !@root_yaml@{out.push(' ');}return item
 let row_indent=format!("{indent}{}",if @root_yaml@{"  "}else{"    "});for (index,row) in value.rows.iter().enumerate(){if !@root_yaml@ || index>0{out.push('\n');}out.push_str(indent);out.push_str(if @root_yaml@{"-"}else{"  -"});if @compact_item@{let mut rendered=String::new();item_@id@::write_yaml(row,inputs,&mut rendered,"")?;if rendered.is_empty()||rendered.trim()=="null"{}else if @compact_mapping_item@{if let Some((first,rest))=rendered.split_once('\n'){out.push(' ');out.push_str(first);out.push('\n');core::yaml::Indented::new(out,&row_indent).push_str(rest);}else{out.push(' ');out.push_str(&rendered);}}else if rendered.contains('\n'){out.push('\n');core::yaml::Indented::new(out,&row_indent).push_str(&rendered);}else{out.push(' ');out.push_str(&rendered);}}else{out.push('\n');let start=out.len();item_@id@::write_yaml(row,inputs,out,&row_indent)?;if out.len()==start{out.push_str(&row_indent);out.push_str("{}");}}}Ok(())}
 fn write_mapping_rows_@id@(value:&V@id@,inputs:&InputView<'_>,out:&mut String,indent:&str)->core::Result<()>{
 if value.rows.is_empty(){if !@root_yaml@{out.push(' ');}out.push_str("{}");return Ok(())}
-let mut seen=std::collections::HashSet::new();let row_indent=format!("{indent}{}",if @root_yaml@{"  "}else{"    "});
+let mut seen=std::collections::HashSet::new();let mut omitted=0usize;let row_indent=format!("{indent}{}",if @root_yaml@{"  "}else{"    "});
 for row in &value.rows{if !item_@id@::key_can_be_lifted(row){continue;}
-let key=match item_@id@::text(row,@lifted_index@){Ok(key)=>key,Err(error) if error.code.as_deref()==Some("fact.unready")=>continue,Err(error)=>return Err(error)};@key_mapper@ if !seen.insert(key){continue;}
-if !@root_yaml@ || seen.len()>1{out.push('\n');}out.push_str(indent);if !@root_yaml@{out.push_str("  ");}out.push_str(&core::yaml::scalar(key));out.push(':');let mut rendered=String::new();item_@id@::write_mapping_value(row,inputs,&mut rendered,"")?;let trimmed=rendered.trim_start();let structured=rendered.contains('\n')||trimmed.starts_with(['{','[','-'])||(!trimmed.starts_with(['\"','\''])&&trimmed.contains(':'));if rendered.is_empty(){out.push('\n');out.push_str(&row_indent);out.push_str("{}");}else if structured{out.push('\n');core::yaml::Indented::new(out,&row_indent).push_str(&rendered);}else{out.push(' ');out.push_str(&rendered);}}
-if seen.is_empty(){if !@root_yaml@{out.push(' ');}out.push_str("{}");}
+let key=match item_@id@::text(row,@lifted_index@){Ok(key)=>key,Err(error) if error.code.as_deref()==Some("fact.unready")=>continue,Err(error)=>return Err(error)};let mut rendered=String::new();item_@id@::write_mapping_value(row,inputs,&mut rendered,"")?;
+if rendered.is_empty() && let Some(slot)=@omit_empty_slot@ {if inputs.sequence(slot)?.iter().any(|name|matches!(name,InputValue::Text(name) if name==key)){omitted+=1;continue;}}
+@key_mapper@ if !seen.insert(key){continue;}
+if !@root_yaml@ || seen.len()>1{out.push('\n');}out.push_str(indent);if !@root_yaml@{out.push_str("  ");}out.push_str(&core::yaml::scalar(key));out.push(':');let trimmed=rendered.trim_start();let structured=rendered.contains('\n')||trimmed.starts_with(['{','[','-'])||(!trimmed.starts_with(['\"','\''])&&trimmed.contains(':'));if rendered.is_empty(){out.push('\n');out.push_str(&row_indent);out.push_str("{}");}else if structured{out.push('\n');core::yaml::Indented::new(out,&row_indent).push_str(&rendered);}else{out.push(' ');out.push_str(&rendered);}}
+if seen.is_empty(){if !@root_yaml@{out.push(' ');}if omitted>0 && let Some(tag)=@empty_tag@ {out.push('!');out.push_str(tag);}else{out.push_str("{}");}}
 Ok(())}
 fn write_yaml_@id@(value:&V@id@,inputs:&InputView<'_>)->core::Result<Vec<u8>>{let mut out=String::new();write_yaml_into_@id@(value,inputs,&mut out)?;let bytes=out.into_bytes();if let Some(patch)=&value.raw{encode_raw_@id@(&bytes,patch.to_yaml().as_bytes())}else{Ok(bytes)}}
 fn check_rows_@id@(value:&V@id@,source:&[u8],inputs:&InputView<'_>,xml:bool)->Vec<RuntimeDiagnostic>{let mut issues=Vec::new();for (index,row) in value.rows.iter().enumerate(){issues.extend(item_@id@::check(row,source,inputs,xml).into_iter().map(|mut issue|{if @path_prefix@{issue.path.insert(0,@key@.into());}issue.occurrence=std::num::NonZeroU32::new(index as u32+1);issue}));}issues}

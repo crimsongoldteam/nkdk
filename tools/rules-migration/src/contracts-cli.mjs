@@ -382,15 +382,27 @@ const canonicalNamesInput={type:{kind:'sequence',item:{kind:'scalar',scalar:'tex
 const canonicalList={...structuredClone(standardNameList),id:'contract.standard-canonical-names-list',
  inputs:{canonicalNames:canonicalNamesInput},
  presence:[{target:'self',xml:{missing:{denotes:{absent:true}}},yaml:{missing:{denotes:{map:{in:{input:'canonicalNames'},as:'name',value:{record:{name:{var:'name'}}}}}}}}]};
+canonicalList.representations.yaml={kind:'record-mapping',key:'name',omitEmptyFor:'canonicalNames',emptyTag:'xml/standard-attributes'};
 const canonicalOwner={...structuredClone(standardNames),id:'contract.standard-canonical-names-owner',
  imports:{items:canonicalList.id},inputs:{canonicalNames:structuredClone(canonicalNamesInput)}};
 canonicalOwner.value.fields[0].type.bind={canonicalNames:{input:'canonicalNames'}};
 for(const module of [canonicalList,canonicalOwner]){catalog.set(module.id,module);selected.push(module);}
 cases.push({id:'standard-attribute-canonical-names-from-empty-yaml',entry:canonicalOwner.id,
  xml:`<StandardAttributes xmlns:xr="${xrNamespace}">${observedStandardNames.map(name=>`<xr:StandardAttribute name="${name}"/>`).join('')}</StandardAttributes>`,
- yaml:'СтандартныеРеквизиты:\n  Владелец: {}\n  Родитель: {}',reverseYAML:'',
+ yaml:'СтандартныеРеквизиты: !xml/standard-attributes',reverseYAML:'СтандартныеРеквизиты: !xml/standard-attributes',
  inputs:{canonicalNames:observedStandardNames},source:[{path:standardNamesSource},{path:standardNamesYaml}],
  adaptation:'The two observed standard member names remain explicit on import; with an empty YAML owner the declarative canonical member list must restore their XML elements',
+});
+cases.push({id:'standard-attribute-sparse-with-unlisted-member',entry:canonicalOwner.id,
+ xml:`<StandardAttributes xmlns:xr="${xrNamespace}">${[...observedStandardNames,'FutureMember'].map(name=>`<xr:StandardAttribute name="${name}"/>`).join('')}</StandardAttributes>`,
+ yaml:'СтандартныеРеквизиты:\n  FutureMember: {}',
+ inputs:{canonicalNames:observedStandardNames},source:[{path:standardNamesSource},{path:standardNamesYaml}],
+ adaptation:'An unfamiliar member stays explicit while omitted canonical empty rows are restored from the declared owner input',
+});
+cases.push({id:'standard-attribute-explicit-empty-collection',entry:canonicalOwner.id,
+ xml:`<StandardAttributes xmlns:xr="${xrNamespace}"/>`,yaml:'СтандартныеРеквизиты: {}',
+ inputs:{canonicalNames:observedStandardNames},source:[{path:standardNamesSource},{path:standardNamesYaml}],
+ adaptation:'An explicitly empty XML collection is distinct from the complete default set represented by the existing shape tag',
 });
 if(standardPolicies.get('Owner')?.fillValue?.policy!=='ownerReference' ||
    (standardPolicies.get('Parent')?.fillValue?.policy??'notSpecified')!=='notSpecified'){
