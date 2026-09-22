@@ -180,8 +180,13 @@ fn map_rows(
                 .ok_or_else(|| unsupported(entry, "Mapped record field is absent"))
         })
         .collect::<Result<Vec<_>, _>>()?;
-    let (constants, sequence, predicate, lowered) =
-        expressions::borrowed_map(entry, program, &arguments[0], slot, &ordered)?;
+    let expressions::BorrowedMap {
+        constants,
+        sequence,
+        predicate,
+        values: lowered,
+        text_sequence,
+    } = expressions::borrowed_map(entry, program, &arguments[0], slot, &ordered)?;
     let mut bindings = String::new();
     let mut inputs = Vec::new();
     for (index, (field, value)) in fields.iter().zip(lowered).enumerate() {
@@ -200,8 +205,15 @@ fn map_rows(
     let guard = predicate.map_or_else(String::new, |predicate| {
         format!("if !({predicate}){{continue;}}")
     });
+    let iteration = if text_sequence {
+        format!(
+            "for item_{slot} in {sequence}{{let InputValue::Text(v{slot})=item_{slot} else{{return Err(RuntimeDiagnostic::new(\"input.type\",\"Expected text item\"));}};"
+        )
+    } else {
+        format!("for v{slot} in {sequence}{{")
+    };
     Ok(format!(
-        "{{let _inputs=inputs;{constants}for v{slot} in {sequence}{{{guard}{bindings}constructed_rows.push(item_{id}::construct(&[{}],inputs)?);}}}}",
+        "{{let _inputs=inputs;{constants}{iteration}{guard}{bindings}constructed_rows.push(item_{id}::construct(&[{}],inputs)?);}}}}",
         inputs.join(",")
     ))
 }

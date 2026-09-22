@@ -1,0 +1,35 @@
+format: nkdk-declarations/1
+kind: object
+id: contract.standard-canonical-names-owner
+namespaces:
+  xr: http://v8.1c.ru/8.3/xcf/readable
+imports:
+  items: contract.standard-canonical-names-list
+value:
+  kind: record
+  fields:
+    - name: items
+      type:
+        use: items
+        bind:
+          canonicalNames:
+            input: canonicalNames
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: items
+        path:
+          - StandardAttributes
+  yaml:
+    kind: mapping
+    fields:
+      - field: items
+        key: СтандартныеРеквизиты
+inputs:
+  canonicalNames:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text

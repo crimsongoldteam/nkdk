@@ -5757,6 +5757,28 @@
       "adaptation": "Project two observed e2e standard attribute names as a complete named collection; omit independent member fields to isolate shared XML attribute and YAML mapping key translation"
     },
     {
+      "id": "standard-attribute-canonical-names-from-empty-yaml",
+      "entry": "contract.standard-canonical-names-owner",
+      "xml": "<StandardAttributes xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:StandardAttribute name=\"Owner\"/><xr:StandardAttribute name=\"Parent\"/></StandardAttributes>",
+      "yaml": "СтандартныеРеквизиты:\n  Владелец: {}\n  Родитель: {}",
+      "reverseYAML": "",
+      "inputs": {
+        "canonicalNames": [
+          "Owner",
+          "Parent"
+        ]
+      },
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml"
+        }
+      ],
+      "adaptation": "The two observed standard member names remain explicit on import; with an empty YAML owner the declarative canonical member list must restore their XML elements"
+    },
+    {
       "id": "standard-attribute-named-owner-fill-value",
       "entry": "contract.standard-fill-named-owner",
       "xml": "<StandardAttributes xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:StandardAttribute name=\"Owner\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"xr:DesignTimeRef\">Catalog.СправочникВладелец.ПредопределенноеЗначение</xr:FillValue></xr:StandardAttribute></StandardAttributes>",

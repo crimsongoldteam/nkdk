@@ -378,6 +378,20 @@ cases.push({id:'standard-attribute-translated-mapping-keys',entry:standardNames.
  source:[{path:standardNamesSource},{path:standardNamesYaml}],
  adaptation:'Project two observed e2e standard attribute names as a complete named collection; omit independent member fields to isolate shared XML attribute and YAML mapping key translation',
 });
+const canonicalNamesInput={type:{kind:'sequence',item:{kind:'scalar',scalar:'text'}}};
+const canonicalList={...structuredClone(standardNameList),id:'contract.standard-canonical-names-list',
+ inputs:{canonicalNames:canonicalNamesInput},
+ presence:[{target:'self',xml:{missing:{denotes:{absent:true}}},yaml:{missing:{denotes:{map:{in:{input:'canonicalNames'},as:'name',value:{record:{name:{var:'name'}}}}}}}}]};
+const canonicalOwner={...structuredClone(standardNames),id:'contract.standard-canonical-names-owner',
+ imports:{items:canonicalList.id},inputs:{canonicalNames:structuredClone(canonicalNamesInput)}};
+canonicalOwner.value.fields[0].type.bind={canonicalNames:{input:'canonicalNames'}};
+for(const module of [canonicalList,canonicalOwner]){catalog.set(module.id,module);selected.push(module);}
+cases.push({id:'standard-attribute-canonical-names-from-empty-yaml',entry:canonicalOwner.id,
+ xml:`<StandardAttributes xmlns:xr="${xrNamespace}">${observedStandardNames.map(name=>`<xr:StandardAttribute name="${name}"/>`).join('')}</StandardAttributes>`,
+ yaml:'СтандартныеРеквизиты:\n  Владелец: {}\n  Родитель: {}',reverseYAML:'',
+ inputs:{canonicalNames:observedStandardNames},source:[{path:standardNamesSource},{path:standardNamesYaml}],
+ adaptation:'The two observed standard member names remain explicit on import; with an empty YAML owner the declarative canonical member list must restore their XML elements',
+});
 if(standardPolicies.get('Owner')?.fillValue?.policy!=='ownerReference' ||
    (standardPolicies.get('Parent')?.fillValue?.policy??'notSpecified')!=='notSpecified'){
  throw new Error('Changed independent standard Owner/Parent FillValue policies');

@@ -1291,13 +1291,21 @@ pub(super) fn borrowed_filter(
     Ok((expressions.constants, sequence, predicate))
 }
 
+pub(super) struct BorrowedMap {
+    pub constants: String,
+    pub sequence: String,
+    pub predicate: Option<String>,
+    pub values: Vec<String>,
+    pub text_sequence: bool,
+}
+
 pub(super) fn borrowed_map(
     entry: &LinkedEntry,
     program: &Program,
     input: &LinkedExpression,
     slot: u32,
     values: &[&LinkedExpression],
-) -> Result<(String, String, Option<String>, Vec<String>), Diagnostic> {
+) -> Result<BorrowedMap, Diagnostic> {
     let mut expressions = Expressions::new(entry, program, &[], None);
     let (source, predicate) = match &input.kind {
         LinkedExpressionKind::Operation {
@@ -1306,10 +1314,12 @@ pub(super) fn borrowed_map(
         } if *filter_slot == slot => (&arguments[0], Some(&arguments[1])),
         _ => (input, None),
     };
-    if !expressions.bind_typed_row(source, slot)? {
+    let text_sequence = matches!(source.kind, LinkedExpressionKind::Input(_))
+        && matches!(&source.value_type, LinkedType::Sequence(item) if matches!(item.as_ref(), LinkedType::Scalar(ScalarType::Text)));
+    if !text_sequence && !expressions.bind_typed_row(source, slot)? {
         return Err(unsupported(
             entry,
-            "Declared mapping requires borrowed record rows",
+            "Declared mapping requires borrowed record rows or text items",
         ));
     }
     let sequence = expressions.lower(source)?;
@@ -1320,7 +1330,13 @@ pub(super) fn borrowed_map(
         .iter()
         .map(|value| expressions.lower(value))
         .collect::<Result<Vec<_>, _>>()?;
-    Ok((expressions.constants, sequence, predicate, values))
+    Ok(BorrowedMap {
+        constants: expressions.constants,
+        sequence,
+        predicate,
+        values,
+        text_sequence,
+    })
 }
 
 pub(super) fn record_storage(
