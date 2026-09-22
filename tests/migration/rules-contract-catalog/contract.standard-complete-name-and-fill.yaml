@@ -1,0 +1,823 @@
+format: nkdk-declarations/1
+kind: fragment
+id: contract.standard-complete-name-and-fill
+description: >-
+  Значение заполнения стандартного реквизита; смысловые ограничения задаёт
+  декларация владельца
+namespaces:
+  xr: http://v8.1c.ru/8.3/xcf/readable
+imports:
+  choice: common.metadata-value
+  name: common.standard-attribute-name
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  owners:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  componentKind:
+    type:
+      kind: scalar
+      scalar: text
+  codeAllowedLength:
+    type:
+      kind: scalar
+      scalar: text
+  codeLength:
+    type:
+      kind: scalar
+      scalar: text
+  codeType:
+    type:
+      kind: scalar
+      scalar: text
+  descriptionLength:
+    type:
+      kind: scalar
+      scalar: text
+value:
+  kind: record
+  fields:
+    - name: name
+      type:
+        use: name
+    - name: value
+      type:
+        use: choice
+        with:
+          exportNilValue: true
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          onlyStringType:
+            literal: false
+    - name: policy
+      type:
+        kind: scalar
+        scalar: text
+    - name: expectedKind
+      type:
+        kind: scalar
+        scalar: text
+    - name: maxTextLength
+      type:
+        kind: scalar
+        scalar: text
+    - name: maxNumberDigits
+      type:
+        kind: scalar
+        scalar: text
+    - name: allowedTextLength
+      type:
+        kind: scalar
+        scalar: text
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: name
+        path: []
+        attribute: name
+      - field: value
+        path:
+          - xr:FillValue
+  yaml:
+    kind: mapping
+    fields:
+      - field: name
+        key: Имя
+      - field: value
+        key: ЗначениеЗаполнения
+presence:
+  - target:
+      field: value
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: nil
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: value
+          form: nil
+    yaml:
+      missing:
+        denotes:
+          if:
+            and:
+              - eq:
+                  - field: policy
+                  - literal: ownerReference
+              - eq:
+                  - input: componentKind
+                  - literal: configuration
+              - one:
+                  in:
+                    input: owners
+                  as: owner
+                  where:
+                    literal: true
+          then:
+            parseYaml:
+              match:
+                value:
+                  find:
+                    in:
+                      input: owners
+                    as: owner
+                    where:
+                      literal: true
+                present:
+                  as: owner
+                  then:
+                    concat:
+                      - var: owner
+                      - literal: .ПустаяСсылка
+                absent:
+                  literal: ''
+          else:
+            absent: true
+  - target:
+      field: policy
+    xml:
+      missing:
+        denotes:
+          if:
+            eq:
+              - field: name
+              - literal: Ref
+          then:
+            literal: forbidden
+          else:
+            if:
+              eq:
+                - field: name
+                - literal: Owner
+            then:
+              literal: ownerReference
+            else:
+              if:
+                eq:
+                  - field: name
+                  - literal: Code
+              then:
+                literal: codeFromOwner
+              else:
+                if:
+                  eq:
+                    - field: name
+                    - literal: Description
+                then:
+                  literal: stringFromOwner
+                else:
+                  if:
+                    eq:
+                      - field: name
+                      - literal: IsFolder
+                  then:
+                    literal: forbidden
+                  else:
+                    if:
+                      eq:
+                        - field: name
+                        - literal: DeletionMark
+                    then:
+                      literal: byEffectiveType
+                    else:
+                      if:
+                        eq:
+                          - field: name
+                          - literal: Predefined
+                      then:
+                        literal: forbidden
+                      else:
+                        if:
+                          eq:
+                            - field: name
+                            - literal: PredefinedDataName
+                        then:
+                          literal: forbidden
+                        else:
+                          literal: notSpecified
+    yaml:
+      missing:
+        denotes:
+          if:
+            eq:
+              - field: name
+              - literal: Ref
+          then:
+            literal: forbidden
+          else:
+            if:
+              eq:
+                - field: name
+                - literal: Owner
+            then:
+              literal: ownerReference
+            else:
+              if:
+                eq:
+                  - field: name
+                  - literal: Code
+              then:
+                literal: codeFromOwner
+              else:
+                if:
+                  eq:
+                    - field: name
+                    - literal: Description
+                then:
+                  literal: stringFromOwner
+                else:
+                  if:
+                    eq:
+                      - field: name
+                      - literal: IsFolder
+                  then:
+                    literal: forbidden
+                  else:
+                    if:
+                      eq:
+                        - field: name
+                        - literal: DeletionMark
+                    then:
+                      literal: byEffectiveType
+                    else:
+                      if:
+                        eq:
+                          - field: name
+                          - literal: Predefined
+                      then:
+                        literal: forbidden
+                      else:
+                        if:
+                          eq:
+                            - field: name
+                            - literal: PredefinedDataName
+                        then:
+                          literal: forbidden
+                        else:
+                          literal: notSpecified
+  - target:
+      field: expectedKind
+    xml:
+      missing:
+        denotes:
+          if:
+            eq:
+              - field: name
+              - literal: Owner
+          then:
+            literal: reference
+          else:
+            if:
+              eq:
+                - field: name
+                - literal: Code
+            then:
+              if:
+                or:
+                  - eq:
+                      - input: codeType
+                      - literal: String
+                  - eq:
+                      - input: codeType
+                      - literal: Строка
+              then:
+                literal: text
+              else:
+                if:
+                  or:
+                    - eq:
+                        - input: codeType
+                        - literal: Number
+                    - eq:
+                        - input: codeType
+                        - literal: Число
+                then:
+                  literal: decimal
+                else:
+                  literal: ''
+            else:
+              if:
+                eq:
+                  - field: name
+                  - literal: Description
+              then:
+                literal: text
+              else:
+                if:
+                  eq:
+                    - field: name
+                    - literal: DeletionMark
+                then:
+                  literal: boolean
+                else:
+                  literal: ''
+    yaml:
+      missing:
+        denotes:
+          if:
+            eq:
+              - field: name
+              - literal: Owner
+          then:
+            literal: reference
+          else:
+            if:
+              eq:
+                - field: name
+                - literal: Code
+            then:
+              if:
+                or:
+                  - eq:
+                      - input: codeType
+                      - literal: String
+                  - eq:
+                      - input: codeType
+                      - literal: Строка
+              then:
+                literal: text
+              else:
+                if:
+                  or:
+                    - eq:
+                        - input: codeType
+                        - literal: Number
+                    - eq:
+                        - input: codeType
+                        - literal: Число
+                then:
+                  literal: decimal
+                else:
+                  literal: ''
+            else:
+              if:
+                eq:
+                  - field: name
+                  - literal: Description
+              then:
+                literal: text
+              else:
+                if:
+                  eq:
+                    - field: name
+                    - literal: DeletionMark
+                then:
+                  literal: boolean
+                else:
+                  literal: ''
+  - target:
+      field: maxTextLength
+    xml:
+      missing:
+        denotes:
+          if:
+            eq:
+              - field: name
+              - literal: Code
+          then:
+            if:
+              or:
+                - eq:
+                    - input: codeType
+                    - literal: String
+                - eq:
+                    - input: codeType
+                    - literal: Строка
+            then:
+              input: codeLength
+            else:
+              literal: ''
+          else:
+            if:
+              eq:
+                - field: name
+                - literal: Description
+            then:
+              input: descriptionLength
+            else:
+              literal: ''
+    yaml:
+      missing:
+        denotes:
+          if:
+            eq:
+              - field: name
+              - literal: Code
+          then:
+            if:
+              or:
+                - eq:
+                    - input: codeType
+                    - literal: String
+                - eq:
+                    - input: codeType
+                    - literal: Строка
+            then:
+              input: codeLength
+            else:
+              literal: ''
+          else:
+            if:
+              eq:
+                - field: name
+                - literal: Description
+            then:
+              input: descriptionLength
+            else:
+              literal: ''
+  - target:
+      field: maxNumberDigits
+    xml:
+      missing:
+        denotes:
+          if:
+            eq:
+              - field: name
+              - literal: Code
+          then:
+            if:
+              or:
+                - eq:
+                    - input: codeType
+                    - literal: Number
+                - eq:
+                    - input: codeType
+                    - literal: Число
+            then:
+              input: codeLength
+            else:
+              literal: ''
+          else:
+            literal: ''
+    yaml:
+      missing:
+        denotes:
+          if:
+            eq:
+              - field: name
+              - literal: Code
+          then:
+            if:
+              or:
+                - eq:
+                    - input: codeType
+                    - literal: Number
+                - eq:
+                    - input: codeType
+                    - literal: Число
+            then:
+              input: codeLength
+            else:
+              literal: ''
+          else:
+            literal: ''
+  - target:
+      field: allowedTextLength
+    xml:
+      missing:
+        denotes:
+          if:
+            eq:
+              - field: name
+              - literal: Code
+          then:
+            if:
+              or:
+                - eq:
+                    - input: codeType
+                    - literal: String
+                - eq:
+                    - input: codeType
+                    - literal: Строка
+            then:
+              input: codeAllowedLength
+            else:
+              literal: ''
+          else:
+            literal: ''
+    yaml:
+      missing:
+        denotes:
+          if:
+            eq:
+              - field: name
+              - literal: Code
+          then:
+            if:
+              or:
+                - eq:
+                    - input: codeType
+                    - literal: String
+                - eq:
+                    - input: codeType
+                    - literal: Строка
+            then:
+              input: codeAllowedLength
+            else:
+              literal: ''
+          else:
+            literal: ''
+constraints:
+  - id: forbidden-value
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      eq:
+        - field: policy
+        - literal: forbidden
+    assert:
+      not:
+        present:
+          field: value
+    diagnostic:
+      code: fill-value.forbidden
+      severity: warning
+      at:
+        field: value
+      message: Значение заполнения запрещено для этого стандартного реквизита
+  - id: expected-value-kind
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      and:
+        - present:
+            field: value
+        - not:
+            eq:
+              - field: expectedKind
+              - literal: ''
+    assert:
+      or:
+        - and:
+            - eq:
+                - field: expectedKind
+                - literal: text
+            - isVariant:
+                value:
+                  field: value
+                variant: text
+        - and:
+            - eq:
+                - field: expectedKind
+                - literal: decimal
+            - isVariant:
+                value:
+                  field: value
+                variant: decimal
+        - and:
+            - eq:
+                - field: expectedKind
+                - literal: boolean
+            - isVariant:
+                value:
+                  field: value
+                variant: boolean
+        - and:
+            - eq:
+                - field: expectedKind
+                - literal: calendar
+            - isVariant:
+                value:
+                  field: value
+                variant: calendar
+        - and:
+            - eq:
+                - field: expectedKind
+                - literal: reference
+            - isVariant:
+                value:
+                  field: value
+                variant: reference
+    diagnostic:
+      code: fill-value.type-mismatch
+      severity: warning
+      at:
+        field: value
+      message: Значение заполнения не соответствует типу стандартного реквизита
+  - id: owner-reference
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      and:
+        - eq:
+            - field: policy
+            - literal: ownerReference
+        - isVariant:
+            value:
+              field: value
+            variant: reference
+    assert:
+      or:
+        - and:
+            - exists:
+                in:
+                  input: owners
+                as: owner
+                where:
+                  literal: true
+            - not:
+                one:
+                  in:
+                    input: owners
+                  as: owner
+                  where:
+                    literal: true
+            - eq:
+                - variantText:
+                    value:
+                      field: value
+                    variant: reference
+                - literal: .
+        - exists:
+            in:
+              input: owners
+            as: owner
+            where:
+              textSegmentPrefix:
+                value:
+                  variantText:
+                    value:
+                      field: value
+                    variant: reference
+                prefix:
+                  var: owner
+                separator: .
+    diagnostic:
+      code: fill-value.type-mismatch
+      severity: warning
+      at:
+        field: value
+      message: Ссылка значения заполнения не принадлежит владельцу
+  - id: text-length
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      and:
+        - eq:
+            - field: expectedKind
+            - literal: text
+        - isVariant:
+            value:
+              field: value
+            variant: text
+        - matches:
+            value:
+              field: maxTextLength
+            pattern: '[1-9][0-9]*'
+        - not:
+            eq:
+              - field: allowedTextLength
+              - literal: Fixed
+    assert:
+      textLengthAtMost:
+        value:
+          variantValue:
+            value:
+              field: value
+            variant: text
+        limit:
+          field: maxTextLength
+    diagnostic:
+      code: fill-value.string-length
+      severity: warning
+      at:
+        field: value
+      message: Значение заполнения превышает длину стандартного реквизита
+  - id: fixed-text-length
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      and:
+        - eq:
+            - field: expectedKind
+            - literal: text
+        - isVariant:
+            value:
+              field: value
+            variant: text
+        - matches:
+            value:
+              field: maxTextLength
+            pattern: '[1-9][0-9]*'
+        - eq:
+            - field: allowedTextLength
+            - literal: Fixed
+    assert:
+      textLengthEquals:
+        value:
+          variantValue:
+            value:
+              field: value
+            variant: text
+        limit:
+          field: maxTextLength
+    diagnostic:
+      code: fill-value.string-length
+      severity: warning
+      at:
+        field: value
+      message: >-
+        Значение заполнения не соответствует фиксированной длине стандартного
+        реквизита
+  - id: number-digits
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      and:
+        - eq:
+            - field: expectedKind
+            - literal: decimal
+        - isVariant:
+            value:
+              field: value
+            variant: decimal
+        - matches:
+            value:
+              field: maxNumberDigits
+            pattern: '[1-9][0-9]*'
+    assert:
+      decimalFits:
+        value:
+          variantValue:
+            value:
+              field: value
+            variant: decimal
+        digits:
+          field: maxNumberDigits
+        fraction:
+          literal: '0'
+        sign:
+          literal: Nonnegative
+    diagnostic:
+      code: fill-value.number-qualifiers
+      severity: warning
+      at:
+        field: value
+      message: Значение заполнения не соответствует длине стандартного реквизита
+  - id: known-standard-member
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    assert:
+      or:
+        - eq:
+            - field: name
+            - literal: Ref
+        - eq:
+            - field: name
+            - literal: Parent
+        - eq:
+            - field: name
+            - literal: Owner
+        - eq:
+            - field: name
+            - literal: Code
+        - eq:
+            - field: name
+            - literal: Description
+        - eq:
+            - field: name
+            - literal: IsFolder
+        - eq:
+            - field: name
+            - literal: DeletionMark
+        - eq:
+            - field: name
+            - literal: Predefined
+        - eq:
+            - field: name
+            - literal: PredefinedDataName
+    diagnostic:
+      code: standard-member.unknown
+      severity: warning
+      at:
+        field: name
+      message: Неизвестный стандартный реквизит владельца

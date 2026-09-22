@@ -11,13 +11,14 @@ fn main() {
     let directory = workspace.join("declarations");
     println!("cargo::rerun-if-changed={}", directory.display());
     // The complete system-enumeration matrix is tested in bounded shards.
-    // Candidate declarations are exercised by migration contracts until their
-    // owners are accepted, so neither belongs in the production catalog.
+    // Candidate declarations and probes that depend on them remain in bounded
+    // migration builds; the production catalog only includes accepted modules.
     let sources = declarations::load(&workspace, &directory)
         .expect("read declaration sources")
         .into_iter()
         .filter(|(path, _)| {
             path != "declarations/probes/system-enumerations.yaml"
+                && path != "declarations/probes/document-identity-and-children.yaml"
                 && !path.starts_with("declarations/candidates/")
         })
         .collect::<Vec<_>>();

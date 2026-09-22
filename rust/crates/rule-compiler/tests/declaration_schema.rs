@@ -95,6 +95,23 @@ fn authoring_schema_accepts_the_corpus_and_rejects_structural_mistakes() {
     invalid["unknown"] = json!(true);
     assert!(!validator.is_valid(&invalid));
     assert!(validator.is_valid(&base));
+    let composed_value = json!({
+        "format":"nkdk-declarations/1", "kind":"value", "id":"test.composed",
+        "imports":{"part":"common.part"}, "compose":[{"use":"part"}],
+        "yamlOrder":["name"],
+        "value":{"kind":"record","fields":[]},
+        "representations":{"xml":{"kind":"record","fields":[]},"yaml":{"kind":"mapping","fields":[]}}
+    });
+    assert!(validator.is_valid(&composed_value));
+    let sparse_collection = json!({
+        "format":"nkdk-declarations/1", "kind":"value", "id":"test.sparse",
+        "imports":{"item":"common.item"},
+        "value":{"kind":"sequence","item":{"use":"item"}},
+        "representations":{"xml":{"kind":"element-sequence","path":["Item"]},
+          "yaml":{"kind":"record-mapping","key":"name","restoreFrom":"canonicalNames",
+            "omitEmptyFor":"elidableNames","emptyTag":"xml/standard-attributes"}}
+    });
+    assert!(validator.is_valid(&sparse_collection));
     let structured_choice = json!({
         "format":"nkdk-declarations/1", "kind":"value", "id":"test.choice",
         "imports":{"period":"common.standard-period","array":"common.fixed-array"},

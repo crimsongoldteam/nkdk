@@ -1,4 +1,5 @@
 import {readFileSync} from 'node:fs';
+import {globSync} from 'node:fs';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {standardMemberPolicies,standardFillPolicyInputs} from '../src/standard-fill-source.mjs';
@@ -52,4 +53,32 @@ test('the same extraction reads a different owner without a catalog-specific tab
   assert.equal(policies.get('Date').fillValue.policy,'byEffectiveType');
   assert.equal(standardFillPolicyInputs(policies.get('Date'),{},{}).expectedKind,'calendar');
   assert.equal(policies.get('DeletionMark').fillValue.policy,'byEffectiveType');
+});
+
+test('static generated member pairs are extracted from accounting register rules', () => {
+  const paths=[
+    'packages/runtime/metadata/standardMembers/declarations.ts',
+    'packages/rules/metadata/appliedObjects/metadataAccountingRegister/standardMembers.ts',
+  ];
+  const members=standardMemberPolicies(Object.fromEntries(paths.map(path=>[path,readFileSync(path,'utf8')])),
+    'РегистрБухгалтерии');
+  assert.equal(members.size,106);
+  assert.equal(members.get('ExtDimension1').names.yaml,'Субконто1');
+  assert.equal(members.get('ExtDimensionType50').names.yaml,'ВидСубконто50');
+  assert.equal(members.get('Period').fillValue.policy,'byEffectiveType');
+});
+
+test('all standard member owner families have statically readable declarations', () => {
+  const paths=[
+    'packages/runtime/metadata/standardMembers/declarations.ts',
+    'packages/runtime/rule-kit.ts',
+    'packages/rules/metadata/standardMembers/declarations.ts',
+    ...globSync('packages/rules/metadata/appliedObjects/*/standardMembers.ts'),
+  ];
+  const sources=Object.fromEntries(paths.map(path=>[path,readFileSync(path,'utf8')]));
+  const ownerKinds=[...new Set(paths.filter(path=>path.includes('/appliedObjects/')).flatMap(path=>
+    [...sources[path].matchAll(/ownerKind:\s*"([^"]+)"/g)].map(match=>match[1])))];
+  assert.equal(paths.filter(path=>path.includes('/appliedObjects/')).length,14);
+  assert.equal(ownerKinds.length,22);
+  for(const ownerKind of ownerKinds)assert.ok(standardMemberPolicies(sources,ownerKind).size>0,ownerKind);
 });

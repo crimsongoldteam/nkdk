@@ -1,0 +1,139 @@
+format: nkdk-declarations/1
+kind: object
+id: contract.standard-complete-owner
+namespaces:
+  xr: http://v8.1c.ru/8.3/xcf/readable
+imports:
+  items: contract.standard-complete-list
+  inputType1f8ea46361ff: common.path-root
+value:
+  kind: record
+  fields:
+    - name: items
+      type:
+        use: items
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            input: ownerName
+          roots:
+            input: roots
+          forms:
+            input: forms
+          owners:
+            input: owners
+          componentKind:
+            input: componentKind
+          codeAllowedLength:
+            input: codeAllowedLength
+          codeLength:
+            input: codeLength
+          codeType:
+            input: codeType
+          descriptionLength:
+            input: descriptionLength
+          canonicalNames:
+            input: canonicalNames
+          elidableNames:
+            input: elidableNames
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: items
+        path:
+          - StandardAttributes
+  yaml:
+    kind: mapping
+    fields:
+      - field: items
+        key: СтандартныеРеквизиты
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  ownerName:
+    type:
+      kind: scalar
+      scalar: text
+  roots:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: kind
+            type:
+              use: inputType1f8ea46361ff
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  forms:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: parent
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  owners:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  componentKind:
+    type:
+      kind: scalar
+      scalar: text
+  codeAllowedLength:
+    type:
+      kind: scalar
+      scalar: text
+  codeLength:
+    type:
+      kind: scalar
+      scalar: text
+  codeType:
+    type:
+      kind: scalar
+      scalar: text
+  descriptionLength:
+    type:
+      kind: scalar
+      scalar: text
+  canonicalNames:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  elidableNames:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text

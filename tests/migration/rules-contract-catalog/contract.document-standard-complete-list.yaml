@@ -1,0 +1,132 @@
+format: nkdk-declarations/1
+kind: value
+id: contract.document-standard-complete-list
+namespaces:
+  xr: http://v8.1c.ru/8.3/xcf/readable
+imports:
+  item: contract.document-standard-complete-item
+  inputType1f8ea46361ff: common.path-root
+value:
+  kind: sequence
+  item:
+    use: item
+    bind:
+      defaultLanguage:
+        input: defaultLanguage
+      registeredLanguages:
+        input: registeredLanguages
+      ownerName:
+        input: ownerName
+      roots:
+        input: roots
+      forms:
+        input: forms
+      owners:
+        input: owners
+      componentKind:
+        input: componentKind
+      numberAllowedLength:
+        input: numberAllowedLength
+      numberLength:
+        input: numberLength
+      numberType:
+        input: numberType
+representations:
+  xml:
+    kind: element-sequence
+    path:
+      - xr:StandardAttribute
+  yaml:
+    kind: record-mapping
+    key: name
+    restoreFrom: canonicalNames
+    omitEmptyFor: elidableNames
+    emptyTag: xml/standard-attributes
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  ownerName:
+    type:
+      kind: scalar
+      scalar: text
+  roots:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: kind
+            type:
+              use: inputType1f8ea46361ff
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  forms:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: parent
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  owners:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  componentKind:
+    type:
+      kind: scalar
+      scalar: text
+  numberAllowedLength:
+    type:
+      kind: scalar
+      scalar: text
+  numberLength:
+    type:
+      kind: scalar
+      scalar: text
+  numberType:
+    type:
+      kind: scalar
+      scalar: text
+  canonicalNames:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  elidableNames:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+presence:
+  - target: self
+    xml:
+      missing:
+        denotes:
+          absent: true

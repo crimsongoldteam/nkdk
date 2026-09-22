@@ -380,29 +380,36 @@ cases.push({id:'standard-attribute-translated-mapping-keys',entry:standardNames.
 });
 const canonicalNamesInput={type:{kind:'sequence',item:{kind:'scalar',scalar:'text'}}};
 const canonicalList={...structuredClone(standardNameList),id:'contract.standard-canonical-names-list',
- inputs:{canonicalNames:canonicalNamesInput},
- presence:[{target:'self',xml:{missing:{denotes:{absent:true}}},yaml:{missing:{denotes:{map:{in:{input:'canonicalNames'},as:'name',value:{record:{name:{var:'name'}}}}}}}}]};
-canonicalList.representations.yaml={kind:'record-mapping',key:'name',omitEmptyFor:'canonicalNames',emptyTag:'xml/standard-attributes'};
+ inputs:{canonicalNames:canonicalNamesInput,elidableNames:structuredClone(canonicalNamesInput)},
+ presence:[{target:'self',xml:{missing:{denotes:{absent:true}}}}]};
+canonicalList.representations.yaml={kind:'record-mapping',key:'name',restoreFrom:'canonicalNames',omitEmptyFor:'elidableNames',emptyTag:'xml/standard-attributes'};
 const canonicalOwner={...structuredClone(standardNames),id:'contract.standard-canonical-names-owner',
- imports:{items:canonicalList.id},inputs:{canonicalNames:structuredClone(canonicalNamesInput)}};
-canonicalOwner.value.fields[0].type.bind={canonicalNames:{input:'canonicalNames'}};
+ imports:{items:canonicalList.id},inputs:structuredClone(canonicalList.inputs)};
+canonicalOwner.value.fields[0].type.bind={canonicalNames:{input:'canonicalNames'},elidableNames:{input:'elidableNames'}};
 for(const module of [canonicalList,canonicalOwner]){catalog.set(module.id,module);selected.push(module);}
 cases.push({id:'standard-attribute-canonical-names-from-empty-yaml',entry:canonicalOwner.id,
  xml:`<StandardAttributes xmlns:xr="${xrNamespace}">${observedStandardNames.map(name=>`<xr:StandardAttribute name="${name}"/>`).join('')}</StandardAttributes>`,
  yaml:'СтандартныеРеквизиты: !xml/standard-attributes',reverseYAML:'СтандартныеРеквизиты: !xml/standard-attributes',
- inputs:{canonicalNames:observedStandardNames},source:[{path:standardNamesSource},{path:standardNamesYaml}],
+ inputs:{canonicalNames:observedStandardNames,elidableNames:observedStandardNames},source:[{path:standardNamesSource},{path:standardNamesYaml}],
  adaptation:'The two observed standard member names remain explicit on import; with an empty YAML owner the declarative canonical member list must restore their XML elements',
 });
 cases.push({id:'standard-attribute-sparse-with-unlisted-member',entry:canonicalOwner.id,
  xml:`<StandardAttributes xmlns:xr="${xrNamespace}">${[...observedStandardNames,'FutureMember'].map(name=>`<xr:StandardAttribute name="${name}"/>`).join('')}</StandardAttributes>`,
  yaml:'СтандартныеРеквизиты:\n  FutureMember: {}',
- inputs:{canonicalNames:observedStandardNames},source:[{path:standardNamesSource},{path:standardNamesYaml}],
+ inputs:{canonicalNames:observedStandardNames,elidableNames:observedStandardNames},source:[{path:standardNamesSource},{path:standardNamesYaml}],
  adaptation:'An unfamiliar member stays explicit while omitted canonical empty rows are restored from the declared owner input',
 });
 cases.push({id:'standard-attribute-explicit-empty-collection',entry:canonicalOwner.id,
  xml:`<StandardAttributes xmlns:xr="${xrNamespace}"/>`,yaml:'СтандартныеРеквизиты: {}',
- inputs:{canonicalNames:observedStandardNames},source:[{path:standardNamesSource},{path:standardNamesYaml}],
+ inputs:{canonicalNames:observedStandardNames,elidableNames:observedStandardNames},source:[{path:standardNamesSource},{path:standardNamesYaml}],
  adaptation:'An explicitly empty XML collection is distinct from the complete default set represented by the existing shape tag',
+});
+cases.push({id:'standard-attribute-preserved-empty-member',entry:canonicalOwner.id,
+ xml:`<StandardAttributes xmlns:xr="${xrNamespace}"><xr:StandardAttribute name="RecordType"/></StandardAttributes>`,
+ yaml:'СтандартныеРеквизиты:\n  ВидДвижения: {}',
+ inputs:{canonicalNames:['RecordType'],elidableNames:[]},
+ source:[{path:'packages/rules/metadata/commonObjects/standardAttributeDescription/fromXMLToYAML.ts'}],
+ adaptation:'A canonical member excluded from the elision set remains an explicit empty item, matching the existing RecordType rule',
 });
 if(standardPolicies.get('Owner')?.fillValue?.policy!=='ownerReference' ||
    (standardPolicies.get('Parent')?.fillValue?.policy??'notSpecified')!=='notSpecified'){
@@ -450,8 +457,116 @@ function namedStandardFillDeclaration(prefix,members){
  return {owner,profile};
 }
 const {owner:standardFillNamedOwner,profile:standardProfile}=namedStandardFillDeclaration('contract.standard-fill-named',standardPolicies);
+const {owner:documentFillNamedOwner,profile:documentProfile}=namedStandardFillDeclaration('contract.document-standard-fill-named',documentPolicies);
+const standardSourceEntry=manifest.entries.find(entry=>entry.symbol==='StandardAttributeDescriptionRules');
+if(!standardSourceEntry || standardSourceEntry.properties.length!==27)throw new Error('Changed complete standard attribute source');
+function completeStandardDeclaration(prefix,namedItem){
+const completeStandardFragment=structuredClone(catalog.get(namedItem));
+completeStandardFragment.id=`${prefix}-name-and-fill`;
+completeStandardFragment.kind='fragment';
+catalog.set(completeStandardFragment.id,completeStandardFragment);
+const completeStandardItem={format:'nkdk-declarations/1',kind:'value',id:`${prefix}-item`,
+ namespaces:{xr:xrNamespace},imports:{},inputs:{},compose:[],value:{kind:'record',fields:[]},
+ representations:{xml:{kind:'record',fields:[]},yaml:{kind:'mapping',fields:[]}}};
+const fullPropertyOrder=[...standardSourceEntry.xmlOrder.keys,
+ ...standardSourceEntry.properties.map(property=>property.name).filter(name=>!standardSourceEntry.xmlOrder.keys.includes(name))];
+for(const property of fullPropertyOrder){
+ if(property==='name')continue;
+ const projection=standardSourceEntry.projections.find(row=>row.fields.length===1&&row.fields[0]===property);
+ const fragment=property==='fillValue'?completeStandardFragment:projection&&catalog.get(projection.fragments[0]);
+ if(!fragment)throw new Error(`Incomplete source-derived standard property: ${property}`);
+ const alias=`part${completeStandardItem.compose.length}`;
+ completeStandardItem.imports[alias]=fragment.id;
+ for(const [name,definition] of Object.entries(fragment.inputs??{})){
+   if(completeStandardItem.inputs[name] && JSON.stringify(completeStandardItem.inputs[name])!==JSON.stringify(definition))throw new Error(`Incompatible shared standard input: ${name}`);
+   completeStandardItem.inputs[name]=definition;
+   for(const [importName,target] of Object.entries(fragment.imports??{}))if(JSON.stringify(definition).includes(`"use":"${importName}"`)){
+     if(completeStandardItem.imports[importName] && completeStandardItem.imports[importName]!==target)throw new Error(`Incompatible standard input type: ${importName}`);
+     completeStandardItem.imports[importName]=target;
+   }
+ }
+ completeStandardItem.compose.push({use:alias,bind:Object.fromEntries(Object.keys(fragment.inputs??{}).map(name=>[name,{input:name}]))});
+}
+completeStandardItem.yamlOrder=completeStandardItem.compose.flatMap(part=>catalog.get(completeStandardItem.imports[part.use]).representations.yaml.fields)
+ .sort((left,right)=>left.field==='name'?-1:right.field==='name'?1:left.field==='synonym'?-1:right.field==='synonym'?1:left.key.localeCompare(right.key,'ru'))
+ .map(field=>field.field);
+const completeStandardList={...structuredClone(standardNameList),id:`${prefix}-list`,
+ imports:{item:completeStandardItem.id,...Object.fromEntries(Object.entries(completeStandardItem.imports).filter(([name])=>name.startsWith('inputType')))},
+ inputs:{...structuredClone(completeStandardItem.inputs),canonicalNames:canonicalNamesInput,elidableNames:structuredClone(canonicalNamesInput)},
+ presence:structuredClone(canonicalList.presence)};
+completeStandardList.value.item.bind=Object.fromEntries(Object.keys(completeStandardItem.inputs).map(name=>[name,{input:name}]));
+completeStandardList.representations.yaml=structuredClone(canonicalList.representations.yaml);
+const completeStandardOwner={...structuredClone(standardNames),id:`${prefix}-owner`,
+ imports:{items:completeStandardList.id,...Object.fromEntries(Object.entries(completeStandardItem.imports).filter(([name])=>name.startsWith('inputType')))},
+ inputs:structuredClone(completeStandardList.inputs)};
+completeStandardOwner.value.fields[0].type.bind=Object.fromEntries(Object.keys(completeStandardList.inputs).map(name=>[name,{input:name}]));
+for(const module of [completeStandardFragment,completeStandardItem,completeStandardList,completeStandardOwner]){catalog.set(module.id,module);selected.push(module);}
+return {item:completeStandardItem,list:completeStandardList,owner:completeStandardOwner};
+}
+const {owner:completeStandardOwner}=completeStandardDeclaration('contract.standard-complete','contract.standard-fill-named-item');
+const {owner:completeDocumentStandardOwner}=completeStandardDeclaration('contract.document-standard-complete','contract.document-standard-fill-named-item');
 const namedInputs={defaultLanguage:'ru',registeredLanguages:['ru','en'],componentKind:'configuration',owners:standardOwner.inputs.owners,
  ...Object.fromEntries(standardProfile.factInputs.map(name=>[name,standardFacts[name]??'']))};
+const [completeRefFixture]=JSON.parse(execFileSync('python3',['tools/rules-migration/src/project-fixtures.py'],{input:JSON.stringify([{
+ xml:'e2e/fixtures/xml/cf/Catalogs/СправочникВладелец.xml',
+ propertySelector:`.//{${xrNamespace}}StandardAttribute[@name='Ref']`,root:`{${xrNamespace}}StandardAttribute`,
+}]),encoding:'utf8'}));
+cases.push({id:'standard-attribute-complete-ref',entry:completeStandardOwner.id,
+ xml:`<StandardAttributes xmlns:xr="${xrNamespace}">${completeRefFixture.xml}</StandardAttributes>`,
+ yaml:'СтандартныеРеквизиты: !xml/standard-attributes',
+ inputs:{...namedInputs,ownerName:'Ссылка',canonicalNames:['Ref'],elidableNames:['Ref']},source:completeRefFixture.source,
+ adaptation:'All 27 source properties are assembled as one item; the unchanged e2e Ref row is the first complete-record acceptance case',
+});
+const completeOwnerYAMLPath='e2e/fixtures/nkdk/cf/Справочник/СправочникВладелец/Свойства.yaml';
+const [completeOwnerFixture]=JSON.parse(execFileSync('python3',['tools/rules-migration/src/project-fixtures.py'],{input:JSON.stringify([{
+ xml:'e2e/fixtures/xml/cf/Catalogs/СправочникВладелец.xml',
+ propertySelector:`.//{${xrNamespace}}StandardAttribute[@name='Owner']`,root:`{${xrNamespace}}StandardAttribute`,
+}]),encoding:'utf8'}));
+const completeOwnerYAML=source(completeOwnerYAMLPath);
+const completeOwnerExpected=completeOwnerYAML.match(/^  Владелец:\n(?:    [^\n]*\n)+/m)?.[0]?.trimEnd();
+if(!completeOwnerExpected || !completeOwnerYAML.includes('СтандартныеРеквизиты:\n'+completeOwnerExpected))throw new Error('Changed independent complete Owner YAML');
+cases.push({id:'standard-attribute-complete-owner',entry:completeStandardOwner.id,
+ xml:`<StandardAttributes xmlns:xr="${xrNamespace}">${completeOwnerFixture.xml}</StandardAttributes>`,
+ yaml:'СтандартныеРеквизиты:\n'+completeOwnerExpected,
+ inputs:{...namedInputs,owners:[],ownerName:'Владелец',canonicalNames:['Owner'],elidableNames:['Owner']},
+ source:[...completeOwnerFixture.source,{path:completeOwnerYAMLPath}],
+ adaptation:'The complete e2e Owner record checks source-derived composition and three nondefault properties without editing the immutable fixtures',
+});
+const completeCatalogXMLPath='e2e/fixtures/xml/cf/Catalogs/СправочникВладелец.xml';
+const [completeCollectionFixture]=JSON.parse(execFileSync('python3',['tools/rules-migration/src/project-fixtures.py'],{input:JSON.stringify([{
+ xml:completeCatalogXMLPath,propertySelector:`./{${mdNamespace}}Catalog/{${mdNamespace}}Properties/{${mdNamespace}}StandardAttributes`,root:'StandardAttributes',
+ context:standardFactNames.map(fact=>({name:fact[0].toLowerCase()+fact.slice(1),selector:`./{${mdNamespace}}Catalog/{${mdNamespace}}Properties/{${mdNamespace}}${fact}`})),
+}]),encoding:'utf8'}));
+const completeSourceBlock=source(completeCatalogXMLPath).match(/<StandardAttributes>[\s\S]*?<\/StandardAttributes>/)?.[0];
+if(!completeSourceBlock)throw new Error('Missing independent complete standard XML');
+const completeCanonicalNames=[...completeSourceBlock.matchAll(/<xr:StandardAttribute name="([^"]+)"/g)].map(match=>match[1]);
+if(completeCanonicalNames.length!==standardPolicies.size || new Set(completeCanonicalNames).size!==standardPolicies.size)throw new Error('Changed complete standard member list');
+const completeYAMLBlock=completeOwnerYAML.match(/^СтандартныеРеквизиты:\n(?:[ \t]+[^\n]*\n)*/m)?.[0]?.trimEnd();
+if(!completeYAMLBlock)throw new Error('Missing independent complete standard YAML');
+cases.push({id:'standard-attribute-complete-collection',entry:completeStandardOwner.id,
+ xml:completeCollectionFixture.xml,yaml:completeYAMLBlock,
+ inputs:{...namedInputs,...completeCollectionFixture.context,owners:[],ownerName:'СправочникВладелец',canonicalNames:completeCanonicalNames,elidableNames:completeCanonicalNames},
+ source:[...completeCollectionFixture.source,{path:completeOwnerYAMLPath}],
+ adaptation:'The unchanged e2e catalog standard-attribute block covers all canonical members, sparse overrides and the original XML order',
+});
+const [completeDocumentFixture]=JSON.parse(execFileSync('python3',['tools/rules-migration/src/project-fixtures.py'],{input:JSON.stringify([{
+ xml:documentStandardXMLPath,propertySelector:`./{${mdNamespace}}Document/{${mdNamespace}}Properties/{${mdNamespace}}StandardAttributes`,root:'StandardAttributes',
+ context:['NumberType','NumberLength','NumberAllowedLength'].map(fact=>({name:fact[0].toLowerCase()+fact.slice(1),selector:`./{${mdNamespace}}Document/{${mdNamespace}}Properties/{${mdNamespace}}${fact}`})),
+}]),encoding:'utf8'}));
+const completeDocumentSourceBlock=source(documentStandardXMLPath).match(/<StandardAttributes>[\s\S]*?<\/StandardAttributes>/)?.[0];
+if(!completeDocumentSourceBlock)throw new Error('Missing independent complete document standard XML');
+const completeDocumentNames=[...completeDocumentSourceBlock.matchAll(/<xr:StandardAttribute name="([^"]+)"/g)].map(match=>match[1]);
+if(completeDocumentNames.length!==documentPolicies.size || new Set(completeDocumentNames).size!==documentPolicies.size)throw new Error('Changed complete document standard member list');
+const completeDocumentYAML=source(documentStandardYAMLPath).match(/^СтандартныеРеквизиты:\n(?:[ \t]+[^\n]*\n)*/m)?.[0]?.trimEnd();
+if(!completeDocumentYAML)throw new Error('Missing independent complete document standard YAML');
+cases.push({id:'standard-attribute-complete-document-collection',entry:completeDocumentStandardOwner.id,
+ xml:completeDocumentFixture.xml,yaml:completeDocumentYAML,
+ inputs:{defaultLanguage:'ru',registeredLanguages:['ru','en'],componentKind:'configuration',owners:[],
+   ...Object.fromEntries(documentProfile.factInputs.map(name=>[name,completeDocumentFixture.context[name]??''])),
+   ownerName:'ДокументВсеСвойства',canonicalNames:completeDocumentNames,elidableNames:completeDocumentNames},
+ source:[...completeDocumentFixture.source,{path:documentStandardYAMLPath},...documentPolicyProvenance],
+ adaptation:'The unchanged document e2e block checks the same complete 27-property assembly with a distinct owner policy and sparse YAML',
+});
 cases.push({id:'standard-attribute-named-owner-fill-value',entry:standardFillNamedOwner.id,
  xml:`<StandardAttributes xmlns:xr="${xrNamespace}">${standardOwner.xml.replace('<xr:StandardAttribute ','<xr:StandardAttribute name="Owner" ')}</StandardAttributes>`,
  yaml:`СтандартныеРеквизиты:\n  Владелец:\n    ${standardOwner.yaml}`,
@@ -490,7 +605,6 @@ cases.push({id:'standard-attribute-named-string-code-too-long',entry:standardFil
  inputs:stringNamedInputs,diagnostics:['fill-value.string-length'],source:[...stringCodeFixture.source,...standardPolicyProvenance],
  adaptation:'The string Code and length 9 come from a second immutable catalog e2e owner; a ten-character value tests its independent owner-bound policy',
 });
-const {owner:documentFillNamedOwner,profile:documentProfile}=namedStandardFillDeclaration('contract.document-standard-fill-named',documentPolicies);
 const documentNamedInputs={defaultLanguage:'ru',registeredLanguages:['ru','en'],componentKind:'configuration',owners:[],
  ...Object.fromEntries(documentProfile.factInputs.map(name=>[name,'']))};
 const documentDateWrongKind=cases.find(row=>row.id==='fill-value-standard-document-date-wrong-kind');

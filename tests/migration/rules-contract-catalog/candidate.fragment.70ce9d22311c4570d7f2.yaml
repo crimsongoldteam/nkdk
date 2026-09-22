@@ -1,0 +1,35 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.TypeReductionMode
+value:
+  kind: record
+  fields:
+    - name: typeReductionMode
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: typeReductionMode
+        path:
+          - xr:TypeReductionMode
+  yaml:
+    kind: mapping
+    fields:
+      - field: typeReductionMode
+        key: РежимСокращенияТипа
+presence:
+  - target:
+      field: typeReductionMode
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: TransformValues
+namespaces:
+  xr: http://v8.1c.ru/8.3/xcf/readable
+id: candidate.fragment.70ce9d22311c4570d7f2

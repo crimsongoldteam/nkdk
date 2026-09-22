@@ -44,6 +44,7 @@
     "test:partial-sync": "pnpm --filter @nkdk/mcp build && tsx e2e/partial-sync/run.ts",
     "test:partial-sync:stepwise": "pnpm --filter @nkdk/mcp build && tsx e2e/partial-sync/stepwise-run.ts",
     "migration:contracts": "node tools/rules-migration/src/contracts-cli.mjs",
+    "migration:standard-attributes": "node tools/rules-migration/src/standard-attributes-operation.mjs",
     "test:migration-contracts": "node tools/rules-migration/src/contracts-check.mjs",
     "migration:check:focused": "node tools/rules-migration/src/focused-check.mjs",
     "migration:attachments": "node tools/rules-migration/src/ready-cli.mjs",

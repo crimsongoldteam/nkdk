@@ -1,0 +1,35 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.UseFullTextSearch
+value:
+  kind: record
+  fields:
+    - name: fullTextSearch
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: fullTextSearch
+        path:
+          - xr:FullTextSearch
+  yaml:
+    kind: mapping
+    fields:
+      - field: fullTextSearch
+        key: ПолнотекстовыйПоиск
+presence:
+  - target:
+      field: fullTextSearch
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Use
+namespaces:
+  xr: http://v8.1c.ru/8.3/xcf/readable
+id: candidate.fragment.a1d42c4a1bf8ed3e8cec

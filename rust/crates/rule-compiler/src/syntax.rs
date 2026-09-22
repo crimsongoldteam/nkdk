@@ -238,6 +238,7 @@ fn module(path: &str, mut root: Node) -> Result<Module, Diagnostic> {
             "contributions",
             "resources",
             "compose",
+            "yamlOrder",
             "value",
             "representations",
         ],
@@ -463,14 +464,6 @@ fn module(path: &str, mut root: Node) -> Result<Module, Diagnostic> {
         .map(|value| value.text(path).map(str::to_owned))
         .transpose()?;
     let compose = composition(path, fields)?;
-    if kind == ModuleKind::Value && optional_field(fields, "compose").is_some() {
-        return Err(error(
-            path,
-            root.mark,
-            "invalid_composition_role",
-            "Composition requires fragment or object",
-        ));
-    }
     let mut constraints = constraints(path, fields)?;
     if let Some(pattern) = root_pattern {
         let source = location(path, pattern);
@@ -522,6 +515,15 @@ fn module(path: &str, mut root: Node) -> Result<Module, Diagnostic> {
         contributions: contributions::parse(path, fields)?,
         resources: resources::parse(path, fields)?,
         compose,
+        yaml_order: optional_field(fields, "yamlOrder")
+            .map(|node| {
+                sequence(path, node)?
+                    .iter()
+                    .map(|item| item.text(path).map(str::to_owned))
+                    .collect::<Result<Vec<_>, _>>()
+            })
+            .transpose()?
+            .unwrap_or_default(),
         value: definition,
         representations: Representations {
             xml: xml_rep,
@@ -1015,15 +1017,29 @@ fn yaml_collection(path: &str, node: &Node) -> Result<YamlRepresentation, Diagno
             "shorthand",
             "singleton",
             "omitEmptyFor",
+            "restoreFrom",
             "emptyTag",
         ],
     )?;
     match node.field(path, fields, "kind")?.text(path)? {
         "record-mapping" => {
-            node.mapping(path, &["kind", "key", "value", "omitEmptyFor", "emptyTag"])?;
+            node.mapping(
+                path,
+                &[
+                    "kind",
+                    "key",
+                    "value",
+                    "restoreFrom",
+                    "omitEmptyFor",
+                    "emptyTag",
+                ],
+            )?;
             Ok(YamlRepresentation::RecordMapping {
                 key: node.field(path, fields, "key")?.text(path)?.into(),
                 value: optional_field(fields, "value")
+                    .map(|value| value.text(path).map(str::to_owned))
+                    .transpose()?,
+                restore_from: optional_field(fields, "restoreFrom")
                     .map(|value| value.text(path).map(str::to_owned))
                     .transpose()?,
                 omit_empty_for: optional_field(fields, "omitEmptyFor")

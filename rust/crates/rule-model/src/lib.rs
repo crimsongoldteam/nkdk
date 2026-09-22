@@ -47,6 +47,7 @@ pub struct Module {
     pub contributions: Vec<Contribution>,
     pub resources: Vec<ResourceGroup<Expression>>,
     pub compose: Vec<TypeUse>,
+    pub yaml_order: Vec<String>,
     pub value: TypeDefinition,
     pub representations: Representations,
 }
@@ -169,6 +170,7 @@ pub enum YamlRepresentation {
     RecordMapping {
         key: String,
         value: Option<String>,
+        restore_from: Option<String>,
         omit_empty_for: Option<String>,
         empty_tag: Option<String>,
     },

@@ -1396,6 +1396,22 @@
       "sha256": "676e1d3cb950fab9b2c46065d64824982e2146ade8db6f08d5f296b8added776"
     },
     {
+      "path": "e2e/fixtures/nkdk/cf/Справочник/СправочникВладелец/Свойства.yaml",
+      "sha256": "e1ca33e58887fca4dee4fda262f940a3ed167146ffefbca0e7bcf7b01f501354"
+    },
+    {
+      "path": "e2e/fixtures/xml/cf/Catalogs/СправочникВладелец.xml",
+      "sha256": "c25865f1f70c463f8743596b3254d0749fbc0dbec32e5fd56b9fcfc92508e493"
+    },
+    {
+      "path": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства.xml",
+      "sha256": "346554c79ff22c0239e18eaa00e69bc203b161485dcbd6a482b191871f90b79e"
+    },
+    {
+      "path": "e2e/fixtures/nkdk/cf/Документ/ДокументВсеСвойства/Свойства.yaml",
+      "sha256": "5402cf710992add6b05ad677aa11a7ebbe4470cbfb7565dc753d80e539813abc"
+    },
+    {
       "path": "packages/rules/metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.integration.test.ts",
       "sha256": "278690b7f26c1b96094fa00760c8b7c929c33efc19841ea3c2bdb570e2e9187a"
     },
@@ -1473,7 +1489,7 @@
     },
     {
       "path": "rust/crates/compiled-rules/tests/path_lexicons.rs",
-      "sha256": "841e539126508996cc2d38b610fdf18d16b79247d9c536434875b3c4b181a068"
+      "sha256": "b251e0f593e8aa717deeb2cc6a4ca266d116dc75cd7f8ee613864297bb9ba9ab"
     },
     {
       "path": "tests/migration/command-group-e2e.json",
@@ -5766,6 +5782,10 @@
         "canonicalNames": [
           "Owner",
           "Parent"
+        ],
+        "elidableNames": [
+          "Owner",
+          "Parent"
         ]
       },
       "source": [
@@ -5785,6 +5805,10 @@
       "yaml": "СтандартныеРеквизиты:\n  FutureMember: {}",
       "inputs": {
         "canonicalNames": [
+          "Owner",
+          "Parent"
+        ],
+        "elidableNames": [
           "Owner",
           "Parent"
         ]
@@ -5808,6 +5832,10 @@
         "canonicalNames": [
           "Owner",
           "Parent"
+        ],
+        "elidableNames": [
+          "Owner",
+          "Parent"
         ]
       },
       "source": [
@@ -5819,6 +5847,206 @@
         }
       ],
       "adaptation": "An explicitly empty XML collection is distinct from the complete default set represented by the existing shape tag"
+    },
+    {
+      "id": "standard-attribute-preserved-empty-member",
+      "entry": "contract.standard-canonical-names-owner",
+      "xml": "<StandardAttributes xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:StandardAttribute name=\"RecordType\"/></StandardAttributes>",
+      "yaml": "СтандартныеРеквизиты:\n  ВидДвижения: {}",
+      "inputs": {
+        "canonicalNames": [
+          "RecordType"
+        ],
+        "elidableNames": []
+      },
+      "source": [
+        {
+          "path": "packages/rules/metadata/commonObjects/standardAttributeDescription/fromXMLToYAML.ts"
+        }
+      ],
+      "adaptation": "A canonical member excluded from the elision set remains an explicit empty item, matching the existing RecordType rule"
+    },
+    {
+      "id": "standard-attribute-complete-ref",
+      "entry": "contract.standard-complete-owner",
+      "xml": "<StandardAttributes xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:StandardAttribute xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" name=\"Ref\">\n\t\t\t\t\t<xr:LinkByType />\n\t\t\t\t\t<xr:FillChecking>DontCheck</xr:FillChecking>\n\t\t\t\t\t<xr:MultiLine>false</xr:MultiLine>\n\t\t\t\t\t<xr:FillFromFillingValue>false</xr:FillFromFillingValue>\n\t\t\t\t\t<xr:CreateOnInput>Auto</xr:CreateOnInput>\n\t\t\t\t\t<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>\n\t\t\t\t\t<xr:MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:ToolTip />\n\t\t\t\t\t<xr:ExtendedEdit>false</xr:ExtendedEdit>\n\t\t\t\t\t<xr:Format />\n\t\t\t\t\t<xr:ChoiceForm />\n\t\t\t\t\t<xr:QuickChoice>Auto</xr:QuickChoice>\n\t\t\t\t\t<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>\n\t\t\t\t\t<xr:EditFormat />\n\t\t\t\t\t<xr:PasswordMode>false</xr:PasswordMode>\n\t\t\t\t\t<xr:DataHistory>Use</xr:DataHistory>\n\t\t\t\t\t<xr:MarkNegatives>false</xr:MarkNegatives>\n\t\t\t\t\t<xr:MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:Synonym />\n\t\t\t\t\t<xr:Comment />\n\t\t\t\t\t<xr:FullTextSearch>Use</xr:FullTextSearch>\n\t\t\t\t\t<xr:ChoiceParameterLinks />\n\t\t\t\t\t<xr:FillValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:Mask />\n\t\t\t\t\t<xr:ChoiceParameters />\n\t\t\t\t</xr:StandardAttribute></StandardAttributes>",
+      "yaml": "СтандартныеРеквизиты: !xml/standard-attributes",
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ],
+        "componentKind": "configuration",
+        "owners": [
+          "Справочник.СправочникВладелец"
+        ],
+        "codeAllowedLength": "Variable",
+        "codeLength": "11",
+        "codeType": "Number",
+        "descriptionLength": "30",
+        "ownerName": "Ссылка",
+        "canonicalNames": [
+          "Ref"
+        ],
+        "elidableNames": [
+          "Ref"
+        ]
+      },
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cf/Catalogs/СправочникВладелец.xml",
+          "sha256": "c25865f1f70c463f8743596b3254d0749fbc0dbec32e5fd56b9fcfc92508e493"
+        }
+      ],
+      "adaptation": "All 27 source properties are assembled as one item; the unchanged e2e Ref row is the first complete-record acceptance case"
+    },
+    {
+      "id": "standard-attribute-complete-owner",
+      "entry": "contract.standard-complete-owner",
+      "xml": "<StandardAttributes xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:StandardAttribute xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" name=\"Owner\">\n\t\t\t\t\t<xr:LinkByType />\n\t\t\t\t\t<xr:FillChecking>ShowError</xr:FillChecking>\n\t\t\t\t\t<xr:MultiLine>false</xr:MultiLine>\n\t\t\t\t\t<xr:FillFromFillingValue>true</xr:FillFromFillingValue>\n\t\t\t\t\t<xr:CreateOnInput>Auto</xr:CreateOnInput>\n\t\t\t\t\t<xr:TypeReductionMode>Deny</xr:TypeReductionMode>\n\t\t\t\t\t<xr:MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:ToolTip />\n\t\t\t\t\t<xr:ExtendedEdit>false</xr:ExtendedEdit>\n\t\t\t\t\t<xr:Format />\n\t\t\t\t\t<xr:ChoiceForm />\n\t\t\t\t\t<xr:QuickChoice>Auto</xr:QuickChoice>\n\t\t\t\t\t<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>\n\t\t\t\t\t<xr:EditFormat />\n\t\t\t\t\t<xr:PasswordMode>false</xr:PasswordMode>\n\t\t\t\t\t<xr:DataHistory>Use</xr:DataHistory>\n\t\t\t\t\t<xr:MarkNegatives>false</xr:MarkNegatives>\n\t\t\t\t\t<xr:MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:Synonym />\n\t\t\t\t\t<xr:Comment />\n\t\t\t\t\t<xr:FullTextSearch>Use</xr:FullTextSearch>\n\t\t\t\t\t<xr:ChoiceParameterLinks />\n\t\t\t\t\t<xr:FillValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:Mask />\n\t\t\t\t\t<xr:ChoiceParameters />\n\t\t\t\t</xr:StandardAttribute></StandardAttributes>",
+      "yaml": "СтандартныеРеквизиты:\n  Владелец:\n    ЗаполнятьИзДанныхЗаполнения: Истина\n    ПроверкаЗаполнения: ВыдаватьОшибку\n    РежимСокращенияТипа: Запрещать",
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ],
+        "componentKind": "configuration",
+        "owners": [],
+        "codeAllowedLength": "Variable",
+        "codeLength": "11",
+        "codeType": "Number",
+        "descriptionLength": "30",
+        "ownerName": "Владелец",
+        "canonicalNames": [
+          "Owner"
+        ],
+        "elidableNames": [
+          "Owner"
+        ]
+      },
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cf/Catalogs/СправочникВладелец.xml",
+          "sha256": "c25865f1f70c463f8743596b3254d0749fbc0dbec32e5fd56b9fcfc92508e493"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/Справочник/СправочникВладелец/Свойства.yaml"
+        }
+      ],
+      "adaptation": "The complete e2e Owner record checks source-derived composition and three nondefault properties without editing the immutable fixtures"
+    },
+    {
+      "id": "standard-attribute-complete-collection",
+      "entry": "contract.standard-complete-owner",
+      "xml": "<StandardAttributes xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n\t\t\t\t<xr:StandardAttribute name=\"PredefinedDataName\">\n\t\t\t\t\t<xr:LinkByType />\n\t\t\t\t\t<xr:FillChecking>DontCheck</xr:FillChecking>\n\t\t\t\t\t<xr:MultiLine>false</xr:MultiLine>\n\t\t\t\t\t<xr:FillFromFillingValue>false</xr:FillFromFillingValue>\n\t\t\t\t\t<xr:CreateOnInput>Auto</xr:CreateOnInput>\n\t\t\t\t\t<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>\n\t\t\t\t\t<xr:MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:ToolTip />\n\t\t\t\t\t<xr:ExtendedEdit>false</xr:ExtendedEdit>\n\t\t\t\t\t<xr:Format />\n\t\t\t\t\t<xr:ChoiceForm />\n\t\t\t\t\t<xr:QuickChoice>Auto</xr:QuickChoice>\n\t\t\t\t\t<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>\n\t\t\t\t\t<xr:EditFormat />\n\t\t\t\t\t<xr:PasswordMode>false</xr:PasswordMode>\n\t\t\t\t\t<xr:DataHistory>Use</xr:DataHistory>\n\t\t\t\t\t<xr:MarkNegatives>false</xr:MarkNegatives>\n\t\t\t\t\t<xr:MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:Synonym />\n\t\t\t\t\t<xr:Comment />\n\t\t\t\t\t<xr:FullTextSearch>Use</xr:FullTextSearch>\n\t\t\t\t\t<xr:ChoiceParameterLinks />\n\t\t\t\t\t<xr:FillValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:Mask />\n\t\t\t\t\t<xr:ChoiceParameters />\n\t\t\t\t</xr:StandardAttribute>\n\t\t\t\t<xr:StandardAttribute name=\"Predefined\">\n\t\t\t\t\t<xr:LinkByType />\n\t\t\t\t\t<xr:FillChecking>DontCheck</xr:FillChecking>\n\t\t\t\t\t<xr:MultiLine>false</xr:MultiLine>\n\t\t\t\t\t<xr:FillFromFillingValue>false</xr:FillFromFillingValue>\n\t\t\t\t\t<xr:CreateOnInput>Auto</xr:CreateOnInput>\n\t\t\t\t\t<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>\n\t\t\t\t\t<xr:MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:ToolTip />\n\t\t\t\t\t<xr:ExtendedEdit>false</xr:ExtendedEdit>\n\t\t\t\t\t<xr:Format />\n\t\t\t\t\t<xr:ChoiceForm />\n\t\t\t\t\t<xr:QuickChoice>Auto</xr:QuickChoice>\n\t\t\t\t\t<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>\n\t\t\t\t\t<xr:EditFormat />\n\t\t\t\t\t<xr:PasswordMode>false</xr:PasswordMode>\n\t\t\t\t\t<xr:DataHistory>Use</xr:DataHistory>\n\t\t\t\t\t<xr:MarkNegatives>false</xr:MarkNegatives>\n\t\t\t\t\t<xr:MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:Synonym />\n\t\t\t\t\t<xr:Comment />\n\t\t\t\t\t<xr:FullTextSearch>Use</xr:FullTextSearch>\n\t\t\t\t\t<xr:ChoiceParameterLinks />\n\t\t\t\t\t<xr:FillValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:Mask />\n\t\t\t\t\t<xr:ChoiceParameters />\n\t\t\t\t</xr:StandardAttribute>\n\t\t\t\t<xr:StandardAttribute name=\"Ref\">\n\t\t\t\t\t<xr:LinkByType />\n\t\t\t\t\t<xr:FillChecking>DontCheck</xr:FillChecking>\n\t\t\t\t\t<xr:MultiLine>false</xr:MultiLine>\n\t\t\t\t\t<xr:FillFromFillingValue>false</xr:FillFromFillingValue>\n\t\t\t\t\t<xr:CreateOnInput>Auto</xr:CreateOnInput>\n\t\t\t\t\t<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>\n\t\t\t\t\t<xr:MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:ToolTip />\n\t\t\t\t\t<xr:ExtendedEdit>false</xr:ExtendedEdit>\n\t\t\t\t\t<xr:Format />\n\t\t\t\t\t<xr:ChoiceForm />\n\t\t\t\t\t<xr:QuickChoice>Auto</xr:QuickChoice>\n\t\t\t\t\t<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>\n\t\t\t\t\t<xr:EditFormat />\n\t\t\t\t\t<xr:PasswordMode>false</xr:PasswordMode>\n\t\t\t\t\t<xr:DataHistory>Use</xr:DataHistory>\n\t\t\t\t\t<xr:MarkNegatives>false</xr:MarkNegatives>\n\t\t\t\t\t<xr:MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:Synonym />\n\t\t\t\t\t<xr:Comment />\n\t\t\t\t\t<xr:FullTextSearch>Use</xr:FullTextSearch>\n\t\t\t\t\t<xr:ChoiceParameterLinks />\n\t\t\t\t\t<xr:FillValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:Mask />\n\t\t\t\t\t<xr:ChoiceParameters />\n\t\t\t\t</xr:StandardAttribute>\n\t\t\t\t<xr:StandardAttribute name=\"DeletionMark\">\n\t\t\t\t\t<xr:LinkByType />\n\t\t\t\t\t<xr:FillChecking>DontCheck</xr:FillChecking>\n\t\t\t\t\t<xr:MultiLine>false</xr:MultiLine>\n\t\t\t\t\t<xr:FillFromFillingValue>false</xr:FillFromFillingValue>\n\t\t\t\t\t<xr:CreateOnInput>Auto</xr:CreateOnInput>\n\t\t\t\t\t<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>\n\t\t\t\t\t<xr:MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:ToolTip />\n\t\t\t\t\t<xr:ExtendedEdit>false</xr:ExtendedEdit>\n\t\t\t\t\t<xr:Format />\n\t\t\t\t\t<xr:ChoiceForm />\n\t\t\t\t\t<xr:QuickChoice>Auto</xr:QuickChoice>\n\t\t\t\t\t<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>\n\t\t\t\t\t<xr:EditFormat />\n\t\t\t\t\t<xr:PasswordMode>false</xr:PasswordMode>\n\t\t\t\t\t<xr:DataHistory>Use</xr:DataHistory>\n\t\t\t\t\t<xr:MarkNegatives>false</xr:MarkNegatives>\n\t\t\t\t\t<xr:MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:Synonym />\n\t\t\t\t\t<xr:Comment />\n\t\t\t\t\t<xr:FullTextSearch>Use</xr:FullTextSearch>\n\t\t\t\t\t<xr:ChoiceParameterLinks />\n\t\t\t\t\t<xr:FillValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:Mask />\n\t\t\t\t\t<xr:ChoiceParameters />\n\t\t\t\t</xr:StandardAttribute>\n\t\t\t\t<xr:StandardAttribute name=\"IsFolder\">\n\t\t\t\t\t<xr:LinkByType />\n\t\t\t\t\t<xr:FillChecking>DontCheck</xr:FillChecking>\n\t\t\t\t\t<xr:MultiLine>false</xr:MultiLine>\n\t\t\t\t\t<xr:FillFromFillingValue>false</xr:FillFromFillingValue>\n\t\t\t\t\t<xr:CreateOnInput>Auto</xr:CreateOnInput>\n\t\t\t\t\t<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>\n\t\t\t\t\t<xr:MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:ToolTip />\n\t\t\t\t\t<xr:ExtendedEdit>false</xr:ExtendedEdit>\n\t\t\t\t\t<xr:Format />\n\t\t\t\t\t<xr:ChoiceForm />\n\t\t\t\t\t<xr:QuickChoice>Auto</xr:QuickChoice>\n\t\t\t\t\t<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>\n\t\t\t\t\t<xr:EditFormat />\n\t\t\t\t\t<xr:PasswordMode>false</xr:PasswordMode>\n\t\t\t\t\t<xr:DataHistory>Use</xr:DataHistory>\n\t\t\t\t\t<xr:MarkNegatives>false</xr:MarkNegatives>\n\t\t\t\t\t<xr:MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:Synonym />\n\t\t\t\t\t<xr:Comment />\n\t\t\t\t\t<xr:FullTextSearch>Use</xr:FullTextSearch>\n\t\t\t\t\t<xr:ChoiceParameterLinks />\n\t\t\t\t\t<xr:FillValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:Mask />\n\t\t\t\t\t<xr:ChoiceParameters />\n\t\t\t\t</xr:StandardAttribute>\n\t\t\t\t<xr:StandardAttribute name=\"Owner\">\n\t\t\t\t\t<xr:LinkByType />\n\t\t\t\t\t<xr:FillChecking>ShowError</xr:FillChecking>\n\t\t\t\t\t<xr:MultiLine>false</xr:MultiLine>\n\t\t\t\t\t<xr:FillFromFillingValue>true</xr:FillFromFillingValue>\n\t\t\t\t\t<xr:CreateOnInput>Auto</xr:CreateOnInput>\n\t\t\t\t\t<xr:TypeReductionMode>Deny</xr:TypeReductionMode>\n\t\t\t\t\t<xr:MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:ToolTip />\n\t\t\t\t\t<xr:ExtendedEdit>false</xr:ExtendedEdit>\n\t\t\t\t\t<xr:Format />\n\t\t\t\t\t<xr:ChoiceForm />\n\t\t\t\t\t<xr:QuickChoice>Auto</xr:QuickChoice>\n\t\t\t\t\t<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>\n\t\t\t\t\t<xr:EditFormat />\n\t\t\t\t\t<xr:PasswordMode>false</xr:PasswordMode>\n\t\t\t\t\t<xr:DataHistory>Use</xr:DataHistory>\n\t\t\t\t\t<xr:MarkNegatives>false</xr:MarkNegatives>\n\t\t\t\t\t<xr:MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:Synonym />\n\t\t\t\t\t<xr:Comment />\n\t\t\t\t\t<xr:FullTextSearch>Use</xr:FullTextSearch>\n\t\t\t\t\t<xr:ChoiceParameterLinks />\n\t\t\t\t\t<xr:FillValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:Mask />\n\t\t\t\t\t<xr:ChoiceParameters />\n\t\t\t\t</xr:StandardAttribute>\n\t\t\t\t<xr:StandardAttribute name=\"Parent\">\n\t\t\t\t\t<xr:LinkByType />\n\t\t\t\t\t<xr:FillChecking>DontCheck</xr:FillChecking>\n\t\t\t\t\t<xr:MultiLine>false</xr:MultiLine>\n\t\t\t\t\t<xr:FillFromFillingValue>true</xr:FillFromFillingValue>\n\t\t\t\t\t<xr:CreateOnInput>Auto</xr:CreateOnInput>\n\t\t\t\t\t<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>\n\t\t\t\t\t<xr:MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:ToolTip />\n\t\t\t\t\t<xr:ExtendedEdit>false</xr:ExtendedEdit>\n\t\t\t\t\t<xr:Format />\n\t\t\t\t\t<xr:ChoiceForm />\n\t\t\t\t\t<xr:QuickChoice>Auto</xr:QuickChoice>\n\t\t\t\t\t<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>\n\t\t\t\t\t<xr:EditFormat />\n\t\t\t\t\t<xr:PasswordMode>false</xr:PasswordMode>\n\t\t\t\t\t<xr:DataHistory>Use</xr:DataHistory>\n\t\t\t\t\t<xr:MarkNegatives>false</xr:MarkNegatives>\n\t\t\t\t\t<xr:MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:Synonym />\n\t\t\t\t\t<xr:Comment />\n\t\t\t\t\t<xr:FullTextSearch>Use</xr:FullTextSearch>\n\t\t\t\t\t<xr:ChoiceParameterLinks />\n\t\t\t\t\t<xr:FillValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:Mask />\n\t\t\t\t\t<xr:ChoiceParameters />\n\t\t\t\t</xr:StandardAttribute>\n\t\t\t\t<xr:StandardAttribute name=\"Description\">\n\t\t\t\t\t<xr:LinkByType />\n\t\t\t\t\t<xr:FillChecking>ShowError</xr:FillChecking>\n\t\t\t\t\t<xr:MultiLine>false</xr:MultiLine>\n\t\t\t\t\t<xr:FillFromFillingValue>false</xr:FillFromFillingValue>\n\t\t\t\t\t<xr:CreateOnInput>Auto</xr:CreateOnInput>\n\t\t\t\t\t<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>\n\t\t\t\t\t<xr:MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:ToolTip />\n\t\t\t\t\t<xr:ExtendedEdit>false</xr:ExtendedEdit>\n\t\t\t\t\t<xr:Format />\n\t\t\t\t\t<xr:ChoiceForm />\n\t\t\t\t\t<xr:QuickChoice>Auto</xr:QuickChoice>\n\t\t\t\t\t<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>\n\t\t\t\t\t<xr:EditFormat />\n\t\t\t\t\t<xr:PasswordMode>false</xr:PasswordMode>\n\t\t\t\t\t<xr:DataHistory>Use</xr:DataHistory>\n\t\t\t\t\t<xr:MarkNegatives>false</xr:MarkNegatives>\n\t\t\t\t\t<xr:MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:Synonym />\n\t\t\t\t\t<xr:Comment />\n\t\t\t\t\t<xr:FullTextSearch>Use</xr:FullTextSearch>\n\t\t\t\t\t<xr:ChoiceParameterLinks />\n\t\t\t\t\t<xr:FillValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:Mask />\n\t\t\t\t\t<xr:ChoiceParameters />\n\t\t\t\t</xr:StandardAttribute>\n\t\t\t\t<xr:StandardAttribute name=\"Code\">\n\t\t\t\t\t<xr:LinkByType />\n\t\t\t\t\t<xr:FillChecking>DontCheck</xr:FillChecking>\n\t\t\t\t\t<xr:MultiLine>false</xr:MultiLine>\n\t\t\t\t\t<xr:FillFromFillingValue>false</xr:FillFromFillingValue>\n\t\t\t\t\t<xr:CreateOnInput>Auto</xr:CreateOnInput>\n\t\t\t\t\t<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>\n\t\t\t\t\t<xr:MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:ToolTip />\n\t\t\t\t\t<xr:ExtendedEdit>false</xr:ExtendedEdit>\n\t\t\t\t\t<xr:Format />\n\t\t\t\t\t<xr:ChoiceForm />\n\t\t\t\t\t<xr:QuickChoice>Auto</xr:QuickChoice>\n\t\t\t\t\t<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>\n\t\t\t\t\t<xr:EditFormat />\n\t\t\t\t\t<xr:PasswordMode>false</xr:PasswordMode>\n\t\t\t\t\t<xr:DataHistory>Use</xr:DataHistory>\n\t\t\t\t\t<xr:MarkNegatives>false</xr:MarkNegatives>\n\t\t\t\t\t<xr:MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:Synonym />\n\t\t\t\t\t<xr:Comment />\n\t\t\t\t\t<xr:FullTextSearch>Use</xr:FullTextSearch>\n\t\t\t\t\t<xr:ChoiceParameterLinks />\n\t\t\t\t\t<xr:FillValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:Mask />\n\t\t\t\t\t<xr:ChoiceParameters />\n\t\t\t\t</xr:StandardAttribute>\n\t\t\t</StandardAttributes>",
+      "yaml": "СтандартныеРеквизиты:\n  Владелец:\n    ЗаполнятьИзДанныхЗаполнения: Истина\n    ПроверкаЗаполнения: ВыдаватьОшибку\n    РежимСокращенияТипа: Запрещать\n  Родитель:\n    ЗаполнятьИзДанныхЗаполнения: Истина\n  Наименование:\n    ПроверкаЗаполнения: ВыдаватьОшибку",
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ],
+        "componentKind": "configuration",
+        "owners": [],
+        "codeAllowedLength": "Variable",
+        "codeLength": "9",
+        "codeType": "String",
+        "descriptionLength": "25",
+        "ownerName": "СправочникВладелец",
+        "canonicalNames": [
+          "PredefinedDataName",
+          "Predefined",
+          "Ref",
+          "DeletionMark",
+          "IsFolder",
+          "Owner",
+          "Parent",
+          "Description",
+          "Code"
+        ],
+        "elidableNames": [
+          "PredefinedDataName",
+          "Predefined",
+          "Ref",
+          "DeletionMark",
+          "IsFolder",
+          "Owner",
+          "Parent",
+          "Description",
+          "Code"
+        ]
+      },
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cf/Catalogs/СправочникВладелец.xml",
+          "sha256": "c25865f1f70c463f8743596b3254d0749fbc0dbec32e5fd56b9fcfc92508e493"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/Справочник/СправочникВладелец/Свойства.yaml"
+        }
+      ],
+      "adaptation": "The unchanged e2e catalog standard-attribute block covers all canonical members, sparse overrides and the original XML order"
+    },
+    {
+      "id": "standard-attribute-complete-document-collection",
+      "entry": "contract.document-standard-complete-owner",
+      "xml": "<StandardAttributes xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n\t\t\t\t<xr:StandardAttribute name=\"Posted\">\n\t\t\t\t\t<xr:LinkByType />\n\t\t\t\t\t<xr:FillChecking>DontCheck</xr:FillChecking>\n\t\t\t\t\t<xr:MultiLine>false</xr:MultiLine>\n\t\t\t\t\t<xr:FillFromFillingValue>false</xr:FillFromFillingValue>\n\t\t\t\t\t<xr:CreateOnInput>Auto</xr:CreateOnInput>\n\t\t\t\t\t<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>\n\t\t\t\t\t<xr:MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:ToolTip />\n\t\t\t\t\t<xr:ExtendedEdit>false</xr:ExtendedEdit>\n\t\t\t\t\t<xr:Format />\n\t\t\t\t\t<xr:ChoiceForm />\n\t\t\t\t\t<xr:QuickChoice>Auto</xr:QuickChoice>\n\t\t\t\t\t<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>\n\t\t\t\t\t<xr:EditFormat />\n\t\t\t\t\t<xr:PasswordMode>false</xr:PasswordMode>\n\t\t\t\t\t<xr:DataHistory>Use</xr:DataHistory>\n\t\t\t\t\t<xr:MarkNegatives>false</xr:MarkNegatives>\n\t\t\t\t\t<xr:MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:Synonym />\n\t\t\t\t\t<xr:Comment />\n\t\t\t\t\t<xr:FullTextSearch>Use</xr:FullTextSearch>\n\t\t\t\t\t<xr:ChoiceParameterLinks />\n\t\t\t\t\t<xr:FillValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:Mask />\n\t\t\t\t\t<xr:ChoiceParameters />\n\t\t\t\t</xr:StandardAttribute>\n\t\t\t\t<xr:StandardAttribute name=\"Ref\">\n\t\t\t\t\t<xr:LinkByType />\n\t\t\t\t\t<xr:FillChecking>DontCheck</xr:FillChecking>\n\t\t\t\t\t<xr:MultiLine>false</xr:MultiLine>\n\t\t\t\t\t<xr:FillFromFillingValue>false</xr:FillFromFillingValue>\n\t\t\t\t\t<xr:CreateOnInput>Auto</xr:CreateOnInput>\n\t\t\t\t\t<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>\n\t\t\t\t\t<xr:MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:ToolTip />\n\t\t\t\t\t<xr:ExtendedEdit>false</xr:ExtendedEdit>\n\t\t\t\t\t<xr:Format />\n\t\t\t\t\t<xr:ChoiceForm />\n\t\t\t\t\t<xr:QuickChoice>Auto</xr:QuickChoice>\n\t\t\t\t\t<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>\n\t\t\t\t\t<xr:EditFormat />\n\t\t\t\t\t<xr:PasswordMode>false</xr:PasswordMode>\n\t\t\t\t\t<xr:DataHistory>Use</xr:DataHistory>\n\t\t\t\t\t<xr:MarkNegatives>false</xr:MarkNegatives>\n\t\t\t\t\t<xr:MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:Synonym />\n\t\t\t\t\t<xr:Comment />\n\t\t\t\t\t<xr:FullTextSearch>Use</xr:FullTextSearch>\n\t\t\t\t\t<xr:ChoiceParameterLinks />\n\t\t\t\t\t<xr:FillValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:Mask />\n\t\t\t\t\t<xr:ChoiceParameters />\n\t\t\t\t</xr:StandardAttribute>\n\t\t\t\t<xr:StandardAttribute name=\"DeletionMark\">\n\t\t\t\t\t<xr:LinkByType />\n\t\t\t\t\t<xr:FillChecking>DontCheck</xr:FillChecking>\n\t\t\t\t\t<xr:MultiLine>false</xr:MultiLine>\n\t\t\t\t\t<xr:FillFromFillingValue>false</xr:FillFromFillingValue>\n\t\t\t\t\t<xr:CreateOnInput>Auto</xr:CreateOnInput>\n\t\t\t\t\t<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>\n\t\t\t\t\t<xr:MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:ToolTip />\n\t\t\t\t\t<xr:ExtendedEdit>false</xr:ExtendedEdit>\n\t\t\t\t\t<xr:Format />\n\t\t\t\t\t<xr:ChoiceForm />\n\t\t\t\t\t<xr:QuickChoice>Auto</xr:QuickChoice>\n\t\t\t\t\t<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>\n\t\t\t\t\t<xr:EditFormat />\n\t\t\t\t\t<xr:PasswordMode>false</xr:PasswordMode>\n\t\t\t\t\t<xr:DataHistory>Use</xr:DataHistory>\n\t\t\t\t\t<xr:MarkNegatives>false</xr:MarkNegatives>\n\t\t\t\t\t<xr:MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:Synonym />\n\t\t\t\t\t<xr:Comment />\n\t\t\t\t\t<xr:FullTextSearch>Use</xr:FullTextSearch>\n\t\t\t\t\t<xr:ChoiceParameterLinks />\n\t\t\t\t\t<xr:FillValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:Mask />\n\t\t\t\t\t<xr:ChoiceParameters />\n\t\t\t\t</xr:StandardAttribute>\n\t\t\t\t<xr:StandardAttribute name=\"Date\">\n\t\t\t\t\t<xr:LinkByType />\n\t\t\t\t\t<xr:FillChecking>ShowError</xr:FillChecking>\n\t\t\t\t\t<xr:MultiLine>false</xr:MultiLine>\n\t\t\t\t\t<xr:FillFromFillingValue>false</xr:FillFromFillingValue>\n\t\t\t\t\t<xr:CreateOnInput>Auto</xr:CreateOnInput>\n\t\t\t\t\t<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>\n\t\t\t\t\t<xr:MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:ToolTip />\n\t\t\t\t\t<xr:ExtendedEdit>false</xr:ExtendedEdit>\n\t\t\t\t\t<xr:Format />\n\t\t\t\t\t<xr:ChoiceForm />\n\t\t\t\t\t<xr:QuickChoice>Auto</xr:QuickChoice>\n\t\t\t\t\t<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>\n\t\t\t\t\t<xr:EditFormat />\n\t\t\t\t\t<xr:PasswordMode>false</xr:PasswordMode>\n\t\t\t\t\t<xr:DataHistory>Use</xr:DataHistory>\n\t\t\t\t\t<xr:MarkNegatives>false</xr:MarkNegatives>\n\t\t\t\t\t<xr:MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:Synonym />\n\t\t\t\t\t<xr:Comment />\n\t\t\t\t\t<xr:FullTextSearch>Use</xr:FullTextSearch>\n\t\t\t\t\t<xr:ChoiceParameterLinks />\n\t\t\t\t\t<xr:FillValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:Mask />\n\t\t\t\t\t<xr:ChoiceParameters />\n\t\t\t\t</xr:StandardAttribute>\n\t\t\t\t<xr:StandardAttribute name=\"Number\">\n\t\t\t\t\t<xr:LinkByType />\n\t\t\t\t\t<xr:FillChecking>DontCheck</xr:FillChecking>\n\t\t\t\t\t<xr:MultiLine>false</xr:MultiLine>\n\t\t\t\t\t<xr:FillFromFillingValue>false</xr:FillFromFillingValue>\n\t\t\t\t\t<xr:CreateOnInput>Auto</xr:CreateOnInput>\n\t\t\t\t\t<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>\n\t\t\t\t\t<xr:MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:ToolTip />\n\t\t\t\t\t<xr:ExtendedEdit>false</xr:ExtendedEdit>\n\t\t\t\t\t<xr:Format />\n\t\t\t\t\t<xr:ChoiceForm />\n\t\t\t\t\t<xr:QuickChoice>Auto</xr:QuickChoice>\n\t\t\t\t\t<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>\n\t\t\t\t\t<xr:EditFormat />\n\t\t\t\t\t<xr:PasswordMode>false</xr:PasswordMode>\n\t\t\t\t\t<xr:DataHistory>Use</xr:DataHistory>\n\t\t\t\t\t<xr:MarkNegatives>false</xr:MarkNegatives>\n\t\t\t\t\t<xr:MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>СинонимНомер</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</xr:Synonym>\n\t\t\t\t\t<xr:Comment />\n\t\t\t\t\t<xr:FullTextSearch>Use</xr:FullTextSearch>\n\t\t\t\t\t<xr:ChoiceParameterLinks />\n\t\t\t\t\t<xr:FillValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:Mask />\n\t\t\t\t\t<xr:ChoiceParameters />\n\t\t\t\t</xr:StandardAttribute>\n\t\t\t</StandardAttributes>",
+      "yaml": "СтандартныеРеквизиты:\n  Дата:\n    ПроверкаЗаполнения: ВыдаватьОшибку\n  Номер:\n    Синоним: СинонимНомер",
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ],
+        "componentKind": "configuration",
+        "owners": [],
+        "numberAllowedLength": "Variable",
+        "numberLength": "11",
+        "numberType": "Number",
+        "ownerName": "ДокументВсеСвойства",
+        "canonicalNames": [
+          "Posted",
+          "Ref",
+          "DeletionMark",
+          "Date",
+          "Number"
+        ],
+        "elidableNames": [
+          "Posted",
+          "Ref",
+          "DeletionMark",
+          "Date",
+          "Number"
+        ]
+      },
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства.xml",
+          "sha256": "346554c79ff22c0239e18eaa00e69bc203b161485dcbd6a482b191871f90b79e"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/Документ/ДокументВсеСвойства/Свойства.yaml"
+        },
+        {
+          "path": "packages/runtime/metadata/standardMembers/declarations.ts",
+          "sha256": "2724c5601da49b674ed29613ab2735db757c9027dee2e50eadf833c288cc95b3"
+        },
+        {
+          "path": "packages/runtime/rule-kit.ts",
+          "sha256": "78ff15505f346a4433279af0f7f60bfa6bd1318401d539e502b0d7cee45568f9"
+        },
+        {
+          "path": "packages/rules/metadata/standardMembers/declarations.ts",
+          "sha256": "a120796450ed9b447c01100bd364e11186c49191d5bc38ff21897372b1b64034"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataDocument/standardMembers.ts",
+          "sha256": "0464bad8192dc6323aed8cfcd1ba78773cdd53221112eb61e3c8e59670945787"
+        }
+      ],
+      "adaptation": "The unchanged document e2e block checks the same complete 27-property assembly with a distinct owner policy and sparse YAML"
     },
     {
       "id": "standard-attribute-named-owner-fill-value",

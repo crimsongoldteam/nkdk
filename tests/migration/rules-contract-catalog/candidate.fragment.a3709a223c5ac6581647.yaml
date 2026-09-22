@@ -1,0 +1,35 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: passwordMode
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: passwordMode
+        path:
+          - xr:PasswordMode
+  yaml:
+    kind: mapping
+    fields:
+      - field: passwordMode
+        key: РежимПароля
+presence:
+  - target:
+      field: passwordMode
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+namespaces:
+  xr: http://v8.1c.ru/8.3/xcf/readable
+id: candidate.fragment.a3709a223c5ac6581647

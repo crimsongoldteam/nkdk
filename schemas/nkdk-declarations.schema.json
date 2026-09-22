@@ -2354,6 +2354,18 @@
             "value": {
               "type": "string",
               "minLength": 1
+            },
+            "restoreFrom": {
+              "type": "string",
+              "minLength": 1
+            },
+            "omitEmptyFor": {
+              "type": "string",
+              "minLength": 1
+            },
+            "emptyTag": {
+              "type": "string",
+              "minLength": 1
             }
           },
           "required": [
@@ -2956,6 +2968,15 @@
             "$ref": "#/$defs/use"
           }
         },
+        "yamlOrder": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
         "value": {
           "$ref": "#/$defs/rootType"
         },
@@ -3150,13 +3171,7 @@
               }
             }
           },
-          "then": {
-            "not": {
-              "required": [
-                "compose"
-              ]
-            }
-          },
+          "then": {},
           "else": {
             "properties": {
               "value": {

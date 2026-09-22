@@ -1,0 +1,35 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: fillFromFillingValue
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: fillFromFillingValue
+        path:
+          - xr:FillFromFillingValue
+  yaml:
+    kind: mapping
+    fields:
+      - field: fillFromFillingValue
+        key: ЗаполнятьИзДанныхЗаполнения
+presence:
+  - target:
+      field: fillFromFillingValue
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+namespaces:
+  xr: http://v8.1c.ru/8.3/xcf/readable
+id: candidate.fragment.2f5a042e713a0ae1cd12

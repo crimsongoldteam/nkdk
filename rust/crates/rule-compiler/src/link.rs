@@ -236,13 +236,6 @@ fn build_entry(
         shorthand.clear();
     }
     if !module.compose.is_empty() {
-        if module.kind == ModuleKind::Value {
-            return Err(diagnostic(
-                "invalid_composition_role",
-                &module.source,
-                "Value cannot compose fragments",
-            ));
-        }
         let mut included_fields = vec![];
         let mut included_xml = vec![];
         let mut included_attributes = vec![];
@@ -391,6 +384,33 @@ fn build_entry(
                 attributes: included_attributes,
                 content: Box::new(content),
             };
+        }
+    }
+    if !module.yaml_order.is_empty() {
+        let YamlRepresentation::Mapping(fields) = &mut entry.yaml else {
+            return Err(diagnostic(
+                "unsupported_representation",
+                &module.source,
+                "yamlOrder requires a record mapping",
+            ));
+        };
+        let mut remaining = std::mem::take(fields);
+        for name in &module.yaml_order {
+            let Some(index) = remaining.iter().position(|field| &field.field == name) else {
+                return Err(diagnostic(
+                    "unknown_representation_field",
+                    &module.source,
+                    "yamlOrder must list each mapped field exactly once",
+                ));
+            };
+            fields.push(remaining.remove(index));
+        }
+        if !remaining.is_empty() {
+            return Err(diagnostic(
+                "incomplete_item_contract",
+                &module.source,
+                "yamlOrder must list each mapped field exactly once",
+            ));
         }
     }
     scalar_contracts::inherit_presence(&mut entry, modules, ids, visiting, cache)?;

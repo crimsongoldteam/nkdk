@@ -1,0 +1,35 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.UseQuickChoice
+value:
+  kind: record
+  fields:
+    - name: quickChoice
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: quickChoice
+        path:
+          - xr:QuickChoice
+  yaml:
+    kind: mapping
+    fields:
+      - field: quickChoice
+        key: БыстрыйВыбор
+presence:
+  - target:
+      field: quickChoice
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Auto
+namespaces:
+  xr: http://v8.1c.ru/8.3/xcf/readable
+id: candidate.fragment.82810fa39b0ebcb7bddd

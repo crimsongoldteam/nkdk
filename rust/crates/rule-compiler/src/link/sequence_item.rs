@@ -23,6 +23,7 @@ pub(crate) fn resolve(
         value,
         omit_empty_for,
         empty_tag,
+        ..
     } = &collection.yaml
     {
         if empty_tag.is_some() != omit_empty_for.is_some() {

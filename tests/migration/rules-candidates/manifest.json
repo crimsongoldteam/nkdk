@@ -13006,6 +13006,10 @@
       "sha256": "78d01ec97f2c3d42ae838fc9bffef637531fd37a387feddad488136f2744fc14"
     },
     {
+      "path": "rust/declarations/candidates/standard-attributes.generated.yaml",
+      "sha256": "e27348d9b51f4a7d7f545f09bdf79da10261a686567dbf89f9a113ad87787def"
+    },
+    {
       "path": "rust/declarations/common/additional-index-row.yaml",
       "sha256": "8a04decc9f2c123354b7041ca15108e3c9700b5bc189d3cd713b9598705c751d"
     },
@@ -35985,7 +35989,7 @@
   },
   "existingComparison": {
     "status": "structural-review-only",
-    "matchedFields": 698,
+    "matchedFields": 705,
     "entries": [
       {
         "candidate": "candidate.fragment.000a2f9941fead941e22",
@@ -35996,7 +36000,7 @@
       {
         "candidate": "candidate.fragment.0034cd802dd663763b81",
         "field": "toolTip",
-        "matchCount": 2,
+        "matchCount": 3,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -36005,6 +36009,14 @@
               "path",
               "xmlPresence",
               "bindings"
+            ]
+          },
+          {
+            "id": "fragment.standard-attribute.toolTip",
+            "field": "toolTip",
+            "differences": [
+              "path",
+              "xmlPresence"
             ]
           },
           {
@@ -36063,7 +36075,7 @@
       {
         "candidate": "candidate.fragment.0304c6bfa1700e90cec7",
         "field": "format",
-        "matchCount": 1,
+        "matchCount": 2,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -36072,6 +36084,14 @@
               "path",
               "xmlPresence",
               "bindings"
+            ]
+          },
+          {
+            "id": "fragment.standard-attribute.format",
+            "field": "format",
+            "differences": [
+              "path",
+              "xmlPresence"
             ]
           }
         ]
@@ -36241,10 +36261,18 @@
       {
         "candidate": "candidate.fragment.09f7d3f05bbc870d6177",
         "field": "extendedEdit",
-        "matchCount": 1,
+        "matchCount": 2,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
+            "field": "extendedEdit",
+            "differences": [
+              "path",
+              "presence"
+            ]
+          },
+          {
+            "id": "fragment.standard-attribute.extendedEdit",
             "field": "extendedEdit",
             "differences": [
               "path",
@@ -36802,13 +36830,19 @@
       {
         "candidate": "candidate.fragment.0cba72b5f63bf541053c",
         "field": "minValue",
-        "matchCount": 0,
-        "reviewTargets": []
+        "matchCount": 1,
+        "reviewTargets": [
+          {
+            "id": "fragment.standard-attribute.minValue",
+            "field": "minValue",
+            "differences": []
+          }
+        ]
       },
       {
         "candidate": "candidate.fragment.0cc2f3d61fe040534753",
         "field": "choiceForm",
-        "matchCount": 1,
+        "matchCount": 2,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -36816,6 +36850,11 @@
             "differences": [
               "path"
             ]
+          },
+          {
+            "id": "fragment.standard-attribute.choiceForm",
+            "field": "choiceForm",
+            "differences": []
           }
         ]
       },
@@ -36828,7 +36867,7 @@
       {
         "candidate": "candidate.fragment.0dbf1ec6dd24d931c05c",
         "field": "toolTip",
-        "matchCount": 2,
+        "matchCount": 3,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -36837,6 +36876,14 @@
               "path",
               "xmlPresence",
               "bindings"
+            ]
+          },
+          {
+            "id": "fragment.standard-attribute.toolTip",
+            "field": "toolTip",
+            "differences": [
+              "path",
+              "xmlPresence"
             ]
           },
           {
@@ -36939,7 +36986,7 @@
       {
         "candidate": "candidate.fragment.11308075a68109c580bd",
         "field": "format",
-        "matchCount": 1,
+        "matchCount": 2,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -36948,6 +36995,14 @@
               "path",
               "xmlPresence",
               "bindings"
+            ]
+          },
+          {
+            "id": "fragment.standard-attribute.format",
+            "field": "format",
+            "differences": [
+              "path",
+              "xmlPresence"
             ]
           }
         ]
@@ -37288,7 +37343,7 @@
       {
         "candidate": "candidate.fragment.14bede8ced4d5f0c7277",
         "field": "mask",
-        "matchCount": 1,
+        "matchCount": 2,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -37296,6 +37351,11 @@
             "differences": [
               "path"
             ]
+          },
+          {
+            "id": "fragment.standard-attribute.mask",
+            "field": "mask",
+            "differences": []
           }
         ]
       },
@@ -37326,7 +37386,7 @@
       {
         "candidate": "candidate.fragment.1683939a176a2f0624eb",
         "field": "editFormat",
-        "matchCount": 1,
+        "matchCount": 2,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -37335,6 +37395,14 @@
               "path",
               "xmlPresence",
               "bindings"
+            ]
+          },
+          {
+            "id": "fragment.standard-attribute.editFormat",
+            "field": "editFormat",
+            "differences": [
+              "path",
+              "xmlPresence"
             ]
           }
         ]
@@ -37446,7 +37514,7 @@
       {
         "candidate": "candidate.fragment.186177a4d7bb5be23b14",
         "field": "format",
-        "matchCount": 1,
+        "matchCount": 2,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -37455,6 +37523,14 @@
               "path",
               "xmlPresence",
               "bindings"
+            ]
+          },
+          {
+            "id": "fragment.standard-attribute.format",
+            "field": "format",
+            "differences": [
+              "path",
+              "xmlPresence"
             ]
           }
         ]
@@ -37468,7 +37544,7 @@
       {
         "candidate": "candidate.fragment.19bb8e3aab06c642bce3",
         "field": "createOnInput",
-        "matchCount": 2,
+        "matchCount": 3,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -37476,6 +37552,11 @@
             "differences": [
               "path"
             ]
+          },
+          {
+            "id": "fragment.standard-attribute.createOnInput",
+            "field": "createOnInput",
+            "differences": []
           },
           {
             "id": "fragment.document-base-properties",
@@ -39293,10 +39374,18 @@
       {
         "candidate": "candidate.fragment.262d971d9602156729b3",
         "field": "choiceParameters",
-        "matchCount": 1,
+        "matchCount": 2,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
+            "field": "choiceParameters",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          },
+          {
+            "id": "fragment.standard-attribute.choiceParameters",
             "field": "choiceParameters",
             "differences": [
               "path",
@@ -39308,10 +39397,18 @@
       {
         "candidate": "candidate.fragment.265b87db1decaeffea5b",
         "field": "markNegatives",
-        "matchCount": 1,
+        "matchCount": 2,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
+            "field": "markNegatives",
+            "differences": [
+              "path",
+              "presence"
+            ]
+          },
+          {
+            "id": "fragment.standard-attribute.markNegatives",
             "field": "markNegatives",
             "differences": [
               "path",
@@ -39810,7 +39907,7 @@
       {
         "candidate": "candidate.fragment.2f5a042e713a0ae1cd12",
         "field": "fillFromFillingValue",
-        "matchCount": 1,
+        "matchCount": 2,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -39818,6 +39915,11 @@
             "differences": [
               "path"
             ]
+          },
+          {
+            "id": "fragment.standard-attribute.fillFromFillingValue",
+            "field": "fillFromFillingValue",
+            "differences": []
           }
         ]
       },
@@ -41331,7 +41433,7 @@
       {
         "candidate": "candidate.fragment.3a34c59d0052b02d9144",
         "field": "markNegatives",
-        "matchCount": 1,
+        "matchCount": 2,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -41339,6 +41441,11 @@
             "differences": [
               "path"
             ]
+          },
+          {
+            "id": "fragment.standard-attribute.markNegatives",
+            "field": "markNegatives",
+            "differences": []
           }
         ]
       },
@@ -41612,7 +41719,7 @@
       {
         "candidate": "candidate.fragment.3e968b8849e381dba180",
         "field": "toolTip",
-        "matchCount": 2,
+        "matchCount": 3,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -41621,6 +41728,14 @@
               "path",
               "xmlPresence",
               "bindings"
+            ]
+          },
+          {
+            "id": "fragment.standard-attribute.toolTip",
+            "field": "toolTip",
+            "differences": [
+              "path",
+              "xmlPresence"
             ]
           },
           {
@@ -41942,10 +42057,18 @@
       {
         "candidate": "candidate.fragment.4329c16065ebe7406734",
         "field": "mask",
-        "matchCount": 1,
+        "matchCount": 2,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
+            "field": "mask",
+            "differences": [
+              "path",
+              "presence"
+            ]
+          },
+          {
+            "id": "fragment.standard-attribute.mask",
             "field": "mask",
             "differences": [
               "path",
@@ -41963,8 +42086,17 @@
       {
         "candidate": "candidate.fragment.441523897939e7e0c77a",
         "field": "maxValue",
-        "matchCount": 0,
-        "reviewTargets": []
+        "matchCount": 1,
+        "reviewTargets": [
+          {
+            "id": "fragment.standard-attribute.maxValue",
+            "field": "maxValue",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          }
+        ]
       },
       {
         "candidate": "candidate.fragment.442941133d4db235be5c",
@@ -44279,10 +44411,18 @@
       {
         "candidate": "candidate.fragment.5b97acb01a70184a326e",
         "field": "multiLine",
-        "matchCount": 1,
+        "matchCount": 2,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
+            "field": "multiLine",
+            "differences": [
+              "path",
+              "presence"
+            ]
+          },
+          {
+            "id": "fragment.standard-attribute.multiLine",
             "field": "multiLine",
             "differences": [
               "path",
@@ -44674,7 +44814,7 @@
       {
         "candidate": "candidate.fragment.62db21f99ca39a0aab8b",
         "field": "toolTip",
-        "matchCount": 2,
+        "matchCount": 3,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -44683,6 +44823,11 @@
               "path",
               "bindings"
             ]
+          },
+          {
+            "id": "fragment.standard-attribute.toolTip",
+            "field": "toolTip",
+            "differences": []
           },
           {
             "id": "fragment.command-base-properties",
@@ -45022,10 +45167,18 @@
       {
         "candidate": "candidate.fragment.68e41cf1a2069a3d496d",
         "field": "passwordMode",
-        "matchCount": 1,
+        "matchCount": 2,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
+            "field": "passwordMode",
+            "differences": [
+              "path",
+              "presence"
+            ]
+          },
+          {
+            "id": "fragment.standard-attribute.passwordMode",
             "field": "passwordMode",
             "differences": [
               "path",
@@ -45694,8 +45847,14 @@
       {
         "candidate": "candidate.fragment.70ce9d22311c4570d7f2",
         "field": "typeReductionMode",
-        "matchCount": 0,
-        "reviewTargets": []
+        "matchCount": 1,
+        "reviewTargets": [
+          {
+            "id": "fragment.standard-attribute.typeReductionMode",
+            "field": "typeReductionMode",
+            "differences": []
+          }
+        ]
       },
       {
         "candidate": "candidate.fragment.71169a07be20e7de18e8",
@@ -45781,8 +45940,17 @@
       {
         "candidate": "candidate.fragment.74ba96989fccdf2502a0",
         "field": "minValue",
-        "matchCount": 0,
-        "reviewTargets": []
+        "matchCount": 1,
+        "reviewTargets": [
+          {
+            "id": "fragment.standard-attribute.minValue",
+            "field": "minValue",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          }
+        ]
       },
       {
         "candidate": "candidate.fragment.752afee2ee544807de63",
@@ -45944,7 +46112,7 @@
       {
         "candidate": "candidate.fragment.78756bff26109b9943ce",
         "field": "type",
-        "matchCount": 13,
+        "matchCount": 14,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -45956,19 +46124,19 @@
             ]
           },
           {
+            "id": "fragment.standard-attribute.type",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          },
+          {
             "id": "common.fill-value-profile",
             "field": "type",
             "differences": [
               "path",
               "presence",
-              "xmlPresence"
-            ]
-          },
-          {
-            "id": "metadata.defined-type-extension",
-            "field": "type",
-            "differences": [
-              "path",
               "xmlPresence"
             ]
           }
@@ -46015,7 +46183,7 @@
       {
         "candidate": "candidate.fragment.7a5cf3a4c0ce27646e70",
         "field": "choiceParameterLinks",
-        "matchCount": 1,
+        "matchCount": 2,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -46023,6 +46191,11 @@
             "differences": [
               "path"
             ]
+          },
+          {
+            "id": "fragment.standard-attribute.choiceParameterLinks",
+            "field": "choiceParameterLinks",
+            "differences": []
           }
         ]
       },
@@ -46219,7 +46392,7 @@
       {
         "candidate": "candidate.fragment.8176d7d7d4750a400c00",
         "field": "dataHistory",
-        "matchCount": 2,
+        "matchCount": 3,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -46227,6 +46400,11 @@
             "differences": [
               "path"
             ]
+          },
+          {
+            "id": "fragment.standard-attribute.dataHistory",
+            "field": "dataHistory",
+            "differences": []
           },
           {
             "id": "fragment.document-base-properties",
@@ -46277,7 +46455,7 @@
       {
         "candidate": "candidate.fragment.82810fa39b0ebcb7bddd",
         "field": "quickChoice",
-        "matchCount": 1,
+        "matchCount": 2,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -46285,13 +46463,18 @@
             "differences": [
               "path"
             ]
+          },
+          {
+            "id": "fragment.standard-attribute.quickChoice",
+            "field": "quickChoice",
+            "differences": []
           }
         ]
       },
       {
         "candidate": "candidate.fragment.82a8859bce3a778f10cd",
         "field": "comment",
-        "matchCount": 9,
+        "matchCount": 10,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -46301,14 +46484,12 @@
             ]
           },
           {
-            "id": "fragment.command-base-properties",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
+            "id": "fragment.standard-attribute.comment",
+            "field": "comment",
+            "differences": []
           },
           {
-            "id": "fragment.document-base-properties",
+            "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
               "path"
@@ -46454,7 +46635,7 @@
       {
         "candidate": "candidate.fragment.850f22b400964c5814cb",
         "field": "choiceHistoryOnInput",
-        "matchCount": 2,
+        "matchCount": 3,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -46462,6 +46643,11 @@
             "differences": [
               "path"
             ]
+          },
+          {
+            "id": "fragment.standard-attribute.choiceHistoryOnInput",
+            "field": "choiceHistoryOnInput",
+            "differences": []
           },
           {
             "id": "fragment.document-base-properties",
@@ -47022,7 +47208,7 @@
       {
         "candidate": "candidate.fragment.8be3465b51eb94a3f492",
         "field": "type",
-        "matchCount": 13,
+        "matchCount": 14,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -47034,19 +47220,16 @@
             ]
           },
           {
+            "id": "fragment.standard-attribute.type",
+            "field": "type",
+            "differences": []
+          },
+          {
             "id": "common.fill-value-profile",
             "field": "type",
             "differences": [
               "path",
               "presence",
-              "xmlPresence"
-            ]
-          },
-          {
-            "id": "metadata.defined-type-extension",
-            "field": "type",
-            "differences": [
-              "path",
               "xmlPresence"
             ]
           }
@@ -47153,7 +47336,7 @@
       {
         "candidate": "candidate.fragment.8ec1629eb6c80ba0a8d4",
         "field": "fillChecking",
-        "matchCount": 1,
+        "matchCount": 2,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -47161,6 +47344,11 @@
             "differences": [
               "path"
             ]
+          },
+          {
+            "id": "fragment.standard-attribute.fillChecking",
+            "field": "fillChecking",
+            "differences": []
           }
         ]
       },
@@ -47343,7 +47531,7 @@
       {
         "candidate": "candidate.fragment.9738a0eb04b4457c34f4",
         "field": "toolTip",
-        "matchCount": 2,
+        "matchCount": 3,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -47352,6 +47540,14 @@
               "path",
               "xmlPresence",
               "bindings"
+            ]
+          },
+          {
+            "id": "fragment.standard-attribute.toolTip",
+            "field": "toolTip",
+            "differences": [
+              "path",
+              "xmlPresence"
             ]
           },
           {
@@ -47368,7 +47564,7 @@
       {
         "candidate": "candidate.fragment.97525321c6bc26f385e4",
         "field": "synonym",
-        "matchCount": 9,
+        "matchCount": 10,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -47381,18 +47577,12 @@
             ]
           },
           {
-            "id": "fragment.command-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "presence",
-              "xmlPresence",
-              "parameters",
-              "bindings"
-            ]
+            "id": "fragment.standard-attribute.synonym",
+            "field": "synonym",
+            "differences": []
           },
           {
-            "id": "fragment.document-base-properties",
+            "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
               "path",
@@ -47419,7 +47609,7 @@
       {
         "candidate": "candidate.fragment.979deda71c0bb9fc02c4",
         "field": "toolTip",
-        "matchCount": 2,
+        "matchCount": 3,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -47428,6 +47618,14 @@
               "path",
               "xmlPresence",
               "bindings"
+            ]
+          },
+          {
+            "id": "fragment.standard-attribute.toolTip",
+            "field": "toolTip",
+            "differences": [
+              "path",
+              "xmlPresence"
             ]
           },
           {
@@ -47456,7 +47654,7 @@
       {
         "candidate": "candidate.fragment.991fa9999a4366811f75",
         "field": "multiLine",
-        "matchCount": 1,
+        "matchCount": 2,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -47464,6 +47662,11 @@
             "differences": [
               "path"
             ]
+          },
+          {
+            "id": "fragment.standard-attribute.multiLine",
+            "field": "multiLine",
+            "differences": []
           }
         ]
       },
@@ -47482,8 +47685,14 @@
       {
         "candidate": "candidate.fragment.99db04e6fa464a919602",
         "field": "maxValue",
-        "matchCount": 0,
-        "reviewTargets": []
+        "matchCount": 1,
+        "reviewTargets": [
+          {
+            "id": "fragment.standard-attribute.maxValue",
+            "field": "maxValue",
+            "differences": []
+          }
+        ]
       },
       {
         "candidate": "candidate.fragment.99e8db676d8ae72ed9e1",
@@ -47706,7 +47915,7 @@
       {
         "candidate": "candidate.fragment.9bfec2caaba947b1cc7f",
         "field": "toolTip",
-        "matchCount": 2,
+        "matchCount": 3,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -47715,6 +47924,14 @@
               "path",
               "xmlPresence",
               "bindings"
+            ]
+          },
+          {
+            "id": "fragment.standard-attribute.toolTip",
+            "field": "toolTip",
+            "differences": [
+              "path",
+              "xmlPresence"
             ]
           },
           {
@@ -48168,7 +48385,7 @@
       {
         "candidate": "candidate.fragment.a1d42c4a1bf8ed3e8cec",
         "field": "fullTextSearch",
-        "matchCount": 2,
+        "matchCount": 3,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -48176,6 +48393,11 @@
             "differences": [
               "path"
             ]
+          },
+          {
+            "id": "fragment.standard-attribute.fullTextSearch",
+            "field": "fullTextSearch",
+            "differences": []
           },
           {
             "id": "fragment.document-base-properties",
@@ -48219,7 +48441,7 @@
       {
         "candidate": "candidate.fragment.a3709a223c5ac6581647",
         "field": "passwordMode",
-        "matchCount": 1,
+        "matchCount": 2,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -48227,6 +48449,11 @@
             "differences": [
               "path"
             ]
+          },
+          {
+            "id": "fragment.standard-attribute.passwordMode",
+            "field": "passwordMode",
+            "differences": []
           }
         ]
       },
@@ -48891,7 +49118,7 @@
       {
         "candidate": "candidate.fragment.a90eb1ca78087c3d8d8d",
         "field": "toolTip",
-        "matchCount": 2,
+        "matchCount": 3,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -48900,6 +49127,14 @@
               "path",
               "xmlPresence",
               "bindings"
+            ]
+          },
+          {
+            "id": "fragment.standard-attribute.toolTip",
+            "field": "toolTip",
+            "differences": [
+              "path",
+              "xmlPresence"
             ]
           },
           {
@@ -49740,7 +49975,7 @@
       {
         "candidate": "candidate.fragment.b1e20cd8e6c6ba816243",
         "field": "fillChecking",
-        "matchCount": 1,
+        "matchCount": 2,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -49748,6 +49983,11 @@
             "differences": [
               "path"
             ]
+          },
+          {
+            "id": "fragment.standard-attribute.fillChecking",
+            "field": "fillChecking",
+            "differences": []
           }
         ]
       },
@@ -49887,10 +50127,18 @@
       {
         "candidate": "candidate.fragment.b52d221747262160b7ee",
         "field": "choiceParameters",
-        "matchCount": 1,
+        "matchCount": 2,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
+            "field": "choiceParameters",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          },
+          {
+            "id": "fragment.standard-attribute.choiceParameters",
             "field": "choiceParameters",
             "differences": [
               "path",
@@ -50140,10 +50388,18 @@
       {
         "candidate": "candidate.fragment.bd3aa72be48954d64c94",
         "field": "passwordMode",
-        "matchCount": 1,
+        "matchCount": 2,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
+            "field": "passwordMode",
+            "differences": [
+              "path",
+              "presence"
+            ]
+          },
+          {
+            "id": "fragment.standard-attribute.passwordMode",
             "field": "passwordMode",
             "differences": [
               "path",
@@ -50379,7 +50635,7 @@
       {
         "candidate": "candidate.fragment.be0b697a3c2688d39c2e",
         "field": "toolTip",
-        "matchCount": 2,
+        "matchCount": 3,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -50388,6 +50644,14 @@
               "path",
               "xmlPresence",
               "bindings"
+            ]
+          },
+          {
+            "id": "fragment.standard-attribute.toolTip",
+            "field": "toolTip",
+            "differences": [
+              "path",
+              "xmlPresence"
             ]
           },
           {
@@ -50440,7 +50704,7 @@
       {
         "candidate": "candidate.fragment.bfef9514f7a1f1509463",
         "field": "type",
-        "matchCount": 13,
+        "matchCount": 14,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -50452,19 +50716,19 @@
             ]
           },
           {
+            "id": "fragment.standard-attribute.type",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          },
+          {
             "id": "common.fill-value-profile",
             "field": "type",
             "differences": [
               "path",
               "presence",
-              "xmlPresence"
-            ]
-          },
-          {
-            "id": "metadata.defined-type-extension",
-            "field": "type",
-            "differences": [
-              "path",
               "xmlPresence"
             ]
           }
@@ -50599,7 +50863,7 @@
       {
         "candidate": "candidate.fragment.c1af13f32d5fb0444ef4",
         "field": "linkByType",
-        "matchCount": 1,
+        "matchCount": 2,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -50607,6 +50871,11 @@
             "differences": [
               "path"
             ]
+          },
+          {
+            "id": "fragment.standard-attribute.linkByType",
+            "field": "linkByType",
+            "differences": []
           }
         ]
       },
@@ -50901,7 +51170,7 @@
       {
         "candidate": "candidate.fragment.c4c4c7949042c35d9afa",
         "field": "comment",
-        "matchCount": 9,
+        "matchCount": 10,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -50911,14 +51180,12 @@
             ]
           },
           {
-            "id": "fragment.command-base-properties",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
+            "id": "fragment.standard-attribute.comment",
+            "field": "comment",
+            "differences": []
           },
           {
-            "id": "fragment.document-base-properties",
+            "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
               "path"
@@ -50979,7 +51246,7 @@
       {
         "candidate": "candidate.fragment.c6dc26c494f76d1bbe98",
         "field": "toolTip",
-        "matchCount": 2,
+        "matchCount": 3,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -50988,6 +51255,11 @@
               "path",
               "bindings"
             ]
+          },
+          {
+            "id": "fragment.standard-attribute.toolTip",
+            "field": "toolTip",
+            "differences": []
           },
           {
             "id": "fragment.command-base-properties",
@@ -51009,10 +51281,18 @@
       {
         "candidate": "candidate.fragment.c7b186c65e676613c6e1",
         "field": "choiceHistoryOnInput",
-        "matchCount": 2,
+        "matchCount": 3,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
+            "field": "choiceHistoryOnInput",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          },
+          {
+            "id": "fragment.standard-attribute.choiceHistoryOnInput",
             "field": "choiceHistoryOnInput",
             "differences": [
               "path",
@@ -52382,10 +52662,18 @@
       {
         "candidate": "candidate.fragment.d5e2b83cfae9ee777988",
         "field": "choiceParameterLinks",
-        "matchCount": 1,
+        "matchCount": 2,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
+            "field": "choiceParameterLinks",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          },
+          {
+            "id": "fragment.standard-attribute.choiceParameterLinks",
             "field": "choiceParameterLinks",
             "differences": [
               "path",
@@ -52397,7 +52685,7 @@
       {
         "candidate": "candidate.fragment.d5ffd6a199be78c7cff4",
         "field": "type",
-        "matchCount": 13,
+        "matchCount": 14,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -52409,19 +52697,19 @@
             ]
           },
           {
+            "id": "fragment.standard-attribute.type",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          },
+          {
             "id": "common.fill-value-profile",
             "field": "type",
             "differences": [
               "path",
               "presence",
-              "xmlPresence"
-            ]
-          },
-          {
-            "id": "metadata.defined-type-extension",
-            "field": "type",
-            "differences": [
-              "path",
               "xmlPresence"
             ]
           }
@@ -52442,8 +52730,17 @@
       {
         "candidate": "candidate.fragment.d6763ca52a896772cddf",
         "field": "minValue",
-        "matchCount": 0,
-        "reviewTargets": []
+        "matchCount": 1,
+        "reviewTargets": [
+          {
+            "id": "fragment.standard-attribute.minValue",
+            "field": "minValue",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          }
+        ]
       },
       {
         "candidate": "candidate.fragment.d6ba04f840c3ab457ba7",
@@ -52598,7 +52895,7 @@
       {
         "candidate": "candidate.fragment.d8fffa47d0b6958fa6a1",
         "field": "editFormat",
-        "matchCount": 1,
+        "matchCount": 2,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -52607,6 +52904,11 @@
               "path",
               "bindings"
             ]
+          },
+          {
+            "id": "fragment.standard-attribute.editFormat",
+            "field": "editFormat",
+            "differences": []
           }
         ]
       },
@@ -53277,7 +53579,7 @@
       {
         "candidate": "candidate.fragment.e27c59273b8be2f8db15",
         "field": "choiceParameters",
-        "matchCount": 1,
+        "matchCount": 2,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -53285,6 +53587,11 @@
             "differences": [
               "path"
             ]
+          },
+          {
+            "id": "fragment.standard-attribute.choiceParameters",
+            "field": "choiceParameters",
+            "differences": []
           }
         ]
       },
@@ -53339,7 +53646,7 @@
       {
         "candidate": "candidate.fragment.e365e009ce6430d03101",
         "field": "extendedEdit",
-        "matchCount": 1,
+        "matchCount": 2,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -53347,6 +53654,11 @@
             "differences": [
               "path"
             ]
+          },
+          {
+            "id": "fragment.standard-attribute.extendedEdit",
+            "field": "extendedEdit",
+            "differences": []
           }
         ]
       },
@@ -53787,7 +54099,7 @@
       {
         "candidate": "candidate.fragment.e7828433e27109bec795",
         "field": "synonym",
-        "matchCount": 9,
+        "matchCount": 10,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -53799,17 +54111,14 @@
             ]
           },
           {
-            "id": "fragment.command-base-properties",
-            "field": "Synonym",
+            "id": "fragment.standard-attribute.synonym",
+            "field": "synonym",
             "differences": [
-              "path",
-              "xmlPresence",
-              "parameters",
-              "bindings"
+              "presence"
             ]
           },
           {
-            "id": "fragment.document-base-properties",
+            "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
               "path",
@@ -54246,8 +54555,17 @@
       {
         "candidate": "candidate.fragment.ebe976b02d879f54af54",
         "field": "maxValue",
-        "matchCount": 0,
-        "reviewTargets": []
+        "matchCount": 1,
+        "reviewTargets": [
+          {
+            "id": "fragment.standard-attribute.maxValue",
+            "field": "maxValue",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          }
+        ]
       },
       {
         "candidate": "candidate.fragment.ec77a6252fc610a9dafc",
@@ -54332,7 +54650,7 @@
       {
         "candidate": "candidate.fragment.efee510f4bd5e276c19e",
         "field": "format",
-        "matchCount": 1,
+        "matchCount": 2,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -54341,6 +54659,11 @@
               "path",
               "bindings"
             ]
+          },
+          {
+            "id": "fragment.standard-attribute.format",
+            "field": "format",
+            "differences": []
           }
         ]
       },
@@ -54389,7 +54712,7 @@
       {
         "candidate": "candidate.fragment.f1b995a59d877f072784",
         "field": "editFormat",
-        "matchCount": 1,
+        "matchCount": 2,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -54398,6 +54721,14 @@
               "path",
               "xmlPresence",
               "bindings"
+            ]
+          },
+          {
+            "id": "fragment.standard-attribute.editFormat",
+            "field": "editFormat",
+            "differences": [
+              "path",
+              "xmlPresence"
             ]
           }
         ]
@@ -54435,7 +54766,7 @@
       {
         "candidate": "candidate.fragment.f2457023104b21811bfd",
         "field": "format",
-        "matchCount": 1,
+        "matchCount": 2,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -54444,6 +54775,14 @@
               "path",
               "xmlPresence",
               "bindings"
+            ]
+          },
+          {
+            "id": "fragment.standard-attribute.format",
+            "field": "format",
+            "differences": [
+              "path",
+              "xmlPresence"
             ]
           }
         ]
@@ -54513,7 +54852,7 @@
       {
         "candidate": "candidate.fragment.f4d3578c7ad29df86178",
         "field": "toolTip",
-        "matchCount": 2,
+        "matchCount": 3,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -54522,6 +54861,14 @@
               "path",
               "xmlPresence",
               "bindings"
+            ]
+          },
+          {
+            "id": "fragment.standard-attribute.toolTip",
+            "field": "toolTip",
+            "differences": [
+              "path",
+              "xmlPresence"
             ]
           },
           {
@@ -54770,10 +55117,18 @@
       {
         "candidate": "candidate.fragment.f8fd568a26e1d0899cd4",
         "field": "markNegatives",
-        "matchCount": 1,
+        "matchCount": 2,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
+            "field": "markNegatives",
+            "differences": [
+              "path",
+              "presence"
+            ]
+          },
+          {
+            "id": "fragment.standard-attribute.markNegatives",
             "field": "markNegatives",
             "differences": [
               "path",

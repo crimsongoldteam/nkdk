@@ -14,6 +14,8 @@ value:
         bind:
           canonicalNames:
             input: canonicalNames
+          elidableNames:
+            input: elidableNames
 representations:
   xml:
     kind: record
@@ -28,6 +30,12 @@ representations:
         key: СтандартныеРеквизиты
 inputs:
   canonicalNames:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  elidableNames:
     type:
       kind: sequence
       item:

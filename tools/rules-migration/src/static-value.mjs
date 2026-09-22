@@ -131,6 +131,9 @@ export function evaluator(program) {
         return unknown(node, 'dynamic-operation');
       }
       if (left.kind !== 'scalar' || right.kind !== 'scalar') return unknown(node, 'dynamic-operation');
+      if (node.operatorToken.kind === ts.SyntaxKind.PlusToken &&
+          Number.isSafeInteger(left.value) && Number.isSafeInteger(right.value) &&
+          Number.isSafeInteger(left.value + right.value)) return scalar(left.value + right.value);
       return unknown(node, 'unsupported-operation');
     }
     if (ts.isCallExpression(node)) {
@@ -161,6 +164,25 @@ export function evaluator(program) {
         }
         if (node.arguments.length === 1 && node.expression.name.text === 'keys' && argument.kind === 'object' && argument.complete)
           return {kind:'array', values:[...argument.fields.keys()].map(scalar)};
+      }
+      if (ts.isPropertyAccessExpression(node.expression) && ts.isIdentifier(node.expression.expression) &&
+          node.expression.expression.text === 'Array' && !program.target(node.expression.expression) &&
+          node.expression.name.text === 'from' && node.arguments.length === 2) {
+        const shape=run(node.arguments[0]), callback=run(node.arguments[1]);
+        const length=shape.kind==='object' && shape.complete && shape.fields.size===1 &&
+          shape.fields.get('length')?.value;
+        if (length?.kind==='scalar' && Number.isSafeInteger(length.value) &&
+            length.value>=0 && length.value<=512 && callback.kind==='function') {
+          const values=[];
+          for(let index=0;index<length.value;index++)values.push(invoke(callback,[scalar(undefined),scalar(index)]));
+          return {kind:'array',values};
+        }
+        return unknown(node,'dynamic-array-from');
+      }
+      if (ts.isPropertyAccessExpression(node.expression) && node.expression.name.text==='flat' && node.arguments.length===0) {
+        const receiver=run(node.expression.expression);
+        if(receiver.kind==='array')return {kind:'array',values:receiver.values.flatMap(value=>value.kind==='array'?value.values:[value])};
+        return unknown(node,'dynamic-array-flat');
       }
       if(ts.isPropertyAccessExpression(node.expression) && ['slice','indexOf'].includes(node.expression.name.text)) {
         const receiver=run(node.expression.expression),args=node.arguments.map(run);

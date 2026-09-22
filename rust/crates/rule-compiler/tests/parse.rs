@@ -907,14 +907,14 @@ fn composition_preserves_explicit_fragment_arguments() {
 }
 
 #[test]
-fn value_role_cannot_compose_even_an_empty_fragment_list() {
-    let source = format!("{TEXT_MODULE}\ncompose: []\n");
-    let errors = parse(SourceFile {
+fn value_role_can_compose_reusable_fragments() {
+    let source = format!("{TEXT_MODULE}\ncompose: [{{use: identity}}]\n");
+    let module = parse(SourceFile {
         path: "composition.yaml",
         bytes: source.as_bytes(),
     })
-    .expect_err("value composition");
-    assert_eq!(errors[0].code, "invalid_composition_role");
+    .expect("value composition");
+    assert_eq!(module.compose[0].name, "identity");
 }
 
 #[test]

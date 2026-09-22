@@ -1,0 +1,42 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.min-max-value
+value:
+  kind: record
+  fields:
+    - name: minValue
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: minValue
+        path:
+          - xr:MinValue
+  yaml:
+    kind: mapping
+    fields:
+      - field: minValue
+        key: МинимальноеЗначение
+presence:
+  - target:
+      field: minValue
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: minValue
+          form: nil
+    yaml:
+      missing:
+        denotes:
+          absent: true
+namespaces:
+  xr: http://v8.1c.ru/8.3/xcf/readable
+id: candidate.fragment.0cba72b5f63bf541053c

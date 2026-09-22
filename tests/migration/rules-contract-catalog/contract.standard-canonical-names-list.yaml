@@ -17,10 +17,17 @@ representations:
   yaml:
     kind: record-mapping
     key: name
-    omitEmptyFor: canonicalNames
+    restoreFrom: canonicalNames
+    omitEmptyFor: elidableNames
     emptyTag: xml/standard-attributes
 inputs:
   canonicalNames:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  elidableNames:
     type:
       kind: sequence
       item:
@@ -32,14 +39,3 @@ presence:
       missing:
         denotes:
           absent: true
-    yaml:
-      missing:
-        denotes:
-          map:
-            in:
-              input: canonicalNames
-            as: name
-            value:
-              record:
-                name:
-                  var: name
