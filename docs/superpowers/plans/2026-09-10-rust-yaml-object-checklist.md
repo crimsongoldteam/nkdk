@@ -173,7 +173,7 @@ AdditionalIndexes принят после проверки идентичнос�
 - [x] [commonObjects/predefinedCode](../../../packages/rules/metadata/commonObjects/predefinedCode) — 2026-09-10: [декларация](../../../rust/declarations/common/predefined-code.yaml), [e2e семейства](../../../tests/migration/scalar-choice-e2e.json), [оба профиля и аномалии](../../../rust/crates/compiled-rules/tests/scalars.rs), [схема](../../../rust/crates/rule-compiler/tests/schema.rs).
 - [ ] [commonObjects/predefinedItem](../../../packages/rules/metadata/commonObjects/predefinedItem)
 - [ ] [commonObjects/rootCommandInterface](../../../packages/rules/metadata/commonObjects/rootCommandInterface)
-- [ ] [commonObjects/standardAttributeDescription](../../../packages/rules/metadata/commonObjects/standardAttributeDescription)
+- [ ] [commonObjects/standardAttributeDescription](../../../packages/rules/metadata/commonObjects/standardAttributeDescription) — полная запись из 27 свойств включена в рабочий Rust-каталог и проверена на справочнике и документе; флажок остаётся пустым до e2e-приёмки остальных семейств владельцев. [Текущее состояние](../reports/2026-09-22-standard-attribute-names.md).
 - [ ] [commonObjects/standardPeriod](../../../packages/rules/metadata/commonObjects/standardPeriod) — для полной приёмки нужны пути данных М6 и реальный случай e2e; проверки преобразования записаны в журнале М3.
 - [ ] [commonObjects/standardTabularSectionDescription](../../../packages/rules/metadata/commonObjects/standardTabularSectionDescription)
 - [ ] [commonObjects/standartBeginningDate](../../../packages/rules/metadata/commonObjects/standartBeginningDate) — для полной приёмки нужны пути данных М6; проверки преобразования записаны в журнале М3.

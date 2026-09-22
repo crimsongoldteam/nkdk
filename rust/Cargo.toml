@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/decimal", "crates/rule-model", "crates/rule-compiler", "crates/conversion-core", "crates/compiled-rules", "crates/system-enum-shards/*", "apps/nkdk", "tools/dev"]
+members = ["crates/decimal", "crates/rule-model", "crates/rule-compiler", "crates/conversion-core", "crates/compiled-rules", "crates/compiled-rules-probes", "crates/system-enum-shards/*", "apps/nkdk", "tools/dev"]
 resolver = "3"
 
 [workspace.package]
@@ -12,6 +12,25 @@ publish = false
 nkdk-rule-model = { path = "crates/rule-model" }
 yaml-rust2 = { version = "=0.11.0", path = "../third-party/yaml-rust2" }
 nkdk-decimal = { path = "crates/decimal" }
+
+[workspace.lints.rust]
+unused_mut = "allow"
+unused_variables = "allow"
+unreachable_code = "allow"
+
+[workspace.lints.clippy]
+blocks_in_conditions = "allow"
+collapsible_if = "allow"
+comparison_to_empty = "allow"
+large_enum_variant = "allow"
+map_identity = "allow"
+mixed_attributes_style = "allow"
+module_inception = "allow"
+needless_borrow = "allow"
+needless_question_mark = "allow"
+possible_missing_else = "allow"
+string_extend_chars = "allow"
+useless_asref = "allow"
 
 [profile.dev]
 debug = 0

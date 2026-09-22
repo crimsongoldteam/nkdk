@@ -1,0 +1,14 @@
+# Producers and entries used by working Rust operations and application tests.
+probes/additional-indexes.yaml
+probes/boolean.yaml
+probes/defined-type-base-identity.generated.yaml
+probes/defined-type-facts.yaml
+probes/defined-type-internal-types.generated.yaml
+probes/defined-type-own-identity.generated.yaml
+probes/document-internal-types.yaml
+probes/external-document.yaml
+probes/journal-internal-types.yaml
+probes/metadata-base-identity.yaml
+probes/metadata-child-index.yaml
+probes/metadata-root-index.yaml
+probes/metadata-uuid.yaml

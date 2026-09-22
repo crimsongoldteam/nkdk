@@ -10,5 +10,6 @@ nkdk-conversion-core = { path = "../../crates/conversion-core" }
 yaml-rust2.workspace = true
 
 [dev-dependencies]
+nkdk-compiled-rules-probes = { path = "../../crates/compiled-rules-probes" }
 serde_json = "=1.0.150"
 quick-xml = "=0.42.0"

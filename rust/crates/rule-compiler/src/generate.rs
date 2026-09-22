@@ -126,6 +126,8 @@ pub(crate) fn from_plan(program: &Program<'_>) -> Result<GeneratedSources, Vec<D
     source.push_str(&dispatch::generate(&entries));
     source.push_str(&facts::generate(&entries, program).map_err(|error| vec![error])?);
     source.push_str(&resources::generate(&entries).map_err(|error| vec![error])?);
+    let (automata_source, automata_files) = automaton_assets.finish();
+    source.push_str(&automata_source);
     let map = source_map::generate(program);
     source.push_str("include!(\"source_map.rs\");\n");
     let mut files = vec![
@@ -138,7 +140,7 @@ pub(crate) fn from_plan(program: &Program<'_>) -> Result<GeneratedSources, Vec<D
             contents: map.into_bytes(),
         },
     ];
-    files.extend(automaton_assets.finish());
+    files.extend(automata_files);
     Ok(GeneratedSources {
         files,
         dependencies: program

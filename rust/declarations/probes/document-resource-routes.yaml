@@ -1,0 +1,29 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.document-resource-routes
+namespaces: {md: 'http://v8.1c.ru/8.3/MDClasses'}
+imports:
+  indexes: fragment.additional-indexes
+  help: fragment.help
+  templateFiles: fragment.child-template-resources
+  childModules: fragment.child-module-resources
+  objectModule: fragment.object-module-resource
+  managerModule: fragment.manager-module-resource
+inputs:
+  additionalIndexIds: {index: metadata.additional-index-ids}
+  helpPages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  commandNames: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  owner: {type: {kind: scalar, scalar: text}}
+  forms: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  templates: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+compose:
+- {use: indexes, bind: {owner: {input: owner}, identities: {input: additionalIndexIds}}}
+- {use: templateFiles, bind: {names: {input: templates}}}
+- {use: childModules, bind: {forms: {input: forms}, commands: {input: commandNames}}}
+- {use: objectModule}
+- {use: managerModule}
+- {use: help, bind: {pages: {input: helpPages}}}
+value: {kind: record, fields: [{name: uuid, type: {kind: scalar, scalar: text}}]}
+representations:
+  xml: {kind: with-attributes, attributes: [{name: version, value: {text: '2.20'}}], content: {kind: record, fields: [{field: uuid, path: ['md:MetaDataObject', 'md:Document'], attribute: uuid}]}}
+  yaml: {kind: mapping, fields: [{field: uuid, key: Идентификатор}]}

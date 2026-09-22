@@ -5,14 +5,84 @@ use regex_automata::{
 };
 use std::{
     cell::RefCell,
-    collections::{BTreeSet, VecDeque},
+    collections::{BTreeSet, HashMap, VecDeque},
     fmt::Write,
+    hash::{Hash, Hasher},
 };
 
 use crate::generate::GeneratedFile;
 
 thread_local! {
-    static ASSETS: RefCell<Option<Vec<GeneratedFile>>> = const { RefCell::new(None) };
+    static ASSETS: RefCell<Option<AssetStore>> = const { RefCell::new(None) };
+}
+
+#[derive(Default)]
+struct AssetStore {
+    files: Vec<GeneratedFile>,
+    machines: Vec<MachineAsset>,
+    by_hash: HashMap<u64, Vec<usize>>,
+}
+
+struct MachineAsset {
+    little: usize,
+    big: usize,
+}
+
+impl AssetStore {
+    fn insert(&mut self, little: &[u8], big: &[u8]) -> usize {
+        let mut hasher = std::collections::hash_map::DefaultHasher::new();
+        little.hash(&mut hasher);
+        big.hash(&mut hasher);
+        let hash = hasher.finish();
+        if let Some(existing) = self.by_hash.get(&hash).and_then(|indices| {
+            indices.iter().copied().find(|&index| {
+                let machine = &self.machines[index];
+                self.files[machine.little].contents == little
+                    && self.files[machine.big].contents == big
+            })
+        }) {
+            return existing;
+        }
+        let index = self.machines.len();
+        let little_index = self.files.len();
+        for (endian, bytes) in [("little", little), ("big", big)] {
+            self.files.push(GeneratedFile {
+                path: format!("automaton-{index}-{endian}.bin"),
+                contents: bytes.to_vec(),
+            });
+        }
+        self.machines.push(MachineAsset {
+            little: little_index,
+            big: little_index + 1,
+        });
+        self.by_hash.entry(hash).or_default().push(index);
+        index
+    }
+
+    fn source(&self) -> String {
+        if self.machines.is_empty() {
+            return String::new();
+        }
+        let mut out =
+            String::from("#[allow(dead_code)] pub(crate) mod automata_store { use crate::core;\n");
+        for (index, machine) in self.machines.iter().enumerate() {
+            let little = &self.files[machine.little];
+            let big = &self.files[machine.big];
+            let length = little.contents.len();
+            assert_eq!(
+                length,
+                big.contents.len(),
+                "automaton byte orders differ in size"
+            );
+            writeln!(out, "#[repr(align(4))] struct Bytes{index}([u8;{length}]);").unwrap();
+            for (endian, file) in [("little", little), ("big", big)] {
+                writeln!(out, "#[cfg(target_endian={endian:?})] static B{index}:Bytes{index}=Bytes{index}(*include_bytes!({:?}));", file.path).unwrap();
+            }
+            writeln!(out, "pub(crate) static A{index}:core::pattern::Pattern=core::pattern::Pattern::new(&B{index}.0);").unwrap();
+        }
+        out.push_str("}\n");
+        out
+    }
 }
 
 pub(crate) struct Assets;
@@ -21,15 +91,18 @@ impl Assets {
     pub(crate) fn enter() -> Self {
         ASSETS.with(|assets| {
             assert!(
-                assets.replace(Some(Vec::new())).is_none(),
+                assets.replace(Some(AssetStore::default())).is_none(),
                 "nested automaton asset session"
             );
         });
         Self
     }
 
-    pub(crate) fn finish(self) -> Vec<GeneratedFile> {
-        ASSETS.with(|assets| assets.borrow_mut().take().expect("automaton asset session"))
+    pub(crate) fn finish(self) -> (String, Vec<GeneratedFile>) {
+        ASSETS.with(|assets| {
+            let store = assets.borrow_mut().take().expect("automaton asset session");
+            (store.source(), store.files)
+        })
     }
 }
 
@@ -138,29 +211,14 @@ pub(crate) fn declaration(name: &str, machine: &DFA<Vec<u32>>) -> String {
     let little = &little[pad..];
     let (big, pad) = machine.to_bytes_big_endian();
     let big = &big[pad..];
-    let mut out = format!(
-        "#[repr(align(4))] struct {name}Bytes([u8;{}]);\n",
-        little.len()
-    );
-    for (endian, bytes) in [("little", little), ("big", big)] {
-        let path = ASSETS.with(|assets| {
-            let mut assets = assets.borrow_mut();
-            let assets = assets.as_mut().expect("automaton asset session");
-            let path = format!("automaton-{}-{endian}.bin", assets.len());
-            assets.push(GeneratedFile {
-                path: path.clone(),
-                contents: bytes.to_vec(),
-            });
-            path
-        });
-        writeln!(out,"#[cfg(target_endian={endian:?})] static {name}_BYTES:{name}Bytes={name}Bytes(*include_bytes!({path:?}));").unwrap();
-    }
-    writeln!(
-        out,
-        "static {name}:core::pattern::Pattern=core::pattern::Pattern::new(&{name}_BYTES.0);"
-    )
-    .unwrap();
-    out
+    let index = ASSETS.with(|assets| {
+        assets
+            .borrow_mut()
+            .as_mut()
+            .expect("automaton asset session")
+            .insert(little, big)
+    });
+    format!("#[allow(unused_imports)] use crate::automata_store::A{index} as {name};\n")
 }
 
 #[cfg(test)]
@@ -172,11 +230,32 @@ mod tests {
         let machine = compile(&["left", "right"], 1024, 1 << 20).unwrap();
         let assets = Assets::enter();
         let source = declaration("Selection", &machine);
-        let files = assets.finish();
-        assert!(source.contains("include_bytes!"));
+        let (store, files) = assets.finish();
+        assert!(source.contains("use crate::automata_store::A0 as Selection"));
+        assert!(!source.contains("include_bytes!"));
+        assert!(store.contains("include_bytes!"));
         assert!(source.len() < 1000, "automaton expanded into Rust tokens");
         assert_eq!(files.len(), 2);
         assert!(files.iter().all(|file| !file.contents.is_empty()));
+    }
+
+    #[test]
+    fn repeated_automata_share_binary_assets() {
+        let machine = compile(&["left", "right"], 1024, 1 << 20).unwrap();
+        let assets = Assets::enter();
+        let first = declaration("First", &machine);
+        let second = declaration("Second", &machine);
+        let (store, files) = assets.finish();
+        assert_eq!(files.len(), 2);
+        assert_eq!(store.matches("pub(crate) static A0:").count(), 1);
+        assert_eq!(
+            first,
+            "#[allow(unused_imports)] use crate::automata_store::A0 as First;\n"
+        );
+        assert_eq!(
+            second,
+            "#[allow(unused_imports)] use crate::automata_store::A0 as Second;\n"
+        );
     }
 
     #[test]

@@ -481,6 +481,7 @@ name = "nkdk"
 version = "0.1.0"
 dependencies = [
  "nkdk-compiled-rules",
+ "nkdk-compiled-rules-probes",
  "nkdk-conversion-core",
  "quick-xml",
  "serde_json",
@@ -489,6 +490,15 @@ dependencies = [
 
 [[package]]
 name = "nkdk-compiled-rules"
+version = "0.1.0"
+dependencies = [
+ "nkdk-conversion-core",
+ "nkdk-rule-compiler",
+ "serde_json",
+]
+
+[[package]]
+name = "nkdk-compiled-rules-probes"
 version = "0.1.0"
 dependencies = [
  "nkdk-conversion-core",
@@ -515,7 +525,7 @@ version = "0.1.0"
 name = "nkdk-dev"
 version = "0.1.0"
 dependencies = [
- "nkdk-compiled-rules",
+ "nkdk-compiled-rules-probes",
  "nkdk-conversion-core",
  "nkdk-rule-compiler",
  "serde_json",

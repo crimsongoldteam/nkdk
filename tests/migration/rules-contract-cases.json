@@ -1237,7 +1237,7 @@
     },
     {
       "path": "rust/crates/compiled-rules/tests/sequences.rs",
-      "sha256": "aad4121500e76da224ad42b89d84de5505f3bdcedafb27749e21a4c6b09ad658"
+      "sha256": "ad7b5ea6a0bcf618659632105e0d6b9c1a605c41fd1f10af13e95a012d6da915"
     },
     {
       "path": "packages/rules/metadata/commonObjects/usePurposes/toYAML.test.ts",
@@ -1325,7 +1325,7 @@
     },
     {
       "path": "rust/crates/compiled-rules/tests/scalars.rs",
-      "sha256": "798baf4fe314a1734d57575485bae4e13511c8b464644e3aaa825d18b68e50d3"
+      "sha256": "d21753066c05c1cfb5787a9dd95cc8a7c56b4ba5789da5b40cad6ffa3b7d8b1a"
     },
     {
       "path": "tests/migration/i8n-full-round-trip-observations.json",
@@ -1489,7 +1489,7 @@
     },
     {
       "path": "rust/crates/compiled-rules/tests/path_lexicons.rs",
-      "sha256": "b251e0f593e8aa717deeb2cc6a4ca266d116dc75cd7f8ee613864297bb9ba9ab"
+      "sha256": "abdd7e706a44084b5eee063c81c3c14419a00ef576b23f335b74664c14b02064"
     },
     {
       "path": "tests/migration/command-group-e2e.json",

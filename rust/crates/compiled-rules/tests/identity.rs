@@ -1,3 +1,4 @@
+use nkdk_compiled_rules_probes as nkdk_compiled_rules;
 use nkdk_compiled_rules::{Direction, InputValue, contribute_file, entry_id, prepare_inputs};
 use nkdk_conversion_core::facts::{FactState, Generation, prepared::FactBudget, text::TextBudget};
 

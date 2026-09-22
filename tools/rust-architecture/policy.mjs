@@ -6,8 +6,9 @@ const allowed={
  'nkdk-conversion-core':{normal:['nkdk-decimal']},
  'nkdk-rule-compiler':{normal:['nkdk-rule-model','nkdk-conversion-core','nkdk-decimal']},
  'nkdk-compiled-rules':{normal:['nkdk-conversion-core'],build:['nkdk-rule-compiler']},
- 'nkdk':{normal:['nkdk-compiled-rules','nkdk-conversion-core']},
- 'nkdk-dev':{normal:['nkdk-compiled-rules','nkdk-conversion-core','nkdk-rule-compiler']},
+ 'nkdk-compiled-rules-probes':{normal:['nkdk-conversion-core'],build:['nkdk-rule-compiler']},
+ 'nkdk':{normal:['nkdk-compiled-rules','nkdk-conversion-core'],dev:['nkdk-compiled-rules-probes']},
+ 'nkdk-dev':{normal:['nkdk-compiled-rules-probes','nkdk-conversion-core','nkdk-rule-compiler']},
 };
 const systemEnumShard={normal:['nkdk-conversion-core'],build:['nkdk-rule-compiler']};
 export function violations(metadata){

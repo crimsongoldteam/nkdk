@@ -106,17 +106,18 @@ fn prepared_files_preserve_alternatives_and_do_not_publish_partial_output() {
                  yaml_owner: &str,
                  files: &[(&str, &str)],
                  count| {
-        let entry = nkdk_compiled_rules::entry_id(entry_name).unwrap();
-        let inputs = nkdk_compiled_rules::prepare_inputs(entry, input_values).unwrap();
-        let requests = nkdk_compiled_rules::resource_requests(entry, &inputs, limits).unwrap();
+        let entry = nkdk_compiled_rules_probes::entry_id(entry_name).unwrap();
+        let inputs = nkdk_compiled_rules_probes::prepare_inputs(entry, input_values).unwrap();
+        let requests =
+            nkdk_compiled_rules_probes::resource_requests(entry, &inputs, limits).unwrap();
         assert!(
-            nkdk_compiled_rules::resource_requests(
+            nkdk_compiled_rules_probes::resource_requests(
                 entry,
                 &inputs,
                 Limits {
                     groups: 0,
                     ..limits
-                }
+                },
             )
             .is_err()
         );
@@ -126,7 +127,7 @@ fn prepared_files_preserve_alternatives_and_do_not_publish_partial_output() {
             (Direction::XmlToYaml, &xml_root, &yaml_root, 1),
             (Direction::YamlToXml, &yaml_root, &xml_root, 0),
         ] {
-            let declared_documents = nkdk_compiled_rules::document_paths(entry).unwrap();
+            let declared_documents = nkdk_compiled_rules_probes::document_paths(entry).unwrap();
             let loaded_documents =
                 load_documents(declared_documents, &xml_root, limits, 1_000_000).unwrap();
             assert_eq!(
@@ -153,22 +154,25 @@ fn prepared_files_preserve_alternatives_and_do_not_publish_partial_output() {
                 let directory = RelativePath::new(directory, 4096).unwrap();
                 let pages = actual.file_stems(&directory, ".html");
                 assert_eq!(pages, ["ru"]);
-                let entry = nkdk_compiled_rules::entry_id("migration.help-manifest").unwrap();
-                let inputs = nkdk_compiled_rules::prepare_inputs(
+                let entry =
+                    nkdk_compiled_rules_probes::entry_id("migration.help-manifest").unwrap();
+                let inputs = nkdk_compiled_rules_probes::prepare_inputs(
                     entry,
                     vec![(
                         "pages".into(),
-                        nkdk_compiled_rules::InputValue::Sequence(
+                        nkdk_compiled_rules_probes::InputValue::Sequence(
                             pages
                                 .into_iter()
-                                .map(|page| nkdk_compiled_rules::InputValue::Text(page.into()))
+                                .map(|page| {
+                                    nkdk_compiled_rules_probes::InputValue::Text(page.into())
+                                })
                                 .collect(),
                         ),
                     )],
                 )
                 .unwrap();
                 let original = fs::read(manifest).unwrap();
-                let yaml = nkdk_compiled_rules::convert_file(
+                let yaml = nkdk_compiled_rules_probes::convert_file(
                     entry,
                     Direction::XmlToYaml,
                     &original,
@@ -176,8 +180,13 @@ fn prepared_files_preserve_alternatives_and_do_not_publish_partial_output() {
                 )
                 .unwrap();
                 assert!(yaml.bytes.is_empty());
-                nkdk_compiled_rules::verify_candidate(entry, &original, &yaml.bytes, &inputs)
-                    .unwrap();
+                nkdk_compiled_rules_probes::verify_candidate(
+                    entry,
+                    &original,
+                    &yaml.bytes,
+                    &inputs,
+                )
+                .unwrap();
             }
             for pair in files {
                 let expected_file = if target_side == 0 { pair.0 } else { pair.1 };
@@ -204,7 +213,7 @@ fn prepared_files_preserve_alternatives_and_do_not_publish_partial_output() {
             "migration.command-base-properties",
             vec![(
                 "name".into(),
-                nkdk_compiled_rules::InputValue::Text("Команда1".into()),
+                nkdk_compiled_rules_probes::InputValue::Text("Команда1".into()),
             )],
             xml_owner,
             yaml_owner,
@@ -309,10 +318,10 @@ fn prepared_files_preserve_alternatives_and_do_not_publish_partial_output() {
                 &[]
             };
             let prepared_names = |names: &[&str]| {
-                nkdk_compiled_rules::InputValue::Sequence(
+                nkdk_compiled_rules_probes::InputValue::Sequence(
                     names
                         .iter()
-                        .map(|name| nkdk_compiled_rules::InputValue::Text((*name).into()))
+                        .map(|name| nkdk_compiled_rules_probes::InputValue::Text((*name).into()))
                         .collect(),
                 )
             };
@@ -360,7 +369,14 @@ fn prepared_files_preserve_alternatives_and_do_not_publish_partial_output() {
                 _ => 0,
             };
             check(
-                &format!("migration.{kind}-identity-and-children"),
+                &format!(
+                    "migration.{kind}-{}",
+                    if kind == "document" {
+                        "resource-routes"
+                    } else {
+                        "identity-and-children"
+                    }
+                ),
                 vec![
                     ("templates".into(), prepared_names(template_names)),
                     ("forms".into(), prepared_names(form_names)),
@@ -590,7 +606,7 @@ fn group_conversion_keeps_external_documents_and_resources_together() {
 
 #[test]
 fn declared_external_files_preserve_e2e_bytes_and_absence() {
-    use nkdk_compiled_rules::{InputValue, entry_id, prepare_inputs, resource_requests};
+    use nkdk_compiled_rules_probes::{InputValue, entry_id, prepare_inputs, resource_requests};
     let root =
         Temp(std::env::temp_dir().join(format!("nkdk-external-file-{}", std::process::id())));
     fs::create_dir_all(&root.0).unwrap();
@@ -681,7 +697,7 @@ fn declared_external_files_preserve_e2e_bytes_and_absence() {
 
 #[test]
 fn owner_resource_entries_use_declared_routes_without_a_primary_document() {
-    use nkdk_compiled_rules::{
+    use nkdk_compiled_rules_probes::{
         convert_file, entry_id, prepare_inputs, resource_requests, validate_file, verify_candidate,
     };
     let temp = Temp(std::env::temp_dir().join(format!("nkdk-owner-files-{}", std::process::id())));
@@ -774,7 +790,7 @@ fn assert_file_routes(
 
 #[test]
 fn static_module_entries_preserve_e2e_files_and_configuration_groups() {
-    use nkdk_compiled_rules::{entry_id, prepare_inputs, resource_requests};
+    use nkdk_compiled_rules_probes::{entry_id, prepare_inputs, resource_requests};
     let temporary =
         Temp(std::env::temp_dir().join(format!("nkdk-module-e2e-{}", std::process::id())));
     fs::create_dir_all(&temporary.0).unwrap();

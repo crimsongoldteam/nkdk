@@ -1,26 +1,25 @@
-#[path = "../../build-support/compile.rs"]
-mod compile;
-#[path = "../../build-support/declarations.rs"]
-mod declarations;
-use std::path::PathBuf;
+#[path = "../../build-support/catalog.rs"]
+mod catalog;
+
 fn main() {
-    let workspace = PathBuf::from(std::env::var_os("CARGO_MANIFEST_DIR").unwrap())
-        .join("../..")
-        .canonicalize()
-        .unwrap();
-    let directory = workspace.join("declarations");
-    println!("cargo::rerun-if-changed={}", directory.display());
-    // The complete system-enumeration matrix is tested in bounded shards.
-    // Candidate declarations and probes that depend on them remain in bounded
-    // migration builds; the production catalog only includes accepted modules.
-    let sources = declarations::load(&workspace, &directory)
-        .expect("read declaration sources")
-        .into_iter()
-        .filter(|(path, _)| {
-            path != "declarations/probes/system-enumerations.yaml"
-                && path != "declarations/probes/document-identity-and-children.yaml"
-                && !path.starts_with("declarations/candidates/")
-        })
-        .collect::<Vec<_>>();
-    compile::declarations(&workspace, &sources, 32 * 1024 * 1024);
+    let directory = std::path::PathBuf::from(std::env::var_os("CARGO_MANIFEST_DIR").unwrap())
+        .join("../../declarations");
+    let production_probes = directory.join("production-probes.txt");
+    println!("cargo::rerun-if-changed={}", production_probes.display());
+    let accepted_probes = std::fs::read_to_string(&production_probes)
+        .expect("read production probe manifest")
+        .lines()
+        .map(str::trim)
+        .filter(|line| !line.is_empty() && !line.starts_with('#'))
+        .map(|line| format!("declarations/{line}"))
+        .collect::<std::collections::BTreeSet<_>>();
+    catalog::build(|path| {
+        if path.starts_with("declarations/probes/") {
+            accepted_probes.contains(path)
+        } else if path.starts_with("declarations/candidates/") {
+            path == "declarations/candidates/standard-attributes.generated.yaml"
+        } else {
+            true
+        }
+    });
 }

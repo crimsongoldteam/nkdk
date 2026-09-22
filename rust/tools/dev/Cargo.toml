@@ -7,6 +7,6 @@ publish.workspace = true
 [dependencies]
 nkdk-conversion-core = { path = "../../crates/conversion-core" }
 nkdk-rule-compiler = { path = "../../crates/rule-compiler" }
-nkdk-compiled-rules = { path = "../../crates/compiled-rules" }
+nkdk-compiled-rules = { package = "nkdk-compiled-rules-probes", path = "../../crates/compiled-rules-probes" }
 serde_json = "=1.0.150"
 sha2 = "=0.10.9"
