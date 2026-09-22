@@ -10,6 +10,8 @@ pub struct Program {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LinkedEntry {
     pub id: u32,
+    /// Caller whose input slots were captured when this profile was specialized.
+    pub input_scope: Option<u32>,
     pub name: String,
     pub namespaces: Vec<crate::NamedBinding>,
     pub kind: ModuleKind,

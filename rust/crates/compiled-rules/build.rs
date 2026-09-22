@@ -10,12 +10,16 @@ fn main() {
         .unwrap();
     let directory = workspace.join("declarations");
     println!("cargo::rerun-if-changed={}", directory.display());
-    // The complete system-enumeration matrix is tested in bounded shards. It is
-    // not part of the production converter or its ordinary probe catalog.
+    // The complete system-enumeration matrix is tested in bounded shards.
+    // Candidate declarations are exercised by migration contracts until their
+    // owners are accepted, so neither belongs in the production catalog.
     let sources = declarations::load(&workspace, &directory)
         .expect("read declaration sources")
         .into_iter()
-        .filter(|(path, _)| path != "declarations/probes/system-enumerations.yaml")
+        .filter(|(path, _)| {
+            path != "declarations/probes/system-enumerations.yaml"
+                && !path.starts_with("declarations/candidates/")
+        })
         .collect::<Vec<_>>();
     compile::declarations(&workspace, &sources, 32 * 1024 * 1024);
 }

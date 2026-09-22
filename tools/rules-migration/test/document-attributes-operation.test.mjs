@@ -6,7 +6,7 @@ import {yaml} from '../src/candidate-catalog.mjs';
 
 test('document attribute operation publishes its source-derived declarations and e2e case',()=>{
   execFileSync(process.execPath,['tools/rules-migration/src/document-attributes-operation.mjs','--check'],{stdio:'pipe'});
-  const catalog=yaml.load(readFileSync('rust/declarations/objects/document-attributes.generated.yaml','utf8'));
+  const catalog=yaml.load(readFileSync('rust/declarations/candidates/document-attributes.generated.yaml','utf8'));
   const owner=catalog.declarations.find(module=>module.id==='metadata.document-attributes');
   const fragment=catalog.declarations.find(module=>module.id==='fragment.document-attributes');
   assert.ok(owner);

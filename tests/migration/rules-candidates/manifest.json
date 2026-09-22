@@ -13002,6 +13002,10 @@
   ],
   "declarationHashes": [
     {
+      "path": "rust/declarations/candidates/document-attributes.generated.yaml",
+      "sha256": "2bee1f4b346e015598882434676a701a0edc56da9f87a30197b93df99a6925aa"
+    },
+    {
       "path": "rust/declarations/common/additional-index-row.yaml",
       "sha256": "8a04decc9f2c123354b7041ca15108e3c9700b5bc189d3cd713b9598705c751d"
     },
@@ -13448,10 +13452,6 @@
     {
       "path": "rust/declarations/objects/defined-type.yaml",
       "sha256": "fdaa37b318eb95eaeeb4cf2a79874a33a1199714cc5631689cfba98d55eb9075"
-    },
-    {
-      "path": "rust/declarations/objects/document-attributes.generated.yaml",
-      "sha256": "2bee1f4b346e015598882434676a701a0edc56da9f87a30197b93df99a6925aa"
     },
     {
       "path": "rust/declarations/objects/enumeration-values.generated.yaml",
@@ -36263,8 +36263,8 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.command-base-properties",
-            "field": "ToolTip",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "toolTip",
             "differences": [
               "path",
               "xmlPresence",
@@ -36272,8 +36272,8 @@
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "toolTip",
+            "id": "fragment.command-base-properties",
+            "field": "ToolTip",
             "differences": [
               "path",
               "xmlPresence",
@@ -36346,6 +36346,14 @@
         "matchCount": 4,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "type",
+            "differences": [
+              "path",
+              "parameters"
+            ]
+          },
+          {
             "id": "metadata.defined-type-extension",
             "field": "type",
             "differences": [
@@ -36358,14 +36366,6 @@
             "field": "type",
             "differences": [
               "path"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "type",
-            "differences": [
-              "path",
-              "parameters"
             ]
           }
         ]
@@ -36535,18 +36535,18 @@
         "matchCount": 2,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "dataHistory",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.document-base-properties",
             "field": "DataHistory",
             "differences": [
               "path",
               "presence"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "dataHistory",
-            "differences": [
-              "path"
             ]
           }
         ]
@@ -36563,6 +36563,15 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "parameters",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
@@ -36573,15 +36582,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -36597,6 +36597,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -36609,13 +36616,6 @@
             "differences": [
               "path"
             ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
           }
         ]
       },
@@ -36624,6 +36624,15 @@
         "field": "type",
         "matchCount": 4,
         "reviewTargets": [
+          {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence",
+              "parameters"
+            ]
+          },
           {
             "id": "metadata.defined-type-extension",
             "field": "type",
@@ -36638,15 +36647,6 @@
             "differences": [
               "path",
               "xmlPresence"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "type",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "parameters"
             ]
           }
         ]
@@ -36759,19 +36759,19 @@
         "matchCount": 2,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "toolTip",
+            "differences": [
+              "path",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "ToolTip",
             "differences": [
               "path",
               "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "toolTip",
-            "differences": [
-              "path",
               "bindings"
             ]
           }
@@ -36966,15 +36966,15 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "ChoiceHistoryOnInput",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "choiceHistoryOnInput",
             "differences": [
               "path"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "choiceHistoryOnInput",
+            "id": "fragment.document-base-properties",
+            "field": "ChoiceHistoryOnInput",
             "differences": [
               "path"
             ]
@@ -37001,18 +37001,18 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "DataHistory",
-            "differences": [
-              "path"
-            ]
-          },
-          {
             "id": "candidate.collection.item.0b7deec0b19f078e07e9",
             "field": "dataHistory",
             "differences": [
               "path",
               "presence"
+            ]
+          },
+          {
+            "id": "fragment.document-base-properties",
+            "field": "DataHistory",
+            "differences": [
+              "path"
             ]
           }
         ]
@@ -37095,8 +37095,8 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.command-base-properties",
-            "field": "ToolTip",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "toolTip",
             "differences": [
               "path",
               "xmlPresence",
@@ -37104,8 +37104,8 @@
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "toolTip",
+            "id": "fragment.command-base-properties",
+            "field": "ToolTip",
             "differences": [
               "path",
               "xmlPresence",
@@ -37343,6 +37343,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -37351,13 +37358,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Comment",
             "differences": [
               "path"
@@ -37648,6 +37648,16 @@
         "matchCount": 4,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence",
+              "parameters",
+              "constraints"
+            ]
+          },
+          {
             "id": "metadata.defined-type-extension",
             "field": "type",
             "differences": [
@@ -37662,16 +37672,6 @@
             "differences": [
               "path",
               "xmlPresence",
-              "constraints"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "type",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "parameters",
               "constraints"
             ]
           }
@@ -37735,18 +37735,18 @@
         "matchCount": 2,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "createOnInput",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.document-base-properties",
             "field": "CreateOnInput",
             "differences": [
               "path",
               "presence"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "createOnInput",
-            "differences": [
-              "path"
             ]
           }
         ]
@@ -37802,6 +37802,15 @@
         "matchCount": 4,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence",
+              "parameters"
+            ]
+          },
+          {
             "id": "metadata.defined-type-extension",
             "field": "type",
             "differences": [
@@ -37815,15 +37824,6 @@
             "differences": [
               "path",
               "xmlPresence"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "type",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "parameters"
             ]
           }
         ]
@@ -37879,6 +37879,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -37887,13 +37894,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Comment",
             "differences": [
               "path"
@@ -38172,15 +38172,15 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "FullTextSearch",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "fullTextSearch",
             "differences": [
               "path"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "fullTextSearch",
+            "id": "fragment.document-base-properties",
+            "field": "FullTextSearch",
             "differences": [
               "path"
             ]
@@ -38193,18 +38193,18 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "CreateOnInput",
-            "differences": [
-              "path"
-            ]
-          },
-          {
             "id": "candidate.collection.item.0b7deec0b19f078e07e9",
             "field": "createOnInput",
             "differences": [
               "path",
               "presence"
+            ]
+          },
+          {
+            "id": "fragment.document-base-properties",
+            "field": "CreateOnInput",
+            "differences": [
+              "path"
             ]
           }
         ]
@@ -38215,15 +38215,15 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "ChoiceHistoryOnInput",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "choiceHistoryOnInput",
             "differences": [
               "path"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "choiceHistoryOnInput",
+            "id": "fragment.document-base-properties",
+            "field": "ChoiceHistoryOnInput",
             "differences": [
               "path"
             ]
@@ -38236,18 +38236,18 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "DataHistory",
-            "differences": [
-              "path"
-            ]
-          },
-          {
             "id": "candidate.collection.item.0b7deec0b19f078e07e9",
             "field": "dataHistory",
             "differences": [
               "path",
               "presence"
+            ]
+          },
+          {
+            "id": "fragment.document-base-properties",
+            "field": "DataHistory",
+            "differences": [
+              "path"
             ]
           }
         ]
@@ -38340,6 +38340,15 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "parameters",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
@@ -38350,15 +38359,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -38374,6 +38374,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -38382,13 +38389,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Comment",
             "differences": [
               "path"
@@ -38447,6 +38447,15 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "parameters",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
@@ -38457,15 +38466,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -38481,6 +38481,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -38489,13 +38496,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Comment",
             "differences": [
               "path"
@@ -38708,18 +38708,18 @@
         "matchCount": 2,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "createOnInput",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.document-base-properties",
             "field": "CreateOnInput",
             "differences": [
               "path",
               "presence"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "createOnInput",
-            "differences": [
-              "path"
             ]
           }
         ]
@@ -38758,15 +38758,15 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "ChoiceHistoryOnInput",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "choiceHistoryOnInput",
             "differences": [
               "path"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "choiceHistoryOnInput",
+            "id": "fragment.document-base-properties",
+            "field": "ChoiceHistoryOnInput",
             "differences": [
               "path"
             ]
@@ -38843,6 +38843,15 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "parameters",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
@@ -38853,15 +38862,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -38877,6 +38877,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -38885,13 +38892,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Comment",
             "differences": [
               "path"
@@ -39026,18 +39026,18 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "CreateOnInput",
-            "differences": [
-              "path"
-            ]
-          },
-          {
             "id": "candidate.collection.item.0b7deec0b19f078e07e9",
             "field": "createOnInput",
             "differences": [
               "path",
               "presence"
+            ]
+          },
+          {
+            "id": "fragment.document-base-properties",
+            "field": "CreateOnInput",
+            "differences": [
+              "path"
             ]
           }
         ]
@@ -39260,15 +39260,15 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "FullTextSearch",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "fullTextSearch",
             "differences": [
               "path"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "fullTextSearch",
+            "id": "fragment.document-base-properties",
+            "field": "FullTextSearch",
             "differences": [
               "path"
             ]
@@ -39388,15 +39388,15 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "ChoiceHistoryOnInput",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "choiceHistoryOnInput",
             "differences": [
               "path"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "choiceHistoryOnInput",
+            "id": "fragment.document-base-properties",
+            "field": "ChoiceHistoryOnInput",
             "differences": [
               "path"
             ]
@@ -39409,18 +39409,18 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "DataHistory",
-            "differences": [
-              "path"
-            ]
-          },
-          {
             "id": "candidate.collection.item.0b7deec0b19f078e07e9",
             "field": "dataHistory",
             "differences": [
               "path",
               "presence"
+            ]
+          },
+          {
+            "id": "fragment.document-base-properties",
+            "field": "DataHistory",
+            "differences": [
+              "path"
             ]
           }
         ]
@@ -39477,6 +39477,15 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "parameters",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
@@ -39487,15 +39496,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -39511,6 +39511,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -39519,13 +39526,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Comment",
             "differences": [
               "path"
@@ -39652,6 +39652,15 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "parameters",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
@@ -39662,15 +39671,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -39686,6 +39686,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -39694,13 +39701,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Comment",
             "differences": [
               "path"
@@ -39813,16 +39813,16 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "FullTextSearch",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "fullTextSearch",
             "differences": [
               "path",
               "presence"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "fullTextSearch",
+            "id": "fragment.document-base-properties",
+            "field": "FullTextSearch",
             "differences": [
               "path",
               "presence"
@@ -40198,18 +40198,18 @@
         "matchCount": 2,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "createOnInput",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.document-base-properties",
             "field": "CreateOnInput",
             "differences": [
               "path",
               "presence"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "createOnInput",
-            "differences": [
-              "path"
             ]
           }
         ]
@@ -40248,15 +40248,15 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "ChoiceHistoryOnInput",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "choiceHistoryOnInput",
             "differences": [
               "path"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "choiceHistoryOnInput",
+            "id": "fragment.document-base-properties",
+            "field": "ChoiceHistoryOnInput",
             "differences": [
               "path"
             ]
@@ -40275,19 +40275,19 @@
         "matchCount": 2,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "toolTip",
+            "differences": [
+              "path",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "ToolTip",
             "differences": [
               "path",
               "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "toolTip",
-            "differences": [
-              "path",
               "bindings"
             ]
           }
@@ -40305,6 +40305,15 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "parameters",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
@@ -40315,15 +40324,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -40339,6 +40339,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -40347,13 +40354,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Comment",
             "differences": [
               "path"
@@ -40412,6 +40412,14 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
@@ -40423,16 +40431,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "parameters",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -40449,6 +40447,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -40457,13 +40462,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Comment",
             "differences": [
               "path"
@@ -40477,6 +40475,14 @@
         "matchCount": 4,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "type",
+            "differences": [
+              "path",
+              "parameters"
+            ]
+          },
+          {
             "id": "metadata.defined-type-extension",
             "field": "type",
             "differences": [
@@ -40489,14 +40495,6 @@
             "field": "type",
             "differences": [
               "path"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "type",
-            "differences": [
-              "path",
-              "parameters"
             ]
           }
         ]
@@ -40551,19 +40549,19 @@
         "matchCount": 2,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "toolTip",
+            "differences": [
+              "path",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "ToolTip",
             "differences": [
               "path",
               "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "toolTip",
-            "differences": [
-              "path",
               "bindings"
             ]
           }
@@ -40685,6 +40683,15 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "parameters",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
@@ -40695,15 +40702,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -40719,6 +40717,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -40727,13 +40732,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Comment",
             "differences": [
               "path"
@@ -40762,6 +40760,15 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "parameters",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
@@ -40772,15 +40779,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -40796,6 +40794,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -40804,13 +40809,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Comment",
             "differences": [
               "path"
@@ -40851,16 +40849,16 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "CreateOnInput",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "createOnInput",
             "differences": [
               "path",
               "presence"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "createOnInput",
+            "id": "fragment.document-base-properties",
+            "field": "CreateOnInput",
             "differences": [
               "path",
               "presence"
@@ -40944,15 +40942,15 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "ChoiceHistoryOnInput",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "choiceHistoryOnInput",
             "differences": [
               "path"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "choiceHistoryOnInput",
+            "id": "fragment.document-base-properties",
+            "field": "ChoiceHistoryOnInput",
             "differences": [
               "path"
             ]
@@ -41075,15 +41073,15 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "FullTextSearch",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "fullTextSearch",
             "differences": [
               "path"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "fullTextSearch",
+            "id": "fragment.document-base-properties",
+            "field": "FullTextSearch",
             "differences": [
               "path"
             ]
@@ -41203,18 +41201,18 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "DataHistory",
-            "differences": [
-              "path"
-            ]
-          },
-          {
             "id": "candidate.collection.item.0b7deec0b19f078e07e9",
             "field": "dataHistory",
             "differences": [
               "path",
               "presence"
+            ]
+          },
+          {
+            "id": "fragment.document-base-properties",
+            "field": "DataHistory",
+            "differences": [
+              "path"
             ]
           }
         ]
@@ -41423,6 +41421,14 @@
         "matchCount": 4,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "type",
+            "differences": [
+              "path",
+              "parameters"
+            ]
+          },
+          {
             "id": "metadata.defined-type-extension",
             "field": "type",
             "differences": [
@@ -41435,14 +41441,6 @@
             "field": "type",
             "differences": [
               "path"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "type",
-            "differences": [
-              "path",
-              "parameters"
             ]
           }
         ]
@@ -41599,8 +41597,8 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.command-base-properties",
-            "field": "ToolTip",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "toolTip",
             "differences": [
               "path",
               "xmlPresence",
@@ -41608,8 +41606,8 @@
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "toolTip",
+            "id": "fragment.command-base-properties",
+            "field": "ToolTip",
             "differences": [
               "path",
               "xmlPresence",
@@ -41759,6 +41757,15 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "parameters",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
@@ -41769,15 +41776,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -41847,6 +41845,15 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "parameters",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
@@ -41857,15 +41864,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -41881,6 +41879,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -41889,13 +41894,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Comment",
             "differences": [
               "path"
@@ -42161,16 +42159,16 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "CreateOnInput",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "createOnInput",
             "differences": [
               "path",
               "presence"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "createOnInput",
+            "id": "fragment.document-base-properties",
+            "field": "CreateOnInput",
             "differences": [
               "path",
               "presence"
@@ -42184,15 +42182,15 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "ChoiceHistoryOnInput",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "choiceHistoryOnInput",
             "differences": [
               "path"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "choiceHistoryOnInput",
+            "id": "fragment.document-base-properties",
+            "field": "ChoiceHistoryOnInput",
             "differences": [
               "path"
             ]
@@ -42247,15 +42245,15 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "FullTextSearch",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "fullTextSearch",
             "differences": [
               "path"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "fullTextSearch",
+            "id": "fragment.document-base-properties",
+            "field": "FullTextSearch",
             "differences": [
               "path"
             ]
@@ -42375,18 +42373,18 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "DataHistory",
-            "differences": [
-              "path"
-            ]
-          },
-          {
             "id": "candidate.collection.item.0b7deec0b19f078e07e9",
             "field": "dataHistory",
             "differences": [
               "path",
               "presence"
+            ]
+          },
+          {
+            "id": "fragment.document-base-properties",
+            "field": "DataHistory",
+            "differences": [
+              "path"
             ]
           }
         ]
@@ -42517,15 +42515,15 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "FullTextSearch",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "fullTextSearch",
             "differences": [
               "path"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "fullTextSearch",
+            "id": "fragment.document-base-properties",
+            "field": "FullTextSearch",
             "differences": [
               "path"
             ]
@@ -42559,6 +42557,15 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "parameters",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
@@ -42569,15 +42576,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -42593,6 +42591,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -42601,13 +42606,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Comment",
             "differences": [
               "path"
@@ -42732,16 +42730,16 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "FullTextSearch",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "fullTextSearch",
             "differences": [
               "path",
               "presence"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "fullTextSearch",
+            "id": "fragment.document-base-properties",
+            "field": "FullTextSearch",
             "differences": [
               "path",
               "presence"
@@ -42854,18 +42852,18 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "DataHistory",
-            "differences": [
-              "path"
-            ]
-          },
-          {
             "id": "candidate.collection.item.0b7deec0b19f078e07e9",
             "field": "dataHistory",
             "differences": [
               "path",
               "presence"
+            ]
+          },
+          {
+            "id": "fragment.document-base-properties",
+            "field": "DataHistory",
+            "differences": [
+              "path"
             ]
           }
         ]
@@ -42928,6 +42926,15 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "parameters",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
@@ -42938,15 +42945,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -43072,6 +43070,15 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "parameters",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
@@ -43082,15 +43089,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -43106,6 +43104,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -43114,13 +43119,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Comment",
             "differences": [
               "path"
@@ -43226,6 +43224,15 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "parameters",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
@@ -43236,15 +43243,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -43260,6 +43258,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -43268,13 +43273,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Comment",
             "differences": [
               "path"
@@ -43422,6 +43420,15 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "parameters",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
@@ -43432,15 +43439,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -43456,6 +43454,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -43468,13 +43473,6 @@
             "differences": [
               "path"
             ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
           }
         ]
       },
@@ -43483,6 +43481,15 @@
         "field": "type",
         "matchCount": 4,
         "reviewTargets": [
+          {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence",
+              "parameters"
+            ]
+          },
           {
             "id": "metadata.defined-type-extension",
             "field": "type",
@@ -43497,15 +43504,6 @@
             "differences": [
               "path",
               "xmlPresence"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "type",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "parameters"
             ]
           }
         ]
@@ -43601,15 +43599,15 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "FullTextSearch",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "fullTextSearch",
             "differences": [
               "path"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "fullTextSearch",
+            "id": "fragment.document-base-properties",
+            "field": "FullTextSearch",
             "differences": [
               "path"
             ]
@@ -43622,18 +43620,18 @@
         "matchCount": 2,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "dataHistory",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.document-base-properties",
             "field": "DataHistory",
             "differences": [
               "path",
               "presence"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "dataHistory",
-            "differences": [
-              "path"
             ]
           }
         ]
@@ -43643,6 +43641,15 @@
         "field": "synonym",
         "matchCount": 9,
         "reviewTargets": [
+          {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "parameters",
+              "bindings"
+            ]
+          },
           {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
@@ -43654,15 +43661,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -43678,6 +43676,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -43686,13 +43691,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Comment",
             "differences": [
               "path"
@@ -43823,18 +43821,18 @@
         "matchCount": 2,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "createOnInput",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.document-base-properties",
             "field": "CreateOnInput",
             "differences": [
               "path",
               "presence"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "createOnInput",
-            "differences": [
-              "path"
             ]
           }
         ]
@@ -44019,19 +44017,19 @@
         "matchCount": 2,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "toolTip",
+            "differences": [
+              "path",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "ToolTip",
             "differences": [
               "path",
               "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "toolTip",
-            "differences": [
-              "path",
               "bindings"
             ]
           }
@@ -44043,6 +44041,15 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "parameters",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
@@ -44053,15 +44060,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -44077,6 +44075,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -44085,13 +44090,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Comment",
             "differences": [
               "path"
@@ -44133,6 +44131,15 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "parameters",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
@@ -44143,15 +44150,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -44167,6 +44165,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -44175,13 +44180,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Comment",
             "differences": [
               "path"
@@ -44333,6 +44331,15 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "parameters",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
@@ -44343,15 +44350,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -44524,19 +44522,19 @@
         "matchCount": 2,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "createOnInput",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          },
+          {
             "id": "fragment.document-base-properties",
             "field": "CreateOnInput",
             "differences": [
               "path",
               "presence",
-              "xmlPresence"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "createOnInput",
-            "differences": [
-              "path",
               "xmlPresence"
             ]
           }
@@ -44548,16 +44546,16 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "ChoiceHistoryOnInput",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "choiceHistoryOnInput",
             "differences": [
               "path",
               "xmlPresence"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "choiceHistoryOnInput",
+            "id": "fragment.document-base-properties",
+            "field": "ChoiceHistoryOnInput",
             "differences": [
               "path",
               "xmlPresence"
@@ -44601,16 +44599,16 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "FullTextSearch",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "fullTextSearch",
             "differences": [
               "path",
               "xmlPresence"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "fullTextSearch",
+            "id": "fragment.document-base-properties",
+            "field": "FullTextSearch",
             "differences": [
               "path",
               "xmlPresence"
@@ -44639,19 +44637,19 @@
         "matchCount": 2,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "dataHistory",
+            "differences": [
+              "path",
+              "xmlPresence"
+            ]
+          },
+          {
             "id": "fragment.document-base-properties",
             "field": "DataHistory",
             "differences": [
               "path",
               "presence",
-              "xmlPresence"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "dataHistory",
-            "differences": [
-              "path",
               "xmlPresence"
             ]
           }
@@ -44699,6 +44697,15 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "parameters",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
@@ -44709,15 +44716,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -44733,6 +44731,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -44741,13 +44746,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Comment",
             "differences": [
               "path"
@@ -44823,19 +44821,19 @@
         "matchCount": 2,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "toolTip",
+            "differences": [
+              "path",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "ToolTip",
             "differences": [
               "path",
               "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "toolTip",
-            "differences": [
-              "path",
               "bindings"
             ]
           }
@@ -44985,15 +44983,15 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "FullTextSearch",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "fullTextSearch",
             "differences": [
               "path"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "fullTextSearch",
+            "id": "fragment.document-base-properties",
+            "field": "FullTextSearch",
             "differences": [
               "path"
             ]
@@ -45229,19 +45227,19 @@
         "matchCount": 2,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "toolTip",
+            "differences": [
+              "path",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "ToolTip",
             "differences": [
               "path",
               "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "toolTip",
-            "differences": [
-              "path",
               "bindings"
             ]
           }
@@ -45476,6 +45474,15 @@
         "matchCount": 12,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence",
+              "parameters"
+            ]
+          },
+          {
             "id": "metadata.defined-type-extension",
             "field": "type",
             "differences": [
@@ -45489,15 +45496,6 @@
             "differences": [
               "path",
               "xmlPresence"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "type",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "parameters"
             ]
           }
         ]
@@ -45750,18 +45748,18 @@
         "matchCount": 2,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "dataHistory",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.document-base-properties",
             "field": "DataHistory",
             "differences": [
               "path",
               "presence"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "dataHistory",
-            "differences": [
-              "path"
             ]
           }
         ]
@@ -45822,6 +45820,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -45830,13 +45835,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Comment",
             "differences": [
               "path"
@@ -45862,6 +45860,15 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "parameters",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
@@ -45872,15 +45879,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -45896,6 +45894,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -45904,13 +45909,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Comment",
             "differences": [
               "path"
@@ -45985,15 +45983,15 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "ChoiceHistoryOnInput",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "choiceHistoryOnInput",
             "differences": [
               "path"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "choiceHistoryOnInput",
+            "id": "fragment.document-base-properties",
+            "field": "ChoiceHistoryOnInput",
             "differences": [
               "path"
             ]
@@ -46075,18 +46073,18 @@
         "matchCount": 2,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "createOnInput",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.document-base-properties",
             "field": "CreateOnInput",
             "differences": [
               "path",
               "presence"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "createOnInput",
-            "differences": [
-              "path"
             ]
           }
         ]
@@ -46117,15 +46115,15 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "ChoiceHistoryOnInput",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "choiceHistoryOnInput",
             "differences": [
               "path"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "choiceHistoryOnInput",
+            "id": "fragment.document-base-properties",
+            "field": "ChoiceHistoryOnInput",
             "differences": [
               "path"
             ]
@@ -46252,6 +46250,15 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "parameters",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
@@ -46262,15 +46269,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -46286,6 +46284,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -46294,13 +46299,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Comment",
             "differences": [
               "path"
@@ -46431,16 +46429,16 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "FullTextSearch",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "fullTextSearch",
             "differences": [
               "path",
               "presence"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "fullTextSearch",
+            "id": "fragment.document-base-properties",
+            "field": "FullTextSearch",
             "differences": [
               "path",
               "presence"
@@ -46553,6 +46551,15 @@
         "matchCount": 12,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence",
+              "parameters"
+            ]
+          },
+          {
             "id": "metadata.defined-type-extension",
             "field": "type",
             "differences": [
@@ -46566,15 +46573,6 @@
             "differences": [
               "path",
               "xmlPresence"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "type",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "parameters"
             ]
           }
         ]
@@ -46721,6 +46719,15 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "parameters",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
@@ -46731,15 +46738,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -46755,6 +46753,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -46763,13 +46768,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Comment",
             "differences": [
               "path"
@@ -46873,8 +46871,8 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.command-base-properties",
-            "field": "ToolTip",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "toolTip",
             "differences": [
               "path",
               "xmlPresence",
@@ -46882,8 +46880,8 @@
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "toolTip",
+            "id": "fragment.command-base-properties",
+            "field": "ToolTip",
             "differences": [
               "path",
               "xmlPresence",
@@ -46898,6 +46896,16 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "presence",
+              "parameters",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
@@ -46910,17 +46918,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "presence",
-              "xmlPresence",
-              "parameters",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -46950,8 +46947,8 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.command-base-properties",
-            "field": "ToolTip",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "toolTip",
             "differences": [
               "path",
               "xmlPresence",
@@ -46959,8 +46956,8 @@
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "toolTip",
+            "id": "fragment.command-base-properties",
+            "field": "ToolTip",
             "differences": [
               "path",
               "xmlPresence",
@@ -47043,6 +47040,14 @@
         "matchCount": 4,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "type",
+            "differences": [
+              "path",
+              "parameters"
+            ]
+          },
+          {
             "id": "metadata.defined-type-extension",
             "field": "type",
             "differences": [
@@ -47055,14 +47060,6 @@
             "field": "type",
             "differences": [
               "path"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "type",
-            "differences": [
-              "path",
-              "parameters"
             ]
           }
         ]
@@ -47117,19 +47114,19 @@
         "matchCount": 2,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "toolTip",
+            "differences": [
+              "path",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "ToolTip",
             "differences": [
               "path",
               "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "toolTip",
-            "differences": [
-              "path",
               "bindings"
             ]
           }
@@ -47237,8 +47234,8 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.command-base-properties",
-            "field": "ToolTip",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "toolTip",
             "differences": [
               "path",
               "xmlPresence",
@@ -47246,8 +47243,8 @@
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "toolTip",
+            "id": "fragment.command-base-properties",
+            "field": "ToolTip",
             "differences": [
               "path",
               "xmlPresence",
@@ -47282,15 +47279,15 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "FullTextSearch",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "fullTextSearch",
             "differences": [
               "path"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "fullTextSearch",
+            "id": "fragment.document-base-properties",
+            "field": "FullTextSearch",
             "differences": [
               "path"
             ]
@@ -47303,18 +47300,18 @@
         "matchCount": 2,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "dataHistory",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.document-base-properties",
             "field": "DataHistory",
             "differences": [
               "path",
               "presence"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "dataHistory",
-            "differences": [
-              "path"
             ]
           }
         ]
@@ -47349,6 +47346,15 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "parameters",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
@@ -47359,15 +47365,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -47383,6 +47380,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -47391,13 +47395,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Comment",
             "differences": [
               "path"
@@ -47423,6 +47420,15 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "parameters",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
@@ -47433,15 +47439,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -47471,6 +47468,15 @@
         "matchCount": 4,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence",
+              "parameters"
+            ]
+          },
+          {
             "id": "metadata.defined-type-extension",
             "field": "type",
             "differences": [
@@ -47484,15 +47490,6 @@
             "differences": [
               "path",
               "xmlPresence"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "type",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "parameters"
             ]
           }
         ]
@@ -47630,18 +47627,18 @@
         "matchCount": 2,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "createOnInput",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.document-base-properties",
             "field": "CreateOnInput",
             "differences": [
               "path",
               "presence"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "createOnInput",
-            "differences": [
-              "path"
             ]
           }
         ]
@@ -47652,15 +47649,15 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "ChoiceHistoryOnInput",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "choiceHistoryOnInput",
             "differences": [
               "path"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "choiceHistoryOnInput",
+            "id": "fragment.document-base-properties",
+            "field": "ChoiceHistoryOnInput",
             "differences": [
               "path"
             ]
@@ -47699,15 +47696,15 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "FullTextSearch",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "fullTextSearch",
             "differences": [
               "path"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "fullTextSearch",
+            "id": "fragment.document-base-properties",
+            "field": "FullTextSearch",
             "differences": [
               "path"
             ]
@@ -47764,6 +47761,15 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "parameters",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
@@ -47774,15 +47780,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -47798,6 +47795,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -47806,13 +47810,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Comment",
             "differences": [
               "path"
@@ -47859,6 +47856,15 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "parameters",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
@@ -47869,15 +47875,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -47893,6 +47890,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -47901,13 +47905,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Comment",
             "differences": [
               "path"
@@ -48055,15 +48052,15 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "ChoiceHistoryOnInput",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "choiceHistoryOnInput",
             "differences": [
               "path"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "choiceHistoryOnInput",
+            "id": "fragment.document-base-properties",
+            "field": "ChoiceHistoryOnInput",
             "differences": [
               "path"
             ]
@@ -48148,6 +48145,15 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "parameters",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
@@ -48158,15 +48164,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -48182,6 +48179,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -48190,13 +48194,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Comment",
             "differences": [
               "path"
@@ -48238,19 +48235,19 @@
         "matchCount": 2,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "toolTip",
+            "differences": [
+              "path",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "ToolTip",
             "differences": [
               "path",
               "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "toolTip",
-            "differences": [
-              "path",
               "bindings"
             ]
           }
@@ -48297,18 +48294,18 @@
         "matchCount": 2,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "dataHistory",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.document-base-properties",
             "field": "DataHistory",
             "differences": [
               "path",
               "presence"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "dataHistory",
-            "differences": [
-              "path"
             ]
           }
         ]
@@ -48331,8 +48328,8 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.command-base-properties",
-            "field": "ToolTip",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "toolTip",
             "differences": [
               "path",
               "xmlPresence",
@@ -48340,8 +48337,8 @@
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "toolTip",
+            "id": "fragment.command-base-properties",
+            "field": "ToolTip",
             "differences": [
               "path",
               "xmlPresence",
@@ -48374,6 +48371,15 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "parameters",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
@@ -48384,15 +48390,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -48408,6 +48405,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -48416,13 +48420,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Comment",
             "differences": [
               "path"
@@ -48517,16 +48514,16 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "FullTextSearch",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "fullTextSearch",
             "differences": [
               "path",
               "presence"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "fullTextSearch",
+            "id": "fragment.document-base-properties",
+            "field": "FullTextSearch",
             "differences": [
               "path",
               "presence"
@@ -48670,6 +48667,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -48678,13 +48682,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Comment",
             "differences": [
               "path"
@@ -48804,15 +48801,15 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "ChoiceHistoryOnInput",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "choiceHistoryOnInput",
             "differences": [
               "path"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "choiceHistoryOnInput",
+            "id": "fragment.document-base-properties",
+            "field": "ChoiceHistoryOnInput",
             "differences": [
               "path"
             ]
@@ -48837,6 +48834,15 @@
         "matchCount": 4,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence",
+              "parameters"
+            ]
+          },
+          {
             "id": "metadata.defined-type-extension",
             "field": "type",
             "differences": [
@@ -48850,15 +48856,6 @@
             "differences": [
               "path",
               "xmlPresence"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "type",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "parameters"
             ]
           }
         ]
@@ -48913,19 +48910,19 @@
         "matchCount": 2,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "toolTip",
+            "differences": [
+              "path",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "ToolTip",
             "differences": [
               "path",
               "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "toolTip",
-            "differences": [
-              "path",
               "bindings"
             ]
           }
@@ -49119,18 +49116,18 @@
         "matchCount": 2,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "createOnInput",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.document-base-properties",
             "field": "CreateOnInput",
             "differences": [
               "path",
               "presence"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "createOnInput",
-            "differences": [
-              "path"
             ]
           }
         ]
@@ -49169,15 +49166,15 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "ChoiceHistoryOnInput",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "choiceHistoryOnInput",
             "differences": [
               "path"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "choiceHistoryOnInput",
+            "id": "fragment.document-base-properties",
+            "field": "ChoiceHistoryOnInput",
             "differences": [
               "path"
             ]
@@ -49258,15 +49255,15 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "FullTextSearch",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "fullTextSearch",
             "differences": [
               "path"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "fullTextSearch",
+            "id": "fragment.document-base-properties",
+            "field": "FullTextSearch",
             "differences": [
               "path"
             ]
@@ -49279,18 +49276,18 @@
         "matchCount": 2,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "dataHistory",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.document-base-properties",
             "field": "DataHistory",
             "differences": [
               "path",
               "presence"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "dataHistory",
-            "differences": [
-              "path"
             ]
           }
         ]
@@ -49611,6 +49608,15 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "parameters",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
@@ -49621,15 +49627,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -49645,6 +49642,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -49653,13 +49657,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Comment",
             "differences": [
               "path"
@@ -49852,6 +49849,15 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "parameters",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
@@ -49862,15 +49868,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -49886,6 +49883,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -49894,13 +49898,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Comment",
             "differences": [
               "path"
@@ -50070,8 +50067,8 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.command-base-properties",
-            "field": "ToolTip",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "toolTip",
             "differences": [
               "path",
               "xmlPresence",
@@ -50079,8 +50076,8 @@
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "toolTip",
+            "id": "fragment.command-base-properties",
+            "field": "ToolTip",
             "differences": [
               "path",
               "xmlPresence",
@@ -50137,6 +50134,15 @@
         "matchCount": 12,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence",
+              "parameters"
+            ]
+          },
+          {
             "id": "metadata.defined-type-extension",
             "field": "type",
             "differences": [
@@ -50151,15 +50157,6 @@
               "path",
               "xmlPresence"
             ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "type",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "parameters"
-            ]
           }
         ]
       },
@@ -50168,6 +50165,15 @@
         "field": "synonym",
         "matchCount": 9,
         "reviewTargets": [
+          {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "parameters",
+              "bindings"
+            ]
+          },
           {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
@@ -50179,15 +50185,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -50309,6 +50306,15 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "parameters",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
@@ -50319,15 +50325,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -50343,6 +50340,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -50351,13 +50355,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Comment",
             "differences": [
               "path"
@@ -50431,6 +50428,15 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "parameters",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
@@ -50441,15 +50447,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -50465,6 +50462,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -50473,13 +50477,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Comment",
             "differences": [
               "path"
@@ -50499,6 +50496,17 @@
         "matchCount": 4,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "type",
+            "differences": [
+              "path",
+              "presence",
+              "xmlPresence",
+              "parameters",
+              "constraints"
+            ]
+          },
+          {
             "id": "metadata.defined-type-extension",
             "field": "type",
             "differences": [
@@ -50515,17 +50523,6 @@
               "path",
               "presence",
               "xmlPresence",
-              "constraints"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "type",
-            "differences": [
-              "path",
-              "presence",
-              "xmlPresence",
-              "parameters",
               "constraints"
             ]
           }
@@ -50597,6 +50594,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -50605,13 +50609,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Comment",
             "differences": [
               "path"
@@ -50681,19 +50678,19 @@
         "matchCount": 2,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "toolTip",
+            "differences": [
+              "path",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "ToolTip",
             "differences": [
               "path",
               "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "toolTip",
-            "differences": [
-              "path",
               "bindings"
             ]
           }
@@ -50711,16 +50708,16 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "ChoiceHistoryOnInput",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "choiceHistoryOnInput",
             "differences": [
               "path",
               "xmlPresence"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "choiceHistoryOnInput",
+            "id": "fragment.document-base-properties",
+            "field": "ChoiceHistoryOnInput",
             "differences": [
               "path",
               "xmlPresence"
@@ -50782,16 +50779,16 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "CreateOnInput",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "createOnInput",
             "differences": [
               "path",
               "presence"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "createOnInput",
+            "id": "fragment.document-base-properties",
+            "field": "CreateOnInput",
             "differences": [
               "path",
               "presence"
@@ -50839,15 +50836,15 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "ChoiceHistoryOnInput",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "choiceHistoryOnInput",
             "differences": [
               "path"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "choiceHistoryOnInput",
+            "id": "fragment.document-base-properties",
+            "field": "ChoiceHistoryOnInput",
             "differences": [
               "path"
             ]
@@ -50948,15 +50945,15 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "FullTextSearch",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "fullTextSearch",
             "differences": [
               "path"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "fullTextSearch",
+            "id": "fragment.document-base-properties",
+            "field": "FullTextSearch",
             "differences": [
               "path"
             ]
@@ -51076,18 +51073,18 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "DataHistory",
-            "differences": [
-              "path"
-            ]
-          },
-          {
             "id": "candidate.collection.item.0b7deec0b19f078e07e9",
             "field": "dataHistory",
             "differences": [
               "path",
               "presence"
+            ]
+          },
+          {
+            "id": "fragment.document-base-properties",
+            "field": "DataHistory",
+            "differences": [
+              "path"
             ]
           }
         ]
@@ -51382,6 +51379,15 @@
         "matchCount": 12,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence",
+              "parameters"
+            ]
+          },
+          {
             "id": "metadata.defined-type-extension",
             "field": "type",
             "differences": [
@@ -51395,15 +51401,6 @@
             "differences": [
               "path",
               "xmlPresence"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "type",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "parameters"
             ]
           }
         ]
@@ -51477,6 +51474,14 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
@@ -51488,16 +51493,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "parameters",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -51514,6 +51509,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -51522,13 +51524,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Comment",
             "differences": [
               "path"
@@ -51542,19 +51537,19 @@
         "matchCount": 2,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "toolTip",
+            "differences": [
+              "path",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "ToolTip",
             "differences": [
               "path",
               "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "toolTip",
-            "differences": [
-              "path",
               "bindings"
             ]
           }
@@ -51803,16 +51798,16 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "CreateOnInput",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "createOnInput",
             "differences": [
               "path",
               "presence"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "createOnInput",
+            "id": "fragment.document-base-properties",
+            "field": "CreateOnInput",
             "differences": [
               "path",
               "presence"
@@ -51862,15 +51857,15 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "ChoiceHistoryOnInput",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "choiceHistoryOnInput",
             "differences": [
               "path"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "choiceHistoryOnInput",
+            "id": "fragment.document-base-properties",
+            "field": "ChoiceHistoryOnInput",
             "differences": [
               "path"
             ]
@@ -51925,15 +51920,15 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "FullTextSearch",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "fullTextSearch",
             "differences": [
               "path"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "fullTextSearch",
+            "id": "fragment.document-base-properties",
+            "field": "FullTextSearch",
             "differences": [
               "path"
             ]
@@ -52053,18 +52048,18 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "DataHistory",
-            "differences": [
-              "path"
-            ]
-          },
-          {
             "id": "candidate.collection.item.0b7deec0b19f078e07e9",
             "field": "dataHistory",
             "differences": [
               "path",
               "presence"
+            ]
+          },
+          {
+            "id": "fragment.document-base-properties",
+            "field": "DataHistory",
+            "differences": [
+              "path"
             ]
           }
         ]
@@ -52423,16 +52418,16 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "CreateOnInput",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "createOnInput",
             "differences": [
               "path",
               "presence"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "createOnInput",
+            "id": "fragment.document-base-properties",
+            "field": "CreateOnInput",
             "differences": [
               "path",
               "presence"
@@ -52446,15 +52441,15 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "ChoiceHistoryOnInput",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "choiceHistoryOnInput",
             "differences": [
               "path"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "choiceHistoryOnInput",
+            "id": "fragment.document-base-properties",
+            "field": "ChoiceHistoryOnInput",
             "differences": [
               "path"
             ]
@@ -52577,15 +52572,15 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "FullTextSearch",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "fullTextSearch",
             "differences": [
               "path"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "fullTextSearch",
+            "id": "fragment.document-base-properties",
+            "field": "FullTextSearch",
             "differences": [
               "path"
             ]
@@ -52705,18 +52700,18 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "DataHistory",
-            "differences": [
-              "path"
-            ]
-          },
-          {
             "id": "candidate.collection.item.0b7deec0b19f078e07e9",
             "field": "dataHistory",
             "differences": [
               "path",
               "presence"
+            ]
+          },
+          {
+            "id": "fragment.document-base-properties",
+            "field": "DataHistory",
+            "differences": [
+              "path"
             ]
           }
         ]
@@ -52761,6 +52756,15 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "parameters",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
@@ -52772,16 +52776,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "parameters",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -52972,6 +52966,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -52980,13 +52981,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Comment",
             "differences": [
               "path"
@@ -53115,6 +53109,15 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "parameters",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
@@ -53125,15 +53128,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -53149,6 +53143,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -53157,13 +53158,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Comment",
             "differences": [
               "path"
@@ -53470,8 +53464,8 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.command-base-properties",
-            "field": "ToolTip",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "toolTip",
             "differences": [
               "path",
               "xmlPresence",
@@ -53479,8 +53473,8 @@
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "toolTip",
+            "id": "fragment.command-base-properties",
+            "field": "ToolTip",
             "differences": [
               "path",
               "xmlPresence",
@@ -53501,6 +53495,15 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "parameters",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
@@ -53511,15 +53514,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -53535,6 +53529,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -53543,13 +53544,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Comment",
             "differences": [
               "path"
@@ -53968,6 +53962,14 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
@@ -53979,16 +53981,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "parameters",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -54005,6 +53997,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -54017,13 +54016,6 @@
             "differences": [
               "path"
             ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
           }
         ]
       },
@@ -54032,6 +54024,13 @@
         "field": "type",
         "matchCount": 4,
         "reviewTargets": [
+          {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "type",
+            "differences": [
+              "path"
+            ]
+          },
           {
             "id": "metadata.defined-type-extension",
             "field": "type",
@@ -54047,13 +54046,6 @@
             "differences": [
               "path",
               "parameters"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "type",
-            "differences": [
-              "path"
             ]
           }
         ]
@@ -54108,19 +54100,19 @@
         "matchCount": 2,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "toolTip",
+            "differences": [
+              "path",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "ToolTip",
             "differences": [
               "path",
               "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "toolTip",
-            "differences": [
-              "path",
               "bindings"
             ]
           }
@@ -54240,6 +54232,15 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "synonym",
+            "differences": [
+              "path",
+              "parameters",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Synonym",
             "differences": [
@@ -54250,15 +54251,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Synonym",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Synonym",
             "differences": [
               "path",
@@ -54274,6 +54266,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -54282,13 +54281,6 @@
           },
           {
             "id": "fragment.document-base-properties",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
             "field": "Comment",
             "differences": [
               "path"
@@ -54479,16 +54471,16 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "CreateOnInput",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "createOnInput",
             "differences": [
               "path",
               "presence"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "createOnInput",
+            "id": "fragment.document-base-properties",
+            "field": "CreateOnInput",
             "differences": [
               "path",
               "presence"
@@ -54502,15 +54494,15 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "ChoiceHistoryOnInput",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "choiceHistoryOnInput",
             "differences": [
               "path"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "choiceHistoryOnInput",
+            "id": "fragment.document-base-properties",
+            "field": "ChoiceHistoryOnInput",
             "differences": [
               "path"
             ]
@@ -54585,15 +54577,15 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "FullTextSearch",
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "fullTextSearch",
             "differences": [
               "path"
             ]
           },
           {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "fullTextSearch",
+            "id": "fragment.document-base-properties",
+            "field": "FullTextSearch",
             "differences": [
               "path"
             ]
@@ -54606,18 +54598,18 @@
         "matchCount": 2,
         "reviewTargets": [
           {
-            "id": "fragment.document-base-properties",
-            "field": "DataHistory",
-            "differences": [
-              "path"
-            ]
-          },
-          {
             "id": "candidate.collection.item.0b7deec0b19f078e07e9",
             "field": "dataHistory",
             "differences": [
               "path",
               "presence"
+            ]
+          },
+          {
+            "id": "fragment.document-base-properties",
+            "field": "DataHistory",
+            "differences": [
+              "path"
             ]
           }
         ]
@@ -54793,6 +54785,13 @@
         "matchCount": 9,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "comment",
+            "differences": [
+              "path"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "Comment",
             "differences": [
@@ -54805,13 +54804,6 @@
             "differences": [
               "path"
             ]
-          },
-          {
-            "id": "fragment.form-metadata-header",
-            "field": "Comment",
-            "differences": [
-              "path"
-            ]
           }
         ]
       },
@@ -54820,6 +54812,15 @@
         "field": "type",
         "matchCount": 4,
         "reviewTargets": [
+          {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "type",
+            "differences": [
+              "path",
+              "xmlPresence",
+              "parameters"
+            ]
+          },
           {
             "id": "metadata.defined-type-extension",
             "field": "type",
@@ -54834,15 +54835,6 @@
             "differences": [
               "path",
               "xmlPresence"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "type",
-            "differences": [
-              "path",
-              "xmlPresence",
-              "parameters"
             ]
           }
         ]
@@ -54897,19 +54889,19 @@
         "matchCount": 2,
         "reviewTargets": [
           {
+            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
+            "field": "toolTip",
+            "differences": [
+              "path",
+              "bindings"
+            ]
+          },
+          {
             "id": "fragment.command-base-properties",
             "field": "ToolTip",
             "differences": [
               "path",
               "xmlPresence",
-              "bindings"
-            ]
-          },
-          {
-            "id": "candidate.collection.item.0b7deec0b19f078e07e9",
-            "field": "toolTip",
-            "differences": [
-              "path",
               "bindings"
             ]
           }

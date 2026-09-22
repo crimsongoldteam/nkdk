@@ -129,3 +129,13 @@ pub(crate) fn instantiate(
     }
     Ok(())
 }
+
+/// Rebind a referenced value after its collection row is placed in a caller.
+/// Scalar profiles may have been specialized before that placement, so their
+/// captured input expressions still address the row's original slots.
+pub(crate) fn rebind_input_expressions(
+    entry: &mut LinkedEntry,
+    bindings: &[LinkedBinding],
+) -> Result<(), Diagnostic> {
+    composition::instantiate_value(entry, bindings, &[])
+}

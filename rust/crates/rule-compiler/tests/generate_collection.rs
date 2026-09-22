@@ -266,6 +266,48 @@ representations:
     let contextual_list_owner = choice_owner.replace("choice-list", "contextual-list")
         .replace("value:\n", "inputs:\n  unused: {type: {kind: scalar, scalar: boolean}}\n  owner: {type: {kind: scalar, scalar: text}}\nvalue:\n")
         .replace("type: {use: dictionary}", "type: {use: dictionary, bind: {prefix: {input: owner}}}");
+    let bound_rows = namespace_rows
+        .replace("namespace-rows", "bound-rows")
+        .replace("namespace-row", "bound-row")
+        .replace(
+            "value: {kind: sequence, item: {use: row}}",
+            "inputs: {prefix: {type: {kind: scalar, scalar: text}}}\nvalue: {kind: sequence, item: {use: row, bind: {prefix: {input: prefix}}}}",
+        );
+    let composed_rows = r#"format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: common.bound-row
+  imports: {link: common.contextual-text}
+  inputs: {prefix: {type: {kind: scalar, scalar: text}}}
+  value:
+    kind: record
+    fields:
+    - {name: name, type: {kind: scalar, scalar: text}}
+    - {name: link, type: {use: link, bind: {prefix: {input: prefix}}}}
+  representations:
+    xml: {kind: record, fields: [{field: name, path: [Name]}, {field: link, path: [Link]}]}
+    yaml: {kind: mapping, fields: [{field: name, key: Name}, {field: link, key: Link}]}
+- kind: fragment
+  id: fragment.bound-rows
+  imports: {rows: common.bound-rows}
+  inputs: {prefix: {type: {kind: scalar, scalar: text}}}
+  value: {kind: record, fields: [{name: rows, type: {use: rows, bind: {prefix: {input: prefix}}}}]}
+  representations:
+    xml: {kind: record, fields: [{field: rows, path: [Root, Entries]}]}
+    yaml: {kind: mapping, fields: [{field: rows, key: Entries}]}
+- kind: object
+  id: test.composed-bound-rows
+  imports: {fragment: fragment.bound-rows}
+  inputs:
+    unrelated: {type: {kind: scalar, scalar: boolean}}
+    prefix: {type: {kind: scalar, scalar: text}}
+  compose: [{use: fragment, bind: {prefix: {input: prefix}}}]
+  value: {kind: record, fields: [{name: marker, type: {kind: scalar, scalar: text}}]}
+  representations:
+    xml: {kind: record, fields: [{field: marker, path: [Root, Marker]}]}
+    yaml: {kind: mapping, fields: [{field: marker, key: Marker}]}
+"#;
 
     let short_first = contextual_text
         .replace("common.contextual-text", "common.short-first")
@@ -927,6 +969,14 @@ representations:
         path: "restored-owner.yaml",
         bytes: restored_owner.as_bytes(),
     });
+    sources.push(SourceFile {
+        path: "composed-bound-rows.yaml",
+        bytes: composed_rows.as_bytes(),
+    });
+    sources.push(SourceFile {
+        path: "bound-rows.yaml",
+        bytes: bound_rows.as_bytes(),
+    });
     let modules = sources
         .into_iter()
         .flat_map(|source| parse_many(source).unwrap())
@@ -967,6 +1017,26 @@ representations:
         assert!(error.iter().any(|error| error.code == code), "{error:?}");
     }
     let program = link(&modules).unwrap();
+    let bound_row = program
+        .entries
+        .iter()
+        .find(|entry| entry.name == "common.bound-row")
+        .unwrap();
+    let nkdk_rule_model::LinkedType::Record(bound_fields) = &bound_row.value else {
+        panic!("bound row")
+    };
+    let nkdk_rule_model::LinkedType::Reference(profile) = bound_fields[1].value else {
+        panic!("specialized link")
+    };
+    assert_eq!(
+        program
+            .entries
+            .iter()
+            .find(|entry| entry.id == profile)
+            .unwrap()
+            .input_scope,
+        Some(bound_row.id),
+    );
     let collection_id = program
         .entries
         .iter()
@@ -1610,6 +1680,21 @@ fn main() {
     let main = main.replacen(
         "fn main() {",
         "fn main() { independent_corpus(); profile_matrix(); { let entry=entry_id(\"test.default-container\").unwrap(); let inputs=read_inputs(entry,b\"{}\").unwrap(); let original=b\"<Root/>\"; let expected=b\"Entries: !xml/raw\\n  $xml: null\"; let result=convert_file(entry,Direction::XmlToYaml,original,&inputs).unwrap(); assert_eq!(result.bytes,expected); verify_candidate(entry,original,expected,&inputs).unwrap(); }",
+        1,
+    );
+    let main = main.replacen(
+        "fn main() {",
+        r#"fn main() {
+    {
+        let entry=entry_id("test.composed-bound-rows").unwrap();
+        let inputs=read_inputs(entry,b"unrelated: false\nprefix: Alice").unwrap();
+        let xml=b"<Root><Entries><Item><Name>first</Name><Link>Alice::x</Link></Item></Entries><Marker>ok</Marker></Root>";
+        let expected=b"Entries:\n  - Name: first\n    Link: x\nMarker: ok";
+        let actual=convert_file(entry,Direction::XmlToYaml,xml,&inputs).unwrap();
+        assert_eq!(actual.bytes,expected,"a composed row must use the caller's bound input slots");
+        verify_candidate(entry,xml,expected,&inputs).unwrap();
+    }
+"#,
         1,
     );
     fs::write(

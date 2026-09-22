@@ -165,6 +165,7 @@ fn build_entry(
     }
     let mut entry = LinkedEntry {
         id,
+        input_scope: None,
         field_dependencies: vec![],
         input_indexes: module.input_indexes.clone(),
         text_transforms: text::transforms(module),

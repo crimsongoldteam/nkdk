@@ -21,7 +21,7 @@ pub(super) fn generate_scoped(
     };
     format!(
         r#"
-fn xml_scalar_{id}(value:&V{id},path:&[core::xml::Name])->bool {{let _=(value,path);{scalar}}}
+#[allow(dead_code)] fn xml_scalar_{id}(value:&V{id},path:&[core::xml::Name])->bool {{let _=(value,path);{scalar}}}
 fn xml_qname_attribute_{id}(path:&[core::xml::Name],name:&core::xml::Name)->bool {{let _=(path,name);{attribute}}}
 fn xml_qname_text_{id}(path:&[core::xml::Name])->bool {{let _=path;{qname}}}
 fn prove_xml_{id}(value:&V{id},original:&[u8],restored:&[u8])->core::Result<()> {{{verify},xml_qname_attribute_{id},xml_qname_text_{id})}}

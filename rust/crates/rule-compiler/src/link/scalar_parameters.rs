@@ -104,6 +104,9 @@ pub(super) fn specialize(entries: &mut Vec<LinkedEntry>) -> Result<(), Diagnosti
                     instance
                 };
                 instance.id = next_id;
+                if !common.inputs.is_empty() {
+                    instance.input_scope = Some(owner.id);
+                }
                 next_id += 1;
                 instance.name = format!("{}@scalar-{}", common.name, instance.id);
                 while entries.iter().any(|entry| entry.name == instance.name) {

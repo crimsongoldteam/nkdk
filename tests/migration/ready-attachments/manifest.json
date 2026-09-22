@@ -13001,6 +13001,10 @@
   ],
   "declarationHashes": [
     {
+      "path": "rust/declarations/candidates/document-attributes.generated.yaml",
+      "sha256": "2bee1f4b346e015598882434676a701a0edc56da9f87a30197b93df99a6925aa"
+    },
+    {
       "path": "rust/declarations/common/additional-index-row.yaml",
       "sha256": "8a04decc9f2c123354b7041ca15108e3c9700b5bc189d3cd713b9598705c751d"
     },
@@ -13447,10 +13451,6 @@
     {
       "path": "rust/declarations/objects/defined-type.yaml",
       "sha256": "fdaa37b318eb95eaeeb4cf2a79874a33a1199714cc5631689cfba98d55eb9075"
-    },
-    {
-      "path": "rust/declarations/objects/document-attributes.generated.yaml",
-      "sha256": "2bee1f4b346e015598882434676a701a0edc56da9f87a30197b93df99a6925aa"
     },
     {
       "path": "rust/declarations/objects/enumeration-values.generated.yaml",

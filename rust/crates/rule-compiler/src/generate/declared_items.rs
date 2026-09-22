@@ -45,6 +45,60 @@ pub(super) fn generate_at(
         .clone();
     crate::link::sequence_item::instantiate(&mut common, bindings, arguments)?;
     let mut row = crate::link::sequence_item::resolve(&common, program)?.expect("referenced item");
+    // The row itself is rebound by resolve(), but scalar profiles referenced by
+    // its fields were specialized earlier, while the row still had its own
+    // input slots. Rebind those profiles in a local plan for this collection.
+    let row_bindings = match &common.value {
+        LinkedType::Sequence(item) => item.as_reference().map(|(_, bindings, _)| bindings),
+        _ => None,
+    };
+    let mut scoped_program = None;
+    if let Some(bindings) = row_bindings.filter(|bindings| {
+        let shifted = bindings.iter().any(|binding| {
+            !matches!(binding.value.kind, LinkedExpressionKind::Input(slot) if slot == binding.slot)
+        });
+        shifted && matches!(&row.value, LinkedType::Record(fields) if fields.iter().any(|field| {
+            matches!(field.value, LinkedType::Reference(id) if program.entries.iter().any(|target| target.id == id && target.input_scope == Some(row.id)))
+        }))
+    }) {
+        let mut linked = nkdk_rule_model::Program {
+            entries: program.entries.clone(),
+        };
+        if let LinkedType::Record(fields) = &row.value {
+            let mut seen = BTreeSet::new();
+            for field in fields {
+                let LinkedType::Reference(id) = field.value else {
+                    continue;
+                };
+                if !seen.insert(id) {
+                    continue;
+                }
+                let Some(target) = linked.entries.iter_mut().find(|target| target.id == id) else {
+                    continue;
+                };
+                if target.input_scope == Some(row.id) {
+                    let mut candidate = target.clone();
+                    match crate::link::sequence_item::rebind_input_expressions(
+                        &mut candidate,
+                        bindings,
+                    ) {
+                        Ok(()) => *target = candidate,
+                        // A referenced contract can already be bound to an
+                        // enclosing scope; its slots do not belong to this row.
+                        Err(error) if error.code == "missing_input_binding" => {}
+                        Err(error) => return Err(error),
+                    }
+                }
+            }
+        }
+        scoped_program = Some(linked);
+    }
+    let scoped_plan = scoped_program
+        .as_ref()
+        .map(crate::plan::build)
+        .transpose()
+        .map_err(|errors| errors.into_iter().next().expect("plan diagnostic"))?;
+    let row_program = scoped_plan.as_ref().unwrap_or(program);
     // Bound expressions now address the caller's slots. Captures of the row's
     // own fields must be appended after them, never overwrite those slots.
     row.inputs = entry.inputs.clone();
@@ -93,9 +147,9 @@ pub(super) fn generate_at(
         }
     };
     let flat_mapping_item = matches!(&row.value, LinkedType::Record(fields)
-        if fields.iter().all(|field| super::scalar::Codec::resolve(&field.value, &row, program).is_ok()));
+        if fields.iter().all(|field| super::scalar::Codec::resolve(&field.value, &row, row_program).is_ok()));
     let structured_scalar_item = matches!(&row.value, LinkedType::Record(fields)
-        if fields.iter().any(|field| matches!(super::scalar::Codec::resolve(&field.value, &row, program), Ok(super::scalar::Codec::Forms(_) | super::scalar::Codec::Pattern(_)))));
+        if fields.iter().any(|field| matches!(super::scalar::Codec::resolve(&field.value, &row, row_program), Ok(super::scalar::Codec::Forms(_) | super::scalar::Codec::Pattern(_)))));
     let compact_mapping_item = !root_yaml
         && matches!(row.yaml, YamlRepresentation::Mapping(_))
         && !super::value_record::is_recursive(&row.name)
@@ -219,7 +273,7 @@ pub(super) fn generate_at(
     } else {
         None
     };
-    let body = super::value_record::generate(&row, program, &route, lifted.clone())?;
+    let body = super::value_record::generate(&row, row_program, &route, lifted.clone())?;
     let mut presence = collection_presence::override_for(&common, entry, bindings, arguments)?
         .unwrap_or(common.clone());
     presence.value = LinkedType::Sequence(Box::new(row.value.clone()));
