@@ -13449,8 +13449,12 @@
       "sha256": "fdaa37b318eb95eaeeb4cf2a79874a33a1199714cc5631689cfba98d55eb9075"
     },
     {
+      "path": "rust/declarations/objects/document-attributes.generated.yaml",
+      "sha256": "2bee1f4b346e015598882434676a701a0edc56da9f87a30197b93df99a6925aa"
+    },
+    {
       "path": "rust/declarations/objects/enumeration-values.generated.yaml",
-      "sha256": "74fe9b88cc01b3f6aa8d2fb15776a36add10fa71299a8e86fa720cc7661544b1"
+      "sha256": "0d75a3e71120c26cedae8c0cec01a0a29315d65585ea3d48efac4c4d3584f18f"
     },
     {
       "path": "rust/declarations/probes/additional-indexes-owner.yaml",

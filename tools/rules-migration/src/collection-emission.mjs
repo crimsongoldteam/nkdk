@@ -3,10 +3,16 @@ import {mapProperty} from './mappings.mjs';
 import {bindSiblingExpressions,mergeMappedInputs} from './common-inputs.mjs';
 import {prepareCollectionProperty} from './collection-property.mjs';
 const id=(role,value)=>`candidate.collection.${role}.${createHash('sha256').update(JSON.stringify(value)).digest('hex').slice(0,20)}`;
+const yamlCollator=new Intl.Collator('ru');
+const yamlPriority=key=>key==='Заголовок'||key==='Синоним'?0:key==='Вид'?1:key==='Тип'?2:3;
+const compareYamlKeys=(left,right)=>yamlPriority(left)-yamlPriority(right)||yamlCollator.compare(left,right);
 
 // Emit complete element rules only. Property projections cannot stand in for an element.
 export function emitCollections(graph,entries,catalog,namespaces={},options={}) {
   const modules=[],results=[];
+  const defaultPrefix=options.defaultXmlNamespace;
+  if(defaultPrefix && typeof namespaces[defaultPrefix]!=='string')throw new Error(`Missing default XML namespace: ${defaultPrefix}`);
+  const xmlPath=path=>path.map(name=>defaultPrefix&&!name.includes(':')?`${defaultPrefix}:${name}`:name);
   for(const edge of graph.edges) {
     const result={owner:edge.owner,property:edge.property,item:edge.item,status:'blocked',blockers:[]};
     results.push(result);
@@ -31,7 +37,9 @@ export function emitCollections(graph,entries,catalog,namespaces={},options={}) 
     const property=owner?.properties.find(p=>p.name===edge.property);
     const propertyKeys=['type','yaml','xml','xmlParents','itemRule','ownerFactRole','configurationIndexUidSegment'];
     const unsupported=Object.keys(property?.parameters??{}).filter(key=>!propertyKeys.includes(key));
-    if(unsupported.length)block('collection-property-options',unsupported);
+    const operationTarget=property?.parameters?.operationTarget;
+    if(operationTarget && options.deferOwnerContributions!==true)block('collection-owner-operation-required');
+    if(unsupported.filter(key=>key!=='operationTarget').length)block('collection-property-options',unsupported.filter(key=>key!=='operationTarget'));
     if(owner?.comparison?.status!=='keys-match')block('owner-source-incomplete');
     const fields=child.properties.map(property=>{
       // The source record collection uses keyField as its key's YAML name
@@ -71,12 +79,13 @@ export function emitCollections(graph,entries,catalog,namespaces={},options={}) 
     }
     // Shared indexes retain their explicit provider. Only researched language
     // inputs are shared scalars; other context still requires a source binding.
-    if(fields.some(f=>Object.entries(f.mapped.inputs??{}).some(([name,input])=>input.type?.kind!=='index' &&
-      !((['I8nText','FormattedI8nText','MetadataValue'].includes(f.property.parameters?.type) && ['defaultLanguage','registeredLanguages'].includes(name)) || (f.mapped.identityProjection && ['component','owner'].includes(name))))))block('item-context-binding-required');
+    const inputRequirements=[...new Set(fields.flatMap(f=>Object.entries(f.mapped.inputs??{}).filter(([name,input])=>input.type?.kind!=='index' &&
+      !((['I8nText','FormattedI8nText','MetadataValue'].includes(f.property.parameters?.type) && ['defaultLanguage','registeredLanguages'].includes(name)) || (f.mapped.identityProjection && ['component','owner'].includes(name)))).map(([name])=>name)))];
+    if(inputRequirements.length)result.inputRequirements=inputRequirements;
     if(fields.some(f=>f.mapped.sourceTag))block('item-source-tag');
     if(typeof edge.mapping.xml!=='string' || typeof edge.mapping.yaml!=='string' || !Array.isArray(edge.mapping.xmlParents) || !edge.mapping.xmlParents.length || edge.mapping.xmlParents.some(p=>typeof p!=='string'))block('collection-owner-path');
-    if(edge.context.ownerFactRole || edge.context.configurationIndexUidSegment) {
-      if(options.deferOwnerContributions===true)result.ownerRequirements=structuredClone(edge.context);
+    if(edge.context.ownerFactRole || edge.context.configurationIndexUidSegment || operationTarget) {
+      if(options.deferOwnerContributions===true)result.ownerRequirements={...structuredClone(edge.context),...(operationTarget?{operationTarget:structuredClone(operationTarget)}:{})};
       else block('collection-owner-contributions-required');
     }
     const qualified=[edge.mapping.xml,...(Array.isArray(edge.mapping.xmlParents)?edge.mapping.xmlParents:[])].filter(p=>typeof p==='string'&&p.includes(':'));
@@ -98,7 +107,7 @@ export function emitCollections(graph,entries,catalog,namespaces={},options={}) 
       if(Object.hasOwn(row.imports,alias))throw new Error('Generated collection alias collision');
       row.imports[alias]=mapped.id;
       row.value.fields.push({name:property.name,type:{...mapped.type,use:alias}});
-      row.representations.xml.fields.push({field:property.name,path:mapped.path,...(mapped.attribute?{attribute:mapped.attribute}:{})});
+      row.representations.xml.fields.push({field:property.name,path:xmlPath(mapped.path),...(mapped.attribute?{attribute:mapped.attribute}:{})});
       if(mapped.key!==undefined)row.representations.yaml.fields.push({field:property.name,key:mapped.key});
       if(mapped.presence)(row.presence??=[]).push(mapped.presence);
       if(mapped.constraints)(row.constraints??=[]).push(...mapped.constraints);
@@ -106,7 +115,9 @@ export function emitCollections(graph,entries,catalog,namespaces={},options={}) 
     // xmlOrder orders the XML representation only. YAML follows source property
     // registration order; the two orders differ for adopted metadata objects.
     const yamlOrder=new Map(child.properties.map((property,index)=>[property.name,index]));
-    row.representations.yaml.fields.sort((a,b)=>yamlOrder.get(a.field)-yamlOrder.get(b.field));
+    row.representations.yaml.fields.sort((a,b)=>options.canonicalYamlKeyOrder
+      ? compareYamlKeys(a.key,b.key)||yamlOrder.get(a.field)-yamlOrder.get(b.field)
+      : yamlOrder.get(a.field)-yamlOrder.get(b.field));
     const bind=Object.fromEntries(Object.keys(inputs).map(name=>[name,{input:name}]));
     const withInputs=module=>{
       if(Object.keys(inputs).length) {
@@ -116,16 +127,18 @@ export function emitCollections(graph,entries,catalog,namespaces={},options={}) 
       return module;
     };
     withInputs(row);
+    if(defaultPrefix)(row.namespaces??={})[defaultPrefix]=namespaces[defaultPrefix];
     row.id=id('item',[edge.item,row]);
     const list={format:'nkdk-declarations/1',kind:'value',imports:{item:row.id},value:{kind:'sequence',item:{use:'item'}},
-      representations:{xml:{kind:'element-sequence',path:[edge.mapping.xml]},yaml:edge.mapping.yamlAsArray===true?{kind:'sequence'}:{kind:'record-mapping',key:edge.mapping.keyField}}};
+      representations:{xml:{kind:'element-sequence',path:xmlPath([edge.mapping.xml])},yaml:edge.mapping.yamlAsArray===true?{kind:'sequence'}:{kind:'record-mapping',key:edge.mapping.keyField}}};
     withInputs(list);
     if(Object.keys(inputs).length)list.value.item.bind=structuredClone(bind);
     if(qualified.length)list.namespaces=Object.fromEntries(qualified.map(p=>[p.split(':')[0],namespaces[p.split(':')[0]]]));
+    if(defaultPrefix)(list.namespaces??={})[defaultPrefix]=namespaces[defaultPrefix];
     list.id=id('list',list);
     const projection={format:'nkdk-declarations/1',kind:'object',imports:{items:list.id},
       value:{kind:'record',fields:[{name:edge.property,type:{use:'items'}}]},
-      representations:{xml:{kind:'record',fields:[{field:edge.property,path:edge.mapping.xmlParents}]},yaml:{kind:'mapping',fields:[{field:edge.property,key:edge.mapping.yaml}]}}};
+      representations:{xml:{kind:'record',fields:[{field:edge.property,path:xmlPath(edge.mapping.xmlParents)}]},yaml:{kind:'mapping',fields:[{field:edge.property,key:edge.mapping.yaml}]}}};
     withInputs(projection);
     if(Object.keys(inputs).length)projection.value.fields[0].type.bind=structuredClone(bind);
     if(list.namespaces)projection.namespaces=list.namespaces;

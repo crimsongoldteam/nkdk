@@ -105,10 +105,10 @@ declarations:
       yaml:
         kind: mapping
         fields:
-          - field: name
-            key: Имя
           - field: synonym
             key: Синоним
+          - field: name
+            key: Имя
           - field: comment
             key: Комментарий
           - field: objectBelonging
@@ -631,11 +631,11 @@ declarations:
             - notice
     namespaces:
       md: http://v8.1c.ru/8.3/MDClasses
-    id: candidate.borrowed.6773720a2620f2e68980
+    id: candidate.borrowed.6917ae5c4333832ae2ff
   - format: nkdk-declarations/1
     kind: value
     imports:
-      item: candidate.borrowed.6773720a2620f2e68980
+      item: candidate.borrowed.6917ae5c4333832ae2ff
     value:
       kind: sequence
       item:
@@ -730,11 +730,11 @@ declarations:
           scalar: text
     namespaces:
       md: http://v8.1c.ru/8.3/MDClasses
-    id: candidate.borrowed.b76a9eb46c0c8958885a
+    id: candidate.borrowed.faf74ef956a71cc0f86a
   - format: nkdk-declarations/1
     kind: object
     imports:
-      items: candidate.borrowed.b76a9eb46c0c8958885a
+      items: candidate.borrowed.faf74ef956a71cc0f86a
     value:
       kind: record
       fields:

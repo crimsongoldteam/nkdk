@@ -81,6 +81,19 @@ def select(request):
                 for child in element.iter():
                     child.tag = child.tag.removeprefix(MD)
             selected.append(element)
+        serialized = ET.tostring(selected, encoding='unicode')
+        for prefix, uri in bindings.items():
+            if prefix and 'xmlns:' + prefix + '=' not in serialized and re.search(r'(?<![\w:])' + re.escape(prefix) + r':[\w.]+', serialized):
+                selected.set('xmlns:' + prefix, uri)
+        qname_paths = set()
+        def visit_qnames(element, path):
+            current = path + (element.tag,)
+            value = (element.text or '').strip()
+            if ':' in value and value.split(':', 1)[0] in bindings:
+                qname_paths.add(current)
+            for child in element:
+                visit_qnames(child, current)
+        visit_qnames(selected, ())
         text = yaml_bytes.decode('utf-8-sig')
         block = re.search(r'^' + re.escape(contract['yaml']) + r':[^\n]*\n(?:  [^\n]*\n?)*', text, re.M)
         if not block:
@@ -98,6 +111,8 @@ def select(request):
         return {'xml': ET.tostring(selected, encoding='unicode'),
                 'yaml': block.group().rstrip(), 'ownerIdentity': owner.attrib['uuid'],
                 'context': context_values,
+                'xmlQNamePaths': [list(path) for path in sorted(qname_paths)],
+                **({'linkContext': link_context} if link_context is not None else {}),
                 'source': [{'path': str(path), 'sha256': hashlib.sha256(data).hexdigest()}
                            for path, data in source_files]}
 

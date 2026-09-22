@@ -2,6 +2,8 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {emitBaseCollections} from '../src/base-collection.mjs';
 import {fixture} from './fixtures/array-collection.mjs';
+import {readFileSync} from 'node:fs';
+import {candidateCatalog} from '../src/candidate-catalog.mjs';
 
 test('base collection profile excludes only registered extension service fields',()=>{
   const {graph,entries}=fixture();
@@ -23,4 +25,20 @@ test('base collection profile excludes only registered extension service fields'
   child.properties.at(-1).name='base';
   child.propertyStates=null;
   assert.equal(emitBaseCollections(graph,entries,catalog).results[0].status,'blocked');
+});
+
+test('document attributes emit a complete base collection while retaining owner requirements',()=>{
+  const graph=JSON.parse(readFileSync('tests/migration/collection-links.json'));
+  graph.edges=graph.edges.filter(edge=>edge.owner.symbol==='MetadataDocumentRules'&&edge.property==='attributes');
+  const entries=JSON.parse(readFileSync('tests/migration/rules-extraction.json')).entries;
+  const result=emitBaseCollections(graph,entries,candidateCatalog().catalog,{md:'http://v8.1c.ru/8.3/MDClasses'});
+  const [boundary]=result.results;
+  assert.equal(boundary.status,'candidate',JSON.stringify(boundary.blockers));
+  assert.equal(result.modules[0].value.fields.length,31);
+  assert.deepEqual(result.modules[0].representations.xml.fields.find(field=>field.field==='name').path,['md:Properties','md:Name']);
+  assert.deepEqual(result.modules[1].representations.xml.path,['md:Attribute']);
+  assert.deepEqual(result.modules[0].representations.yaml.fields.filter(field=>field.field!=='name').slice(0,4).map(field=>field.key),['Синоним','Тип','БыстрыйВыбор','ВыборГруппИЭлементов']);
+  assert.equal(boundary.ownerRequirements.ownerFactRole,'attributes');
+  assert.equal(boundary.ownerRequirements.operationTarget.kind,'namedCollectionTarget');
+  assert.deepEqual(boundary.inputRequirements.sort(),['attributes','containingOwnerName','defaultLanguage','ownerRoot','registeredLanguages'].sort());
 });

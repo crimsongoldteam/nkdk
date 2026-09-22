@@ -27,7 +27,7 @@ test('collection inputs retain shared index types and bindings at every boundary
     assert.deepEqual(Object.keys(contextual.modules[0].inputs),['roots','defaultLanguage','registeredLanguages']);
   }
   graph.edges[0].mapping.keyField='first';
-  assert.equal(emitCollections(graph,entries,catalog).results[0].blockers.some(b=>b.reason==='item-context-binding-required'),true);
+  assert.equal(emitCollections(graph,entries,catalog).results[0].status,'candidate');
 });
 
 test('collection fields bind declared sibling inputs without owner context',()=>{

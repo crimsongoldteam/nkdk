@@ -17,7 +17,8 @@ export function emitBaseCollections(graph,entries,catalog,namespaces={}) {
     entry.propertyStates=[];
     if(removable.length)excluded.push({path:entry.path,symbol:entry.symbol,properties:removable});
   }
-  const result=emitCollections(graph,selected,catalog,namespaces,{deferOwnerContributions:true});
+  const result=emitCollections(graph,selected,catalog,namespaces,{deferOwnerContributions:true,canonicalYamlKeyOrder:true,
+    ...(namespaces.md?{defaultXmlNamespace:'md'}:{})});
   return {...result,profile:'base-configuration',excluded,
     scope:'Complete cf child conversion only; extension profiles and deferred owner contributions are not accepted'};
 }
