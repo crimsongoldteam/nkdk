@@ -5771,9 +5771,10 @@
         "owners": [
           "Справочник.СправочникВладелец"
         ],
-        "maxTextLength": "",
-        "maxNumberDigits": "",
-        "allowedTextLength": ""
+        "codeAllowedLength": "Variable",
+        "codeLength": "11",
+        "codeType": "Number",
+        "descriptionLength": "30"
       },
       "source": [
         {
@@ -5809,9 +5810,10 @@
         "owners": [
           "Справочник.СправочникВладелец"
         ],
-        "maxTextLength": "",
-        "maxNumberDigits": "",
-        "allowedTextLength": ""
+        "codeAllowedLength": "Variable",
+        "codeLength": "11",
+        "codeType": "Number",
+        "descriptionLength": "30"
       },
       "source": [
         {
@@ -5846,6 +5848,134 @@
         }
       ],
       "adaptation": "Two observed members in one named collection have different FillValue policies; each row must use its own declaration-derived policy"
+    },
+    {
+      "id": "standard-attribute-named-code-wrong-kind",
+      "entry": "contract.standard-fill-named-owner",
+      "xml": "<StandardAttributes xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:StandardAttribute name=\"Code\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:string\">Текст</xr:FillValue></xr:StandardAttribute></StandardAttributes>",
+      "yaml": "СтандартныеРеквизиты:\n  Код:\n    ЗначениеЗаполнения: Текст",
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ],
+        "componentKind": "configuration",
+        "owners": [
+          "Справочник.СправочникВладелец"
+        ],
+        "codeAllowedLength": "Variable",
+        "codeLength": "11",
+        "codeType": "Number",
+        "descriptionLength": "30"
+      },
+      "diagnostics": [
+        "fill-value.type-mismatch"
+      ],
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+          "sha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml"
+        },
+        {
+          "path": "packages/runtime/metadata/standardMembers/declarations.ts",
+          "sha256": "2724c5601da49b674ed29613ab2735db757c9027dee2e50eadf833c288cc95b3"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataCatalog/standardMembers.ts",
+          "sha256": "6bd24d47b6a0cda3a4bcae103220cb2a0207de3275f29807163da86b47e9ca4c"
+        }
+      ],
+      "adaptation": "The real catalog Code has a numeric owner-defined type; an observed typed string value in the same named collection must be retained and diagnosed"
+    },
+    {
+      "id": "standard-attribute-named-string-code-too-long",
+      "entry": "contract.standard-fill-named-owner",
+      "xml": "<StandardAttributes xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:StandardAttribute name=\"Code\"><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:string\">ABCDEFGHIJ</xr:FillValue></xr:StandardAttribute></StandardAttributes>",
+      "yaml": "СтандартныеРеквизиты:\n  Код:\n    ЗначениеЗаполнения: ABCDEFGHIJ",
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ],
+        "componentKind": "configuration",
+        "owners": [
+          "Справочник.СправочникВладелец"
+        ],
+        "codeAllowedLength": "Variable",
+        "codeLength": "9",
+        "codeType": "String",
+        "descriptionLength": "25"
+      },
+      "diagnostics": [
+        "fill-value.string-length"
+      ],
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cf/Catalogs/СправочникВладелец.xml",
+          "sha256": "c25865f1f70c463f8743596b3254d0749fbc0dbec32e5fd56b9fcfc92508e493"
+        },
+        {
+          "path": "packages/runtime/metadata/standardMembers/declarations.ts",
+          "sha256": "2724c5601da49b674ed29613ab2735db757c9027dee2e50eadf833c288cc95b3"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataCatalog/standardMembers.ts",
+          "sha256": "6bd24d47b6a0cda3a4bcae103220cb2a0207de3275f29807163da86b47e9ca4c"
+        }
+      ],
+      "adaptation": "The string Code and length 9 come from a second immutable catalog e2e owner; a ten-character value tests its independent owner-bound policy"
+    },
+    {
+      "id": "standard-attribute-named-document-date-wrong-kind",
+      "entry": "contract.document-standard-fill-named-owner",
+      "xml": "<StandardAttributes xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:StandardAttribute name=\"Date\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:string\">Текст</xr:FillValue></xr:StandardAttribute></StandardAttributes>",
+      "yaml": "СтандартныеРеквизиты:\n  Дата:\n    ЗначениеЗаполнения: Текст",
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ],
+        "componentKind": "configuration",
+        "owners": [],
+        "numberAllowedLength": "",
+        "numberLength": "",
+        "numberType": ""
+      },
+      "diagnostics": [
+        "fill-value.type-mismatch"
+      ],
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства.xml",
+          "sha256": "346554c79ff22c0239e18eaa00e69bc203b161485dcbd6a482b191871f90b79e"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/Документ/ДокументВсеСвойства/Свойства.yaml"
+        },
+        {
+          "path": "packages/runtime/metadata/standardMembers/declarations.ts",
+          "sha256": "2724c5601da49b674ed29613ab2735db757c9027dee2e50eadf833c288cc95b3"
+        },
+        {
+          "path": "packages/runtime/rule-kit.ts",
+          "sha256": "78ff15505f346a4433279af0f7f60bfa6bd1318401d539e502b0d7cee45568f9"
+        },
+        {
+          "path": "packages/rules/metadata/standardMembers/declarations.ts",
+          "sha256": "a120796450ed9b447c01100bd364e11186c49191d5bc38ff21897372b1b64034"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataDocument/standardMembers.ts",
+          "sha256": "0464bad8192dc6323aed8cfcd1ba78773cdd53221112eb61e3c8e59670945787"
+        }
+      ],
+      "adaptation": "Generate the same named FillValue declaration from document standard members; the real Date wrapper with a text value must retain XML and report a calendar mismatch"
     },
     {
       "id": "fill-value-standard-owner-implicit",
@@ -6427,6 +6557,141 @@
       "diagnostics": [
         "fill-value.number-qualifiers"
       ]
+    },
+    {
+      "id": "standard-attribute-named-fill-value-standard-code-overflow",
+      "entry": "contract.standard-fill-named-owner",
+      "xml": "<StandardAttributes xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:StandardAttribute name=\"Code\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:decimal\">123456789012</xr:FillValue></xr:StandardAttribute></StandardAttributes>",
+      "yaml": "СтандартныеРеквизиты:\n  Код:\n    ЗначениеЗаполнения: 123456789012",
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ],
+        "componentKind": "configuration",
+        "owners": [
+          "Справочник.СправочникВладелец"
+        ],
+        "codeAllowedLength": "Variable",
+        "codeLength": "11",
+        "codeType": "Number",
+        "descriptionLength": "30"
+      },
+      "diagnostics": [
+        "fill-value.number-qualifiers"
+      ],
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+          "sha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml"
+        },
+        {
+          "path": "packages/runtime/metadata/standardMembers/declarations.ts",
+          "sha256": "2724c5601da49b674ed29613ab2735db757c9027dee2e50eadf833c288cc95b3"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataCatalog/standardMembers.ts",
+          "sha256": "6bd24d47b6a0cda3a4bcae103220cb2a0207de3275f29807163da86b47e9ca4c"
+        },
+        {
+          "path": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml"
+        }
+      ],
+      "adaptation": "Retain the e2e-derived Code anomaly inside its named collection; the source member policy and owner facts must produce the same diagnostic"
+    },
+    {
+      "id": "standard-attribute-named-fill-value-standard-description-too-long",
+      "entry": "contract.standard-fill-named-owner",
+      "xml": "<StandardAttributes xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:StandardAttribute name=\"Description\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:string\">ААААААААААААААААААААААААААААААА</xr:FillValue></xr:StandardAttribute></StandardAttributes>",
+      "yaml": "СтандартныеРеквизиты:\n  Наименование:\n    ЗначениеЗаполнения: ААААААААААААААААААААААААААААААА",
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ],
+        "componentKind": "configuration",
+        "owners": [
+          "Справочник.СправочникВладелец"
+        ],
+        "codeAllowedLength": "Variable",
+        "codeLength": "11",
+        "codeType": "Number",
+        "descriptionLength": "30"
+      },
+      "diagnostics": [
+        "fill-value.string-length"
+      ],
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+          "sha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml"
+        },
+        {
+          "path": "packages/runtime/metadata/standardMembers/declarations.ts",
+          "sha256": "2724c5601da49b674ed29613ab2735db757c9027dee2e50eadf833c288cc95b3"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataCatalog/standardMembers.ts",
+          "sha256": "6bd24d47b6a0cda3a4bcae103220cb2a0207de3275f29807163da86b47e9ca4c"
+        },
+        {
+          "path": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml"
+        }
+      ],
+      "adaptation": "Retain the e2e-derived Description anomaly inside its named collection; the source member policy and owner facts must produce the same diagnostic"
+    },
+    {
+      "id": "standard-attribute-named-fill-value-standard-boolean-mismatch",
+      "entry": "contract.standard-fill-named-owner",
+      "xml": "<StandardAttributes xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:StandardAttribute name=\"DeletionMark\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:string\">Текст</xr:FillValue></xr:StandardAttribute></StandardAttributes>",
+      "yaml": "СтандартныеРеквизиты:\n  ПометкаУдаления:\n    ЗначениеЗаполнения: Текст",
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ],
+        "componentKind": "configuration",
+        "owners": [
+          "Справочник.СправочникВладелец"
+        ],
+        "codeAllowedLength": "Variable",
+        "codeLength": "11",
+        "codeType": "Number",
+        "descriptionLength": "30"
+      },
+      "diagnostics": [
+        "fill-value.type-mismatch"
+      ],
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+          "sha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml"
+        },
+        {
+          "path": "packages/runtime/metadata/standardMembers/declarations.ts",
+          "sha256": "2724c5601da49b674ed29613ab2735db757c9027dee2e50eadf833c288cc95b3"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataCatalog/standardMembers.ts",
+          "sha256": "6bd24d47b6a0cda3a4bcae103220cb2a0207de3275f29807163da86b47e9ca4c"
+        },
+        {
+          "path": "packages/runtime/metadata/standardMembers/declarations.ts"
+        }
+      ],
+      "adaptation": "Retain the e2e-derived DeletionMark anomaly inside its named collection; the source member policy and owner facts must produce the same diagnostic"
     },
     {
       "id": "fill-value-reference",

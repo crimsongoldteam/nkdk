@@ -83,3 +83,57 @@ export function standardFillPolicyInputs(member,facts,xmlToYamlRoot) {
   }
   return result;
 }
+
+// Emit data expressions for the generic declaration compiler. The source
+// members select the profile; owner properties stay typed inputs of the row.
+export function standardFillProfileExpressions(members) {
+  const fields=['policy','expectedKind','maxTextLength','maxNumberDigits','allowedTextLength'];
+  const defaults={policy:'notSpecified',expectedKind:'',maxTextLength:'',maxNumberDigits:'',allowedTextLength:''};
+  const facts=new Set();
+  const literal=value=>({literal:value});
+  const input=name=>{facts.add(name);return {input:name};};
+  const equals=(value,expected)=>({eq:[value,literal(expected)]});
+  const typeIs=(name,english,russian)=>({or:[equals({input:name},english),equals({input:name},russian)]});
+  const profiles=[];
+  for(const [name,member] of members) {
+    const declaration=member.fillValue??{policy:'notSpecified'};
+    const profile=Object.fromEntries(fields.map(field=>[field,literal(defaults[field])]));
+    profile.policy=literal(declaration.policy);
+    switch(declaration.policy) {
+      case 'forbidden':
+      case 'notSpecified': break;
+      case 'ownerReference':
+        profile.expectedKind=literal('reference');
+        break;
+      case 'stringFromOwner':
+        profile.expectedKind=literal('text');
+        profile.maxTextLength=input(declaration.lengthProperty);
+        break;
+      case 'codeFromOwner': {
+        const type=declaration.typeProperty,length=declaration.lengthProperty;
+        facts.add(type);
+        profile.expectedKind={if:typeIs(type,'String','Строка'),then:literal('text'),
+          else:{if:typeIs(type,'Number','Число'),then:literal('decimal'),else:literal('')}};
+        profile.maxTextLength={if:typeIs(type,'String','Строка'),then:input(length),else:literal('')};
+        profile.maxNumberDigits={if:typeIs(type,'Number','Число'),then:input(length),else:literal('')};
+        profile.allowedTextLength={if:typeIs(type,'String','Строка'),then:input(declaration.allowedLengthProperty),else:literal('')};
+        break;
+      }
+      case 'byEffectiveType':
+        profile.expectedKind=literal({string:'text',number:'decimal',boolean:'boolean',dateTime:'calendar'}[member.kind]??'');
+        break;
+      default: throw new Error(`Unknown FillValue policy: ${declaration.policy}`);
+    }
+    profiles.push([name,profile]);
+  }
+  const expressions=Object.fromEntries(fields.map(field=>{
+    let value=literal(defaults[field]);
+    for(const [name,profile] of profiles.toReversed()) {
+      const candidate=profile[field];
+      if(JSON.stringify(candidate)===JSON.stringify(literal(defaults[field])))continue;
+      value={if:equals({field:'name'},name),then:candidate,else:value};
+    }
+    return [field,value];
+  }));
+  return {expressions,factInputs:[...facts].sort()};
+}

@@ -30,15 +30,19 @@ inputs:
     type:
       kind: scalar
       scalar: text
-  maxTextLength:
+  codeAllowedLength:
     type:
       kind: scalar
       scalar: text
-  allowedTextLength:
+  codeLength:
     type:
       kind: scalar
       scalar: text
-  maxNumberDigits:
+  codeType:
+    type:
+      kind: scalar
+      scalar: text
+  descriptionLength:
     type:
       kind: scalar
       scalar: text
@@ -65,6 +69,18 @@ value:
         kind: scalar
         scalar: text
     - name: expectedKind
+      type:
+        kind: scalar
+        scalar: text
+    - name: maxTextLength
+      type:
+        kind: scalar
+        scalar: text
+    - name: maxNumberDigits
+      type:
+        kind: scalar
+        scalar: text
+    - name: allowedTextLength
       type:
         kind: scalar
         scalar: text
@@ -147,22 +163,120 @@ presence:
           if:
             eq:
               - field: name
-              - literal: Owner
+              - literal: Ref
           then:
-            literal: ownerReference
+            literal: forbidden
           else:
-            literal: notSpecified
+            if:
+              eq:
+                - field: name
+                - literal: Owner
+            then:
+              literal: ownerReference
+            else:
+              if:
+                eq:
+                  - field: name
+                  - literal: Code
+              then:
+                literal: codeFromOwner
+              else:
+                if:
+                  eq:
+                    - field: name
+                    - literal: Description
+                then:
+                  literal: stringFromOwner
+                else:
+                  if:
+                    eq:
+                      - field: name
+                      - literal: IsFolder
+                  then:
+                    literal: forbidden
+                  else:
+                    if:
+                      eq:
+                        - field: name
+                        - literal: DeletionMark
+                    then:
+                      literal: byEffectiveType
+                    else:
+                      if:
+                        eq:
+                          - field: name
+                          - literal: Predefined
+                      then:
+                        literal: forbidden
+                      else:
+                        if:
+                          eq:
+                            - field: name
+                            - literal: PredefinedDataName
+                        then:
+                          literal: forbidden
+                        else:
+                          literal: notSpecified
     yaml:
       missing:
         denotes:
           if:
             eq:
               - field: name
-              - literal: Owner
+              - literal: Ref
           then:
-            literal: ownerReference
+            literal: forbidden
           else:
-            literal: notSpecified
+            if:
+              eq:
+                - field: name
+                - literal: Owner
+            then:
+              literal: ownerReference
+            else:
+              if:
+                eq:
+                  - field: name
+                  - literal: Code
+              then:
+                literal: codeFromOwner
+              else:
+                if:
+                  eq:
+                    - field: name
+                    - literal: Description
+                then:
+                  literal: stringFromOwner
+                else:
+                  if:
+                    eq:
+                      - field: name
+                      - literal: IsFolder
+                  then:
+                    literal: forbidden
+                  else:
+                    if:
+                      eq:
+                        - field: name
+                        - literal: DeletionMark
+                    then:
+                      literal: byEffectiveType
+                    else:
+                      if:
+                        eq:
+                          - field: name
+                          - literal: Predefined
+                      then:
+                        literal: forbidden
+                      else:
+                        if:
+                          eq:
+                            - field: name
+                            - literal: PredefinedDataName
+                        then:
+                          literal: forbidden
+                        else:
+                          literal: notSpecified
   - target:
       field: expectedKind
     xml:
@@ -175,7 +289,50 @@ presence:
           then:
             literal: reference
           else:
-            literal: ''
+            if:
+              eq:
+                - field: name
+                - literal: Code
+            then:
+              if:
+                or:
+                  - eq:
+                      - input: codeType
+                      - literal: String
+                  - eq:
+                      - input: codeType
+                      - literal: Строка
+              then:
+                literal: text
+              else:
+                if:
+                  or:
+                    - eq:
+                        - input: codeType
+                        - literal: Number
+                    - eq:
+                        - input: codeType
+                        - literal: Число
+                then:
+                  literal: decimal
+                else:
+                  literal: ''
+            else:
+              if:
+                eq:
+                  - field: name
+                  - literal: Description
+              then:
+                literal: text
+              else:
+                if:
+                  eq:
+                    - field: name
+                    - literal: DeletionMark
+                then:
+                  literal: boolean
+                else:
+                  literal: ''
     yaml:
       missing:
         denotes:
@@ -185,6 +342,201 @@ presence:
               - literal: Owner
           then:
             literal: reference
+          else:
+            if:
+              eq:
+                - field: name
+                - literal: Code
+            then:
+              if:
+                or:
+                  - eq:
+                      - input: codeType
+                      - literal: String
+                  - eq:
+                      - input: codeType
+                      - literal: Строка
+              then:
+                literal: text
+              else:
+                if:
+                  or:
+                    - eq:
+                        - input: codeType
+                        - literal: Number
+                    - eq:
+                        - input: codeType
+                        - literal: Число
+                then:
+                  literal: decimal
+                else:
+                  literal: ''
+            else:
+              if:
+                eq:
+                  - field: name
+                  - literal: Description
+              then:
+                literal: text
+              else:
+                if:
+                  eq:
+                    - field: name
+                    - literal: DeletionMark
+                then:
+                  literal: boolean
+                else:
+                  literal: ''
+  - target:
+      field: maxTextLength
+    xml:
+      missing:
+        denotes:
+          if:
+            eq:
+              - field: name
+              - literal: Code
+          then:
+            if:
+              or:
+                - eq:
+                    - input: codeType
+                    - literal: String
+                - eq:
+                    - input: codeType
+                    - literal: Строка
+            then:
+              input: codeLength
+            else:
+              literal: ''
+          else:
+            if:
+              eq:
+                - field: name
+                - literal: Description
+            then:
+              input: descriptionLength
+            else:
+              literal: ''
+    yaml:
+      missing:
+        denotes:
+          if:
+            eq:
+              - field: name
+              - literal: Code
+          then:
+            if:
+              or:
+                - eq:
+                    - input: codeType
+                    - literal: String
+                - eq:
+                    - input: codeType
+                    - literal: Строка
+            then:
+              input: codeLength
+            else:
+              literal: ''
+          else:
+            if:
+              eq:
+                - field: name
+                - literal: Description
+            then:
+              input: descriptionLength
+            else:
+              literal: ''
+  - target:
+      field: maxNumberDigits
+    xml:
+      missing:
+        denotes:
+          if:
+            eq:
+              - field: name
+              - literal: Code
+          then:
+            if:
+              or:
+                - eq:
+                    - input: codeType
+                    - literal: Number
+                - eq:
+                    - input: codeType
+                    - literal: Число
+            then:
+              input: codeLength
+            else:
+              literal: ''
+          else:
+            literal: ''
+    yaml:
+      missing:
+        denotes:
+          if:
+            eq:
+              - field: name
+              - literal: Code
+          then:
+            if:
+              or:
+                - eq:
+                    - input: codeType
+                    - literal: Number
+                - eq:
+                    - input: codeType
+                    - literal: Число
+            then:
+              input: codeLength
+            else:
+              literal: ''
+          else:
+            literal: ''
+  - target:
+      field: allowedTextLength
+    xml:
+      missing:
+        denotes:
+          if:
+            eq:
+              - field: name
+              - literal: Code
+          then:
+            if:
+              or:
+                - eq:
+                    - input: codeType
+                    - literal: String
+                - eq:
+                    - input: codeType
+                    - literal: Строка
+            then:
+              input: codeAllowedLength
+            else:
+              literal: ''
+          else:
+            literal: ''
+    yaml:
+      missing:
+        denotes:
+          if:
+            eq:
+              - field: name
+              - literal: Code
+          then:
+            if:
+              or:
+                - eq:
+                    - input: codeType
+                    - literal: String
+                - eq:
+                    - input: codeType
+                    - literal: Строка
+            then:
+              input: codeAllowedLength
+            else:
+              literal: ''
           else:
             literal: ''
 constraints:
@@ -336,11 +688,11 @@ constraints:
             variant: text
         - matches:
             value:
-              input: maxTextLength
+              field: maxTextLength
             pattern: '[1-9][0-9]*'
         - not:
             eq:
-              - input: allowedTextLength
+              - field: allowedTextLength
               - literal: Fixed
     assert:
       textLengthAtMost:
@@ -350,7 +702,7 @@ constraints:
               field: value
             variant: text
         limit:
-          input: maxTextLength
+          field: maxTextLength
     diagnostic:
       code: fill-value.string-length
       severity: warning
@@ -372,10 +724,10 @@ constraints:
             variant: text
         - matches:
             value:
-              input: maxTextLength
+              field: maxTextLength
             pattern: '[1-9][0-9]*'
         - eq:
-            - input: allowedTextLength
+            - field: allowedTextLength
             - literal: Fixed
     assert:
       textLengthEquals:
@@ -385,7 +737,7 @@ constraints:
               field: value
             variant: text
         limit:
-          input: maxTextLength
+          field: maxTextLength
     diagnostic:
       code: fill-value.string-length
       severity: warning
@@ -409,7 +761,7 @@ constraints:
             variant: decimal
         - matches:
             value:
-              input: maxNumberDigits
+              field: maxNumberDigits
             pattern: '[1-9][0-9]*'
     assert:
       decimalFits:
@@ -419,7 +771,7 @@ constraints:
               field: value
             variant: decimal
         digits:
-          input: maxNumberDigits
+          field: maxNumberDigits
         fraction:
           literal: '0'
         sign:

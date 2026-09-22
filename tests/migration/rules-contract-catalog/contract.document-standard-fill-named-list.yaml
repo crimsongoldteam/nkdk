@@ -1,0 +1,67 @@
+format: nkdk-declarations/1
+kind: value
+id: contract.document-standard-fill-named-list
+namespaces:
+  xr: http://v8.1c.ru/8.3/xcf/readable
+imports:
+  item: contract.document-standard-fill-named-item
+value:
+  kind: sequence
+  item:
+    use: item
+    bind:
+      defaultLanguage:
+        input: defaultLanguage
+      registeredLanguages:
+        input: registeredLanguages
+      owners:
+        input: owners
+      componentKind:
+        input: componentKind
+      numberAllowedLength:
+        input: numberAllowedLength
+      numberLength:
+        input: numberLength
+      numberType:
+        input: numberType
+representations:
+  xml:
+    kind: element-sequence
+    path:
+      - xr:StandardAttribute
+  yaml:
+    kind: record-mapping
+    key: name
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  owners:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  componentKind:
+    type:
+      kind: scalar
+      scalar: text
+  numberAllowedLength:
+    type:
+      kind: scalar
+      scalar: text
+  numberLength:
+    type:
+      kind: scalar
+      scalar: text
+  numberType:
+    type:
+      kind: scalar
+      scalar: text

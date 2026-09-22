@@ -20,12 +20,14 @@ value:
             input: owners
           componentKind:
             input: componentKind
-          maxTextLength:
-            input: maxTextLength
-          allowedTextLength:
-            input: allowedTextLength
-          maxNumberDigits:
-            input: maxNumberDigits
+          codeAllowedLength:
+            input: codeAllowedLength
+          codeLength:
+            input: codeLength
+          codeType:
+            input: codeType
+          descriptionLength:
+            input: descriptionLength
 representations:
   xml:
     kind: record
@@ -59,15 +61,19 @@ inputs:
     type:
       kind: scalar
       scalar: text
-  maxTextLength:
+  codeAllowedLength:
     type:
       kind: scalar
       scalar: text
-  allowedTextLength:
+  codeLength:
     type:
       kind: scalar
       scalar: text
-  maxNumberDigits:
+  codeType:
+    type:
+      kind: scalar
+      scalar: text
+  descriptionLength:
     type:
       kind: scalar
       scalar: text
