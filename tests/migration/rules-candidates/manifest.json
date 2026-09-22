@@ -13143,7 +13143,7 @@
     },
     {
       "path": "rust/declarations/common/metadata-path-lexicons.yaml",
-      "sha256": "0e5addeaec8f3bd7eca8ac338a16bdf2bdddf8f6003bb296ace2f8b46c936cac"
+      "sha256": "7f440fb4eeb7894fa16409ae8d24b1edf1febb648b4216bc24313e96ba31dda0"
     },
     {
       "path": "rust/declarations/common/metadata-root-path.yaml",
@@ -20537,14 +20537,6 @@
             "reason": "item-properties",
             "details": [
               {
-                "property": "name",
-                "reason": "requires-expression-mapping"
-              },
-              {
-                "property": "choiceForm",
-                "reason": "unsupported-common"
-              },
-              {
                 "property": "fillValue",
                 "reason": "requires-expression-mapping"
               }
@@ -20745,14 +20737,6 @@
             "reason": "item-properties",
             "details": [
               {
-                "property": "name",
-                "reason": "requires-expression-mapping"
-              },
-              {
-                "property": "choiceForm",
-                "reason": "unsupported-common"
-              },
-              {
                 "property": "fillValue",
                 "reason": "requires-expression-mapping"
               }
@@ -20951,14 +20935,6 @@
           {
             "reason": "item-properties",
             "details": [
-              {
-                "property": "name",
-                "reason": "requires-expression-mapping"
-              },
-              {
-                "property": "choiceForm",
-                "reason": "unsupported-common"
-              },
               {
                 "property": "fillValue",
                 "reason": "requires-expression-mapping"
@@ -21195,14 +21171,6 @@
           {
             "reason": "item-properties",
             "details": [
-              {
-                "property": "name",
-                "reason": "requires-expression-mapping"
-              },
-              {
-                "property": "choiceForm",
-                "reason": "unsupported-common"
-              },
               {
                 "property": "fillValue",
                 "reason": "requires-expression-mapping"
@@ -21887,14 +21855,6 @@
             "reason": "item-properties",
             "details": [
               {
-                "property": "name",
-                "reason": "requires-expression-mapping"
-              },
-              {
-                "property": "choiceForm",
-                "reason": "unsupported-common"
-              },
-              {
                 "property": "fillValue",
                 "reason": "requires-expression-mapping"
               }
@@ -22093,14 +22053,6 @@
           {
             "reason": "item-properties",
             "details": [
-              {
-                "property": "name",
-                "reason": "requires-expression-mapping"
-              },
-              {
-                "property": "choiceForm",
-                "reason": "unsupported-common"
-              },
               {
                 "property": "fillValue",
                 "reason": "requires-expression-mapping"
@@ -22708,14 +22660,6 @@
             "reason": "item-properties",
             "details": [
               {
-                "property": "name",
-                "reason": "requires-expression-mapping"
-              },
-              {
-                "property": "choiceForm",
-                "reason": "unsupported-common"
-              },
-              {
                 "property": "fillValue",
                 "reason": "requires-expression-mapping"
               }
@@ -22914,14 +22858,6 @@
           {
             "reason": "item-properties",
             "details": [
-              {
-                "property": "name",
-                "reason": "requires-expression-mapping"
-              },
-              {
-                "property": "choiceForm",
-                "reason": "unsupported-common"
-              },
               {
                 "property": "fillValue",
                 "reason": "requires-expression-mapping"
@@ -23134,10 +23070,6 @@
             "reason": "item-properties",
             "details": [
               {
-                "property": "ref",
-                "reason": "xml-path-profile"
-              },
-              {
                 "property": "value",
                 "reason": "xml-path-profile"
               }
@@ -23231,10 +23163,6 @@
             "reason": "item-properties",
             "details": [
               {
-                "property": "ref",
-                "reason": "xml-path-profile"
-              },
-              {
                 "property": "value",
                 "reason": "xml-path-profile"
               }
@@ -23278,10 +23206,6 @@
           {
             "reason": "item-properties",
             "details": [
-              {
-                "property": "name",
-                "reason": "xml-path-profile"
-              },
               {
                 "property": "accountingFlags",
                 "reason": "unsupported-common"
@@ -23407,14 +23331,6 @@
             "reason": "item-properties",
             "details": [
               {
-                "property": "name",
-                "reason": "requires-expression-mapping"
-              },
-              {
-                "property": "choiceForm",
-                "reason": "unsupported-common"
-              },
-              {
                 "property": "fillValue",
                 "reason": "requires-expression-mapping"
               }
@@ -23521,10 +23437,6 @@
             "reason": "item-properties",
             "details": [
               {
-                "property": "name",
-                "reason": "xml-path-profile"
-              },
-              {
                 "property": "standardAttributes",
                 "reason": "unsupported-common"
               }
@@ -23533,9 +23445,6 @@
           {
             "reason": "collection-owner-contributions-required"
           }
-        ],
-        "inputRequirements": [
-          "ownerName"
         ]
       },
       {
@@ -24370,14 +24279,6 @@
             "reason": "item-properties",
             "details": [
               {
-                "property": "name",
-                "reason": "requires-expression-mapping"
-              },
-              {
-                "property": "choiceForm",
-                "reason": "unsupported-common"
-              },
-              {
                 "property": "fillValue",
                 "reason": "requires-expression-mapping"
               }
@@ -24614,14 +24515,6 @@
             "reason": "item-properties",
             "details": [
               {
-                "property": "name",
-                "reason": "requires-expression-mapping"
-              },
-              {
-                "property": "choiceForm",
-                "reason": "unsupported-common"
-              },
-              {
                 "property": "fillValue",
                 "reason": "requires-expression-mapping"
               }
@@ -24728,10 +24621,6 @@
             "reason": "item-properties",
             "details": [
               {
-                "property": "name",
-                "reason": "xml-path-profile"
-              },
-              {
                 "property": "standardAttributes",
                 "reason": "unsupported-common"
               }
@@ -24740,9 +24629,6 @@
           {
             "reason": "collection-owner-contributions-required"
           }
-        ],
-        "inputRequirements": [
-          "ownerName"
         ]
       },
       {
@@ -25221,14 +25107,6 @@
             "reason": "item-properties",
             "details": [
               {
-                "property": "name",
-                "reason": "requires-expression-mapping"
-              },
-              {
-                "property": "choiceForm",
-                "reason": "unsupported-common"
-              },
-              {
                 "property": "fillValue",
                 "reason": "requires-expression-mapping"
               }
@@ -25464,14 +25342,6 @@
           {
             "reason": "item-properties",
             "details": [
-              {
-                "property": "name",
-                "reason": "requires-expression-mapping"
-              },
-              {
-                "property": "choiceForm",
-                "reason": "unsupported-common"
-              },
               {
                 "property": "fillValue",
                 "reason": "requires-expression-mapping"
@@ -26038,14 +25908,6 @@
           {
             "reason": "item-properties",
             "details": [
-              {
-                "property": "name",
-                "reason": "requires-expression-mapping"
-              },
-              {
-                "property": "choiceForm",
-                "reason": "unsupported-common"
-              },
               {
                 "property": "fillValue",
                 "reason": "requires-expression-mapping"
@@ -26718,14 +26580,6 @@
             "reason": "item-properties",
             "details": [
               {
-                "property": "name",
-                "reason": "requires-expression-mapping"
-              },
-              {
-                "property": "choiceForm",
-                "reason": "unsupported-common"
-              },
-              {
                 "property": "fillValue",
                 "reason": "requires-expression-mapping"
               }
@@ -27358,14 +27212,6 @@
             "reason": "item-properties",
             "details": [
               {
-                "property": "name",
-                "reason": "requires-expression-mapping"
-              },
-              {
-                "property": "choiceForm",
-                "reason": "unsupported-common"
-              },
-              {
                 "property": "fillValue",
                 "reason": "requires-expression-mapping"
               }
@@ -27538,14 +27384,6 @@
           {
             "reason": "item-properties",
             "details": [
-              {
-                "property": "name",
-                "reason": "requires-expression-mapping"
-              },
-              {
-                "property": "choiceForm",
-                "reason": "unsupported-common"
-              },
               {
                 "property": "fillValue",
                 "reason": "requires-expression-mapping"
@@ -27890,14 +27728,6 @@
           {
             "reason": "item-properties",
             "details": [
-              {
-                "property": "name",
-                "reason": "requires-expression-mapping"
-              },
-              {
-                "property": "choiceForm",
-                "reason": "unsupported-common"
-              },
               {
                 "property": "fillValue",
                 "reason": "requires-expression-mapping"
@@ -28272,14 +28102,6 @@
             "reason": "item-properties",
             "details": [
               {
-                "property": "name",
-                "reason": "requires-expression-mapping"
-              },
-              {
-                "property": "choiceForm",
-                "reason": "unsupported-common"
-              },
-              {
                 "property": "fillValue",
                 "reason": "requires-expression-mapping"
               }
@@ -28515,14 +28337,6 @@
           {
             "reason": "item-properties",
             "details": [
-              {
-                "property": "name",
-                "reason": "requires-expression-mapping"
-              },
-              {
-                "property": "choiceForm",
-                "reason": "unsupported-common"
-              },
               {
                 "property": "fillValue",
                 "reason": "requires-expression-mapping"
@@ -29487,14 +29301,6 @@
             "reason": "item-properties",
             "details": [
               {
-                "property": "name",
-                "reason": "requires-expression-mapping"
-              },
-              {
-                "property": "choiceForm",
-                "reason": "unsupported-common"
-              },
-              {
                 "property": "fillValue",
                 "reason": "requires-expression-mapping"
               }
@@ -29733,14 +29539,6 @@
           {
             "reason": "item-properties",
             "details": [
-              {
-                "property": "name",
-                "reason": "requires-expression-mapping"
-              },
-              {
-                "property": "choiceForm",
-                "reason": "unsupported-common"
-              },
               {
                 "property": "fillValue",
                 "reason": "requires-expression-mapping"
@@ -30597,14 +30395,6 @@
             "reason": "item-properties",
             "details": [
               {
-                "property": "name",
-                "reason": "requires-expression-mapping"
-              },
-              {
-                "property": "choiceForm",
-                "reason": "unsupported-common"
-              },
-              {
                 "property": "fillValue",
                 "reason": "requires-expression-mapping"
               }
@@ -30840,14 +30630,6 @@
           {
             "reason": "item-properties",
             "details": [
-              {
-                "property": "name",
-                "reason": "requires-expression-mapping"
-              },
-              {
-                "property": "choiceForm",
-                "reason": "unsupported-common"
-              },
               {
                 "property": "fillValue",
                 "reason": "requires-expression-mapping"
@@ -35079,14 +34861,6 @@
             "reason": "item-properties",
             "details": [
               {
-                "property": "name",
-                "reason": "requires-expression-mapping"
-              },
-              {
-                "property": "choiceForm",
-                "reason": "unsupported-common"
-              },
-              {
                 "property": "fillValue",
                 "reason": "requires-expression-mapping"
               }
@@ -35530,14 +35304,6 @@
             "reason": "item-properties",
             "details": [
               {
-                "property": "name",
-                "reason": "requires-expression-mapping"
-              },
-              {
-                "property": "choiceForm",
-                "reason": "unsupported-common"
-              },
-              {
                 "property": "fillValue",
                 "reason": "requires-expression-mapping"
               }
@@ -35591,10 +35357,6 @@
                 "reason": "unsupported-parameters:xmlOnly"
               },
               {
-                "property": "name",
-                "reason": "xml-path-profile"
-              },
-              {
                 "property": "title",
                 "reason": "requires-expression-mapping"
               },
@@ -35693,10 +35455,6 @@
                 "reason": "unsupported-parameters:xmlOnly"
               },
               {
-                "property": "name",
-                "reason": "xml-path-profile"
-              },
-              {
                 "property": "title",
                 "reason": "requires-expression-mapping"
               },
@@ -35721,9 +35479,6 @@
           {
             "reason": "collection-owner-path"
           }
-        ],
-        "inputRequirements": [
-          "ownerName"
         ]
       },
       {
@@ -35759,10 +35514,6 @@
               {
                 "property": "id",
                 "reason": "unsupported-parameters:xmlOnly"
-              },
-              {
-                "property": "name",
-                "reason": "xml-path-profile"
               },
               {
                 "property": "title",
@@ -35863,10 +35614,6 @@
                 "reason": "unsupported-parameters:xmlOnly"
               },
               {
-                "property": "name",
-                "reason": "xml-path-profile"
-              },
-              {
                 "property": "title",
                 "reason": "requires-expression-mapping"
               },
@@ -35891,9 +35638,6 @@
           {
             "reason": "collection-owner-path"
           }
-        ],
-        "inputRequirements": [
-          "ownerName"
         ]
       },
       {
@@ -36103,10 +35847,6 @@
                 "reason": "unsupported-parameters:xmlOnly"
               },
               {
-                "property": "name",
-                "reason": "xml-path-profile"
-              },
-              {
                 "property": "title",
                 "reason": "requires-expression-mapping"
               },
@@ -36154,10 +35894,6 @@
             "reason": "item-properties",
             "details": [
               {
-                "property": "table",
-                "reason": "xml-path-profile"
-              },
-              {
                 "property": "columns",
                 "reason": "unsupported-common"
               }
@@ -36196,10 +35932,6 @@
               {
                 "property": "id",
                 "reason": "unsupported-parameters:xmlOnly"
-              },
-              {
-                "property": "name",
-                "reason": "xml-path-profile"
               },
               {
                 "property": "title",
@@ -36253,7 +35985,7 @@
   },
   "existingComparison": {
     "status": "structural-review-only",
-    "matchedFields": 697,
+    "matchedFields": 698,
     "entries": [
       {
         "candidate": "candidate.fragment.000a2f9941fead941e22",
@@ -37072,6 +36804,20 @@
         "field": "minValue",
         "matchCount": 0,
         "reviewTargets": []
+      },
+      {
+        "candidate": "candidate.fragment.0cc2f3d61fe040534753",
+        "field": "choiceForm",
+        "matchCount": 1,
+        "reviewTargets": [
+          {
+            "id": "candidate.collection.item.17597f63a93e1d127f04",
+            "field": "choiceForm",
+            "differences": [
+              "path"
+            ]
+          }
+        ]
       },
       {
         "candidate": "candidate.fragment.0d1c6425f678e9dd5edd",
@@ -56334,26 +56080,26 @@
     ]
   },
   "summary": {
-    "properties": 3869,
-    "fragments": 906,
-    "projections": 853,
+    "properties": 3870,
+    "fragments": 907,
+    "projections": 854,
     "dependencies": 259,
     "blockers": [
       [
         "unsupported-common",
-        1120
+        1119
       ],
       [
         "requires-expression-mapping",
-        215
-      ],
-      [
-        "explicit-yaml-name-required",
-        162
+        214
       ],
       [
         "owner-root-required",
-        136
+        181
+      ],
+      [
+        "explicit-yaml-name-required",
+        163
       ],
       [
         "runtime-only-profile",
@@ -56362,10 +56108,6 @@
       [
         "hidden-scalar-default-required",
         110
-      ],
-      [
-        "xml-path-profile",
-        46
       ],
       [
         "asymmetric-defaults",
@@ -56434,6 +56176,10 @@
       [
         "unsupported-parameters:description",
         2
+      ],
+      [
+        "xml-path-profile",
+        1
       ],
       [
         "unsupported-parameters:defaultValue,toXML",
@@ -118835,8 +118581,7 @@
             "line": 53,
             "column": 5
           },
-          "status": "blocked",
-          "reason": "unsupported-common"
+          "status": "candidate"
         },
         {
           "name": "quickChoice",
@@ -118979,7 +118724,7 @@
             "column": 5
           },
           "status": "blocked",
-          "reason": "requires-expression-mapping"
+          "reason": "explicit-yaml-name-required"
         },
         {
           "name": "type",
@@ -119100,6 +118845,17 @@
           ],
           "fragments": [
             "candidate.fragment.efee510f4bd5e276c19e"
+          ]
+        },
+        {
+          "id": "candidate.projection.88e8081ff08d1e79c6cd",
+          "root": "xr:ChoiceForm",
+          "context": "relative-path; owner namespaces and wrapper not bound",
+          "fields": [
+            "choiceForm"
+          ],
+          "fragments": [
+            "candidate.fragment.0cc2f3d61fe040534753"
           ]
         },
         {
@@ -123437,7 +123193,7 @@
             "column": 5
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         }
       ],
       "projections": [
@@ -123879,7 +123635,7 @@
             "column": 3
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         },
         {
           "name": "onlyInAllActions",
@@ -124638,7 +124394,7 @@
             "column": 3
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         },
         {
           "name": "onlyInAllActions",
@@ -125209,7 +124965,7 @@
             "column": 5
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         },
         {
           "name": "parent",
@@ -126065,7 +125821,7 @@
             "column": 3
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         },
         {
           "name": "headerHorizontalAlign",
@@ -127105,7 +126861,7 @@
             "column": 3
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         },
         {
           "name": "autoCellHeight",
@@ -127866,7 +127622,7 @@
             "column": 3
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         },
         {
           "name": "backColor",
@@ -128860,7 +128616,7 @@
             "column": 3
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         },
         {
           "name": "equalItemsWidth",
@@ -129647,7 +129403,7 @@
             "column": 5
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         },
         {
           "name": "parent",
@@ -130118,7 +129874,7 @@
             "column": 5
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         },
         {
           "name": "autofill",
@@ -130391,7 +130147,7 @@
             "column": 5
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         }
       ],
       "projections": [
@@ -130917,7 +130673,7 @@
             "column": 3
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         },
         {
           "name": "autoCellHeight",
@@ -131605,7 +131361,7 @@
             "column": 5
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         },
         {
           "name": "type",
@@ -132486,7 +132242,7 @@
             "column": 3
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         },
         {
           "name": "selectedText",
@@ -133455,7 +133211,7 @@
             "column": 3
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         },
         {
           "name": "autoCellHeight",
@@ -134418,7 +134174,7 @@
             "column": 3
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         },
         {
           "name": "autoCellHeight",
@@ -135361,7 +135117,7 @@
             "column": 3
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         },
         {
           "name": "autoCellHeight",
@@ -136334,7 +136090,7 @@
             "column": 3
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         },
         {
           "name": "userAgentInformation",
@@ -137962,7 +137718,7 @@
             "column": 3
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         },
         {
           "name": "autoFillHint",
@@ -140116,7 +139872,7 @@
             "column": 3
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         },
         {
           "name": "multipleValuePictureDataPath",
@@ -141517,7 +141273,7 @@
             "column": 5
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         },
         {
           "name": "type",
@@ -142379,7 +142135,7 @@
             "column": 3
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         },
         {
           "name": "autoCellHeight",
@@ -143415,7 +143171,7 @@
             "column": 3
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         },
         {
           "name": "verticalAlignInGroup",
@@ -144264,7 +144020,7 @@
             "column": 5
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         },
         {
           "name": "childItemsVerticalAlign",
@@ -144866,7 +144622,7 @@
             "column": 5
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         },
         {
           "name": "currentPagesState",
@@ -145640,7 +145396,7 @@
             "column": 3
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         },
         {
           "name": "autoCellHeight",
@@ -146582,7 +146338,7 @@
             "column": 3
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         },
         {
           "name": "autoCellHeight",
@@ -147397,7 +147153,7 @@
             "column": 5
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         },
         {
           "name": "type",
@@ -148343,7 +148099,7 @@
             "column": 3
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         },
         {
           "name": "autoCellHeight",
@@ -149453,7 +149209,7 @@
             "column": 3
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         },
         {
           "name": "verticalAlign",
@@ -150528,7 +150284,7 @@
             "column": 3
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         },
         {
           "name": "autoMaxHeight",
@@ -151310,7 +151066,7 @@
             "column": 5
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         },
         {
           "name": "horizontalAlignInGroup",
@@ -152111,7 +151867,7 @@
             "column": 3
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         },
         {
           "name": "verticalStretch",
@@ -153140,7 +152896,7 @@
             "column": 3
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         },
         {
           "name": "autoCellHeight",
@@ -153653,7 +153409,7 @@
             "column": 3
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         },
         {
           "name": "backColor",
@@ -154001,7 +153757,7 @@
             "column": 3
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         },
         {
           "name": "backColor",
@@ -154396,7 +154152,7 @@
             "column": 3
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         },
         {
           "name": "backColor",
@@ -154757,7 +154513,7 @@
             "column": 3
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         },
         {
           "name": "backColor",
@@ -155636,7 +155392,7 @@
             "column": 3
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         },
         {
           "name": "statePresentation",
@@ -157247,7 +157003,7 @@
             "column": 5
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         }
       ],
       "projections": [
@@ -158520,7 +158276,7 @@
             "column": 3
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         },
         {
           "name": "selectedText",
@@ -159521,7 +159277,7 @@
             "column": 3
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         },
         {
           "name": "orientation",
@@ -160493,7 +160249,7 @@
             "column": 5
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         },
         {
           "name": "parent",
@@ -161091,7 +160847,7 @@
             "column": 3
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         }
       ],
       "projections": [
@@ -161406,7 +161162,7 @@
             "column": 3
           },
           "status": "blocked",
-          "reason": "xml-path-profile"
+          "reason": "owner-root-required"
         },
         {
           "name": "enabled",
@@ -161601,6 +161357,7 @@
     "candidate.fragment.0bac7941eec4e7334b36.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: system.ItemHorizontalLocation\nvalue:\n  kind: record\n  fields:\n    - name: horizontalAlignInGroup\n      type:\n        use: value0\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: horizontalAlignInGroup\n        path:\n          - GroupHorizontalAlign\n  yaml:\n    kind: mapping\n    fields:\n      - field: horizontalAlignInGroup\n        key: ГоризонтальноеПоложениеВГруппе\npresence:\n  - target:\n      field: horizontalAlignInGroup\n    xml:\n      missing:\n        denotes:\n          literal: Auto\n      canonical:\n        - when:\n            eq:\n              - field: horizontalAlignInGroup\n              - literal: Auto\n          form: missing\n    yaml:\n      default:\n        literal: Auto\nid: candidate.fragment.0bac7941eec4e7334b36\n",
     "candidate.fragment.0c19248a9717a03d3654.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: common.boolean\nvalue:\n  kind: record\n  fields:\n    - name: enabled\n      type:\n        use: value0\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: enabled\n        path:\n          - Enabled\n  yaml:\n    kind: mapping\n    fields:\n      - field: enabled\n        key: Доступность\npresence:\n  - target:\n      field: enabled\n    xml:\n      missing:\n        denotes:\n          literal: true\n      canonical:\n        - when:\n            eq:\n              - field: enabled\n              - literal: true\n          form: missing\n    yaml:\n      default:\n        literal: true\nid: candidate.fragment.0c19248a9717a03d3654\n",
     "candidate.fragment.0cba72b5f63bf541053c.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: common.min-max-value\nvalue:\n  kind: record\n  fields:\n    - name: minValue\n      type:\n        use: value0\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: minValue\n        path:\n          - xr:MinValue\n  yaml:\n    kind: mapping\n    fields:\n      - field: minValue\n        key: МинимальноеЗначение\npresence:\n  - target:\n      field: minValue\n    xml:\n      missing:\n        denotes:\n          absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: minValue\n          form: nil\n    yaml:\n      missing:\n        denotes:\n          absent: true\nnamespaces:\n  xr: http://v8.1c.ru/8.3/xcf/readable\nid: candidate.fragment.0cba72b5f63bf541053c\n",
+    "candidate.fragment.0cc2f3d61fe040534753.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  inputType1f8ea46361ff: common.path-root\n  value1: common.metadata-form-link\nvalue:\n  kind: record\n  fields:\n    - name: choiceForm\n      type:\n        use: value1\n        bind:\n          roots:\n            input: roots\n          forms:\n            input: forms\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: choiceForm\n        path:\n          - xr:ChoiceForm\n  yaml:\n    kind: mapping\n    fields:\n      - field: choiceForm\n        key: ФормаВыбора\npresence:\n  - target:\n      field: choiceForm\n    xml:\n      missing:\n        denotes:\n          absent: true\n      empty:\n        - form: empty-element\n          denotes:\n            absent: true\n      canonical:\n        - when:\n            not:\n              present:\n                field: choiceForm\n          form: empty-element\n    yaml:\n      missing:\n        denotes:\n          absent: true\nnamespaces:\n  xr: http://v8.1c.ru/8.3/xcf/readable\ninputs:\n  roots:\n    type:\n      kind: index\n      key:\n        kind: record\n        fields:\n          - name: kind\n            type:\n              use: inputType1f8ea46361ff\n          - name: name\n            type:\n              kind: scalar\n              scalar: text\n      value:\n        kind: scalar\n        scalar: text\n  forms:\n    type:\n      kind: index\n      key:\n        kind: record\n        fields:\n          - name: parent\n            type:\n              kind: scalar\n              scalar: text\n          - name: name\n            type:\n              kind: scalar\n              scalar: text\n      value:\n        kind: scalar\n        scalar: text\nid: candidate.fragment.0cc2f3d61fe040534753\n",
     "candidate.fragment.0d1c6425f678e9dd5edd.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: system.ItemHorizontalLocation\nvalue:\n  kind: record\n  fields:\n    - name: horizontalAlign\n      type:\n        use: value0\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: horizontalAlign\n        path:\n          - HorizontalAlign\n  yaml:\n    kind: mapping\n    fields:\n      - field: horizontalAlign\n        key: ГоризонтальноеПоложение\npresence:\n  - target:\n      field: horizontalAlign\n    xml:\n      missing:\n        denotes:\n          literal: Left\n      canonical:\n        - when:\n            eq:\n              - field: horizontalAlign\n              - literal: Left\n          form: missing\n    yaml:\n      default:\n        literal: Left\nid: candidate.fragment.0d1c6425f678e9dd5edd\n",
     "candidate.fragment.0dbf1ec6dd24d931c05c.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: common.i8n-text\nvalue:\n  kind: record\n  fields:\n    - name: toolTip\n      type:\n        use: value0\n        bind:\n          defaultLanguage:\n            input: defaultLanguage\n          registeredLanguages:\n            input: registeredLanguages\n          ownerName:\n            input: ownerName\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: toolTip\n        path:\n          - ToolTip\n  yaml:\n    kind: mapping\n    fields:\n      - field: toolTip\n        key: Подсказка\npresence:\n  - target:\n      field: toolTip\n    xml:\n      missing:\n        denotes:\n          absent: true\ninputs:\n  defaultLanguage:\n    type:\n      kind: scalar\n      scalar: text\n  registeredLanguages:\n    type:\n      kind: sequence\n      item:\n        kind: scalar\n        scalar: text\n  ownerName:\n    type:\n      kind: scalar\n      scalar: text\nid: candidate.fragment.0dbf1ec6dd24d931c05c\n",
     "candidate.fragment.0dcc54b14b010f4668a3.yaml": "format: nkdk-declarations/1\nkind: fragment\nimports:\n  value0: common.boolean\nvalue:\n  kind: record\n  fields:\n    - name: autoMaxHeight\n      type:\n        use: value0\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - field: autoMaxHeight\n        path:\n          - AutoMaxHeight\n  yaml:\n    kind: mapping\n    fields:\n      - field: autoMaxHeight\n        key: АвтоМаксимальнаяВысота\npresence:\n  - target:\n      field: autoMaxHeight\n    xml:\n      missing:\n        denotes:\n          literal: true\n      canonical:\n        - when:\n            eq:\n              - field: autoMaxHeight\n              - literal: true\n          form: missing\n    yaml:\n      default:\n        literal: true\nid: candidate.fragment.0dcc54b14b010f4668a3\n",
@@ -162926,6 +162683,7 @@
     "candidate.projection.885fa3a13e2777779498.yaml": "format: nkdk-declarations/1\nkind: object\nid: candidate.projection.885fa3a13e2777779498\ndescription: 'Кандидат проекции: относительный XML-корень MaxWidth; не полный владелец'\nimports:\n  part0: candidate.fragment.8c0b821162e600d074b2\ncompose:\n  - use: part0\nvalue:\n  kind: record\n  fields: []\nrepresentations:\n  xml:\n    kind: record\n    fields: []\n  yaml:\n    kind: mapping\n    fields: []\n",
     "candidate.projection.887814ded145487fb008.yaml": "format: nkdk-declarations/1\nkind: object\nid: candidate.projection.887814ded145487fb008\ndescription: 'Кандидат проекции: относительный XML-корень ToolTip; не полный владелец'\nimports:\n  part0: candidate.fragment.979deda71c0bb9fc02c4\ncompose:\n  - use: part0\n    bind:\n      defaultLanguage:\n        input: defaultLanguage\n      registeredLanguages:\n        input: registeredLanguages\n      ownerName:\n        input: ownerName\nvalue:\n  kind: record\n  fields: []\nrepresentations:\n  xml:\n    kind: record\n    fields: []\n  yaml:\n    kind: mapping\n    fields: []\ninputs:\n  defaultLanguage:\n    type:\n      kind: scalar\n      scalar: text\n  registeredLanguages:\n    type:\n      kind: sequence\n      item:\n        kind: scalar\n        scalar: text\n  ownerName:\n    type:\n      kind: scalar\n      scalar: text\n",
     "candidate.projection.888c09eb5cf9c63b069e.yaml": "format: nkdk-declarations/1\nkind: object\nid: candidate.projection.888c09eb5cf9c63b069e\ndescription: 'Кандидат проекции: относительный XML-корень AutoMaxWidth; не полный владелец'\nimports:\n  part0: candidate.fragment.d152bf7ee68f15befbea\ncompose:\n  - use: part0\nvalue:\n  kind: record\n  fields: []\nrepresentations:\n  xml:\n    kind: record\n    fields: []\n  yaml:\n    kind: mapping\n    fields: []\n",
+    "candidate.projection.88e8081ff08d1e79c6cd.yaml": "format: nkdk-declarations/1\nkind: object\nid: candidate.projection.88e8081ff08d1e79c6cd\ndescription: 'Кандидат проекции: относительный XML-корень xr:ChoiceForm; не полный владелец'\nimports:\n  inputType1f8ea46361ff: common.path-root\n  part0: candidate.fragment.0cc2f3d61fe040534753\ncompose:\n  - use: part0\n    bind:\n      roots:\n        input: roots\n      forms:\n        input: forms\nvalue:\n  kind: record\n  fields: []\nrepresentations:\n  xml:\n    kind: record\n    fields: []\n  yaml:\n    kind: mapping\n    fields: []\ninputs:\n  roots:\n    type:\n      kind: index\n      key:\n        kind: record\n        fields:\n          - name: kind\n            type:\n              use: inputType1f8ea46361ff\n          - name: name\n            type:\n              kind: scalar\n              scalar: text\n      value:\n        kind: scalar\n        scalar: text\n  forms:\n    type:\n      kind: index\n      key:\n        kind: record\n        fields:\n          - name: parent\n            type:\n              kind: scalar\n              scalar: text\n          - name: name\n            type:\n              kind: scalar\n              scalar: text\n      value:\n        kind: scalar\n        scalar: text\n",
     "candidate.projection.89e6f7bbd900382e6fe7.yaml": "format: nkdk-declarations/1\nkind: object\nid: candidate.projection.89e6f7bbd900382e6fe7\ndescription: 'Кандидат проекции: относительный XML-корень xr:PasswordMode; не полный владелец'\nimports:\n  part0: candidate.fragment.a3709a223c5ac6581647\ncompose:\n  - use: part0\nvalue:\n  kind: record\n  fields: []\nrepresentations:\n  xml:\n    kind: record\n    fields: []\n  yaml:\n    kind: mapping\n    fields: []\n",
     "candidate.projection.89eea23a7691d9cdca00.yaml": "format: nkdk-declarations/1\nkind: object\nid: candidate.projection.89eea23a7691d9cdca00\ndescription: 'Кандидат проекции: относительный XML-корень VerticalLines; не полный владелец'\nimports:\n  part0: candidate.fragment.d9814ed7e2d2db6c9586\ncompose:\n  - use: part0\nvalue:\n  kind: record\n  fields: []\nrepresentations:\n  xml:\n    kind: record\n    fields: []\n  yaml:\n    kind: mapping\n    fields: []\n",
     "candidate.projection.89f55ea77656389a0382.yaml": "format: nkdk-declarations/1\nkind: object\nid: candidate.projection.89f55ea77656389a0382\ndescription: 'Кандидат проекции: относительный XML-корень Height; не полный владелец'\nimports:\n  part0: candidate.fragment.0219ab9cf189cdf65631\ncompose:\n  - use: part0\nvalue:\n  kind: record\n  fields: []\nrepresentations:\n  xml:\n    kind: record\n    fields: []\n  yaml:\n    kind: mapping\n    fields: []\n",
@@ -163376,7 +163134,7 @@
     "common.path-object-kind.yaml": "format: nkdk-declarations/1\nkind: value\nid: common.path-object-kind\nenum:\n  Table: Таблица\n  Cube: Куб\n  DimensionTable: ТаблицаИзмерения\n  Function: Функция\n  Recalculation: Перерасчет\n",
     "common.path-ordinary-member-kind.yaml": "format: nkdk-declarations/1\nkind: value\nid: common.path-ordinary-member-kind\nenum:\n  Attribute: Реквизит\n  TabularSection: ТабличнаяЧасть\n  Dimension: Измерение\n  Resource: Ресурс\n  Form: Форма\n  Template: Макет\n  Command: Команда\n  AccountingFlag: ПризнакУчета\n  ExtDimensionAccountingFlag: ПризнакУчетаСубконто\n  AddressingAttribute: РеквизитАдресации\n  Field: Поле\n",
     "common.path-root.yaml": "format: nkdk-declarations/1\nkind: value\nid: common.path-root\nenum:\n  Constant: Константа\n  Catalog: Справочник\n  Document: Документ\n  Enum: Перечисление\n  DefinedType: ОпределяемыйТип\n  Characteristic: Характеристика\n  CommandGroup: ГруппаКоманд\n  Role: Роль\n  InformationRegister: РегистрСведений\n  AccumulationRegister: РегистрНакопления\n  AccountingRegister: РегистрБухгалтерии\n  CalculationRegister: РегистрРасчета\n  ExchangePlan: ПланОбмена\n  ChartOfAccounts: ПланСчетов\n  ChartOfCharacteristicTypes: ПланВидовХарактеристик\n  ChartOfCalculationTypes: ПланВидовРасчета\n  BusinessProcess: БизнесПроцесс\n  BusinessProcessRoutePoint: ТочкаМаршрутаБизнесПроцесса\n  Task: Задача\n  DataProcessor: Обработка\n  Report: Отчет\n  DocumentNumerator: НумераторДокументов\n  CommonCommand: ОбщаяКоманда\n  CommonPicture: ОбщаяКартинка\n  CommonTemplate: ОбщийМакет\n  CommonModule: ОбщийМодуль\n  CommonAttribute: ОбщийРеквизит\n  CommonForm: ОбщаяФорма\n  FilterCriterion: КритерийОтбора\n  ScheduledJob: РегламентноеЗадание\n  IntegrationService: СервисИнтеграции\n  Language: Язык\n  Style: Стиль\n  Interface: Интерфейс\n  StyleItem: ЭлементСтиля\n  FunctionalOption: ФункциональнаяОпция\n  FunctionalOptionsParameter: ПараметрФункциональныхОпций\n  DocumentJournal: ЖурналДокументов\n  HTTPService: HTTPСервис\n  WebSocketClient: WebSocketКлиент\n  WebService: WebСервис\n  Bot: Бот\n  ExternalDataSource: ВнешнийИсточникДанных\n  EventSubscription: ПодпискаНаСобытие\n  XDTOPackage: ПакетXDTO\n  WSReference: WSСсылка\n  SessionParameter: ПараметрСеанса\n  SettingsStorage: ХранилищеНастроек\n  Subsystem: Подсистема\n  Sequence: Последовательность\n",
-    "common.path-standard-attribute.yaml": "format: nkdk-declarations/1\nkind: value\nid: common.path-standard-attribute\nenum:\n  Ref: Ссылка\n  LineNumber: НомерСтроки\n  Account: Счет\n  Owner: Владелец\n  Description: Наименование\n  Code: Код\n  DeletionMark: ПометкаУдаления\n  IsFolder: ЭтоГруппа\n  Parent: Родитель\n  Predefined: Предопределенный\n  PredefinedDataName: ИмяПредопределенныхДанных\n  Active: Активность\n  Recorder: Регистратор\n  Period: Период\n  Number: Номер\n  Date: Дата\n  Posted: Проведен\n",
+    "common.path-standard-attribute.yaml": "format: nkdk-declarations/1\nkind: value\nid: common.path-standard-attribute\nenum:\n  Ref: Ссылка\n  LineNumber: НомерСтроки\n  Account: Счет\n  Owner: Владелец\n  ValueType: ТипЗначения\n  ReceivedNo: НомерПринятого\n  SentNo: НомерОтправленного\n  Description: Наименование\n  Code: Код\n  DeletionMark: ПометкаУдаления\n  IsFolder: ЭтоГруппа\n  Parent: Родитель\n  Predefined: Предопределенный\n  PredefinedDataName: ИмяПредопределенныхДанных\n  Active: Активность\n  RecordType: ВидДвижения\n  Recorder: Регистратор\n  Period: Период\n  Number: Номер\n  Date: Дата\n  Posted: Проведен\n",
     "common.path-standard-member-kind.yaml": "format: nkdk-declarations/1\nkind: value\nid: common.path-standard-member-kind\nenum:\n  StandardAttribute: СтандартныйРеквизит\n",
     "common.standard-attribute-name.yaml": "format: nkdk-declarations/1\nkind: value\nid: common.standard-attribute-name\nimports:\n  words: common.path-standard-attribute\n  name: common.metadata-name\nvalue:\n  use: name\nrepresentations:\n  xml:\n    kind: text\n  yaml:\n    kind: text-table\n    use: words\n",
     "common.standard-command-group.yaml": "format: nkdk-declarations/1\nkind: value\nid: common.standard-command-group\nimports:\n  group: system.StandardCommandsGroup\nvalue:\n  kind: record\n  fields:\n    - name: group\n      type:\n        use: group\nrepresentations:\n  xml:\n    kind: text-pattern\n    parts:\n      - field: group\n  yaml:\n    kind: text-pattern\n    parts:\n      - field: group\n",

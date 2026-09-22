@@ -42,7 +42,11 @@ pub(crate) fn resolve(
                     .find(|e| e.id == *id)
                     .is_some_and(|e| {
                         e.value == LinkedType::Scalar(ScalarType::Text)
-                            && e.yaml == YamlRepresentation::Text
+                            && matches!(
+                                e.yaml,
+                                YamlRepresentation::Text
+                                    | YamlRepresentation::TextTable(TextTable::Resolved(_))
+                            )
                     }),
                 _ => false,
             };

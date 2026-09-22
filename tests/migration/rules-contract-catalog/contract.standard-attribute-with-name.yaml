@@ -5,7 +5,7 @@ namespaces:
   xr: http://v8.1c.ru/8.3/xcf/readable
 imports:
   fill: common.standard-attribute-fill-value
-  name: common.string
+  name: common.standard-attribute-name
 inputs:
   defaultLanguage:
     type:

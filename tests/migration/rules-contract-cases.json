@@ -1384,6 +1384,18 @@
       "sha256": "5402cf710992add6b05ad677aa11a7ebbe4470cbfb7565dc753d80e539813abc"
     },
     {
+      "path": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+      "sha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd"
+    },
+    {
+      "path": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+      "sha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd"
+    },
+    {
+      "path": "e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml",
+      "sha256": "676e1d3cb950fab9b2c46065d64824982e2146ade8db6f08d5f296b8added776"
+    },
+    {
       "path": "packages/rules/metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.integration.test.ts",
       "sha256": "278690b7f26c1b96094fa00760c8b7c929c33efc19841ea3c2bdb570e2e9187a"
     },
@@ -5693,7 +5705,7 @@
       "id": "fill-value-standard-owner-with-name",
       "entry": "contract.standard-attribute-with-name",
       "xml": "<xr:StandardAttribute name=\"Owner\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"xr:DesignTimeRef\">Catalog.СправочникВладелец.ПредопределенноеЗначение</xr:FillValue></xr:StandardAttribute>",
-      "yaml": "ЗначениеЗаполнения: Справочник.СправочникВладелец.ПредопределенноеЗначение\nИмя: Owner",
+      "yaml": "ЗначениеЗаполнения: Справочник.СправочникВладелец.ПредопределенноеЗначение\nИмя: Владелец",
       "inputs": {
         "defaultLanguage": "ru",
         "registeredLanguages": [
@@ -5727,7 +5739,22 @@
           "sha256": "6bd24d47b6a0cda3a4bcae103220cb2a0207de3275f29807163da86b47e9ca4c"
         }
       ],
-      "adaptation": "Compose the reusable FillValue fragment with the independently observed standard-attribute name on the same XML wrapper"
+      "adaptation": "Compose the reusable FillValue fragment with the independently observed standard-attribute name; the common text table converts the XML name to YAML and back"
+    },
+    {
+      "id": "standard-attribute-translated-mapping-keys",
+      "entry": "contract.standard-names",
+      "xml": "<StandardAttributes xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:StandardAttribute name=\"Owner\"/><xr:StandardAttribute name=\"Parent\"/></StandardAttributes>",
+      "yaml": "СтандартныеРеквизиты:\n  Владелец: {}\n  Родитель: {}",
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml"
+        }
+      ],
+      "adaptation": "Project two observed e2e standard attribute names as a complete named collection; omit independent member fields to isolate shared XML attribute and YAML mapping key translation"
     },
     {
       "id": "fill-value-standard-owner-implicit",

@@ -84,6 +84,9 @@ declarations:
     LineNumber: НомерСтроки
     Account: Счет
     Owner: Владелец
+    ValueType: ТипЗначения
+    ReceivedNo: НомерПринятого
+    SentNo: НомерОтправленного
     Description: Наименование
     Code: Код
     DeletionMark: ПометкаУдаления
@@ -92,6 +95,7 @@ declarations:
     Predefined: Предопределенный
     PredefinedDataName: ИмяПредопределенныхДанных
     Active: Активность
+    RecordType: ВидДвижения
     Recorder: Регистратор
     Period: Период
     Number: Номер

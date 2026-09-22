@@ -1,0 +1,25 @@
+format: nkdk-declarations/1
+kind: object
+id: contract.standard-names
+namespaces:
+  xr: http://v8.1c.ru/8.3/xcf/readable
+imports:
+  items: contract.standard-name-list
+value:
+  kind: record
+  fields:
+    - name: items
+      type:
+        use: items
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: items
+        path:
+          - StandardAttributes
+  yaml:
+    kind: mapping
+    fields:
+      - field: items
+        key: СтандартныеРеквизиты

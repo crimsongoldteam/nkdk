@@ -133,6 +133,7 @@ fn generate_at(
             && (!matches!(
                 codec,
                 Codec::Text
+                    | Codec::TextTable(_)
                     | Codec::Boolean(..)
                     | Codec::Decimal
                     | Codec::Enumeration(..)
@@ -540,12 +541,12 @@ fn generate_at(
                     .unwrap();
                     continue;
                 }
-                let original = if matches!(field.codec, Codec::Decimal) {
+                let original = if matches!(field.codec, Codec::Decimal | Codec::TextTable(_)) {
                     format!("r{i}.clone()")
                 } else {
                     format!("r{i}.as_str()")
                 };
-                let original_ref = if matches!(field.codec, Codec::Decimal) {
+                let original_ref = if matches!(field.codec, Codec::Decimal | Codec::TextTable(_)) {
                     "&original"
                 } else {
                     "original"
@@ -1287,28 +1288,23 @@ fn generate_at(
         writeln!(out, "fn {finalize_name}(original: &[u8], candidate: Vec<u8>, _value: &V{id}, inputs: &InputView<'_>) -> core::Result<Vec<u8>> {{ verify_{id}(original, &candidate, inputs)?; Ok(candidate) }}").unwrap();
     }
     writeln!(out,"#[allow(dead_code)] fn text_field_{id}(value:&V{id},field:usize)->core::Result<&str>{{let _=(value,field);").unwrap();
-    let has_text = fields.iter().any(|field| {
+    let text_field = |field: &Field<'_>| {
         matches!(
             field.codec,
             Codec::Text
+                | Codec::TextTable(_)
                 | Codec::QNameText(_)
                 | Codec::Enumeration(..)
                 | Codec::QNameEnumeration(..)
                 | Codec::States(..)
         )
-    });
+    };
+    let has_text = fields.iter().any(text_field);
     if has_text {
         out.push_str("match field{");
     }
     for (index, field) in fields.iter().enumerate() {
-        if matches!(
-            field.codec,
-            Codec::Text
-                | Codec::QNameText(_)
-                | Codec::Enumeration(..)
-                | Codec::QNameEnumeration(..)
-                | Codec::States(..)
-        ) {
+        if text_field(field) {
             let reference = format!(
                 "value.f{index}.as_ref().ok_or_else(||RuntimeDiagnostic::new(\"fact.unready\",\"Text field is unavailable\"))?"
             );

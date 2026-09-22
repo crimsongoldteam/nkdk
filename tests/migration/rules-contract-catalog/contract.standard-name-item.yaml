@@ -1,0 +1,25 @@
+format: nkdk-declarations/1
+kind: value
+id: contract.standard-name-item
+namespaces:
+  xr: http://v8.1c.ru/8.3/xcf/readable
+imports:
+  name: common.standard-attribute-name
+value:
+  kind: record
+  fields:
+    - name: name
+      type:
+        use: name
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: name
+        path: []
+        attribute: name
+  yaml:
+    kind: mapping
+    fields:
+      - field: name
+        key: Имя

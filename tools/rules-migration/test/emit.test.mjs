@@ -8,6 +8,46 @@ import { mapProperty, METADATA_ATTRIBUTE_TYPE_DESCRIPTION_TYPES } from '../src/m
 import { checkSnapshot } from '../src/source-snapshot.mjs';
 import { candidateDiff } from '../src/candidate-diff.mjs';
 import { candidateCatalog } from '../src/candidate-catalog.mjs';
+import { readFileSync } from 'node:fs';
+import { prepareCollectionProperty } from '../src/collection-property.mjs';
+import { sourceProgram } from '../src/source-program.mjs';
+import { evaluator, serialize } from '../src/static-value.mjs';
+import { ts } from '../src/syntax.mjs';
+
+test('the standard attribute choice form uses the general explicit-owner form link', () => {
+  const extraction=JSON.parse(readFileSync('tests/migration/rules-extraction.json','utf8'));
+  const item=extraction.entries.find(entry=>entry.symbol==='StandardAttributeDescriptionRules');
+  const choiceForm=item.properties.find(property=>property.name==='choiceForm');
+  const {catalog}=candidateCatalog();
+  const mapped=mapProperty(choiceForm,catalog,{xr:'http://v8.1c.ru/8.3/xcf/readable'});
+  assert.equal(mapped.status,'candidate',JSON.stringify(mapped));
+  assert.equal(mapped.id,'common.metadata-form-link');
+  assert.deepEqual(Object.keys(mapped.inputs).sort(),['forms','roots']);
+});
+
+test('the standard attribute name is a translated XML attribute and YAML collection key', () => {
+  const extraction=JSON.parse(readFileSync('tests/migration/rules-extraction.json','utf8'));
+  const item=extraction.entries.find(entry=>entry.symbol==='StandardAttributeDescriptionRules');
+  const name=prepareCollectionProperty(item.properties.find(property=>property.name==='name'),{yamlAsArray:false,keyField:'name'});
+  const mapped=mapProperty(name,candidateCatalog().catalog,{xr:'http://v8.1c.ru/8.3/xcf/readable'});
+  assert.equal(mapped.status,'candidate',JSON.stringify(mapped));
+  assert.equal(mapped.id,'common.standard-attribute-name');
+  assert.deepEqual([mapped.path,mapped.attribute,mapped.key],[[],'name','name']);
+});
+
+test('the declared standard attribute names cover the source names', () => {
+  const path='packages/rules/metadata/commonObjects/standardAttributeDescription/standartAttributeNames.ts';
+  const program=sourceProgram({[path]:readFileSync(path,'utf8')});
+  const file=[...program.parsed.values()][0];
+  const declaration=file.statements.filter(ts.isVariableStatement)
+    .flatMap(statement=>[...statement.declarationList.declarations])
+    .find(item=>item.name.getText()==='StandartAttributeNameToYAML');
+  const issues=[];
+  const source=serialize(evaluator(program)(declaration.initializer),issues);
+  assert.deepEqual(issues,[]);
+  const declared=candidateCatalog().catalog.get('common.path-standard-attribute').enum;
+  for(const [internal,yaml] of Object.entries(source))assert.equal(declared[internal],yaml,internal);
+});
 
 test('candidate generation shares fragments, rejects unknown parameters and protects edits', () => {
   const property = {name:'enabled', source:{path:'shared.ts',line:1,column:1}, status:'static-parameters',

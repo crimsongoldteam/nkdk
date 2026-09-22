@@ -1,0 +1,19 @@
+format: nkdk-declarations/1
+kind: value
+id: contract.standard-name-list
+namespaces:
+  xr: http://v8.1c.ru/8.3/xcf/readable
+imports:
+  item: contract.standard-name-item
+value:
+  kind: sequence
+  item:
+    use: item
+representations:
+  xml:
+    kind: element-sequence
+    path:
+      - xr:StandardAttribute
+  yaml:
+    kind: record-mapping
+    key: name

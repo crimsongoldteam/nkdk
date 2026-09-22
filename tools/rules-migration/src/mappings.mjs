@@ -49,6 +49,8 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
   } else if (property.status !== 'static-parameters') return fail('requires-expression-mapping');
   if (!p || typeof p !== 'object' || Array.isArray(p)) return fail('invalid-property-shape');
   if (typeof property.name !== 'string' || !property.name) return fail('field-name-profile');
+  const declaredValue=profiles.find(profile=>profile.kind==='value-declaration');
+  if(declaredValue && (p.type!=='string' || typeof declaredValue.id!=='string'))return fail('value-declaration-profile');
   if(p.type==='uuid')return mapIdentity(property,catalog);
   if(Object.hasOwn(p,'toYAML') || Object.hasOwn(p,'fromYAML')) {
     if(p.toYAML!==false || p.fromYAML!==false || !(simple.has(p.type) || p.type==='SystemEnumeration') || !Object.hasOwn(p,'implicitValueYAML'))return fail('hidden-scalar-default-required');
@@ -89,6 +91,7 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
   const target=p.metadataTarget;
   const ownerForm=p.type==='MetadataItemLink' && target?.kind==='member' && target.owner==='this' && JSON.stringify(target.memberKinds)==='["Form"]' && JSON.stringify(target.objectRoots)==='["CommonForm"]' && Object.keys(target).every(key=>['kind','owner','memberKinds','objectRoots'].includes(key));
   const typeForm=p.type==='MetadataItemLink' && target?.kind==='member' && target.owner==='type' && target.typeProperty==='type' && JSON.stringify(target.memberKinds)==='["Form"]' && Object.keys(target).every(key=>['kind','owner','typeProperty','memberKinds'].includes(key));
+  const explicitForm=p.type==='MetadataItemLink' && target?.kind==='member' && target.owner==='explicit' && JSON.stringify(target.memberKinds)==='["Form"]' && Object.keys(target).every(key=>['kind','owner','memberKinds'].includes(key));
   const ownBooleanAttribute=p.type==='MetadataItemLink' && target?.kind==='member' && target.owner==='this' && JSON.stringify(target.memberKinds)==='["Attribute"]' && JSON.stringify(target.filters)===JSON.stringify([{kind:'directMember'},{kind:'hasType',type:'boolean'}]) && Object.keys(target).every(key=>['kind','owner','memberKinds','filters'].includes(key));
   const numerator=p.type==='MetadataItemLink' && target?.kind==='object' && JSON.stringify(target.roots)==='["DocumentNumerator"]' && Object.keys(target).every(key=>['kind','roots'].includes(key));
   const documentList=p.type==='MetadataItemLinks' && target?.kind==='object' && JSON.stringify(target.roots)==='["Document"]' && Object.keys(target).every(key=>['kind','roots'].includes(key));
@@ -113,7 +116,7 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
   if(Object.hasOwn(p,'runtimeOnly') && !runtimeOnly)return fail('runtime-only-profile');
   if(runtimeOnly && (!typeDescription || ['xml','xmlParents','defaultValueXML','defaultValueXMLRaw','defaultValueAdoptedXML'].some(key=>Object.hasOwn(p,key))))return fail('runtime-only-profile');
   if(typeLink && Object.hasOwn(p,'metadataTarget'))return fail('type-link-target-profile');
-  const reference=ownerForm || typeForm || ownBooleanAttribute || numerator || typeLink || typeDescription || choiceValue || metadataValue;
+  const reference=ownerForm || typeForm || explicitForm || ownBooleanAttribute || numerator || typeLink || typeDescription || choiceValue || metadataValue;
   if(reference && (Object.hasOwn(p,'defaultValueXML') || Object.hasOwn(p,'implicitValueYAML') || Object.hasOwn(p,'noImplicitValueYAML')))return fail('form-default-profile');
   const grouped = p.type === 'MetadataCommandGroup';
   const scalarChoice=p.type==='StringOrNumber';
@@ -139,7 +142,7 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
   if(fields && p.fieldsListXMLItem !== undefined && !['Field','xr:Field'].includes(p.fieldsListXMLItem))return fail('fields-list-item-profile');
   if(minMax && p.typedXML !== undefined && !['xs:string','xs:decimal'].includes(p.typedXML))return fail('min-max-type-profile');
   const nilDefault=minMax && p.defaultValueXMLRaw && typeof p.defaultValueXMLRaw==='object' && Object.keys(p.defaultValueXMLRaw).length===1 && p.defaultValueXMLRaw['_xsi:nil']===true;
-  const id = simple.get(p.type) ?? list ?? (date?(p.typedXML?'common.typed-date-time':'common.date-time'):null) ?? (purposes?'common.use-purposes':scalarChoice?'common.string-or-number':qname?'common.xdto-type-name':index?'common.index-field':grouped?'common.metadata-command-group':ownerForm?'common.owner-or-common-form-link':typeForm?'common.metadata-form-link':ownBooleanAttribute?'common.owner-attribute-link':numerator?'common.document-numerator-link':typeLink?'common.type-link':typeDescription?'common.type-description':metadataValue?'common.metadata-value':p.type==='ChoiceParameterLinks'?'common.choice-parameter-links':p.type==='ChoiceParameters'?'common.choice-parameters':documentList?'common.journal-document-links':basedOn?'common.based-on-links':null) ?? (p.type === 'SystemEnumeration' ? `system.${p.typeSE}` : text ? (formatted?'common.formatted-i8n-text':'common.i8n-text') : minMax ? (p.typedXML==='xs:string'?'common.min-max-value-text':'common.min-max-value') : fields ? (p.fieldsListXMLItem==='xr:Field'?'common.fields-list-readable':'common.fields-list') : null);
+  const id = declaredValue?.id ?? simple.get(p.type) ?? list ?? (date?(p.typedXML?'common.typed-date-time':'common.date-time'):null) ?? (purposes?'common.use-purposes':scalarChoice?'common.string-or-number':qname?'common.xdto-type-name':index?'common.index-field':grouped?'common.metadata-command-group':ownerForm?'common.owner-or-common-form-link':(typeForm||explicitForm)?'common.metadata-form-link':ownBooleanAttribute?'common.owner-attribute-link':numerator?'common.document-numerator-link':typeLink?'common.type-link':typeDescription?'common.type-description':metadataValue?'common.metadata-value':p.type==='ChoiceParameterLinks'?'common.choice-parameter-links':p.type==='ChoiceParameters'?'common.choice-parameters':documentList?'common.journal-document-links':basedOn?'common.based-on-links':null) ?? (p.type === 'SystemEnumeration' ? `system.${p.typeSE}` : text ? (formatted?'common.formatted-i8n-text':'common.i8n-text') : minMax ? (p.typedXML==='xs:string'?'common.min-max-value-text':'common.min-max-value') : fields ? (p.fieldsListXMLItem==='xr:Field'?'common.fields-list-readable':'common.fields-list') : null);
   if (!id || !catalog.has(id)) return fail('unsupported-common');
   if(metadataValue && !catalog.get(id).inputs?.onlyStringType)return fail('metadata-value-contract');
   let implicitValue=p.implicitValueYAML;
@@ -177,13 +180,14 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
   if (typeof p.yaml !== 'string' || !p.yaml) return fail('explicit-yaml-name-required');
   const xml = runtimeOnly ? undefined : p.xml ?? property.name[0].toUpperCase() + property.name.slice(1);
   const parents = runtimeOnly ? [] : p.xmlParents ?? [];
-  if (!Array.isArray(parents) || [...parents,...(xml?[xml]:[])].some(part => typeof part !== 'string' || !/^(?:[A-Za-z][A-Za-z0-9]*:)?[A-Za-z][A-Za-z0-9]*$/.test(part))) return fail('xml-path-profile');
+  const attribute=typeof xml==='string' && /^_[A-Za-z][A-Za-z0-9]*$/.test(xml)?xml.slice(1):undefined;
+  if (!Array.isArray(parents) || [...parents,...(attribute?[]:xml?[xml]:[])].some(part => typeof part !== 'string' || !/^(?:[A-Za-z][A-Za-z0-9]*:)?[A-Za-z][A-Za-z0-9]*$/.test(part))) return fail('xml-path-profile');
   const namespaces={};
   if(metadataStringDefault) {
     namespaces.xs='http://www.w3.org/2001/XMLSchema';
     namespaces.xsi='http://www.w3.org/2001/XMLSchema-instance';
   }
-  for(const part of [...parents,...(xml?[xml]:[])].filter(part=>part.includes(':'))) {
+  for(const part of [...parents,...(attribute?[]:xml?[xml]:[])].filter(part=>part.includes(':'))) {
     const prefix=part.split(':')[0];
     if(typeof xmlNamespaces[prefix]!=='string' || !xmlNamespaces[prefix])return fail(`unknown-xml-prefix:${prefix}`);
     namespaces[prefix]=xmlNamespaces[prefix];
@@ -218,7 +222,7 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
     if (flags.length) type.with = Object.fromEntries(flags.map(k => [k,p[k]]));
     type.bind = Object.fromEntries(Object.keys(textInputs).map(k => [formatted ? ({registeredLanguages:'languages',ownerName:'name'}[k] ?? k) : k,{input:k}]));
   }
-  const mapped = {status:'candidate', id, type, ...(p.tag?{sourceTag:p.tag}:{}), ...(parameterEquivalences.length?{parameterEquivalences}:{}), ...(Object.hasOwn(p,'toEnterprise')?{excludedParameters:['toEnterprise']}:{}), path:runtimeOnly?[]:[...parents,xml], ...(runtimeOnly?{yamlOnly:true}:{}), key:p.yaml, inputs:lifted?.inputs ?? (text ? textInputs : {}), ...(lifted?{imports:lifted.imports}:{}),
+  const mapped = {status:'candidate', id, type, ...(p.tag?{sourceTag:p.tag}:{}), ...(parameterEquivalences.length?{parameterEquivalences}:{}), ...(Object.hasOwn(p,'toEnterprise')?{excludedParameters:['toEnterprise']}:{}), path:runtimeOnly?[]:[...parents,...(attribute?[]:[xml])], ...(attribute?{attribute}:{}), ...(runtimeOnly?{yamlOnly:true}:{}), key:p.yaml, inputs:lifted?.inputs ?? (text ? textInputs : {}), ...(lifted?{imports:lifted.imports}:{}),
     presence:reference && !metadataValue ? {target:{field:property.name},xml:{missing:{denotes:{absent:true}},empty:[{form:'empty-element',denotes:{absent:true}}],...(p.defaultValueXMLRaw===''?{canonical:[{when:{not:{present:{field:property.name}}},form:'empty-element'}]}:{})},yaml:{missing:{denotes:{absent:true}}}} : indexDefault ? {target:{field:property.name},xml:{canonical:[{when:{not:{exists:{in:{field:property.name},as:'row',where:{literal:true}}}},form:'empty-element'},{form:'ordinary'}]}} : (metadataValue || formatted || qname || index || grouped || linkList || scalarChoice || purposes) ? undefined : list ? {target:{field:property.name},
       xml:{missing:{denotes:{sequence:[]}},empty:[{form:'empty-element',denotes:{sequence:[]}}]},
       yaml:{missing:{denotes:{sequence:[]}},omitWhen:{not:{exists:{in:{field:property.name},as:'row',where:{literal:true}}}}}} : {target:{field:property.name}, xml:{missing:{denotes:{absent:true}},
@@ -317,6 +321,9 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
       if(p.type!=='I8nText' || p.excludeIfEqualNameYAML!==true)return fail('i8n-owner-name-default-profile');
       mapped.parameterEquivalences=[...(mapped.parameterEquivalences??[]),
         {parameter:profile.parameter,equivalentTo:'owner-name-shorthand',via:'common.i8n-text'}];
+    } else if(profile.kind==='value-declaration') {
+      mapped.parameterEquivalences=[...(mapped.parameterEquivalences??[]),
+        {parameter:profile.parameter,equivalentTo:'declared-value-representation',via:profile.id}];
     }
   }
   // Declared records now honor owner XML empty and canonical forms. YAML

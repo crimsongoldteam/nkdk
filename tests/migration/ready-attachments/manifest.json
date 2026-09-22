@@ -13142,7 +13142,7 @@
     },
     {
       "path": "rust/declarations/common/metadata-path-lexicons.yaml",
-      "sha256": "0e5addeaec8f3bd7eca8ac338a16bdf2bdddf8f6003bb296ace2f8b46c936cac"
+      "sha256": "7f440fb4eeb7894fa16409ae8d24b1edf1febb648b4216bc24313e96ba31dda0"
     },
     {
       "path": "rust/declarations/common/metadata-root-path.yaml",

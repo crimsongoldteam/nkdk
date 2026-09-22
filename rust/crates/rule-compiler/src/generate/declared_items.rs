@@ -273,6 +273,32 @@ pub(super) fn generate_at(
     } else {
         None
     };
+    let key_mapper = lifted
+        .as_ref()
+        .and_then(|(index, _, _)| {
+            let LinkedType::Reference(id) = &row_fields[*index].value else {
+                return None;
+            };
+            program
+                .entries
+                .iter()
+                .find(|entry| entry.id == *id)
+                .and_then(|entry| {
+                    let YamlRepresentation::TextTable(TextTable::Resolved(table)) = &entry.yaml
+                    else {
+                        return None;
+                    };
+                    Some(
+                        table
+                            .iter()
+                            .map(|item| format!("{:?}=>{:?},", item.value, item.text))
+                            .collect::<String>(),
+                    )
+                })
+        })
+        .map_or(String::new(), |arms| {
+            format!("let key=match key{{{arms}value=>value}};")
+        });
     let body = super::value_record::generate(&row, row_program, &route, lifted.clone())?;
     let mut presence = collection_presence::override_for(&common, entry, bindings, arguments)?
         .unwrap_or(common.clone());
@@ -412,6 +438,7 @@ pub(super) fn generate_at(
             &record::path_code(&parent[..parent.len() - 1]),
         )
         .replace("@key@", &format!("{key:?}"))
+        .replace("@key_mapper@", &key_mapper)
         .replace("@physical@", &format!("{:?}", parent.last().unwrap().local))
         .replace(
             "@namespace@",
@@ -576,7 +603,7 @@ fn write_mapping_rows_@id@(value:&V@id@,inputs:&InputView<'_>,out:&mut String,in
 if value.rows.is_empty(){if !@root_yaml@{out.push(' ');}out.push_str("{}");return Ok(())}
 let mut seen=std::collections::HashSet::new();let row_indent=format!("{indent}{}",if @root_yaml@{"  "}else{"    "});
 for row in &value.rows{if !item_@id@::key_can_be_lifted(row){continue;}
-let key=match item_@id@::text(row,@lifted_index@){Ok(key)=>key,Err(error) if error.code.as_deref()==Some("fact.unready")=>continue,Err(error)=>return Err(error)};if !seen.insert(key){continue;}
+let key=match item_@id@::text(row,@lifted_index@){Ok(key)=>key,Err(error) if error.code.as_deref()==Some("fact.unready")=>continue,Err(error)=>return Err(error)};@key_mapper@ if !seen.insert(key){continue;}
 if !@root_yaml@ || seen.len()>1{out.push('\n');}out.push_str(indent);if !@root_yaml@{out.push_str("  ");}out.push_str(&core::yaml::scalar(key));out.push(':');let mut rendered=String::new();item_@id@::write_mapping_value(row,inputs,&mut rendered,"")?;let trimmed=rendered.trim_start();let structured=rendered.contains('\n')||trimmed.starts_with(['{','[','-'])||(!trimmed.starts_with(['\"','\''])&&trimmed.contains(':'));if rendered.is_empty(){out.push('\n');out.push_str(&row_indent);out.push_str("{}");}else if structured{out.push('\n');core::yaml::Indented::new(out,&row_indent).push_str(&rendered);}else{out.push(' ');out.push_str(&rendered);}}
 if seen.is_empty(){if !@root_yaml@{out.push(' ');}out.push_str("{}");}
 Ok(())}

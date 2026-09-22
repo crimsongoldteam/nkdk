@@ -331,7 +331,7 @@ cases.push({...documentDateCase,id:'fill-value-standard-document-date-wrong-kind
 });
 const standardOwner=cases.find(row=>row.id==='fill-value-standard-owner');
 const standardWithName={format:'nkdk-declarations/1',kind:'object',id:'contract.standard-attribute-with-name',
- namespaces:{xr:xrNamespace},imports:{fill:standardFillProfile.id,name:'common.string'},
+ namespaces:{xr:xrNamespace},imports:{fill:standardFillProfile.id,name:'common.standard-attribute-name'},
  inputs:structuredClone(standardFillProfile.inputs),
  compose:[{use:'fill',bind:Object.fromEntries(Object.keys(standardFillProfile.inputs).map(name=>[name,{input:name}]))}],
  value:{kind:'record',fields:[{name:'name',type:{use:'name'}}]},
@@ -342,8 +342,38 @@ catalog.set(standardWithName.id,standardWithName);
 selected.push(standardWithName);
 cases.push({...standardOwner,id:'fill-value-standard-owner-with-name',entry:standardWithName.id,
  xml:standardOwner.xml.replace('<xr:StandardAttribute ','<xr:StandardAttribute name="Owner" '),
- yaml:`${standardOwner.yaml}\nИмя: Owner`,
- adaptation:'Compose the reusable FillValue fragment with the independently observed standard-attribute name on the same XML wrapper',
+ yaml:`${standardOwner.yaml}\nИмя: Владелец`,
+ adaptation:'Compose the reusable FillValue fragment with the independently observed standard-attribute name; the common text table converts the XML name to YAML and back',
+});
+const standardNamesSource='e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml';
+const standardNamesYaml='e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml';
+const observedStandardNames=['Owner','Parent'];
+for(const name of observedStandardNames)if(!source(standardNamesSource).includes(`<xr:StandardAttribute name="${name}">`))throw new Error(`Missing e2e standard member ${name}`);
+const standardNamesText=source(standardNamesYaml);
+for(const name of ['Владелец','Родитель'])if(!standardNamesText.includes(`  ${name}:`))throw new Error(`Missing e2e standard YAML key ${name}`);
+const standardNameItem={format:'nkdk-declarations/1',kind:'value',id:'contract.standard-name-item',
+ namespaces:{xr:xrNamespace},imports:{name:'common.standard-attribute-name'},
+ value:{kind:'record',fields:[{name:'name',type:{use:'name'}}]},
+ representations:{xml:{kind:'record',fields:[{field:'name',path:[],attribute:'name'}]},
+   yaml:{kind:'mapping',fields:[{field:'name',key:'Имя'}]}},
+};
+const standardNameList={format:'nkdk-declarations/1',kind:'value',id:'contract.standard-name-list',
+ namespaces:{xr:xrNamespace},imports:{item:standardNameItem.id},
+ value:{kind:'sequence',item:{use:'item'}},
+ representations:{xml:{kind:'element-sequence',path:['xr:StandardAttribute']},yaml:{kind:'record-mapping',key:'name'}},
+};
+const standardNames={format:'nkdk-declarations/1',kind:'object',id:'contract.standard-names',
+ namespaces:{xr:xrNamespace},imports:{items:standardNameList.id},
+ value:{kind:'record',fields:[{name:'items',type:{use:'items'}}]},
+ representations:{xml:{kind:'record',fields:[{field:'items',path:['StandardAttributes']}]},
+   yaml:{kind:'mapping',fields:[{field:'items',key:'СтандартныеРеквизиты'}]}},
+};
+for(const module of [standardNameItem,standardNameList,standardNames]){catalog.set(module.id,module);selected.push(module);}
+cases.push({id:'standard-attribute-translated-mapping-keys',entry:standardNames.id,
+ xml:`<StandardAttributes xmlns:xr="${xrNamespace}">${observedStandardNames.map(name=>`<xr:StandardAttribute name="${name}"/>`).join('')}</StandardAttributes>`,
+ yaml:'СтандартныеРеквизиты:\n  Владелец: {}\n  Родитель: {}',
+ source:[{path:standardNamesSource},{path:standardNamesYaml}],
+ adaptation:'Project two observed e2e standard attribute names as a complete named collection; omit independent member fields to isolate shared XML attribute and YAML mapping key translation',
 });
 const standardDefaultSource='packages/rules/metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.integration.test.ts';
 if(!source(standardDefaultSource).includes('Catalog.СправочникВладелец.EmptyRef'))throw new Error('Changed independent standard Owner default');

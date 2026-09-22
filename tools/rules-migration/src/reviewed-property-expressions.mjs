@@ -19,6 +19,10 @@ const profiles = new Map([
     '574e33c1d66458f04ae34d1f3fc5d0411b61a94592f07cbe534c6a13e932019d', {
     parameter: 'defaultValue', kind: 'i8n-owner-name-default',
   }],
+  ['packages/rules/metadata/commonObjects/standardAttributeDescription/rules.ts:51\0' +
+    'a4707c4dd60c17cc173ac20c3cbc5555aaaefca303aa365478465d0f56bf13ac', {
+    parameter: 'defaultValue', kind: 'value-declaration', id: 'common.standard-attribute-name',
+  }],
 ]);
 
 /**
