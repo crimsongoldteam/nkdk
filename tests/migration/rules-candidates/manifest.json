@@ -13007,7 +13007,7 @@
     },
     {
       "path": "rust/declarations/candidates/standard-attribute-fill-value.yaml",
-      "sha256": "7b69e39e35c7d2e3c8ab952e1af7dec0104eca503fde00f18eb1d14497fd218d"
+      "sha256": "2cf446bb3e0936ca5ca1f26e21c114c21335c7814570383d899c47e965b564e1"
     },
     {
       "path": "rust/declarations/common/additional-index-row.yaml",

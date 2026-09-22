@@ -986,6 +986,10 @@ fn generate_checks(
 fn uses_unprojected_owner_field(value: &LinkedExpression) -> bool {
     match &value.kind {
         LinkedExpressionKind::Operation {
+            operator: LinkedOperator::State(StatePredicate::Present),
+            arguments,
+        } if matches!(arguments.as_slice(), [LinkedExpression { kind: LinkedExpressionKind::Field(0), .. }]) => false,
+        LinkedExpressionKind::Operation {
             operator: LinkedOperator::VariantText(_),
             arguments,
         } if matches!(

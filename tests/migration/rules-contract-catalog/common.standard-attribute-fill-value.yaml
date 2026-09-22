@@ -33,6 +33,18 @@ inputs:
     type:
       kind: scalar
       scalar: text
+  expectedKind:
+    type:
+      kind: scalar
+      scalar: text
+  maxTextLength:
+    type:
+      kind: scalar
+      scalar: text
+  maxNumberDigits:
+    type:
+      kind: scalar
+      scalar: text
 value:
   kind: record
   fields:
@@ -115,3 +127,184 @@ presence:
                   literal: ''
           else:
             absent: true
+constraints:
+  - id: forbidden-value
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      eq:
+        - input: policy
+        - literal: forbidden
+    assert:
+      not:
+        present:
+          field: value
+    diagnostic:
+      code: fill-value.forbidden
+      severity: warning
+      at:
+        field: value
+      message: Значение заполнения запрещено для этого стандартного реквизита
+  - id: expected-value-kind
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      and:
+        - present:
+            field: value
+        - not:
+            eq:
+              - input: expectedKind
+              - literal: ''
+    assert:
+      or:
+        - and:
+            - eq:
+                - input: expectedKind
+                - literal: text
+            - isVariant:
+                value:
+                  field: value
+                variant: text
+        - and:
+            - eq:
+                - input: expectedKind
+                - literal: decimal
+            - isVariant:
+                value:
+                  field: value
+                variant: decimal
+        - and:
+            - eq:
+                - input: expectedKind
+                - literal: boolean
+            - isVariant:
+                value:
+                  field: value
+                variant: boolean
+        - and:
+            - eq:
+                - input: expectedKind
+                - literal: calendar
+            - isVariant:
+                value:
+                  field: value
+                variant: calendar
+        - and:
+            - eq:
+                - input: expectedKind
+                - literal: reference
+            - isVariant:
+                value:
+                  field: value
+                variant: reference
+    diagnostic:
+      code: fill-value.type-mismatch
+      severity: warning
+      at:
+        field: value
+      message: Значение заполнения не соответствует типу стандартного реквизита
+  - id: owner-reference
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      and:
+        - eq:
+            - input: policy
+            - literal: ownerReference
+        - isVariant:
+            value:
+              field: value
+            variant: reference
+    assert:
+      exists:
+        in:
+          input: owners
+        as: owner
+        where:
+          textSegmentPrefix:
+            value:
+              variantText:
+                value:
+                  field: value
+                variant: reference
+            prefix:
+              var: owner
+            separator: .
+    diagnostic:
+      code: fill-value.type-mismatch
+      severity: warning
+      at:
+        field: value
+      message: Ссылка значения заполнения не принадлежит владельцу
+  - id: text-length
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      and:
+        - eq:
+            - input: expectedKind
+            - literal: text
+        - isVariant:
+            value:
+              field: value
+            variant: text
+        - matches:
+            value:
+              input: maxTextLength
+            pattern: '[1-9][0-9]*'
+    assert:
+      textLengthAtMost:
+        value:
+          variantValue:
+            value:
+              field: value
+            variant: text
+        limit:
+          input: maxTextLength
+    diagnostic:
+      code: fill-value.string-length
+      severity: warning
+      at:
+        field: value
+      message: Значение заполнения превышает длину стандартного реквизита
+  - id: number-digits
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      and:
+        - eq:
+            - input: expectedKind
+            - literal: decimal
+        - isVariant:
+            value:
+              field: value
+            variant: decimal
+        - matches:
+            value:
+              input: maxNumberDigits
+            pattern: '[1-9][0-9]*'
+    assert:
+      decimalFits:
+        value:
+          variantValue:
+            value:
+              field: value
+            variant: decimal
+        digits:
+          input: maxNumberDigits
+        fraction:
+          literal: '0'
+        sign:
+          literal: Nonnegative
+    diagnostic:
+      code: fill-value.number-qualifiers
+      severity: warning
+      at:
+        field: value
+      message: Значение заполнения не соответствует длине стандартного реквизита

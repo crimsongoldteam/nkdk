@@ -258,9 +258,12 @@ const standardXMLPath='e2e/fixtures/xml/cf/Catalogs/СправочникПолн
 const standardYAMLPath='e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml';
 const standardYAML=source(standardYAMLPath);
 for(const [internal,name,expected] of [
+ ['Ref','Ссылка',null],
  ['Owner','Владелец','Справочник.СправочникВладелец.ПредопределенноеЗначение'],
  ['Parent','Родитель','Справочник.СправочникПолный.ПустаяСсылка'],
  ['Code','Код',null],
+ ['DeletionMark','ПометкаУдаления',null],
+ ['Description','Наименование',null],
 ]) {
  if(expected!==null && (!standardYAML.includes(`  ${name}:`) || !standardYAML.includes(`    ЗначениеЗаполнения: ${expected}`)))throw new Error(`Changed independent standard attribute ${name}`);
  const [fixture]=JSON.parse(execFileSync('python3',['tools/rules-migration/src/project-fixtures.py'],{input:JSON.stringify([{
@@ -268,7 +271,7 @@ for(const [internal,name,expected] of [
  }]),encoding:'utf8'}));
  cases.push({id:`fill-value-standard-${internal.toLowerCase()}`,entry:standardFillProfile.id,
    xml:`<Root>${fixture.xml}</Root>`,yaml:expected===null?'':`ЗначениеЗаполнения: ${expected}`,
-   inputs:{defaultLanguage:'ru',registeredLanguages:['ru','en'],owners:['Справочник.СправочникВладелец'],componentKind:'configuration',policy:internal==='Owner'?'ownerReference':internal==='Code'?'codeFromOwner':'notSpecified'},source:[...fixture.source,{path:standardYAMLPath}],
+   inputs:{defaultLanguage:'ru',registeredLanguages:['ru','en'],owners:['Справочник.СправочникВладелец'],componentKind:'configuration',policy:internal==='Ref'?'forbidden':internal==='Owner'?'ownerReference':internal==='Code'?'codeFromOwner':internal==='Description'?'stringFromOwner':internal==='DeletionMark'?'byEffectiveType':'notSpecified',expectedKind:internal==='Owner'?'reference':internal==='DeletionMark'?'boolean':internal==='Code'?'decimal':internal==='Description'?'text':'',maxTextLength:internal==='Description'?'30':'',maxNumberDigits:internal==='Code'?'11':''},source:[...fixture.source,{path:standardYAMLPath}],
    adaptation:'Select the immutable standard-attribute FillValue subtree and its independent owner YAML scalar; retain the xr namespace and test reverse export without a source XML reference',
  });
 }
@@ -281,11 +284,74 @@ cases.push({...standardOwner,id:'fill-value-standard-owner-implicit',
  source:[...standardOwner.source,{path:standardDefaultSource}],
  adaptation:'Keep the immutable Owner wrapper and the independently tested Owner EmptyRef default; omitting the YAML value must restore the typed XML reference from owner facts',
 });
+cases.push({...standardOwner,id:'fill-value-standard-owner-composite',
+ xml:standardOwner.xml.replace('Catalog.СправочникВладелец.ПредопределенноеЗначение','Catalog.СправочникВладелец.EmptyRef'),
+ yaml:'ЗначениеЗаполнения: Справочник.СправочникВладелец.ПустаяСсылка',
+ inputs:{...standardOwner.inputs,owners:['Справочник.СправочникВладелец','Справочник.СправочникПолный']},
+ source:[...standardOwner.source,{path:standardDefaultSource}],
+ adaptation:'Use the observed Owner reference form with two declared catalog owners; the empty reference remains explicit because there is no unique implicit owner',
+});
+cases.push({...standardOwner,id:'fill-value-standard-owner-without-owners',
+ inputs:{...standardOwner.inputs,owners:[]},diagnostics:['fill-value.type-mismatch'],
+ adaptation:'Keep the observed Owner reference but remove configured owners; the declaration infers a diagnostic and retains the explicit value',
+});
+cases.push({...standardOwner,id:'fill-value-standard-owner-wrong-root',
+ xml:standardOwner.xml.replace('Catalog.СправочникВладелец.ПредопределенноеЗначение','Document.ДокументВсеСвойства.ПредопределенноеЗначение'),
+ yaml:'ЗначениеЗаполнения: Документ.ДокументВсеСвойства.ПредопределенноеЗначение',
+ diagnostics:['fill-value.type-mismatch'],
+ source:[...standardOwner.source,{path:'e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства.xml'}],
+ adaptation:'Keep the real Owner standard-attribute wrapper but substitute an observed document reference; the owner reference policy rejects a root outside the catalog owners',
+});
 const standardCode=cases.find(row=>row.id==='fill-value-standard-code');
 cases.push({...standardOwner,id:'fill-value-standard-owner-extension',
  xml:standardCode.xml,yaml:'',inputs:{...standardOwner.inputs,componentKind:'configurationExtension'},
  source:[...standardOwner.source,...standardCode.source,{path:standardDefaultSource}],
  adaptation:'Use the immutable nil standard-attribute FillValue form and the independent Owner extension expectation; the same owner facts must not create a reference in an extension',
+});
+const standardRef=cases.find(row=>row.id==='fill-value-standard-ref');
+cases.push({...standardRef,id:'fill-value-standard-forbidden-value',
+ xml:standardRef.xml.replace('xsi:nil="true" />','xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">Текст</xr:FillValue>'),
+ yaml:'ЗначениеЗаполнения: Текст',
+ inputs:{...standardRef.inputs,policy:'forbidden',expectedKind:''},
+ diagnostics:['fill-value.forbidden'],
+ source:[...standardRef.source,{path:'packages/runtime/metadata/standardMembers/declarations.ts'}],
+ adaptation:'Use the immutable standard nil wrapper and an observed typed string FillValue; the declared forbidden policy must infer a diagnostic without losing the explicit XML value',
+});
+const standardDeletionMark=cases.find(row=>row.id==='fill-value-standard-deletionmark');
+cases.push({...standardDeletionMark,id:'fill-value-standard-boolean-mismatch',
+ xml:standardDeletionMark.xml.replace('xsi:nil="true" />','xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">Текст</xr:FillValue>'),
+ yaml:'ЗначениеЗаполнения: Текст',
+ diagnostics:['fill-value.type-mismatch'],
+ source:[...standardDeletionMark.source,{path:'packages/runtime/metadata/standardMembers/declarations.ts'}],
+ adaptation:'Keep the real DeletionMark standard-attribute wrapper but supply an observed text FillValue; the effective boolean kind must infer a diagnostic while preserving the XML value',
+});
+cases.push({...standardDeletionMark,id:'fill-value-standard-boolean-value',
+ xml:standardDeletionMark.xml.replace('xsi:nil="true" />','xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:boolean">true</xr:FillValue>'),
+ yaml:'ЗначениеЗаполнения: Истина',
+ source:[...standardDeletionMark.source,{path:'e2e/fixtures/xml/cf/Catalogs/СправочникВладелец.xml'}],
+ adaptation:'Keep the real DeletionMark wrapper and use an independently observed boolean FillValue; the effective boolean kind accepts it in both directions',
+});
+cases.push({...standardCode,id:'fill-value-standard-code-wrong-kind',
+ xml:standardCode.xml.replace('xsi:nil="true" />','xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">Текст</xr:FillValue>'),
+ yaml:'ЗначениеЗаполнения: Текст',
+ diagnostics:['fill-value.type-mismatch'],
+ source:[...standardCode.source,{path:standardXMLPath}],
+ adaptation:'The real catalog declares numeric CodeType; replacing only the nil FillValue with observed text must preserve XML and diagnose the kind mismatch',
+});
+const standardDescription=cases.find(row=>row.id==='fill-value-standard-description');
+cases.push({...standardDescription,id:'fill-value-standard-description-too-long',
+ xml:standardDescription.xml.replace('xsi:nil="true" />',`xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">${'А'.repeat(31)}</xr:FillValue>`),
+ yaml:`ЗначениеЗаполнения: ${'А'.repeat(31)}`,
+ diagnostics:['fill-value.string-length'],
+ source:[...standardDescription.source,{path:standardXMLPath}],
+ adaptation:'The catalog DescriptionLength is 30; an explicitly typed 31-character value must remain round-trip data and produce a length diagnostic',
+});
+cases.push({...standardCode,id:'fill-value-standard-code-overflow',
+ xml:standardCode.xml.replace('xsi:nil="true" />','xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:decimal">123456789012</xr:FillValue>'),
+ yaml:'ЗначениеЗаполнения: 123456789012',
+ diagnostics:['fill-value.number-qualifiers'],
+ source:[...standardCode.source,{path:standardXMLPath}],
+ adaptation:'The catalog CodeType is numeric and CodeLength is 11; a 12-digit explicit decimal stays round-trip data and produces a qualifier diagnostic',
 });
 const stringAttribute=owners.cases.find(row=>row.id==='e2e-properties-СтроковыйРеквизит');
 const fixedTypeSource='packages/rules/metadata/commonObjects/fillValue/effectiveType.test.ts';
