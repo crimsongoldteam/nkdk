@@ -694,3 +694,30 @@ constraints:
       at:
         field: value
       message: Значение заполнения не соответствует длине стандартного реквизита
+  - id: known-standard-member
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    assert:
+      or:
+        - eq:
+            - field: name
+            - literal: Ref
+        - eq:
+            - field: name
+            - literal: Date
+        - eq:
+            - field: name
+            - literal: Number
+        - eq:
+            - field: name
+            - literal: Posted
+        - eq:
+            - field: name
+            - literal: DeletionMark
+    diagnostic:
+      code: standard-member.unknown
+      severity: warning
+      at:
+        field: name
+      message: Неизвестный стандартный реквизит владельца

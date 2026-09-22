@@ -411,6 +411,9 @@ function namedStandardFillDeclaration(prefix,members){
  }
  item.constraints=useRowProfile(item.constraints);
  item.presence[0]=useRowProfile(item.presence[0]);
+ item.constraints.push({id:'known-standard-member',appliesTo:['xml-import','yaml-validation'],
+   assert:{or:[...members.keys()].map(name=>({eq:[{field:'name'},{literal:name}]}))},
+   diagnostic:{code:'standard-member.unknown',severity:'warning',at:{field:'name'},message:'Неизвестный стандартный реквизит владельца'}});
  const list={...structuredClone(standardNameList),id:`${prefix}-list`,
    imports:{item:item.id},inputs:structuredClone(item.inputs)};
  list.value.item.bind=Object.fromEntries(Object.keys(item.inputs).map(name=>[name,{input:name}]));
@@ -471,6 +474,22 @@ cases.push({id:'standard-attribute-named-document-date-wrong-kind',entry:documen
  yaml:`СтандартныеРеквизиты:\n  Дата:\n    ${documentDateWrongKind.yaml}`,
  inputs:documentNamedInputs,diagnostics:documentDateWrongKind.diagnostics,source:documentDateWrongKind.source,
  adaptation:'Generate the same named FillValue declaration from document standard members; the real Date wrapper with a text value must retain XML and report a calendar mismatch',
+});
+cases.push({id:'standard-attribute-named-foreign-member',entry:standardFillNamedOwner.id,
+ xml:`<StandardAttributes xmlns:xr="${xrNamespace}">${documentDateCase.xml
+   .replace('<xr:StandardAttribute ','<xr:StandardAttribute name="Date" ')}</StandardAttributes>`,
+ yaml:'СтандартныеРеквизиты:\n  Дата: {}',inputs:namedInputs,diagnostics:['standard-member.unknown'],
+ source:[...documentDateCase.source,...standardPolicyProvenance],
+ adaptation:'Date is an observed document standard member but not a catalog member; the catalog declaration must infer a diagnostic and retain the typed member XML',
+});
+const catalogRefRow=cases.find(row=>row.id==='fill-value-standard-ref');
+cases.push({id:'standard-attribute-named-forbidden-value',entry:standardFillNamedOwner.id,
+ xml:`<StandardAttributes xmlns:xr="${xrNamespace}">${catalogRefRow.xml
+   .replace('<xr:StandardAttribute ','<xr:StandardAttribute name="Ref" ')
+   .replace('xsi:nil="true" />','xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">Текст</xr:FillValue>')}</StandardAttributes>`,
+ yaml:'СтандартныеРеквизиты:\n  Ссылка:\n    ЗначениеЗаполнения: Текст',inputs:namedInputs,diagnostics:['fill-value.forbidden'],
+ source:[...catalogRefRow.source,...standardPolicyProvenance],
+ adaptation:'The observed Ref element normally has nil FillValue; a typed value inside the named collection must remain data and be diagnosed by its source-derived forbidden policy',
 });
 const standardDefaultSource='packages/rules/metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.integration.test.ts';
 if(!source(standardDefaultSource).includes('Catalog.СправочникВладелец.EmptyRef'))throw new Error('Changed independent standard Owner default');

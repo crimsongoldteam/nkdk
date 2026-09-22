@@ -782,3 +782,42 @@ constraints:
       at:
         field: value
       message: Значение заполнения не соответствует длине стандартного реквизита
+  - id: known-standard-member
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    assert:
+      or:
+        - eq:
+            - field: name
+            - literal: Ref
+        - eq:
+            - field: name
+            - literal: Parent
+        - eq:
+            - field: name
+            - literal: Owner
+        - eq:
+            - field: name
+            - literal: Code
+        - eq:
+            - field: name
+            - literal: Description
+        - eq:
+            - field: name
+            - literal: IsFolder
+        - eq:
+            - field: name
+            - literal: DeletionMark
+        - eq:
+            - field: name
+            - literal: Predefined
+        - eq:
+            - field: name
+            - literal: PredefinedDataName
+    diagnostic:
+      code: standard-member.unknown
+      severity: warning
+      at:
+        field: name
+      message: Неизвестный стандартный реквизит владельца
