@@ -33,7 +33,17 @@ def select(request):
         selected = copy.deepcopy(matches[0])
         selected.tag = request['root']
         selected.tail = None
+        context = {}
+        for fact in request.get('context', []):
+            values = root.findall(fact['selector'])
+            if not fact.get('many') and len(values) != 1:
+                raise ValueError('Ambiguous fixture context: ' + fact['name'])
+            if any(value.text is None for value in values):
+                raise ValueError('Empty fixture context: ' + fact['name'])
+            contents = [value.text.strip() for value in values]
+            context[fact['name']] = contents if fact.get('many') else contents[0]
         return {'xml': ET.tostring(selected, encoding='unicode'),
+                **({'context': context} if request.get('context') else {}),
                 'source': [{'path': str(xml_path), 'sha256': hashlib.sha256(xml_bytes).hexdigest()}]}
 
     owner = root[0]

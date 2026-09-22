@@ -1356,8 +1356,40 @@
       "sha256": "676e1d3cb950fab9b2c46065d64824982e2146ade8db6f08d5f296b8added776"
     },
     {
+      "path": "packages/runtime/metadata/standardMembers/declarations.ts",
+      "sha256": "2724c5601da49b674ed29613ab2735db757c9027dee2e50eadf833c288cc95b3"
+    },
+    {
+      "path": "packages/rules/metadata/appliedObjects/metadataCatalog/standardMembers.ts",
+      "sha256": "6bd24d47b6a0cda3a4bcae103220cb2a0207de3275f29807163da86b47e9ca4c"
+    },
+    {
+      "path": "packages/runtime/metadata/standardMembers/declarations.ts",
+      "sha256": "2724c5601da49b674ed29613ab2735db757c9027dee2e50eadf833c288cc95b3"
+    },
+    {
+      "path": "packages/runtime/rule-kit.ts",
+      "sha256": "78ff15505f346a4433279af0f7f60bfa6bd1318401d539e502b0d7cee45568f9"
+    },
+    {
+      "path": "packages/rules/metadata/standardMembers/declarations.ts",
+      "sha256": "a120796450ed9b447c01100bd364e11186c49191d5bc38ff21897372b1b64034"
+    },
+    {
+      "path": "packages/rules/metadata/appliedObjects/metadataDocument/standardMembers.ts",
+      "sha256": "0464bad8192dc6323aed8cfcd1ba78773cdd53221112eb61e3c8e59670945787"
+    },
+    {
+      "path": "e2e/fixtures/nkdk/cf/Документ/ДокументВсеСвойства/Свойства.yaml",
+      "sha256": "5402cf710992add6b05ad677aa11a7ebbe4470cbfb7565dc753d80e539813abc"
+    },
+    {
       "path": "packages/rules/metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.integration.test.ts",
       "sha256": "278690b7f26c1b96094fa00760c8b7c929c33efc19841ea3c2bdb570e2e9187a"
+    },
+    {
+      "path": "packages/rules/metadata/commonObjects/fillValue/standardMember.test.ts",
+      "sha256": "7143071eab8fa1687d140a2438094b12bc17f51533b95269edd73b491c4bdc7d"
     },
     {
       "path": "packages/rules/metadata/commonObjects/fillValue/effectiveType.test.ts",
@@ -5334,8 +5366,8 @@
     },
     {
       "id": "fill-value-standard-ref",
-      "entry": "common.standard-attribute-fill-value",
-      "xml": "<Root><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\" /></Root>",
+      "entry": "contract.standard-attribute-fill-value",
+      "xml": "<xr:StandardAttribute xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\" /></xr:StandardAttribute>",
       "yaml": "",
       "inputs": {
         "defaultLanguage": "ru",
@@ -5343,14 +5375,13 @@
           "ru",
           "en"
         ],
-        "owners": [
-          "Справочник.СправочникВладелец"
-        ],
         "componentKind": "configuration",
         "policy": "forbidden",
         "expectedKind": "",
+        "owners": [],
         "maxTextLength": "",
-        "maxNumberDigits": ""
+        "maxNumberDigits": "",
+        "allowedTextLength": ""
       },
       "source": [
         {
@@ -5359,14 +5390,22 @@
         },
         {
           "path": "e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml"
+        },
+        {
+          "path": "packages/runtime/metadata/standardMembers/declarations.ts",
+          "sha256": "2724c5601da49b674ed29613ab2735db757c9027dee2e50eadf833c288cc95b3"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataCatalog/standardMembers.ts",
+          "sha256": "6bd24d47b6a0cda3a4bcae103220cb2a0207de3275f29807163da86b47e9ca4c"
         }
       ],
       "adaptation": "Select the immutable standard-attribute FillValue subtree and its independent owner YAML scalar; retain the xr namespace and test reverse export without a source XML reference"
     },
     {
       "id": "fill-value-standard-owner",
-      "entry": "common.standard-attribute-fill-value",
-      "xml": "<Root><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"xr:DesignTimeRef\">Catalog.СправочникВладелец.ПредопределенноеЗначение</xr:FillValue></Root>",
+      "entry": "contract.standard-attribute-fill-value",
+      "xml": "<xr:StandardAttribute xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"xr:DesignTimeRef\">Catalog.СправочникВладелец.ПредопределенноеЗначение</xr:FillValue></xr:StandardAttribute>",
       "yaml": "ЗначениеЗаполнения: Справочник.СправочникВладелец.ПредопределенноеЗначение",
       "inputs": {
         "defaultLanguage": "ru",
@@ -5374,14 +5413,15 @@
           "ru",
           "en"
         ],
-        "owners": [
-          "Справочник.СправочникВладелец"
-        ],
         "componentKind": "configuration",
         "policy": "ownerReference",
         "expectedKind": "reference",
+        "owners": [
+          "Справочник.СправочникВладелец"
+        ],
         "maxTextLength": "",
-        "maxNumberDigits": ""
+        "maxNumberDigits": "",
+        "allowedTextLength": ""
       },
       "source": [
         {
@@ -5390,14 +5430,22 @@
         },
         {
           "path": "e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml"
+        },
+        {
+          "path": "packages/runtime/metadata/standardMembers/declarations.ts",
+          "sha256": "2724c5601da49b674ed29613ab2735db757c9027dee2e50eadf833c288cc95b3"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataCatalog/standardMembers.ts",
+          "sha256": "6bd24d47b6a0cda3a4bcae103220cb2a0207de3275f29807163da86b47e9ca4c"
         }
       ],
       "adaptation": "Select the immutable standard-attribute FillValue subtree and its independent owner YAML scalar; retain the xr namespace and test reverse export without a source XML reference"
     },
     {
       "id": "fill-value-standard-parent",
-      "entry": "common.standard-attribute-fill-value",
-      "xml": "<Root><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"xr:DesignTimeRef\">Catalog.СправочникПолный.EmptyRef</xr:FillValue></Root>",
+      "entry": "contract.standard-attribute-fill-value",
+      "xml": "<xr:StandardAttribute xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"xr:DesignTimeRef\">Catalog.СправочникПолный.EmptyRef</xr:FillValue></xr:StandardAttribute>",
       "yaml": "ЗначениеЗаполнения: Справочник.СправочникПолный.ПустаяСсылка",
       "inputs": {
         "defaultLanguage": "ru",
@@ -5405,14 +5453,13 @@
           "ru",
           "en"
         ],
-        "owners": [
-          "Справочник.СправочникВладелец"
-        ],
         "componentKind": "configuration",
         "policy": "notSpecified",
         "expectedKind": "",
+        "owners": [],
         "maxTextLength": "",
-        "maxNumberDigits": ""
+        "maxNumberDigits": "",
+        "allowedTextLength": ""
       },
       "source": [
         {
@@ -5421,14 +5468,22 @@
         },
         {
           "path": "e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml"
+        },
+        {
+          "path": "packages/runtime/metadata/standardMembers/declarations.ts",
+          "sha256": "2724c5601da49b674ed29613ab2735db757c9027dee2e50eadf833c288cc95b3"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataCatalog/standardMembers.ts",
+          "sha256": "6bd24d47b6a0cda3a4bcae103220cb2a0207de3275f29807163da86b47e9ca4c"
         }
       ],
       "adaptation": "Select the immutable standard-attribute FillValue subtree and its independent owner YAML scalar; retain the xr namespace and test reverse export without a source XML reference"
     },
     {
       "id": "fill-value-standard-code",
-      "entry": "common.standard-attribute-fill-value",
-      "xml": "<Root><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\" /></Root>",
+      "entry": "contract.standard-attribute-fill-value",
+      "xml": "<xr:StandardAttribute xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\" /></xr:StandardAttribute>",
       "yaml": "",
       "inputs": {
         "defaultLanguage": "ru",
@@ -5436,14 +5491,13 @@
           "ru",
           "en"
         ],
-        "owners": [
-          "Справочник.СправочникВладелец"
-        ],
         "componentKind": "configuration",
         "policy": "codeFromOwner",
         "expectedKind": "decimal",
+        "owners": [],
         "maxTextLength": "",
-        "maxNumberDigits": "11"
+        "maxNumberDigits": "11",
+        "allowedTextLength": ""
       },
       "source": [
         {
@@ -5452,14 +5506,22 @@
         },
         {
           "path": "e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml"
+        },
+        {
+          "path": "packages/runtime/metadata/standardMembers/declarations.ts",
+          "sha256": "2724c5601da49b674ed29613ab2735db757c9027dee2e50eadf833c288cc95b3"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataCatalog/standardMembers.ts",
+          "sha256": "6bd24d47b6a0cda3a4bcae103220cb2a0207de3275f29807163da86b47e9ca4c"
         }
       ],
       "adaptation": "Select the immutable standard-attribute FillValue subtree and its independent owner YAML scalar; retain the xr namespace and test reverse export without a source XML reference"
     },
     {
       "id": "fill-value-standard-deletionmark",
-      "entry": "common.standard-attribute-fill-value",
-      "xml": "<Root><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\" /></Root>",
+      "entry": "contract.standard-attribute-fill-value",
+      "xml": "<xr:StandardAttribute xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\" /></xr:StandardAttribute>",
       "yaml": "",
       "inputs": {
         "defaultLanguage": "ru",
@@ -5467,14 +5529,13 @@
           "ru",
           "en"
         ],
-        "owners": [
-          "Справочник.СправочникВладелец"
-        ],
         "componentKind": "configuration",
         "policy": "byEffectiveType",
         "expectedKind": "boolean",
+        "owners": [],
         "maxTextLength": "",
-        "maxNumberDigits": ""
+        "maxNumberDigits": "",
+        "allowedTextLength": ""
       },
       "source": [
         {
@@ -5483,14 +5544,22 @@
         },
         {
           "path": "e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml"
+        },
+        {
+          "path": "packages/runtime/metadata/standardMembers/declarations.ts",
+          "sha256": "2724c5601da49b674ed29613ab2735db757c9027dee2e50eadf833c288cc95b3"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataCatalog/standardMembers.ts",
+          "sha256": "6bd24d47b6a0cda3a4bcae103220cb2a0207de3275f29807163da86b47e9ca4c"
         }
       ],
       "adaptation": "Select the immutable standard-attribute FillValue subtree and its independent owner YAML scalar; retain the xr namespace and test reverse export without a source XML reference"
     },
     {
       "id": "fill-value-standard-description",
-      "entry": "common.standard-attribute-fill-value",
-      "xml": "<Root><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\" /></Root>",
+      "entry": "contract.standard-attribute-fill-value",
+      "xml": "<xr:StandardAttribute xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\" /></xr:StandardAttribute>",
       "yaml": "",
       "inputs": {
         "defaultLanguage": "ru",
@@ -5498,14 +5567,13 @@
           "ru",
           "en"
         ],
-        "owners": [
-          "Справочник.СправочникВладелец"
-        ],
         "componentKind": "configuration",
         "policy": "stringFromOwner",
         "expectedKind": "text",
+        "owners": [],
         "maxTextLength": "30",
-        "maxNumberDigits": ""
+        "maxNumberDigits": "",
+        "allowedTextLength": ""
       },
       "source": [
         {
@@ -5514,14 +5582,22 @@
         },
         {
           "path": "e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml"
+        },
+        {
+          "path": "packages/runtime/metadata/standardMembers/declarations.ts",
+          "sha256": "2724c5601da49b674ed29613ab2735db757c9027dee2e50eadf833c288cc95b3"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataCatalog/standardMembers.ts",
+          "sha256": "6bd24d47b6a0cda3a4bcae103220cb2a0207de3275f29807163da86b47e9ca4c"
         }
       ],
       "adaptation": "Select the immutable standard-attribute FillValue subtree and its independent owner YAML scalar; retain the xr namespace and test reverse export without a source XML reference"
     },
     {
-      "id": "fill-value-standard-owner-implicit",
-      "entry": "common.standard-attribute-fill-value",
-      "xml": "<Root><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"xr:DesignTimeRef\">Catalog.СправочникВладелец.EmptyRef</xr:FillValue></Root>",
+      "id": "fill-value-standard-document-date",
+      "entry": "contract.standard-attribute-fill-value",
+      "xml": "<xr:StandardAttribute xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\" /></xr:StandardAttribute>",
       "yaml": "",
       "inputs": {
         "defaultLanguage": "ru",
@@ -5529,14 +5605,110 @@
           "ru",
           "en"
         ],
-        "owners": [
-          "Справочник.СправочникВладелец"
+        "componentKind": "configuration",
+        "policy": "byEffectiveType",
+        "expectedKind": "calendar",
+        "owners": [],
+        "maxTextLength": "",
+        "maxNumberDigits": "",
+        "allowedTextLength": ""
+      },
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства.xml",
+          "sha256": "346554c79ff22c0239e18eaa00e69bc203b161485dcbd6a482b191871f90b79e"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/Документ/ДокументВсеСвойства/Свойства.yaml"
+        },
+        {
+          "path": "packages/runtime/metadata/standardMembers/declarations.ts",
+          "sha256": "2724c5601da49b674ed29613ab2735db757c9027dee2e50eadf833c288cc95b3"
+        },
+        {
+          "path": "packages/runtime/rule-kit.ts",
+          "sha256": "78ff15505f346a4433279af0f7f60bfa6bd1318401d539e502b0d7cee45568f9"
+        },
+        {
+          "path": "packages/rules/metadata/standardMembers/declarations.ts",
+          "sha256": "a120796450ed9b447c01100bd364e11186c49191d5bc38ff21897372b1b64034"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataDocument/standardMembers.ts",
+          "sha256": "0464bad8192dc6323aed8cfcd1ba78773cdd53221112eb61e3c8e59670945787"
+        }
+      ],
+      "adaptation": "Select the real document Date standard-attribute FillValue and derive its effective calendar policy from the document declaration"
+    },
+    {
+      "id": "fill-value-standard-document-date-wrong-kind",
+      "entry": "contract.standard-attribute-fill-value",
+      "xml": "<xr:StandardAttribute xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:string\">Текст</xr:FillValue></xr:StandardAttribute>",
+      "yaml": "ЗначениеЗаполнения: Текст",
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ],
+        "componentKind": "configuration",
+        "policy": "byEffectiveType",
+        "expectedKind": "calendar",
+        "owners": [],
+        "maxTextLength": "",
+        "maxNumberDigits": "",
+        "allowedTextLength": ""
+      },
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства.xml",
+          "sha256": "346554c79ff22c0239e18eaa00e69bc203b161485dcbd6a482b191871f90b79e"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/Документ/ДокументВсеСвойства/Свойства.yaml"
+        },
+        {
+          "path": "packages/runtime/metadata/standardMembers/declarations.ts",
+          "sha256": "2724c5601da49b674ed29613ab2735db757c9027dee2e50eadf833c288cc95b3"
+        },
+        {
+          "path": "packages/runtime/rule-kit.ts",
+          "sha256": "78ff15505f346a4433279af0f7f60bfa6bd1318401d539e502b0d7cee45568f9"
+        },
+        {
+          "path": "packages/rules/metadata/standardMembers/declarations.ts",
+          "sha256": "a120796450ed9b447c01100bd364e11186c49191d5bc38ff21897372b1b64034"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataDocument/standardMembers.ts",
+          "sha256": "0464bad8192dc6323aed8cfcd1ba78773cdd53221112eb61e3c8e59670945787"
+        }
+      ],
+      "adaptation": "The document declares a calendar Date; an observed string XML value must survive the round-trip with a type diagnostic",
+      "diagnostics": [
+        "fill-value.type-mismatch"
+      ]
+    },
+    {
+      "id": "fill-value-standard-owner-with-name",
+      "entry": "contract.standard-attribute-with-name",
+      "xml": "<xr:StandardAttribute name=\"Owner\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"xr:DesignTimeRef\">Catalog.СправочникВладелец.ПредопределенноеЗначение</xr:FillValue></xr:StandardAttribute>",
+      "yaml": "ЗначениеЗаполнения: Справочник.СправочникВладелец.ПредопределенноеЗначение\nИмя: Owner",
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
         ],
         "componentKind": "configuration",
         "policy": "ownerReference",
         "expectedKind": "reference",
+        "owners": [
+          "Справочник.СправочникВладелец"
+        ],
         "maxTextLength": "",
-        "maxNumberDigits": ""
+        "maxNumberDigits": "",
+        "allowedTextLength": ""
       },
       "source": [
         {
@@ -5545,6 +5717,54 @@
         },
         {
           "path": "e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml"
+        },
+        {
+          "path": "packages/runtime/metadata/standardMembers/declarations.ts",
+          "sha256": "2724c5601da49b674ed29613ab2735db757c9027dee2e50eadf833c288cc95b3"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataCatalog/standardMembers.ts",
+          "sha256": "6bd24d47b6a0cda3a4bcae103220cb2a0207de3275f29807163da86b47e9ca4c"
+        }
+      ],
+      "adaptation": "Compose the reusable FillValue fragment with the independently observed standard-attribute name on the same XML wrapper"
+    },
+    {
+      "id": "fill-value-standard-owner-implicit",
+      "entry": "contract.standard-attribute-fill-value",
+      "xml": "<xr:StandardAttribute xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"xr:DesignTimeRef\">Catalog.СправочникВладелец.EmptyRef</xr:FillValue></xr:StandardAttribute>",
+      "yaml": "",
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ],
+        "componentKind": "configuration",
+        "policy": "ownerReference",
+        "expectedKind": "reference",
+        "owners": [
+          "Справочник.СправочникВладелец"
+        ],
+        "maxTextLength": "",
+        "maxNumberDigits": "",
+        "allowedTextLength": ""
+      },
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+          "sha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml"
+        },
+        {
+          "path": "packages/runtime/metadata/standardMembers/declarations.ts",
+          "sha256": "2724c5601da49b674ed29613ab2735db757c9027dee2e50eadf833c288cc95b3"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataCatalog/standardMembers.ts",
+          "sha256": "6bd24d47b6a0cda3a4bcae103220cb2a0207de3275f29807163da86b47e9ca4c"
         },
         {
           "path": "packages/rules/metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.integration.test.ts"
@@ -5554,8 +5774,8 @@
     },
     {
       "id": "fill-value-standard-owner-composite",
-      "entry": "common.standard-attribute-fill-value",
-      "xml": "<Root><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"xr:DesignTimeRef\">Catalog.СправочникВладелец.EmptyRef</xr:FillValue></Root>",
+      "entry": "contract.standard-attribute-fill-value",
+      "xml": "<xr:StandardAttribute xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"xr:DesignTimeRef\">Catalog.СправочникВладелец.EmptyRef</xr:FillValue></xr:StandardAttribute>",
       "yaml": "ЗначениеЗаполнения: Справочник.СправочникВладелец.ПустаяСсылка",
       "inputs": {
         "defaultLanguage": "ru",
@@ -5563,15 +5783,16 @@
           "ru",
           "en"
         ],
+        "componentKind": "configuration",
+        "policy": "ownerReference",
+        "expectedKind": "reference",
         "owners": [
           "Справочник.СправочникВладелец",
           "Справочник.СправочникПолный"
         ],
-        "componentKind": "configuration",
-        "policy": "ownerReference",
-        "expectedKind": "reference",
         "maxTextLength": "",
-        "maxNumberDigits": ""
+        "maxNumberDigits": "",
+        "allowedTextLength": ""
       },
       "source": [
         {
@@ -5580,6 +5801,14 @@
         },
         {
           "path": "e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml"
+        },
+        {
+          "path": "packages/runtime/metadata/standardMembers/declarations.ts",
+          "sha256": "2724c5601da49b674ed29613ab2735db757c9027dee2e50eadf833c288cc95b3"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataCatalog/standardMembers.ts",
+          "sha256": "6bd24d47b6a0cda3a4bcae103220cb2a0207de3275f29807163da86b47e9ca4c"
         },
         {
           "path": "packages/rules/metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.integration.test.ts"
@@ -5588,22 +5817,26 @@
       "adaptation": "Use the observed Owner reference form with two declared catalog owners; the empty reference remains explicit because there is no unique implicit owner"
     },
     {
-      "id": "fill-value-standard-owner-without-owners",
-      "entry": "common.standard-attribute-fill-value",
-      "xml": "<Root><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"xr:DesignTimeRef\">Catalog.СправочникВладелец.ПредопределенноеЗначение</xr:FillValue></Root>",
-      "yaml": "ЗначениеЗаполнения: Справочник.СправочникВладелец.ПредопределенноеЗначение",
+      "id": "fill-value-standard-owner-composite-unselected",
+      "entry": "contract.standard-attribute-fill-value",
+      "xml": "<xr:StandardAttribute xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"xr:DesignTimeRef\"></xr:FillValue></xr:StandardAttribute>",
+      "yaml": "ЗначениеЗаполнения: .",
       "inputs": {
         "defaultLanguage": "ru",
         "registeredLanguages": [
           "ru",
           "en"
         ],
-        "owners": [],
         "componentKind": "configuration",
         "policy": "ownerReference",
         "expectedKind": "reference",
+        "owners": [
+          "Справочник.СправочникВладелец",
+          "Справочник.СправочникПолный"
+        ],
         "maxTextLength": "",
-        "maxNumberDigits": ""
+        "maxNumberDigits": "",
+        "allowedTextLength": ""
       },
       "source": [
         {
@@ -5612,6 +5845,55 @@
         },
         {
           "path": "e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml"
+        },
+        {
+          "path": "packages/runtime/metadata/standardMembers/declarations.ts",
+          "sha256": "2724c5601da49b674ed29613ab2735db757c9027dee2e50eadf833c288cc95b3"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataCatalog/standardMembers.ts",
+          "sha256": "6bd24d47b6a0cda3a4bcae103220cb2a0207de3275f29807163da86b47e9ca4c"
+        },
+        {
+          "path": "rust/declarations/common/metadata-value.yaml"
+        }
+      ],
+      "adaptation": "An unselected reference is valid for multiple owner alternatives; the same generic MetadataValue choice must retain its explicit empty-reference form"
+    },
+    {
+      "id": "fill-value-standard-owner-without-owners",
+      "entry": "contract.standard-attribute-fill-value",
+      "xml": "<xr:StandardAttribute xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"xr:DesignTimeRef\">Catalog.СправочникВладелец.ПредопределенноеЗначение</xr:FillValue></xr:StandardAttribute>",
+      "yaml": "ЗначениеЗаполнения: Справочник.СправочникВладелец.ПредопределенноеЗначение",
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ],
+        "componentKind": "configuration",
+        "policy": "ownerReference",
+        "expectedKind": "reference",
+        "owners": [],
+        "maxTextLength": "",
+        "maxNumberDigits": "",
+        "allowedTextLength": ""
+      },
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+          "sha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml"
+        },
+        {
+          "path": "packages/runtime/metadata/standardMembers/declarations.ts",
+          "sha256": "2724c5601da49b674ed29613ab2735db757c9027dee2e50eadf833c288cc95b3"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataCatalog/standardMembers.ts",
+          "sha256": "6bd24d47b6a0cda3a4bcae103220cb2a0207de3275f29807163da86b47e9ca4c"
         }
       ],
       "adaptation": "Keep the observed Owner reference but remove configured owners; the declaration infers a diagnostic and retains the explicit value",
@@ -5621,8 +5903,8 @@
     },
     {
       "id": "fill-value-standard-owner-wrong-root",
-      "entry": "common.standard-attribute-fill-value",
-      "xml": "<Root><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"xr:DesignTimeRef\">Document.ДокументВсеСвойства.ПредопределенноеЗначение</xr:FillValue></Root>",
+      "entry": "contract.standard-attribute-fill-value",
+      "xml": "<xr:StandardAttribute xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"xr:DesignTimeRef\">Document.ДокументВсеСвойства.ПредопределенноеЗначение</xr:FillValue></xr:StandardAttribute>",
       "yaml": "ЗначениеЗаполнения: Документ.ДокументВсеСвойства.ПредопределенноеЗначение",
       "inputs": {
         "defaultLanguage": "ru",
@@ -5630,14 +5912,15 @@
           "ru",
           "en"
         ],
-        "owners": [
-          "Справочник.СправочникВладелец"
-        ],
         "componentKind": "configuration",
         "policy": "ownerReference",
         "expectedKind": "reference",
+        "owners": [
+          "Справочник.СправочникВладелец"
+        ],
         "maxTextLength": "",
-        "maxNumberDigits": ""
+        "maxNumberDigits": "",
+        "allowedTextLength": ""
       },
       "source": [
         {
@@ -5646,6 +5929,14 @@
         },
         {
           "path": "e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml"
+        },
+        {
+          "path": "packages/runtime/metadata/standardMembers/declarations.ts",
+          "sha256": "2724c5601da49b674ed29613ab2735db757c9027dee2e50eadf833c288cc95b3"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataCatalog/standardMembers.ts",
+          "sha256": "6bd24d47b6a0cda3a4bcae103220cb2a0207de3275f29807163da86b47e9ca4c"
         },
         {
           "path": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства.xml"
@@ -5657,24 +5948,23 @@
       ]
     },
     {
-      "id": "fill-value-standard-owner-extension",
-      "entry": "common.standard-attribute-fill-value",
-      "xml": "<Root><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\" /></Root>",
-      "yaml": "",
+      "id": "fill-value-standard-fixed-code-short",
+      "entry": "contract.standard-attribute-fill-value",
+      "xml": "<xr:StandardAttribute xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:string\">AB</xr:FillValue></xr:StandardAttribute>",
+      "yaml": "ЗначениеЗаполнения: AB",
       "inputs": {
         "defaultLanguage": "ru",
         "registeredLanguages": [
           "ru",
           "en"
         ],
-        "owners": [
-          "Справочник.СправочникВладелец"
-        ],
-        "componentKind": "configurationExtension",
-        "policy": "ownerReference",
-        "expectedKind": "reference",
-        "maxTextLength": "",
-        "maxNumberDigits": ""
+        "componentKind": "configuration",
+        "policy": "codeFromOwner",
+        "expectedKind": "text",
+        "owners": [],
+        "maxTextLength": "3",
+        "maxNumberDigits": "",
+        "allowedTextLength": "Fixed"
       },
       "source": [
         {
@@ -5685,11 +5975,73 @@
           "path": "e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml"
         },
         {
+          "path": "packages/runtime/metadata/standardMembers/declarations.ts",
+          "sha256": "2724c5601da49b674ed29613ab2735db757c9027dee2e50eadf833c288cc95b3"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataCatalog/standardMembers.ts",
+          "sha256": "6bd24d47b6a0cda3a4bcae103220cb2a0207de3275f29807163da86b47e9ca4c"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/fillValue/standardMember.test.ts"
+        }
+      ],
+      "adaptation": "Keep the actual Code standard-attribute XML wrapper and apply the independent fixed-length code policy; a two-character explicit value for length three must diagnose without losing XML",
+      "diagnostics": [
+        "fill-value.string-length"
+      ]
+    },
+    {
+      "id": "fill-value-standard-owner-extension",
+      "entry": "contract.standard-attribute-fill-value",
+      "xml": "<xr:StandardAttribute xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\" /></xr:StandardAttribute>",
+      "yaml": "",
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ],
+        "componentKind": "configurationExtension",
+        "policy": "ownerReference",
+        "expectedKind": "reference",
+        "owners": [
+          "Справочник.СправочникВладелец"
+        ],
+        "maxTextLength": "",
+        "maxNumberDigits": "",
+        "allowedTextLength": ""
+      },
+      "source": [
+        {
           "path": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
           "sha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd"
         },
         {
           "path": "e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml"
+        },
+        {
+          "path": "packages/runtime/metadata/standardMembers/declarations.ts",
+          "sha256": "2724c5601da49b674ed29613ab2735db757c9027dee2e50eadf833c288cc95b3"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataCatalog/standardMembers.ts",
+          "sha256": "6bd24d47b6a0cda3a4bcae103220cb2a0207de3275f29807163da86b47e9ca4c"
+        },
+        {
+          "path": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+          "sha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml"
+        },
+        {
+          "path": "packages/runtime/metadata/standardMembers/declarations.ts",
+          "sha256": "2724c5601da49b674ed29613ab2735db757c9027dee2e50eadf833c288cc95b3"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataCatalog/standardMembers.ts",
+          "sha256": "6bd24d47b6a0cda3a4bcae103220cb2a0207de3275f29807163da86b47e9ca4c"
         },
         {
           "path": "packages/rules/metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.integration.test.ts"
@@ -5699,8 +6051,8 @@
     },
     {
       "id": "fill-value-standard-forbidden-value",
-      "entry": "common.standard-attribute-fill-value",
-      "xml": "<Root><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:string\">Текст</xr:FillValue></Root>",
+      "entry": "contract.standard-attribute-fill-value",
+      "xml": "<xr:StandardAttribute xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:string\">Текст</xr:FillValue></xr:StandardAttribute>",
       "yaml": "ЗначениеЗаполнения: Текст",
       "inputs": {
         "defaultLanguage": "ru",
@@ -5708,14 +6060,13 @@
           "ru",
           "en"
         ],
-        "owners": [
-          "Справочник.СправочникВладелец"
-        ],
         "componentKind": "configuration",
         "policy": "forbidden",
         "expectedKind": "",
+        "owners": [],
         "maxTextLength": "",
-        "maxNumberDigits": ""
+        "maxNumberDigits": "",
+        "allowedTextLength": ""
       },
       "source": [
         {
@@ -5724,6 +6075,14 @@
         },
         {
           "path": "e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml"
+        },
+        {
+          "path": "packages/runtime/metadata/standardMembers/declarations.ts",
+          "sha256": "2724c5601da49b674ed29613ab2735db757c9027dee2e50eadf833c288cc95b3"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataCatalog/standardMembers.ts",
+          "sha256": "6bd24d47b6a0cda3a4bcae103220cb2a0207de3275f29807163da86b47e9ca4c"
         },
         {
           "path": "packages/runtime/metadata/standardMembers/declarations.ts"
@@ -5736,8 +6095,8 @@
     },
     {
       "id": "fill-value-standard-boolean-mismatch",
-      "entry": "common.standard-attribute-fill-value",
-      "xml": "<Root><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:string\">Текст</xr:FillValue></Root>",
+      "entry": "contract.standard-attribute-fill-value",
+      "xml": "<xr:StandardAttribute xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:string\">Текст</xr:FillValue></xr:StandardAttribute>",
       "yaml": "ЗначениеЗаполнения: Текст",
       "inputs": {
         "defaultLanguage": "ru",
@@ -5745,14 +6104,13 @@
           "ru",
           "en"
         ],
-        "owners": [
-          "Справочник.СправочникВладелец"
-        ],
         "componentKind": "configuration",
         "policy": "byEffectiveType",
         "expectedKind": "boolean",
+        "owners": [],
         "maxTextLength": "",
-        "maxNumberDigits": ""
+        "maxNumberDigits": "",
+        "allowedTextLength": ""
       },
       "source": [
         {
@@ -5761,6 +6119,14 @@
         },
         {
           "path": "e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml"
+        },
+        {
+          "path": "packages/runtime/metadata/standardMembers/declarations.ts",
+          "sha256": "2724c5601da49b674ed29613ab2735db757c9027dee2e50eadf833c288cc95b3"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataCatalog/standardMembers.ts",
+          "sha256": "6bd24d47b6a0cda3a4bcae103220cb2a0207de3275f29807163da86b47e9ca4c"
         },
         {
           "path": "packages/runtime/metadata/standardMembers/declarations.ts"
@@ -5773,8 +6139,8 @@
     },
     {
       "id": "fill-value-standard-boolean-value",
-      "entry": "common.standard-attribute-fill-value",
-      "xml": "<Root><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:boolean\">true</xr:FillValue></Root>",
+      "entry": "contract.standard-attribute-fill-value",
+      "xml": "<xr:StandardAttribute xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:boolean\">true</xr:FillValue></xr:StandardAttribute>",
       "yaml": "ЗначениеЗаполнения: Истина",
       "inputs": {
         "defaultLanguage": "ru",
@@ -5782,14 +6148,13 @@
           "ru",
           "en"
         ],
-        "owners": [
-          "Справочник.СправочникВладелец"
-        ],
         "componentKind": "configuration",
         "policy": "byEffectiveType",
         "expectedKind": "boolean",
+        "owners": [],
         "maxTextLength": "",
-        "maxNumberDigits": ""
+        "maxNumberDigits": "",
+        "allowedTextLength": ""
       },
       "source": [
         {
@@ -5798,6 +6163,14 @@
         },
         {
           "path": "e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml"
+        },
+        {
+          "path": "packages/runtime/metadata/standardMembers/declarations.ts",
+          "sha256": "2724c5601da49b674ed29613ab2735db757c9027dee2e50eadf833c288cc95b3"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataCatalog/standardMembers.ts",
+          "sha256": "6bd24d47b6a0cda3a4bcae103220cb2a0207de3275f29807163da86b47e9ca4c"
         },
         {
           "path": "e2e/fixtures/xml/cf/Catalogs/СправочникВладелец.xml"
@@ -5807,8 +6180,8 @@
     },
     {
       "id": "fill-value-standard-code-wrong-kind",
-      "entry": "common.standard-attribute-fill-value",
-      "xml": "<Root><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:string\">Текст</xr:FillValue></Root>",
+      "entry": "contract.standard-attribute-fill-value",
+      "xml": "<xr:StandardAttribute xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:string\">Текст</xr:FillValue></xr:StandardAttribute>",
       "yaml": "ЗначениеЗаполнения: Текст",
       "inputs": {
         "defaultLanguage": "ru",
@@ -5816,14 +6189,13 @@
           "ru",
           "en"
         ],
-        "owners": [
-          "Справочник.СправочникВладелец"
-        ],
         "componentKind": "configuration",
         "policy": "codeFromOwner",
         "expectedKind": "decimal",
+        "owners": [],
         "maxTextLength": "",
-        "maxNumberDigits": "11"
+        "maxNumberDigits": "11",
+        "allowedTextLength": ""
       },
       "source": [
         {
@@ -5832,6 +6204,14 @@
         },
         {
           "path": "e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml"
+        },
+        {
+          "path": "packages/runtime/metadata/standardMembers/declarations.ts",
+          "sha256": "2724c5601da49b674ed29613ab2735db757c9027dee2e50eadf833c288cc95b3"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataCatalog/standardMembers.ts",
+          "sha256": "6bd24d47b6a0cda3a4bcae103220cb2a0207de3275f29807163da86b47e9ca4c"
         },
         {
           "path": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml"
@@ -5844,8 +6224,8 @@
     },
     {
       "id": "fill-value-standard-description-too-long",
-      "entry": "common.standard-attribute-fill-value",
-      "xml": "<Root><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:string\">ААААААААААААААААААААААААААААААА</xr:FillValue></Root>",
+      "entry": "contract.standard-attribute-fill-value",
+      "xml": "<xr:StandardAttribute xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:string\">ААААААААААААААААААААААААААААААА</xr:FillValue></xr:StandardAttribute>",
       "yaml": "ЗначениеЗаполнения: ААААААААААААААААААААААААААААААА",
       "inputs": {
         "defaultLanguage": "ru",
@@ -5853,14 +6233,13 @@
           "ru",
           "en"
         ],
-        "owners": [
-          "Справочник.СправочникВладелец"
-        ],
         "componentKind": "configuration",
         "policy": "stringFromOwner",
         "expectedKind": "text",
+        "owners": [],
         "maxTextLength": "30",
-        "maxNumberDigits": ""
+        "maxNumberDigits": "",
+        "allowedTextLength": ""
       },
       "source": [
         {
@@ -5869,6 +6248,14 @@
         },
         {
           "path": "e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml"
+        },
+        {
+          "path": "packages/runtime/metadata/standardMembers/declarations.ts",
+          "sha256": "2724c5601da49b674ed29613ab2735db757c9027dee2e50eadf833c288cc95b3"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataCatalog/standardMembers.ts",
+          "sha256": "6bd24d47b6a0cda3a4bcae103220cb2a0207de3275f29807163da86b47e9ca4c"
         },
         {
           "path": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml"
@@ -5881,8 +6268,8 @@
     },
     {
       "id": "fill-value-standard-code-overflow",
-      "entry": "common.standard-attribute-fill-value",
-      "xml": "<Root><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:decimal\">123456789012</xr:FillValue></Root>",
+      "entry": "contract.standard-attribute-fill-value",
+      "xml": "<xr:StandardAttribute xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:decimal\">123456789012</xr:FillValue></xr:StandardAttribute>",
       "yaml": "ЗначениеЗаполнения: 123456789012",
       "inputs": {
         "defaultLanguage": "ru",
@@ -5890,14 +6277,13 @@
           "ru",
           "en"
         ],
-        "owners": [
-          "Справочник.СправочникВладелец"
-        ],
         "componentKind": "configuration",
         "policy": "codeFromOwner",
         "expectedKind": "decimal",
+        "owners": [],
         "maxTextLength": "",
-        "maxNumberDigits": "11"
+        "maxNumberDigits": "11",
+        "allowedTextLength": ""
       },
       "source": [
         {
@@ -5906,6 +6292,14 @@
         },
         {
           "path": "e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml"
+        },
+        {
+          "path": "packages/runtime/metadata/standardMembers/declarations.ts",
+          "sha256": "2724c5601da49b674ed29613ab2735db757c9027dee2e50eadf833c288cc95b3"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataCatalog/standardMembers.ts",
+          "sha256": "6bd24d47b6a0cda3a4bcae103220cb2a0207de3275f29807163da86b47e9ca4c"
         },
         {
           "path": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml"

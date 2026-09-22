@@ -41,7 +41,7 @@ ExternalFile принят: четыре свойства подключены к
 Следующий этап описан в [плане единого преобразования](2026-09-13-unified-conversion-plan.md).
 Флажки обновляются только после полной приёмки объекта, предусмотренной этим планом.
 
-Принято **24/90 common**. Полные Document и DocumentJournal ещё не приняты.
+Принято **25/90 common**. Полные Document и DocumentJournal ещё не приняты.
 Общий XML-record расширен типизированными атрибутами и сохранением их исходной
 записи. Это инфраструктура; дополнительных флажков объектов не устанавливает.
 Правила присутствия полей вложенной скалярной записи также перенесены в общий
@@ -124,7 +124,7 @@ AdditionalIndexes принят после проверки идентичнос�
 - [x] [commonObjects/externalFile](../../../packages/rules/metadata/commonObjects/externalFile) — 2026-09-13: [декларация](../../../rust/declarations/common/external-file.yaml), [сборки владельцев](../../../rust/declarations/resources), [приёмка](../reports/2026-09-13-external-file.md).
 - [ ] [commonObjects/externalPicture](../../../packages/rules/metadata/commonObjects/externalPicture)
 - [x] [commonObjects/fieldsList](../../../packages/rules/metadata/commonObjects/fieldsList) — 2026-09-11: [декларация](../../../rust/declarations/common/fields-list.yaml), [readable](../../../rust/declarations/common/fields-list-readable.yaml), [профиль владельца](../../../rust/declarations/probes/fields-list-readable-default.yaml), [проверки](../../../rust/crates/compiled-rules/tests/sequences.rs), [e2e](../../../tests/migration/text-collections-e2e.json).
-- [ ] [commonObjects/fillValue](../../../packages/rules/metadata/commonObjects/fillValue)
+- [x] [commonObjects/fillValue](../../../packages/rules/metadata/commonObjects/fillValue)
 - [ ] [commonObjects/font](../../../packages/rules/metadata/commonObjects/font)
 - [x] [commonObjects/formattedI8nText](../../../packages/rules/metadata/commonObjects/formattedI8nText) — 2026-09-10; [декларация](../../../rust/declarations/common/formatted-i8n-text.yaml), [приёмка](../reports/2026-09-10-formatted-i8n-acceptance.md).
 - [ ] [commonObjects/functionalOptionsProperty](../../../packages/rules/metadata/commonObjects/functionalOptionsProperty)
@@ -647,6 +647,18 @@ XML выявлено важное различие: отсутствующий Y
 ссылке, `xsi:nil` и вычисляемой пустой ссылке `Owner`, включая её отключение
 в расширении. Дополнительно 17 случаев проверили запрет явного значения,
 тип, длину, список владельцев и различие одного владельца от нескольких.
-Автоматическая привязка политик к владельцам и подключение полного правила
-ещё не приняты.
-Флажок остаётся пустым: **24/90 common**.
+Политики теперь статически извлекаются из общих объявлений и объявления
+владельца, а параметры — из e2e XML; проверены 22 случая для справочника и
+документа. Декларативный фрагмент составлен с полем имени и находится в
+рабочем каталоге Rust. Маршруты владельцев к нему ещё не подключены.
+На этом промежуточном этапе флажок оставался пустым: **24/90 common**.
+
+Приёмка общего `FillValue` завершена по согласованной отдельной границе:
+декларации обычного значения и стандартного реквизита находятся в рабочем
+Rust-каталоге. Совместный прогон 66 случаев из неизменённых e2e-основ охватил
+94 свойства, все 10 применимых видов обычных реквизитов и политики
+стандартных реквизитов; XML → YAML → XML без референса и Clippy прошли.
+Полный `pnpm test`, проверка типов, архитектуры и новых дублей также прошли.
+Маршруты полных владельцев принимаются в их собственных строках, поэтому
+`commonObjects/fillValue` отмечен завершённым, а общий итог теперь **25/90
+common**. [Доказательства и граница](../reports/2026-09-22-fill-value-default-profile.md).

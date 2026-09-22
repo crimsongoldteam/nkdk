@@ -1,0 +1,89 @@
+format: nkdk-declarations/1
+kind: object
+id: contract.standard-attribute-with-name
+namespaces:
+  xr: http://v8.1c.ru/8.3/xcf/readable
+imports:
+  fill: common.standard-attribute-fill-value
+  name: common.string
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  owners:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  componentKind:
+    type:
+      kind: scalar
+      scalar: text
+  policy:
+    type:
+      kind: scalar
+      scalar: text
+  expectedKind:
+    type:
+      kind: scalar
+      scalar: text
+  maxTextLength:
+    type:
+      kind: scalar
+      scalar: text
+  allowedTextLength:
+    type:
+      kind: scalar
+      scalar: text
+  maxNumberDigits:
+    type:
+      kind: scalar
+      scalar: text
+compose:
+  - use: fill
+    bind:
+      defaultLanguage:
+        input: defaultLanguage
+      registeredLanguages:
+        input: registeredLanguages
+      owners:
+        input: owners
+      componentKind:
+        input: componentKind
+      policy:
+        input: policy
+      expectedKind:
+        input: expectedKind
+      maxTextLength:
+        input: maxTextLength
+      allowedTextLength:
+        input: allowedTextLength
+      maxNumberDigits:
+        input: maxNumberDigits
+value:
+  kind: record
+  fields:
+    - name: name
+      type:
+        use: name
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: name
+        path:
+          - xr:StandardAttribute
+        attribute: name
+  yaml:
+    kind: mapping
+    fields:
+      - field: name
+        key: Имя

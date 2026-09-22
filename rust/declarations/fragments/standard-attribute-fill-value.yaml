@@ -1,5 +1,5 @@
 format: nkdk-declarations/1
-kind: object
+kind: fragment
 id: common.standard-attribute-fill-value
 description: Значение заполнения стандартного реквизита; смысловые ограничения задаёт декларация владельца
 namespaces:
@@ -13,6 +13,7 @@ inputs:
   policy: {type: {kind: scalar, scalar: text}}
   expectedKind: {type: {kind: scalar, scalar: text}}
   maxTextLength: {type: {kind: scalar, scalar: text}}
+  allowedTextLength: {type: {kind: scalar, scalar: text}}
   maxNumberDigits: {type: {kind: scalar, scalar: text}}
 value:
   kind: record
@@ -26,7 +27,7 @@ value:
         registeredLanguages: {input: registeredLanguages}
         onlyStringType: {literal: false}
 representations:
-  xml: {kind: record, fields: [{field: value, path: [Root, xr:FillValue]}]}
+  xml: {kind: record, fields: [{field: value, path: [xr:StandardAttribute, xr:FillValue]}]}
   yaml: {kind: mapping, fields: [{field: value, key: ЗначениеЗаполнения}]}
 presence:
 - target: {field: value}
@@ -78,14 +79,19 @@ constraints:
     - {eq: [{input: policy}, {literal: ownerReference}]}
     - {isVariant: {value: {field: value}, variant: reference}}
   assert:
-    exists:
-      in: {input: owners}
-      as: owner
-      where:
-        textSegmentPrefix:
-          value: {variantText: {value: {field: value}, variant: reference}}
-          prefix: {var: owner}
-          separator: '.'
+    or:
+    - and:
+      - {exists: {in: {input: owners}, as: owner, where: {literal: true}}}
+      - {not: {one: {in: {input: owners}, as: owner, where: {literal: true}}}}
+      - {eq: [{variantText: {value: {field: value}, variant: reference}}, {literal: '.'}]}
+    - exists:
+        in: {input: owners}
+        as: owner
+        where:
+          textSegmentPrefix:
+            value: {variantText: {value: {field: value}, variant: reference}}
+            prefix: {var: owner}
+            separator: '.'
   diagnostic: {code: fill-value.type-mismatch, severity: warning, at: {field: value}, message: Ссылка значения заполнения не принадлежит владельцу}
 - id: text-length
   appliesTo: [xml-import, yaml-validation]
@@ -94,8 +100,19 @@ constraints:
     - {eq: [{input: expectedKind}, {literal: text}]}
     - {isVariant: {value: {field: value}, variant: text}}
     - {matches: {value: {input: maxTextLength}, pattern: '[1-9][0-9]*'}}
+    - {not: {eq: [{input: allowedTextLength}, {literal: Fixed}]}}
   assert: {textLengthAtMost: {value: {variantValue: {value: {field: value}, variant: text}}, limit: {input: maxTextLength}}}
   diagnostic: {code: fill-value.string-length, severity: warning, at: {field: value}, message: Значение заполнения превышает длину стандартного реквизита}
+- id: fixed-text-length
+  appliesTo: [xml-import, yaml-validation]
+  when:
+    and:
+    - {eq: [{input: expectedKind}, {literal: text}]}
+    - {isVariant: {value: {field: value}, variant: text}}
+    - {matches: {value: {input: maxTextLength}, pattern: '[1-9][0-9]*'}}
+    - {eq: [{input: allowedTextLength}, {literal: Fixed}]}
+  assert: {textLengthEquals: {value: {variantValue: {value: {field: value}, variant: text}}, limit: {input: maxTextLength}}}
+  diagnostic: {code: fill-value.string-length, severity: warning, at: {field: value}, message: Значение заполнения не соответствует фиксированной длине стандартного реквизита}
 - id: number-digits
   appliesTo: [xml-import, yaml-validation]
   when:

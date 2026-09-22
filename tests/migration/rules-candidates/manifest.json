@@ -13006,10 +13006,6 @@
       "sha256": "16d257424c3a5fab2230411615e5138964087b0a091005930d6f941a5b1d9ba4"
     },
     {
-      "path": "rust/declarations/candidates/standard-attribute-fill-value.yaml",
-      "sha256": "2cf446bb3e0936ca5ca1f26e21c114c21335c7814570383d899c47e965b564e1"
-    },
-    {
       "path": "rust/declarations/common/additional-index-row.yaml",
       "sha256": "8a04decc9f2c123354b7041ca15108e3c9700b5bc189d3cd713b9598705c751d"
     },
@@ -13448,6 +13444,10 @@
     {
       "path": "rust/declarations/fragments/standalone-command-module-resource.yaml",
       "sha256": "fa660c977c96a32127cab82493b1a016ac57f59cf46d2c30b75aecdfcd3cba73"
+    },
+    {
+      "path": "rust/declarations/fragments/standard-attribute-fill-value.yaml",
+      "sha256": "a9db6cc6bc9405331c77c0a6ef4c718ef673e7f7b658180d580221a24b552297"
     },
     {
       "path": "rust/declarations/fragments/value-manager-module-resource.yaml",

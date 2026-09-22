@@ -1,5 +1,5 @@
 format: nkdk-declarations/1
-kind: object
+kind: fragment
 id: common.standard-attribute-fill-value
 description: >-
   Значение заполнения стандартного реквизита; смысловые ограничения задаёт
@@ -41,6 +41,10 @@ inputs:
     type:
       kind: scalar
       scalar: text
+  allowedTextLength:
+    type:
+      kind: scalar
+      scalar: text
   maxNumberDigits:
     type:
       kind: scalar
@@ -66,7 +70,7 @@ representations:
     fields:
       - field: value
         path:
-          - Root
+          - xr:StandardAttribute
           - xr:FillValue
   yaml:
     kind: mapping
@@ -220,20 +224,41 @@ constraints:
               field: value
             variant: reference
     assert:
-      exists:
-        in:
-          input: owners
-        as: owner
-        where:
-          textSegmentPrefix:
-            value:
-              variantText:
+      or:
+        - and:
+            - exists:
+                in:
+                  input: owners
+                as: owner
+                where:
+                  literal: true
+            - not:
+                one:
+                  in:
+                    input: owners
+                  as: owner
+                  where:
+                    literal: true
+            - eq:
+                - variantText:
+                    value:
+                      field: value
+                    variant: reference
+                - literal: .
+        - exists:
+            in:
+              input: owners
+            as: owner
+            where:
+              textSegmentPrefix:
                 value:
-                  field: value
-                variant: reference
-            prefix:
-              var: owner
-            separator: .
+                  variantText:
+                    value:
+                      field: value
+                    variant: reference
+                prefix:
+                  var: owner
+                separator: .
     diagnostic:
       code: fill-value.type-mismatch
       severity: warning
@@ -257,6 +282,10 @@ constraints:
             value:
               input: maxTextLength
             pattern: '[1-9][0-9]*'
+        - not:
+            eq:
+              - input: allowedTextLength
+              - literal: Fixed
     assert:
       textLengthAtMost:
         value:
@@ -272,6 +301,43 @@ constraints:
       at:
         field: value
       message: Значение заполнения превышает длину стандартного реквизита
+  - id: fixed-text-length
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      and:
+        - eq:
+            - input: expectedKind
+            - literal: text
+        - isVariant:
+            value:
+              field: value
+            variant: text
+        - matches:
+            value:
+              input: maxTextLength
+            pattern: '[1-9][0-9]*'
+        - eq:
+            - input: allowedTextLength
+            - literal: Fixed
+    assert:
+      textLengthEquals:
+        value:
+          variantValue:
+            value:
+              field: value
+            variant: text
+        limit:
+          input: maxTextLength
+    diagnostic:
+      code: fill-value.string-length
+      severity: warning
+      at:
+        field: value
+      message: >-
+        Значение заполнения не соответствует фиксированной длине стандартного
+        реквизита
   - id: number-digits
     appliesTo:
       - xml-import

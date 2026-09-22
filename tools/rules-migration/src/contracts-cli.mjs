@@ -9,6 +9,7 @@ import { yaml,dependencyFiles,candidateCatalog } from './candidate-catalog.mjs';
 import { writeCandidates } from './candidate-output.mjs';
 import { loadSources } from './source-snapshot.mjs';
 import { literalTables,booleanExpectations,literalFixture } from './test-cases.mjs';
+import {standardMemberPolicies,standardFillPolicyInputs} from './standard-fill-source.mjs';
 const manifest=JSON.parse(readFileSync('tests/migration/rules-candidates/manifest.json','utf8'));
 loadSources(manifest.sourceHashes);
 for (const [name,contents] of Object.entries(manifest.generatedFiles)) if(readFileSync(`tests/migration/rules-candidates/${name}`,'utf8') !== contents) throw new Error(`Modified candidate: ${name}`);
@@ -254,9 +255,29 @@ for(const [index,fixture] of fillValueFixtures.entries()) {
 const standardFillProfile=baseCatalog.get('common.standard-attribute-fill-value');
 catalog.set(standardFillProfile.id,standardFillProfile);
 selected.push(standardFillProfile);
+const standardFillWrapper={format:'nkdk-declarations/1',kind:'object',id:'contract.standard-attribute-fill-value',
+ namespaces:{xr:'http://v8.1c.ru/8.3/xcf/readable'},imports:{fill:standardFillProfile.id},
+ inputs:structuredClone(standardFillProfile.inputs),
+ compose:[{use:'fill',bind:Object.fromEntries(Object.keys(standardFillProfile.inputs).map(name=>[name,{input:name}]))}],
+ value:{kind:'record',fields:[]},representations:{xml:{kind:'record',fields:[]},yaml:{kind:'mapping',fields:[]}},
+};
+catalog.set(standardFillWrapper.id,standardFillWrapper);
+selected.push(standardFillWrapper);
 const standardXMLPath='e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml';
 const standardYAMLPath='e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml';
 const standardYAML=source(standardYAMLPath);
+const standardPolicyPaths=[
+ 'packages/runtime/metadata/standardMembers/declarations.ts',
+ 'packages/rules/metadata/appliedObjects/metadataCatalog/standardMembers.ts',
+];
+const standardPolicySources=Object.fromEntries(standardPolicyPaths.map(path=>[path,source(path)]));
+const standardPolicies=standardMemberPolicies(standardPolicySources,'Справочник');
+const standardPolicyProvenance=standardPolicyPaths.map(path=>({path,sha256:createHash('sha256').update(standardPolicySources[path]).digest('hex')}));
+const standardRootNames=baseCatalog.get('common.path-root')?.enum;
+if(!standardRootNames)throw new Error('Missing declared metadata root vocabulary');
+const mdNamespace='http://v8.1c.ru/8.3/MDClasses';
+const xrNamespace='http://v8.1c.ru/8.3/xcf/readable';
+const standardFactNames=['CodeType','CodeLength','CodeAllowedLength','DescriptionLength'];
 for(const [internal,name,expected] of [
  ['Ref','Ссылка',null],
  ['Owner','Владелец','Справочник.СправочникВладелец.ПредопределенноеЗначение'],
@@ -267,15 +288,63 @@ for(const [internal,name,expected] of [
 ]) {
  if(expected!==null && (!standardYAML.includes(`  ${name}:`) || !standardYAML.includes(`    ЗначениеЗаполнения: ${expected}`)))throw new Error(`Changed independent standard attribute ${name}`);
  const [fixture]=JSON.parse(execFileSync('python3',['tools/rules-migration/src/project-fixtures.py'],{input:JSON.stringify([{
-   xml:standardXMLPath,propertySelector:`.//{http://v8.1c.ru/8.3/xcf/readable}StandardAttribute[@name='${internal}']/{http://v8.1c.ru/8.3/xcf/readable}FillValue`,root:'{http://v8.1c.ru/8.3/xcf/readable}FillValue',
+   xml:standardXMLPath,propertySelector:`.//{${xrNamespace}}StandardAttribute[@name='${internal}']/{${xrNamespace}}FillValue`,root:`{${xrNamespace}}FillValue`,
+   context:[...standardFactNames.map(fact=>({name:fact[0].toLowerCase()+fact.slice(1),selector:`.//{${mdNamespace}}Properties/{${mdNamespace}}${fact}`})),
+     {name:'owners',selector:`.//{${mdNamespace}}Properties/{${mdNamespace}}Owners/{${xrNamespace}}Item`,many:true}],
  }]),encoding:'utf8'}));
- cases.push({id:`fill-value-standard-${internal.toLowerCase()}`,entry:standardFillProfile.id,
-   xml:`<Root>${fixture.xml}</Root>`,yaml:expected===null?'':`ЗначениеЗаполнения: ${expected}`,
-   inputs:{defaultLanguage:'ru',registeredLanguages:['ru','en'],owners:['Справочник.СправочникВладелец'],componentKind:'configuration',policy:internal==='Ref'?'forbidden':internal==='Owner'?'ownerReference':internal==='Code'?'codeFromOwner':internal==='Description'?'stringFromOwner':internal==='DeletionMark'?'byEffectiveType':'notSpecified',expectedKind:internal==='Owner'?'reference':internal==='DeletionMark'?'boolean':internal==='Code'?'decimal':internal==='Description'?'text':'',maxTextLength:internal==='Description'?'30':'',maxNumberDigits:internal==='Code'?'11':''},source:[...fixture.source,{path:standardYAMLPath}],
+ const member=standardPolicies.get(internal);
+ if(!member)throw new Error(`Missing source standard member: ${internal}`);
+ const policyInputs=standardFillPolicyInputs(member,fixture.context,standardRootNames);
+ cases.push({id:`fill-value-standard-${internal.toLowerCase()}`,entry:standardFillWrapper.id,
+   xml:`<xr:StandardAttribute xmlns:xr="${xrNamespace}">${fixture.xml}</xr:StandardAttribute>`,yaml:expected===null?'':`ЗначениеЗаполнения: ${expected}`,
+   inputs:{defaultLanguage:'ru',registeredLanguages:['ru','en'],componentKind:'configuration',...policyInputs},source:[...fixture.source,{path:standardYAMLPath},...standardPolicyProvenance],
    adaptation:'Select the immutable standard-attribute FillValue subtree and its independent owner YAML scalar; retain the xr namespace and test reverse export without a source XML reference',
  });
 }
+const documentPolicyPaths=[
+ ...standardPolicyPaths.slice(0,1),
+ 'packages/runtime/rule-kit.ts',
+ 'packages/rules/metadata/standardMembers/declarations.ts',
+ 'packages/rules/metadata/appliedObjects/metadataDocument/standardMembers.ts',
+];
+const documentPolicySources=Object.fromEntries(documentPolicyPaths.map(path=>[path,source(path)]));
+const documentPolicies=standardMemberPolicies(documentPolicySources,'Документ');
+const documentPolicyProvenance=documentPolicyPaths.map(path=>({path,sha256:createHash('sha256').update(documentPolicySources[path]).digest('hex')}));
+const documentStandardXMLPath='e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства.xml';
+const documentStandardYAMLPath='e2e/fixtures/nkdk/cf/Документ/ДокументВсеСвойства/Свойства.yaml';
+if(!source(documentStandardYAMLPath).includes('СтандартныеРеквизиты:\n  Дата:'))throw new Error('Changed independent document standard Date');
+const [documentDateFixture]=JSON.parse(execFileSync('python3',['tools/rules-migration/src/project-fixtures.py'],{input:JSON.stringify([{
+ xml:documentStandardXMLPath,propertySelector:`.//{${xrNamespace}}StandardAttribute[@name='Date']/{${xrNamespace}}FillValue`,root:`{${xrNamespace}}FillValue`,
+}]),encoding:'utf8'}));
+const documentDateCase={id:'fill-value-standard-document-date',entry:standardFillWrapper.id,
+ xml:`<xr:StandardAttribute xmlns:xr="${xrNamespace}">${documentDateFixture.xml}</xr:StandardAttribute>`,yaml:'',
+ inputs:{defaultLanguage:'ru',registeredLanguages:['ru','en'],componentKind:'configuration',
+   ...standardFillPolicyInputs(documentPolicies.get('Date'),{},standardRootNames)},
+ source:[...documentDateFixture.source,{path:documentStandardYAMLPath},...documentPolicyProvenance],
+ adaptation:'Select the real document Date standard-attribute FillValue and derive its effective calendar policy from the document declaration',
+};
+cases.push(documentDateCase);
+cases.push({...documentDateCase,id:'fill-value-standard-document-date-wrong-kind',
+ xml:documentDateCase.xml.replace('xsi:nil="true" />','xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">Текст</xr:FillValue>'),
+ yaml:'ЗначениеЗаполнения: Текст',diagnostics:['fill-value.type-mismatch'],
+ adaptation:'The document declares a calendar Date; an observed string XML value must survive the round-trip with a type diagnostic',
+});
 const standardOwner=cases.find(row=>row.id==='fill-value-standard-owner');
+const standardWithName={format:'nkdk-declarations/1',kind:'object',id:'contract.standard-attribute-with-name',
+ namespaces:{xr:xrNamespace},imports:{fill:standardFillProfile.id,name:'common.string'},
+ inputs:structuredClone(standardFillProfile.inputs),
+ compose:[{use:'fill',bind:Object.fromEntries(Object.keys(standardFillProfile.inputs).map(name=>[name,{input:name}]))}],
+ value:{kind:'record',fields:[{name:'name',type:{use:'name'}}]},
+ representations:{xml:{kind:'record',fields:[{field:'name',path:['xr:StandardAttribute'],attribute:'name'}]},
+   yaml:{kind:'mapping',fields:[{field:'name',key:'Имя'}]}},
+};
+catalog.set(standardWithName.id,standardWithName);
+selected.push(standardWithName);
+cases.push({...standardOwner,id:'fill-value-standard-owner-with-name',entry:standardWithName.id,
+ xml:standardOwner.xml.replace('<xr:StandardAttribute ','<xr:StandardAttribute name="Owner" '),
+ yaml:`${standardOwner.yaml}\nИмя: Owner`,
+ adaptation:'Compose the reusable FillValue fragment with the independently observed standard-attribute name on the same XML wrapper',
+});
 const standardDefaultSource='packages/rules/metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.integration.test.ts';
 if(!source(standardDefaultSource).includes('Catalog.СправочникВладелец.EmptyRef'))throw new Error('Changed independent standard Owner default');
 cases.push({...standardOwner,id:'fill-value-standard-owner-implicit',
@@ -291,6 +360,13 @@ cases.push({...standardOwner,id:'fill-value-standard-owner-composite',
  source:[...standardOwner.source,{path:standardDefaultSource}],
  adaptation:'Use the observed Owner reference form with two declared catalog owners; the empty reference remains explicit because there is no unique implicit owner',
 });
+cases.push({...standardOwner,id:'fill-value-standard-owner-composite-unselected',
+ xml:standardOwner.xml.replace('Catalog.СправочникВладелец.ПредопределенноеЗначение',''),
+ yaml:'ЗначениеЗаполнения: .',
+ inputs:{...standardOwner.inputs,owners:['Справочник.СправочникВладелец','Справочник.СправочникПолный']},
+ source:[...standardOwner.source,{path:'rust/declarations/common/metadata-value.yaml'}],
+ adaptation:'An unselected reference is valid for multiple owner alternatives; the same generic MetadataValue choice must retain its explicit empty-reference form',
+});
 cases.push({...standardOwner,id:'fill-value-standard-owner-without-owners',
  inputs:{...standardOwner.inputs,owners:[]},diagnostics:['fill-value.type-mismatch'],
  adaptation:'Keep the observed Owner reference but remove configured owners; the declaration infers a diagnostic and retains the explicit value',
@@ -303,6 +379,18 @@ cases.push({...standardOwner,id:'fill-value-standard-owner-wrong-root',
  adaptation:'Keep the real Owner standard-attribute wrapper but substitute an observed document reference; the owner reference policy rejects a root outside the catalog owners',
 });
 const standardCode=cases.find(row=>row.id==='fill-value-standard-code');
+const fixedCodeSource='packages/rules/metadata/commonObjects/fillValue/standardMember.test.ts';
+if(!source(fixedCodeSource).includes('codeAllowedLength: "Fixed"'))throw new Error('Changed independent fixed code expectation');
+cases.push({...standardCode,id:'fill-value-standard-fixed-code-short',
+ xml:standardCode.xml.replace('xsi:nil="true" />','xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">AB</xr:FillValue>'),
+ yaml:'ЗначениеЗаполнения: AB',
+ inputs:{...standardCode.inputs,...standardFillPolicyInputs(standardPolicies.get('Code'),{
+   codeType:'String',codeLength:'3',codeAllowedLength:'Fixed',
+ },standardRootNames)},
+ diagnostics:['fill-value.string-length'],
+ source:[...standardCode.source,{path:fixedCodeSource}],
+ adaptation:'Keep the actual Code standard-attribute XML wrapper and apply the independent fixed-length code policy; a two-character explicit value for length three must diagnose without losing XML',
+});
 cases.push({...standardOwner,id:'fill-value-standard-owner-extension',
  xml:standardCode.xml,yaml:'',inputs:{...standardOwner.inputs,componentKind:'configurationExtension'},
  source:[...standardOwner.source,...standardCode.source,{path:standardDefaultSource}],
