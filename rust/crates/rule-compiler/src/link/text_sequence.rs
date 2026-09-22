@@ -66,11 +66,12 @@ pub(super) fn types(entries: &BTreeMap<u32, LinkedEntry>) -> Result<(), Diagnost
         else {
             return Err(invalid());
         };
-        let LinkedType::Reference(id) = item.as_ref() else {
+        let Some((id, bindings, _)) = item.as_ref().as_reference() else {
             return Err(invalid());
         };
-        let target = &entries[id];
-        if !plain(target) {
+        let target = &entries[&id];
+        let bound_inputs = !bindings.is_empty() && bindings.len() == target.inputs.len();
+        if !plain(target, bound_inputs) {
             return Err(invalid());
         }
         let variants = if let LinkedType::Choice(fields) = &target.value {
@@ -81,9 +82,18 @@ pub(super) fn types(entries: &BTreeMap<u32, LinkedEntry>) -> Result<(), Diagnost
             }
             fields
                 .iter()
-                .map(|field| match &field.value {
-                    LinkedType::Reference(id) => Ok(&entries[id]),
-                    _ => Err(invalid()),
+                .map(|field| {
+                    let Some((id, bindings, _)) = field.value.as_reference() else {
+                        return Err(invalid());
+                    };
+                    let target = &entries[&id];
+                    if !plain(
+                        target,
+                        !bindings.is_empty() && bindings.len() == target.inputs.len(),
+                    ) {
+                        return Err(invalid());
+                    }
+                    Ok(target)
                 })
                 .collect::<Result<Vec<_>, _>>()?
         } else {
@@ -91,7 +101,7 @@ pub(super) fn types(entries: &BTreeMap<u32, LinkedEntry>) -> Result<(), Diagnost
         };
         let mut width = None;
         for variant in variants {
-            let (xml, _) = item_layout(variant, xml_separator, yaml_separator)?;
+            let (xml, _) = item_layout(variant, xml_separator, yaml_separator, true)?;
             if width.is_some_and(|width| width != xml.len()) {
                 return Err(invalid());
             }
@@ -101,8 +111,8 @@ pub(super) fn types(entries: &BTreeMap<u32, LinkedEntry>) -> Result<(), Diagnost
     Ok(())
 }
 
-fn plain(entry: &LinkedEntry) -> bool {
-    entry.inputs.is_empty()
+fn plain(entry: &LinkedEntry, allow_bound_inputs: bool) -> bool {
+    (entry.inputs.is_empty() || allow_bound_inputs)
         && entry.parameters.is_empty()
         && entry.presence.is_empty()
         && entry.shorthands.is_empty()
@@ -115,6 +125,7 @@ pub(crate) fn item_layout(
     entry: &LinkedEntry,
     xml_separator: &str,
     yaml_separator: &str,
+    allow_bound_inputs: bool,
 ) -> Result<(Vec<usize>, Vec<usize>), Diagnostic> {
     let (
         LinkedType::Record(fields),
@@ -128,7 +139,7 @@ pub(crate) fn item_layout(
             "Sequence variants require plain text records",
         ));
     };
-    if !plain(entry) {
+    if !plain(entry, allow_bound_inputs) {
         return Err(diagnostic(
             "text_sequence_shape",
             &entry.source,

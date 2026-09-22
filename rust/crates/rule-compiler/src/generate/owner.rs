@@ -283,16 +283,28 @@ pub(super) fn generate_at(
     }
     out.push_str("}\n");
     let mut xml_routing = String::new();
-    writeln!(xml_routing,"#[derive(Default)] struct OwnerRouting{id}{{active:Option<usize>,active_depth:usize}} impl OwnerRouting{id}{{fn consume<S:Copy>(&mut self,path:&[core::xml::Name],token:&core::xml::Token<'_>,scope:S,containers:&mut [u8;{count}],mut consume:impl FnMut(usize,&[core::xml::Name],&core::xml::Token<'_>,S)->core::Result<()>)->core::Result<()>{{let _=&containers;{count_events}if let Some(slot)=self.active {{let result=match slot{{").unwrap();
-    for slot in
-        (0..parts.len()).filter(|slot| files[*slot].is_none() && !element_routes[*slot].is_empty())
-    {
-        writeln!(xml_routing, "{slot}=>consume({slot},path,token,scope),").unwrap();
+    let routed_slots = (0..parts.len())
+        .filter(|slot| files[*slot].is_none() && !element_routes[*slot].is_empty())
+        .collect::<Vec<_>>();
+    let routing_state = if routed_slots.is_empty() {
+        ";".to_owned()
+    } else {
+        "{active:Option<usize>,active_depth:usize}".to_owned()
+    };
+    let routing_init = if routed_slots.is_empty() {
+        format!("OwnerRouting{id}")
+    } else {
+        format!("OwnerRouting{id}::default()")
+    };
+    writeln!(xml_routing,"#[derive(Default)] struct OwnerRouting{id}{routing_state} impl OwnerRouting{id}{{fn consume<S:Copy>(&mut self,path:&[core::xml::Name],token:&core::xml::Token<'_>,scope:S,containers:&mut [u8;{count}],mut consume:impl FnMut(usize,&[core::xml::Name],&core::xml::Token<'_>,S)->core::Result<()>)->core::Result<()>{{let _=&containers;{count_events}").unwrap();
+    if !routed_slots.is_empty() {
+        xml_routing.push_str("if let Some(slot)=self.active {let result=match slot{");
+        for slot in &routed_slots {
+            writeln!(xml_routing, "{slot}=>consume({slot},path,token,scope),").unwrap();
+        }
+        xml_routing.push_str("_=>unreachable!(\"declared XML route\")};if matches!(token,core::xml::Token::End)&&path.len()==self.active_depth{self.active=None;}return result;}\n");
     }
-    xml_routing.push_str("_=>unreachable!(\"declared XML route\")};if matches!(token,core::xml::Token::End)&&path.len()==self.active_depth{self.active=None;}return result;}\n");
-    for slot in
-        (0..parts.len()).filter(|slot| files[*slot].is_none() && !element_routes[*slot].is_empty())
-    {
+    for slot in routed_slots {
         let selected = element_routes[slot]
             .iter()
             .map(|path| format!("core::xml::matches(path,{})", record::path_code(path)))
@@ -370,7 +382,7 @@ pub(super) fn generate_at(
                 writeln!(out,"{assign}part_{id}_{slot}::read_{side}(source,inputs,core::{side}::{events}(|c{slot}:&mut core::{side}::{consumer}<'_>| {{").unwrap();
             }
             if side == "xml" {
-                out.push_str(&format!("let mut routing=OwnerRouting{id}::default();events.visit_scoped(|path,token,scope|routing.consume(path,token,scope,&mut containers,|slot,path,token,scope|match slot{{\n"));
+                out.push_str(&format!("let mut routing={routing_init};events.visit_scoped(|path,token,scope|routing.consume(path,token,scope,&mut containers,|slot,path,token,scope|match slot{{\n"));
                 for slot in (0..parts.len()).filter(|slot| files[*slot].is_none()) {
                     writeln!(out, "{slot}=>c{slot}(path,token,scope),").unwrap();
                 }
@@ -462,7 +474,7 @@ pub(super) fn generate_at(
         for slot in 0..parts.len() {
             writeln!(out, "p{slot}:part_{id}_{slot}::XmlReader,").unwrap();
         }
-        writeln!(out,"}}impl OwnerXmlRead{id}{{fn new()->Self{{Self{{routing:OwnerRouting{id}::default(),containers:[0;{count}],").unwrap();
+        writeln!(out,"}}impl OwnerXmlRead{id}{{fn new()->Self{{Self{{routing:{routing_init},containers:[0;{count}],").unwrap();
         for slot in 0..parts.len() {
             writeln!(out, "p{slot}:part_{id}_{slot}::XmlReader::new(),").unwrap();
         }

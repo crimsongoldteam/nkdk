@@ -1,0 +1,274 @@
+format: nkdk-declarations/1
+kind: value
+id: contract.generic-standard-complete-item
+namespaces:
+  xr: http://v8.1c.ru/8.3/xcf/readable
+imports:
+  part0: contract.generic-standard-link-by-type-fragment
+  part1: candidate.fragment.b1e20cd8e6c6ba816243
+  part2: candidate.fragment.991fa9999a4366811f75
+  part3: candidate.fragment.2f5a042e713a0ae1cd12
+  part4: candidate.fragment.19bb8e3aab06c642bce3
+  part5: candidate.fragment.70ce9d22311c4570d7f2
+  part6: candidate.fragment.99db04e6fa464a919602
+  part7: candidate.fragment.c6dc26c494f76d1bbe98
+  part8: candidate.fragment.e365e009ce6430d03101
+  part9: candidate.fragment.efee510f4bd5e276c19e
+  part10: candidate.fragment.0cc2f3d61fe040534753
+  inputType1f8ea46361ff: common.path-root
+  part11: candidate.fragment.82810fa39b0ebcb7bddd
+  part12: candidate.fragment.850f22b400964c5814cb
+  part13: candidate.fragment.d8fffa47d0b6958fa6a1
+  part14: candidate.fragment.a3709a223c5ac6581647
+  part15: candidate.fragment.8176d7d7d4750a400c00
+  part16: candidate.fragment.3a34c59d0052b02d9144
+  part17: candidate.fragment.0cba72b5f63bf541053c
+  part18: candidate.fragment.97525321c6bc26f385e4
+  part19: candidate.fragment.82a8859bce3a778f10cd
+  part20: candidate.fragment.a1d42c4a1bf8ed3e8cec
+  part21: contract.literal-choice-parameter-links-fragment
+  part22: contract.generic-standard-complete-name-and-fill
+  part23: candidate.fragment.14bede8ced4d5f0c7277
+  part24: candidate.fragment.e27c59273b8be2f8db15
+  part25: candidate.fragment.8be3465b51eb94a3f492
+inputs:
+  profiles:
+    type:
+      kind: sequence
+      item:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: yamlName
+            type:
+              kind: scalar
+              scalar: text
+          - name: pathName
+            type:
+              kind: scalar
+              scalar: text
+          - name: emptyForm
+            type:
+              kind: scalar
+              scalar: text
+          - name: policy
+            type:
+              kind: scalar
+              scalar: text
+          - name: expectedKind
+            type:
+              kind: scalar
+              scalar: text
+          - name: maxTextLength
+            type:
+              kind: scalar
+              scalar: text
+          - name: maxNumberDigits
+            type:
+              kind: scalar
+              scalar: text
+          - name: allowedTextLength
+            type:
+              kind: scalar
+              scalar: text
+          - name: owners
+            type:
+              kind: sequence
+              item:
+                kind: scalar
+                scalar: text
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  ownerName:
+    type:
+      kind: scalar
+      scalar: text
+  roots:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: kind
+            type:
+              use: inputType1f8ea46361ff
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  forms:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: parent
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  owners:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  componentKind:
+    type:
+      kind: scalar
+      scalar: text
+compose:
+  - use: part0
+    bind:
+      profiles:
+        input: profiles
+  - use: part1
+    bind: {}
+  - use: part2
+    bind: {}
+  - use: part3
+    bind: {}
+  - use: part4
+    bind: {}
+  - use: part5
+    bind: {}
+  - use: part6
+    bind: {}
+  - use: part7
+    bind:
+      defaultLanguage:
+        input: defaultLanguage
+      registeredLanguages:
+        input: registeredLanguages
+      ownerName:
+        input: ownerName
+  - use: part8
+    bind: {}
+  - use: part9
+    bind:
+      defaultLanguage:
+        input: defaultLanguage
+      registeredLanguages:
+        input: registeredLanguages
+      ownerName:
+        input: ownerName
+  - use: part10
+    bind:
+      roots:
+        input: roots
+      forms:
+        input: forms
+  - use: part11
+    bind: {}
+  - use: part12
+    bind: {}
+  - use: part13
+    bind:
+      defaultLanguage:
+        input: defaultLanguage
+      registeredLanguages:
+        input: registeredLanguages
+      ownerName:
+        input: ownerName
+  - use: part14
+    bind: {}
+  - use: part15
+    bind: {}
+  - use: part16
+    bind: {}
+  - use: part17
+    bind: {}
+  - use: part18
+    bind:
+      defaultLanguage:
+        input: defaultLanguage
+      registeredLanguages:
+        input: registeredLanguages
+      ownerName:
+        input: ownerName
+  - use: part19
+    bind: {}
+  - use: part20
+    bind: {}
+  - use: part21
+    bind: {}
+  - use: part22
+    bind:
+      defaultLanguage:
+        input: defaultLanguage
+      registeredLanguages:
+        input: registeredLanguages
+      owners:
+        input: owners
+      componentKind:
+        input: componentKind
+      profiles:
+        input: profiles
+  - use: part23
+    bind: {}
+  - use: part24
+    bind:
+      defaultLanguage:
+        input: defaultLanguage
+      registeredLanguages:
+        input: registeredLanguages
+  - use: part25
+    bind: {}
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []
+yamlOrder:
+  - name
+  - synonym
+  - quickChoice
+  - markNegatives
+  - fillFromFillingValue
+  - value
+  - choiceHistoryOnInput
+  - dataHistory
+  - comment
+  - maxValue
+  - mask
+  - minValue
+  - multiLine
+  - choiceParameters
+  - toolTip
+  - fullTextSearch
+  - fillChecking
+  - extendedEdit
+  - passwordMode
+  - typeReductionMode
+  - choiceParameterLinks
+  - linkByType
+  - createOnInput
+  - type
+  - choiceForm
+  - format
+  - editFormat

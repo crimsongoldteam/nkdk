@@ -1212,6 +1212,7 @@ fn validate_yaml(
             LinkedType::Scalar(ScalarType::Text),
             YamlRepresentation::TextTable(TextTable::Resolved(_)),
         ) => {}
+        (LinkedType::Scalar(ScalarType::Text), YamlRepresentation::InputTextTable(_)) => {}
         (LinkedType::Scalar(ScalarType::Decimal), YamlRepresentation::Decimal) => {}
         (
             LinkedType::Reference(_) | LinkedType::BoundReference { .. },

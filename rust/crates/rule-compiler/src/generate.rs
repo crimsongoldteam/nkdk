@@ -200,7 +200,7 @@ use crate::plan::unsupported;
 
 fn plain(entry: &LinkedEntry) -> Result<(), Diagnostic> {
     plain_shape(entry)?;
-    if !entry.inputs.is_empty() {
+    if !entry.inputs.is_empty() && !matches!(entry.yaml, YamlRepresentation::InputTextTable(_)) {
         return Err(unsupported(
             entry,
             "Referenced scalar inputs require specialization",

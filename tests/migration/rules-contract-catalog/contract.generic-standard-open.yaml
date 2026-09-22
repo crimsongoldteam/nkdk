@@ -1,0 +1,72 @@
+format: nkdk-declarations/1
+kind: value
+id: contract.generic-standard-open
+imports:
+  metadata: contract.generic-standard-chain
+  local: common.local-field-path
+value:
+  kind: choice
+  variants:
+    - name: metadata
+      type:
+        use: metadata
+        bind:
+          profiles:
+            input: profiles
+    - name: local
+      type:
+        use: local
+representations:
+  xml:
+    kind: choice
+  yaml:
+    kind: choice
+inputs:
+  profiles:
+    type:
+      kind: sequence
+      item:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: yamlName
+            type:
+              kind: scalar
+              scalar: text
+          - name: pathName
+            type:
+              kind: scalar
+              scalar: text
+          - name: emptyForm
+            type:
+              kind: scalar
+              scalar: text
+          - name: policy
+            type:
+              kind: scalar
+              scalar: text
+          - name: expectedKind
+            type:
+              kind: scalar
+              scalar: text
+          - name: maxTextLength
+            type:
+              kind: scalar
+              scalar: text
+          - name: maxNumberDigits
+            type:
+              kind: scalar
+              scalar: text
+          - name: allowedTextLength
+            type:
+              kind: scalar
+              scalar: text
+          - name: owners
+            type:
+              kind: sequence
+              item:
+                kind: scalar
+                scalar: text

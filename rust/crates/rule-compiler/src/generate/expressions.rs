@@ -749,7 +749,7 @@ impl<'a> Expressions<'a> {
                             sequence.clone()
                         };
                         let selection = format!(
-                            "core::sequence_pattern::select_matching(({sequence}).into_iter().map(|item|->core::Result<bool>{{{binding}Ok({predicate})}}))?"
+                            "core::sequence_pattern::select_matching(({sequence}).iter().map(|item|->core::Result<bool>{{{binding}Ok({predicate})}}))?"
                         );
                         return Ok(if selected {
                             format!(
@@ -966,7 +966,10 @@ impl<'a> Expressions<'a> {
                         )
                     }
                     LinkedOperator::ParseYaml => {
-                        return Err(unsupported(self.entry, "YAML parsing is only generated for typed missing values"));
+                        return Err(unsupported(
+                            self.entry,
+                            "YAML parsing is only generated for typed missing values",
+                        ));
                     }
                     LinkedOperator::TextSegmentPrefix(separator) => {
                         let value = Self::text_reference(&arguments[0], values[0].clone());

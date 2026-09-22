@@ -379,20 +379,48 @@ fn module(path: &str, mut root: Node) -> Result<Module, Diagnostic> {
                         "text",
                         "unsupported_representation",
                     )?;
-                    if let Shape::Mapping(fields) = &yaml.shape
-                        && optional_field(fields, "kind").is_some_and(|node| {
-                            node.text(path).is_ok_and(|kind| kind == "text-table")
-                        })
-                    {
-                        let fields = yaml.mapping(path, &["kind", "use"])?;
-                        let usage = yaml.field(path, fields, "use")?;
-                        (
-                            XmlRepresentation::Text,
-                            YamlRepresentation::TextTable(TextTable::Import {
-                                name: usage.text(path)?.into(),
-                                source: location(path, usage),
-                            }),
-                        )
+                    if let Shape::Mapping(fields) = &yaml.shape {
+                        match optional_field(fields, "kind").and_then(|node| node.text(path).ok()) {
+                            Some("text-table") => {
+                                let fields = yaml.mapping(path, &["kind", "use"])?;
+                                let usage = yaml.field(path, fields, "use")?;
+                                (
+                                    XmlRepresentation::Text,
+                                    YamlRepresentation::TextTable(TextTable::Import {
+                                        name: usage.text(path)?.into(),
+                                        source: location(path, usage),
+                                    }),
+                                )
+                            }
+                            Some("input-text-table") => {
+                                let fields =
+                                    yaml.mapping(path, &["kind", "input", "internal", "external"])?;
+                                (
+                                    XmlRepresentation::Text,
+                                    YamlRepresentation::InputTextTable(
+                                        nkdk_rule_model::RecordKeyTable {
+                                            input: yaml
+                                                .field(path, fields, "input")?
+                                                .text(path)?
+                                                .into(),
+                                            internal: yaml
+                                                .field(path, fields, "internal")?
+                                                .text(path)?
+                                                .into(),
+                                            external: yaml
+                                                .field(path, fields, "external")?
+                                                .text(path)?
+                                                .into(),
+                                            empty: None,
+                                        },
+                                    ),
+                                )
+                            }
+                            _ => {
+                                scalar_yaml(path, yaml, "text")?;
+                                (XmlRepresentation::Text, YamlRepresentation::Text)
+                            }
+                        }
                     } else {
                         scalar_yaml(path, yaml, "text")?;
                         (XmlRepresentation::Text, YamlRepresentation::Text)
@@ -1019,6 +1047,7 @@ fn yaml_collection(path: &str, node: &Node) -> Result<YamlRepresentation, Diagno
             "omitEmptyFor",
             "restoreFrom",
             "emptyTag",
+            "keyTable",
         ],
     )?;
     match node.field(path, fields, "kind")?.text(path)? {
@@ -1032,6 +1061,7 @@ fn yaml_collection(path: &str, node: &Node) -> Result<YamlRepresentation, Diagno
                     "restoreFrom",
                     "omitEmptyFor",
                     "emptyTag",
+                    "keyTable",
                 ],
             )?;
             Ok(YamlRepresentation::RecordMapping {
@@ -1047,6 +1077,20 @@ fn yaml_collection(path: &str, node: &Node) -> Result<YamlRepresentation, Diagno
                     .transpose()?,
                 empty_tag: optional_field(fields, "emptyTag")
                     .map(|value| value.text(path).map(str::to_owned))
+                    .transpose()?,
+                key_table: optional_field(fields, "keyTable")
+                    .map(|table| {
+                        let fields =
+                            table.mapping(path, &["input", "internal", "external", "empty"])?;
+                        Ok(nkdk_rule_model::RecordKeyTable {
+                            input: table.field(path, fields, "input")?.text(path)?.into(),
+                            internal: table.field(path, fields, "internal")?.text(path)?.into(),
+                            external: table.field(path, fields, "external")?.text(path)?.into(),
+                            empty: optional_field(fields, "empty")
+                                .map(|value| value.text(path).map(str::to_owned))
+                                .transpose()?,
+                        })
+                    })
                     .transpose()?,
             })
         }

@@ -1,9 +1,14 @@
 // Generated declarations are checked through their compiler and contract tests.
 // Keep Clippy focused on this hand-written runner and its dependencies.
 #[allow(warnings)]
-mod rules {
+mod generated {
+    // The generated automata use crate-root paths so the same output can be
+    // included by production crates and this focused contract runner.
     include!(concat!(env!("OUT_DIR"), "/generated.rs"));
 }
+use generated as rules;
+pub(crate) use generated::automata_store;
+use nkdk_conversion_core as core;
 use nkdk_conversion_core::{Direction, proof};
 use serde_json::Value;
 fn compare_xml(expected: &[u8], actual: &[u8], qname_paths: &[Vec<String>]) {
@@ -17,16 +22,13 @@ fn compare_xml(expected: &[u8], actual: &[u8], qname_paths: &[Vec<String>]) {
         |path| {
             qname_paths.iter().any(|expected| {
                 path.len() == expected.len()
-                    && path
-                        .iter()
-                        .zip(expected)
-                        .all(|(name, expected)| {
-                            if name.namespace.is_empty() {
-                                &name.local == expected
-                            } else {
-                                format!("{{{}}}{}", name.namespace, name.local) == *expected
-                            }
-                        })
+                    && path.iter().zip(expected).all(|(name, expected)| {
+                        if name.namespace.is_empty() {
+                            &name.local == expected
+                        } else {
+                            format!("{{{}}}{}", name.namespace, name.local) == *expected
+                        }
+                    })
             })
         },
     )
@@ -111,17 +113,29 @@ fn check_case(case: &Value, manifest: &Value) {
     let actual = std::str::from_utf8(&forward.bytes).unwrap().trim_end();
     let expected_diagnostics: Vec<_> = case["diagnostics"]
         .as_array()
-        .map(|items| items.iter().map(|item| item.as_str().unwrap().to_owned()).collect())
+        .map(|items| {
+            items
+                .iter()
+                .map(|item| item.as_str().unwrap().to_owned())
+                .collect()
+        })
         .unwrap_or_default();
     let diagnostic_codes = |diagnostics: &[nkdk_conversion_core::RuntimeDiagnostic]| {
-        diagnostics.iter().map(|issue| issue.code.as_deref().unwrap_or("").to_owned()).collect::<Vec<_>>()
+        diagnostics
+            .iter()
+            .map(|issue| issue.code.as_deref().unwrap_or("").to_owned())
+            .collect::<Vec<_>>()
     };
     if case["noRaw"].as_bool() == Some(true) {
         assert!(!actual.contains("$xml"), "unexpected raw XML: {actual}");
     }
     if let Some(expected) = case["yaml"].as_str() {
         compare_yaml(expected, actual);
-        assert_eq!(diagnostic_codes(&forward.diagnostics), expected_diagnostics, "forward diagnostics");
+        assert_eq!(
+            diagnostic_codes(&forward.diagnostics),
+            expected_diagnostics,
+            "forward diagnostics"
+        );
     } else {
         assert!(
             actual
@@ -143,7 +157,11 @@ fn check_case(case: &Value, manifest: &Value) {
             &fresh,
         )
         .unwrap();
-        assert_eq!(diagnostic_codes(&reverse.diagnostics), expected_diagnostics, "reverse diagnostics");
+        assert_eq!(
+            diagnostic_codes(&reverse.diagnostics),
+            expected_diagnostics,
+            "reverse diagnostics"
+        );
         compare_xml(xml, &reverse.bytes, &qname_paths);
         compare_documents(case, &reverse.documents);
     }
@@ -165,7 +183,11 @@ fn check_case(case: &Value, manifest: &Value) {
             );
         }
     }
-    assert_eq!(diagnostic_codes(&rules::validate_file(entry, &forward.bytes, &inputs)), expected_diagnostics, "validation diagnostics");
+    assert_eq!(
+        diagnostic_codes(&rules::validate_file(entry, &forward.bytes, &inputs)),
+        expected_diagnostics,
+        "validation diagnostics"
+    );
     for input in std::iter::once(forward.bytes.as_slice()).chain(
         case["reverseYAML"]
             .as_str()
@@ -174,7 +196,11 @@ fn check_case(case: &Value, manifest: &Value) {
     ) {
         let fresh = facts::prepare(entry, case, manifest);
         let restored = rules::convert_file(entry, Direction::YamlToXml, input, &fresh).unwrap();
-        assert_eq!(diagnostic_codes(&restored.diagnostics), expected_diagnostics, "restoration diagnostics");
+        assert_eq!(
+            diagnostic_codes(&restored.diagnostics),
+            expected_diagnostics,
+            "restoration diagnostics"
+        );
         compare_xml(xml, &restored.bytes, &qname_paths);
     }
 }

@@ -10,15 +10,31 @@ pub struct RecordMappingReader {
     names: std::collections::HashSet<String>,
     projected_mapping: Option<Position>,
 }
+
+#[derive(Clone, Copy)]
+pub struct RecordMappingFields<'a> {
+    key: &'a str,
+    value: Option<&'a str>,
+}
+impl<'a> RecordMappingFields<'a> {
+    pub fn new(key: &'a str, value: Option<&'a str>) -> Self {
+        Self { key, value }
+    }
+}
 impl RecordMappingReader {
     pub fn consume(
         &mut self,
         node: Node,
         position: Position,
-        field: &str,
-        value_field: Option<&str>,
+        fields: RecordMappingFields<'_>,
+        map_key: impl FnOnce(String) -> Result<String>,
+        allow_null: impl FnOnce(&str) -> Result<bool>,
         mut emit: impl FnMut(Node, Position) -> Result<()>,
     ) -> Result<()> {
+        let RecordMappingFields {
+            key: field,
+            value: value_field,
+        } = fields;
         if self.depth == 0 {
             if self.opened || !matches!(node, Node::MappingStart(None)) {
                 return Err(failure("Expected a record mapping"));
@@ -64,7 +80,7 @@ impl RecordMappingReader {
                 let Node::Scalar(key, None) = node else {
                     return Err(failure("Expected a textual record key"));
                 };
-                let text = key.into_mapping_key()?;
+                let text = map_key(key.into_mapping_key()?)?;
                 if !self.names.insert(text.clone()) {
                     return Err(failure("Repeated record key"));
                 }
@@ -75,6 +91,19 @@ impl RecordMappingReader {
                     position,
                 });
                 return Ok(());
+            }
+            if value_field.is_none()
+                && matches!(&node, Node::Scalar(value, None) if value.is_null())
+                && allow_null(&self.key.as_ref().expect("pending key").text)?
+            {
+                emit_projected_record_prefix(
+                    self.key.take().expect("pending key"),
+                    position,
+                    field,
+                    None,
+                    &mut emit,
+                )?;
+                return emit(Node::MappingEnd, position);
             }
             if value_field.is_none() && !matches!(node, Node::MappingStart(_)) {
                 return Err(failure("Expected a record value"));
@@ -258,11 +287,15 @@ pub fn preserved_record_mapping_item(
 mod tests {
     use super::*;
 
-    fn projected(source: &[u8]) -> Vec<String> {
+    fn events(
+        source: &[u8],
+        fields: RecordMappingFields<'_>,
+        mut allow_null: impl FnMut(&str) -> Result<bool>,
+    ) -> Result<Vec<String>> {
         let mut reader = RecordMappingReader::default();
         let mut result = Vec::new();
         super::super::visit_nodes(source, |node, position| {
-            reader.consume(node, position, "name", Some("value"), |node, _| {
+            reader.consume(node, position, fields, Ok, &mut allow_null, |node, _| {
                 result.push(match node {
                     Node::MappingStart(_) => "{".into(),
                     Node::MappingEnd => "}".into(),
@@ -272,10 +305,24 @@ mod tests {
                 });
                 Ok(())
             })
+        })?;
+        reader.finish()?;
+        Ok(result)
+    }
+
+    fn projected(source: &[u8]) -> Vec<String> {
+        events(
+            source,
+            RecordMappingFields::new("name", Some("value")),
+            |_| Ok(false),
+        )
+        .unwrap()
+    }
+
+    fn record(source: &[u8], null_name: &str) -> Result<Vec<String>> {
+        events(source, RecordMappingFields::new("name", None), |name| {
+            Ok(name == null_name)
         })
-        .unwrap();
-        reader.finish().unwrap();
-        result
     }
 
     #[test]
@@ -293,6 +340,15 @@ mod tests {
                 "[", "{", "name", "Complex", "value", "{", "Kind", "text", "}", "}", "]"
             ]
         );
+    }
+
+    #[test]
+    fn declared_null_record_form_is_distinct_from_an_invalid_scalar() {
+        assert_eq!(
+            record(b"Empty: null", "Empty").unwrap(),
+            vec!["[", "{", "name", "Empty", "}", "]"]
+        );
+        assert!(record(b"Filled: null", "Empty").is_err());
     }
 
     #[test]

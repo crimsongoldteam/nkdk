@@ -1,0 +1,88 @@
+format: nkdk-declarations/1
+kind: value
+id: contract.generic-standard-chain
+imports:
+  root: common.path-root
+  name: common.metadata-name
+  segments: contract.generic-standard-segments
+value:
+  kind: record
+  fields:
+    - name: root
+      type:
+        use: root
+    - name: owner
+      type:
+        use: name
+    - name: tail
+      type:
+        use: segments
+        bind:
+          profiles:
+            input: profiles
+representations:
+  xml:
+    kind: text-pattern
+    parts:
+      - field: root
+      - literal: .
+      - field: owner
+      - literal: .
+      - field: tail
+  yaml:
+    kind: text-pattern
+    parts:
+      - field: root
+      - literal: .
+      - field: owner
+      - literal: .
+      - field: tail
+inputs:
+  profiles:
+    type:
+      kind: sequence
+      item:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: yamlName
+            type:
+              kind: scalar
+              scalar: text
+          - name: pathName
+            type:
+              kind: scalar
+              scalar: text
+          - name: emptyForm
+            type:
+              kind: scalar
+              scalar: text
+          - name: policy
+            type:
+              kind: scalar
+              scalar: text
+          - name: expectedKind
+            type:
+              kind: scalar
+              scalar: text
+          - name: maxTextLength
+            type:
+              kind: scalar
+              scalar: text
+          - name: maxNumberDigits
+            type:
+              kind: scalar
+              scalar: text
+          - name: allowedTextLength
+            type:
+              kind: scalar
+              scalar: text
+          - name: owners
+            type:
+              kind: sequence
+              item:
+                kind: scalar
+                scalar: text

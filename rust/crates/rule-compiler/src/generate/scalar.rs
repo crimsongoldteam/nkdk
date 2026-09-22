@@ -5,6 +5,11 @@ pub(super) enum Codec<'a> {
     Sequence(Box<super::text_sequence::Codec<'a>>),
     Forms(Box<super::text_choice::Codec<'a>>),
     TextTable(&'a [EnumLexeme]),
+    InputTextTable {
+        input: usize,
+        internal: usize,
+        external: usize,
+    },
     Pattern(Box<super::text_pattern::Codec<'a>>),
     FormattedDecimal(&'a DecimalText),
     Choice(&'a ScalarChoiceXml<ExpandedName>),
@@ -69,6 +74,60 @@ impl<'a> Codec<'a> {
                         LinkedXml::Text,
                         YamlRepresentation::TextTable(TextTable::Resolved(table)),
                     ) => Ok(Self::TextTable(table)),
+                    (
+                        LinkedType::Scalar(ScalarType::Text),
+                        LinkedXml::Text,
+                        YamlRepresentation::InputTextTable(table),
+                    ) => {
+                        let input = target
+                            .inputs
+                            .iter()
+                            .position(|field| field.name == table.input)
+                            .ok_or_else(|| {
+                                unsupported(target, "Input text table input is absent")
+                            })?;
+                        let LinkedType::Sequence(item) = &target.inputs[input].value else {
+                            return Err(unsupported(
+                                target,
+                                "Input text table must be a record sequence",
+                            ));
+                        };
+                        let LinkedType::Record(fields) = item.as_ref() else {
+                            return Err(unsupported(
+                                target,
+                                "Input text table must be a record sequence",
+                            ));
+                        };
+                        let position = |name: &str| {
+                            fields
+                                .iter()
+                                .position(|field| field.name == name)
+                                .ok_or_else(|| {
+                                    unsupported(target, "Input text table field is absent")
+                                })
+                        };
+                        let bound = match value {
+                            LinkedType::BoundReference { bindings, .. } => bindings
+                                .iter()
+                                .find(|binding| binding.slot as usize == input)
+                                .and_then(|binding| match binding.value.kind {
+                                    LinkedExpressionKind::Input(slot) => Some(slot as usize),
+                                    _ => None,
+                                })
+                                .ok_or_else(|| {
+                                    unsupported(
+                                        owner,
+                                        "Input text table requires a direct input binding",
+                                    )
+                                })?,
+                            _ => input,
+                        };
+                        Ok(Self::InputTextTable {
+                            input: bound,
+                            internal: position(&table.internal)?,
+                            external: position(&table.external)?,
+                        })
+                    }
                     (
                         LinkedType::Record(_),
                         LinkedXml::TextPattern(_),
@@ -151,13 +210,18 @@ impl<'a> Codec<'a> {
     pub fn is_index_text(&self) -> bool {
         matches!(
             self,
-            Self::Text | Self::QNameText(_) | Self::Enumeration(..) | Self::States(..)
+            Self::Text
+                | Self::InputTextTable { .. }
+                | Self::QNameText(_)
+                | Self::Enumeration(..)
+                | Self::States(..)
         )
     }
     pub fn input_method(&self) -> Option<&'static str> {
         match self {
             Self::Text
             | Self::TextTable(_)
+            | Self::InputTextTable { .. }
             | Self::QNameText(_)
             | Self::Enumeration(..)
             | Self::QNameEnumeration(..)
@@ -171,7 +235,9 @@ impl<'a> Codec<'a> {
         match self {
             Self::Decimal | Self::FormattedDecimal(_) => "core::decimal::Decimal".into(),
             Self::Choice(_) => "core::scalar::Value".into(),
-            Self::Text | Self::TextTable(_) | Self::QNameText(_) => "String".into(),
+            Self::Text | Self::TextTable(_) | Self::InputTextTable { .. } | Self::QNameText(_) => {
+                "String".into()
+            }
             Self::Calendar { .. } => "core::calendar::Value".into(),
             Self::Boolean(..) => "bool".into(),
             Self::Enumeration(..)
@@ -203,6 +269,7 @@ impl<'a> Codec<'a> {
         match self {
             Self::Text
             | Self::TextTable(_)
+            | Self::InputTextTable { .. }
             | Self::QNameText(_)
             | Self::Pattern(_)
             | Self::Forms(_)
@@ -261,6 +328,7 @@ impl<'a> Codec<'a> {
     pub(super) fn read_input_argument(&self) -> &'static str {
         if matches!(self, Self::Pattern(pattern) if pattern.projected())
             || matches!(self, Self::Forms(choice) if choice.needs_inputs())
+            || matches!(self, Self::Sequence(sequence) if sequence.needs_inputs())
         {
             ",_inputs"
         } else {
@@ -300,7 +368,7 @@ impl<'a> Codec<'a> {
     pub(super) fn meaning_reference(&self, name: &str, reference: &str) -> String {
         let receiver = reference.strip_prefix('&').unwrap_or(reference);
         match self {
-            Self::Text | Self::TextTable(_) | Self::QNameText(_) => {
+            Self::Text | Self::TextTable(_) | Self::InputTextTable { .. } | Self::QNameText(_) => {
                 format!("({receiver}).as_str()")
             }
             Self::Calendar { .. } => format!("&({receiver}).xml()"),
@@ -323,7 +391,11 @@ impl<'a> Codec<'a> {
     }
     pub fn write_is_fallible(&self, xml: bool) -> bool {
         match self {
-            Self::Pattern(_) | Self::Forms(_) | Self::Sequence(_) | Self::QNameText(_) => true,
+            Self::Pattern(_)
+            | Self::Forms(_)
+            | Self::Sequence(_)
+            | Self::QNameText(_)
+            | Self::InputTextTable { .. } => true,
             Self::Boolean(left, right) => (if xml { left } else { right }).len() < 2,
             Self::States(_, _, rows) => {
                 !xml && rows.iter().any(|row| row.form == YamlStateForm::Absent)
@@ -380,6 +452,21 @@ impl<'a> Codec<'a> {
             let read = super::text_table::read(table, &format!("r{index}.as_str()"), xml_side);
             return format!(
                 "let read=||->core::Result<&str>{{core::xml::validate_text(&r{index})?;Ok({read})}};let mapped=read().map_err(|error|positions[{index}].apply(source,error.field({key:?})))?;let f{index}=if std::ptr::eq(mapped,r{index}.as_str()){{r{index}}}else{{mapped.to_owned()}};\n"
+            );
+        }
+        if let Self::InputTextTable {
+            input,
+            internal,
+            external,
+        } = self
+        {
+            if xml_side {
+                return format!(
+                    "core::xml::validate_text(&r{index}).map_err(|error|positions[{index}].apply(source,error.field({key:?})))?;let f{index}=r{index};\n"
+                );
+            }
+            return format!(
+                "let read=||->core::Result<String>{{core::xml::validate_text(&r{index})?;let mut mapped=None;for row in _inputs.records({input})?{{if row.text({external})?==r{index}{{if mapped.is_some(){{return Err(RuntimeDiagnostic::new(\"input.ambiguous\",\"Repeated external text spelling\"));}}mapped=Some(row.text({internal})?);}}}}Ok(mapped.map_or_else(||r{index}.clone(),str::to_owned))}};let f{index}=read().map_err(|error|positions[{index}].apply(source,error.field({key:?})))?;\n"
             );
         }
         if matches!(self, Self::Pattern(_) | Self::Forms(_) | Self::Sequence(_)) {
@@ -484,9 +571,49 @@ impl<'a> Codec<'a> {
         if let Self::TextTable(table) = self {
             return super::text_table::write(table, reference, xml_side);
         }
-        if matches!(self, Self::Pattern(_) | Self::Forms(_) | Self::Sequence(_)) {
+        if let Self::InputTextTable {
+            input,
+            internal,
+            external,
+        } = self
+        {
+            let text = format!(
+                "({}).as_str()",
+                reference.strip_prefix('&').unwrap_or(reference)
+            );
+            if xml_side {
+                return text;
+            }
+            return format!(
+                "{{let text={text};let mut mapped=None;for row in _inputs.records({input})?{{if row.text({internal})?==text{{if mapped.is_some(){{return Err(RuntimeDiagnostic::new(\"input.ambiguous\",\"Repeated internal text spelling\"));}}mapped=Some(row.text({external})?);}}}}mapped.unwrap_or(text)}}"
+            );
+        }
+        if let Self::Pattern(pattern) = self {
             let reference = reference.strip_prefix('&').unwrap_or(reference);
-            return format!("&({reference}).write({xml_side})?");
+            let inputs = if pattern.needs_inputs() {
+                ",_inputs"
+            } else {
+                ""
+            };
+            return format!("&({reference}).write({xml_side}{inputs})?");
+        }
+        if let Self::Sequence(sequence) = self {
+            let reference = reference.strip_prefix('&').unwrap_or(reference);
+            let inputs = if sequence.needs_inputs() {
+                ",_inputs"
+            } else {
+                ""
+            };
+            return format!("&({reference}).write({xml_side}{inputs})?");
+        }
+        if let Self::Forms(choice) = self {
+            let reference = reference.strip_prefix('&').unwrap_or(reference);
+            let inputs = if choice.needs_inputs() {
+                ",_inputs"
+            } else {
+                ""
+            };
+            return format!("&({reference}).write({xml_side}{inputs})?");
         }
         if matches!(self, Self::Choice(_)) {
             return format!("&({reference}).{}()", if xml_side { "xml" } else { "yaml" });
@@ -545,9 +672,14 @@ impl<'a> Codec<'a> {
     /// Choice values normally produce a complete YAML scalar, so their outer
     /// quoting must be skipped when another pattern owns the final scalar.
     pub fn write_text_reference(&self, name: &str, reference: &str, xml_side: bool) -> String {
-        if matches!(self, Self::Forms(_)) {
+        if let Self::Forms(choice) = self {
             let reference = reference.strip_prefix('&').unwrap_or(reference);
-            return format!("&({reference}).write_text({xml_side})?");
+            let inputs = if choice.needs_inputs() {
+                ",_inputs"
+            } else {
+                ""
+            };
+            return format!("&({reference}).write_text({xml_side}{inputs})?");
         }
         self.write_reference(name, reference, xml_side)
     }

@@ -1,0 +1,80 @@
+format: nkdk-declarations/1
+kind: value
+id: contract.generic-standard-standard-segment
+imports:
+  kind: common.path-standard-member-kind
+  name: contract.generic-standard-path-name
+value:
+  kind: record
+  fields:
+    - name: kind
+      type:
+        use: kind
+    - name: name
+      type:
+        use: name
+        bind:
+          profiles:
+            input: profiles
+representations:
+  xml:
+    kind: text-pattern
+    parts:
+      - field: kind
+      - literal: .
+      - field: name
+  yaml:
+    kind: text-pattern
+    parts:
+      - field: kind
+      - literal: .
+      - field: name
+inputs:
+  profiles:
+    type:
+      kind: sequence
+      item:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: yamlName
+            type:
+              kind: scalar
+              scalar: text
+          - name: pathName
+            type:
+              kind: scalar
+              scalar: text
+          - name: emptyForm
+            type:
+              kind: scalar
+              scalar: text
+          - name: policy
+            type:
+              kind: scalar
+              scalar: text
+          - name: expectedKind
+            type:
+              kind: scalar
+              scalar: text
+          - name: maxTextLength
+            type:
+              kind: scalar
+              scalar: text
+          - name: maxNumberDigits
+            type:
+              kind: scalar
+              scalar: text
+          - name: allowedTextLength
+            type:
+              kind: scalar
+              scalar: text
+          - name: owners
+            type:
+              kind: sequence
+              item:
+                kind: scalar
+                scalar: text

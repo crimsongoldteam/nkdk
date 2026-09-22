@@ -14,6 +14,8 @@ pub enum InputValue {
     Boolean(bool),
     Decimal(Decimal),
     Sequence(Vec<InputValue>),
+    Records(Vec<InputValue>),
+    Record(Vec<(String, InputValue)>),
 }
 #[derive(Debug, Clone, Copy)]
 pub enum InputType {
@@ -24,6 +26,7 @@ pub enum InputType {
     Boolean,
     Decimal,
     Sequence(&'static InputType),
+    Record(&'static [(&'static str, InputType)]),
 }
 impl InputType {
     fn accepts(self, value: &InputValue) -> bool {
@@ -41,7 +44,43 @@ impl InputType {
             (Self::Sequence(item), InputValue::Sequence(values)) => {
                 values.iter().all(|value| item.accepts(value))
             }
+            (Self::Record(fields), InputValue::Record(values)) => {
+                fields.len() == values.len()
+                    && fields.iter().all(|(name, field)| {
+                        values
+                            .iter()
+                            .find(|(candidate, _)| candidate == name)
+                            .is_some_and(|(_, value)| field.accepts(value))
+                    })
+            }
             _ => false,
+        }
+    }
+
+    fn normalize(self, value: InputValue) -> Option<InputValue> {
+        match (self, value) {
+            (Self::Sequence(item), InputValue::Sequence(values)) => {
+                let values = values
+                    .into_iter()
+                    .map(|value| item.normalize(value))
+                    .collect::<Option<Vec<_>>>()?;
+                Some(if matches!(item, Self::Record(_)) {
+                    InputValue::Records(values)
+                } else {
+                    InputValue::Sequence(values)
+                })
+            }
+            (Self::Record(fields), InputValue::Record(mut values)) => {
+                let mut ordered = Vec::with_capacity(fields.len());
+                for (name, field) in fields {
+                    let index = values.iter().position(|(candidate, _)| candidate == name)?;
+                    let (_, value) = values.remove(index);
+                    ordered.push(((*name).into(), field.normalize(value)?));
+                }
+                values.is_empty().then_some(InputValue::Record(ordered))
+            }
+            (kind, value) if kind.accepts(&value) => Some(value),
+            _ => None,
         }
     }
 }
@@ -136,12 +175,12 @@ impl PreparedInputs {
                     format!("Repeated input: {name}"),
                 ));
             }
-            if !declaration[slot].1.accepts(&value) {
+            let Some(value) = declaration[slot].1.normalize(value) else {
                 return Err(RuntimeDiagnostic::new(
                     "input.type",
                     format!("Wrong input type: {name}"),
                 ));
-            }
+            };
             slots[slot] = Some(value);
         }
         Ok(Self {

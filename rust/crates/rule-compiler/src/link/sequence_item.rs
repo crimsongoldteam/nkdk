@@ -45,6 +45,53 @@ pub(crate) fn resolve(
                 "emptyTag must be a nonempty YAML tag suffix",
             ));
         }
+        if let Some(table) = match &collection.yaml {
+            YamlRepresentation::RecordMapping { key_table, .. } => key_table.as_ref(),
+            _ => None,
+        } {
+            let Some(input) = collection
+                .inputs
+                .iter()
+                .find(|input| input.name == table.input)
+            else {
+                // Bound collection specializations have already substituted
+                // and cleared their own input list. The containing generated
+                // operation validates the resolved slot after composition.
+                return Ok(Some(entry));
+            };
+            let LinkedType::Sequence(item) = &input.value else {
+                return Err(diagnostic(
+                    "expression_type_mismatch",
+                    &input.source,
+                    "Record mapping key table must be a record sequence",
+                ));
+            };
+            let LinkedType::Record(profile_fields) = item.as_ref() else {
+                return Err(diagnostic(
+                    "expression_type_mismatch",
+                    &input.source,
+                    "Record mapping key table must be a record sequence",
+                ));
+            };
+            for name in [&table.internal, &table.external] {
+                if !profile_fields.iter().any(|field| {
+                    field.name == *name && field.value == LinkedType::Scalar(ScalarType::Text)
+                }) {
+                    return Err(diagnostic(
+                        "expression_type_mismatch",
+                        &input.source,
+                        "Record mapping key table fields must be text",
+                    ));
+                }
+            }
+            if table.internal == table.external {
+                return Err(diagnostic(
+                    "expression_type_mismatch",
+                    &input.source,
+                    "Record mapping key table fields must be distinct",
+                ));
+            }
+        }
         let LinkedType::Record(fields) = &entry.value else {
             return Err(diagnostic(
                 "expression_type_mismatch",

@@ -11,12 +11,16 @@ pub(super) fn apply(entry: &mut LinkedEntry, source: &LinkedEntry) -> Result<(),
             source.xml == LinkedXml::Text
                 && matches!(
                     source.yaml,
-                    YamlRepresentation::Text | YamlRepresentation::TextTable(_)
+                    YamlRepresentation::Text
+                        | YamlRepresentation::TextTable(_)
+                        | YamlRepresentation::InputTextTable(_)
                 )
                 && *xml == LinkedXml::Text
                 && matches!(
                     entry.yaml,
-                    YamlRepresentation::Text | YamlRepresentation::TextTable(_)
+                    YamlRepresentation::Text
+                        | YamlRepresentation::TextTable(_)
+                        | YamlRepresentation::InputTextTable(_)
                 )
         }
         LinkedType::Choice(_) => {
@@ -27,9 +31,10 @@ pub(super) fn apply(entry: &mut LinkedEntry, source: &LinkedEntry) -> Result<(),
         }
         _ => false,
     };
-    if !matches!(entry.value, LinkedType::Reference(_))
-        || !compatible
-        || !source.inputs.is_empty()
+    if !matches!(
+        entry.value,
+        LinkedType::Reference(_) | LinkedType::BoundReference { .. }
+    ) || !compatible
         || !source.parameters.is_empty()
         || !source.presence.is_empty()
         || !source.shorthands.is_empty()
@@ -40,7 +45,7 @@ pub(super) fn apply(entry: &mut LinkedEntry, source: &LinkedEntry) -> Result<(),
         return Err(diagnostic(
             "text_projection_source",
             &entry.source,
-            "Text projection requires plain text or a textual choice without parameters, presence, normalization or contributions",
+            "Text projection requires text or a textual choice without parameters, presence, normalization or contributions",
         ));
     }
     let mut constraints = source.constraints.clone();

@@ -38,5 +38,8 @@ pub(super) fn specialize(
 /// Only ordinary collections of referenced values use this specialization path.
 pub(super) fn typed_collection(entry: &LinkedEntry) -> bool {
     matches!(&entry.value, LinkedType::Sequence(item) if matches!(item.as_ref(), LinkedType::Reference(_) | LinkedType::BoundReference { .. }))
-        && matches!(entry.yaml, YamlRepresentation::Sequence { .. })
+        && matches!(
+            entry.yaml,
+            YamlRepresentation::Sequence { .. } | YamlRepresentation::TextSequence { .. }
+        )
 }

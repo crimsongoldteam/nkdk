@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: value
+id: contract.literal-choice-parameter-links
+namespaces:
+  xr: http://v8.1c.ru/8.3/xcf/readable
+imports:
+  item: contract.literal-choice-parameter-link
+value:
+  kind: sequence
+  item:
+    use: item
+representations:
+  xml:
+    kind: element-sequence
+    path:
+      - xr:Link
+  yaml:
+    kind: sequence

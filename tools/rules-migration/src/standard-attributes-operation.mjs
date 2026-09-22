@@ -10,15 +10,31 @@ export function candidateStandardAttributes(candidateManifest,contractManifest) 
  const fragments=entry.projections.filter(row=>row.fields.length===1).map(row=>[row.fragments[0],`fragment.standard-attribute.${row.fields[0]}`]);
  if(fragments.length!==25 || new Set(fragments.map(([id])=>id)).size!==25)throw new Error('Incomplete standard attribute fragments');
  const idMap=new Map(fragments);
- for(const [contract,production] of [
-  ['standard','catalog'],['document-standard','document'],
- ])for(const suffix of ['name-and-fill','item','list','owner']){
-   idMap.set(`contract.${contract}-complete-${suffix}`,`metadata.${production}-standard-attribute-${suffix}`);
- }
  const files=contractManifest.generatedFiles;
- const declarations=[...idMap].map(([sourceId,targetId])=>{
+ const root='contract.generic-standard-complete-owner';
+ const mainNames=new Map([
+  ['contract.generic-standard-complete-name-and-fill','metadata.standard-attribute-name-and-fill'],
+  ['contract.generic-standard-complete-item','metadata.standard-attribute-item'],
+  ['contract.generic-standard-complete-list','metadata.standard-attribute-list'],
+  [root,'metadata.standard-attribute-owner'],
+ ]);
+ const pending=[root],included=new Set();
+ while(pending.length){
+  const sourceId=pending.pop();
+  if(included.has(sourceId) || sourceId.startsWith('common.') || sourceId.startsWith('system.'))continue;
+  const text=files[`${sourceId}.yaml`];
+  if(!text)throw new Error(`Missing tested standard attribute declaration: ${sourceId}`);
+  included.add(sourceId);
+  const module=yaml.load(text);
+  for(const dependency of Object.values(module.imports??{}))pending.push(dependency);
+ }
+ for(const sourceId of included)if(!idMap.has(sourceId)){
+  const targetId=mainNames.get(sourceId)??`metadata.standard-attribute-support.${sourceId.replace(/^contract\./,'')}`;
+  idMap.set(sourceId,targetId);
+ }
+ const declarations=[...included].sort().map(sourceId=>{
+   const targetId=idMap.get(sourceId);
    const text=files[`${sourceId}.yaml`];
-   if(!text)throw new Error(`Missing tested standard attribute declaration: ${sourceId}`);
    const module=yaml.load(text);
    module.id=targetId;
    module.imports=Object.fromEntries(Object.entries(module.imports??{}).map(([alias,id])=>[alias,idMap.get(id)??id]));

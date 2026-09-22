@@ -100,3 +100,40 @@ fn preparation_preserves_exact_values_and_checks_the_declared_slots() {
         Some("input.not-ready")
     );
 }
+
+#[test]
+fn preparation_reads_typed_record_sequences_in_declared_field_order() {
+    use nkdk_conversion_core::{InputType, inputs};
+    let values = inputs::read(
+        br#"{"profiles":[{"name":"Ref","policy":"forbidden"},{"name":"Date","policy":"byEffectiveType"}]}"#,
+    )
+    .unwrap();
+    static RECORD: InputType =
+        InputType::Record(&[("name", InputType::Text), ("policy", InputType::Text)]);
+    let prepared = nkdk_conversion_core::PreparedInputs::prepare(
+        nkdk_conversion_core::EntryId(1),
+        &[("profiles", InputType::Sequence(&RECORD))],
+        values,
+    )
+    .unwrap();
+    let rows: Vec<_> = prepared.view().records(0).unwrap().into_iter().collect();
+    assert_eq!(rows.len(), 2);
+    assert_eq!(rows[0].text(0).unwrap(), "Ref");
+    assert_eq!(rows[0].text(1).unwrap(), "forbidden");
+    assert_eq!(rows[1].text(0).unwrap(), "Date");
+}
+
+#[test]
+fn input_records_reject_aliases_anchors_and_tags_even_when_types_match() {
+    use nkdk_conversion_core::inputs;
+    for source in [
+        b"profiles: &profiles [{name: Ref, policy: forbidden}]\ncopy: *profiles".as_slice(),
+        b"profiles: [{name: !kind Ref, policy: forbidden}]".as_slice(),
+        b"profiles: [{name: Ref, policy: !!str forbidden}]".as_slice(),
+    ] {
+        assert_eq!(
+            inputs::read(source).unwrap_err().code.as_deref(),
+            Some("input.form")
+        );
+    }
+}

@@ -17,6 +17,56 @@ fn text_sequence_slot(entry: &LinkedEntry, input: &str) -> Result<usize, Diagnos
     Ok(slot)
 }
 
+#[derive(Clone, Copy)]
+struct RecordKeyTableSlots {
+    input: usize,
+    internal: usize,
+    external: usize,
+    empty: Option<usize>,
+}
+
+fn record_key_table(
+    entry: &LinkedEntry,
+    yaml: &YamlRepresentation,
+) -> Result<Option<RecordKeyTableSlots>, Diagnostic> {
+    let YamlRepresentation::RecordMapping {
+        key_table: Some(table),
+        ..
+    } = yaml
+    else {
+        return Ok(None);
+    };
+    let slot = entry
+        .inputs
+        .iter()
+        .position(|field| field.name == table.input)
+        .ok_or_else(|| unsupported(entry, "Record mapping key table input is not bound"))?;
+    let LinkedType::Sequence(item) = &entry.inputs[slot].value else {
+        return Err(unsupported(
+            entry,
+            "Record mapping key table is not a sequence",
+        ));
+    };
+    let LinkedType::Record(fields) = item.as_ref() else {
+        return Err(unsupported(
+            entry,
+            "Record mapping key table item is not a record",
+        ));
+    };
+    let field = |name: &str| {
+        fields
+            .iter()
+            .position(|field| field.name == name)
+            .ok_or_else(|| unsupported(entry, "Record mapping key table field is absent"))
+    };
+    Ok(Some(RecordKeyTableSlots {
+        input: slot,
+        internal: field(&table.internal)?,
+        external: field(&table.external)?,
+        empty: table.empty.as_deref().map(field).transpose()?,
+    }))
+}
+
 pub(super) fn applies(entry: &LinkedEntry, program: &Program) -> bool {
     let LinkedType::Record(fields) = &entry.value else {
         return false;
@@ -300,32 +350,66 @@ pub(super) fn generate_at(
         }
         _ => ("None::<usize>".into(), "None::<&str>".into()),
     };
-    let key_mapper = lifted
-        .as_ref()
-        .and_then(|(index, _, _)| {
-            let LinkedType::Reference(id) = &row_fields[*index].value else {
-                return None;
-            };
-            program
-                .entries
-                .iter()
-                .find(|entry| entry.id == *id)
-                .and_then(|entry| {
-                    let YamlRepresentation::TextTable(TextTable::Resolved(table)) = &entry.yaml
-                    else {
-                        return None;
-                    };
-                    Some(
-                        table
-                            .iter()
-                            .map(|item| format!("{:?}=>{:?},", item.value, item.text))
-                            .collect::<String>(),
-                    )
-                })
-        })
-        .map_or(String::new(), |arms| {
-            format!("let key=match key{{{arms}value=>value}};")
+    let dynamic_key_table = record_key_table(entry, &common.yaml)?;
+    let key_mapper = if let Some(RecordKeyTableSlots {
+        input: slot,
+        internal,
+        external,
+        empty,
+    }) = dynamic_key_table
+    {
+        let empty = empty.map_or("false".into(), |empty| {
+            format!("row.text({empty})?==\"null\"")
         });
+        format!(
+            "let (key,empty_form)={{let mut mapped=None;let mut empty=false;for row in inputs.records({slot})?{{if row.text({internal})?==key{{if mapped.is_some(){{return Err(RuntimeDiagnostic::new(\"input.ambiguous\",\"Repeated internal key spelling\"));}}mapped=Some(row.text({external})?);empty={empty};}}}}(mapped.unwrap_or(key),empty)}};"
+        )
+    } else {
+        lifted
+            .as_ref()
+            .and_then(|(index, _, _)| {
+                let LinkedType::Reference(id) = &row_fields[*index].value else {
+                    return None;
+                };
+                program
+                    .entries
+                    .iter()
+                    .find(|entry| entry.id == *id)
+                    .and_then(|entry| {
+                        let YamlRepresentation::TextTable(TextTable::Resolved(table)) = &entry.yaml
+                        else {
+                            return None;
+                        };
+                        Some(
+                            table
+                                .iter()
+                                .map(|item| format!("{:?}=>{:?},", item.value, item.text))
+                                .collect::<String>(),
+                        )
+                    })
+            })
+            .map_or(String::new(), |arms| {
+                format!("let key=match key{{{arms}value=>value}};")
+            })
+    };
+    let key_reader = dynamic_key_table.map_or("Ok".into(), |table| {
+        let RecordKeyTableSlots {
+            input: slot,
+            internal,
+            external,
+            ..
+        } = table;
+        format!("|key|{{let mut mapped=None;for row in inputs.records({slot})?{{if row.text({external})?==key{{if mapped.is_some(){{return Err(RuntimeDiagnostic::new(\"input.ambiguous\",\"Repeated external key spelling\"));}}mapped=Some(row.text({internal})?.to_owned());}}}}Ok(mapped.unwrap_or(key))}}")
+    });
+    let null_reader = dynamic_key_table.map_or("|_|Ok(false)".into(), |table| {
+        let RecordKeyTableSlots {
+            input: slot,
+            internal,
+            empty,
+            ..
+        } = table;
+        empty.map_or("|_|Ok(false)".into(), |empty| format!("|key|{{for row in inputs.records({slot})?{{if row.text({internal})?==key{{return Ok(row.text({empty})?==\"null\");}}}}Ok(false)}}"))
+    });
     let body = super::value_record::generate(&row, row_program, &route, lifted.clone())?;
     let mut presence = collection_presence::override_for(&common, entry, bindings, arguments)?
         .unwrap_or(common.clone());
@@ -493,6 +577,8 @@ pub(super) fn generate_at(
         )
         .replace("@key@", &format!("{key:?}"))
         .replace("@key_mapper@", &key_mapper)
+        .replace("@key_reader@", &key_reader)
+        .replace("@null_reader@", &null_reader)
         .replace("@omit_empty_slot@", &omit_empty_slot)
         .replace("@empty_tag@", &empty_tag)
         .replace("@physical@", &format!("{:?}", parent.last().unwrap().local))
@@ -617,7 +703,7 @@ fn consume(&mut self,node:core::yaml::Node,position:core::Position,source:&[u8],
 if @hidden@{return Ok(())}
 let node=if @root_yaml@{node}else{let Some(node)=self.property.consume(node,@key@,"yaml.collection-form")? else{return Ok(())};node};
 if let Some(tag)=@empty_tag@ && let core::yaml::Node::Scalar(value,Some(actual))=&node && actual==&format!("!{tag}") && value.is_null() {if self.opened{return Err(RuntimeDiagnostic::new("yaml.collection-form","Repeated collection"));}self.opened=true;self.marker=true;return Ok(());}
-if let Some(key)=@lifted_key@ {let mut mapping=std::mem::take(&mut self.mapping);let result=mapping.consume(node,position,key,@lifted_value@,|node,position|self.consume_item(node,position,source,inputs));self.mapping=mapping;return result;}
+if let Some(key)=@lifted_key@ {let mut mapping=std::mem::take(&mut self.mapping);let result=mapping.consume(node,position,core::yaml::RecordMappingFields::new(key,@lifted_value@),@key_reader@,@null_reader@,|node,position|self.consume_item(node,position,source,inputs));self.mapping=mapping;return result;}
 self.consume_item(node,position,source,inputs)}
 fn consume_item(&mut self,node:core::yaml::Node,position:core::Position,source:&[u8],inputs:&InputView<'_>)->core::Result<()>{
 if self.depth==0{
@@ -665,8 +751,8 @@ let mut seen=std::collections::HashSet::new();let mut omitted=0usize;let row_ind
 for row in &value.rows{if !item_@id@::key_can_be_lifted(row){continue;}
 let key=match item_@id@::text(row,@lifted_index@){Ok(key)=>key,Err(error) if error.code.as_deref()==Some("fact.unready")=>continue,Err(error)=>return Err(error)};let mut rendered=String::new();item_@id@::write_mapping_value(row,inputs,&mut rendered,"")?;
 if rendered.is_empty() && elidable.as_ref().is_some_and(|names|names.contains(key)){omitted+=1;continue;}
-@key_mapper@ if !seen.insert(key){continue;}
-if !@root_yaml@ || seen.len()>1{out.push('\n');}out.push_str(indent);if !@root_yaml@{out.push_str("  ");}out.push_str(&core::yaml::scalar(key));out.push(':');let trimmed=rendered.trim_start();let structured=rendered.contains('\n')||trimmed.starts_with(['{','[','-'])||(!trimmed.starts_with(['\"','\''])&&trimmed.contains(':'));if rendered.is_empty(){out.push('\n');out.push_str(&row_indent);out.push_str("{}");}else if structured{out.push('\n');core::yaml::Indented::new(out,&row_indent).push_str(&rendered);}else{out.push(' ');out.push_str(&rendered);}}
+let empty_form=false;@key_mapper@ if !seen.insert(key){continue;}
+if !@root_yaml@ || seen.len()>1{out.push('\n');}out.push_str(indent);if !@root_yaml@{out.push_str("  ");}out.push_str(&core::yaml::scalar(key));out.push(':');let trimmed=rendered.trim_start();let structured=rendered.contains('\n')||trimmed.starts_with(['{','[','-'])||(!trimmed.starts_with(['\"','\''])&&trimmed.contains(':'));if rendered.is_empty(){if !empty_form{out.push('\n');out.push_str(&row_indent);out.push_str("{}");}}else if structured{out.push('\n');core::yaml::Indented::new(out,&row_indent).push_str(&rendered);}else{out.push(' ');out.push_str(&rendered);}}
 if seen.is_empty(){if !@root_yaml@{out.push(' ');}
 if omitted>0 && let Some(tag)=@empty_tag@ {out.push('!');out.push_str(tag);}else{out.push_str("{}");}}
 Ok(())}

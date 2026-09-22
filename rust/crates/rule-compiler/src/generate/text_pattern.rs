@@ -77,6 +77,7 @@ impl<'a> Codec<'a> {
                     | scalar::Codec::Decimal
                     | scalar::Codec::Pattern(_)
                     | scalar::Codec::TextTable(_)
+                    | scalar::Codec::InputTextTable { .. }
                     | scalar::Codec::Boolean(..)
                     | scalar::Codec::Enumeration(..)
             ) {
@@ -86,7 +87,7 @@ impl<'a> Codec<'a> {
                 ));
             }
             if let scalar::Codec::Pattern(nested) = &codec
-                && (!nested.common.constraints.is_empty() || !nested.common.inputs.is_empty())
+                && !nested.common.constraints.is_empty()
             {
                 return Err(unsupported(
                     common,
@@ -207,6 +208,9 @@ impl<'a> Codec<'a> {
         defaults::presence_supported(self)
     }
     pub(super) fn projected(&self) -> bool {
+        self.shortened() || self.needs_inputs()
+    }
+    fn shortened(&self) -> bool {
         self.names.iter().any(|name| {
             !self
                 .yaml
@@ -214,8 +218,14 @@ impl<'a> Codec<'a> {
                 .any(|part| matches!(&part.value, TextPatternValue::Field(field) if field == name))
         })
     }
+    pub(super) fn needs_inputs(&self) -> bool {
+        self.fields.iter().any(|field| {
+            matches!(field, scalar::Codec::InputTextTable { .. })
+                || matches!(field, scalar::Codec::Pattern(pattern) if pattern.needs_inputs())
+        })
+    }
     pub(super) fn definition(&self, name: &str) -> Result<String, Diagnostic> {
-        if self.projected() {
+        if self.shortened() {
             return defaults::definition(self, name);
         }
         self.definition_mode(name, DefinitionMode::Standalone)
@@ -232,7 +242,7 @@ impl<'a> Codec<'a> {
         Ok(out)
     }
     pub(super) fn element_definition(&self, name: &str) -> Result<String, Diagnostic> {
-        if self.projected() {
+        if self.shortened() {
             return Err(unsupported(
                 self.common,
                 "Contextual text patterns require an independent scalar property",
@@ -242,6 +252,12 @@ impl<'a> Codec<'a> {
     }
     fn definition_mode(&self, name: &str, mode: DefinitionMode) -> Result<String, Diagnostic> {
         let standalone = matches!(mode, DefinitionMode::Standalone);
+        let input = if self.needs_inputs() {
+            ",_inputs:&InputView<'_>"
+        } else {
+            ""
+        };
+        let input_arg = if self.needs_inputs() { ",_inputs" } else { "" };
         let count = self.fields.len();
         let mut out = String::new();
         for (index, field) in self.fields.iter().enumerate() {
@@ -278,11 +294,11 @@ impl<'a> Codec<'a> {
             "xml"
         };
         if standalone {
-            writeln!(out,"fn read(text:&str,xml:bool)->core::Result<Self>{{core::xml::validate_text(text)?;let slots=Self::pattern(xml).parse(text).map_err(|_|RuntimeDiagnostic::new(\"value.text-pattern\",\"Text does not match the declared pattern\"))?;Self::read_slots(slots,xml)}}\n").unwrap();
+            writeln!(out,"fn read(text:&str,xml:bool{input})->core::Result<Self>{{core::xml::validate_text(text)?;let slots=Self::pattern(xml).parse(text).map_err(|_|RuntimeDiagnostic::new(\"value.text-pattern\",\"Text does not match the declared pattern\"))?;Self::read_slots(slots,xml{input_arg})}}\n").unwrap();
         }
         writeln!(
             out,
-            "fn read_slots(slots:[&str;{count}],{side}:bool)->core::Result<Self>{{let value=Self{{"
+            "fn read_slots(slots:[&str;{count}],{side}:bool{input})->core::Result<Self>{{let value=Self{{"
         )
         .unwrap();
         for (index, field) in self.fields.iter().enumerate() {
@@ -297,8 +313,22 @@ impl<'a> Codec<'a> {
                 writeln!(out, "f{index}:slots[{index}].to_owned(),").unwrap();
                 continue;
             }
+            if let scalar::Codec::InputTextTable {
+                input,
+                internal,
+                external,
+            } = field
+            {
+                writeln!(out, "f{index}:if xml{{slots[{index}].to_owned()}}else{{let mut mapped=None;for row in _inputs.records({input})?{{if row.text({external})?==slots[{index}]{{if mapped.is_some(){{return Err(RuntimeDiagnostic::new(\"input.ambiguous\",\"Repeated external text spelling\"));}}mapped=Some(row.text({internal})?);}}}}mapped.unwrap_or(slots[{index}]).to_owned()}},").unwrap();
+                continue;
+            }
             if matches!(field, scalar::Codec::Pattern(_)) {
-                writeln!(out, "f{index}:{name}P{index}::read(slots[{index}],xml)?,").unwrap();
+                let nested_input = pattern_input_argument(field);
+                writeln!(
+                    out,
+                    "f{index}:{name}P{index}::read(slots[{index}],xml{nested_input})?,"
+                )
+                .unwrap();
                 continue;
             }
             if matches!(field, scalar::Codec::Decimal) {
@@ -315,13 +345,21 @@ impl<'a> Codec<'a> {
         }
         out.push_str("};");
         if standalone {
-            out.push_str("value.check(true)?;value.check(false)?;");
+            writeln!(
+                out,
+                "value.check(true{input_arg})?;value.check(false{input_arg})?;"
+            )
+            .unwrap();
         }
         out.push_str("Ok(value)}\n");
-        let owns_pieces = self
-            .fields
-            .iter()
-            .any(|field| matches!(field, scalar::Codec::Decimal | scalar::Codec::Pattern(_)));
+        let owns_pieces = self.fields.iter().any(|field| {
+            matches!(
+                field,
+                scalar::Codec::Decimal
+                    | scalar::Codec::Pattern(_)
+                    | scalar::Codec::InputTextTable { .. }
+            )
+        });
         let pieces_type = if owns_pieces {
             "std::borrow::Cow<'_ , str>"
         } else {
@@ -334,8 +372,18 @@ impl<'a> Codec<'a> {
                 .map(|(index, field)| {
                     if owns_pieces && matches!(field, scalar::Codec::Decimal) {
                         format!("std::borrow::Cow::Owned(self.f{index}.to_string())")
+                    } else if matches!(field, scalar::Codec::InputTextTable { .. }) {
+                        let piece = field.write_reference(
+                            &format!("{name}P{index}"),
+                            &format!("&self.f{index}"),
+                            side,
+                        );
+                        format!("std::borrow::Cow::Owned(({piece}).to_owned())")
                     } else if matches!(field, scalar::Codec::Pattern(_)) {
-                        format!("std::borrow::Cow::Owned(self.f{index}.write({side})?)")
+                        let nested_input = pattern_input_argument(field);
+                        format!(
+                            "std::borrow::Cow::Owned(self.f{index}.write({side}{nested_input})?)"
+                        )
                     } else {
                         let piece = field.write_reference(
                             &format!("{name}P{index}"),
@@ -357,17 +405,17 @@ impl<'a> Codec<'a> {
         if xml == yaml {
             writeln!(
                 out,
-                "fn pieces(&self,_xml:bool)->core::Result<[{pieces_type};{count}]>{{Ok([{xml}])}}"
+                "fn pieces(&self,_xml:bool{input})->core::Result<[{pieces_type};{count}]>{{Ok([{xml}])}}"
             )
             .unwrap();
         } else {
-            writeln!(out, "fn pieces(&self,xml:bool)->core::Result<[{pieces_type};{count}]>{{Ok(if xml{{[{xml}]}}else{{[{yaml}]}})}}").unwrap();
+            writeln!(out, "fn pieces(&self,xml:bool{input})->core::Result<[{pieces_type};{count}]>{{Ok(if xml{{[{xml}]}}else{{[{yaml}]}})}}").unwrap();
         }
         if standalone {
-            out.push_str("fn check(&self,xml:bool)->core::Result<()>{{let owned=self.pieces(xml)?;Self::pattern(xml).check_values(&owned.each_ref().map(|piece| &piece[..]))}.map_err(|_|RuntimeDiagnostic::new(\"value.text-pattern\",\"Slot conflicts with the declared delimiter\"))}\n");
+            writeln!(out,"fn check(&self,xml:bool{input})->core::Result<()>{{let owned=self.pieces(xml{input_arg})?;Self::pattern(xml).check_values(&owned.each_ref().map(|piece| &piece[..])).map_err(|_|RuntimeDiagnostic::new(\"value.text-pattern\",\"Slot conflicts with the declared delimiter\"))}}").unwrap();
         }
         if matches!(mode, DefinitionMode::Standalone) {
-            out.push_str("fn write(&self,xml:bool)->core::Result<String>{let mut out=String::new();let owned=self.pieces(xml)?;Self::pattern(xml).write(&owned.each_ref().map(|piece| &piece[..]),&mut out,usize::MAX).map_err(|_|RuntimeDiagnostic::new(\"value.text-pattern\",\"Text pattern cannot be printed\"))?;Ok(out)}\n");
+            writeln!(out,"fn write(&self,xml:bool{input})->core::Result<String>{{let mut out=String::new();let owned=self.pieces(xml{input_arg})?;Self::pattern(xml).write(&owned.each_ref().map(|piece| &piece[..]),&mut out,usize::MAX).map_err(|_|RuntimeDiagnostic::new(\"value.text-pattern\",\"Text pattern cannot be printed\"))?;Ok(out)}}").unwrap();
         }
         out.push_str("}\n");
         if matches!(mode, DefinitionMode::Item) {
@@ -380,6 +428,14 @@ impl<'a> Codec<'a> {
             )?);
         }
         Ok(out)
+    }
+}
+
+fn pattern_input_argument(field: &scalar::Codec<'_>) -> &'static str {
+    if matches!(field, scalar::Codec::Pattern(pattern) if pattern.needs_inputs()) {
+        ",_inputs"
+    } else {
+        ""
     }
 }
 

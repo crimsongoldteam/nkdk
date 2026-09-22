@@ -28,7 +28,24 @@ impl<'a> From<&'a InputValue> for InputRef<'a> {
             InputValue::Boolean(value) => Self::Boolean(*value),
             InputValue::Decimal(value) => Self::Decimal(value),
             InputValue::Sequence(value) => Self::Sequence(value),
+            InputValue::Records(value) => Self::Records(Records::new(value)),
+            InputValue::Record(value) => Self::Record(value),
         }
+    }
+}
+
+impl super::RecordInput for InputValue {
+    fn field(&self, index: usize) -> Option<InputRef<'_>> {
+        let Self::Record(value) = self else {
+            return None;
+        };
+        value.field(index)
+    }
+}
+
+impl super::RecordInput for Vec<(String, InputValue)> {
+    fn field(&self, index: usize) -> Option<InputRef<'_>> {
+        self.get(index).map(|(_, value)| InputRef::from(value))
     }
 }
 #[derive(Clone, Copy, Debug)]

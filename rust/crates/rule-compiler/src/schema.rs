@@ -121,7 +121,8 @@ fn scalar(
                 }
                 YamlRepresentation::TextPattern(_)
                 | YamlRepresentation::TextSequence { .. }
-                | YamlRepresentation::TextTable(_) => {
+                | YamlRepresentation::TextTable(_)
+                | YamlRepresentation::InputTextTable(_) => {
                     Ok(json!({"type":"string","x-nkdk-runtime-validation":true}))
                 }
                 YamlRepresentation::Calendar { seconds, omit_zero } => {

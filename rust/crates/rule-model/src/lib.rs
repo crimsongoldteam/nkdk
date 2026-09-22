@@ -156,6 +156,7 @@ pub enum YamlRepresentation {
     },
     Choice(Vec<YamlChoiceCase>),
     TextTable(TextTable),
+    InputTextTable(RecordKeyTable),
     TextPattern(Vec<TextPatternPart>),
     Sequence {
         item: Box<YamlRepresentation>,
@@ -173,6 +174,7 @@ pub enum YamlRepresentation {
         restore_from: Option<String>,
         omit_empty_for: Option<String>,
         empty_tag: Option<String>,
+        key_table: Option<RecordKeyTable>,
     },
     KeyedMapping {
         key: String,
@@ -184,6 +186,14 @@ pub enum YamlRepresentation {
     BooleanTable(Vec<BooleanLexeme>),
     EnumTable(Vec<EnumLexeme>),
     Decimal,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RecordKeyTable {
+    pub input: String,
+    pub internal: String,
+    pub external: String,
+    pub empty: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

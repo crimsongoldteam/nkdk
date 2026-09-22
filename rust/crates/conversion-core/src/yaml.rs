@@ -3,7 +3,9 @@ pub use marked_scalar::append as append_marked_scalar;
 mod choice;
 pub use choice::{ChoiceReader, ChoiceSelection, ChoiceSelector};
 mod record_mapping;
-pub use record_mapping::{RecordMappingReader, mapping_value, preserved_record_mapping_item};
+pub use record_mapping::{
+    RecordMappingFields, RecordMappingReader, mapping_value, preserved_record_mapping_item,
+};
 pub(crate) mod document;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Form {

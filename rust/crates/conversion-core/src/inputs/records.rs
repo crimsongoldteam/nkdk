@@ -61,6 +61,9 @@ impl<'a> Records<'a> {
     pub fn is_empty(&self) -> bool {
         self.len() == 0
     }
+    pub fn iter(&self) -> Rows<'a> {
+        (*self).into_iter()
+    }
     pub fn selected(&self, selection: crate::sequence_pattern::Selection) -> Option<Row<'a>> {
         match selection {
             crate::sequence_pattern::Selection::Unique(index) if index < self.len() => {
@@ -175,6 +178,7 @@ mod tests {
         assert!(Records::empty().into_iter().next().is_none());
         let rows = Records::new(&stored);
         assert!(!rows.is_empty());
+        assert_eq!(rows.iter().count(), 2);
         let mut iter = rows.into_iter();
         for original in &stored {
             let row = iter.next().unwrap();

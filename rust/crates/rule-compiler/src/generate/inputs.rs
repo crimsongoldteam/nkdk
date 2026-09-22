@@ -22,6 +22,18 @@ fn shape(value: &LinkedType, entry: &LinkedEntry) -> Result<String, Diagnostic> 
         LinkedType::Sequence(item) => {
             format!("core::InputType::Sequence(&{})", shape(item, entry)?)
         }
+        LinkedType::Record(fields) => format!(
+            "core::InputType::Record(&[{}])",
+            fields
+                .iter()
+                .map(|field| Ok(format!(
+                    "({:?},{})",
+                    field.name,
+                    shape(&field.value, entry)?
+                )))
+                .collect::<Result<Vec<_>, _>>()?
+                .join(",")
+        ),
         _ => {
             return Err(unsupported(
                 entry,

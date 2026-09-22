@@ -1,0 +1,98 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: contract.generic-standard-link
+value:
+  kind: record
+  fields:
+    - name: linkByType
+      type:
+        use: value0
+        bind:
+          profiles:
+            input: profiles
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: linkByType
+        path:
+          - xr:LinkByType
+  yaml:
+    kind: mapping
+    fields:
+      - field: linkByType
+        key: СвязьПоТипу
+presence:
+  - target:
+      field: linkByType
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: linkByType
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+namespaces:
+  xr: http://v8.1c.ru/8.3/xcf/readable
+id: contract.generic-standard-link-by-type-fragment
+inputs:
+  profiles:
+    type:
+      kind: sequence
+      item:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: yamlName
+            type:
+              kind: scalar
+              scalar: text
+          - name: pathName
+            type:
+              kind: scalar
+              scalar: text
+          - name: emptyForm
+            type:
+              kind: scalar
+              scalar: text
+          - name: policy
+            type:
+              kind: scalar
+              scalar: text
+          - name: expectedKind
+            type:
+              kind: scalar
+              scalar: text
+          - name: maxTextLength
+            type:
+              kind: scalar
+              scalar: text
+          - name: maxNumberDigits
+            type:
+              kind: scalar
+              scalar: text
+          - name: allowedTextLength
+            type:
+              kind: scalar
+              scalar: text
+          - name: owners
+            type:
+              kind: sequence
+              item:
+                kind: scalar
+                scalar: text

@@ -9,6 +9,13 @@ pub(super) struct Codec<'a> {
     yaml: (&'a str, Vec<usize>),
 }
 impl<'a> Codec<'a> {
+    pub(super) fn needs_inputs(&self) -> bool {
+        self.item.needs_inputs()
+            || self
+                .head
+                .as_ref()
+                .is_some_and(|(head, _, _)| head.needs_inputs())
+    }
     pub(super) fn resolve(
         entry: &'a LinkedEntry,
         program: &'a Program<'a>,
@@ -203,10 +210,16 @@ impl<'a> Codec<'a> {
 
         let read_item = self.item.read(name, count);
         let visit_rows = self.item.visit(count, &empty_guard);
-        writeln!(out,"fn read(text:&str,xml:bool)->core::Result<Self>{{core::xml::validate_text(text)?;{input}{head_read}let mut rows=Vec::new();for row in input{{let row=row.map_err(|_|RuntimeDiagnostic::new(\"value.text-sequence\",\"Incomplete text record\"))?;{read_item}rows.try_reserve(1).map_err(|_|RuntimeDiagnostic::new(\"value.budget\",\"Text sequence exceeds memory budget\"))?;rows.push(item);}}let value=Self{{{head_init}rows}};value.check(true)?;value.check(false)?;Ok(value)}}").unwrap();
-        writeln!(out,"fn visit(&self,xml:bool,mut visit:impl FnMut(&str,bool)->core::Result<()>)->core::Result<()>{{{head_visit}{visit_rows}Ok(())}}").unwrap();
-        writeln!(out,"fn check(&self,xml:bool)->core::Result<usize>{{let mut length=0usize;let separator={separator};let plan=Self::plan(xml);self.visit(xml,|value,followed|{{plan.check_cell(value,followed).map_err(|_|RuntimeDiagnostic::new(\"value.text-sequence\",\"Cell conflicts with sequence separator\"))?;length=length.checked_add(value.len()).and_then(|length|length.checked_add(if followed{{separator.len()}}else{{0}})).ok_or_else(||RuntimeDiagnostic::new(\"value.budget\",\"Text size overflow\"))?;Ok(())}})?;Ok(length)}}").unwrap();
-        writeln!(out,"fn write(&self,xml:bool)->core::Result<String>{{let length=self.check(xml)?;let separator={separator};let mut out=String::new();out.try_reserve(length).map_err(|_|RuntimeDiagnostic::new(\"value.budget\",\"Text exceeds memory budget\"))?;self.visit(xml,|value,followed|{{out.push_str(value);if followed{{out.push_str(separator);}}Ok(())}})?;Ok(out)}}").unwrap();
+        let input_parameter = if self.needs_inputs() {
+            ",_inputs:&InputView<'_>"
+        } else {
+            ""
+        };
+        let input_argument = if self.needs_inputs() { ",_inputs" } else { "" };
+        writeln!(out,"fn read(text:&str,xml:bool{input_parameter})->core::Result<Self>{{core::xml::validate_text(text)?;{input}{head_read}let mut rows=Vec::new();for row in input{{let row=row.map_err(|_|RuntimeDiagnostic::new(\"value.text-sequence\",\"Incomplete text record\"))?;{read_item}rows.try_reserve(1).map_err(|_|RuntimeDiagnostic::new(\"value.budget\",\"Text sequence exceeds memory budget\"))?;rows.push(item);}}let value=Self{{{head_init}rows}};value.check(true{input_argument})?;value.check(false{input_argument})?;Ok(value)}}").unwrap();
+        writeln!(out,"fn visit(&self,xml:bool{input_parameter},mut visit:impl FnMut(&str,bool)->core::Result<()>)->core::Result<()>{{{head_visit}{visit_rows}Ok(())}}").unwrap();
+        writeln!(out,"fn check(&self,xml:bool{input_parameter})->core::Result<usize>{{let mut length=0usize;let separator={separator};let plan=Self::plan(xml);self.visit(xml{input_argument},|value,followed|{{plan.check_cell(value,followed).map_err(|_|RuntimeDiagnostic::new(\"value.text-sequence\",\"Cell conflicts with sequence separator\"))?;length=length.checked_add(value.len()).and_then(|length|length.checked_add(if followed{{separator.len()}}else{{0}})).ok_or_else(||RuntimeDiagnostic::new(\"value.budget\",\"Text size overflow\"))?;Ok(())}})?;Ok(length)}}").unwrap();
+        writeln!(out,"fn write(&self,xml:bool{input_parameter})->core::Result<String>{{let length=self.check(xml{input_argument})?;let separator={separator};let mut out=String::new();out.try_reserve(length).map_err(|_|RuntimeDiagnostic::new(\"value.budget\",\"Text exceeds memory budget\"))?;self.visit(xml{input_argument},|value,followed|{{out.push_str(value);if followed{{out.push_str(separator);}}Ok(())}})?;Ok(out)}}").unwrap();
         let combined_issues = if head_issues.is_empty() {
             "self.child_issues(xml,_inputs)".to_owned()
         } else {

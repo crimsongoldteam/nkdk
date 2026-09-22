@@ -89,9 +89,26 @@ impl<'a> Variant<'a> {
         Ok(Self::Pattern(pattern))
     }
 
-    pub(super) fn projected(&self) -> bool {
-        matches!(self, Self::Pattern(pattern) if pattern.projected())
+    pub(super) fn read_needs_inputs(&self) -> bool {
+        matches!(self, Self::Pattern(pattern) if pattern.projected()) || self.nested_needs_inputs()
+    }
+
+    pub(super) fn write_needs_inputs(&self) -> bool {
+        matches!(self, Self::Pattern(pattern) if pattern.needs_inputs())
+            || self.nested_needs_inputs()
+    }
+
+    fn nested_needs_inputs(&self) -> bool {
+        matches!(self, Self::Sequence(sequence) if sequence.needs_inputs())
             || matches!(self, Self::Choice(choice) if choice.needs_inputs())
+    }
+
+    pub(super) fn write_input_argument(&self) -> &'static str {
+        if self.write_needs_inputs() {
+            ",_inputs"
+        } else {
+            ""
+        }
     }
 
     pub(super) fn selection_parts(
@@ -249,7 +266,7 @@ impl<'a> Variant<'a> {
         }
     }
 
-    pub(super) fn write(&self, value: &str, name: &str) -> String {
+    pub(super) fn write(&self, value: &str, name: &str, inputs: &str) -> String {
         match self {
             Self::Boolean(xml, yaml) => {
                 let literal = |items: &[BooleanLexeme], expected: bool| {
@@ -296,15 +313,15 @@ impl<'a> Variant<'a> {
             Self::Calendar { seconds, omit_zero } => {
                 format!("Ok(if xml{{{value}.xml()}}else{{{value}.yaml({seconds},{omit_zero})}})")
             }
-            _ => format!("{value}.write(xml)"),
+            _ => format!("{value}.write(xml{inputs})"),
         }
     }
 
-    pub(super) fn write_text(&self, value: &str, name: &str) -> String {
+    pub(super) fn write_text(&self, value: &str, name: &str, inputs: &str) -> String {
         if matches!(self, Self::Choice(_)) {
-            format!("{value}.write_text(xml)")
+            format!("{value}.write_text(xml{inputs})")
         } else {
-            self.write(value, name)
+            self.write(value, name, inputs)
         }
     }
 

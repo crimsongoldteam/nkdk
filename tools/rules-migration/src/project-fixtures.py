@@ -36,12 +36,19 @@ def select(request):
         context = {}
         for fact in request.get('context', []):
             values = root.findall(fact['selector'])
+            if fact.get('optional') and not values:
+                context[fact['name']] = [] if fact.get('many') else ''
+                continue
             if not fact.get('many') and len(values) != 1:
                 raise ValueError('Ambiguous fixture context: ' + fact['name'])
             if any(value.text is None for value in values):
                 raise ValueError('Empty fixture context: ' + fact['name'])
             contents = [value.text.strip() for value in values]
             context[fact['name']] = contents if fact.get('many') else contents[0]
+        serialized = ET.tostring(selected, encoding='unicode')
+        for prefix, uri in bindings.items():
+            if prefix and 'xmlns:' + prefix + '=' not in serialized and re.search(r'(?<![\w:])' + re.escape(prefix) + r':[\w.]+', serialized):
+                selected.set('xmlns:' + prefix, uri)
         return {'xml': ET.tostring(selected, encoding='unicode'),
                 **({'context': context} if request.get('context') else {}),
                 'source': [{'path': str(xml_path), 'sha256': hashlib.sha256(xml_bytes).hexdigest()}]}

@@ -33,7 +33,9 @@ impl<'a> Item<'a> {
                     .iter()
                     .find(|entry| entry.id == id)
                     .expect("linked compact variant");
-                orders.push(crate::link::text_sequence::item_layout(variant, xml, yaml)?);
+                orders.push(crate::link::text_sequence::item_layout(
+                    variant, xml, yaml, false,
+                )?);
             }
             let width = orders[0].0.len();
             if orders.iter().any(|order| order.0.len() != width) {
@@ -48,7 +50,7 @@ impl<'a> Item<'a> {
                 yaml: (0..width).collect(),
             })
         } else {
-            let (xml, yaml) = crate::link::text_sequence::item_layout(entry, xml, yaml)?;
+            let (xml, yaml) = crate::link::text_sequence::item_layout(entry, xml, yaml, false)?;
             Ok(Layout {
                 item: Self::Record(text_pattern::Codec::resolve(entry, program)?),
                 xml,
@@ -61,6 +63,13 @@ impl<'a> Item<'a> {
         matches!(self, Self::Choice(..))
     }
 
+    pub(super) fn needs_inputs(&self) -> bool {
+        match self {
+            Self::Record(codec) => codec.needs_inputs(),
+            Self::Choice(codec, _) => codec.needs_inputs(),
+        }
+    }
+
     pub(super) fn definition(&self, name: &str) -> Result<String, Diagnostic> {
         let Self::Choice(codec, orders) = self else {
             let Self::Record(codec) = self else {
@@ -69,31 +78,44 @@ impl<'a> Item<'a> {
             return codec.element_definition(name);
         };
         let mut out = codec.compact_definition(name, orders)?;
-        writeln!(out, "impl {name} {{fn visit_cells(&self,xml:bool,mut visit:impl FnMut(&str,bool)->core::Result<()>)->core::Result<()>{{match self{{").unwrap();
+        let input = if codec.needs_inputs() {
+            ",_inputs:&InputView<'_>"
+        } else {
+            ""
+        };
+        let input_arg = if codec.needs_inputs() { ",_inputs" } else { "" };
+        writeln!(out, "impl {name} {{fn visit_cells(&self,xml:bool{input},mut visit:impl FnMut(&str,bool)->core::Result<()>)->core::Result<()>{{match self{{").unwrap();
         for (index, orders) in orders.iter().enumerate() {
             let order = text_choice::cell_order(orders);
-            writeln!(out, "Self::V{index}(value)=>{{let owned_pieces=value.pieces(xml)?;let pieces=owned_pieces.each_ref().map(|piece| &piece[..]);let order={order};for(index,field)in order.iter().enumerate(){{visit(pieces[*field],index+1<order.len())?;}}}},").unwrap();
+            let variant_input = if codec.variant_write_needs_inputs(index) {
+                input_arg
+            } else {
+                ""
+            };
+            writeln!(out, "Self::V{index}(value)=>{{let owned_pieces=value.pieces(xml{variant_input})?;let pieces=owned_pieces.each_ref().map(|piece| &piece[..]);let order={order};for(index,field)in order.iter().enumerate(){{visit(pieces[*field],index+1<order.len())?;}}}},").unwrap();
         }
         out.push_str("}Ok(())}}\n");
         Ok(out)
     }
 
     pub(super) fn read(&self, name: &str, count: usize) -> String {
+        let input = if self.needs_inputs() { ",_inputs" } else { "" };
         match self {
             Self::Record(_) => format!(
-                "let order=Self::order(xml);let mut slots=[\"\";{count}];for(index,field)in order.iter().enumerate(){{slots[*field]=row[index];}}let item={name}Item::read_slots(slots,xml)?;"
+                "let order=Self::order(xml);let mut slots=[\"\";{count}];for(index,field)in order.iter().enumerate(){{slots[*field]=row[index];}}let item={name}Item::read_slots(slots,xml{input})?;"
             ),
-            Self::Choice(..) => format!("let item={name}Item::read_row(row,xml)?;"),
+            Self::Choice(..) => format!("let item={name}Item::read_row(row,xml{input})?;"),
         }
     }
 
     pub(super) fn visit(&self, count: usize, empty_guard: &str) -> String {
+        let input = if self.needs_inputs() { ",_inputs" } else { "" };
         match self {
             Self::Record(_) => format!(
-                "let order=Self::order(xml);for(row_index,row)in self.rows.iter().enumerate(){{let owned_pieces=row.pieces(xml)?;let pieces=owned_pieces.each_ref().map(|piece| &piece[..]);for(cell_index,field)in order.iter().enumerate(){{let value=pieces[*field];{empty_guard}visit(value,row_index+1<self.rows.len()||cell_index+1<{count})?;}}}}"
+                "let order=Self::order(xml);for(row_index,row)in self.rows.iter().enumerate(){{let owned_pieces=row.pieces(xml{input})?;let pieces=owned_pieces.each_ref().map(|piece| &piece[..]);for(cell_index,field)in order.iter().enumerate(){{let value=pieces[*field];{empty_guard}visit(value,row_index+1<self.rows.len()||cell_index+1<{count})?;}}}}"
             ),
             Self::Choice(..) => format!(
-                "for(row_index,row)in self.rows.iter().enumerate(){{row.visit_cells(xml,|value,followed|{{{empty_guard}visit(value,row_index+1<self.rows.len()||followed)}})?;}}"
+                "for(row_index,row)in self.rows.iter().enumerate(){{row.visit_cells(xml{input},|value,followed|{{{empty_guard}visit(value,row_index+1<self.rows.len()||followed)}})?;}}"
             ),
         }
     }

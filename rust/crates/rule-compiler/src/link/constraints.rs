@@ -193,6 +193,7 @@ fn resolve_forms(module: &Module, constraint: &Constraint) -> Result<Vec<LinkedF
             }
             YamlRepresentation::Choice(_)
             | YamlRepresentation::TextTable(_)
+            | YamlRepresentation::InputTextTable(_)
             | YamlRepresentation::Text
             | YamlRepresentation::TextPattern(_)
             | YamlRepresentation::TextSequence { .. }

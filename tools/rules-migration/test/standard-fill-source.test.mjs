@@ -2,7 +2,7 @@ import {readFileSync} from 'node:fs';
 import {globSync} from 'node:fs';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {standardMemberPolicies,standardFillPolicyInputs} from '../src/standard-fill-source.mjs';
+import {standardMemberPolicies,standardFillFactRequests,standardFillPolicyInputs,standardFillProfileRows} from '../src/standard-fill-source.mjs';
 
 test('standard FillValue policies come from the registered owner and shared declarations', () => {
   const common='packages/runtime/metadata/standardMembers/declarations.ts';
@@ -39,6 +39,13 @@ test('standard FillValue policies come from the registered owner and shared decl
     ...facts,codeType:'String',codeAllowedLength:'Fixed',codeLength:'9',
   },roots),{policy:'codeFromOwner',expectedKind:'text',owners:[],
     maxTextLength:'9',maxNumberDigits:'',allowedTextLength:'Fixed'});
+  assert.deepEqual(standardFillFactRequests(policies),[
+    {name:'codeAllowedLength',xmlProperty:'CodeAllowedLength',many:false},
+    {name:'codeLength',xmlProperty:'CodeLength',many:false},
+    {name:'codeType',xmlProperty:'CodeType',many:false},
+    {name:'descriptionLength',xmlProperty:'DescriptionLength',many:false},
+    {name:'owners',xmlProperty:'Owners',many:true},
+  ]);
 });
 
 test('the same extraction reads a different owner without a catalog-specific table', () => {
@@ -80,5 +87,11 @@ test('all standard member owner families have statically readable declarations',
     [...sources[path].matchAll(/ownerKind:\s*"([^"]+)"/g)].map(match=>match[1])))];
   assert.equal(paths.filter(path=>path.includes('/appliedObjects/')).length,14);
   assert.equal(ownerKinds.length,22);
-  for(const ownerKind of ownerKinds)assert.ok(standardMemberPolicies(sources,ownerKind).size>0,ownerKind);
+  for(const ownerKind of ownerKinds) {
+    const members=standardMemberPolicies(sources,ownerKind);
+    const rows=standardFillProfileRows(members);
+    assert.equal(rows.length,members.size,ownerKind);
+    assert.deepEqual(rows.map(row=>row.name),[...members.keys()],ownerKind);
+    assert.ok(rows.every(row=>typeof row.policy==='string'),ownerKind);
+  }
 });

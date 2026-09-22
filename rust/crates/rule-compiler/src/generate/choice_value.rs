@@ -204,7 +204,10 @@ fn constructed_missing_expression(
             program,
             id,
         )?;
-        let omit_code = (branch_omissions.is_some() || yes.omission.is_some() || no.omission.is_some()).then(|| {
+        let omit_code = (branch_omissions.is_some()
+            || yes.omission.is_some()
+            || no.omission.is_some())
+        .then(|| {
             let yes = yes.omission.as_deref().unwrap_or("false");
             let no = no.omission.as_deref().unwrap_or("false");
             format!("{{let _inputs=inputs;{constants}if {predicate} {{{yes}}} else {{{no}}}}}")
@@ -243,26 +246,38 @@ fn constructed_missing_expression(
         && arguments.len() == 1
     {
         if omission.is_some_and(|value| !never_omit(value)) {
-            return Err(unsupported(child, "Parsed YAML default uses inferred equality for omission"));
+            return Err(unsupported(
+                child,
+                "Parsed YAML default uses inferred equality for omission",
+            ));
         }
-        let LinkedType::Record(fields) = &child.value else { unreachable!("choice owner") };
+        let LinkedType::Record(fields) = &child.value else {
+            unreachable!("choice owner")
+        };
         let mut context = expressions::Expressions::new(child, program, fields, None);
         let lexical = context.lower(&arguments[0])?;
         if !context.transforms.is_empty() {
-            return Err(unsupported(child, "Parsed YAML default requires a generated transform"));
+            return Err(unsupported(
+                child,
+                "Parsed YAML default requires a generated transform",
+            ));
         }
         let constants = context.constants;
         let document = shape.property.map_or_else(
             || format!("core::yaml::scalar(&({lexical}).to_string())"),
             |property| format!("format!(\"{{}}: {{}}\",{property:?},core::yaml::scalar(&({lexical}).to_string()))"),
         );
-        let parse = format!("{{let _inputs=inputs;{constants}let document={document};read_yaml_document(document.as_bytes(),inputs)}}");
+        let parse = format!(
+            "{{let _inputs=inputs;{constants}let document={document};read_yaml_document(document.as_bytes(),inputs)}}"
+        );
         let comparisons = (0..shape.variants.len()).map(|variant| format!(
             "(Stored::V{variant}(actual),Stored::V{variant}(default)) if !part_{id}_{variant}::has_raw(actual)=>{{let mut left=String::new();let mut right=String::new();part_{id}_{variant}::write_yaml(actual,inputs,&mut left)?;part_{id}_{variant}::write_yaml(default,inputs,&mut right)?;left==right}},"
         )).collect::<String>();
         return Ok(ConstructedMissing {
             code: parse.clone(),
-            omission: Some(format!("{{let expected={parse}?;match(value,&expected){{{comparisons}_=>false,}}}}")),
+            omission: Some(format!(
+                "{{let expected={parse}?;match(value,&expected){{{comparisons}_=>false,}}}}"
+            )),
         });
     }
     let LinkedExpressionKind::Operation {
@@ -903,7 +918,7 @@ fn generate_checks(
                 "(match part_{id}_{variant}::input_field(value,0){{Some(core::inputs::InputRef::Decimal(number))=>Ok(number),_=>Err(RuntimeDiagnostic::new(\"fact.field-type\",\"Expected a decimal field\"))}})?"
             ));
             expressions.variant_text_storage =
-                Some(format!("part_{id}_{variant}::render_text(value)?"));
+                Some(format!("part_{id}_{variant}::render_text(value,inputs)?"));
             for original in &child.constraints {
                 if !original.applies_to.contains(&phase)
                     || (!original.forms.is_empty() && !original.forms.contains(&form))
@@ -988,7 +1003,16 @@ fn uses_unprojected_owner_field(value: &LinkedExpression) -> bool {
         LinkedExpressionKind::Operation {
             operator: LinkedOperator::State(StatePredicate::Present),
             arguments,
-        } if matches!(arguments.as_slice(), [LinkedExpression { kind: LinkedExpressionKind::Field(0), .. }]) => false,
+        } if matches!(
+            arguments.as_slice(),
+            [LinkedExpression {
+                kind: LinkedExpressionKind::Field(0),
+                ..
+            }]
+        ) =>
+        {
+            false
+        }
         LinkedExpressionKind::Operation {
             operator: LinkedOperator::VariantText(_),
             arguments,

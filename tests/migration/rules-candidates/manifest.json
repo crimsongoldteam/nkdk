@@ -13007,7 +13007,7 @@
     },
     {
       "path": "rust/declarations/candidates/standard-attributes.generated.yaml",
-      "sha256": "e27348d9b51f4a7d7f545f09bdf79da10261a686567dbf89f9a113ad87787def"
+      "sha256": "12ea54cd92fdc159455361bc6e3f9835c9d711fd1692999c9d88bfc6762affa6"
     },
     {
       "path": "rust/declarations/common/additional-index-row.yaml",
@@ -13584,6 +13584,10 @@
     {
       "path": "rust/declarations/probes/document-register-records.yaml",
       "sha256": "3a7cda92171e85169fc9ff559d6bcff8b5dd48b5f10990706e5480c755392e4d"
+    },
+    {
+      "path": "rust/declarations/probes/document-resource-routes.yaml",
+      "sha256": "491fcd3b0a96d472e60674255ef140d9b6f2b37e5d84f9a03114e5ff333e5d4f"
     },
     {
       "path": "rust/declarations/probes/enum.yaml",
@@ -44013,8 +44017,18 @@
       {
         "candidate": "candidate.fragment.55e0435660009f1f5fb6",
         "field": "name",
-        "matchCount": 14,
+        "matchCount": 15,
         "reviewTargets": [
+          {
+            "id": "metadata.standard-attribute-support.literal-choice-parameter-link",
+            "field": "name",
+            "differences": [
+              "path",
+              "presence",
+              "xmlPresence",
+              "constraints"
+            ]
+          },
           {
             "id": "common.additional-index-row",
             "field": "name",
@@ -44032,15 +44046,6 @@
               "path",
               "presence",
               "xmlPresence",
-              "constraints"
-            ]
-          },
-          {
-            "id": "fragment.command-base-properties",
-            "field": "Name",
-            "differences": [
-              "path",
-              "presence",
               "constraints"
             ]
           }
@@ -46183,7 +46188,7 @@
       {
         "candidate": "candidate.fragment.7a5cf3a4c0ce27646e70",
         "field": "choiceParameterLinks",
-        "matchCount": 2,
+        "matchCount": 1,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -46191,11 +46196,6 @@
             "differences": [
               "path"
             ]
-          },
-          {
-            "id": "fragment.standard-attribute.choiceParameterLinks",
-            "field": "choiceParameterLinks",
-            "differences": []
           }
         ]
       },
@@ -50863,7 +50863,7 @@
       {
         "candidate": "candidate.fragment.c1af13f32d5fb0444ef4",
         "field": "linkByType",
-        "matchCount": 2,
+        "matchCount": 1,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
@@ -50871,11 +50871,6 @@
             "differences": [
               "path"
             ]
-          },
-          {
-            "id": "fragment.standard-attribute.linkByType",
-            "field": "linkByType",
-            "differences": []
           }
         ]
       },
@@ -52662,18 +52657,10 @@
       {
         "candidate": "candidate.fragment.d5e2b83cfae9ee777988",
         "field": "choiceParameterLinks",
-        "matchCount": 2,
+        "matchCount": 1,
         "reviewTargets": [
           {
             "id": "candidate.collection.item.17597f63a93e1d127f04",
-            "field": "choiceParameterLinks",
-            "differences": [
-              "path",
-              "xmlPresence"
-            ]
-          },
-          {
-            "id": "fragment.standard-attribute.choiceParameterLinks",
             "field": "choiceParameterLinks",
             "differences": [
               "path",

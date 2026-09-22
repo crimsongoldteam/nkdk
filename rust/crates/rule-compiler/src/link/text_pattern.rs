@@ -128,7 +128,7 @@ pub(super) fn types(entries: &BTreeMap<u32, LinkedEntry>) -> Result<(), Diagnost
             unreachable!("validated text pattern shape")
         };
         for (index, field) in fields.iter().enumerate() {
-            if let LinkedType::Reference(id) = field.value
+            if let Some((id, _, _)) = field.value.as_reference()
                 && matches!(entries[&id].xml, LinkedXml::TextSequence { .. })
             {
                 let yaml_parts = match &entry.yaml {

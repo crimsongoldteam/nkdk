@@ -41,7 +41,7 @@ ExternalFile принят: четыре свойства подключены к
 Следующий этап описан в [плане единого преобразования](2026-09-13-unified-conversion-plan.md).
 Флажки обновляются только после полной приёмки объекта, предусмотренной этим планом.
 
-Принято **25/90 common**. Полные Document и DocumentJournal ещё не приняты.
+Принято **26/90 common**. Полные Document и DocumentJournal ещё не приняты.
 Общий XML-record расширен типизированными атрибутами и сохранением их исходной
 записи. Это инфраструктура; дополнительных флажков объектов не устанавливает.
 Правила присутствия полей вложенной скалярной записи также перенесены в общий
@@ -60,7 +60,7 @@ ExternalFile принят: четыре свойства подключены к
 AdditionalIndexes принят после проверки идентичностей, корневого YAML-массива
 и внешнего документа. [Отчёт](../reports/2026-09-13-additional-indexes.md).
 
-Дата сверки: 2026-09-22. [Главный план](2026-09-10-rust-yaml-declarations.md) · [Журнал проверок](../reports/2026-09-10-rust-yaml-progress.md).
+Дата сверки: 2026-09-23. [Главный план](2026-09-10-rust-yaml-declarations.md) · [Журнал проверок](../reports/2026-09-10-rust-yaml-progress.md).
 
 ## Как читать
 
@@ -68,7 +68,7 @@ AdditionalIndexes принят после проверки идентичнос�
 - `[ ]` — объект не завершён. Промежуточные результаты учитываются только в журнале.
 - Служебные каталоги включены, чтобы не потерять их обязанности. Для них завершение означает перенос ответственности в общий Rust-механизм, а не обязательное создание отдельной YAML-декларации.
 
-Приняты 24 common-объекта: двусторонние интерфейсы I8nText, FormattedI8nText, MetadataName, StringOrNumber, PredefinedCode, MinMaxValue, boolean, number, dateTime, FieldsList, IndexField, WebSocketClientHeaders, XDTOPackages, UsePurposes, XDTOTypeName, Help, AdditionalIndex, String, TypeDescription, TypeLink, MetadataValue, ChoiceParameters и ChoiceParameterLinks (XML ↔ YAML, валидация и структурная схема), а также ExternalFile (перенос непрозрачных файлов в обе стороны). Enterprise исключён из реализации и условий готовности по решению пользователя. Наличие общего компилятора, синтетического примера или успешного теста отдельного свойства не означает завершение всего объекта. В частности, `common.code-type` — синтетический пример, а не перенесённое системное перечисление.
+Приняты 26 common-объектов, включая `FillValue` и `StandardAttributeDescription`; полный перечень определяется флажками ниже. Enterprise исключён из реализации и условий готовности по решению пользователя. Наличие общего компилятора, синтетического примера или успешного теста отдельного свойства не означает завершение всего объекта. В частности, `common.code-type` — синтетический пример, а не перенесённое системное перечисление.
 
 ## Когда ставить галочку
 
@@ -93,13 +93,13 @@ AdditionalIndexes принят после проверки идентичнос�
 
 | Группа | Записей | Полностью завершено |
 |---|---:|---:|
-| Общие объекты (common) | 90 | 24 |
+| Общие объекты (common) | 90 | 26 |
 | Вложенные части общих объектов | 27 | 2 |
 | Прикладные объекты и их вложенные части | 57 | 2 |
 | Формы, элементы и общие части форм | 66 | 0 |
 | Системные перечисления (весь каталог) | 1 | 1 |
 
-Список составлен по существующим каталогам с исходниками (тестовые каталоги исключены), реестру 90 common-каталогов и именам таблиц `*ToYAML` системных перечислений. Вложенные части перечислены отдельно: готовность родителя требует готовности его частей. Это количество единиц учёта, а не число независимых типов метаданных.
+Сводка сверена 2026-09-23 по существующим каталогам с исходниками (тестовые каталоги исключены), реестру 90 common-каталогов и именам таблиц `*ToYAML` системных перечислений. Вложенные части перечислены отдельно: готовность родителя требует готовности его частей. Это количество единиц учёта, а не число независимых типов метаданных.
 
 ## Общие объекты (common)
 
@@ -173,7 +173,7 @@ AdditionalIndexes принят после проверки идентичнос�
 - [x] [commonObjects/predefinedCode](../../../packages/rules/metadata/commonObjects/predefinedCode) — 2026-09-10: [декларация](../../../rust/declarations/common/predefined-code.yaml), [e2e семейства](../../../tests/migration/scalar-choice-e2e.json), [оба профиля и аномалии](../../../rust/crates/compiled-rules/tests/scalars.rs), [схема](../../../rust/crates/rule-compiler/tests/schema.rs).
 - [ ] [commonObjects/predefinedItem](../../../packages/rules/metadata/commonObjects/predefinedItem)
 - [ ] [commonObjects/rootCommandInterface](../../../packages/rules/metadata/commonObjects/rootCommandInterface)
-- [ ] [commonObjects/standardAttributeDescription](../../../packages/rules/metadata/commonObjects/standardAttributeDescription) — полная запись из 27 свойств включена в рабочий Rust-каталог и проверена на справочнике и документе; флажок остаётся пустым до e2e-приёмки остальных семейств владельцев. [Текущее состояние](../reports/2026-09-22-standard-attribute-names.md).
+- [x] [commonObjects/standardAttributeDescription](../../../packages/rules/metadata/commonObjects/standardAttributeDescription) — 2026-09-23: одна рабочая YAML-декларация для 14 семейств и 22 видов владельцев; полная запись из 27 свойств, профили имён и `FillValue`, пустые формы, ссылки и аномалии проверены XML → YAML → XML без референса. [Рабочая декларация](../../../rust/declarations/candidates/standard-attributes.generated.yaml) · [14 e2e-семейств](../../../rust/crates/compiled-rules/tests/standard_attributes.rs) · [приёмка](../reports/2026-09-22-standard-attribute-names.md).
 - [ ] [commonObjects/standardPeriod](../../../packages/rules/metadata/commonObjects/standardPeriod) — для полной приёмки нужны пути данных М6 и реальный случай e2e; проверки преобразования записаны в журнале М3.
 - [ ] [commonObjects/standardTabularSectionDescription](../../../packages/rules/metadata/commonObjects/standardTabularSectionDescription)
 - [ ] [commonObjects/standartBeginningDate](../../../packages/rules/metadata/commonObjects/standartBeginningDate) — для полной приёмки нужны пути данных М6; проверки преобразования записаны в журнале М3.

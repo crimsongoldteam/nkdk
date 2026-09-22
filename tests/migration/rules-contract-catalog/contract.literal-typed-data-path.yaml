@@ -1,0 +1,22 @@
+format: nkdk-declarations/1
+kind: value
+id: contract.literal-typed-data-path
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  xs: http://www.w3.org/2001/XMLSchema
+value:
+  kind: scalar
+  scalar: text
+  pattern: .+
+representations:
+  xml:
+    kind: with-attributes
+    attributes:
+      - name: xsi:type
+        value:
+          qname: xs:string
+    content:
+      kind: text
+  yaml:
+    kind: scalar
+    scalar: text

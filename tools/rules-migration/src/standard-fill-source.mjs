@@ -137,3 +137,38 @@ export function standardFillProfileExpressions(members) {
   }));
   return {expressions,factInputs:[...facts].sort()};
 }
+
+// Keep owner-specific policy data outside the compiled declaration. One
+// generic StandardAttributeDescription can consume these rows for every
+// owner family without generating branches for its names in Rust.
+export function standardFillProfileRows(members,facts={},xmlToYamlRoot={}) {
+  return [...members].map(([name,member])=>{
+    const row=standardFillPolicyInputs(member,facts,xmlToYamlRoot);
+    const extDimensionType=/^ExtDimensionType([1-9][0-9]*)$/.exec(name);
+    return {name,yamlName:member.names.yaml,pathName:extDimensionType?`Счет(${extDimensionType[1]})`:member.names.yaml,
+      emptyForm:extDimensionType?'null':'mapping',
+      policy:row.policy,expectedKind:row.expectedKind,
+      maxTextLength:row.maxTextLength,maxNumberDigits:row.maxNumberDigits,
+      allowedTextLength:row.allowedTextLength,owners:row.owners};
+  });
+}
+
+// Owner facts are declared by the policy itself. Fixture and production
+// adapters can therefore prepare the generic profile without knowing any
+// particular standard-member name.
+export function standardFillFactRequests(members) {
+  const requests=new Map();
+  for(const member of members.values()) {
+    const declaration=member.fillValue??{policy:'notSpecified'};
+    for(const key of ['typeProperty','lengthProperty','allowedLengthProperty']) {
+      const name=declaration[key];
+      if(name)requests.set(name,{name,xmlProperty:name[0].toUpperCase()+name.slice(1),many:false});
+    }
+    if(declaration.ownersProperty)requests.set(declaration.ownersProperty,{
+      name:declaration.ownersProperty,
+      xmlProperty:declaration.ownersProperty[0].toUpperCase()+declaration.ownersProperty.slice(1),
+      many:true,
+    });
+  }
+  return [...requests.values()].sort((left,right)=>left.name.localeCompare(right.name));
+}

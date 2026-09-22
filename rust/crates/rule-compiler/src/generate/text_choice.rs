@@ -335,7 +335,13 @@ impl<'a> Codec<'a> {
     }
 
     pub(super) fn needs_inputs(&self) -> bool {
-        self.variants.iter().any(Variant::projected)
+        self.variants
+            .iter()
+            .any(|variant| variant.read_needs_inputs() || variant.write_needs_inputs())
+    }
+
+    pub(super) fn variant_write_needs_inputs(&self, index: usize) -> bool {
+        self.variants[index].write_needs_inputs()
     }
 
     pub(super) fn selection_parts(
@@ -406,8 +412,8 @@ impl<'a> Codec<'a> {
         };
         let reader = if let Some(orders) = compact {
             format!(
-                "fn read_row(row:core::text_pattern::Row<'_,{}>,xml:bool)->core::Result<Self>{{let text=row.text;",
-                orders[0].0.len()
+                "fn read_row(row:core::text_pattern::Row<'_,{}>,xml:bool{inputs})->core::Result<Self>{{let text=row.text;",
+                orders[0].0.len(),
             )
         } else {
             format!("fn read(text:&str,xml:bool{selector_argument}{inputs})->core::Result<Self>{{")
@@ -436,14 +442,23 @@ impl<'a> Codec<'a> {
             if let Some(orders) = compact {
                 let count = orders[index].0.len();
                 let order = cell_order(&orders[index]);
-                writeln!(out, "Some({index})=>{{let order={order};let mut slots=[\"\";{count}];for(index,field)in order.iter().enumerate(){{slots[*field]=row.cells[index];}}Ok(Self::V{index}({name}V{index}::read_slots(slots,xml)?))}},").unwrap();
+                let inputs = if variant.read_needs_inputs() {
+                    ",_inputs"
+                } else {
+                    ""
+                };
+                writeln!(out, "Some({index})=>{{let order={order};let mut slots=[\"\";{count}];for(index,field)in order.iter().enumerate(){{slots[*field]=row.cells[index];}}Ok(Self::V{index}({name}V{index}::read_slots(slots,xml{inputs})?))}},").unwrap();
             } else if matches!(variant, Variant::Text(_)) {
                 if self.discriminated() {
                     writeln!(out, "Some({index})=>{{core::xml::validate_text(text)?;Ok(Self::V{index}(text.to_owned()))}},").unwrap();
                 }
                 continue;
             } else {
-                let inputs = if variant.projected() { ",_inputs" } else { "" };
+                let inputs = if variant.read_needs_inputs() {
+                    ",_inputs"
+                } else {
+                    ""
+                };
                 let read = variant.read(&format!("{name}V{index}"), inputs);
                 writeln!(out, "Some({index})=>Ok(Self::V{index}({read})),").unwrap();
             }
@@ -454,28 +469,36 @@ impl<'a> Codec<'a> {
             out.push_str("_=>Err(RuntimeDiagnostic::new(\"value.choice\",\"No declared text form matches\")),}}\n");
         }
         if compact.is_none() {
-            out.push_str(
-                "#[allow(dead_code)] fn write_text(&self,xml:bool)->core::Result<String>{match self{\n",
-            );
+            writeln!(out,"#[allow(dead_code)] fn write_text(&self,xml:bool{inputs})->core::Result<String>{{match self{{").unwrap();
             for index in 0..self.variants.len() {
+                let input_argument = self.variants[index].write_input_argument();
                 let write = if matches!(self.variants[index], Variant::Text(_)) {
                     "Ok(value.clone())".into()
                 } else {
-                    self.variants[index].write_text("value", &format!("{name}V{index}"))
+                    self.variants[index].write_text(
+                        "value",
+                        &format!("{name}V{index}"),
+                        input_argument,
+                    )
                 };
                 writeln!(out, "Self::V{index}(value)=>{write},").unwrap();
             }
             out.push_str("}}\n");
-            out.push_str("fn write(&self,xml:bool)->core::Result<String>{match self{\n");
+            writeln!(
+                out,
+                "fn write(&self,xml:bool{inputs})->core::Result<String>{{match self{{"
+            )
+            .unwrap();
             for index in 0..self.variants.len() {
                 if matches!(self.variants[index], Variant::Text(_)) && self.discriminated() {
                     writeln!(out, "Self::V{index}(value)=>{{let text=value.clone();Ok(if xml{{text}}else if {yaml_plan}.select(&text)?.is_some(){{core::yaml::quoted_scalar(&text)}}else{{core::yaml::scalar(&text)}})}},").unwrap();
                     continue;
                 }
+                let input_argument = self.variants[index].write_input_argument();
                 let write = if matches!(self.variants[index], Variant::Text(_)) {
                     "Ok(value.clone())".into()
                 } else {
-                    self.variants[index].write("value", &format!("{name}V{index}"))
+                    self.variants[index].write("value", &format!("{name}V{index}"), input_argument)
                 };
                 if self.variants[index].writes_yaml_document() {
                     writeln!(out, "Self::V{index}(value)=>{write},").unwrap();

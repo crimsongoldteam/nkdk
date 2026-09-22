@@ -9,7 +9,7 @@ import { yaml,dependencyFiles,candidateCatalog } from './candidate-catalog.mjs';
 import { writeCandidates } from './candidate-output.mjs';
 import { loadSources } from './source-snapshot.mjs';
 import { literalTables,booleanExpectations,literalFixture } from './test-cases.mjs';
-import {standardMemberPolicies,standardFillPolicyInputs,standardFillProfileExpressions} from './standard-fill-source.mjs';
+import {standardMemberPolicies,standardFillFactRequests,standardFillPolicyInputs,standardFillProfileExpressions,standardFillProfileRows} from './standard-fill-source.mjs';
 const manifest=JSON.parse(readFileSync('tests/migration/rules-candidates/manifest.json','utf8'));
 loadSources(manifest.sourceHashes);
 for (const [name,contents] of Object.entries(manifest.generatedFiles)) if(readFileSync(`tests/migration/rules-candidates/${name}`,'utf8') !== contents) throw new Error(`Modified candidate: ${name}`);
@@ -458,6 +458,103 @@ function namedStandardFillDeclaration(prefix,members){
 }
 const {owner:standardFillNamedOwner,profile:standardProfile}=namedStandardFillDeclaration('contract.standard-fill-named',standardPolicies);
 const {owner:documentFillNamedOwner,profile:documentProfile}=namedStandardFillDeclaration('contract.document-standard-fill-named',documentPolicies);
+const standardProfileType={kind:'record',fields:[
+ {name:'name',type:{kind:'scalar',scalar:'text'}},
+ {name:'yamlName',type:{kind:'scalar',scalar:'text'}},
+ {name:'pathName',type:{kind:'scalar',scalar:'text'}},
+ {name:'emptyForm',type:{kind:'scalar',scalar:'text'}},
+ ...['policy','expectedKind','maxTextLength','maxNumberDigits','allowedTextLength'].map(name=>({name,type:{kind:'scalar',scalar:'text'}})),
+ {name:'owners',type:{kind:'sequence',item:{kind:'scalar',scalar:'text'}}},
+]};
+const profilesInput={type:{kind:'sequence',item:standardProfileType}};
+function genericStandardFillDeclaration(source) {
+ const item=structuredClone(catalog.get(source));
+ item.id='contract.generic-standard-fill-item';
+ for(const input of standardProfile.factInputs)delete item.inputs[input];
+ item.inputs.profiles=structuredClone(profilesInput);
+ const selectedProfile={find:{
+  in:{input:'profiles'},
+  as:'profile',
+  where:{eq:[{get:{of:{var:'profile'},field:'name'}},{field:'name'}]},
+ }};
+ const profileField=(field,fallback)=>({
+  match:{
+   value:structuredClone(selectedProfile),
+   present:{as:'profile',then:{get:{of:{var:'profile'},field}}},
+   absent:{literal:fallback},
+  },
+ });
+ const defaults={policy:'notSpecified',expectedKind:'',maxTextLength:'',maxNumberDigits:'',allowedTextLength:''};
+ for(const row of item.presence.slice(1)) {
+  const field=row.target.field;
+  if(!(field in defaults))continue;
+  row.xml.missing.denotes=profileField(field,defaults[field]);
+  row.yaml.missing.denotes=structuredClone(row.xml.missing.denotes);
+ }
+ const known=item.constraints.find(row=>row.id==='known-standard-member');
+ known.assert={exists:{in:{input:'profiles'},as:'profile',where:{eq:[{get:{of:{var:'profile'},field:'name'}},{field:'name'}]}}};
+ catalog.set(item.id,item);selected.push(item);
+ return item;
+}
+const genericStandardFillItem=genericStandardFillDeclaration('contract.standard-fill-named-item');
+const genericStandardPathName={format:'nkdk-declarations/1',kind:'value',id:'contract.generic-standard-path-name',
+ imports:{name:'common.metadata-name'},inputs:{profiles:structuredClone(profilesInput)},value:{use:'name'},
+ representations:{xml:{kind:'text'},yaml:{kind:'input-text-table',input:'profiles',internal:'name',external:'pathName'}}};
+catalog.set(genericStandardPathName.id,genericStandardPathName);selected.push(genericStandardPathName);
+function bindProfileUse(value,alias) {
+ if(Array.isArray(value)){for(const item of value)bindProfileUse(item,alias);return;}
+ if(!value || typeof value!=='object')return;
+ if(value.use===alias)value.bind={...(value.bind??{}),profiles:{input:'profiles'}};
+ for(const child of Object.values(value))bindProfileUse(child,alias);
+}
+function contextualStandardModule(sourceId,targetId,dependencySource,dependencyTarget) {
+ const module=structuredClone(catalog.get(sourceId));
+ if(!module)throw new Error(`Missing standard path dependency: ${sourceId}`);
+ module.id=targetId;
+ module.inputs={...(module.inputs??{}),profiles:structuredClone(profilesInput)};
+ const alias=Object.entries(module.imports??{}).find(([,target])=>target===dependencySource)?.[0];
+ if(!alias)throw new Error(`Missing standard path import: ${sourceId} -> ${dependencySource}`);
+ module.imports[alias]=dependencyTarget;
+ bindProfileUse(module,alias);
+ if(sourceId==='common.type-link'){
+   delete module.parameters;
+   for(const field of module.value.fields)if(field.name==='path')field.type.with.typedXML=false;
+ }
+ catalog.set(module.id,module);selected.push(module);
+ return module;
+}
+let contextualStandardPath=genericStandardPathName;
+let contextualStandardSource='common.standard-attribute-name';
+for(const [sourceId,suffix] of [
+ ['common.metadata-standard-field-segment','standard-segment'],
+ ['common.metadata-field-segment','segment'],
+ ['common.metadata-field-segments','segments'],
+ ['common.metadata-field-chain-path','chain'],
+ ['common.open-metadata-field-path','open'],
+ ['common.type-link-path','type-link'],
+ ['common.type-link','link'],
+]){
+ contextualStandardPath=contextualStandardModule(sourceId,`contract.generic-standard-${suffix}`,
+  contextualStandardSource,contextualStandardPath.id);
+ contextualStandardSource=sourceId;
+}
+const literalTypedPath={format:'nkdk-declarations/1',kind:'value',id:'contract.literal-typed-data-path',
+ namespaces:{xsi:'http://www.w3.org/2001/XMLSchema-instance',xs:'http://www.w3.org/2001/XMLSchema'},
+ value:{kind:'scalar',scalar:'text',pattern:'.+'},
+ representations:{xml:{kind:'with-attributes',attributes:[{name:'xsi:type',value:{qname:'xs:string'}}],content:{kind:'text'}},yaml:{kind:'scalar',scalar:'text'}}};
+catalog.set(literalTypedPath.id,literalTypedPath);selected.push(literalTypedPath);
+const literalChoiceLink=structuredClone(catalog.get('common.choice-parameter-link'));
+literalChoiceLink.id='contract.literal-choice-parameter-link';
+const literalPathAlias=Object.entries(literalChoiceLink.imports).find(([,target])=>target==='common.type-link-path')?.[0];
+if(!literalPathAlias)throw new Error('Missing choice parameter data path import');
+literalChoiceLink.imports[literalPathAlias]=literalTypedPath.id;
+delete literalChoiceLink.value.fields.find(field=>field.name==='dataPath').type.with;
+catalog.set(literalChoiceLink.id,literalChoiceLink);selected.push(literalChoiceLink);
+const literalChoiceLinks=structuredClone(catalog.get('common.choice-parameter-links'));
+literalChoiceLinks.id='contract.literal-choice-parameter-links';
+const literalItemAlias=Object.entries(literalChoiceLinks.imports).find(([,target])=>target==='common.choice-parameter-link')?.[0];
+literalChoiceLinks.imports[literalItemAlias]=literalChoiceLink.id;
+catalog.set(literalChoiceLinks.id,literalChoiceLinks);selected.push(literalChoiceLinks);
 const standardSourceEntry=manifest.entries.find(entry=>entry.symbol==='StandardAttributeDescriptionRules');
 if(!standardSourceEntry || standardSourceEntry.properties.length!==27)throw new Error('Changed complete standard attribute source');
 function completeStandardDeclaration(prefix,namedItem){
@@ -503,8 +600,39 @@ completeStandardOwner.value.fields[0].type.bind=Object.fromEntries(Object.keys(c
 for(const module of [completeStandardFragment,completeStandardItem,completeStandardList,completeStandardOwner]){catalog.set(module.id,module);selected.push(module);}
 return {item:completeStandardItem,list:completeStandardList,owner:completeStandardOwner};
 }
+const linkByTypeProjection=standardSourceEntry.projections.find(row=>row.fields.length===1&&row.fields[0]==='linkByType');
+const linkByTypeFragment=structuredClone(catalog.get(linkByTypeProjection?.fragments[0]));
+if(!linkByTypeFragment)throw new Error('Missing complete linkByType fragment');
+linkByTypeFragment.id='contract.generic-standard-link-by-type-fragment';
+linkByTypeFragment.inputs={...(linkByTypeFragment.inputs??{}),profiles:structuredClone(profilesInput)};
+const linkByTypeAlias=Object.entries(linkByTypeFragment.imports??{}).find(([,target])=>target==='common.type-link')?.[0];
+if(!linkByTypeAlias)throw new Error('Missing linkByType declaration import');
+linkByTypeFragment.imports[linkByTypeAlias]=contextualStandardPath.id;
+bindProfileUse(linkByTypeFragment,linkByTypeAlias);
+catalog.set(linkByTypeFragment.id,linkByTypeFragment);selected.push(linkByTypeFragment);
+const choiceLinksProjection=standardSourceEntry.projections.find(row=>row.fields.length===1&&row.fields[0]==='choiceParameterLinks');
+const literalChoiceLinksFragment=structuredClone(catalog.get(choiceLinksProjection?.fragments[0]));
+if(!literalChoiceLinksFragment)throw new Error('Missing complete choiceParameterLinks fragment');
+literalChoiceLinksFragment.id='contract.literal-choice-parameter-links-fragment';
+const literalLinksAlias=Object.entries(literalChoiceLinksFragment.imports??{}).find(([,target])=>target==='common.choice-parameter-links')?.[0];
+literalChoiceLinksFragment.imports[literalLinksAlias]=literalChoiceLinks.id;
+catalog.set(literalChoiceLinksFragment.id,literalChoiceLinksFragment);selected.push(literalChoiceLinksFragment);
 const {owner:completeStandardOwner}=completeStandardDeclaration('contract.standard-complete','contract.standard-fill-named-item');
 const {owner:completeDocumentStandardOwner}=completeStandardDeclaration('contract.document-standard-complete','contract.document-standard-fill-named-item');
+const {item:completeGenericStandardItem,list:completeGenericStandardList,owner:completeGenericStandardOwner}=completeStandardDeclaration('contract.generic-standard-complete',genericStandardFillItem.id);
+for(const module of [completeGenericStandardItem,completeGenericStandardList,completeGenericStandardOwner]){
+ const profiles=module.inputs.profiles;
+ module.inputs={profiles,...Object.fromEntries(Object.entries(module.inputs).filter(([name])=>name!=='profiles'))};
+}
+for(const [alias,target] of Object.entries(completeGenericStandardItem.imports))if(target===linkByTypeProjection.fragments[0]){
+ completeGenericStandardItem.imports[alias]=linkByTypeFragment.id;
+ const composition=completeGenericStandardItem.compose.find(part=>part.use===alias);
+ composition.bind.profiles={input:'profiles'};
+}
+for(const [alias,target] of Object.entries(completeGenericStandardItem.imports))if(target===choiceLinksProjection.fragments[0]){
+ completeGenericStandardItem.imports[alias]=literalChoiceLinksFragment.id;
+}
+completeGenericStandardList.representations.yaml.keyTable={input:'profiles',internal:'name',external:'yamlName',empty:'emptyForm'};
 const namedInputs={defaultLanguage:'ru',registeredLanguages:['ru','en'],componentKind:'configuration',owners:standardOwner.inputs.owners,
  ...Object.fromEntries(standardProfile.factInputs.map(name=>[name,standardFacts[name]??'']))};
 const [completeRefFixture]=JSON.parse(execFileSync('python3',['tools/rules-migration/src/project-fixtures.py'],{input:JSON.stringify([{
@@ -567,6 +695,93 @@ cases.push({id:'standard-attribute-complete-document-collection',entry:completeD
  source:[...completeDocumentFixture.source,{path:documentStandardYAMLPath},...documentPolicyProvenance],
  adaptation:'The unchanged document e2e block checks the same complete 27-property assembly with a distinct owner policy and sparse YAML',
 });
+function genericProfileInputs(inputs,members,facts) {
+ const result=structuredClone(inputs);
+ for(const name of new Set([...standardProfile.factInputs,...documentProfile.factInputs]))delete result[name];
+ result.profiles=standardFillProfileRows(members,facts,standardRootNames);
+ return result;
+}
+cases.push({id:'standard-attribute-generic-catalog-collection',entry:completeGenericStandardOwner.id,
+ xml:completeCollectionFixture.xml,yaml:completeYAMLBlock,
+ inputs:genericProfileInputs({...namedInputs,...completeCollectionFixture.context,owners:[],ownerName:'СправочникВладелец',canonicalNames:completeCanonicalNames,elidableNames:completeCanonicalNames},standardPolicies,completeCollectionFixture.context),
+ source:[...completeCollectionFixture.source,{path:completeOwnerYAMLPath},...standardPolicyProvenance],
+ adaptation:'The generic complete declaration receives catalog member policies as data and contains no catalog-specific branches',
+});
+cases.push({id:'standard-attribute-generic-document-collection',entry:completeGenericStandardOwner.id,
+ xml:completeDocumentFixture.xml,yaml:completeDocumentYAML,
+ inputs:genericProfileInputs({defaultLanguage:'ru',registeredLanguages:['ru','en'],componentKind:'configuration',owners:[],
+   ...completeDocumentFixture.context,ownerName:'ДокументВсеСвойства',canonicalNames:completeDocumentNames,elidableNames:completeDocumentNames},documentPolicies,completeDocumentFixture.context),
+ source:[...completeDocumentFixture.source,{path:documentStandardYAMLPath},...documentPolicyProvenance],
+ adaptation:'The same generic complete declaration receives document member policies as data without recompilation',
+});
+const standardFamilies=[
+ ['task','Задача','Task','metadataTask','e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства.xml','e2e/fixtures/nkdk/cf/Задача/ЗадачаВсеСвойства/Свойства.yaml'],
+ ['information-register','РегистрСведений','InformationRegister','metadataInformationRegister','e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый.xml','e2e/fixtures/nkdk/cf/РегистрСведений/РегистрСведенийВсеСвойстваНезависимый/Свойства.yaml'],
+ ['exchange-plan','ПланОбмена','ExchangePlan','metadataExchangePlan','e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства.xml','e2e/fixtures/nkdk/cf/ПланОбмена/ПланОбменаВсеСвойства/Свойства.yaml'],
+ ['enumeration','Перечисление','Enum','metadataEnumeration','e2e/fixtures/xml/cf/Enums/ПеречислениеВсеСвойства.xml','e2e/fixtures/nkdk/cf/Перечисление/ПеречислениеВсеСвойства/Свойства.yaml'],
+ ['document-journal','ЖурналДокументов','DocumentJournal','metadataDocumentJournal','e2e/fixtures/xml/cf/DocumentJournals/ЖурналДокументовВсеСвойства.xml','e2e/fixtures/nkdk/cf/ЖурналДокументов/ЖурналДокументовВсеСвойства/Свойства.yaml'],
+ ['document','Документ','Document','metadataDocument','e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства.xml','e2e/fixtures/nkdk/cf/Документ/ДокументВсеСвойства/Свойства.yaml'],
+ ['characteristic-plan','ПланВидовХарактеристик','ChartOfCharacteristicTypes','metadataChartOfCharacteristicTypes','e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства.xml','e2e/fixtures/nkdk/cf/ПланВидовХарактеристик/ПланВидовХарактеристикВсеСвойства/Свойства.yaml'],
+ ['calculation-plan','ПланВидовРасчета','ChartOfCalculationTypes','metadataChartOfCalculationTypes','e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства.xml','e2e/fixtures/nkdk/cf/ПланВидовРасчета/ПланРасчетаВсеСвойства/Свойства.yaml'],
+ ['accounts-plan','ПланСчетов','ChartOfAccounts','metadataChartOfAccounts','e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства.xml','e2e/fixtures/nkdk/cf/ПланСчетов/ПланСчетовВсеСвойства/Свойства.yaml'],
+ ['catalog','Справочник','Catalog','metadataCatalog','e2e/fixtures/xml/cf/Catalogs/СправочникВладелец.xml','e2e/fixtures/nkdk/cf/Справочник/СправочникВладелец/Свойства.yaml'],
+ ['calculation-register','РегистрРасчета','CalculationRegister','metadataCalculationRegister','e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВсеСвойства.xml','e2e/fixtures/nkdk/cf/РегистрРасчета/РегистрРасчетаВсеСвойства/Свойства.yaml'],
+ ['business-process','БизнесПроцесс','BusinessProcess','metadataBusinessProcess','e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства.xml','e2e/fixtures/nkdk/cf/БизнесПроцесс/БизнесПроцессВсеСвойства/Свойства.yaml'],
+ ['accumulation-register','РегистрНакопления','AccumulationRegister','metadataAccumulationRegister','e2e/fixtures/xml/cf/AccumulationRegisters/РегистрНакопленияВсеСвойстваОбороты.xml','e2e/fixtures/nkdk/cf/РегистрНакопления/РегистрНакопленияВсеСвойстваОбороты/Свойства.yaml'],
+ ['accounting-register','РегистрБухгалтерии','AccountingRegister','metadataAccountingRegister','e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты.xml','e2e/fixtures/nkdk/cf/РегистрБухгалтерии/РегистрБухгалтерииВсеСвойстваОбороты/Свойства.yaml'],
+];
+const sharedStandardPolicyPaths=[
+ 'packages/runtime/metadata/standardMembers/declarations.ts',
+ 'packages/runtime/rule-kit.ts',
+ 'packages/rules/metadata/standardMembers/declarations.ts',
+];
+const standardFamilyModels=standardFamilies.map(([id,ownerKind,xmlRoot,sourceDir,xmlPath,yamlPath])=>{
+ const policyPath=`packages/rules/metadata/appliedObjects/${sourceDir}/standardMembers.ts`;
+ const policyPaths=[...sharedStandardPolicyPaths,policyPath];
+ const policySources=Object.fromEntries(policyPaths.map(path=>[path,readFileSync(path,'utf8')]));
+ const members=standardMemberPolicies(policySources,ownerKind);
+ const facts=standardFillFactRequests(members);
+ return {id,ownerKind,xmlRoot,xmlPath,yamlPath,members,facts,policyPaths};
+});
+const standardFamilyFixtures=JSON.parse(execFileSync('python3',['tools/rules-migration/src/project-fixtures.py'],{
+ input:JSON.stringify(standardFamilyModels.map(family=>({
+  xml:family.xmlPath,
+  propertySelector:`./{${mdNamespace}}${family.xmlRoot}/{${mdNamespace}}Properties/{${mdNamespace}}StandardAttributes`,
+  root:'StandardAttributes',
+  context:[
+   {name:'ownerName',selector:`./{${mdNamespace}}${family.xmlRoot}/{${mdNamespace}}Properties/{${mdNamespace}}Name`},
+   ...family.facts.map(fact=>({name:fact.name,
+    selector:fact.many
+     ? `./{${mdNamespace}}${family.xmlRoot}/{${mdNamespace}}Properties/{${mdNamespace}}${fact.xmlProperty}/{${xrNamespace}}Item`
+     : `./{${mdNamespace}}${family.xmlRoot}/{${mdNamespace}}Properties/{${mdNamespace}}${fact.xmlProperty}`,
+    ...(fact.many?{many:true}:{}),
+    optional:true,
+   })),
+  ],
+ }))),encoding:'utf8',
+}));
+function yamlStandardAttributes(path) {
+ const lines=source(path).split('\n'),start=lines.findIndex(line=>line.startsWith('СтандартныеРеквизиты:'));
+ if(start<0)throw new Error(`Missing standard attributes in ${path}`);
+ let end=start+1;
+ while(end<lines.length && (lines[end]==='' || /^\s/.test(lines[end])))end++;
+ return lines.slice(start,end).join('\n').trimEnd();
+}
+for(const [index,family] of standardFamilyModels.entries()) {
+ const fixture=standardFamilyFixtures[index];
+ const names=[...fixture.xml.matchAll(/<xr:StandardAttribute name="([^"]+)"/g)].map(match=>match[1]);
+ if(!names.length || new Set(names).size!==names.length || names.some(name=>!family.members.has(name)))throw new Error(`Changed observed member list: ${family.ownerKind}`);
+ const facts=fixture.context;
+ cases.push({id:`standard-attribute-family-${family.id}`,entry:completeGenericStandardOwner.id,
+  xml:fixture.xml,yaml:yamlStandardAttributes(family.yamlPath),
+  inputs:{defaultLanguage:'ru',registeredLanguages:['ru','en'],componentKind:'configuration',
+   owners:facts.owners??[],ownerName:facts.ownerName,canonicalNames:names,
+   elidableNames:names.filter(name=>name!=='RecordType'&&!/^ExtDimension(Type)?\d+$/.test(name)),
+   profiles:standardFillProfileRows(family.members,facts,standardRootNames)},
+  source:[...fixture.source,{path:family.yamlPath},...family.policyPaths.map(path=>({path,sha256:createHash('sha256').update(readFileSync(path)).digest('hex')}))],
+  adaptation:`The generic StandardAttributeDescription declaration accepts the complete ${family.ownerKind} family as owner policy data`,
+ });
+}
 cases.push({id:'standard-attribute-named-owner-fill-value',entry:standardFillNamedOwner.id,
  xml:`<StandardAttributes xmlns:xr="${xrNamespace}">${standardOwner.xml.replace('<xr:StandardAttribute ','<xr:StandardAttribute name="Owner" ')}</StandardAttributes>`,
  yaml:`СтандартныеРеквизиты:\n  Владелец:\n    ${standardOwner.yaml}`,
