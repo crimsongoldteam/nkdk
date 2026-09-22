@@ -5768,8 +5768,6 @@
           "en"
         ],
         "componentKind": "configuration",
-        "policy": "ownerReference",
-        "expectedKind": "reference",
         "owners": [
           "Справочник.СправочникВладелец"
         ],
@@ -5795,6 +5793,59 @@
         }
       ],
       "adaptation": "Retain the observed catalog Owner name and FillValue inside one named record; omit independent sibling fields to verify composition with the reusable FillValue declaration"
+    },
+    {
+      "id": "standard-attribute-named-mixed-fill-values",
+      "entry": "contract.standard-fill-named-owner",
+      "xml": "<StandardAttributes xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:StandardAttribute name=\"Owner\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"xr:DesignTimeRef\">Catalog.СправочникВладелец.ПредопределенноеЗначение</xr:FillValue></xr:StandardAttribute><xr:StandardAttribute name=\"Parent\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:FillValue xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"xr:DesignTimeRef\">Catalog.СправочникПолный.EmptyRef</xr:FillValue></xr:StandardAttribute></StandardAttributes>",
+      "yaml": "СтандартныеРеквизиты:\n  Владелец:\n    ЗначениеЗаполнения: Справочник.СправочникВладелец.ПредопределенноеЗначение\n  Родитель:\n    ЗначениеЗаполнения: Справочник.СправочникПолный.ПустаяСсылка",
+      "inputs": {
+        "defaultLanguage": "ru",
+        "registeredLanguages": [
+          "ru",
+          "en"
+        ],
+        "componentKind": "configuration",
+        "owners": [
+          "Справочник.СправочникВладелец"
+        ],
+        "maxTextLength": "",
+        "maxNumberDigits": "",
+        "allowedTextLength": ""
+      },
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+          "sha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml"
+        },
+        {
+          "path": "packages/runtime/metadata/standardMembers/declarations.ts",
+          "sha256": "2724c5601da49b674ed29613ab2735db757c9027dee2e50eadf833c288cc95b3"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataCatalog/standardMembers.ts",
+          "sha256": "6bd24d47b6a0cda3a4bcae103220cb2a0207de3275f29807163da86b47e9ca4c"
+        },
+        {
+          "path": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+          "sha256": "27231ddedad3d68c1c8aa071d611c32f94681c7bc94d6533b22ee9409b0217dd"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml"
+        },
+        {
+          "path": "packages/runtime/metadata/standardMembers/declarations.ts",
+          "sha256": "2724c5601da49b674ed29613ab2735db757c9027dee2e50eadf833c288cc95b3"
+        },
+        {
+          "path": "packages/rules/metadata/appliedObjects/metadataCatalog/standardMembers.ts",
+          "sha256": "6bd24d47b6a0cda3a4bcae103220cb2a0207de3275f29807163da86b47e9ca4c"
+        }
+      ],
+      "adaptation": "Two observed members in one named collection have different FillValue policies; each row must use its own declaration-derived policy"
     },
     {
       "id": "fill-value-standard-owner-implicit",

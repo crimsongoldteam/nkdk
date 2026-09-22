@@ -30,14 +30,6 @@ inputs:
     type:
       kind: scalar
       scalar: text
-  policy:
-    type:
-      kind: scalar
-      scalar: text
-  expectedKind:
-    type:
-      kind: scalar
-      scalar: text
   maxTextLength:
     type:
       kind: scalar
@@ -68,6 +60,14 @@ value:
             input: registeredLanguages
           onlyStringType:
             literal: false
+    - name: policy
+      type:
+        kind: scalar
+        scalar: text
+    - name: expectedKind
+      type:
+        kind: scalar
+        scalar: text
 representations:
   xml:
     kind: record
@@ -108,7 +108,7 @@ presence:
           if:
             and:
               - eq:
-                  - input: policy
+                  - field: policy
                   - literal: ownerReference
               - eq:
                   - input: componentKind
@@ -139,6 +139,54 @@ presence:
                   literal: ''
           else:
             absent: true
+  - target:
+      field: policy
+    xml:
+      missing:
+        denotes:
+          if:
+            eq:
+              - field: name
+              - literal: Owner
+          then:
+            literal: ownerReference
+          else:
+            literal: notSpecified
+    yaml:
+      missing:
+        denotes:
+          if:
+            eq:
+              - field: name
+              - literal: Owner
+          then:
+            literal: ownerReference
+          else:
+            literal: notSpecified
+  - target:
+      field: expectedKind
+    xml:
+      missing:
+        denotes:
+          if:
+            eq:
+              - field: name
+              - literal: Owner
+          then:
+            literal: reference
+          else:
+            literal: ''
+    yaml:
+      missing:
+        denotes:
+          if:
+            eq:
+              - field: name
+              - literal: Owner
+          then:
+            literal: reference
+          else:
+            literal: ''
 constraints:
   - id: forbidden-value
     appliesTo:
@@ -146,7 +194,7 @@ constraints:
       - yaml-validation
     when:
       eq:
-        - input: policy
+        - field: policy
         - literal: forbidden
     assert:
       not:
@@ -168,13 +216,13 @@ constraints:
             field: value
         - not:
             eq:
-              - input: expectedKind
+              - field: expectedKind
               - literal: ''
     assert:
       or:
         - and:
             - eq:
-                - input: expectedKind
+                - field: expectedKind
                 - literal: text
             - isVariant:
                 value:
@@ -182,7 +230,7 @@ constraints:
                 variant: text
         - and:
             - eq:
-                - input: expectedKind
+                - field: expectedKind
                 - literal: decimal
             - isVariant:
                 value:
@@ -190,7 +238,7 @@ constraints:
                 variant: decimal
         - and:
             - eq:
-                - input: expectedKind
+                - field: expectedKind
                 - literal: boolean
             - isVariant:
                 value:
@@ -198,7 +246,7 @@ constraints:
                 variant: boolean
         - and:
             - eq:
-                - input: expectedKind
+                - field: expectedKind
                 - literal: calendar
             - isVariant:
                 value:
@@ -206,7 +254,7 @@ constraints:
                 variant: calendar
         - and:
             - eq:
-                - input: expectedKind
+                - field: expectedKind
                 - literal: reference
             - isVariant:
                 value:
@@ -225,7 +273,7 @@ constraints:
     when:
       and:
         - eq:
-            - input: policy
+            - field: policy
             - literal: ownerReference
         - isVariant:
             value:
@@ -280,7 +328,7 @@ constraints:
     when:
       and:
         - eq:
-            - input: expectedKind
+            - field: expectedKind
             - literal: text
         - isVariant:
             value:
@@ -316,7 +364,7 @@ constraints:
     when:
       and:
         - eq:
-            - input: expectedKind
+            - field: expectedKind
             - literal: text
         - isVariant:
             value:
@@ -353,7 +401,7 @@ constraints:
     when:
       and:
         - eq:
-            - input: expectedKind
+            - field: expectedKind
             - literal: decimal
         - isVariant:
             value:

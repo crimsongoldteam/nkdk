@@ -18,10 +18,6 @@ value:
         input: owners
       componentKind:
         input: componentKind
-      policy:
-        input: policy
-      expectedKind:
-        input: expectedKind
       maxTextLength:
         input: maxTextLength
       allowedTextLength:
@@ -54,14 +50,6 @@ inputs:
         kind: scalar
         scalar: text
   componentKind:
-    type:
-      kind: scalar
-      scalar: text
-  policy:
-    type:
-      kind: scalar
-      scalar: text
-  expectedKind:
     type:
       kind: scalar
       scalar: text

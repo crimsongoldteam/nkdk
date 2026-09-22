@@ -378,14 +378,36 @@ cases.push({id:'standard-attribute-translated-mapping-keys',entry:standardNames.
 const standardFillNamedItem=structuredClone(standardFillProfile);
 standardFillNamedItem.id='contract.standard-fill-named-item';
 standardFillNamedItem.kind='value';
+delete standardFillNamedItem.inputs.policy;
+delete standardFillNamedItem.inputs.expectedKind;
+if(standardPolicies.get('Owner')?.fillValue?.policy!=='ownerReference' ||
+   (standardPolicies.get('Parent')?.fillValue?.policy??'notSpecified')!=='notSpecified'){
+ throw new Error('Changed independent standard Owner/Parent FillValue policies');
+}
 for(const field of standardFillNamedItem.representations.xml.fields){
  if(field.path[0]!=='xr:StandardAttribute')throw new Error('Changed standard FillValue boundary');
  field.path=field.path.slice(1);
 }
 standardFillNamedItem.imports.name='common.standard-attribute-name';
 standardFillNamedItem.value.fields.unshift({name:'name',type:{use:'name'}});
+for(const field of ['policy','expectedKind'])standardFillNamedItem.value.fields.push({name:field,type:{kind:'scalar',scalar:'text'}});
 standardFillNamedItem.representations.xml.fields.unshift({field:'name',path:[],attribute:'name'});
 standardFillNamedItem.representations.yaml.fields.unshift({field:'name',key:'Имя'});
+const ownerName={eq:[{field:'name'},{literal:'Owner'}]};
+for(const [field,otherwise] of [['policy','notSpecified'],['expectedKind','']]){
+ const denotes={if:ownerName,then:{literal:field==='policy'?standardPolicies.get('Owner').fillValue.policy:'reference'},else:{literal:otherwise}};
+ standardFillNamedItem.presence.push({target:{field},xml:{missing:{denotes:structuredClone(denotes)}},yaml:{missing:{denotes:structuredClone(denotes)}}});
+}
+function useRowProfile(value){
+ if(Array.isArray(value))return value.map(useRowProfile);
+ if(value && typeof value==='object'){
+   if((value.input==='policy' || value.input==='expectedKind') && Object.keys(value).length===1)return {field:value.input};
+   return Object.fromEntries(Object.entries(value).map(([key,item])=>[key,useRowProfile(item)]));
+ }
+ return value;
+}
+standardFillNamedItem.constraints=useRowProfile(standardFillNamedItem.constraints);
+standardFillNamedItem.presence[0]=useRowProfile(standardFillNamedItem.presence[0]);
 const standardFillNamedList={...structuredClone(standardNameList),id:'contract.standard-fill-named-list',
  imports:{item:standardFillNamedItem.id},inputs:structuredClone(standardFillNamedItem.inputs)};
 standardFillNamedList.value.item.bind=Object.fromEntries(Object.keys(standardFillNamedItem.inputs).map(name=>[name,{input:name}]));
@@ -393,11 +415,21 @@ const standardFillNamedOwner={...structuredClone(standardNames),id:'contract.sta
  imports:{items:standardFillNamedList.id},inputs:structuredClone(standardFillNamedItem.inputs)};
 standardFillNamedOwner.value.fields[0].type.bind=Object.fromEntries(Object.keys(standardFillNamedItem.inputs).map(name=>[name,{input:name}]));
 for(const module of [standardFillNamedItem,standardFillNamedList,standardFillNamedOwner]){catalog.set(module.id,module);selected.push(module);}
+const namedInputs=Object.fromEntries(Object.entries(standardOwner.inputs).filter(([name])=>name!=='policy' && name!=='expectedKind'));
 cases.push({id:'standard-attribute-named-owner-fill-value',entry:standardFillNamedOwner.id,
  xml:`<StandardAttributes xmlns:xr="${xrNamespace}">${standardOwner.xml.replace('<xr:StandardAttribute ','<xr:StandardAttribute name="Owner" ')}</StandardAttributes>`,
  yaml:`СтандартныеРеквизиты:\n  Владелец:\n    ${standardOwner.yaml}`,
- inputs:standardOwner.inputs,source:standardOwner.source,
+ inputs:namedInputs,source:standardOwner.source,
  adaptation:'Retain the observed catalog Owner name and FillValue inside one named record; omit independent sibling fields to verify composition with the reusable FillValue declaration',
+});
+const standardParent=cases.find(row=>row.id==='fill-value-standard-parent');
+cases.push({id:'standard-attribute-named-mixed-fill-values',entry:standardFillNamedOwner.id,
+ xml:`<StandardAttributes xmlns:xr="${xrNamespace}">${[
+   ['Owner',standardOwner],['Parent',standardParent],
+ ].map(([name,row])=>row.xml.replace('<xr:StandardAttribute ',`<xr:StandardAttribute name="${name}" `)).join('')}</StandardAttributes>`,
+ yaml:`СтандартныеРеквизиты:\n  Владелец:\n    ${standardOwner.yaml}\n  Родитель:\n    ${standardParent.yaml}`,
+ inputs:namedInputs,source:[...standardOwner.source,...standardParent.source],
+ adaptation:'Two observed members in one named collection have different FillValue policies; each row must use its own declaration-derived policy',
 });
 const standardDefaultSource='packages/rules/metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.integration.test.ts';
 if(!source(standardDefaultSource).includes('Catalog.СправочникВладелец.EmptyRef'))throw new Error('Changed independent standard Owner default');
