@@ -1,0 +1,11 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.owner-metadata-fields
+imports: {fields: common.owner-metadata-fields, root: common.path-root}
+inputs:
+  ownerRoot: {type: {use: root}}
+  ownerName: {type: {kind: scalar, scalar: text}}
+value: {kind: record, fields: [{name: fields, type: {use: fields, bind: {ownerRoot: {input: ownerRoot}, ownerName: {input: ownerName}}}}]}
+representations:
+  xml: {kind: record, fields: [{field: fields, path: [Root, DataLockFields]}]}
+  yaml: {kind: mapping, fields: [{field: fields, key: ПоляБлокировкиДанных}]}

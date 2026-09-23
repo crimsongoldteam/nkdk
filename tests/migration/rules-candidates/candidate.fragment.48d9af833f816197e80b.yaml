@@ -5,22 +5,25 @@ imports:
   value1: common.i8n-text
   value2: common.string
   value3: common.boolean
-  value4: system.EditType
-  value5: system.CreateOnInput
-  value6: system.SearchStringModeOnInputByString
-  value7: system.ChoiceDataGetModeOnInputByString
-  value8: system.FullTextSearchOnInputByString
   inputType1f8ea46361ff: common.path-root
-  value10: common.owner-or-common-form-link
-  value11: system.ChoiceHistoryOnInput
-  value12: system.BusinessProcessNumberType
-  value13: system.AllowedLength
   inputType00917033b468: common.path-object-kind
-  value15: common.based-on-links
-  value16: system.BusinessProcessNumberPeriodicity
-  value17: system.DefaultDataLockControlMode
-  value18: system.UseFullTextSearch
-  value19: system.DataHistoryUse
+  value6: common.based-on-links
+  value7: common.exact-decimal
+  value8: system.CharOfAccountCodeSeries
+  value9: system.AccountMainPresentation
+  value10: system.PredefinedDataUpdate
+  value11: system.EditType
+  value12: system.ChoiceMode
+  value13: system.SearchStringModeOnInputByString
+  value14: system.FullTextSearchOnInputByString
+  value15: system.ChoiceDataGetModeOnInputByString
+  value16: system.CreateOnInput
+  value17: system.ChoiceHistoryOnInput
+  value18: common.owner-or-common-form-link
+  value19: common.metadata-fields
+  value20: system.DefaultDataLockControlMode
+  value21: system.UseFullTextSearch
+  value22: system.DataHistoryUse
 value:
   kind: record
   fields:
@@ -45,24 +48,71 @@ value:
     - name: useStandardCommands
       type:
         use: value3
-    - name: editType
+    - name: includeHelpInContents
       type:
-        use: value4
-    - name: createOnInput
-      type:
-        use: value5
-    - name: searchStringModeOnInputByString
+        use: value3
+    - name: basedOn
       type:
         use: value6
-    - name: choiceDataGetModeOnInputByString
+        bind:
+          roots:
+            input: roots
+          children:
+            input: children
+    - name: extDimensionTypes
+      type:
+        use: value2
+    - name: maxExtDimensionCount
       type:
         use: value7
-    - name: fullTextSearchOnInputByString
+    - name: codeMask
+      type:
+        use: value2
+    - name: codeLength
+      type:
+        use: value7
+    - name: descriptionLength
+      type:
+        use: value7
+    - name: codeSeries
       type:
         use: value8
-    - name: defaultObjectForm
+    - name: checkUnique
+      type:
+        use: value3
+    - name: defaultPresentation
+      type:
+        use: value9
+    - name: predefinedDataUpdate
       type:
         use: value10
+    - name: editType
+      type:
+        use: value11
+    - name: quickChoice
+      type:
+        use: value3
+    - name: choiceMode
+      type:
+        use: value12
+    - name: searchStringModeOnInputByString
+      type:
+        use: value13
+    - name: fullTextSearchOnInputByString
+      type:
+        use: value14
+    - name: choiceDataGetModeOnInputByString
+      type:
+        use: value15
+    - name: createOnInput
+      type:
+        use: value16
+    - name: choiceHistoryOnInput
+      type:
+        use: value17
+    - name: defaultObjectForm
+      type:
+        use: value18
         bind:
           owner:
             input: owner
@@ -72,7 +122,7 @@ value:
             input: roots
     - name: defaultListForm
       type:
-        use: value10
+        use: value18
         bind:
           owner:
             input: owner
@@ -82,7 +132,7 @@ value:
             input: roots
     - name: defaultChoiceForm
       type:
-        use: value10
+        use: value18
         bind:
           owner:
             input: owner
@@ -92,7 +142,7 @@ value:
             input: roots
     - name: auxiliaryObjectForm
       type:
-        use: value10
+        use: value18
         bind:
           owner:
             input: owner
@@ -102,7 +152,7 @@ value:
             input: roots
     - name: auxiliaryListForm
       type:
-        use: value10
+        use: value18
         bind:
           owner:
             input: owner
@@ -112,7 +162,7 @@ value:
             input: roots
     - name: auxiliaryChoiceForm
       type:
-        use: value10
+        use: value18
         bind:
           owner:
             input: owner
@@ -120,41 +170,31 @@ value:
             input: forms
           roots:
             input: roots
-    - name: choiceHistoryOnInput
-      type:
-        use: value11
-    - name: numberType
-      type:
-        use: value12
-    - name: numberAllowedLength
-      type:
-        use: value13
-    - name: autonumbering
+    - name: autoOrderByCode
       type:
         use: value3
-    - name: basedOn
+    - name: orderLength
       type:
-        use: value15
-        bind:
-          roots:
-            input: roots
-          children:
-            input: children
-    - name: numberPeriodicity
+        use: value7
+    - name: dataLockFields
       type:
-        use: value16
-    - name: createTaskInPrivilegedMode
-      type:
-        use: value3
+        use: value19
+        bind: {}
     - name: dataLockControlMode
       type:
-        use: value17
-    - name: includeHelpInContents
-      type:
-        use: value3
+        use: value20
     - name: fullTextSearch
       type:
-        use: value18
+        use: value21
+    - name: dataHistory
+      type:
+        use: value22
+    - name: updateDataHistoryImmediatelyAfterWrite
+      type:
+        use: value3
+    - name: executeAfterWriteDataHistoryVersionProcessing
+      type:
+        use: value3
     - name: objectPresentation
       type:
         use: value1
@@ -205,15 +245,6 @@ value:
             input: registeredLanguages
           ownerName:
             input: ownerName
-    - name: dataHistory
-      type:
-        use: value19
-    - name: updateDataHistoryImmediatelyAfterWrite
-      type:
-        use: value3
-    - name: executeAfterWriteDataHistoryVersionProcessing
-      type:
-        use: value3
 representations:
   xml:
     kind: record
@@ -234,26 +265,82 @@ representations:
         path:
           - Properties
           - UseStandardCommands
+      - field: includeHelpInContents
+        path:
+          - Properties
+          - IncludeHelpInContents
+      - field: basedOn
+        path:
+          - Properties
+          - BasedOn
+      - field: extDimensionTypes
+        path:
+          - Properties
+          - ExtDimensionTypes
+      - field: maxExtDimensionCount
+        path:
+          - Properties
+          - MaxExtDimensionCount
+      - field: codeMask
+        path:
+          - Properties
+          - CodeMask
+      - field: codeLength
+        path:
+          - Properties
+          - CodeLength
+      - field: descriptionLength
+        path:
+          - Properties
+          - DescriptionLength
+      - field: codeSeries
+        path:
+          - Properties
+          - CodeSeries
+      - field: checkUnique
+        path:
+          - Properties
+          - CheckUnique
+      - field: defaultPresentation
+        path:
+          - Properties
+          - DefaultPresentation
+      - field: predefinedDataUpdate
+        path:
+          - Properties
+          - PredefinedDataUpdate
       - field: editType
         path:
           - Properties
           - EditType
-      - field: createOnInput
+      - field: quickChoice
         path:
           - Properties
-          - CreateOnInput
+          - QuickChoice
+      - field: choiceMode
+        path:
+          - Properties
+          - ChoiceMode
       - field: searchStringModeOnInputByString
         path:
           - Properties
           - SearchStringModeOnInputByString
-      - field: choiceDataGetModeOnInputByString
-        path:
-          - Properties
-          - ChoiceDataGetModeOnInputByString
       - field: fullTextSearchOnInputByString
         path:
           - Properties
           - FullTextSearchOnInputByString
+      - field: choiceDataGetModeOnInputByString
+        path:
+          - Properties
+          - ChoiceDataGetModeOnInputByString
+      - field: createOnInput
+        path:
+          - Properties
+          - CreateOnInput
+      - field: choiceHistoryOnInput
+        path:
+          - Properties
+          - ChoiceHistoryOnInput
       - field: defaultObjectForm
         path:
           - Properties
@@ -278,46 +365,38 @@ representations:
         path:
           - Properties
           - AuxiliaryChoiceForm
-      - field: choiceHistoryOnInput
+      - field: autoOrderByCode
         path:
           - Properties
-          - ChoiceHistoryOnInput
-      - field: numberType
+          - AutoOrderByCode
+      - field: orderLength
         path:
           - Properties
-          - NumberType
-      - field: numberAllowedLength
+          - OrderLength
+      - field: dataLockFields
         path:
           - Properties
-          - NumberAllowedLength
-      - field: autonumbering
-        path:
-          - Properties
-          - Autonumbering
-      - field: basedOn
-        path:
-          - Properties
-          - BasedOn
-      - field: numberPeriodicity
-        path:
-          - Properties
-          - NumberPeriodicity
-      - field: createTaskInPrivilegedMode
-        path:
-          - Properties
-          - CreateTaskInPrivilegedMode
+          - DataLockFields
       - field: dataLockControlMode
         path:
           - Properties
           - DataLockControlMode
-      - field: includeHelpInContents
-        path:
-          - Properties
-          - IncludeHelpInContents
       - field: fullTextSearch
         path:
           - Properties
           - FullTextSearch
+      - field: dataHistory
+        path:
+          - Properties
+          - DataHistory
+      - field: updateDataHistoryImmediatelyAfterWrite
+        path:
+          - Properties
+          - UpdateDataHistoryImmediatelyAfterWrite
+      - field: executeAfterWriteDataHistoryVersionProcessing
+        path:
+          - Properties
+          - ExecuteAfterWriteDataHistoryVersionProcessing
       - field: objectPresentation
         path:
           - Properties
@@ -338,18 +417,6 @@ representations:
         path:
           - Properties
           - Explanation
-      - field: dataHistory
-        path:
-          - Properties
-          - DataHistory
-      - field: updateDataHistoryImmediatelyAfterWrite
-        path:
-          - Properties
-          - UpdateDataHistoryImmediatelyAfterWrite
-      - field: executeAfterWriteDataHistoryVersionProcessing
-        path:
-          - Properties
-          - ExecuteAfterWriteDataHistoryVersionProcessing
   yaml:
     kind: mapping
     fields:
@@ -359,16 +426,44 @@ representations:
         key: Комментарий
       - field: useStandardCommands
         key: ИспользоватьСтандартныеКоманды
+      - field: includeHelpInContents
+        key: ВключатьСправкуВСодержание
+      - field: basedOn
+        key: ВводитсяНаОсновании
+      - field: extDimensionTypes
+        key: ВидыСубконто
+      - field: maxExtDimensionCount
+        key: МаксКоличествоСубконто
+      - field: codeMask
+        key: МаскаКода
+      - field: codeLength
+        key: ДлинаКода
+      - field: descriptionLength
+        key: ДлинаНаименования
+      - field: codeSeries
+        key: СерииКодов
+      - field: checkUnique
+        key: КонтрольУникальности
+      - field: defaultPresentation
+        key: ОсновноеПредставление
+      - field: predefinedDataUpdate
+        key: ОбновлениеПредопределенныхДанных
       - field: editType
         key: СпособРедактирования
-      - field: createOnInput
-        key: СозданиеПриВводе
+      - field: quickChoice
+        key: БыстрыйВыбор
+      - field: choiceMode
+        key: РежимВыбора
       - field: searchStringModeOnInputByString
         key: РежимСтрокиПоискаПриВводеПоСтроке
-      - field: choiceDataGetModeOnInputByString
-        key: РежимПолученияДанныхВыбораПриВводеПоСтроке
       - field: fullTextSearchOnInputByString
         key: ПолнотекстовыйПоискПриВводеПоСтроке
+      - field: choiceDataGetModeOnInputByString
+        key: РежимПолученияДанныхВыбораПриВводеПоСтроке
+      - field: createOnInput
+        key: СозданиеПриВводе
+      - field: choiceHistoryOnInput
+        key: ИсторияВыбораПриВводе
       - field: defaultObjectForm
         key: ОсновнаяФормаОбъекта
       - field: defaultListForm
@@ -381,26 +476,22 @@ representations:
         key: ДополнительнаяФормаСписка
       - field: auxiliaryChoiceForm
         key: ДополнительнаяФормаВыбора
-      - field: choiceHistoryOnInput
-        key: ИсторияВыбораПриВводе
-      - field: numberType
-        key: ТипНомера
-      - field: numberAllowedLength
-        key: ДопустимаяДлинаНомера
-      - field: autonumbering
-        key: Автонумерация
-      - field: basedOn
-        key: ВводитсяНаОсновании
-      - field: numberPeriodicity
-        key: ПериодичностьНомера
-      - field: createTaskInPrivilegedMode
-        key: ПривилегированныйРежимПриСозданииЗадач
+      - field: autoOrderByCode
+        key: АвтоПорядокПоКоду
+      - field: orderLength
+        key: ДлинаПорядка
+      - field: dataLockFields
+        key: ПоляБлокировкиДанных
       - field: dataLockControlMode
         key: РежимУправленияБлокировкойДанных
-      - field: includeHelpInContents
-        key: ВключатьСправкуВСодержание
       - field: fullTextSearch
         key: ПолнотекстовыйПоиск
+      - field: dataHistory
+        key: ИсторияДанных
+      - field: updateDataHistoryImmediatelyAfterWrite
+        key: ОбновлятьИсториюДанныхСразуПослеЗаписи
+      - field: executeAfterWriteDataHistoryVersionProcessing
+        key: ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных
       - field: objectPresentation
         key: ПредставлениеОбъекта
       - field: extendedObjectPresentation
@@ -411,12 +502,6 @@ representations:
         key: РасширенноеПредставлениеСписка
       - field: explanation
         key: Пояснение
-      - field: dataHistory
-        key: ИсторияДанных
-      - field: updateDataHistoryImmediatelyAfterWrite
-        key: ОбновлятьИсториюДанныхСразуПослеЗаписи
-      - field: executeAfterWriteDataHistoryVersionProcessing
-        key: ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных
 presence:
   - target:
       field: objectBelonging
@@ -464,6 +549,96 @@ presence:
       default:
         literal: true
   - target:
+      field: includeHelpInContents
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+  - target:
+      field: extDimensionTypes
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: ''
+  - target:
+      field: maxExtDimensionCount
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: 0
+  - target:
+      field: codeMask
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: ''
+  - target:
+      field: codeLength
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: 9
+  - target:
+      field: descriptionLength
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: 25
+  - target:
+      field: codeSeries
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: WholeChartOfAccounts
+  - target:
+      field: checkUnique
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: true
+  - target:
+      field: defaultPresentation
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: AsCode
+  - target:
+      field: predefinedDataUpdate
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Auto
+  - target:
       field: editType
     xml:
       missing:
@@ -473,14 +648,23 @@ presence:
       default:
         literal: InDialog
   - target:
-      field: createOnInput
+      field: quickChoice
     xml:
       missing:
         denotes:
           absent: true
     yaml:
       default:
-        literal: DontUse
+        literal: false
+  - target:
+      field: choiceMode
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: BothWays
   - target:
       field: searchStringModeOnInputByString
     xml:
@@ -491,6 +675,15 @@ presence:
       default:
         literal: Begin
   - target:
+      field: fullTextSearchOnInputByString
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: DontUse
+  - target:
       field: choiceDataGetModeOnInputByString
     xml:
       missing:
@@ -500,7 +693,7 @@ presence:
       default:
         literal: Directly
   - target:
-      field: fullTextSearchOnInputByString
+      field: createOnInput
     xml:
       missing:
         denotes:
@@ -508,6 +701,15 @@ presence:
     yaml:
       default:
         literal: DontUse
+  - target:
+      field: choiceHistoryOnInput
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Auto
   - target:
       field: defaultObjectForm
     xml:
@@ -629,59 +831,43 @@ presence:
         denotes:
           absent: true
   - target:
-      field: choiceHistoryOnInput
+      field: autoOrderByCode
     xml:
       missing:
         denotes:
           absent: true
     yaml:
       default:
-        literal: Auto
+        literal: false
   - target:
-      field: numberType
+      field: orderLength
     xml:
       missing:
         denotes:
           absent: true
     yaml:
       default:
-        literal: String
+        literal: 0
   - target:
-      field: numberAllowedLength
+      field: dataLockFields
     xml:
       missing:
         denotes:
           absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: dataLockFields
+          form: empty-element
     yaml:
-      default:
-        literal: Variable
-  - target:
-      field: autonumbering
-    xml:
       missing:
         denotes:
           absent: true
-    yaml:
-      default:
-        literal: true
-  - target:
-      field: numberPeriodicity
-    xml:
-      missing:
-        denotes:
-          absent: true
-    yaml:
-      default:
-        literal: Nonperiodical
-  - target:
-      field: createTaskInPrivilegedMode
-    xml:
-      missing:
-        denotes:
-          absent: true
-    yaml:
-      default:
-        literal: true
   - target:
       field: dataLockControlMode
     xml:
@@ -692,15 +878,6 @@ presence:
       default:
         literal: Managed
   - target:
-      field: includeHelpInContents
-    xml:
-      missing:
-        denotes:
-          absent: true
-    yaml:
-      default:
-        literal: false
-  - target:
       field: fullTextSearch
     xml:
       missing:
@@ -709,6 +886,33 @@ presence:
     yaml:
       default:
         literal: Use
+  - target:
+      field: dataHistory
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: DontUse
+  - target:
+      field: updateDataHistoryImmediatelyAfterWrite
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+  - target:
+      field: executeAfterWriteDataHistoryVersionProcessing
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
   - target:
       field: objectPresentation
     xml:
@@ -769,33 +973,75 @@ presence:
               present:
                 field: explanation
           form: empty-element
-  - target:
-      field: dataHistory
-    xml:
-      missing:
-        denotes:
-          absent: true
-    yaml:
-      default:
-        literal: DontUse
-  - target:
-      field: updateDataHistoryImmediatelyAfterWrite
-    xml:
-      missing:
-        denotes:
-          absent: true
-    yaml:
-      default:
-        literal: false
-  - target:
-      field: executeAfterWriteDataHistoryVersionProcessing
-    xml:
-      missing:
-        denotes:
-          absent: true
-    yaml:
-      default:
-        literal: false
+constraints:
+  - id: codeLength-minimum
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      present:
+        field: codeLength
+    assert:
+      lte:
+        - literal: 0
+        - field: codeLength
+    diagnostic:
+      code: number.minimum
+      severity: error
+      at:
+        field: codeLength
+      message: Значение не меньше 0
+  - id: codeLength-maximum
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      present:
+        field: codeLength
+    assert:
+      lte:
+        - field: codeLength
+        - literal: 628
+    diagnostic:
+      code: number.maximum
+      severity: error
+      at:
+        field: codeLength
+      message: Значение не больше 628
+  - id: descriptionLength-minimum
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      present:
+        field: descriptionLength
+    assert:
+      lte:
+        - literal: 0
+        - field: descriptionLength
+    diagnostic:
+      code: number.minimum
+      severity: error
+      at:
+        field: descriptionLength
+      message: Значение не меньше 0
+  - id: descriptionLength-maximum
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      present:
+        field: descriptionLength
+    assert:
+      lte:
+        - field: descriptionLength
+        - literal: 628
+    diagnostic:
+      code: number.maximum
+      severity: error
+      at:
+        field: descriptionLength
+      message: Значение не больше 628
 inputs:
   defaultLanguage:
     type:
@@ -811,16 +1057,6 @@ inputs:
     type:
       kind: scalar
       scalar: text
-  owner:
-    type:
-      kind: scalar
-      scalar: text
-  forms:
-    type:
-      kind: sequence
-      item:
-        kind: scalar
-        scalar: text
   roots:
     type:
       kind: index
@@ -857,4 +1093,14 @@ inputs:
       value:
         kind: scalar
         scalar: text
-id: candidate.fragment.38b1ecf696d049c622f1
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  forms:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+id: candidate.fragment.48d9af833f816197e80b

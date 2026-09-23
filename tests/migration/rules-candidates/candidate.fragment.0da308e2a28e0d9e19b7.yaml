@@ -9,10 +9,11 @@ imports:
   value5: common.boolean
   value6: system.CreateOnInput
   value7: system.ChoiceHistoryOnInput
-  value8: system.DefaultDataLockControlMode
-  value9: system.UseFullTextSearch
-  value10: common.i8n-text
-  value11: system.DataHistoryUse
+  value8: common.owner-metadata-fields
+  value9: system.DefaultDataLockControlMode
+  value10: system.UseFullTextSearch
+  value11: common.i8n-text
+  value12: system.DataHistoryUse
 value:
   kind: record
   fields:
@@ -100,15 +101,23 @@ value:
     - name: includeHelpInContents
       type:
         use: value5
-    - name: dataLockControlMode
+    - name: dataLockFields
       type:
         use: value8
-    - name: fullTextSearch
+        bind:
+          ownerRoot:
+            input: ownerRoot
+          ownerName:
+            input: containingOwnerName
+    - name: dataLockControlMode
       type:
         use: value9
-    - name: objectPresentation
+    - name: fullTextSearch
       type:
         use: value10
+    - name: objectPresentation
+      type:
+        use: value11
         bind:
           defaultLanguage:
             input: defaultLanguage
@@ -118,7 +127,7 @@ value:
             input: ownerName
     - name: extendedObjectPresentation
       type:
-        use: value10
+        use: value11
         bind:
           defaultLanguage:
             input: defaultLanguage
@@ -128,7 +137,7 @@ value:
             input: ownerName
     - name: listPresentation
       type:
-        use: value10
+        use: value11
         bind:
           defaultLanguage:
             input: defaultLanguage
@@ -138,7 +147,7 @@ value:
             input: ownerName
     - name: extendedListPresentation
       type:
-        use: value10
+        use: value11
         bind:
           defaultLanguage:
             input: defaultLanguage
@@ -148,7 +157,7 @@ value:
             input: ownerName
     - name: explanation
       type:
-        use: value10
+        use: value11
         bind:
           defaultLanguage:
             input: defaultLanguage
@@ -158,7 +167,7 @@ value:
             input: ownerName
     - name: dataHistory
       type:
-        use: value11
+        use: value12
     - name: updateDataHistoryImmediatelyAfterWrite
       type:
         use: value5
@@ -225,6 +234,10 @@ representations:
         path:
           - Properties
           - IncludeHelpInContents
+      - field: dataLockFields
+        path:
+          - Properties
+          - DataLockFields
       - field: dataLockControlMode
         path:
           - Properties
@@ -296,6 +309,8 @@ representations:
         key: ИсторияВыбораПриВводе
       - field: includeHelpInContents
         key: ВключатьСправкуВСодержание
+      - field: dataLockFields
+        key: ПоляБлокировкиДанных
       - field: dataLockControlMode
         key: РежимУправленияБлокировкойДанных
       - field: fullTextSearch
@@ -510,6 +525,26 @@ presence:
       default:
         literal: false
   - target:
+      field: dataLockFields
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: dataLockFields
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
       field: dataLockControlMode
     xml:
       missing:
@@ -641,6 +676,13 @@ inputs:
       value:
         kind: scalar
         scalar: text
+  ownerRoot:
+    type:
+      use: inputType1f8ea46361ff
+  containingOwnerName:
+    type:
+      kind: scalar
+      scalar: text
   defaultLanguage:
     type:
       kind: scalar
@@ -655,4 +697,4 @@ inputs:
     type:
       kind: scalar
       scalar: text
-id: candidate.fragment.4bb6739c2a0d8f0d59e5
+id: candidate.fragment.0da308e2a28e0d9e19b7

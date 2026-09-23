@@ -14,6 +14,21 @@ import { sourceProgram } from '../src/source-program.mjs';
 import { evaluator, serialize } from '../src/static-value.mjs';
 import { ts } from '../src/syntax.mjs';
 
+test('metadata field collections map to one reusable declaration for every owner', () => {
+  const extraction=JSON.parse(readFileSync('tests/migration/rules-extraction.json','utf8'));
+  const {catalog}=candidateCatalog();
+  const fields=extraction.entries.flatMap(entry=>(entry.properties??[]).filter(property=>property.parameters?.type==='MetadataFields').map(property=>({entry,property})));
+  assert.equal(fields.length,8);
+  for(const {entry,property} of fields) {
+    const mapped=mapProperty(property,catalog);
+    assert.equal(mapped.status,'candidate',`${entry.symbol}.${property.name}: ${JSON.stringify(mapped)}`);
+    assert.equal(mapped.id,property.parameters.metadataTarget?'common.owner-metadata-fields':'common.metadata-fields');
+    assert.deepEqual(mapped.path,['Properties','DataLockFields']);
+  }
+  const foreignTarget={...fields[0].property,parameters:{...fields[0].property.parameters,metadataTarget:{kind:'object',roots:['Catalog']}}};
+  assert.equal(mapProperty(foreignTarget,catalog).reason,'metadata-fields-target-profile');
+});
+
 test('the standard attribute choice form uses the general explicit-owner form link', () => {
   const extraction=JSON.parse(readFileSync('tests/migration/rules-extraction.json','utf8'));
   const item=extraction.entries.find(entry=>entry.symbol==='StandardAttributeDescriptionRules');

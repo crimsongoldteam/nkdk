@@ -1,0 +1,180 @@
+{
+  "cases": [
+    {
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства.xml",
+      "yamlSource": "e2e/fixtures/nkdk/cf/БизнесПроцесс/БизнесПроцессВсеСвойства/Свойства.yaml",
+      "start": 12658,
+      "original": "<DataLockFields>\n\t\t\t\t<xr:Field>BusinessProcess.БизнесПроцессВсеСвойства.StandardAttribute.Number</xr:Field>\n\t\t\t</DataLockFields>",
+      "entry": "migration.metadata-fields",
+      "ownerRoot": "BusinessProcess",
+      "ownerName": "БизнесПроцессВсеСвойства",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><DataLockFields><xr:Field>BusinessProcess.БизнесПроцессВсеСвойства.StandardAttribute.Number</xr:Field></DataLockFields></Root>",
+      "yaml": "ПоляБлокировкиДанных:\n  - БизнесПроцесс.БизнесПроцессВсеСвойства.СтандартныйРеквизит.Номер"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный.xml",
+      "yamlSource": "e2e/fixtures/nkdk/cf/Справочник/СправочникПолный/Свойства.yaml",
+      "start": 19211,
+      "original": "<DataLockFields>\n\t\t\t\t<xr:Field>Catalog.СправочникПолный.StandardAttribute.Description</xr:Field>\n\t\t\t\t<xr:Field>Catalog.СправочникПолный.StandardAttribute.Code</xr:Field>\n\t\t\t</DataLockFields>",
+      "entry": "migration.owner-metadata-fields",
+      "ownerRoot": "Catalog",
+      "ownerName": "СправочникПолный",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><DataLockFields><xr:Field>Catalog.СправочникПолный.StandardAttribute.Description</xr:Field><xr:Field>Catalog.СправочникПолный.StandardAttribute.Code</xr:Field></DataLockFields></Root>",
+      "yaml": "ПоляБлокировкиДанных:\n  - СтандартныйРеквизит.Наименование\n  - СтандартныйРеквизит.Код"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства.xml",
+      "yamlSource": "e2e/fixtures/nkdk/cf/ПланСчетов/ПланСчетовВсеСвойства/Свойства.yaml",
+      "start": 21099,
+      "original": "<DataLockFields>\n\t\t\t\t<xr:Field>ChartOfAccounts.ПланСчетовВсеСвойства.StandardAttribute.Description</xr:Field>\n\t\t\t</DataLockFields>",
+      "entry": "migration.metadata-fields",
+      "ownerRoot": "ChartOfAccounts",
+      "ownerName": "ПланСчетовВсеСвойства",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><DataLockFields><xr:Field>ChartOfAccounts.ПланСчетовВсеСвойства.StandardAttribute.Description</xr:Field></DataLockFields></Root>",
+      "yaml": "ПоляБлокировкиДанных:\n  - ПланСчетов.ПланСчетовВсеСвойства.СтандартныйРеквизит.Наименование"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства.xml",
+      "yamlSource": "e2e/fixtures/nkdk/cf/ПланВидовРасчета/ПланРасчетаВсеСвойства/Свойства.yaml",
+      "start": 25417,
+      "original": "<DataLockFields>\n\t\t\t\t<xr:Field>ChartOfCalculationTypes.ПланРасчетаВсеСвойства.StandardAttribute.Description</xr:Field>\n\t\t\t</DataLockFields>",
+      "entry": "migration.metadata-fields",
+      "ownerRoot": "ChartOfCalculationTypes",
+      "ownerName": "ПланРасчетаВсеСвойства",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><DataLockFields><xr:Field>ChartOfCalculationTypes.ПланРасчетаВсеСвойства.StandardAttribute.Description</xr:Field></DataLockFields></Root>",
+      "yaml": "ПоляБлокировкиДанных:\n  - ПланВидовРасчета.ПланРасчетаВсеСвойства.СтандартныйРеквизит.Наименование"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства.xml",
+      "yamlSource": "e2e/fixtures/nkdk/cf/ПланВидовХарактеристик/ПланВидовХарактеристикВсеСвойства/Свойства.yaml",
+      "start": 17755,
+      "original": "<DataLockFields>\n\t\t\t\t<xr:Field>ChartOfCharacteristicTypes.ПланВидовХарактеристикВсеСвойства.StandardAttribute.Code</xr:Field>\n\t\t\t</DataLockFields>",
+      "entry": "migration.metadata-fields",
+      "ownerRoot": "ChartOfCharacteristicTypes",
+      "ownerName": "ПланВидовХарактеристикВсеСвойства",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><DataLockFields><xr:Field>ChartOfCharacteristicTypes.ПланВидовХарактеристикВсеСвойства.StandardAttribute.Code</xr:Field></DataLockFields></Root>",
+      "yaml": "ПоляБлокировкиДанных:\n  - ПланВидовХарактеристик.ПланВидовХарактеристикВсеСвойства.СтандартныйРеквизит.Код"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства.xml",
+      "yamlSource": "e2e/fixtures/nkdk/cf/Документ/ДокументВсеСвойства/Свойства.yaml",
+      "start": 12033,
+      "original": "<DataLockFields>\n\t\t\t\t<xr:Field>Document.ДокументВсеСвойства.StandardAttribute.Number</xr:Field>\n\t\t\t\t<xr:Field>Document.ДокументВсеСвойства.StandardAttribute.Date</xr:Field>\n\t\t\t</DataLockFields>",
+      "entry": "migration.owner-metadata-fields",
+      "ownerRoot": "Document",
+      "ownerName": "ДокументВсеСвойства",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><DataLockFields><xr:Field>Document.ДокументВсеСвойства.StandardAttribute.Number</xr:Field><xr:Field>Document.ДокументВсеСвойства.StandardAttribute.Date</xr:Field></DataLockFields></Root>",
+      "yaml": "ПоляБлокировкиДанных:\n  - СтандартныйРеквизит.Номер\n  - СтандартныйРеквизит.Дата"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства.xml",
+      "yamlSource": "e2e/fixtures/nkdk/cf/ПланОбмена/ПланОбменаВсеСвойства/Свойства.yaml",
+      "start": 13730,
+      "original": "<DataLockFields>\n\t\t\t\t<xr:Field>ExchangePlan.ПланОбменаВсеСвойства.StandardAttribute.Description</xr:Field>\n\t\t\t</DataLockFields>",
+      "entry": "migration.owner-metadata-fields",
+      "ownerRoot": "ExchangePlan",
+      "ownerName": "ПланОбменаВсеСвойства",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><DataLockFields><xr:Field>ExchangePlan.ПланОбменаВсеСвойства.StandardAttribute.Description</xr:Field></DataLockFields></Root>",
+      "yaml": "ПоляБлокировкиДанных:\n  - СтандартныйРеквизит.Наименование"
+    },
+    {
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства.xml",
+      "yamlSource": "e2e/fixtures/nkdk/cf/Задача/ЗадачаВсеСвойства/Свойства.yaml",
+      "start": 13874,
+      "original": "<DataLockFields>\n\t\t\t\t<xr:Field>Task.ЗадачаВсеСвойства.StandardAttribute.Number</xr:Field>\n\t\t\t</DataLockFields>",
+      "entry": "migration.metadata-fields",
+      "ownerRoot": "Task",
+      "ownerName": "ЗадачаВсеСвойства",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><DataLockFields><xr:Field>Task.ЗадачаВсеСвойства.StandardAttribute.Number</xr:Field></DataLockFields></Root>",
+      "yaml": "ПоляБлокировкиДанных:\n  - Задача.ЗадачаВсеСвойства.СтандартныйРеквизит.Номер"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/BusinessProcesses/БизнесПроцессВсеСвойстваExt.xml",
+      "yamlSource": "e2e/fixtures/nkdk/cfe/Расширение_All/БизнесПроцесс/БизнесПроцессВсеСвойстваExt/Свойства.yaml",
+      "start": 12666,
+      "original": "<DataLockFields>\n\t\t\t\t<xr:Field>BusinessProcess.БизнесПроцессВсеСвойстваExt.StandardAttribute.Number</xr:Field>\n\t\t\t</DataLockFields>",
+      "entry": "migration.metadata-fields",
+      "ownerRoot": "BusinessProcess",
+      "ownerName": "БизнесПроцессВсеСвойстваExt",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><DataLockFields><xr:Field>BusinessProcess.БизнесПроцессВсеСвойстваExt.StandardAttribute.Number</xr:Field></DataLockFields></Root>",
+      "yaml": "ПоляБлокировкиДанных:\n  - БизнесПроцесс.БизнесПроцессВсеСвойстваExt.СтандартныйРеквизит.Номер"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникПолныйExt.xml",
+      "yamlSource": "e2e/fixtures/nkdk/cfe/Расширение_All/Справочник/СправочникПолныйExt/Свойства.yaml",
+      "start": 15182,
+      "original": "<DataLockFields>\n\t\t\t\t<xr:Field>Catalog.СправочникПолныйExt.StandardAttribute.Description</xr:Field>\n\t\t\t\t<xr:Field>Catalog.СправочникПолныйExt.StandardAttribute.Code</xr:Field>\n\t\t\t</DataLockFields>",
+      "entry": "migration.owner-metadata-fields",
+      "ownerRoot": "Catalog",
+      "ownerName": "СправочникПолныйExt",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><DataLockFields><xr:Field>Catalog.СправочникПолныйExt.StandardAttribute.Description</xr:Field><xr:Field>Catalog.СправочникПолныйExt.StandardAttribute.Code</xr:Field></DataLockFields></Root>",
+      "yaml": "ПоляБлокировкиДанных:\n  - СтандартныйРеквизит.Наименование\n  - СтандартныйРеквизит.Код"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfAccounts/ПланСчетовВсеСвойстваExt.xml",
+      "yamlSource": "e2e/fixtures/nkdk/cfe/Расширение_All/ПланСчетов/ПланСчетовВсеСвойстваExt/Свойства.yaml",
+      "start": 21103,
+      "original": "<DataLockFields>\n\t\t\t\t<xr:Field>ChartOfAccounts.ПланСчетовВсеСвойстваExt.StandardAttribute.Description</xr:Field>\n\t\t\t</DataLockFields>",
+      "entry": "migration.metadata-fields",
+      "ownerRoot": "ChartOfAccounts",
+      "ownerName": "ПланСчетовВсеСвойстваExt",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><DataLockFields><xr:Field>ChartOfAccounts.ПланСчетовВсеСвойстваExt.StandardAttribute.Description</xr:Field></DataLockFields></Root>",
+      "yaml": "ПоляБлокировкиДанных:\n  - ПланСчетов.ПланСчетовВсеСвойстваExt.СтандартныйРеквизит.Наименование"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCalculationTypes/ПланРасчетаВсеСвойстваExt.xml",
+      "yamlSource": "e2e/fixtures/nkdk/cfe/Расширение_All/ПланВидовРасчета/ПланРасчетаВсеСвойстваExt/Свойства.yaml",
+      "start": 25728,
+      "original": "<DataLockFields>\n\t\t\t\t<xr:Field>ChartOfCalculationTypes.ПланРасчетаВсеСвойстваExt.StandardAttribute.Description</xr:Field>\n\t\t\t</DataLockFields>",
+      "entry": "migration.metadata-fields",
+      "ownerRoot": "ChartOfCalculationTypes",
+      "ownerName": "ПланРасчетаВсеСвойстваExt",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><DataLockFields><xr:Field>ChartOfCalculationTypes.ПланРасчетаВсеСвойстваExt.StandardAttribute.Description</xr:Field></DataLockFields></Root>",
+      "yaml": "ПоляБлокировкиДанных:\n  - ПланВидовРасчета.ПланРасчетаВсеСвойстваExt.СтандартныйРеквизит.Наименование"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойстваExt.xml",
+      "yamlSource": "e2e/fixtures/nkdk/cfe/Расширение_All/ПланВидовХарактеристик/ПланВидовХарактеристикВсеСвойстваExt/Свойства.yaml",
+      "start": 16403,
+      "original": "<DataLockFields>\n\t\t\t\t<xr:Field>ChartOfCharacteristicTypes.ПланВидовХарактеристикВсеСвойстваExt.StandardAttribute.Code</xr:Field>\n\t\t\t</DataLockFields>",
+      "entry": "migration.metadata-fields",
+      "ownerRoot": "ChartOfCharacteristicTypes",
+      "ownerName": "ПланВидовХарактеристикВсеСвойстваExt",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><DataLockFields><xr:Field>ChartOfCharacteristicTypes.ПланВидовХарактеристикВсеСвойстваExt.StandardAttribute.Code</xr:Field></DataLockFields></Root>",
+      "yaml": "ПоляБлокировкиДанных:\n  - ПланВидовХарактеристик.ПланВидовХарактеристикВсеСвойстваExt.СтандартныйРеквизит.Код"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойстваExt.xml",
+      "yamlSource": "e2e/fixtures/nkdk/cfe/Расширение_All/Документ/ДокументВсеСвойстваExt/Свойства.yaml",
+      "start": 10883,
+      "original": "<DataLockFields>\n\t\t\t\t<xr:Field>Document.ДокументВсеСвойстваExt.StandardAttribute.Number</xr:Field>\n\t\t\t\t<xr:Field>Document.ДокументВсеСвойстваExt.StandardAttribute.Date</xr:Field>\n\t\t\t</DataLockFields>",
+      "entry": "migration.owner-metadata-fields",
+      "ownerRoot": "Document",
+      "ownerName": "ДокументВсеСвойстваExt",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><DataLockFields><xr:Field>Document.ДокументВсеСвойстваExt.StandardAttribute.Number</xr:Field><xr:Field>Document.ДокументВсеСвойстваExt.StandardAttribute.Date</xr:Field></DataLockFields></Root>",
+      "yaml": "ПоляБлокировкиДанных:\n  - СтандартныйРеквизит.Номер\n  - СтандартныйРеквизит.Дата"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/ExchangePlans/ПланОбменаВсеСвойстваExt.xml",
+      "yamlSource": "e2e/fixtures/nkdk/cfe/Расширение_All/ПланОбмена/ПланОбменаВсеСвойстваExt/Свойства.yaml",
+      "start": 12235,
+      "original": "<DataLockFields>\n\t\t\t\t<xr:Field>ExchangePlan.ПланОбменаВсеСвойстваExt.StandardAttribute.Description</xr:Field>\n\t\t\t</DataLockFields>",
+      "entry": "migration.owner-metadata-fields",
+      "ownerRoot": "ExchangePlan",
+      "ownerName": "ПланОбменаВсеСвойстваExt",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><DataLockFields><xr:Field>ExchangePlan.ПланОбменаВсеСвойстваExt.StandardAttribute.Description</xr:Field></DataLockFields></Root>",
+      "yaml": "ПоляБлокировкиДанных:\n  - СтандартныйРеквизит.Наименование"
+    },
+    {
+      "source": "e2e/fixtures/xml/cfe/all-extension/Tasks/ЗадачаВсеСвойстваExt.xml",
+      "yamlSource": "e2e/fixtures/nkdk/cfe/Расширение_All/Задача/ЗадачаВсеСвойстваExt/Свойства.yaml",
+      "start": 13534,
+      "original": "<DataLockFields>\n\t\t\t\t<xr:Field>Task.ЗадачаВсеСвойстваExt.StandardAttribute.Number</xr:Field>\n\t\t\t</DataLockFields>",
+      "entry": "migration.metadata-fields",
+      "ownerRoot": "Task",
+      "ownerName": "ЗадачаВсеСвойстваExt",
+      "xml": "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><DataLockFields><xr:Field>Task.ЗадачаВсеСвойстваExt.StandardAttribute.Number</xr:Field></DataLockFields></Root>",
+      "yaml": "ПоляБлокировкиДанных:\n  - Задача.ЗадачаВсеСвойстваExt.СтандартныйРеквизит.Номер"
+    }
+  ]
+}

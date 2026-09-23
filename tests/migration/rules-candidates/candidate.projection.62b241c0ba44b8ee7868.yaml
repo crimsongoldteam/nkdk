@@ -1,13 +1,12 @@
 format: nkdk-declarations/1
 kind: object
-id: candidate.projection.b6686581e21ac407973c
+id: candidate.projection.62b241c0ba44b8ee7868
 description: 'Кандидат проекции: относительный XML-корень Properties; не полный владелец'
 imports:
-  part0: candidate.fragment.255f75defa12d9696130
-  part1: candidate.fragment.ad1fd0a8f7dfdb7878cf
+  part0: candidate.fragment.5d3f271697c1d5e7a4d2
+  part1: candidate.fragment.2bdb9fb14ce2aee74bee
   inputType1f8ea46361ff: common.path-root
-  inputType00917033b468: common.path-object-kind
-  part2: candidate.fragment.de2f538d486be66fc189
+  part2: candidate.fragment.0da308e2a28e0d9e19b7
 compose:
   - use: part0
     bind:
@@ -20,14 +19,16 @@ compose:
   - use: part1
   - use: part2
     bind:
-      roots:
-        input: roots
-      children:
-        input: children
       owner:
         input: owner
       forms:
         input: forms
+      roots:
+        input: roots
+      ownerRoot:
+        input: ownerRoot
+      containingOwnerName:
+        input: containingOwnerName
       defaultLanguage:
         input: defaultLanguage
       registeredLanguages:
@@ -59,6 +60,16 @@ inputs:
     type:
       kind: scalar
       scalar: text
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  forms:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
   roots:
     type:
       kind: index
@@ -75,33 +86,10 @@ inputs:
       value:
         kind: scalar
         scalar: text
-  children:
+  ownerRoot:
     type:
-      kind: index
-      key:
-        kind: record
-        fields:
-          - name: kind
-            type:
-              use: inputType00917033b468
-          - name: name
-            type:
-              kind: scalar
-              scalar: text
-          - name: parent
-            type:
-              kind: scalar
-              scalar: text
-      value:
-        kind: scalar
-        scalar: text
-  owner:
+      use: inputType1f8ea46361ff
+  containingOwnerName:
     type:
       kind: scalar
       scalar: text
-  forms:
-    type:
-      kind: sequence
-      item:
-        kind: scalar
-        scalar: text

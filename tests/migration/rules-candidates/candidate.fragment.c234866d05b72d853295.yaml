@@ -22,10 +22,11 @@ imports:
   value18: system.RegisterRecordsDeletion
   value19: system.RegisterRecordsWritingOnPost
   value20: system.SequenceFilling
-  value21: system.DefaultDataLockControlMode
-  value22: system.UseFullTextSearch
-  value23: system.ChoiceHistoryOnInput
-  value24: system.DataHistoryUse
+  value21: common.owner-metadata-fields
+  value22: system.DefaultDataLockControlMode
+  value23: system.UseFullTextSearch
+  value24: system.ChoiceHistoryOnInput
+  value25: system.DataHistoryUse
 value:
   kind: record
   fields:
@@ -165,12 +166,20 @@ value:
     - name: includeHelpInContents
       type:
         use: value3
-    - name: dataLockControlMode
+    - name: dataLockFields
       type:
         use: value21
-    - name: fullTextSearch
+        bind:
+          ownerRoot:
+            input: ownerRoot
+          ownerName:
+            input: containingOwnerName
+    - name: dataLockControlMode
       type:
         use: value22
+    - name: fullTextSearch
+      type:
+        use: value23
     - name: objectPresentation
       type:
         use: value1
@@ -223,10 +232,10 @@ value:
             input: ownerName
     - name: choiceHistoryOnInput
       type:
-        use: value23
+        use: value24
     - name: dataHistory
       type:
-        use: value24
+        use: value25
     - name: updateDataHistoryImmediatelyAfterWrite
       type:
         use: value3
@@ -349,6 +358,10 @@ representations:
         path:
           - Properties
           - IncludeHelpInContents
+      - field: dataLockFields
+        path:
+          - Properties
+          - DataLockFields
       - field: dataLockControlMode
         path:
           - Properties
@@ -450,6 +463,8 @@ representations:
         key: ПривилегированныйРежимПриОтменеПроведения
       - field: includeHelpInContents
         key: ВключатьСправкуВСодержание
+      - field: dataLockFields
+        key: ПоляБлокировкиДанных
       - field: dataLockControlMode
         key: РежимУправленияБлокировкойДанных
       - field: fullTextSearch
@@ -792,6 +807,26 @@ presence:
       default:
         literal: false
   - target:
+      field: dataLockFields
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: dataLockFields
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
       field: dataLockControlMode
     xml:
       missing:
@@ -966,4 +1001,11 @@ inputs:
       item:
         kind: scalar
         scalar: text
-id: candidate.fragment.23d3c68fc6cb35d6c5eb
+  ownerRoot:
+    type:
+      use: inputType1f8ea46361ff
+  containingOwnerName:
+    type:
+      kind: scalar
+      scalar: text
+id: candidate.fragment.c234866d05b72d853295

@@ -102,6 +102,16 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
   const typeLink=p.type==='TypeLink';
   const typeDescription=p.type==='TypeDescription';
   const choiceValue=p.type==='ChoiceParameterLinks' || p.type==='ChoiceParameters';
+  const metadataFields=p.type==='MetadataFields';
+  if(metadataFields && p.metadataTarget && (p.metadataTarget.kind!=='member' || p.metadataTarget.owner!=='this' || Object.keys(p.metadataTarget).some(key=>!['kind','owner'].includes(key))))return fail('metadata-fields-target-profile');
+  const metadataFieldsDefault=metadataFields && p.defaultValueXMLRaw && !Array.isArray(p.defaultValueXMLRaw) &&
+    typeof p.defaultValueXMLRaw==='object' && Object.keys(p.defaultValueXMLRaw).length===0;
+  const metadataFieldsEmptyDefaults=metadataFields && Array.isArray(p.defaultValue) && p.defaultValue.length===0 &&
+    Array.isArray(p.defaultValueXMLEmpty) && p.defaultValueXMLEmpty.length===0 && p.defaultValueXMLRaw==='';
+  if(metadataFields && (Object.hasOwn(p,'defaultValue') || Object.hasOwn(p,'defaultValueXMLEmpty')) && !metadataFieldsEmptyDefaults)return fail('metadata-fields-default-profile');
+  if(metadataFieldsEmptyDefaults)parameterEquivalences.push(
+    {parameter:'defaultValue',equivalentTo:'empty-sequence',via:target?.owner==='this'?'common.owner-metadata-fields':'common.metadata-fields'},
+    {parameter:'defaultValueXMLEmpty',equivalentTo:'empty-sequence',via:target?.owner==='this'?'common.owner-metadata-fields':'common.metadata-fields'});
   const metadataValue=p.type==='MetadataValue';
   const metadataNilDefault=metadataValue && p.defaultValueXMLRaw &&
     !Array.isArray(p.defaultValueXMLRaw) && typeof p.defaultValueXMLRaw==='object' &&
@@ -116,7 +126,7 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
   if(Object.hasOwn(p,'runtimeOnly') && !runtimeOnly)return fail('runtime-only-profile');
   if(runtimeOnly && (!typeDescription || ['xml','xmlParents','defaultValueXML','defaultValueXMLRaw','defaultValueAdoptedXML'].some(key=>Object.hasOwn(p,key))))return fail('runtime-only-profile');
   if(typeLink && Object.hasOwn(p,'metadataTarget'))return fail('type-link-target-profile');
-  const reference=ownerForm || typeForm || explicitForm || ownBooleanAttribute || numerator || typeLink || typeDescription || choiceValue || metadataValue;
+  const reference=ownerForm || typeForm || explicitForm || ownBooleanAttribute || numerator || typeLink || typeDescription || choiceValue || metadataValue || metadataFields;
   if(reference && (Object.hasOwn(p,'defaultValueXML') || Object.hasOwn(p,'implicitValueYAML') || Object.hasOwn(p,'noImplicitValueYAML')))return fail('form-default-profile');
   const grouped = p.type === 'MetadataCommandGroup';
   const scalarChoice=p.type==='StringOrNumber';
@@ -142,7 +152,7 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
   if(fields && p.fieldsListXMLItem !== undefined && !['Field','xr:Field'].includes(p.fieldsListXMLItem))return fail('fields-list-item-profile');
   if(minMax && p.typedXML !== undefined && !['xs:string','xs:decimal'].includes(p.typedXML))return fail('min-max-type-profile');
   const nilDefault=minMax && p.defaultValueXMLRaw && typeof p.defaultValueXMLRaw==='object' && Object.keys(p.defaultValueXMLRaw).length===1 && p.defaultValueXMLRaw['_xsi:nil']===true;
-  const id = declaredValue?.id ?? simple.get(p.type) ?? list ?? (date?(p.typedXML?'common.typed-date-time':'common.date-time'):null) ?? (purposes?'common.use-purposes':scalarChoice?'common.string-or-number':qname?'common.xdto-type-name':index?'common.index-field':grouped?'common.metadata-command-group':ownerForm?'common.owner-or-common-form-link':(typeForm||explicitForm)?'common.metadata-form-link':ownBooleanAttribute?'common.owner-attribute-link':numerator?'common.document-numerator-link':typeLink?'common.type-link':typeDescription?'common.type-description':metadataValue?'common.metadata-value':p.type==='ChoiceParameterLinks'?'common.choice-parameter-links':p.type==='ChoiceParameters'?'common.choice-parameters':documentList?'common.journal-document-links':basedOn?'common.based-on-links':null) ?? (p.type === 'SystemEnumeration' ? `system.${p.typeSE}` : text ? (formatted?'common.formatted-i8n-text':'common.i8n-text') : minMax ? (p.typedXML==='xs:string'?'common.min-max-value-text':'common.min-max-value') : fields ? (p.fieldsListXMLItem==='xr:Field'?'common.fields-list-readable':'common.fields-list') : null);
+  const id = declaredValue?.id ?? simple.get(p.type) ?? list ?? (date?(p.typedXML?'common.typed-date-time':'common.date-time'):null) ?? (purposes?'common.use-purposes':scalarChoice?'common.string-or-number':qname?'common.xdto-type-name':index?'common.index-field':grouped?'common.metadata-command-group':ownerForm?'common.owner-or-common-form-link':(typeForm||explicitForm)?'common.metadata-form-link':ownBooleanAttribute?'common.owner-attribute-link':numerator?'common.document-numerator-link':typeLink?'common.type-link':typeDescription?'common.type-description':metadataValue?'common.metadata-value':metadataFields?(target?.owner==='this'?'common.owner-metadata-fields':'common.metadata-fields'):p.type==='ChoiceParameterLinks'?'common.choice-parameter-links':p.type==='ChoiceParameters'?'common.choice-parameters':documentList?'common.journal-document-links':basedOn?'common.based-on-links':null) ?? (p.type === 'SystemEnumeration' ? `system.${p.typeSE}` : text ? (formatted?'common.formatted-i8n-text':'common.i8n-text') : minMax ? (p.typedXML==='xs:string'?'common.min-max-value-text':'common.min-max-value') : fields ? (p.fieldsListXMLItem==='xr:Field'?'common.fields-list-readable':'common.fields-list') : null);
   if (!id || !catalog.has(id)) return fail('unsupported-common');
   if(metadataValue && !catalog.get(id).inputs?.onlyStringType)return fail('metadata-value-contract');
   let implicitValue=p.implicitValueYAML;
@@ -162,6 +172,7 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
     ...(minMax || date ? ['typedXML'] : []),
     ...bounds,
     ...(purposes?['defaultValue','evaluateWhenYAMLMissing']:[]),
+    ...(metadataFieldsEmptyDefaults?['defaultValue','defaultValueXMLEmpty']:[]),
     ...(fields ? ['fieldsListXMLItem'] : []),
     ...(index ? ['preserveExplicitDefaultXML'] : []),
     ...((reference || linkList) && !typeDescription ? ['metadataTarget'] : []),
@@ -197,7 +208,7 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
   if (minMax && Object.hasOwn(p,'defaultValueXMLRaw') && !nilDefault) return fail('raw-default-profile');
   if (fields && (Object.hasOwn(p,'implicitValueYAML') || Object.hasOwn(p,'defaultValueXML'))) return fail('collection-default-profile');
   const emptyTypeDescriptionRaw=typeDescription && p.defaultValueXMLRaw && !Array.isArray(p.defaultValueXMLRaw) && typeof p.defaultValueXMLRaw==='object' && Object.keys(p.defaultValueXMLRaw).length===0;
-  if (Object.hasOwn(p,'defaultValueXMLRaw') && p.defaultValueXMLRaw !== '' && !nilDefault && !metadataNilDefault && !metadataStringDefault && !rawEmptyList && !indexDefault && !basedOnDefault && !emptyTypeDescriptionRaw) return fail('raw-default-profile');
+  if (Object.hasOwn(p,'defaultValueXMLRaw') && p.defaultValueXMLRaw !== '' && !nilDefault && !metadataNilDefault && !metadataStringDefault && !metadataFieldsDefault && !rawEmptyList && !indexDefault && !basedOnDefault && !emptyTypeDescriptionRaw) return fail('raw-default-profile');
   if (!list && !purposes && !date && !xmlOnlyDefault && !emptyStringDefault && Object.hasOwn(p,'defaultValueXML') && (!Object.hasOwn(p,'implicitValueYAML') || p.defaultValueXML !== implicitValue)) return fail('asymmetric-defaults');
   if (text && !emptyTextDefault && (Object.hasOwn(p,'implicitValueYAML') || Object.hasOwn(p,'defaultValueXML'))) return fail('text-default-needs-expression');
   if (p.defaultValueXMLRaw === '' && Object.hasOwn(p,'implicitValueYAML') && p.implicitValueYAML !== '') return fail('asymmetric-raw-default');
@@ -223,7 +234,7 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
     type.bind = Object.fromEntries(Object.keys(textInputs).map(k => [formatted ? ({registeredLanguages:'languages',ownerName:'name'}[k] ?? k) : k,{input:k}]));
   }
   const mapped = {status:'candidate', id, type, ...(p.tag?{sourceTag:p.tag}:{}), ...(parameterEquivalences.length?{parameterEquivalences}:{}), ...(Object.hasOwn(p,'toEnterprise')?{excludedParameters:['toEnterprise']}:{}), path:runtimeOnly?[]:[...parents,...(attribute?[]:[xml])], ...(attribute?{attribute}:{}), ...(runtimeOnly?{yamlOnly:true}:{}), key:p.yaml, inputs:lifted?.inputs ?? (text ? textInputs : {}), ...(lifted?{imports:lifted.imports}:{}),
-    presence:reference && !metadataValue ? {target:{field:property.name},xml:{missing:{denotes:{absent:true}},empty:[{form:'empty-element',denotes:{absent:true}}],...(p.defaultValueXMLRaw===''?{canonical:[{when:{not:{present:{field:property.name}}},form:'empty-element'}]}:{})},yaml:{missing:{denotes:{absent:true}}}} : indexDefault ? {target:{field:property.name},xml:{canonical:[{when:{not:{exists:{in:{field:property.name},as:'row',where:{literal:true}}}},form:'empty-element'},{form:'ordinary'}]}} : (metadataValue || formatted || qname || index || grouped || linkList || scalarChoice || purposes) ? undefined : list ? {target:{field:property.name},
+    presence:reference && !metadataValue ? {target:{field:property.name},xml:{missing:{denotes:{absent:true}},empty:[{form:'empty-element',denotes:{absent:true}}],...((p.defaultValueXMLRaw==='' || metadataFieldsDefault)?{canonical:[{when:{not:{present:{field:property.name}}},form:'empty-element'}]}:{})},yaml:{missing:{denotes:{absent:true}}}} : indexDefault ? {target:{field:property.name},xml:{canonical:[{when:{not:{exists:{in:{field:property.name},as:'row',where:{literal:true}}}},form:'empty-element'},{form:'ordinary'}]}} : (metadataValue || formatted || qname || index || grouped || linkList || scalarChoice || purposes) ? undefined : list ? {target:{field:property.name},
       xml:{missing:{denotes:{sequence:[]}},empty:[{form:'empty-element',denotes:{sequence:[]}}]},
       yaml:{missing:{denotes:{sequence:[]}},omitWhen:{not:{exists:{in:{field:property.name},as:'row',where:{literal:true}}}}}} : {target:{field:property.name}, xml:{missing:{denotes:{absent:true}},
       ...(((text || fields) && p.defaultValueXMLRaw === '') || nilDefault ? {canonical:[{when:{not:{present:{field:property.name}}},form:nilDefault?'nil':'empty-element'}]} : {})},

@@ -15,3 +15,9 @@ test('owner fragment prefixes XML routes without changing declared inputs or fac
   assert.deepEqual(fragment.contributions,source.contributions);
   assert.deepEqual(source.representations.xml.fields[0].path,['md:ChildObjects']);
 });
+
+test('owner fragment applies the declared metadata namespace to source rule routes',()=>{
+  const source={kind:'fragment',id:'source',representations:{xml:{kind:'record',fields:[{field:'dataLockFields',path:['Properties','DataLockFields']}]}},namespaces:{md:'http://v8.1c.ru/8.3/MDClasses'}};
+  const placed=asOwnerFragment(source,'placed',['md:MetaDataObject','md:Document'],'md');
+  assert.deepEqual(placed.representations.xml.fields[0].path,['md:MetaDataObject','md:Document','md:Properties','md:DataLockFields']);
+});

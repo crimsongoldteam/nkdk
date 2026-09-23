@@ -1,8 +1,8 @@
-use nkdk_compiled_rules_probes as nkdk_compiled_rules;
 use nkdk_compiled_rules::{
     Direction, InputValue, PreparedInputs, convert_file, entry_id, prepare_inputs, validate_file,
     verify_candidate,
 };
+use nkdk_compiled_rules_probes as nkdk_compiled_rules;
 
 fn metadata_value_inputs(entry: nkdk_compiled_rules::EntryId) -> PreparedInputs {
     prepare_inputs(
@@ -132,6 +132,14 @@ fn verify_corpus_case(
     assert_eq!(converted.bytes, expected, "{source}");
     verify_candidate(entry, xml, expected, inputs)
         .unwrap_or_else(|error| panic!("{source}: {error:?}"));
+}
+
+fn verify_empty_collection_variants(entry: nkdk_compiled_rules::EntryId, element: &str) {
+    let inputs = PreparedInputs::default();
+    for xml in [format!("<Root><{element}/></Root>"), "<Root/>".into()] {
+        let converted = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+        verify_candidate(entry, xml.as_bytes(), &converted.bytes, &inputs).unwrap();
+    }
 }
 
 #[test]
@@ -444,12 +452,103 @@ fn choice_parameter_links_are_structural_and_reversible() {
     let converted = convert_file(entry, Direction::XmlToYaml, xml, &inputs).unwrap();
     assert_eq!(String::from_utf8_lossy(&converted.bytes), yaml);
     verify_candidate(entry, xml, &converted.bytes, &inputs).unwrap();
-    for original in [
-        b"<Root><ChoiceParameterLinks/></Root>".as_slice(),
-        b"<Root/>".as_slice(),
+    verify_empty_collection_variants(entry, "ChoiceParameterLinks");
+}
+
+#[test]
+fn metadata_fields_convert_each_path_and_preserve_empty_containers() {
+    let entry = entry_id("migration.metadata-fields").unwrap();
+    let inputs = PreparedInputs::default();
+    let xml = "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><DataLockFields><xr:Field>Document.ДокументВсеСвойства.StandardAttribute.Number</xr:Field><xr:Field>Document.ДокументВсеСвойства.StandardAttribute.Date</xr:Field></DataLockFields></Root>".as_bytes();
+    let converted = convert_file(entry, Direction::XmlToYaml, xml, &inputs).unwrap();
+    assert_eq!(
+        String::from_utf8_lossy(&converted.bytes),
+        "ПоляБлокировкиДанных:\n  - Документ.ДокументВсеСвойства.СтандартныйРеквизит.Номер\n  - Документ.ДокументВсеСвойства.СтандартныйРеквизит.Дата"
+    );
+    verify_candidate(entry, xml, &converted.bytes, &inputs).unwrap();
+
+    verify_empty_collection_variants(entry, "DataLockFields");
+    for (path, tag) in [
+        ("Catalog.1Bad.StandardAttribute.Code", "!xml/invalid"),
+        ("Catalog.Goods.Unknown.Name", "!xml/raw"),
     ] {
-        let converted = convert_file(entry, Direction::XmlToYaml, original, &inputs).unwrap();
-        verify_candidate(entry, original, &converted.bytes, &inputs).unwrap();
+        let xml = format!(
+            "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><DataLockFields><xr:Field>{path}</xr:Field></DataLockFields></Root>"
+        );
+        let converted = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+        assert!(String::from_utf8_lossy(&converted.bytes).contains(tag));
+        verify_candidate(entry, xml.as_bytes(), &converted.bytes, &inputs).unwrap();
+    }
+}
+
+#[test]
+fn metadata_fields_owner_shorthand_restores_the_full_xml_path() {
+    let entry = entry_id("migration.owner-metadata-fields").unwrap();
+    let inputs = prepare_inputs(
+        entry,
+        vec![
+            ("ownerRoot".into(), InputValue::Text("Document".into())),
+            (
+                "ownerName".into(),
+                InputValue::Text("ДокументВсеСвойства".into()),
+            ),
+        ],
+    )
+    .unwrap();
+    let xml = "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><DataLockFields><xr:Field>Document.ДокументВсеСвойства.StandardAttribute.Number</xr:Field><xr:Field>Document.ДокументВсеСвойства.StandardAttribute.Date</xr:Field></DataLockFields></Root>";
+    let converted = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+    assert_eq!(
+        String::from_utf8_lossy(&converted.bytes),
+        "ПоляБлокировкиДанных:\n  - СтандартныйРеквизит.Номер\n  - СтандартныйРеквизит.Дата"
+    );
+    verify_candidate(entry, xml.as_bytes(), &converted.bytes, &inputs).unwrap();
+    let foreign = "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><DataLockFields><xr:Field>Document.Other.StandardAttribute.Number</xr:Field></DataLockFields></Root>";
+    let converted = convert_file(entry, Direction::XmlToYaml, foreign.as_bytes(), &inputs).unwrap();
+    assert!(String::from_utf8_lossy(&converted.bytes).contains("!xml/raw"));
+    verify_candidate(entry, foreign.as_bytes(), &converted.bytes, &inputs).unwrap();
+}
+
+#[test]
+fn metadata_fields_match_all_nonempty_applied_object_e2e_pairs() {
+    let corpus: serde_json::Value = serde_json::from_slice(include_bytes!(
+        "../../../../tests/migration/metadata-fields-e2e.json"
+    ))
+    .unwrap();
+    let cases = corpus["cases"].as_array().unwrap();
+    assert_eq!(cases.len(), 16);
+    for case in cases {
+        assert_corpus_source_unchanged(case);
+        let yaml_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .ancestors()
+            .nth(3)
+            .unwrap()
+            .join(case["yamlSource"].as_str().unwrap());
+        let yaml_source = std::fs::read_to_string(yaml_path).unwrap();
+        assert!(
+            yaml_source.contains(case["yaml"].as_str().unwrap()),
+            "{}",
+            case["yamlSource"]
+        );
+        let entry = entry_id(case["entry"].as_str().unwrap()).unwrap();
+        let inputs = if case["entry"] == "migration.owner-metadata-fields" {
+            prepare_inputs(
+                entry,
+                vec![
+                    (
+                        "ownerRoot".into(),
+                        InputValue::Text(case["ownerRoot"].as_str().unwrap().into()),
+                    ),
+                    (
+                        "ownerName".into(),
+                        InputValue::Text(case["ownerName"].as_str().unwrap().into()),
+                    ),
+                ],
+            )
+            .unwrap()
+        } else {
+            PreparedInputs::default()
+        };
+        verify_corpus_case(entry, case, &inputs);
     }
 }
 

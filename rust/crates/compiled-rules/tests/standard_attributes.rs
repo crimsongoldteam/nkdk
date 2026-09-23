@@ -77,6 +77,13 @@ fn working_document_attributes_restore_real_document_rows_without_xml_reference(
             "{}",
             String::from_utf8_lossy(&yaml.bytes)
         );
+        if case["entry"] == "migration.document-attribute-form-links" {
+            assert!(
+                String::from_utf8_lossy(&yaml.bytes).contains("ПоляБлокировкиДанных:\n  - СтандартныйРеквизит.Номер"),
+                "{}",
+                String::from_utf8_lossy(&yaml.bytes)
+            );
+        }
         verify_candidate(entry, xml, &yaml.bytes, &inputs).unwrap();
     }
 }

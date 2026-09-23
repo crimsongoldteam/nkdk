@@ -1,13 +1,13 @@
 format: nkdk-declarations/1
 kind: object
-id: candidate.projection.c3f38ec47b3758881d25
+id: candidate.projection.4e8868843856f79ac3a6
 description: 'Кандидат проекции: относительный XML-корень Properties; не полный владелец'
 imports:
-  part0: candidate.fragment.1f03e43b5c27ac4a777d
-  part1: candidate.fragment.2bdb9fb14ce2aee74bee
+  part0: candidate.fragment.1f4ce5bd4bee3df54147
+  part1: candidate.fragment.ad1fd0a8f7dfdb7878cf
   inputType1f8ea46361ff: common.path-root
   inputType00917033b468: common.path-object-kind
-  part2: candidate.fragment.e743821634512077499e
+  part2: candidate.fragment.7b9e8fd832d77d6e674b
 compose:
   - use: part0
     bind:

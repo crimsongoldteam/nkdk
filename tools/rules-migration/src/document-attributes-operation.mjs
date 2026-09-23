@@ -4,7 +4,8 @@ import {candidateCatalog,yaml} from './candidate-catalog.mjs';
 import {documentAttributeCases} from './document-attribute-cases.mjs';
 import {attachOwnerMembership} from './owner-membership.mjs';
 import {asOwnerFragment} from './owner-fragment.mjs';
-import {composeOwnerFragments} from './owner-composition.mjs';
+import {composeOwnerFragments,mergeOwnerFragments} from './owner-composition.mjs';
+import {emitCandidates} from './emit.mjs';
 import {execFileSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 
@@ -17,10 +18,21 @@ const previous=modules[2].id;
 modules[2].id='metadata.document-attributes';
 modules.push(asOwnerFragment(modules[2],'fragment.document-attributes',['md:MetaDataObject','md:Document']));
 const attributeFragment=modules.at(-1),formFragment=catalog.get('fragment.document-form-links');
+const extraction=JSON.parse(readFileSync('tests/migration/rules-extraction.json','utf8'));
+const documentRules=extraction.entries.find(entry=>entry.symbol==='MetadataDocumentRules');
+const dataLockRule=documentRules?.properties.find(property=>property.name==='dataLockFields');
+if(!dataLockRule)throw new Error('Missing source DataLockFields rule');
+const dataLockEmission=emitCandidates([{...documentRules,properties:[dataLockRule],comparison:{status:'keys-match'},propertyStates:[],xmlOrder:{status:'absent'}}],catalog);
+if(dataLockEmission.entries[0].properties[0].status!=='candidate')throw new Error('DataLockFields rule is not declarative');
+const dataLockSource=dataLockEmission.modules.find(module=>module.kind==='fragment');
+if(!dataLockSource)throw new Error('Missing source-derived DataLockFields fragment');
+const dataLockFragment=asOwnerFragment({...dataLockSource,namespaces:{...dataLockSource.namespaces,md:formFragment.namespaces.md}},'fragment.document-data-lock-fields',['md:MetaDataObject','md:Document'],'md');
+const propertyFragment=mergeOwnerFragments('fragment.document-owner-properties',[formFragment,dataLockFragment]);
+modules.push(propertyFragment);
 const attributeBindings=Object.fromEntries(Object.keys(attributeFragment.inputs).map(name=>[name,name==='forms'?'attributeForms':name]));
 const formBindings={ownerName:'containingOwnerName',roots:'formRoots',formTargets:'attributeForms',ownerPath:'ownerPath',forms:'ownerForms'};
 const joined=composeOwnerFragments('migration.document-attribute-form-links',[
-  {alias:'formLinks',fragment:formFragment,bindings:formBindings},
+  {alias:'ownerProperties',fragment:propertyFragment,bindings:{...formBindings,ownerRoot:'ownerRoot',containingOwnerName:'containingOwnerName'}},
   {alias:'attributes',fragment:attributeFragment,bindings:attributeBindings},
 ]);
 modules.push(joined);
@@ -41,6 +53,7 @@ const example=JSON.parse(execFileSync('python3',['tools/rules-migration/src/proj
       {xml:'DefaultListForm',yaml:'ОсновнаяФормаСписка'},
       {xml:'DefaultChoiceForm',yaml:'ОсновнаяФормаДляВыбора'},
       {xml:'AuxiliaryObjectForm'},{xml:'AuxiliaryListForm'},{xml:'AuxiliaryChoiceForm'},
+      {xml:'DataLockFields',yaml:'ПоляБлокировкиДанных'},
     ],collection:{item:'Attribute',yaml:'Реквизиты'}}}]),encoding:'utf8'}))[0];
 const inputs={defaultLanguage:'ru',registeredLanguages:['ru','en'],component:source.component,owner:example.ownerIdentity,
   ...example.linkContext,ownerPath:example.ownerPath,ownerForms:example.ownerForms};

@@ -9,10 +9,13 @@ test('document attribute operation publishes its source-derived declarations and
   const catalog=yaml.load(readFileSync('rust/declarations/candidates/document-attributes.generated.yaml','utf8'));
   const owner=catalog.declarations.find(module=>module.id==='metadata.document-attributes');
   const fragment=catalog.declarations.find(module=>module.id==='fragment.document-attributes');
+  const fields=catalog.declarations.find(module=>module.id==='fragment.document-owner-properties');
   const joined=catalog.declarations.find(module=>module.id==='migration.document-attribute-form-links');
   assert.ok(owner);
   assert.ok(joined);
-  assert.deepEqual(joined.compose.map(part=>part.use),['formLinks','attributes']);
+  assert.deepEqual(joined.compose.map(part=>part.use),['ownerProperties','attributes']);
+  assert.deepEqual(fields.representations.xml.fields.at(-1).path,['md:MetaDataObject','md:Document','md:Properties','md:DataLockFields']);
+  assert.equal(fields.imports.value1,'common.owner-metadata-fields');
   assert.deepEqual(fragment.representations.xml.fields[0].path,['md:MetaDataObject','md:Document','md:ChildObjects']);
   const cases=JSON.parse(readFileSync('tests/migration/document-attributes-operation.json','utf8'));
   assert.equal(cases.cases.length,3);

@@ -1,5 +1,36 @@
 import {isDeepStrictEqual} from 'node:util';
 
+export function mergeOwnerFragments(id,fragments) {
+  if(!id || !Array.isArray(fragments) || fragments.length<2)throw new Error('Owner record merge needs at least two fragments');
+  const merged={format:'nkdk-declarations/1',kind:'fragment',id,imports:{},namespaces:{},inputs:{},
+    value:{kind:'record',fields:[]},representations:{xml:{kind:'record',fields:[]},yaml:{kind:'mapping',fields:[]}},presence:[]};
+  const names=new Set(),paths=new Set(),keys=new Set();
+  for(const fragment of fragments) {
+    if(fragment.kind!=='fragment' || fragment.value?.kind!=='record' || fragment.representations?.xml?.kind!=='record' || fragment.representations?.yaml?.kind!=='mapping' ||
+      Object.keys(fragment).some(key=>!['format','kind','id','imports','namespaces','inputs','value','representations','presence'].includes(key)))throw new Error('Unsupported owner record fragment');
+    for(const [section,source] of [['imports',fragment.imports??{}],['namespaces',fragment.namespaces??{}],['inputs',fragment.inputs??{}]])
+      for(const [key,value] of Object.entries(source)) {
+        if(Object.hasOwn(merged[section],key) && !isDeepStrictEqual(merged[section][key],value))throw new Error(`Conflicting owner ${section}: ${key}`);
+        merged[section][key]=structuredClone(value);
+      }
+    for(const field of fragment.value.fields) {
+      if(names.has(field.name))throw new Error(`Duplicate owner field: ${field.name}`);
+      names.add(field.name);merged.value.fields.push(structuredClone(field));
+    }
+    for(const field of fragment.representations.xml.fields) {
+      const route=JSON.stringify(field.path);
+      if(paths.has(route))throw new Error(`Duplicate owner XML path: ${route}`);
+      paths.add(route);merged.representations.xml.fields.push(structuredClone(field));
+    }
+    for(const field of fragment.representations.yaml.fields) {
+      if(keys.has(field.key))throw new Error(`Duplicate owner YAML key: ${field.key}`);
+      keys.add(field.key);merged.representations.yaml.fields.push(structuredClone(field));
+    }
+    merged.presence.push(...structuredClone(fragment.presence??[]));
+  }
+  return merged;
+}
+
 export function composeOwnerFragments(id,parts) {
   const result={format:'nkdk-declarations/1',kind:'object',id,imports:{},inputs:{},
     compose:[],value:{kind:'record',fields:[]},representations:{xml:{kind:'record',fields:[]},yaml:{kind:'mapping',fields:[]}}};
@@ -15,7 +46,7 @@ export function composeOwnerFragments(id,parts) {
         if(typeof value.use==='string') {
           const source=value.use,dependency=fragment.imports?.[source];
           if(!dependency)throw new Error(`Missing input type import: ${source}`);
-          const renamed=`${alias}_${source}`;
+          const renamed=Object.entries(result.imports).find(([,id])=>id===dependency)?.[0]??`${alias}_${source}`;
           result.imports[renamed]=dependency;
           value.use=renamed;
         }

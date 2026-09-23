@@ -1,60 +1,94 @@
 format: nkdk-declarations/1
 kind: fragment
 imports:
-  value0: system.CharacteristicTypeMainPresentation
-  value1: system.PredefinedDataUpdate
-  value2: system.EditType
-  value3: common.boolean
-  value4: system.ChoiceMode
-  value5: system.CreateOnInput
-  value6: system.SearchStringModeOnInputByString
-  value7: system.ChoiceDataGetModeOnInputByString
-  value8: system.FullTextSearchOnInputByString
-  value9: system.ChoiceHistoryOnInput
+  value0: system.ObjectBelonging
+  value1: common.string
+  value2: common.boolean
+  value3: common.exact-decimal
+  value4: system.SubordinationUse
+  value5: system.CatalogCodeType
+  value6: system.CatalogCodesSeries
+  value7: system.CatalogMainPresentation
+  value8: system.PredefinedDataUpdate
+  value9: system.EditType
+  value10: system.ChoiceMode
+  value11: system.SearchStringModeOnInputByString
+  value12: system.FullTextSearchOnInputByString
+  value13: system.ChoiceDataGetModeOnInputByString
   inputType1f8ea46361ff: common.path-root
-  value11: common.owner-or-common-form-link
-  inputType00917033b468: common.path-object-kind
-  value13: common.based-on-links
-  value14: system.DefaultDataLockControlMode
-  value15: system.UseFullTextSearch
-  value16: common.i8n-text
-  value17: system.DataHistoryUse
+  value15: common.owner-or-common-form-link
+  value16: common.owner-metadata-fields
+  value17: system.DefaultDataLockControlMode
+  value18: system.UseFullTextSearch
+  value19: system.CreateOnInput
+  value20: system.ChoiceHistoryOnInput
+  value21: system.DataHistoryUse
 value:
   kind: record
   fields:
-    - name: defaultPresentation
+    - name: objectBelonging
       type:
         use: value0
-    - name: predefinedDataUpdate
+    - name: comment
       type:
         use: value1
-    - name: editType
+    - name: limitLevelCount
       type:
         use: value2
-    - name: quickChoice
+    - name: levelCount
       type:
         use: value3
-    - name: choiceMode
+    - name: foldersOnTop
+      type:
+        use: value2
+    - name: useStandardCommands
+      type:
+        use: value2
+    - name: subordinationUse
       type:
         use: value4
-    - name: createOnInput
+    - name: descriptionLength
+      type:
+        use: value3
+    - name: codeType
       type:
         use: value5
-    - name: searchStringModeOnInputByString
+    - name: codeSeries
       type:
         use: value6
-    - name: choiceDataGetModeOnInputByString
+    - name: checkUnique
+      type:
+        use: value2
+    - name: autonumbering
+      type:
+        use: value2
+    - name: defaultPresentation
       type:
         use: value7
-    - name: fullTextSearchOnInputByString
+    - name: predefinedDataUpdate
       type:
         use: value8
-    - name: choiceHistoryOnInput
+    - name: editType
       type:
         use: value9
-    - name: defaultObjectForm
+    - name: quickChoice
+      type:
+        use: value2
+    - name: choiceMode
+      type:
+        use: value10
+    - name: searchStringModeOnInputByString
       type:
         use: value11
+    - name: fullTextSearchOnInputByString
+      type:
+        use: value12
+    - name: choiceDataGetModeOnInputByString
+      type:
+        use: value13
+    - name: defaultObjectForm
+      type:
+        use: value15
         bind:
           owner:
             input: owner
@@ -64,7 +98,7 @@ value:
             input: roots
     - name: defaultFolderForm
       type:
-        use: value11
+        use: value15
         bind:
           owner:
             input: owner
@@ -74,7 +108,7 @@ value:
             input: roots
     - name: defaultListForm
       type:
-        use: value11
+        use: value15
         bind:
           owner:
             input: owner
@@ -84,7 +118,7 @@ value:
             input: roots
     - name: defaultChoiceForm
       type:
-        use: value11
+        use: value15
         bind:
           owner:
             input: owner
@@ -94,7 +128,7 @@ value:
             input: roots
     - name: defaultFolderChoiceForm
       type:
-        use: value11
+        use: value15
         bind:
           owner:
             input: owner
@@ -104,7 +138,7 @@ value:
             input: roots
     - name: auxiliaryObjectForm
       type:
-        use: value11
+        use: value15
         bind:
           owner:
             input: owner
@@ -114,7 +148,7 @@ value:
             input: roots
     - name: auxiliaryFolderForm
       type:
-        use: value11
+        use: value15
         bind:
           owner:
             input: owner
@@ -124,7 +158,7 @@ value:
             input: roots
     - name: auxiliaryListForm
       type:
-        use: value11
+        use: value15
         bind:
           owner:
             input: owner
@@ -134,7 +168,7 @@ value:
             input: roots
     - name: auxiliaryChoiceForm
       type:
-        use: value11
+        use: value15
         bind:
           owner:
             input: owner
@@ -144,7 +178,7 @@ value:
             input: roots
     - name: auxiliaryFolderChoiceForm
       type:
-        use: value11
+        use: value15
         bind:
           owner:
             input: owner
@@ -152,83 +186,90 @@ value:
             input: forms
           roots:
             input: roots
-    - name: basedOn
+    - name: includeHelpInContents
       type:
-        use: value13
+        use: value2
+    - name: dataLockFields
+      type:
+        use: value16
         bind:
-          roots:
-            input: roots
-          children:
-            input: children
+          ownerRoot:
+            input: ownerRoot
+          ownerName:
+            input: containingOwnerName
     - name: dataLockControlMode
       type:
-        use: value14
+        use: value17
     - name: fullTextSearch
       type:
-        use: value15
-    - name: objectPresentation
+        use: value18
+    - name: createOnInput
       type:
-        use: value16
-        bind:
-          defaultLanguage:
-            input: defaultLanguage
-          registeredLanguages:
-            input: registeredLanguages
-          ownerName:
-            input: ownerName
-    - name: extendedObjectPresentation
+        use: value19
+    - name: choiceHistoryOnInput
       type:
-        use: value16
-        bind:
-          defaultLanguage:
-            input: defaultLanguage
-          registeredLanguages:
-            input: registeredLanguages
-          ownerName:
-            input: ownerName
-    - name: listPresentation
-      type:
-        use: value16
-        bind:
-          defaultLanguage:
-            input: defaultLanguage
-          registeredLanguages:
-            input: registeredLanguages
-          ownerName:
-            input: ownerName
-    - name: extendedListPresentation
-      type:
-        use: value16
-        bind:
-          defaultLanguage:
-            input: defaultLanguage
-          registeredLanguages:
-            input: registeredLanguages
-          ownerName:
-            input: ownerName
-    - name: explanation
-      type:
-        use: value16
-        bind:
-          defaultLanguage:
-            input: defaultLanguage
-          registeredLanguages:
-            input: registeredLanguages
-          ownerName:
-            input: ownerName
+        use: value20
     - name: dataHistory
       type:
-        use: value17
+        use: value21
     - name: updateDataHistoryImmediatelyAfterWrite
       type:
-        use: value3
+        use: value2
     - name: executeAfterWriteDataHistoryVersionProcessing
       type:
-        use: value3
+        use: value2
 representations:
   xml:
     kind: record
     fields:
+      - field: objectBelonging
+        path:
+          - Properties
+          - ObjectBelonging
+      - field: comment
+        path:
+          - Properties
+          - Comment
+      - field: limitLevelCount
+        path:
+          - Properties
+          - LimitLevelCount
+      - field: levelCount
+        path:
+          - Properties
+          - LevelCount
+      - field: foldersOnTop
+        path:
+          - Properties
+          - FoldersOnTop
+      - field: useStandardCommands
+        path:
+          - Properties
+          - UseStandardCommands
+      - field: subordinationUse
+        path:
+          - Properties
+          - SubordinationUse
+      - field: descriptionLength
+        path:
+          - Properties
+          - DescriptionLength
+      - field: codeType
+        path:
+          - Properties
+          - CodeType
+      - field: codeSeries
+        path:
+          - Properties
+          - CodeSeries
+      - field: checkUnique
+        path:
+          - Properties
+          - CheckUnique
+      - field: autonumbering
+        path:
+          - Properties
+          - Autonumbering
       - field: defaultPresentation
         path:
           - Properties
@@ -249,26 +290,18 @@ representations:
         path:
           - Properties
           - ChoiceMode
-      - field: createOnInput
-        path:
-          - Properties
-          - CreateOnInput
       - field: searchStringModeOnInputByString
         path:
           - Properties
           - SearchStringModeOnInputByString
-      - field: choiceDataGetModeOnInputByString
-        path:
-          - Properties
-          - ChoiceDataGetModeOnInputByString
       - field: fullTextSearchOnInputByString
         path:
           - Properties
           - FullTextSearchOnInputByString
-      - field: choiceHistoryOnInput
+      - field: choiceDataGetModeOnInputByString
         path:
           - Properties
-          - ChoiceHistoryOnInput
+          - ChoiceDataGetModeOnInputByString
       - field: defaultObjectForm
         path:
           - Properties
@@ -309,10 +342,14 @@ representations:
         path:
           - Properties
           - AuxiliaryFolderChoiceForm
-      - field: basedOn
+      - field: includeHelpInContents
         path:
           - Properties
-          - BasedOn
+          - IncludeHelpInContents
+      - field: dataLockFields
+        path:
+          - Properties
+          - DataLockFields
       - field: dataLockControlMode
         path:
           - Properties
@@ -321,26 +358,14 @@ representations:
         path:
           - Properties
           - FullTextSearch
-      - field: objectPresentation
+      - field: createOnInput
         path:
           - Properties
-          - ObjectPresentation
-      - field: extendedObjectPresentation
+          - CreateOnInput
+      - field: choiceHistoryOnInput
         path:
           - Properties
-          - ExtendedObjectPresentation
-      - field: listPresentation
-        path:
-          - Properties
-          - ListPresentation
-      - field: extendedListPresentation
-        path:
-          - Properties
-          - ExtendedListPresentation
-      - field: explanation
-        path:
-          - Properties
-          - Explanation
+          - ChoiceHistoryOnInput
       - field: dataHistory
         path:
           - Properties
@@ -356,6 +381,28 @@ representations:
   yaml:
     kind: mapping
     fields:
+      - field: comment
+        key: Комментарий
+      - field: limitLevelCount
+        key: ОграничиватьКоличествоУровней
+      - field: levelCount
+        key: КоличествоУровней
+      - field: foldersOnTop
+        key: ГруппыСверху
+      - field: useStandardCommands
+        key: ИспользоватьСтандартныеКоманды
+      - field: subordinationUse
+        key: ИспользованиеПодчинения
+      - field: descriptionLength
+        key: ДлинаНаименования
+      - field: codeType
+        key: ТипКода
+      - field: codeSeries
+        key: СерииКодов
+      - field: checkUnique
+        key: КонтрольУникальности
+      - field: autonumbering
+        key: Автонумерация
       - field: defaultPresentation
         key: ОсновноеПредставление
       - field: predefinedDataUpdate
@@ -365,17 +412,13 @@ representations:
       - field: quickChoice
         key: БыстрыйВыбор
       - field: choiceMode
-        key: РежимВыбора
-      - field: createOnInput
-        key: СозданиеПриВводе
+        key: СпособВыбора
       - field: searchStringModeOnInputByString
-        key: РежимСтрокиПоискаПриВводеПоСтроке
-      - field: choiceDataGetModeOnInputByString
-        key: РежимПолученияДанныхВыбораПриВводеПоСтроке
+        key: СпособПоискаСтрокиПриВводеПоСтроке
       - field: fullTextSearchOnInputByString
         key: ПолнотекстовыйПоискПриВводеПоСтроке
-      - field: choiceHistoryOnInput
-        key: ИсторияВыбораПриВводе
+      - field: choiceDataGetModeOnInputByString
+        key: РежимПолученияДанныхВыбораПриВводеПоСтроке
       - field: defaultObjectForm
         key: ОсновнаяФормаОбъекта
       - field: defaultFolderForm
@@ -383,9 +426,9 @@ representations:
       - field: defaultListForm
         key: ОсновнаяФормаСписка
       - field: defaultChoiceForm
-        key: ОсновнаяФормаВыбора
+        key: ОсновнаяФормаДляВыбора
       - field: defaultFolderChoiceForm
-        key: ОсновнаяФормаВыбораГруппы
+        key: ОсновнаяФормаДляВыбораГруппы
       - field: auxiliaryObjectForm
         key: ДополнительнаяФормаОбъекта
       - field: auxiliaryFolderForm
@@ -393,25 +436,21 @@ representations:
       - field: auxiliaryListForm
         key: ДополнительнаяФормаСписка
       - field: auxiliaryChoiceForm
-        key: ДополнительнаяФормаВыбора
+        key: ДополнительнаяФормаДляВыбора
       - field: auxiliaryFolderChoiceForm
-        key: ДополнительнаяФормаВыбораГруппы
-      - field: basedOn
-        key: ВводитсяНаОсновании
+        key: ДополнительнаяФормаДляВыбораГруппы
+      - field: includeHelpInContents
+        key: ВключатьСправкуВСодержание
+      - field: dataLockFields
+        key: ПоляБлокировкиДанных
       - field: dataLockControlMode
         key: РежимУправленияБлокировкойДанных
       - field: fullTextSearch
         key: ПолнотекстовыйПоиск
-      - field: objectPresentation
-        key: ПредставлениеОбъекта
-      - field: extendedObjectPresentation
-        key: РасширенноеПредставлениеОбъекта
-      - field: listPresentation
-        key: ПредставлениеСписка
-      - field: extendedListPresentation
-        key: РасширенноеПредставлениеСписка
-      - field: explanation
-        key: Пояснение
+      - field: createOnInput
+        key: СозданиеПриВводе
+      - field: choiceHistoryOnInput
+        key: ИсторияВыбораПриВводе
       - field: dataHistory
         key: ИсторияДанных
       - field: updateDataHistoryImmediatelyAfterWrite
@@ -419,6 +458,120 @@ representations:
       - field: executeAfterWriteDataHistoryVersionProcessing
         key: ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных
 presence:
+  - target:
+      field: objectBelonging
+    xml:
+      missing:
+        denotes:
+          literal: Native
+      canonical:
+        - when:
+            eq:
+              - field: objectBelonging
+              - literal: Native
+          form: missing
+    yaml:
+      default:
+        literal: Native
+  - target:
+      field: comment
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: ''
+  - target:
+      field: limitLevelCount
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+  - target:
+      field: levelCount
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: 2
+  - target:
+      field: foldersOnTop
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: true
+  - target:
+      field: useStandardCommands
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: true
+  - target:
+      field: subordinationUse
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: ToItems
+  - target:
+      field: descriptionLength
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: 25
+  - target:
+      field: codeType
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: String
+  - target:
+      field: codeSeries
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: WholeCatalog
+  - target:
+      field: checkUnique
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: true
+  - target:
+      field: autonumbering
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: true
   - target:
       field: defaultPresentation
     xml:
@@ -465,15 +618,6 @@ presence:
       default:
         literal: BothWays
   - target:
-      field: createOnInput
-    xml:
-      missing:
-        denotes:
-          absent: true
-    yaml:
-      default:
-        literal: DontUse
-  - target:
       field: searchStringModeOnInputByString
     xml:
       missing:
@@ -482,15 +626,6 @@ presence:
     yaml:
       default:
         literal: Begin
-  - target:
-      field: choiceDataGetModeOnInputByString
-    xml:
-      missing:
-        denotes:
-          absent: true
-    yaml:
-      default:
-        literal: Directly
   - target:
       field: fullTextSearchOnInputByString
     xml:
@@ -501,14 +636,14 @@ presence:
       default:
         literal: DontUse
   - target:
-      field: choiceHistoryOnInput
+      field: choiceDataGetModeOnInputByString
     xml:
       missing:
         denotes:
           absent: true
     yaml:
       default:
-        literal: Auto
+        literal: Directly
   - target:
       field: defaultObjectForm
     xml:
@@ -710,6 +845,35 @@ presence:
         denotes:
           absent: true
   - target:
+      field: includeHelpInContents
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+  - target:
+      field: dataLockFields
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: dataLockFields
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
       field: dataLockControlMode
     xml:
       missing:
@@ -728,65 +892,23 @@ presence:
       default:
         literal: Use
   - target:
-      field: objectPresentation
+      field: createOnInput
     xml:
       missing:
         denotes:
           absent: true
-      canonical:
-        - when:
-            not:
-              present:
-                field: objectPresentation
-          form: empty-element
+    yaml:
+      default:
+        literal: Use
   - target:
-      field: extendedObjectPresentation
+      field: choiceHistoryOnInput
     xml:
       missing:
         denotes:
           absent: true
-      canonical:
-        - when:
-            not:
-              present:
-                field: extendedObjectPresentation
-          form: empty-element
-  - target:
-      field: listPresentation
-    xml:
-      missing:
-        denotes:
-          absent: true
-      canonical:
-        - when:
-            not:
-              present:
-                field: listPresentation
-          form: empty-element
-  - target:
-      field: extendedListPresentation
-    xml:
-      missing:
-        denotes:
-          absent: true
-      canonical:
-        - when:
-            not:
-              present:
-                field: extendedListPresentation
-          form: empty-element
-  - target:
-      field: explanation
-    xml:
-      missing:
-        denotes:
-          absent: true
-      canonical:
-        - when:
-            not:
-              present:
-                field: explanation
-          form: empty-element
+    yaml:
+      default:
+        literal: Auto
   - target:
       field: dataHistory
     xml:
@@ -814,6 +936,41 @@ presence:
     yaml:
       default:
         literal: false
+constraints:
+  - id: descriptionLength-minimum
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      present:
+        field: descriptionLength
+    assert:
+      lte:
+        - literal: 0
+        - field: descriptionLength
+    diagnostic:
+      code: number.minimum
+      severity: error
+      at:
+        field: descriptionLength
+      message: Значение не меньше 0
+  - id: descriptionLength-maximum
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      present:
+        field: descriptionLength
+    assert:
+      lte:
+        - field: descriptionLength
+        - literal: 150
+    diagnostic:
+      code: number.maximum
+      severity: error
+      at:
+        field: descriptionLength
+      message: Значение не больше 150
 inputs:
   owner:
     type:
@@ -841,38 +998,11 @@ inputs:
       value:
         kind: scalar
         scalar: text
-  children:
+  ownerRoot:
     type:
-      kind: index
-      key:
-        kind: record
-        fields:
-          - name: kind
-            type:
-              use: inputType00917033b468
-          - name: name
-            type:
-              kind: scalar
-              scalar: text
-          - name: parent
-            type:
-              kind: scalar
-              scalar: text
-      value:
-        kind: scalar
-        scalar: text
-  defaultLanguage:
+      use: inputType1f8ea46361ff
+  containingOwnerName:
     type:
       kind: scalar
       scalar: text
-  registeredLanguages:
-    type:
-      kind: sequence
-      item:
-        kind: scalar
-        scalar: text
-  ownerName:
-    type:
-      kind: scalar
-      scalar: text
-id: candidate.fragment.c89fddba77a5f864c541
+id: candidate.fragment.d2614fa60387985218e5
