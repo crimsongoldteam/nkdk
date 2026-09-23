@@ -52,6 +52,22 @@ test('child subsystem names keep the repeated XML item inside one shared declara
   assert.deepEqual(mapped.path,['ChildObjects']);
 });
 
+test('user visibility properties share the role mapping declaration across form owners', () => {
+  const extraction=JSON.parse(readFileSync('tests/migration/rules-extraction.json','utf8'));
+  const fields=extraction.entries.flatMap(entry=>(entry.properties??[]).filter(property=>property.parameters?.type==='UserVisible').map(property=>({entry,property})));
+  assert.equal(fields.length,46);
+  const {catalog}=candidateCatalog();
+  for(const {entry,property} of fields) {
+    const mapped=mapProperty(property,catalog);
+    assert.equal(mapped.status,'candidate',`${entry.symbol}.${property.name}: ${JSON.stringify(mapped)}`);
+    assert.equal(mapped.id,'common.user-visible');
+    assert.deepEqual(mapped.path,[property.name[0].toUpperCase()+property.name.slice(1)]);
+    assert.ok(mapped.inputs.roles);
+  }
+  const foreign={...fields[0].property,parameters:{...fields[0].property.parameters,metadataTarget:{kind:'object',roots:['Catalog']}}};
+  assert.equal(mapProperty(foreign,catalog).reason,'user-visible-role-target-profile');
+});
+
 test('the standard attribute choice form uses the general explicit-owner form link', () => {
   const extraction=JSON.parse(readFileSync('tests/migration/rules-extraction.json','utf8'));
   const item=extraction.entries.find(entry=>entry.symbol==='StandardAttributeDescriptionRules');

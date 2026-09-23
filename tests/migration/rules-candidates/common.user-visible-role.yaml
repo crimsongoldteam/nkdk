@@ -1,0 +1,33 @@
+format: nkdk-declarations/1
+kind: value
+id: common.user-visible-role
+namespaces:
+  xr: http://v8.1c.ru/8.3/xcf/readable
+imports:
+  boolean: common.boolean
+value:
+  kind: record
+  fields:
+    - name: name
+      type:
+        kind: scalar
+        scalar: text
+    - name: value
+      type:
+        use: boolean
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: name
+        path: []
+        attribute: name
+      - field: value
+        path: []
+  yaml:
+    kind: mapping
+    fields:
+      - field: name
+        key: Имя
+      - field: value
+        key: Значение

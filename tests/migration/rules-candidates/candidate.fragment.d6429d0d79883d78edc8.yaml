@@ -1,0 +1,56 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.user-visible
+value:
+  kind: record
+  fields:
+    - name: userVisible
+      type:
+        use: value0
+        bind:
+          roles:
+            input: roles
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: userVisible
+        path:
+          - UserVisible
+  yaml:
+    kind: mapping
+    fields:
+      - field: userVisible
+        key: Использование
+presence:
+  - target:
+      field: userVisible
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+inputs:
+  roles:
+    type:
+      kind: sequence
+      item:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: yamlName
+            type:
+              kind: scalar
+              scalar: text
+id: candidate.fragment.d6429d0d79883d78edc8
