@@ -92,6 +92,8 @@ export function ownerContracts(manifest,catalog,snapshot) {
     }
   }
   for(const request of requests) {
+    const inputs=catalog.get(request.entry).inputs??{};
+    if(['ownerRoot','containingOwnerName','attributes'].some(name=>Object.hasOwn(inputs,name)))request.linkContext=true;
     if(!catalog.get(request.entry).inputs?.owner)continue;
     const context=ownerContext(snapshot,request.xml,request.name);
     for(const row of context.sources)if(createHash('sha256').update(readFileSync(row.source)).digest('hex')!==row.sha256)throw new Error(`Stale owner context: ${row.source}`);

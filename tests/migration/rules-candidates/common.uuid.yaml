@@ -1,0 +1,77 @@
+format: nkdk-declarations/1
+kind: value
+id: common.uuid
+inputs:
+  identities:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: component
+            type:
+              kind: scalar
+              scalar: text
+          - name: owner
+            type:
+              kind: scalar
+              scalar: text
+          - name: kind
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  component:
+    type:
+      kind: scalar
+      scalar: text
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  kind:
+    type:
+      kind: scalar
+      scalar: text
+  name:
+    type:
+      kind: scalar
+      scalar: text
+value:
+  kind: scalar
+  scalar: text
+representations:
+  xml:
+    kind: text
+  yaml:
+    kind: scalar
+    scalar: text
+presence:
+  - target: self
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          require:
+            lookup:
+              in:
+                input: identities
+              key:
+                record:
+                  component:
+                    input: component
+                  owner:
+                    input: owner
+                  kind:
+                    input: kind
+                  name:
+                    input: name

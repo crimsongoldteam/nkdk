@@ -1,0 +1,81 @@
+format: nkdk-declarations/1
+kind: value
+id: common.owner-ordinary-field-path
+imports:
+  root: common.path-root
+  name: common.metadata-name
+  kind: common.path-ordinary-member-kind
+inputs:
+  ownerRoot:
+    type:
+      use: root
+  ownerName:
+    type:
+      kind: scalar
+      scalar: text
+value:
+  kind: record
+  fields:
+    - name: root
+      type:
+        use: root
+    - name: owner
+      type:
+        use: name
+    - name: kind
+      type:
+        use: kind
+    - name: name
+      type:
+        use: name
+representations:
+  xml:
+    kind: text-pattern
+    separator: .
+    parts:
+      - field: root
+      - field: owner
+      - field: kind
+      - field: name
+  yaml:
+    kind: text-pattern
+    separator: .
+    parts:
+      - field: kind
+      - field: name
+presence:
+  - target:
+      field: root
+    yaml:
+      default:
+        input: ownerRoot
+  - target:
+      field: owner
+    yaml:
+      default:
+        input: ownerName
+constraints:
+  - id: containing-owner
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    assert:
+      and:
+        - eq:
+            - get:
+                of:
+                  self: true
+                field: root
+            - input: ownerRoot
+        - eq:
+            - get:
+                of:
+                  self: true
+                field: owner
+            - input: ownerName
+    diagnostic:
+      code: metadata.target-missing
+      severity: error
+      at:
+        self: true
+      message: Expected a field of the containing object

@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.b748db189490cd36734a
+description: 'Кандидат проекции: корень владельца; не полный владелец'
+imports:
+  part0: candidate.fragment.1ac6b24190c22d63edf8
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

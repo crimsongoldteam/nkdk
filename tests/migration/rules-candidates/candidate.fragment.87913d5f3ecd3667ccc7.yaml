@@ -1,0 +1,75 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.uuid
+value:
+  kind: record
+  fields:
+    - name: uuid
+      type:
+        use: value0
+        bind:
+          identities:
+            input: identities
+          component:
+            input: component
+          owner:
+            input: owner
+          kind:
+            input: kind
+          name:
+            input: name
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: uuid
+        path: []
+        attribute: uuid
+  yaml:
+    kind: mapping
+    fields: []
+presence: []
+inputs:
+  identities:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: component
+            type:
+              kind: scalar
+              scalar: text
+          - name: owner
+            type:
+              kind: scalar
+              scalar: text
+          - name: kind
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  component:
+    type:
+      kind: scalar
+      scalar: text
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  kind:
+    type:
+      kind: scalar
+      scalar: text
+  name:
+    type:
+      kind: scalar
+      scalar: text
+id: candidate.fragment.87913d5f3ecd3667ccc7

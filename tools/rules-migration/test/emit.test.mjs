@@ -52,6 +52,19 @@ test('child subsystem names keep the repeated XML item inside one shared declara
   assert.deepEqual(mapped.path,['ChildObjects']);
 });
 
+test('root XML attributes are emitted as relative owner projections', () => {
+  const uuid={name:'uuid',source:{path:'owner.ts',line:1,column:1},status:'static-parameters',
+    type:'uuid',parameters:{type:'uuid',xml:'_uuid',xmlOnly:true,toYAML:false,fromYAML:false,evaluateWhenYAMLMissing:true}};
+  const owner={symbol:'OwnerRules',path:'owner.ts',comparison:{status:'keys-match'},properties:[uuid],xmlOrder:{status:'static',keys:['uuid']}};
+  const {catalog}=candidateCatalog();
+  const result=emitCandidates([owner],catalog);
+  assert.equal(result.entries[0].properties[0].status,'candidate');
+  assert.equal(result.entries[0].projections[0].root,null);
+  const fragment=result.modules.find(module=>module.kind==='fragment');
+  assert.deepEqual(fragment.representations.xml.fields,[{field:'uuid',path:[],attribute:'uuid'}]);
+  assert.deepEqual(fragment.representations.yaml.fields,[]);
+});
+
 test('user visibility properties share the role mapping declaration across form owners', () => {
   const extraction=JSON.parse(readFileSync('tests/migration/rules-extraction.json','utf8'));
   const fields=extraction.entries.flatMap(entry=>(entry.properties??[]).filter(property=>property.parameters?.type==='UserVisible').map(property=>({entry,property})));

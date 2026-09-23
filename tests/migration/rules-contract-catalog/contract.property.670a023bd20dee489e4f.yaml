@@ -22,35 +22,54 @@ imports:
   value18: system.RegisterRecordsDeletion
   value19: system.RegisterRecordsWritingOnPost
   value20: system.SequenceFilling
-  value21: system.DefaultDataLockControlMode
-  value22: system.UseFullTextSearch
-  value23: system.ChoiceHistoryOnInput
-  value24: system.DataHistoryUse
+  value21: common.owner-metadata-fields
+  value22: system.DefaultDataLockControlMode
+  value23: system.UseFullTextSearch
+  value24: system.ChoiceHistoryOnInput
+  value25: system.DataHistoryUse
 value:
   kind: record
   fields:
-    - name: basedOn
+    - name: numerator
       type:
-        use: value10
+        use: value5
         bind:
           roots:
             input: roots
-          children:
-            input: children
 representations:
   xml:
     kind: record
     fields:
-      - field: basedOn
+      - field: numerator
         path:
           - Properties
-          - BasedOn
+          - Numerator
   yaml:
     kind: mapping
     fields:
-      - field: basedOn
-        key: ВводитсяНаОсновании
-presence: []
+      - field: numerator
+        key: Нумератор
+presence:
+  - target:
+      field: numerator
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: numerator
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
 inputs:
   defaultLanguage:
     type:
@@ -112,4 +131,11 @@ inputs:
       item:
         kind: scalar
         scalar: text
-id: contract.property.24ac489024aa0aa9c8f4
+  ownerRoot:
+    type:
+      use: inputType1f8ea46361ff
+  containingOwnerName:
+    type:
+      kind: scalar
+      scalar: text
+id: contract.property.670a023bd20dee489e4f

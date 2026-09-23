@@ -85,7 +85,6 @@ export function emitCandidates(entries, catalog, origin = p => p.source.path, xm
       const invalidOrder = entry.xmlOrder?.status === 'static' && new Set(entry.xmlOrder.keys).size !== entry.xmlOrder.keys.length;
       let mapped = entry.xmlOrder?.status === 'unresolved' || invalidOrder ? {status:'blocked',reason:'owner-order-unresolved'} :
         entry.comparison.status === 'keys-match' ? mapProperty(property,catalog,xmlNamespaces) : {status:'blocked',reason:`owner-${entry.comparison.status}`};
-      if(mapped.status==='candidate' && !mapped.path.length && !mapped.yamlOnly)mapped={status:'blocked',reason:'owner-root-required'};
       result.properties.push({name:property.name, source:property.source, status:mapped.status, ...(property.constantDefaults?{constantDefaults:property.constantDefaults}:{}), ...(mapped.sourceTag?{sourceTag:mapped.sourceTag}:{}), ...(mapped.reason ? {reason:mapped.reason} : {}), ...(mapped.parameterEquivalences ? {parameterEquivalences:mapped.parameterEquivalences} : {}), ...(mapped.excludedParameters ? {excludedParameters:mapped.excludedParameters} : {})});
       if (mapped.status !== 'candidate') continue;
       if(mapped.yamlOnly) {
@@ -96,7 +95,7 @@ export function emitCandidates(entries, catalog, origin = p => p.source.path, xm
         result.properties.at(-1).ownerFactRole=mapped.ownerFactRole;
         result.ownerBlockers.push({reason:'owner-fact-contribution-required',property:property.name,role:mapped.ownerFactRole});
       }
-      const root = mapped.path[0];
+      const root = mapped.path[0] ?? null;
       const group=JSON.stringify([root,mapped.sourceTag??null]);
       if (!groups.has(group)) groups.set(group,[]);
       groups.get(group).push({property, mapped, origin:origin(property)});
@@ -116,7 +115,7 @@ export function emitCandidates(entries, catalog, origin = p => p.source.path, xm
         return false;
       });
       if(!eligibleFields.length)continue;
-      const root=eligibleFields[0].mapped.path[0],sourceTag=eligibleFields[0].mapped.sourceTag;
+      const root=eligibleFields[0].mapped.path[0] ?? null,sourceTag=eligibleFields[0].mapped.sourceTag;
       const chunks = [];
       for (const field of eligibleFields) {
         if (chunks.at(-1)?.origin === field.origin) chunks.at(-1).fields.push(field);
@@ -169,7 +168,7 @@ export function emitCandidates(entries, catalog, origin = p => p.source.path, xm
       const constraints=instantiateOwnerConstraints(eligibleFields,catalog);
       const id = `candidate.projection.${hash(constraints.length?[root,imports,compose,inputs,constraints]:[root,imports,compose,inputs])}`;
       const projection = {format:'nkdk-declarations/1',kind:'object',id,
-        description:`Кандидат проекции: относительный XML-корень ${root}; не полный владелец`,imports,compose,
+        description:`Кандидат проекции: ${root===null?'корень владельца':`относительный XML-корень ${root}`}; не полный владелец`,imports,compose,
         value:{kind:'record',fields:[]},representations:{xml:{kind:'record',fields:[]},yaml:{kind:'mapping',fields:[]}},
         ...(constraints.length?{constraints}:{})};
       if (Object.keys(inputs).length) projection.inputs = inputs;

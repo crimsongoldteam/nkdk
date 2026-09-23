@@ -1,11 +1,11 @@
 format: nkdk-declarations/1
 kind: object
-id: candidate.projection.411404fac763767c3c5a
+id: candidate.projection.965811f4a4c1f25c7386
 description: 'Кандидат проекции: относительный XML-корень Properties; не полный владелец'
 imports:
   inputType1f8ea46361ff: common.path-root
   inputType00917033b468: common.path-object-kind
-  part0: candidate.fragment.23d3c68fc6cb35d6c5eb
+  part0: candidate.fragment.c234866d05b72d853295
 compose:
   - use: part0
     bind:
@@ -23,6 +23,10 @@ compose:
         input: owner
       forms:
         input: forms
+      ownerRoot:
+        input: ownerRoot
+      containingOwnerName:
+        input: containingOwnerName
 value:
   kind: record
   fields: []
@@ -94,3 +98,10 @@ inputs:
       item:
         kind: scalar
         scalar: text
+  ownerRoot:
+    type:
+      use: inputType1f8ea46361ff
+  containingOwnerName:
+    type:
+      kind: scalar
+      scalar: text

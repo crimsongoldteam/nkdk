@@ -1,0 +1,23 @@
+format: nkdk-declarations/1
+kind: value
+id: system.DisplayImportance
+enum:
+  Auto: Авто
+  High: Высокая
+  Low: Низкая
+  Usual: Обычная
+  VeryHigh: ОченьВысокая
+  VeryLow: ОченьНизкая
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  t: http://v8.1c.ru/8.1/data/enterprise
+projections:
+  - id: system.DisplayImportance.dcs
+    xml:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: t:DisplayImportance
+      content:
+        kind: text

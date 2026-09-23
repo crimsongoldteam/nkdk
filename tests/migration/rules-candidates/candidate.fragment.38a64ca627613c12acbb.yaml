@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.DisplayImportance
+value:
+  kind: record
+  fields:
+    - name: displayImportance
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: displayImportance
+        path: []
+        attribute: DisplayImportance
+  yaml:
+    kind: mapping
+    fields:
+      - field: displayImportance
+        key: ВажностьПриОтображении
+presence:
+  - target:
+      field: displayImportance
+    xml:
+      missing:
+        denotes:
+          literal: Auto
+      canonical:
+        - when:
+            eq:
+              - field: displayImportance
+              - literal: Auto
+          form: missing
+    yaml:
+      default:
+        literal: Auto
+id: candidate.fragment.38a64ca627613c12acbb
