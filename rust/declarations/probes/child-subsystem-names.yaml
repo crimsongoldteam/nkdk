@@ -1,0 +1,8 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.child-subsystem-names
+imports: {names: common.child-subsystem-names}
+value: {kind: record, fields: [{name: names, type: {use: names}}]}
+representations:
+  xml: {kind: record, fields: [{field: names, path: [Root, ChildObjects]}]}
+  yaml: {kind: mapping, fields: [{field: names, key: Подсистемы}]}

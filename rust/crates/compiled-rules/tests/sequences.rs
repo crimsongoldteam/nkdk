@@ -550,6 +550,42 @@ fn functional_options_preserve_empty_items_duplicates_and_order() {
 }
 
 #[test]
+fn child_subsystem_names_round_trip_existing_owner_and_repeated_names() {
+    let entry = entry_id("migration.child-subsystem-names").unwrap();
+    let inputs = PreparedInputs::default();
+    let source_xml = include_str!(
+        "../../../../packages/rules/metadata/appliedObjects/metadataSubsystem/__fixtures__/sync/xml/ПодсистемаВсеСвойства.xml"
+    );
+    let source_yaml = include_str!(
+        "../../../../packages/rules/metadata/appliedObjects/metadataSubsystem/__fixtures__/sync/yaml/ПодсистемаВсеСвойства/Свойства.yaml"
+    );
+    assert!(source_xml.contains(
+        "<ChildObjects>\n\t\t\t<Subsystem>ПодчиненнаяПодсистема</Subsystem>\n\t\t</ChildObjects>"
+    ));
+    assert!(source_yaml.contains("Подсистемы:\n  - ПодчиненнаяПодсистема"));
+    for names in [
+        "<Subsystem>ПодчиненнаяПодсистема</Subsystem>",
+        "<Subsystem>Первая</Subsystem><Subsystem>Первая</Subsystem><Subsystem>Вторая</Subsystem>",
+    ] {
+        let xml = format!("<Root><ChildObjects>{names}</ChildObjects></Root>");
+        let yaml = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+        assert!(String::from_utf8_lossy(&yaml.bytes).contains("Подсистемы:"));
+        verify_candidate(entry, xml.as_bytes(), &yaml.bytes, &inputs).unwrap();
+        let restored = convert_file(entry, Direction::YamlToXml, &yaml.bytes, &inputs).unwrap();
+        nkdk_conversion_core::proof::verify(xml.as_bytes(), &restored.bytes, |_| false).unwrap();
+    }
+    verify_empty_collection_variants(entry, "ChildObjects");
+    let empty = convert_file(
+        entry,
+        Direction::YamlToXml,
+        "Подсистемы: []".as_bytes(),
+        &inputs,
+    )
+    .unwrap();
+    assert!(!String::from_utf8_lossy(&empty.bytes).contains("<Subsystem>"));
+}
+
+#[test]
 fn metadata_fields_match_all_nonempty_applied_object_e2e_pairs() {
     let corpus: serde_json::Value = serde_json::from_slice(include_bytes!(
         "../../../../tests/migration/metadata-fields-e2e.json"

@@ -42,6 +42,16 @@ test('functional option collections map from all form owners without a custom ha
   }
 });
 
+test('child subsystem names keep the repeated XML item inside one shared declaration', () => {
+  const extraction=JSON.parse(readFileSync('tests/migration/rules-extraction.json','utf8'));
+  const owner=extraction.entries.find(entry=>entry.symbol==='MetadataSubsystemRules');
+  const property=owner.properties.find(field=>field.name==='subsystems');
+  const mapped=mapProperty(property,candidateCatalog().catalog);
+  assert.equal(mapped.status,'candidate',JSON.stringify(mapped));
+  assert.equal(mapped.id,'common.child-subsystem-names');
+  assert.deepEqual(mapped.path,['ChildObjects']);
+});
+
 test('the standard attribute choice form uses the general explicit-owner form link', () => {
   const extraction=JSON.parse(readFileSync('tests/migration/rules-extraction.json','utf8'));
   const item=extraction.entries.find(entry=>entry.symbol==='StandardAttributeDescriptionRules');
