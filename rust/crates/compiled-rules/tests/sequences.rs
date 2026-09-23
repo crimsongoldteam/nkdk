@@ -509,6 +509,47 @@ fn metadata_fields_owner_shorthand_restores_the_full_xml_path() {
 }
 
 #[test]
+fn functional_options_preserve_empty_items_duplicates_and_order() {
+    let entry = entry_id("migration.functional-options-property").unwrap();
+    let inputs = PreparedInputs::default();
+    let xml = "<Root><FunctionalOptions><Item>FunctionalOption.А</Item><Item/><Item>FunctionalOption.А</Item></FunctionalOptions></Root>";
+    let yaml = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+    assert_eq!(
+        String::from_utf8_lossy(&yaml.bytes),
+        "ФункциональныеОпции:\n  - FunctionalOption.А\n  - \"\"\n  - FunctionalOption.А"
+    );
+    verify_candidate(entry, xml.as_bytes(), &yaml.bytes, &inputs).unwrap();
+    let restored = convert_file(entry, Direction::YamlToXml, &yaml.bytes, &inputs).unwrap();
+    nkdk_conversion_core::proof::verify(xml.as_bytes(), &restored.bytes, |_| false).unwrap();
+    verify_empty_collection_variants(entry, "FunctionalOptions");
+    let source_xml = include_str!(
+        "../../../../packages/rules/metadata/appliedObjects/metadataDataProcessor/__fixtures__/sync/xml/ОбработкаВсеСвойства/Forms/Форма/Ext/Form.xml"
+    );
+    let source_yaml = include_str!(
+        "../../../../packages/rules/metadata/appliedObjects/metadataDataProcessor/__fixtures__/sync/yaml/ОбработкаВсеСвойства/Формы/Форма/Форма.yaml"
+    );
+    let item = "FunctionalOption.ФункциональнаяОпцияБулево";
+    assert!(source_xml.contains(&format!(
+        "<FunctionalOptions>\n\t\t\t\t<Item>{item}</Item>\n\t\t\t</FunctionalOptions>"
+    )));
+    assert!(source_yaml.contains(&format!("ФункциональныеОпции:\n      - {item}")));
+    let source_value =
+        format!("<Root><FunctionalOptions><Item>{item}</Item></FunctionalOptions></Root>");
+    let converted = convert_file(
+        entry,
+        Direction::XmlToYaml,
+        source_value.as_bytes(),
+        &inputs,
+    )
+    .unwrap();
+    assert_eq!(
+        String::from_utf8_lossy(&converted.bytes),
+        format!("ФункциональныеОпции:\n  - {item}")
+    );
+    verify_candidate(entry, source_value.as_bytes(), &converted.bytes, &inputs).unwrap();
+}
+
+#[test]
 fn metadata_fields_match_all_nonempty_applied_object_e2e_pairs() {
     let corpus: serde_json::Value = serde_json::from_slice(include_bytes!(
         "../../../../tests/migration/metadata-fields-e2e.json"

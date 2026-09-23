@@ -103,6 +103,8 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
   const typeDescription=p.type==='TypeDescription';
   const choiceValue=p.type==='ChoiceParameterLinks' || p.type==='ChoiceParameters';
   const metadataFields=p.type==='MetadataFields';
+  const functionalOptions=p.type==='FunctionalOptionsProperty';
+  if(functionalOptions && (JSON.stringify(p.metadataTarget)!==JSON.stringify({kind:'object',roots:['FunctionalOption']})))return fail('functional-options-target-profile');
   if(metadataFields && p.metadataTarget && (p.metadataTarget.kind!=='member' || p.metadataTarget.owner!=='this' || Object.keys(p.metadataTarget).some(key=>!['kind','owner'].includes(key))))return fail('metadata-fields-target-profile');
   const metadataFieldsDefault=metadataFields && p.defaultValueXMLRaw && !Array.isArray(p.defaultValueXMLRaw) &&
     typeof p.defaultValueXMLRaw==='object' && Object.keys(p.defaultValueXMLRaw).length===0;
@@ -126,7 +128,7 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
   if(Object.hasOwn(p,'runtimeOnly') && !runtimeOnly)return fail('runtime-only-profile');
   if(runtimeOnly && (!typeDescription || ['xml','xmlParents','defaultValueXML','defaultValueXMLRaw','defaultValueAdoptedXML'].some(key=>Object.hasOwn(p,key))))return fail('runtime-only-profile');
   if(typeLink && Object.hasOwn(p,'metadataTarget'))return fail('type-link-target-profile');
-  const reference=ownerForm || typeForm || explicitForm || ownBooleanAttribute || numerator || typeLink || typeDescription || choiceValue || metadataValue || metadataFields;
+  const reference=ownerForm || typeForm || explicitForm || ownBooleanAttribute || numerator || typeLink || typeDescription || choiceValue || metadataValue || metadataFields || functionalOptions;
   if(reference && (Object.hasOwn(p,'defaultValueXML') || Object.hasOwn(p,'implicitValueYAML') || Object.hasOwn(p,'noImplicitValueYAML')))return fail('form-default-profile');
   const grouped = p.type === 'MetadataCommandGroup';
   const scalarChoice=p.type==='StringOrNumber';
@@ -152,7 +154,7 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
   if(fields && p.fieldsListXMLItem !== undefined && !['Field','xr:Field'].includes(p.fieldsListXMLItem))return fail('fields-list-item-profile');
   if(minMax && p.typedXML !== undefined && !['xs:string','xs:decimal'].includes(p.typedXML))return fail('min-max-type-profile');
   const nilDefault=minMax && p.defaultValueXMLRaw && typeof p.defaultValueXMLRaw==='object' && Object.keys(p.defaultValueXMLRaw).length===1 && p.defaultValueXMLRaw['_xsi:nil']===true;
-  const id = declaredValue?.id ?? simple.get(p.type) ?? list ?? (date?(p.typedXML?'common.typed-date-time':'common.date-time'):null) ?? (purposes?'common.use-purposes':scalarChoice?'common.string-or-number':qname?'common.xdto-type-name':index?'common.index-field':grouped?'common.metadata-command-group':ownerForm?'common.owner-or-common-form-link':(typeForm||explicitForm)?'common.metadata-form-link':ownBooleanAttribute?'common.owner-attribute-link':numerator?'common.document-numerator-link':typeLink?'common.type-link':typeDescription?'common.type-description':metadataValue?'common.metadata-value':metadataFields?(target?.owner==='this'?'common.owner-metadata-fields':'common.metadata-fields'):p.type==='ChoiceParameterLinks'?'common.choice-parameter-links':p.type==='ChoiceParameters'?'common.choice-parameters':documentList?'common.journal-document-links':basedOn?'common.based-on-links':null) ?? (p.type === 'SystemEnumeration' ? `system.${p.typeSE}` : text ? (formatted?'common.formatted-i8n-text':'common.i8n-text') : minMax ? (p.typedXML==='xs:string'?'common.min-max-value-text':'common.min-max-value') : fields ? (p.fieldsListXMLItem==='xr:Field'?'common.fields-list-readable':'common.fields-list') : null);
+  const id = declaredValue?.id ?? simple.get(p.type) ?? list ?? (date?(p.typedXML?'common.typed-date-time':'common.date-time'):null) ?? (purposes?'common.use-purposes':scalarChoice?'common.string-or-number':qname?'common.xdto-type-name':index?'common.index-field':grouped?'common.metadata-command-group':ownerForm?'common.owner-or-common-form-link':(typeForm||explicitForm)?'common.metadata-form-link':ownBooleanAttribute?'common.owner-attribute-link':numerator?'common.document-numerator-link':typeLink?'common.type-link':typeDescription?'common.type-description':metadataValue?'common.metadata-value':metadataFields?(target?.owner==='this'?'common.owner-metadata-fields':'common.metadata-fields'):functionalOptions?'common.functional-options-property':p.type==='ChoiceParameterLinks'?'common.choice-parameter-links':p.type==='ChoiceParameters'?'common.choice-parameters':documentList?'common.journal-document-links':basedOn?'common.based-on-links':null) ?? (p.type === 'SystemEnumeration' ? `system.${p.typeSE}` : text ? (formatted?'common.formatted-i8n-text':'common.i8n-text') : minMax ? (p.typedXML==='xs:string'?'common.min-max-value-text':'common.min-max-value') : fields ? (p.fieldsListXMLItem==='xr:Field'?'common.fields-list-readable':'common.fields-list') : null);
   if (!id || !catalog.has(id)) return fail('unsupported-common');
   if(metadataValue && !catalog.get(id).inputs?.onlyStringType)return fail('metadata-value-contract');
   let implicitValue=p.implicitValueYAML;

@@ -29,6 +29,19 @@ test('metadata field collections map to one reusable declaration for every owner
   assert.equal(mapProperty(foreignTarget,catalog).reason,'metadata-fields-target-profile');
 });
 
+test('functional option collections map from all form owners without a custom handler', () => {
+  const extraction=JSON.parse(readFileSync('tests/migration/rules-extraction.json','utf8'));
+  const {catalog}=candidateCatalog();
+  const fields=extraction.entries.flatMap(entry=>(entry.properties??[]).filter(property=>property.parameters?.type==='FunctionalOptionsProperty').map(property=>({entry,property})));
+  assert.equal(fields.length,3);
+  for(const {entry,property} of fields) {
+    const mapped=mapProperty(property,catalog);
+    assert.equal(mapped.status,'candidate',`${entry.symbol}.${property.name}: ${JSON.stringify(mapped)}`);
+    assert.equal(mapped.id,'common.functional-options-property');
+    assert.deepEqual(mapped.path,['FunctionalOptions']);
+  }
+});
+
 test('the standard attribute choice form uses the general explicit-owner form link', () => {
   const extraction=JSON.parse(readFileSync('tests/migration/rules-extraction.json','utf8'));
   const item=extraction.entries.find(entry=>entry.symbol==='StandardAttributeDescriptionRules');

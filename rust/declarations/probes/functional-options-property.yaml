@@ -1,0 +1,8 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.functional-options-property
+imports: {options: common.functional-options-property}
+value: {kind: record, fields: [{name: options, type: {use: options}}]}
+representations:
+  xml: {kind: record, fields: [{field: options, path: [Root, FunctionalOptions]}]}
+  yaml: {kind: mapping, fields: [{field: options, key: ФункциональныеОпции}]}

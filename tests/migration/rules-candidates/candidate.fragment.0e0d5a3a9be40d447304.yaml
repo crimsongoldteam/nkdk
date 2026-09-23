@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.functional-options-property
+value:
+  kind: record
+  fields:
+    - name: functionalOptions
+      type:
+        use: value0
+        bind: {}
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: functionalOptions
+        path:
+          - FunctionalOptions
+  yaml:
+    kind: mapping
+    fields:
+      - field: functionalOptions
+        key: ФункциональныеОпции
+presence:
+  - target:
+      field: functionalOptions
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+id: candidate.fragment.0e0d5a3a9be40d447304
