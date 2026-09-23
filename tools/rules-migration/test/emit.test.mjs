@@ -14,6 +14,21 @@ import { sourceProgram } from '../src/source-program.mjs';
 import { evaluator, serialize } from '../src/static-value.mjs';
 import { ts } from '../src/syntax.mjs';
 
+test('Color properties use one declared common and retain the StyleItem index provider', () => {
+  const extraction=JSON.parse(readFileSync('tests/migration/rules-extraction.json','utf8'));
+  const {catalog}=candidateCatalog();
+  const properties=extraction.entries.flatMap(entry=>(entry.properties??[]).filter(property=>property.parameters?.type==='Color').map(property=>({entry,property})));
+  assert.equal(properties.length,192);
+  for(const {entry,property} of properties) {
+    const mapped=mapProperty(property,catalog);
+    assert.equal(mapped.status,'candidate',`${entry.symbol}.${property.name}: ${JSON.stringify(mapped)}`);
+    assert.equal(mapped.id,'common.color');
+    assert.equal(mapped.indexProviders?.styleTypes,'metadata.style-item-types');
+  }
+  const invalid={...properties[0].property,parameters:{...properties[0].property.parameters,metadataTarget:{kind:'object',roots:['StyleItem'],filters:[{kind:'styleItemType',values:['Font']}]}}};
+  assert.equal(mapProperty(invalid,catalog).status,'blocked');
+});
+
 test('metadata field collections map to one reusable declaration for every owner', () => {
   const extraction=JSON.parse(readFileSync('tests/migration/rules-extraction.json','utf8'));
   const {catalog}=candidateCatalog();

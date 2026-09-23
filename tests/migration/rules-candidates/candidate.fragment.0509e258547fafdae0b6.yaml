@@ -1,0 +1,51 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.color
+value:
+  kind: record
+  fields:
+    - name: multipleValuesTextColor
+      type:
+        use: value0
+        bind:
+          styleTypes:
+            input: styleTypes
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: multipleValuesTextColor
+        path:
+          - MultipleValuesTextColor
+  yaml:
+    kind: mapping
+    fields:
+      - field: multipleValuesTextColor
+        key: ЦветТекстаМножественныхЗначений
+presence:
+  - target:
+      field: multipleValuesTextColor
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+inputs:
+  styleTypes:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: scalar
+        scalar: text
+id: candidate.fragment.0509e258547fafdae0b6

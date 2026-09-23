@@ -1,0 +1,37 @@
+format: nkdk-declarations/1
+kind: value
+id: common.color-raw-reference
+value:
+  kind: record
+  fields:
+    - name: uuid
+      type:
+        kind: scalar
+        scalar: text
+representations:
+  xml:
+    kind: text-pattern
+    parts:
+      - literal: '0:'
+      - field: uuid
+  yaml:
+    kind: text-pattern
+    parts:
+      - literal: '0:'
+      - field: uuid
+constraints:
+  - id: uuid
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    assert:
+      matches:
+        value:
+          field: uuid
+        pattern: '[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}'
+    diagnostic:
+      code: color.uuid
+      severity: error
+      at:
+        self: true
+      message: Недопустимый UUID цвета

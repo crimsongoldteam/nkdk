@@ -1,0 +1,80 @@
+format: nkdk-declarations/1
+kind: value
+id: common.color
+imports:
+  standardStyle: common.color-standard-style
+  styleItem: common.color-style-item
+  windows: common.color-windows
+  web: common.color-web
+  absolute: common.color-absolute
+  rawZero: common.color-raw-zero
+  rawReference: common.color-raw-reference
+  auto: common.color-auto
+inputs:
+  styleTypes:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: scalar
+        scalar: text
+value:
+  kind: choice
+  variants:
+    - name: СтандартныйЦветСтиля
+      type:
+        use: standardStyle
+    - name: ЭлементСтиля
+      type:
+        use: styleItem
+        bind:
+          styleTypes:
+            input: styleTypes
+    - name: ЦветWindows
+      type:
+        use: windows
+    - name: ЦветWeb
+      type:
+        use: web
+    - name: АбсолютныйЦвет
+      type:
+        use: absolute
+    - name: НулеваяСсылка
+      type:
+        use: rawZero
+    - name: СсылкаПоUUID
+      type:
+        use: rawReference
+    - name: Авто
+      type:
+        use: auto
+representations:
+  xml:
+    kind: choice
+    fallback: ЭлементСтиля
+  yaml:
+    kind: choice
+presence:
+  - target: self
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            isVariant:
+              value:
+                self: true
+              variant: Авто
+          form: missing
+    yaml:
+      missing:
+        denotes:
+          absent: true
+      omitWhen:
+        isVariant:
+          value:
+            self: true
+          variant: Авто

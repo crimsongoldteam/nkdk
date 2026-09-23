@@ -1,0 +1,21 @@
+format: nkdk-declarations/1
+kind: value
+id: common.color-standard-style
+imports:
+  color: system.StyleColors
+value:
+  kind: record
+  fields:
+    - name: color
+      type:
+        use: color
+representations:
+  xml:
+    kind: text-pattern
+    parts:
+      - literal: 'style:'
+      - field: color
+  yaml:
+    kind: text-pattern
+    parts:
+      - field: color

@@ -1,0 +1,21 @@
+format: nkdk-declarations/1
+kind: value
+id: common.color-web
+imports:
+  color: system.WebColors
+value:
+  kind: record
+  fields:
+    - name: color
+      type:
+        use: color
+representations:
+  xml:
+    kind: text-pattern
+    parts:
+      - literal: 'web:'
+      - field: color
+  yaml:
+    kind: text-pattern
+    parts:
+      - field: color

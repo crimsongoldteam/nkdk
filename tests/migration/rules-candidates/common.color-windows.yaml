@@ -1,0 +1,21 @@
+format: nkdk-declarations/1
+kind: value
+id: common.color-windows
+imports:
+  color: system.WindowsColors
+value:
+  kind: record
+  fields:
+    - name: color
+      type:
+        use: color
+representations:
+  xml:
+    kind: text-pattern
+    parts:
+      - literal: 'win:'
+      - field: color
+  yaml:
+    kind: text-pattern
+    parts:
+      - field: color

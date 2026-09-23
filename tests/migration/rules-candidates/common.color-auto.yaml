@@ -1,0 +1,15 @@
+format: nkdk-declarations/1
+kind: value
+id: common.color-auto
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: text-pattern
+    parts:
+      - literal: auto
+  yaml:
+    kind: text-pattern
+    parts:
+      - literal: auto

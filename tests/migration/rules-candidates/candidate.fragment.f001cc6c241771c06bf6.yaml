@@ -1,0 +1,51 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.color
+value:
+  kind: record
+  fields:
+    - name: backColor
+      type:
+        use: value0
+        bind:
+          styleTypes:
+            input: styleTypes
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: backColor
+        path:
+          - BackColor
+  yaml:
+    kind: mapping
+    fields:
+      - field: backColor
+        key: ЦветФона
+presence:
+  - target:
+      field: backColor
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+inputs:
+  styleTypes:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: scalar
+        scalar: text
+id: candidate.fragment.f001cc6c241771c06bf6

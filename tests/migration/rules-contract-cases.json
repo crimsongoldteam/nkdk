@@ -1325,7 +1325,7 @@
     },
     {
       "path": "rust/crates/compiled-rules/tests/scalars.rs",
-      "sha256": "d21753066c05c1cfb5787a9dd95cc8a7c56b4ba5789da5b40cad6ffa3b7d8b1a"
+      "sha256": "953b06d002dd5e2f66dc9a94e6abef1b40611a1e80735e928ac12a127f8b7dd9"
     },
     {
       "path": "tests/migration/i8n-full-round-trip-observations.json",

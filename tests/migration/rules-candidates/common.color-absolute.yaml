@@ -1,0 +1,37 @@
+format: nkdk-declarations/1
+kind: value
+id: common.color-absolute
+value:
+  kind: record
+  fields:
+    - name: hex
+      type:
+        kind: scalar
+        scalar: text
+representations:
+  xml:
+    kind: text-pattern
+    parts:
+      - literal: '#'
+      - field: hex
+  yaml:
+    kind: text-pattern
+    parts:
+      - literal: '#'
+      - field: hex
+constraints:
+  - id: hex
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    assert:
+      matches:
+        value:
+          field: hex
+        pattern: '[0-9A-Fa-f]{6}'
+    diagnostic:
+      code: color.hex
+      severity: error
+      at:
+        self: true
+      message: Недопустимый цвет RGB

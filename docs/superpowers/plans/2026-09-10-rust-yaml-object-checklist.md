@@ -41,7 +41,7 @@ ExternalFile принят: четыре свойства подключены к
 Следующий этап описан в [плане единого преобразования](2026-09-13-unified-conversion-plan.md).
 Флажки обновляются только после полной приёмки объекта, предусмотренной этим планом.
 
-Принято **26/90 common**. Полные Document и DocumentJournal ещё не приняты.
+Принято **27/90 common**. Полные Document и DocumentJournal ещё не приняты.
 Три владельца `FunctionalOptionsProperty` выпускаются как кандидаты через
 общую декларацию; [полная приёмка ещё не достигнута](../reports/2026-09-23-functional-options-property.md),
 поэтому его флажок остаётся пустым и счётчик не меняется.
@@ -53,9 +53,10 @@ ExternalFile принят: четыре свойства подключены к
 Для 181 [корневого XML-атрибута](../reports/2026-09-23-root-attributes-and-color.md)
 выпущены относительные проекции, включая UUID владельцев; полная сборка
 владельцев и их индексов ещё не принята, флажки остаются пустыми.
-`Color` исследован на пяти существующих XML-формах: прежде чем переносить его,
-нужен общий выбор между словарным и пользовательским значением с одним
-XML-префиксом. Отдельный обработчик цвета не вводится.
+`Color` принят через общую декларацию и непересекающийся выбор форм; все 192
+исходных свойства распознаны как кандидаты. Проверены пять старых XML-форм,
+реальные e2e-цвета, индекс элементов стиля, схема и аномалии.
+[Отчёт о приёмке](../reports/2026-09-23-color-acceptance.md).
 Общий XML-record расширен типизированными атрибутами и сохранением их исходной
 записи. Это инфраструктура; дополнительных флажков объектов не устанавливает.
 Правила присутствия полей вложенной скалярной записи также перенесены в общий
@@ -130,7 +131,7 @@ AdditionalIndexes принят после проверки идентичнос�
 - [ ] [commonObjects/choiceForm](../../../packages/rules/metadata/commonObjects/choiceForm)
 - [ ] [commonObjects/choiceList](../../../packages/rules/metadata/commonObjects/choiceList)
 - [ ] [commonObjects/clientApplicationInterface](../../../packages/rules/metadata/commonObjects/clientApplicationInterface)
-- [ ] [commonObjects/color](../../../packages/rules/metadata/commonObjects/color)
+- [x] [commonObjects/color](../../../packages/rules/metadata/commonObjects/color) — 2026-09-23: [декларация](../../../rust/declarations/common/color.yaml), [отчёт о приёмке](../reports/2026-09-23-color-acceptance.md). Словари, RGB, raw-ссылки, `auto`, индекс типа `StyleItem`, аномалии и оба направления на XML/e2e проверены; 192 свойства стали кандидатами. Полные владельцы учитываются отдельно.
 - [ ] [commonObjects/commonAttributeContent](../../../packages/rules/metadata/commonObjects/commonAttributeContent)
 - [ ] [commonObjects/dataCompositionSystem](../../../packages/rules/metadata/commonObjects/dataCompositionSystem)
 - [x] [commonObjects/dateTime](../../../packages/rules/metadata/commonObjects/dateTime) — 2026-09-10: [дата](../../../rust/declarations/common/date-time.yaml), [типизированная дата](../../../rust/declarations/common/typed-date-time.yaml), [default](../../../rust/declarations/probes/date-time-default.yaml), [26 календарных свойств e2e](../../../tests/migration/calendar-profile-e2e.json). Время как записано, константа при сборке, сокращение и схема.

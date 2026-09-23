@@ -152,6 +152,7 @@ fn color_preserves_raw_forms_and_omits_auto() {
     let exported = convert_file(entry, Direction::YamlToXml, b"", &inputs).unwrap();
     let exported = String::from_utf8(exported.bytes).unwrap();
     assert!(!exported.contains("<Color>"), "{exported}");
+    assert!(!validate_file(entry, "Цвет: auto".as_bytes(), &inputs).is_empty());
 }
 
 #[test]
