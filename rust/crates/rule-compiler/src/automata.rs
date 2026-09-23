@@ -2,6 +2,7 @@
 use regex_automata::{
     Input, MatchKind,
     dfa::{Automaton, dense::DFA},
+    util::primitives::StateID,
 };
 use std::{
     cell::RefCell,
@@ -115,7 +116,9 @@ impl Drop for Assets {
 }
 
 mod sequence;
-pub(crate) use sequence::{Part, compile_sequences};
+#[cfg(test)]
+use sequence::compile_sequences;
+pub(crate) use sequence::{Part, compile_sequences_with_fallback};
 
 pub(crate) const STATE_BUDGET: usize = 65_536;
 pub(crate) const BYTE_BUDGET: usize = 64 * 1024 * 1024;
@@ -164,14 +167,11 @@ pub(crate) fn compile(
     check_disjoint(machine, patterns.len(), state_budget)
 }
 
-fn check_disjoint(
-    machine: DFA<Vec<u32>>,
-    count: usize,
+fn walk_states(
+    machine: &DFA<Vec<u32>>,
     state_budget: usize,
-) -> Result<DFA<Vec<u32>>, Error> {
-    if count == 1 {
-        return Ok(machine);
-    }
+    mut check_terminal: impl FnMut(StateID) -> Result<(), Error>,
+) -> Result<(), Error> {
     let start = machine
         .start_state_forward(&Input::new(""))
         .map_err(|error| Error::Build(error.to_string()))?;
@@ -181,13 +181,7 @@ fn check_disjoint(
         if seen.len() > state_budget {
             return Err(Error::Budget);
         }
-        let terminal = machine.next_eoi_state(state);
-        if machine.is_match_state(terminal) && machine.match_len(terminal) > 1 {
-            return Err(Error::Overlap {
-                left: machine.match_pattern(terminal, 0).as_usize(),
-                right: machine.match_pattern(terminal, 1).as_usize(),
-            });
-        }
+        check_terminal(machine.next_eoi_state(state))?;
         for byte in 0..=u8::MAX {
             let next = machine.next_state(state, byte);
             if machine.is_quit_state(next) {
@@ -203,7 +197,58 @@ fn check_disjoint(
             }
         }
     }
+    Ok(())
+}
+
+fn check_disjoint(
+    machine: DFA<Vec<u32>>,
+    count: usize,
+    state_budget: usize,
+) -> Result<DFA<Vec<u32>>, Error> {
+    if count == 1 {
+        return Ok(machine);
+    }
+    walk_states(&machine, state_budget, |terminal| {
+        if machine.is_match_state(terminal) && machine.match_len(terminal) > 1 {
+            return Err(Error::Overlap {
+                left: machine.match_pattern(terminal, 0).as_usize(),
+                right: machine.match_pattern(terminal, 1).as_usize(),
+            });
+        }
+        Ok(())
+    })?;
     Ok(machine)
+}
+
+fn check_disjoint_with_fallback(
+    machine: &DFA<Vec<u32>>,
+    fallback: &[bool],
+    finite: &[bool],
+    state_budget: usize,
+) -> Result<(), Error> {
+    walk_states(machine, state_budget, |terminal| {
+        if machine.is_match_state(terminal) && machine.match_len(terminal) > 1 {
+            let matches = (0..machine.match_len(terminal))
+                .map(|index| machine.match_pattern(terminal, index).as_usize())
+                .collect::<Vec<_>>();
+            if matches.len() != 2
+                || !matches.iter().any(|index| fallback[*index])
+                || !matches
+                    .iter()
+                    .any(|index| !fallback[*index] && finite[*index])
+            {
+                return Err(Error::Overlap {
+                    left: matches[0],
+                    right: matches[1],
+                });
+            }
+        }
+        Ok(())
+    })
+}
+
+fn check_budget(machine: &DFA<Vec<u32>>, state_budget: usize) -> Result<(), Error> {
+    walk_states(machine, state_budget, |_| Ok(()))
 }
 
 pub(crate) fn declaration(name: &str, machine: &DFA<Vec<u32>>) -> String {

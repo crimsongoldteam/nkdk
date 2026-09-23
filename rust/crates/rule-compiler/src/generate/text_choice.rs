@@ -26,18 +26,30 @@ fn compile_variants<'a>(
     variants: impl IntoIterator<Item = (usize, &'a Variant<'a>)>,
     xml: bool,
     entry: &LinkedEntry,
+    fallback: Option<usize>,
     map_error: impl FnOnce(crate::automata::Error, &[usize]) -> Diagnostic,
 ) -> Result<(DFA<Vec<u32>>, Vec<usize>), Diagnostic> {
-    let mut patterns = Vec::new();
-    let mut selected = Vec::new();
+    let mut forms = Vec::new();
     for (index, variant) in variants {
         for parts in variant.selection_parts(xml, entry)? {
-            patterns.push(parts);
-            selected.push(index);
+            forms.push((index, parts));
         }
     }
-    let machine = crate::automata::compile_sequences(
+    if let Some(fallback) = fallback {
+        forms.sort_by_key(|(index, _)| *index == fallback);
+    }
+    let selected = forms.iter().map(|(index, _)| *index).collect::<Vec<_>>();
+    let excluded = forms
+        .iter()
+        .map(|(index, _)| Some(*index) == fallback)
+        .collect::<Vec<_>>();
+    let patterns = forms
+        .into_iter()
+        .map(|(_, parts)| parts)
+        .collect::<Vec<_>>();
+    let machine = crate::automata::compile_sequences_with_fallback(
         &patterns,
+        fallback.map(|_| excluded.as_slice()),
         crate::automata::STATE_BUDGET,
         crate::automata::BYTE_BUDGET,
     )
@@ -74,6 +86,7 @@ pub(super) fn scalar_yaml_selector(
         variants.iter().map(|(index, variant)| (*index, variant)),
         false,
         entry,
+        None,
         |error, _| unsupported(entry, &format!("YAML scalar choice: {error}")),
     )?;
     let plan = "ChoiceScalarYaml";
@@ -96,6 +109,8 @@ pub(super) struct Codec<'a> {
     xml_variants: Vec<usize>,
     yaml_variants: Vec<usize>,
     fallback: Option<usize>,
+    xml_exclusion: Option<usize>,
+    yaml_exclusion: Option<usize>,
     xml: DFA<Vec<u32>>,
     yaml: DFA<Vec<u32>>,
     discriminator: Option<&'a DiscriminatedChoiceXml<ExpandedName>>,
@@ -188,11 +203,25 @@ impl<'a> Codec<'a> {
                 "Choice permits only one unstructured text variant",
             ));
         }
+        let xml_exclusion = match &entry.xml {
+            LinkedXml::Choice { fallback } => fallback
+                .as_ref()
+                .and_then(|name| fields.iter().position(|field| field.name == *name)),
+            _ => None,
+        };
+        let yaml_exclusion = match &entry.yaml {
+            YamlRepresentation::Choice { fallback, .. } => fallback
+                .as_ref()
+                .and_then(|name| fields.iter().position(|field| field.name == *name)),
+            _ => None,
+        };
         let compile = |xml| {
+            let fallback = if xml { xml_exclusion } else { yaml_exclusion };
             compile_variants(
                 variants.iter().enumerate(),
                 xml,
                 entry,
+                fallback,
                 |error, selected| {
                     let mut issue = unsupported(
                         entry,
@@ -223,6 +252,8 @@ impl<'a> Codec<'a> {
             xml_variants,
             yaml_variants,
             fallback,
+            xml_exclusion,
+            yaml_exclusion,
             xml,
             yaml,
             discriminator,
@@ -481,7 +512,16 @@ impl<'a> Codec<'a> {
                         input_argument,
                     )
                 };
-                writeln!(out, "Self::V{index}(value)=>{write},").unwrap();
+                let guard = self.write_exclusion_guard(index, &xml_plan, &yaml_plan);
+                if guard.is_empty() {
+                    writeln!(out, "Self::V{index}(value)=>{write},").unwrap();
+                } else {
+                    writeln!(
+                        out,
+                        "Self::V{index}(value)=>{{let text={write}?;{guard}Ok(text)}},"
+                    )
+                    .unwrap();
+                }
             }
             out.push_str("}}\n");
             writeln!(
@@ -500,10 +540,11 @@ impl<'a> Codec<'a> {
                 } else {
                     self.variants[index].write("value", &format!("{name}V{index}"), input_argument)
                 };
+                let guard = self.write_exclusion_guard(index, &xml_plan, &yaml_plan);
                 if self.variants[index].writes_yaml_document() {
                     writeln!(out, "Self::V{index}(value)=>{write},").unwrap();
                 } else {
-                    writeln!(out, "Self::V{index}(value)=>{{let text={write}?;Ok(if xml{{text}}else{{core::yaml::scalar(&text)}})}},").unwrap();
+                    writeln!(out, "Self::V{index}(value)=>{{let text={write}?;{guard}Ok(if xml{{text}}else{{core::yaml::scalar(&text)}})}},").unwrap();
                 }
             }
             out.push_str("}}\n");
@@ -540,5 +581,30 @@ impl<'a> Codec<'a> {
             out.push_str("}}}\n");
         }
         Ok(out)
+    }
+
+    fn write_exclusion_guard(&self, index: usize, xml_plan: &str, yaml_plan: &str) -> String {
+        if self.xml_exclusion != Some(index) && self.yaml_exclusion != Some(index) {
+            return String::new();
+        }
+        let xml = if self.xml_exclusion == Some(index) {
+            format!(
+                "{xml_plan}.select(&text)?.map(|form|{:?}[form])!=Some({index})",
+                self.xml_variants
+            )
+        } else {
+            "false".into()
+        };
+        let yaml = if self.yaml_exclusion == Some(index) {
+            format!(
+                "{yaml_plan}.select(&text)?.map(|form|{:?}[form])!=Some({index})",
+                self.yaml_variants
+            )
+        } else {
+            "false".into()
+        };
+        format!(
+            "if (xml&&({xml}))||(!xml&&({yaml})){{return Err(RuntimeDiagnostic::new(\"value.choice-collision\",\"Open choice value belongs to an exact variant\"));}}"
+        )
     }
 }

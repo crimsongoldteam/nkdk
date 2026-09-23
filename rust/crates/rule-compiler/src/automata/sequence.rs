@@ -18,8 +18,18 @@ fn build_error(error: impl std::fmt::Display) -> Error {
     Error::Build(error.to_string())
 }
 
+#[cfg(test)]
 pub(crate) fn compile_sequences(
     patterns: &[Vec<Part>],
+    state_budget: usize,
+    byte_budget: usize,
+) -> Result<DFA<Vec<u32>>, Error> {
+    compile_sequences_with_fallback(patterns, None, state_budget, byte_budget)
+}
+
+pub(crate) fn compile_sequences_with_fallback(
+    patterns: &[Vec<Part>],
+    fallback: Option<&[bool]>,
     state_budget: usize,
     byte_budget: usize,
 ) -> Result<DFA<Vec<u32>>, Error> {
@@ -108,7 +118,40 @@ pub(crate) fn compile_sequences(
         )
         .build_from_nfa(&nfa)
         .map_err(build_error)?;
-    check_disjoint(machine, patterns.len(), state_budget)
+    let Some(fallback) = fallback else {
+        return check_disjoint(machine, patterns.len(), state_budget);
+    };
+    if fallback.len() != patterns.len()
+        || !fallback.iter().any(|is_fallback| *is_fallback)
+        || fallback.iter().enumerate().any(|(index, marked)| {
+            *marked
+                && !patterns[index]
+                    .iter()
+                    .any(|part| matches!(part, Part::Rest | Part::Until(_) | Part::Cell(_)))
+        })
+    {
+        return Err(Error::Build("Fallback must name an open text form".into()));
+    }
+    let finite = patterns
+        .iter()
+        .map(|parts| {
+            parts
+                .iter()
+                .all(|part| matches!(part, Part::Literal(_) | Part::Words(_)))
+        })
+        .collect::<Vec<_>>();
+    super::check_disjoint_with_fallback(&machine, fallback, &finite, state_budget)?;
+    let selected = DFA::builder()
+        .configure(
+            DFA::config()
+                .match_kind(MatchKind::LeftmostFirst)
+                .dfa_size_limit(Some(byte_budget))
+                .determinize_size_limit(Some(byte_budget)),
+        )
+        .build_from_nfa(&nfa)
+        .map_err(build_error)?;
+    super::check_budget(&selected, state_budget)?;
+    Ok(selected)
 }
 
 fn literal(builder: &mut Builder, text: &str, mut tail: StateID) -> Result<StateID, Error> {

@@ -853,14 +853,14 @@ fn validate_xml(
 ) -> Result<(), Diagnostic> {
     match (value, xml) {
         (LinkedType::Choice(variants), LinkedXml::Choice { fallback }) => {
-            if let Some(name) = fallback {
-                if !variants.iter().any(|variant| variant.name == *name) {
-                    return Err(diagnostic(
-                        "unknown_choice_variant",
-                        source,
-                        "XML fallback names an unknown choice variant",
-                    ));
-                }
+            if let Some(name) = fallback
+                && !variants.iter().any(|variant| variant.name == *name)
+            {
+                return Err(diagnostic(
+                    "unknown_choice_variant",
+                    source,
+                    "XML fallback names an unknown choice variant",
+                ));
             }
         }
         (LinkedType::Choice(variants), LinkedXml::DiscriminatedChoice(choice)) => {
@@ -1060,14 +1060,14 @@ fn validate_yaml(
                 fallback,
             },
         ) => {
-            if let Some(name) = fallback {
-                if !variants.iter().any(|variant| variant.name == *name) {
-                    return Err(diagnostic(
-                        "unknown_choice_variant",
-                        source,
-                        "YAML fallback names an unknown choice variant",
-                    ));
-                }
+            if let Some(name) = fallback
+                && !variants.iter().any(|variant| variant.name == *name)
+            {
+                return Err(diagnostic(
+                    "unknown_choice_variant",
+                    source,
+                    "YAML fallback names an unknown choice variant",
+                ));
             }
             for selector in selectors {
                 let Some(variant) = variants

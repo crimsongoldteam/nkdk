@@ -1,6 +1,30 @@
 use nkdk_rule_compiler::{SourceFile, link, parse, schema};
 
 #[test]
+fn exact_style_words_are_disjoint_from_the_declared_open_variant() {
+    let source = include_str!("../../../declarations/probes/disjoint-style-choice.yaml");
+    let modules = nkdk_rule_compiler::parse_many(SourceFile {
+        path: "style.yaml",
+        bytes: source.as_bytes(),
+    })
+    .unwrap();
+    let program = link(&modules).unwrap();
+    nkdk_rule_compiler::generate(&program)
+        .expect("finite style names are subtracted from the open variant");
+    let reversed = source.replace(
+        "    - {name: СтандартныйЦветСтиля, type: {use: standard}}\n    - {name: ЭлементСтиля, type: {use: custom}}",
+        "    - {name: ЭлементСтиля, type: {use: custom}}\n    - {name: СтандартныйЦветСтиля, type: {use: standard}}",
+    );
+    let modules = nkdk_rule_compiler::parse_many(SourceFile {
+        path: "style.yaml",
+        bytes: reversed.as_bytes(),
+    })
+    .unwrap();
+    nkdk_rule_compiler::generate(&link(&modules).unwrap())
+        .expect("declaration order must not change the selection");
+}
+
+#[test]
 fn text_patterns_cover_typed_fields_without_ambiguous_capture() {
     let source = include_str!("fixtures/text-pattern.yaml");
     let read = |source: &str| {

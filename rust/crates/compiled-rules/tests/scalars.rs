@@ -1,5 +1,56 @@
-use nkdk_compiled_rules_probes as nkdk_compiled_rules;
 use nkdk_compiled_rules::{Direction, PreparedInputs, convert_file, entry_id, validate_file};
+use nkdk_compiled_rules_probes as nkdk_compiled_rules;
+
+#[test]
+fn disjoint_style_choice_prefers_exact_name_and_rejects_open_collision() {
+    let inputs = PreparedInputs::default();
+    for entry_name in [
+        "probe.disjoint-style-owner",
+        "probe.disjoint-style-owner-reversed",
+    ] {
+        let entry = entry_id(entry_name).unwrap();
+        for (xml, yaml) in [
+            (
+                "<Root><Color>style:SpecialTextColor</Color></Root>",
+                "Цвет: ЦветОсобогоТекста",
+            ),
+            (
+                "<Root><Color>style:ПоясняющийТекст</Color></Root>",
+                "Цвет: ЭлементСтиля.ПоясняющийТекст",
+            ),
+        ] {
+            let imported =
+                convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+            assert_eq!(String::from_utf8(imported.bytes).unwrap(), yaml);
+            let exported =
+                convert_file(entry, Direction::YamlToXml, yaml.as_bytes(), &inputs).unwrap();
+            let value = xml
+                .split("<Color>")
+                .nth(1)
+                .unwrap()
+                .split("</Color>")
+                .next()
+                .unwrap();
+            assert!(
+                String::from_utf8(exported.bytes)
+                    .unwrap()
+                    .contains(&format!("<Color>{value}</Color>"))
+            );
+        }
+        let invalid = convert_file(
+            entry,
+            Direction::YamlToXml,
+            "Цвет: ЭлементСтиля.SpecialTextColor".as_bytes(),
+            &inputs,
+        )
+        .unwrap_err();
+        assert!(
+            invalid
+                .iter()
+                .any(|issue| issue.code.as_deref() == Some("value.choice-collision"))
+        );
+    }
+}
 
 #[test]
 fn nested_sibling_record_selects_empty_xml_form_without_reference() {

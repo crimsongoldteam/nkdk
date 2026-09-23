@@ -1,0 +1,55 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: probe.style-color-name
+  enum: {SpecialTextColor: ЦветОсобогоТекста, AnotherColor: ДругойЦвет}
+- kind: value
+  id: probe.style-color-standard
+  imports: {color: probe.style-color-name}
+  value: {kind: record, fields: [{name: color, type: {use: color}}]}
+  representations:
+    xml: {kind: text-pattern, parts: [{literal: 'style:'}, {field: color}]}
+    yaml: {kind: text-pattern, parts: [{field: color}]}
+- kind: value
+  id: probe.style-color-custom
+  value: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}]}
+  representations:
+    xml: {kind: text-pattern, parts: [{literal: 'style:'}, {field: name}]}
+    yaml: {kind: text-pattern, parts: [{literal: 'ЭлементСтиля.'}, {field: name}]}
+- kind: value
+  id: probe.disjoint-style-choice
+  imports: {standard: probe.style-color-standard, custom: probe.style-color-custom}
+  value:
+    kind: choice
+    variants:
+    - {name: СтандартныйЦветСтиля, type: {use: standard}}
+    - {name: ЭлементСтиля, type: {use: custom}}
+  representations:
+    xml: {kind: choice, fallback: ЭлементСтиля}
+    yaml: {kind: choice}
+- kind: object
+  id: probe.disjoint-style-owner
+  imports: {color: probe.disjoint-style-choice}
+  value: {kind: record, fields: [{name: color, type: {use: color}}]}
+  representations:
+    xml: {kind: record, fields: [{field: color, path: [Root, Color]}]}
+    yaml: {kind: mapping, fields: [{field: color, key: Цвет}]}
+- kind: value
+  id: probe.disjoint-style-choice-reversed
+  imports: {standard: probe.style-color-standard, custom: probe.style-color-custom}
+  value:
+    kind: choice
+    variants:
+    - {name: ЭлементСтиля, type: {use: custom}}
+    - {name: СтандартныйЦветСтиля, type: {use: standard}}
+  representations:
+    xml: {kind: choice, fallback: ЭлементСтиля}
+    yaml: {kind: choice}
+- kind: object
+  id: probe.disjoint-style-owner-reversed
+  imports: {color: probe.disjoint-style-choice-reversed}
+  value: {kind: record, fields: [{name: color, type: {use: color}}]}
+  representations:
+    xml: {kind: record, fields: [{field: color, path: [Root, Color]}]}
+    yaml: {kind: mapping, fields: [{field: color, key: Цвет}]}
