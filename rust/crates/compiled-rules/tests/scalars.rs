@@ -1,6 +1,217 @@
 use nkdk_compiled_rules::{Direction, PreparedInputs, convert_file, entry_id, validate_file};
 use nkdk_compiled_rules_probes as nkdk_compiled_rules;
 
+#[test]
+fn border_resolves_a_real_style_item_and_checks_its_type() {
+    let source = include_str!("../../../../e2e/fixtures/xml/cf/StyleItems/ЭлементСтиляРамка.xml");
+    assert!(source.contains("<Name>ЭлементСтиляРамка</Name>"));
+    assert!(source.contains("<Type>Border</Type>"));
+    let (entry, inputs) = color_inputs_from_xml("probe.border-owner", &[source]);
+    let xml = "<Root><Border ref=\"style:ЭлементСтиляРамка\"/></Root>";
+    let imported = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+    assert_eq!(
+        String::from_utf8(imported.bytes).unwrap(),
+        "Рамка:\n  Имя: ЭлементСтиля.ЭлементСтиляРамка"
+    );
+    let exported = convert_file(
+        entry,
+        Direction::YamlToXml,
+        "Рамка:\n  Имя: ЭлементСтиля.ЭлементСтиляРамка".as_bytes(),
+        &inputs,
+    )
+    .unwrap();
+    assert!(
+        String::from_utf8(exported.bytes)
+            .unwrap()
+            .contains("ref=\"style:ЭлементСтиляРамка\"")
+    );
+    for yaml in [
+        "Рамка:\n  Имя: ЭлементСтиля.Нет",
+        "Рамка:\n  Имя: ЭлементСтиля.НеверныйТип",
+    ] {
+        let (_, inputs) = color_inputs("probe.border-owner", &[("НеверныйТип", "Color")]);
+        assert!(
+            validate_file(entry, yaml.as_bytes(), &inputs)
+                .iter()
+                .any(|issue| issue.code.as_deref() == Some("border.style-item"))
+        );
+    }
+    let (_, wrong_inputs) = color_inputs("probe.border-owner", &[("НеверныйТип", "Color")]);
+    let wrong_xml = "<Root><Border ref=\"style:НеверныйТип\"/></Root>";
+    let imported = convert_file(
+        entry,
+        Direction::XmlToYaml,
+        wrong_xml.as_bytes(),
+        &wrong_inputs,
+    )
+    .unwrap();
+    let yaml = String::from_utf8(imported.bytes).unwrap();
+    assert!(yaml.contains("!xml/invalid"), "{yaml}");
+    let exported =
+        convert_file(entry, Direction::YamlToXml, yaml.as_bytes(), &wrong_inputs).unwrap();
+    assert!(
+        String::from_utf8(exported.bytes)
+            .unwrap()
+            .contains("ref=\"style:НеверныйТип\"")
+    );
+}
+
+#[test]
+fn border_matches_existing_e2e_xml_and_yaml_examples() {
+    let entry = entry_id("probe.border-owner").unwrap();
+    for (xml_source, yaml_source, width, style, yaml_style) in [
+        (
+            include_str!("../../../../e2e/fixtures/xml/cf/CommonForms/CalendarField/Ext/Form.xml"),
+            include_str!("../../../../e2e/fixtures/nkdk/cf/ОбщаяФорма/CalendarField/Свойства.yaml"),
+            "1",
+            "DoubleUnderline",
+            "ДвойноеПодчеркивание",
+        ),
+        (
+            include_str!("../../../../e2e/fixtures/xml/cf/CommonForms/LabelField/Ext/Form.xml"),
+            include_str!("../../../../e2e/fixtures/nkdk/cf/ОбщаяФорма/LabelField/Свойства.yaml"),
+            "0",
+            "Single",
+            "Одинарная",
+        ),
+        (
+            include_str!(
+                "../../../../e2e/fixtures/xml/cf/CommonForms/ExtendedTooltip/Ext/Form.xml"
+            ),
+            include_str!(
+                "../../../../e2e/fixtures/nkdk/cf/ОбщаяФорма/ExtendedTooltip/Свойства.yaml"
+            ),
+            "2",
+            "Overline",
+            "ЧертаСверху",
+        ),
+    ] {
+        assert!(xml_source.contains(&format!("<Border width=\"{width}\">")));
+        assert!(xml_source.contains(&format!(">{style}</v8ui:style>")));
+        assert!(yaml_source.contains(&format!("Ширина: {width}\n")));
+        assert!(yaml_source.contains(&format!("ТипРамки: {yaml_style}")));
+        let xml = format!(
+            "<Root xmlns:v8ui=\"http://v8.1c.ru/8.1/data/ui\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Border width=\"{width}\"><v8ui:style xsi:type=\"v8ui:ControlBorderType\">{style}</v8ui:style></Border></Root>"
+        );
+        let expected = format!("Рамка:\n  Ширина: {width}\n  ТипРамки: {yaml_style}");
+        let imported = convert_file(
+            entry,
+            Direction::XmlToYaml,
+            xml.as_bytes(),
+            &PreparedInputs::default(),
+        )
+        .unwrap();
+        assert_eq!(String::from_utf8(imported.bytes).unwrap(), expected);
+        let exported = convert_file(
+            entry,
+            Direction::YamlToXml,
+            expected.as_bytes(),
+            &PreparedInputs::default(),
+        )
+        .unwrap();
+        let exported = String::from_utf8(exported.bytes).unwrap();
+        assert!(
+            exported.contains(&format!("width=\"{width}\"")),
+            "{exported}"
+        );
+        assert!(exported.contains(&format!(">{style}</")), "{exported}");
+        assert!(exported.contains("ControlBorderType"), "{exported}");
+    }
+}
+
+#[test]
+fn border_validation_reports_invalid_width_and_style() {
+    let entry = entry_id("probe.border-owner").unwrap();
+    for yaml in [
+        "Рамка:\n  Ширина: не-число",
+        "Рамка:\n  ТипРамки: Неизвестная",
+    ] {
+        let issues = validate_file(entry, yaml.as_bytes(), &PreparedInputs::default());
+        assert!(!issues.is_empty(), "{yaml}");
+    }
+}
+
+#[test]
+fn border_accepts_a_null_reference_as_absent() {
+    let entry = entry_id("probe.border-owner").unwrap();
+    let yaml = "Рамка:\n  Имя: null\n  Ширина: 1";
+    assert!(validate_file(entry, yaml.as_bytes(), &PreparedInputs::default()).is_empty());
+    let exported = convert_file(
+        entry,
+        Direction::YamlToXml,
+        yaml.as_bytes(),
+        &PreparedInputs::default(),
+    )
+    .unwrap();
+    let xml = String::from_utf8(exported.bytes).unwrap();
+    assert!(xml.contains("width=\"1\""), "{xml}");
+    assert!(!xml.contains(" ref="), "{xml}");
+}
+
+#[test]
+fn border_distinguishes_absence_from_zero_width() {
+    let entry = entry_id("probe.border-owner").unwrap();
+    let inputs = PreparedInputs::default();
+    let imported = convert_file(entry, Direction::XmlToYaml, b"<Root/>", &inputs).unwrap();
+    assert!(imported.bytes.is_empty());
+    let imported = convert_file(
+        entry,
+        Direction::XmlToYaml,
+        b"<Root><Border width=\"0\"/></Root>",
+        &inputs,
+    )
+    .unwrap();
+    assert_eq!(
+        String::from_utf8(imported.bytes).unwrap(),
+        "Рамка:\n  Ширина: 0"
+    );
+}
+
+#[test]
+fn empty_border_preserves_its_element_and_sibling() {
+    let entry = entry_id("probe.border-owner").unwrap();
+    let inputs = PreparedInputs::default();
+    let xml = "<Root><Border/><Note>Сосед</Note></Root>";
+    let imported = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+    let yaml = std::str::from_utf8(&imported.bytes).unwrap();
+    assert!(yaml.contains("Border: !xml/raw"), "{yaml}");
+    assert!(yaml.contains("$xml: \"\""), "{yaml}");
+    assert!(yaml.contains("Примечание: Сосед"), "{yaml}");
+    let exported = convert_file(entry, Direction::YamlToXml, &imported.bytes, &inputs).unwrap();
+    let exported = String::from_utf8(exported.bytes).unwrap();
+    assert!(
+        exported.contains("<Border></Border>") || exported.contains("<Border/>"),
+        "{exported}"
+    );
+    assert!(exported.contains("<Note>Сосед</Note>"), "{exported}");
+}
+
+#[test]
+fn malformed_border_preserves_original_xml_and_sibling() {
+    let entry = entry_id("probe.border-owner").unwrap();
+    let xml = "<Root><Border width=\"oops\"/><Note>Сосед</Note></Root>";
+    let imported = convert_file(
+        entry,
+        Direction::XmlToYaml,
+        xml.as_bytes(),
+        &PreparedInputs::default(),
+    )
+    .unwrap();
+    let yaml = String::from_utf8(imported.bytes).unwrap();
+    assert!(yaml.contains("width: !xml/raw"), "{yaml}");
+    assert!(yaml.contains("Примечание: Сосед"), "{yaml}");
+    let exported = convert_file(
+        entry,
+        Direction::YamlToXml,
+        yaml.as_bytes(),
+        &PreparedInputs::default(),
+    )
+    .unwrap();
+    let exported = String::from_utf8(exported.bytes).unwrap();
+    assert!(exported.contains("width=\"oops\""), "{exported}");
+    assert!(exported.contains("<Note>Сосед</Note>"), "{exported}");
+}
+
 fn color_inputs(
     owner: &str,
     styles: &[(&str, &str)],

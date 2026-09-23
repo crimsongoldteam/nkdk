@@ -1,6 +1,28 @@
 use nkdk_rule_compiler::{SourceFile, link, parse, schema};
 
 #[test]
+fn border_schema_comes_from_the_shared_declaration() {
+    let program = declaration_program(&[
+        "common/system-enumerations.yaml",
+        "common/metadata-name.yaml",
+        "common/number.yaml",
+        "common/border.yaml",
+    ]);
+    let actual: serde_json::Value =
+        serde_json::from_slice(&schema(&program, "common.border").unwrap()).unwrap();
+    let validator = jsonschema::validator_for(&actual).unwrap();
+    assert!(validator.is_valid(&serde_json::json!({
+        "Имя": "ЭлементСтиля.Рамка",
+        "Ширина": 2,
+        "ТипРамки": "Одинарная"
+    })));
+    assert!(validator.is_valid(&serde_json::json!({"Имя": null, "Ширина": 1})));
+    assert!(!validator.is_valid(&serde_json::json!({"Ширина": "два"})));
+    assert!(!validator.is_valid(&serde_json::json!({"ТипРамки": "Неизвестная"})));
+    assert_eq!(actual["x-nkdk-runtime-validation"], true);
+}
+
+#[test]
 fn color_schema_is_generated_from_the_shared_declaration() {
     let program = declaration_program(&[
         "common/system-enumerations.yaml",

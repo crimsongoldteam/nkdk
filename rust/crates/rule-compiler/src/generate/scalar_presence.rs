@@ -313,7 +313,7 @@ pub(super) fn empty(rule: Option<&LinkedPresence>, kind: EmptyKind) -> bool {
     rule.is_some_and(|rule| rule.xml_empty.iter().any(|empty| empty.form == kind))
 }
 
-pub(super) fn yaml_empty(rule: Option<&LinkedPresence>, kind: EmptyKind) -> bool {
+pub(crate) fn yaml_empty(rule: Option<&LinkedPresence>, kind: EmptyKind) -> bool {
     rule.is_some_and(|rule| rule.yaml_empty.iter().any(|empty| empty.form == kind))
 }
 

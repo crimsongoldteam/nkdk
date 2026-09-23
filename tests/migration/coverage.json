@@ -326,41 +326,66 @@
       "path": "packages/rules/metadata/commonObjects/border/__fixtures__/data.ts",
       "sha256": "0760dcc84b71d18e9a61c585a0964d364839a2054b42b739d1b798a4e6f90f08",
       "group": "border",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/border.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/border-owner.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-23-border-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/border/fromXML.test.ts",
       "sha256": "b62deaf17b40691fadd7b4fde7bb46bf383fb894802f0f477add94782f37ceb6",
       "group": "border",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/border.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/border-owner.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-23-border-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/border/fromXML.ts",
       "sha256": "78a04667a3c8bdee8becfe85fce6303a5ebb75cd93d0061f8f73ed5b4d017c6c",
       "group": "border",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/border.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/border-owner.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-23-border-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/border/fromYAML.test.ts",
       "sha256": "63f67704d7ed21c3a11fdc364d006f54c142fbf45ced8d9e59a571b9d411877a",
       "group": "border",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/border.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/border-owner.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-23-border-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/border/fromYAML.ts",
       "sha256": "a69a193ed068cb5fd8029baa8d2c2f16a38a8638dd4afea794291c4c91310a22",
       "group": "border",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/border.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/border-owner.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-23-border-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/border/toEnterprise.test.ts",
@@ -382,57 +407,92 @@
       "path": "packages/rules/metadata/commonObjects/border/toJSONSchema.test.ts",
       "sha256": "72486499905daf686cb7d109e25673963cd9caa370142c122fe0dad79ae3db9c",
       "group": "border",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/border.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/border-owner.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-23-border-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/border/toJSONSchema.ts",
       "sha256": "f55bb1e65143b8fdbf11c8b19eab2fadf1d23263a6e25c16aecccb2a335f9017",
       "group": "border",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/border.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/border-owner.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-23-border-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/border/toXML.test.ts",
       "sha256": "f208f68a99c25c2bd622891ef0a28c3318a125b7ed6f938cce2cec015f694340",
       "group": "border",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/border.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/border-owner.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-23-border-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/border/toXML.ts",
       "sha256": "59913f8503a025e9da32908e331bf61323581783990944c5753bb400418608a2",
       "group": "border",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/border.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/border-owner.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-23-border-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/border/toYAML.test.ts",
       "sha256": "0e88c54697102322a2ec956f24fbaedfbc640eafb41445ff0a7631e689890b44",
       "group": "border",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/border.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/border-owner.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-23-border-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/border/toYAML.ts",
       "sha256": "4dac8eb3b20a6cb0df430326092ce5d812c428a7ec350cb70fc2583c7692ef1a",
       "group": "border",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/border.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/border-owner.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-23-border-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/border/types.ts",
       "sha256": "51742a7e3f6a6e52e456bca5a3269e8c3f5ac53c4613792b4f7b61a560e02201",
       "group": "border",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/border.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/border-owner.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-23-border-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/characteristicsDescription/__fixtures__/data.ts",

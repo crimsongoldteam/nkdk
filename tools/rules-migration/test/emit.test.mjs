@@ -29,6 +29,22 @@ test('Color properties use one declared common and retain the StyleItem index pr
   assert.equal(mapProperty(invalid,catalog).status,'blocked');
 });
 
+test('Border properties use the declared record, including ineffective legacy scalar defaults', () => {
+  const extraction=JSON.parse(readFileSync('tests/migration/rules-extraction.json','utf8'));
+  const {catalog}=candidateCatalog();
+  const properties=extraction.entries.flatMap(entry=>(entry.properties??[]).filter(property=>property.parameters?.type==='Border').map(property=>({entry,property})));
+  assert.equal(properties.length,11);
+  for(const {entry,property} of properties) {
+    const mapped=mapProperty(property,catalog);
+    assert.equal(mapped.status,'candidate',`${entry.symbol}.${property.name}: ${JSON.stringify(mapped)}`);
+    assert.equal(mapped.id,'common.border');
+    assert.equal(mapped.indexProviders?.styleTypes,'metadata.style-item-types');
+    if(Object.hasOwn(property.parameters,'implicitValueYAML')) {
+      assert.ok(mapped.parameterEquivalences?.some(item=>item.parameter==='implicitValueYAML' && item.equivalentTo==='ineffective-scalar-default-for-record'));
+    }
+  }
+});
+
 test('metadata field collections map to one reusable declaration for every owner', () => {
   const extraction=JSON.parse(readFileSync('tests/migration/rules-extraction.json','utf8'));
   const {catalog}=candidateCatalog();

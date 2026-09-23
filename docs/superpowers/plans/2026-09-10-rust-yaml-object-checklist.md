@@ -41,7 +41,7 @@ ExternalFile принят: четыре свойства подключены к
 Следующий этап описан в [плане единого преобразования](2026-09-13-unified-conversion-plan.md).
 Флажки обновляются только после полной приёмки объекта, предусмотренной этим планом.
 
-Принято **27/90 common**. Полные Document и DocumentJournal ещё не приняты.
+Принято **28/90 common**. Полные Document и DocumentJournal ещё не приняты.
 Три владельца `FunctionalOptionsProperty` выпускаются как кандидаты через
 общую декларацию; [полная приёмка ещё не достигнута](../reports/2026-09-23-functional-options-property.md),
 поэтому его флажок остаётся пустым и счётчик не меняется.
@@ -83,7 +83,7 @@ AdditionalIndexes принят после проверки идентичнос�
 - `[ ]` — объект не завершён. Промежуточные результаты учитываются только в журнале.
 - Служебные каталоги включены, чтобы не потерять их обязанности. Для них завершение означает перенос ответственности в общий Rust-механизм, а не обязательное создание отдельной YAML-декларации.
 
-Приняты 26 common-объектов, включая `FillValue` и `StandardAttributeDescription`; полный перечень определяется флажками ниже. Enterprise исключён из реализации и условий готовности по решению пользователя. Наличие общего компилятора, синтетического примера или успешного теста отдельного свойства не означает завершение всего объекта. В частности, `common.code-type` — синтетический пример, а не перенесённое системное перечисление.
+Приняты 28 common-объектов, включая `FillValue`, `StandardAttributeDescription`, `Color` и `Border`; полный перечень определяется флажками ниже. Enterprise исключён из реализации и условий готовности по решению пользователя. Наличие общего компилятора, синтетического примера или успешного теста отдельного свойства не означает завершение всего объекта. В частности, `common.code-type` — синтетический пример, а не перенесённое системное перечисление.
 
 ## Когда ставить галочку
 
@@ -108,7 +108,7 @@ AdditionalIndexes принят после проверки идентичнос�
 
 | Группа | Записей | Полностью завершено |
 |---|---:|---:|
-| Общие объекты (common) | 90 | 26 |
+| Общие объекты (common) | 90 | 28 |
 | Вложенные части общих объектов | 27 | 2 |
 | Прикладные объекты и их вложенные части | 57 | 2 |
 | Формы, элементы и общие части форм | 66 | 0 |
@@ -122,7 +122,7 @@ AdditionalIndexes принят после проверки идентичнос�
 - [ ] [commonObjects/accumulationRegisterAggregates](../../../packages/rules/metadata/commonObjects/accumulationRegisterAggregates)
 - [x] [commonObjects/additionalIndex](../../../packages/rules/metadata/commonObjects/additionalIndex) — 2026-09-13: [декларация](../../../rust/declarations/common/additional-indexes.yaml), [приёмка](../reports/2026-09-13-additional-indexes.md), [e2e](../../../tests/migration/additional-indexes-e2e.json).
 - [x] [commonObjects/boolean](../../../packages/rules/metadata/commonObjects/boolean) — 2026-09-10: [декларация](../../../rust/declarations/common/boolean.yaml), [default без сокращения](../../../rust/declarations/probes/boolean-preserved-default.yaml), [общие проверки](../../../rust/crates/compiled-rules/tests/scalars.rs), [e2e](../../../tests/migration/scalar-value-e2e.json). Оба значения, отсутствие, сокращение и сохранение явного default.
-- [ ] [commonObjects/border](../../../packages/rules/metadata/commonObjects/border)
+- [x] [commonObjects/border](../../../packages/rules/metadata/commonObjects/border) — 2026-09-23: [декларация](../../../rust/declarations/common/border.yaml), [приёмка](../reports/2026-09-23-border-acceptance.md), [проверки](../../../rust/crates/compiled-rules/tests/scalars.rs). Ссылка на элемент стиля, ширина, тип, отсутствие, неверные значения и пустой XML-элемент проверены в обе стороны; 11 свойств стали кандидатами.
 - [ ] [commonObjects/characteristicsDescription](../../../packages/rules/metadata/commonObjects/characteristicsDescription)
 - [ ] [commonObjects/childFileItemNames](../../../packages/rules/metadata/commonObjects/childFileItemNames)
 - [ ] [commonObjects/childFormNames](../../../packages/rules/metadata/commonObjects/childFormNames)

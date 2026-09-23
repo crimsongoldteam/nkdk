@@ -1,0 +1,51 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.border
+value:
+  kind: record
+  fields:
+    - name: border
+      type:
+        use: value0
+        bind:
+          styleTypes:
+            input: styleTypes
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: border
+        path:
+          - Border
+  yaml:
+    kind: mapping
+    fields:
+      - field: border
+        key: Рамка
+presence:
+  - target:
+      field: border
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+inputs:
+  styleTypes:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: scalar
+        scalar: text
+id: candidate.fragment.44654bc523e8070a83ea

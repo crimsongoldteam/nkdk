@@ -1,0 +1,122 @@
+format: nkdk-declarations/1
+kind: value
+id: common.border
+namespaces:
+  v8ui: http://v8.1c.ru/8.1/data/ui
+imports:
+  reference: common.border-style-item
+  width: common.exact-decimal
+  style: system.ControlBorderType.border
+inputs:
+  styleTypes:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: scalar
+        scalar: text
+value:
+  kind: record
+  fields:
+    - name: reference
+      type:
+        use: reference
+    - name: width
+      type:
+        use: width
+    - name: style
+      type:
+        use: style
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: reference
+        path: []
+        attribute: ref
+      - field: width
+        path: []
+        attribute: width
+      - field: style
+        path:
+          - v8ui:style
+  yaml:
+    kind: mapping
+    fields:
+      - field: reference
+        key: Имя
+      - field: width
+        key: Ширина
+      - field: style
+        key: ТипРамки
+presence:
+  - target:
+      field: reference
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: null
+          denotes:
+            absent: true
+  - target:
+      field: width
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: style
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+constraints:
+  - id: style-item-type
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    assert:
+      or:
+        - not:
+            present:
+              field: reference
+        - match:
+            value:
+              lookup:
+                in:
+                  input: styleTypes
+                key:
+                  get:
+                    of:
+                      field: reference
+                    field: name
+            present:
+              as: styleType
+              then:
+                eq:
+                  - var: styleType
+                  - literal: Border
+            absent:
+              literal: false
+    diagnostic:
+      code: border.style-item
+      severity: error
+      at:
+        field: reference
+      message: Элемент стиля отсутствует или имеет другой тип

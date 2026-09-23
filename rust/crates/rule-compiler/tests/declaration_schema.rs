@@ -128,6 +128,12 @@ fn authoring_schema_accepts_the_corpus_and_rejects_structural_mistakes() {
         }
     });
     assert!(validator.is_valid(&structured_choice));
+    let mut choice_with_fallback = structured_choice.clone();
+    choice_with_fallback["representations"]["xml"]["fallback"] = json!("period");
+    choice_with_fallback["representations"]["yaml"]["fallback"] = json!("period");
+    assert!(validator.is_valid(&choice_with_fallback));
+    choice_with_fallback["representations"]["xml"]["fallback"] = json!("");
+    assert!(!validator.is_valid(&choice_with_fallback));
     let union_owner = json!({
         "format":"nkdk-declarations/1", "kind":"object", "id":"test.union-owner",
         "value":{"kind":"record","fields":[

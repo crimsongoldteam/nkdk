@@ -138,8 +138,10 @@ fn generate_at(
                     | Codec::Decimal
                     | Codec::Enumeration(..)
                     | Codec::States(..)
+                    | Codec::Pattern(_)
             ) || presence
                 .is_some_and(|rule| !rule.xml_empty.is_empty() || !rule.canonical.is_empty())
+                || matches!(&codec, Codec::Pattern(pattern) if pattern.needs_inputs())
                 || !attributes.is_empty())
         {
             return Err(unsupported(
@@ -914,15 +916,19 @@ fn generate_at(
         let mut bound = Vec::new();
         for (i, field) in group {
             let attribute = field.attribute.unwrap();
-            let lexical = if matches!(field.codec, Codec::Decimal) {
-                "std::borrow::Cow::Owned(field_value.to_string())".to_owned()
-            } else {
-                format!(
+            let lexical = match &field.codec {
+                Codec::Decimal => {
+                    "std::borrow::Cow::<str>::Owned(field_value.to_string())".to_owned()
+                }
+                Codec::Pattern(_) => {
+                    "std::borrow::Cow::<str>::Owned(field_value.write(true)?)".to_owned()
+                }
+                _ => format!(
                     "std::borrow::Cow::<str>::Borrowed({})",
                     field
                         .codec
                         .write_reference(&format!("E{id}F{i}"), "field_value", true)
-                )
+                ),
             };
             let ordinary = if field.codec.write_is_fallible(true) {
                 format!(

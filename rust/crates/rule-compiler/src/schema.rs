@@ -69,8 +69,7 @@ fn unsupported(entry: &LinkedEntry) -> Diagnostic {
     }
 }
 fn plain(entry: &LinkedEntry) -> bool {
-    entry.inputs.is_empty()
-        && entry.parameters.is_empty()
+    entry.parameters.is_empty()
         && entry.shorthands.is_empty()
         && entry.normalization.is_none()
         && entry.text_transforms.is_empty()
@@ -473,7 +472,14 @@ fn build_entry(program: &Program, entry: &LinkedEntry) -> Result<Value, Diagnost
         let Some(mapping) = context.record.fields[index].yaml else {
             continue;
         };
-        properties.insert(mapping.key.clone(), scalar(program, entry, field)?);
+        let mut shape = scalar(program, entry, field)?;
+        if crate::generate::scalar_presence::yaml_empty(
+            crate::generate::scalar_presence::rule(entry, index, &field.value, program),
+            EmptyKind::Null,
+        ) {
+            shape = json!({"anyOf":[shape,{"type":"null"}]});
+        }
+        properties.insert(mapping.key.clone(), shape);
         let common = referenced(&field.value, program);
         let inherited_missing = common.is_some_and(|entry| {
             entry
@@ -504,6 +510,9 @@ fn build_entry(program: &Program, entry: &LinkedEntry) -> Result<Value, Diagnost
         }
     }
     let mut result = json!({"$schema":"https://json-schema.org/draft/2020-12/schema", "type":"object", "properties":properties, "required":required, "additionalProperties":false});
+    if !entry.inputs.is_empty() {
+        result["x-nkdk-runtime-validation"] = json!(true);
+    }
     if context
         .record
         .fields

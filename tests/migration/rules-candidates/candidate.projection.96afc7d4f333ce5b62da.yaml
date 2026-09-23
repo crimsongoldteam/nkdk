@@ -1,0 +1,32 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.96afc7d4f333ce5b62da
+description: 'Кандидат проекции: относительный XML-корень Border; не полный владелец'
+imports:
+  part0: candidate.fragment.26c5ca87ce36b6866525
+compose:
+  - use: part0
+    bind:
+      styleTypes:
+        input: styleTypes
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []
+inputs:
+  styleTypes:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: scalar
+        scalar: text
+    index: metadata.style-item-types

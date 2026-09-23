@@ -99,6 +99,14 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
     JSON.stringify(target.filters)===JSON.stringify([{kind:profile.filter,values:[p.type]}]));
   const indexedCommon=genericCommon && indexInputs.length===1 && Object.keys(genericCommon.inputs).length===1 && targetProfile;
   const genericReusable=indexedCommon;
+  // A scalar cannot equal a YAML mapping or the source record by identity.
+  // Such a legacy implicitValueYAML neither omits an imported value nor supplies
+  // a value on YAML import without implicitValueXML.
+  const ineffectiveRecordDefault=indexedCommon && genericCommon.value?.kind==='record'
+    && genericCommon.representations?.yaml?.kind==='mapping'
+    && Object.hasOwn(p,'implicitValueYAML') && p.implicitValueYAML!==null
+    && typeof p.implicitValueYAML!=='object' && !Object.hasOwn(p,'implicitValueXML');
+  if(ineffectiveRecordDefault)parameterEquivalences.push({parameter:'implicitValueYAML',equivalentTo:'ineffective-scalar-default-for-record',via:genericId});
   const ownerForm=p.type==='MetadataItemLink' && target?.kind==='member' && target.owner==='this' && JSON.stringify(target.memberKinds)==='["Form"]' && JSON.stringify(target.objectRoots)==='["CommonForm"]' && Object.keys(target).every(key=>['kind','owner','memberKinds','objectRoots'].includes(key));
   const typeForm=p.type==='MetadataItemLink' && target?.kind==='member' && target.owner==='type' && target.typeProperty==='type' && JSON.stringify(target.memberKinds)==='["Form"]' && Object.keys(target).every(key=>['kind','owner','typeProperty','memberKinds'].includes(key));
   const explicitForm=p.type==='MetadataItemLink' && target?.kind==='member' && target.owner==='explicit' && JSON.stringify(target.memberKinds)==='["Form"]' && Object.keys(target).every(key=>['kind','owner','memberKinds'].includes(key));
@@ -143,7 +151,7 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
   if(runtimeOnly && (!typeDescription || ['xml','xmlParents','defaultValueXML','defaultValueXMLRaw','defaultValueAdoptedXML'].some(key=>Object.hasOwn(p,key))))return fail('runtime-only-profile');
   if(typeLink && Object.hasOwn(p,'metadataTarget'))return fail('type-link-target-profile');
   const reference=ownerForm || typeForm || explicitForm || ownBooleanAttribute || numerator || typeLink || typeDescription || choiceValue || metadataValue || metadataFields || functionalOptions || childSubsystemNames || userVisible || indexedCommon;
-  if(reference && (Object.hasOwn(p,'defaultValueXML') || Object.hasOwn(p,'implicitValueYAML') || Object.hasOwn(p,'noImplicitValueYAML')))return fail('form-default-profile');
+  if(reference && (Object.hasOwn(p,'defaultValueXML') || (Object.hasOwn(p,'implicitValueYAML') && !ineffectiveRecordDefault) || Object.hasOwn(p,'noImplicitValueYAML')))return fail('form-default-profile');
   const grouped = p.type === 'MetadataCommandGroup';
   const scalarChoice=p.type==='StringOrNumber';
   const qname = p.type === 'XDTOTypeName';
@@ -228,7 +236,7 @@ export function mapProperty(property, catalog, xmlNamespaces={}) {
   if (!list && !purposes && !date && !xmlOnlyDefault && !emptyStringDefault && Object.hasOwn(p,'defaultValueXML') && (!Object.hasOwn(p,'implicitValueYAML') || p.defaultValueXML !== implicitValue)) return fail('asymmetric-defaults');
   if (text && !emptyTextDefault && (Object.hasOwn(p,'implicitValueYAML') || Object.hasOwn(p,'defaultValueXML'))) return fail('text-default-needs-expression');
   if (p.defaultValueXMLRaw === '' && Object.hasOwn(p,'implicitValueYAML') && p.implicitValueYAML !== '') return fail('asymmetric-raw-default');
-  const hasDefault = xmlOnlyDefault || (!list && !emptyTextDefault && !p.noImplicitValueYAML && (Object.hasOwn(p,'implicitValueYAML') || (p.type === 'string' && p.defaultValueXMLRaw === '')));
+  const hasDefault = xmlOnlyDefault || (!list && !emptyTextDefault && !p.noImplicitValueYAML && ((Object.hasOwn(p,'implicitValueYAML') && !ineffectiveRecordDefault) || (p.type === 'string' && p.defaultValueXMLRaw === '')));
   const defaultValue = Object.hasOwn(p,'implicitValueYAML') ? implicitValue : xmlOnlyDefault ? p.defaultValueXML : '';
   if (hasDefault) {
     const expected = p.type === 'SystemEnumeration' ? 'string' : p.type;

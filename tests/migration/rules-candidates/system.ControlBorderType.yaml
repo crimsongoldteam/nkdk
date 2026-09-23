@@ -1,0 +1,36 @@
+format: nkdk-declarations/1
+kind: value
+id: system.ControlBorderType
+enum:
+  WithoutBorder: БезРамки
+  Indented: Вдавленная
+  Embossed: Выпуклая
+  Double: Двойная
+  DoubleUnderline: ДвойноеПодчеркивание
+  Single: Одинарная
+  Underline: Подчеркивание
+  Rounded: Скругленная
+  Overline: ЧертаСверху
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  t: http://v8.1c.ru/8.1/data/enterprise
+  v8ui: http://v8.1c.ru/8.1/data/ui
+projections:
+  - id: system.ControlBorderType.border
+    xml:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: v8ui:ControlBorderType
+      content:
+        kind: text
+  - id: system.ControlBorderType.dcs
+    xml:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: t:ControlBorderType
+      content:
+        kind: text

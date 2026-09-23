@@ -1,0 +1,32 @@
+format: nkdk-declarations/1
+kind: value
+id: common.border-style-item
+imports:
+  name: common.metadata-name
+value:
+  kind: record
+  fields:
+    - name: name
+      type:
+        use: name
+representations:
+  xml:
+    kind: text-pattern
+    parts:
+      - literal: 'style:'
+      - field: name
+  yaml:
+    kind: text-pattern
+    parts:
+      - literal: ЭлементСтиля.
+      - field: name
+presence:
+  - target: self
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true

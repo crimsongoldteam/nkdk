@@ -1,0 +1,22 @@
+format: nkdk-declarations/1
+kind: object
+id: probe.border-owner
+imports: {border: common.border}
+inputs: {styleTypes: {index: metadata.style-item-types}}
+value:
+  kind: record
+  fields:
+  - {name: border, type: {use: border, bind: {styleTypes: {input: styleTypes}}}}
+  - {name: note, type: {kind: scalar, scalar: text}}
+representations:
+  xml: {kind: record, fields: [{field: border, path: [Root, Border]}, {field: note, path: [Root, Note]}]}
+  yaml: {kind: mapping, fields: [{field: border, key: Рамка}, {field: note, key: Примечание}]}
+presence:
+- target: {field: border}
+  xml:
+    missing: {denotes: {absent: true}}
+    empty: [{form: empty-element, denotes: {absent: true}}]
+  yaml: {missing: {denotes: {absent: true}}}
+- target: {field: note}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {missing: {denotes: {absent: true}}}

@@ -4343,6 +4343,7 @@
       "type": "object",
       "properties": {
         "kind": {"const": "choice"},
+        "fallback": {"type": "string", "minLength": 1},
         "variants": {
           "type": "array",
           "minItems": 1,
@@ -4379,7 +4380,10 @@
       "oneOf": [
         {
           "type": "object",
-          "properties": {"kind": {"const": "choice"}},
+          "properties": {
+            "kind": {"const": "choice"},
+            "fallback": {"type": "string", "minLength": 1}
+          },
           "required": ["kind"],
           "additionalProperties": false
         },

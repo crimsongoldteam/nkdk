@@ -2,6 +2,38 @@ use nkdk_rule_compiler::{SourceFile, generate, link, parse, schema};
 use std::{fs, process::Command};
 
 #[test]
+fn text_pattern_can_be_written_to_an_unrelated_record_attribute() {
+    let source = r#"format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: test.archive-label
+  value: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}]}
+  representations:
+    xml: {kind: text-pattern, parts: [{literal: 'archive:'}, {field: name}]}
+    yaml: {kind: text-pattern, parts: [{literal: 'Архив.'}, {field: name}]}
+  presence:
+  - target: self
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}}
+- kind: object
+  id: test.archive-owner
+  imports: {label: test.archive-label}
+  value: {kind: record, fields: [{name: label, type: {use: label}}]}
+  representations:
+    xml: {kind: record, fields: [{field: label, path: [Archive], attribute: label}]}
+    yaml: {kind: mapping, fields: [{field: label, key: Подпись}]}
+"#;
+    let declarations = nkdk_rule_compiler::parse_many(SourceFile {
+        path: "archive-attribute.yaml",
+        bytes: source.as_bytes(),
+    })
+    .unwrap();
+    let program = link(&declarations).unwrap();
+    generate(&program).expect("text-pattern attributes must be independent of Border");
+}
+
+#[test]
 fn sibling_record_field_can_select_an_absent_scalar_xml_form() {
     let modules = nkdk_rule_compiler::parse_many(SourceFile {
         path: "conditional-nested-empty-scalar.yaml",

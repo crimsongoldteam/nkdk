@@ -288,10 +288,11 @@ fn new()->Self{Self{body:item_@id@::XmlReader::new(),present:false,content:false
 #[allow(dead_code)]
 fn consume_scoped(&mut self,path:&[core::xml::Name],token:&core::xml::Token<'_>,scope:Option<core::xml::NamespaceScope<'_>>,source:&[u8],inputs:&InputView<'_>)->core::Result<()>{
 if matches!(token,core::xml::Token::Start(_)) && core::xml::matches(path,@path@){if self.present{return Err(RuntimeDiagnostic::new("xml.duplicate-field","Repeated record"))}self.present=true;}
-if path.len()>=(@path@).len() && core::xml::matches(&path[..(@path@).len()],@path@) && ((path.len()>(@path@).len() && matches!(token,core::xml::Token::Start(_))) || matches!(token,core::xml::Token::Text(text) if !text.trim().is_empty())) {self.content=true;}
+if path.len()<(@path@).len() || !core::xml::matches(&path[..(@path@).len()],@path@){return Ok(())}
+if (path.len()>(@path@).len() && matches!(token,core::xml::Token::Start(_))) || matches!(token,core::xml::Token::Attribute(_) if path.len()==(@path@).len()) || matches!(token,core::xml::Token::Text(text) if !text.trim().is_empty()){self.content=true;}
 self.body.consume_scoped(path,token,scope,source,inputs)}
 #[allow(dead_code)]
-fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<V@id@>{if !self.present && !@xml_missing@{return Err(RuntimeDiagnostic::new("value.missing","Missing record"))}Ok(V@id@{body:if self.present && !( @xml_empty@ && !self.content ){Some(self.body.finish(source,inputs)?)}else{None},raw:None})}
+fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<V@id@>{if !self.present && !@xml_missing@{return Err(RuntimeDiagnostic::new("value.missing","Missing record"))}let absent_empty=self.present && @xml_empty@ && !self.content;let raw=if absent_empty && !@xml_absent_empty@{let tree=core::xml::Tree::capture_with_qnames(source,@path@,xml_qname_text_@id@)?;tree.map(|tree|->core::Result<_>{let payload=tree.patch_yaml(None,&[],&xml_qnames_@id@())?;core::xml::Patch::read(payload.as_bytes(),&[],&xml_qnames_@id@())}).transpose()?}else{None};Ok(V@id@{body:if self.present && !absent_empty{Some(self.body.finish(source,inputs)?)}else{None},raw})}
 }
 struct RecordYamlRead@id@{property:core::yaml::PropertyReader,body:item_@id@::YamlReader}
 impl RecordYamlRead@id@{
