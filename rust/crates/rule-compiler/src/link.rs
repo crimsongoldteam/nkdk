@@ -695,7 +695,7 @@ fn resolve_xml(
         XmlRepresentation::Decimal => LinkedXml::Decimal,
         XmlRepresentation::FormattedDecimal(format) => LinkedXml::FormattedDecimal(format.clone()),
         XmlRepresentation::Text => LinkedXml::Text,
-        XmlRepresentation::Choice => LinkedXml::Choice,
+        XmlRepresentation::Choice { fallback } => LinkedXml::Choice { fallback: fallback.clone() },
         XmlRepresentation::TextPattern(parts) => LinkedXml::TextPattern(parts.clone()),
         XmlRepresentation::TextSequence { separator } => LinkedXml::TextSequence {
             separator: separator.clone(),
@@ -852,7 +852,17 @@ fn validate_xml(
     source: &SourceLocation,
 ) -> Result<(), Diagnostic> {
     match (value, xml) {
-        (LinkedType::Choice(_), LinkedXml::Choice) => {}
+        (LinkedType::Choice(variants), LinkedXml::Choice { fallback }) => {
+            if let Some(name) = fallback {
+                if !variants.iter().any(|variant| variant.name == *name) {
+                    return Err(diagnostic(
+                        "unknown_choice_variant",
+                        source,
+                        "XML fallback names an unknown choice variant",
+                    ));
+                }
+            }
+        }
         (LinkedType::Choice(variants), LinkedXml::DiscriminatedChoice(choice)) => {
             if choice.attribute.namespace != "http://www.w3.org/2001/XMLSchema-instance"
                 || choice.attribute.local != "type"
@@ -1043,7 +1053,22 @@ fn validate_yaml(
             LinkedType::Reference(_) | LinkedType::BoundReference { .. },
             YamlRepresentation::Declared,
         ) => {}
-        (LinkedType::Choice(variants), YamlRepresentation::Choice(selectors)) => {
+        (
+            LinkedType::Choice(variants),
+            YamlRepresentation::Choice {
+                variants: selectors,
+                fallback,
+            },
+        ) => {
+            if let Some(name) = fallback {
+                if !variants.iter().any(|variant| variant.name == *name) {
+                    return Err(diagnostic(
+                        "unknown_choice_variant",
+                        source,
+                        "YAML fallback names an unknown choice variant",
+                    ));
+                }
+            }
             for selector in selectors {
                 let Some(variant) = variants
                     .iter()

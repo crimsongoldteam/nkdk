@@ -168,8 +168,8 @@ pub(super) fn types(entries: &BTreeMap<u32, LinkedEntry>) -> Result<(), Diagnost
                     && xml_parts(&target.xml).is_some()
                     && matches!(target.yaml, YamlRepresentation::TextPattern(_)))
                     || (matches!(target.value, LinkedType::Choice(_))
-                        && matches!(content, LinkedXml::Choice)
-                        && matches!(target.yaml, YamlRepresentation::Choice(_)))
+                        && matches!(content, LinkedXml::Choice { .. })
+                        && matches!(target.yaml, YamlRepresentation::Choice { .. }))
                 {
                     continue;
                 }

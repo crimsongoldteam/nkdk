@@ -75,8 +75,8 @@ pub(super) fn types(entries: &BTreeMap<u32, LinkedEntry>) -> Result<(), Diagnost
             return Err(invalid());
         }
         let variants = if let LinkedType::Choice(fields) = &target.value {
-            if !matches!(target.xml, LinkedXml::Choice)
-                || !matches!(target.yaml, YamlRepresentation::Choice(_))
+            if !matches!(target.xml, LinkedXml::Choice { .. })
+                || !matches!(target.yaml, YamlRepresentation::Choice { .. })
             {
                 return Err(invalid());
             }

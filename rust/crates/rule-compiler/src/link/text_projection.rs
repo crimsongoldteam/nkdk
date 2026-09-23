@@ -24,10 +24,10 @@ pub(super) fn apply(entry: &mut LinkedEntry, source: &LinkedEntry) -> Result<(),
                 )
         }
         LinkedType::Choice(_) => {
-            source.xml == LinkedXml::Choice
-                && matches!(source.yaml, YamlRepresentation::Choice(_))
-                && *xml == LinkedXml::Choice
-                && matches!(entry.yaml, YamlRepresentation::Choice(_))
+            matches!(source.xml, LinkedXml::Choice { .. })
+                && matches!(source.yaml, YamlRepresentation::Choice { .. })
+                && matches!(*xml, LinkedXml::Choice { .. })
+                && matches!(entry.yaml, YamlRepresentation::Choice { .. })
         }
         _ => false,
     };

@@ -10,7 +10,7 @@ pub(super) fn applies(entry: &LinkedEntry, program: &Program) -> bool {
                 match common.value {
                     LinkedType::Record(_)=>fields.len()>1 && !matches!(xml,LinkedXml::TextPattern(_)),
                     LinkedType::Sequence(_)=>fields.len()>1 && !matches!(xml,LinkedXml::TextSequence{..}),
-                    LinkedType::Choice(_)=>matches!(common.yaml,YamlRepresentation::Choice(ref selectors) if !selectors.is_empty()),
+                    LinkedType::Choice(_)=>matches!(common.yaml,YamlRepresentation::Choice { variants: ref selectors, .. } if !selectors.is_empty()),
                     _=>false,
                 }
             })

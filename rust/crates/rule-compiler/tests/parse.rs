@@ -88,6 +88,38 @@ fn mapping_keys_must_be_strings() {
 const TEXT_MODULE: &str = "format: nkdk-declarations/1\nkind: value\nid: common.text\nvalue: {kind: scalar, scalar: text}\nrepresentations:\n  xml: {kind: text}\n  yaml: {kind: scalar, scalar: text}\n";
 
 #[test]
+fn choice_accepts_named_xml_fallback() {
+    let source = "format: nkdk-declarations/1\nkind: value\nid: test.choice\nimports: {standard: test.standard, item: test.item}\nvalue: {kind: choice, variants: [{name: СтандартныйЦветСтиля, type: {use: standard}}, {name: ЭлементСтиля, type: {use: item}}]}\nrepresentations:\n  xml: {kind: choice, fallback: ЭлементСтиля}\n  yaml: {kind: choice}\n";
+    let module = parse(SourceFile {
+        path: "choice.yaml",
+        bytes: source.as_bytes(),
+    })
+    .expect("named fallback must parse");
+    assert!(format!("{:?}", module.representations.xml).contains("ЭлементСтиля"));
+}
+
+#[test]
+fn choice_rejects_fallback_with_xml_discriminator() {
+    let source = "format: nkdk-declarations/1\nkind: value\nid: test.choice\nimports: {standard: test.standard}\nvalue: {kind: choice, variants: [{name: standard, type: {use: standard}}]}\nrepresentations:\n  xml: {kind: choice, fallback: standard, attribute: type, variants: [{variant: standard, in: [text], emit: text}], otherwise: standard}\n  yaml: {kind: choice}\n";
+    let errors = parse(SourceFile {
+        path: "choice.yaml",
+        bytes: source.as_bytes(),
+    })
+    .unwrap_err();
+    assert!(
+        errors.iter().any(|e| e.code == "invalid_choice_fallback"),
+        "{errors:?}"
+    );
+}
+
+#[test]
+fn choice_rejects_duplicate_fallback_key() {
+    let source = "format: nkdk-declarations/1\nkind: value\nid: test.choice\nvalue: {kind: choice, variants: []}\nrepresentations:\n  xml: {kind: choice, fallback: first, fallback: second}\n  yaml: {kind: choice}\n";
+    let errors = parse(SourceFile { path: "choice.yaml", bytes: source.as_bytes() }).unwrap_err();
+    assert!(errors.iter().any(|error| error.code == "duplicate_key"));
+}
+
+#[test]
 fn parses_a_closed_scalar_declaration() {
     let module = parse(SourceFile {
         path: "text.yaml",

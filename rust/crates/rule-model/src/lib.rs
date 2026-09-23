@@ -89,7 +89,9 @@ pub enum XmlRepresentation {
     TextSequence {
         separator: String,
     },
-    Choice,
+    Choice {
+        fallback: Option<String>,
+    },
     DiscriminatedChoice(DiscriminatedChoiceXml<String>),
     TextPattern(Vec<TextPatternPart>),
     QName {
@@ -154,7 +156,10 @@ pub enum YamlRepresentation {
     TextSequence {
         separator: String,
     },
-    Choice(Vec<YamlChoiceCase>),
+    Choice {
+        variants: Vec<YamlChoiceCase>,
+        fallback: Option<String>,
+    },
     TextTable(TextTable),
     InputTextTable(RecordKeyTable),
     TextPattern(Vec<TextPatternPart>),

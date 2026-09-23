@@ -1274,10 +1274,13 @@ fn choice_representations(
     xml: &Node,
     yaml: &Node,
 ) -> Result<(XmlRepresentation, YamlRepresentation), Diagnostic> {
-    let yaml_fields = yaml.mapping(path, &["kind", "variants"])?;
+    let yaml_fields = yaml.mapping(path, &["kind", "variants", "fallback"])?;
     yaml.field(path, yaml_fields, "kind")?
         .literal(path, "choice", "unsupported_representation")?;
-    let xml_fields = xml.mapping(path, &["kind", "attribute", "variants", "otherwise"])?;
+    let xml_fields = xml.mapping(
+        path,
+        &["kind", "attribute", "variants", "otherwise", "fallback"],
+    )?;
     xml.field(path, xml_fields, "kind")?
         .literal(path, "choice", "unsupported_representation")?;
     let yaml_variants = optional_field(yaml_fields, "variants")
@@ -1326,12 +1329,32 @@ fn choice_representations(
         })
         .transpose()?
         .unwrap_or_default();
+    let xml_fallback = optional_field(xml_fields, "fallback")
+        .map(|value| value.text(path).map(str::to_owned))
+        .transpose()?;
+    let yaml_fallback = optional_field(yaml_fields, "fallback")
+        .map(|value| value.text(path).map(str::to_owned))
+        .transpose()?;
+    let yaml_representation = YamlRepresentation::Choice {
+        variants: yaml_variants,
+        fallback: yaml_fallback,
+    };
     let Some(attribute) = optional_field(xml_fields, "attribute") else {
         return Ok((
-            XmlRepresentation::Choice,
-            YamlRepresentation::Choice(yaml_variants),
+            XmlRepresentation::Choice {
+                fallback: xml_fallback,
+            },
+            yaml_representation,
         ));
     };
+    if optional_field(xml_fields, "fallback").is_some() {
+        return Err(error(
+            path,
+            xml.mark,
+            "invalid_choice_fallback",
+            "XML discriminator and fallback cannot be combined",
+        ));
+    }
     let mut variants = Vec::new();
     for item in sequence(path, xml.field(path, xml_fields, "variants")?)? {
         let fields = item.mapping(path, &["variant", "in", "emit"])?;
@@ -1352,6 +1375,6 @@ fn choice_representations(
             variants,
             otherwise: xml.field(path, xml_fields, "otherwise")?.text(path)?.into(),
         }),
-        YamlRepresentation::Choice(yaml_variants),
+        yaml_representation,
     ))
 }

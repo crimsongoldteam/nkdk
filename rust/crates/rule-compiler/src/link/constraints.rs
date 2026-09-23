@@ -151,7 +151,7 @@ fn resolve_forms(module: &Module, constraint: &Constraint) -> Result<Vec<LinkedF
                 ));
             }
             XmlRepresentation::WithAttributes { .. } => unreachable!(),
-            XmlRepresentation::Choice
+            XmlRepresentation::Choice { .. }
             | XmlRepresentation::DiscriminatedChoice(_)
             | XmlRepresentation::Text
             | XmlRepresentation::TextPattern(_)
@@ -191,7 +191,7 @@ fn resolve_forms(module: &Module, constraint: &Constraint) -> Result<Vec<LinkedF
                     "Inherited representation is only valid for a referenced sequence item",
                 ));
             }
-            YamlRepresentation::Choice(_)
+            YamlRepresentation::Choice { .. }
             | YamlRepresentation::TextTable(_)
             | YamlRepresentation::InputTextTable(_)
             | YamlRepresentation::Text

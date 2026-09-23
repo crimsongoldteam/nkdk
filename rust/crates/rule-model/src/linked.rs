@@ -88,7 +88,9 @@ pub enum LinkedXml {
     TextSequence {
         separator: String,
     },
-    Choice,
+    Choice {
+        fallback: Option<String>,
+    },
     DiscriminatedChoice(crate::DiscriminatedChoiceXml<ExpandedName>),
     TextPattern(Vec<crate::TextPatternPart>),
     QName {

@@ -26,7 +26,10 @@ fn shape<'a>(child: &'a LinkedEntry, program: &'a Program<'a>) -> Option<Shape<'
     let (
         LinkedType::Choice(variants),
         LinkedXml::DiscriminatedChoice(choice),
-        YamlRepresentation::Choice(selectors),
+        YamlRepresentation::Choice {
+            variants: selectors,
+            ..
+        },
     ) = (&target.value, &target.xml, &target.yaml)
     else {
         return None;

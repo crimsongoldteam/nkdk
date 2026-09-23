@@ -9,7 +9,7 @@ pub(super) fn specialize(
     if (matches!(common.xml, LinkedXml::TextPattern(_))
         && matches!(common.yaml, YamlRepresentation::TextPattern(_)))
         || (matches!(common.value, LinkedType::Choice(_))
-            && matches!(common.yaml, YamlRepresentation::Choice(_)))
+            && matches!(common.yaml, YamlRepresentation::Choice { .. }))
         || typed_collection(common)
     {
         let mut instance = common.clone();

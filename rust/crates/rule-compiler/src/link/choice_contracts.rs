@@ -2,8 +2,13 @@ use super::*;
 
 pub(super) fn validate_selectors(program: &Program) -> Result<(), Diagnostic> {
     for choice in &program.entries {
-        let (LinkedType::Choice(variants), YamlRepresentation::Choice(selectors)) =
-            (&choice.value, &choice.yaml)
+        let (
+            LinkedType::Choice(variants),
+            YamlRepresentation::Choice {
+                variants: selectors,
+                ..
+            },
+        ) = (&choice.value, &choice.yaml)
         else {
             continue;
         };

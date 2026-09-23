@@ -186,7 +186,7 @@ fn attribute_type<'a>(value: &LinkedType, entries: &impl Fn(u32) -> &'a LinkedEn
 fn scalar_xml(value: &LinkedXml) -> bool {
     matches!(
         value,
-        LinkedXml::Choice
+        LinkedXml::Choice { .. }
             | LinkedXml::DiscriminatedChoice(_)
             | LinkedXml::Text
             | LinkedXml::TextPattern(_)

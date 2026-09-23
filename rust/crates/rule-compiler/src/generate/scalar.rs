@@ -64,8 +64,8 @@ impl<'a> Codec<'a> {
                     ))),
                     (
                         LinkedType::Choice(_),
-                        LinkedXml::Choice | LinkedXml::DiscriminatedChoice(_),
-                        YamlRepresentation::Choice(_),
+                        LinkedXml::Choice { .. } | LinkedXml::DiscriminatedChoice(_),
+                        YamlRepresentation::Choice { .. },
                     ) => Ok(Self::Forms(Box::new(super::text_choice::Codec::resolve(
                         target, program,
                     )?))),

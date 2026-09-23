@@ -14,6 +14,33 @@ fn assert_catalog_error(source: &str, code: &str) {
     assert!(errors.iter().any(|error| error.code == code), "{errors:?}");
 }
 
+#[test]
+fn text_choice_fallback_names_an_existing_variant() {
+    let source = r#"format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: test.standard
+  value: {kind: scalar, scalar: text}
+  representations: {xml: {kind: text}, yaml: {kind: scalar, scalar: text}}
+- kind: value
+  id: test.item
+  value: {kind: scalar, scalar: text}
+  representations: {xml: {kind: text}, yaml: {kind: scalar, scalar: text}}
+- kind: value
+  id: test.choice
+  imports: {standard: test.standard, item: test.item}
+  value: {kind: choice, variants: [{name: standard, type: {use: standard}}, {name: item, type: {use: item}}]}
+  representations: {xml: {kind: choice, fallback: item}, yaml: {kind: choice}}
+"#;
+    let modules = parse_catalog(source);
+    link(&modules).expect("existing fallback variant");
+    for invalid in ["missing", ""] {
+        let changed = source.replace("fallback: item", &format!("fallback: '{invalid}'"));
+        assert_catalog_error(&changed, "unknown_choice_variant");
+    }
+}
+
 fn modules() -> Vec<nkdk_rule_model::Module> {
     [
         (
