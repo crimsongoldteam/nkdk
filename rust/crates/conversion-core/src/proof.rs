@@ -22,18 +22,46 @@ pub fn verify_with_qnames(
     qname_attribute: impl Fn(&[Name], &Name) -> bool,
     qname_text: impl Fn(&[Name]) -> bool,
 ) -> Result<()> {
+    verify_with_canonical_omissions(original, restored, &[], scalar, qname_attribute, qname_text)
+}
+
+/// Compare a canonical export with an XML source whose declared properties
+/// are intentionally omitted. Only the source paths are ignored.
+pub fn verify_with_canonical_omissions<S, A, T>(
+    original: &[u8],
+    restored: &[u8],
+    omitted: &[&[(&str, &str)]],
+    scalar: S,
+    qname_attribute: A,
+    qname_text: T,
+) -> Result<()>
+where
+    S: Fn(&[Name]) -> bool,
+    A: Fn(&[Name], &Name) -> bool,
+    T: Fn(&[Name]) -> bool,
+{
+    let skip = |path: &[Name]| {
+        omitted.iter().any(|route| {
+            path.len() >= route.len()
+                && route.iter().zip(path).all(|((namespace, local), name)| {
+                    name.namespace == *namespace && name.local == *local
+                })
+        })
+    };
     compare(
         fingerprint::<false>(
             original,
             &|path, _| scalar(path),
             &qname_attribute,
             &qname_text,
+            &skip,
         )?,
         fingerprint::<false>(
             restored,
             &|path, _| scalar(path),
             &qname_attribute,
             &qname_text,
+            &|_| false,
         )?,
     )
 }
@@ -53,8 +81,8 @@ where
     T: Fn(&[Name]) -> bool,
 {
     compare(
-        fingerprint::<true>(original, &scalar, &qname_attribute, &qname_text)?,
-        fingerprint::<true>(restored, &scalar, &qname_attribute, &qname_text)?,
+        fingerprint::<true>(original, &scalar, &qname_attribute, &qname_text, &|_| false)?,
+        fingerprint::<true>(restored, &scalar, &qname_attribute, &qname_text, &|_| false)?,
     )
 }
 fn compare(original: [u8; 32], restored: [u8; 32]) -> Result<()> {
@@ -93,12 +121,16 @@ fn fingerprint<const OCCURRENCES: bool>(
     scalar: &impl Fn(&[Name], &[usize]) -> bool,
     qname: &impl Fn(&[Name], &Name) -> bool,
     qname_text: &impl Fn(&[Name]) -> bool,
+    skip: &impl Fn(&[Name]) -> bool,
 ) -> Result<[u8; 32]> {
     let mut hash = Sha256::new();
     let mut text_runs: Vec<TextRun> = Vec::new();
     let mut counts: Vec<std::collections::BTreeMap<Name, usize>> = Vec::new();
     let mut occurrences = Vec::new();
     xml::visit_scoped(source, |path, token, scope| {
+        if skip(path) {
+            return Ok(());
+        }
         match token {
             Token::Start(_) => {
                 if OCCURRENCES {
@@ -204,4 +236,27 @@ fn fingerprint<const OCCURRENCES: bool>(
         Ok(())
     })?;
     Ok(hash.finalize().into())
+}
+
+#[cfg(test)]
+mod canonical_tests {
+    use super::*;
+
+    #[test]
+    fn omitted_property_does_not_hide_changes_to_siblings() {
+        let original = b"<Root><Defaulted>value</Defaulted><Name>One</Name></Root>";
+        let omitted = &[&[("", "Root"), ("", "Defaulted")][..]];
+        let verify = |restored: &[u8]| {
+            verify_with_canonical_omissions(
+                original,
+                restored,
+                omitted,
+                |_| true,
+                |_, _| false,
+                |_| false,
+            )
+        };
+        verify(b"<Root><Name>One</Name></Root>").unwrap();
+        assert!(verify(b"<Root><Name>Two</Name></Root>").is_err());
+    }
 }

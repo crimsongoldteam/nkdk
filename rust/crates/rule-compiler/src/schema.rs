@@ -393,6 +393,20 @@ fn build_entry(program: &Program, entry: &LinkedEntry) -> Result<Value, Diagnost
     if let Some(schema) = keyed::build(program, entry)? {
         return Ok(schema);
     }
+    if let (LinkedType::Choice(variants), YamlRepresentation::Choice { .. }) =
+        (&entry.value, &entry.yaml)
+    {
+        let mut alternatives = Vec::new();
+        for variant in variants {
+            let shape = scalar(program, entry, variant)?;
+            if !alternatives.contains(&shape) {
+                alternatives.push(shape);
+            }
+        }
+        return Ok(
+            json!({"$schema":"https://json-schema.org/draft/2020-12/schema","anyOf":alternatives,"x-nkdk-runtime-validation":true}),
+        );
+    }
     if let (LinkedType::Record(fields), YamlRepresentation::Mapping(mapping)) =
         (&entry.value, &entry.yaml)
         && fields.len() == 1

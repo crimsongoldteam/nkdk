@@ -1,6 +1,31 @@
 use nkdk_rule_compiler::{SourceFile, link, parse, schema};
 
 #[test]
+fn color_schema_is_generated_from_the_shared_declaration() {
+    let program = declaration_program(&[
+        "common/system-enumerations.yaml",
+        "common/metadata-name.yaml",
+        "fragments/metadata-style-item-type.yaml",
+        "common/color.yaml",
+    ]);
+    let actual: serde_json::Value =
+        serde_json::from_slice(&schema(&program, "common.color").unwrap()).unwrap();
+    let validator = jsonschema::validator_for(&actual).unwrap();
+    for color in [
+        "ЦветОсобогоТекста",
+        "ЭлементСтиля.ПоясняющийТекст",
+        "ТеньКнопкиСветлая",
+        "АкварельноСиний",
+        "#C3C0C3",
+        "0:615512b6-4378-4fce-86f1-a56725f945da",
+    ] {
+        assert!(validator.is_valid(&serde_json::json!(color)), "{color}");
+    }
+    assert!(!validator.is_valid(&serde_json::json!(42)));
+    assert_eq!(actual["x-nkdk-runtime-validation"], true);
+}
+
+#[test]
 fn recursive_collection_schema_uses_defs_and_ref() {
     let program = link(&[
         parse(SourceFile {

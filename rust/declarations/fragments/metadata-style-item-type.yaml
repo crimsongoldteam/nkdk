@@ -1,0 +1,20 @@
+format: nkdk-declarations/1
+kind: fragment
+id: fragment.metadata-style-item-type
+namespaces: {md: 'http://v8.1c.ru/8.3/MDClasses'}
+value:
+  kind: record
+  fields:
+  - {name: name, type: {kind: scalar, scalar: text}}
+  - {name: type, type: {kind: scalar, scalar: text}}
+representations:
+  xml:
+    kind: record
+    fields:
+    - {field: name, path: [md:MetaDataObject, md:StyleItem, md:Properties, md:Name]}
+    - {field: type, path: [md:MetaDataObject, md:StyleItem, md:Properties, md:Type]}
+  yaml: {kind: mapping, fields: [{field: name, key: Имя}, {field: type, key: Тип}]}
+contributions:
+- index: metadata.style-item-types
+  key: {field: name}
+  value: {field: type}

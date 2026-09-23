@@ -1,0 +1,10 @@
+{
+  "source": "e2e/fixtures/xml/cf/Styles/СтильВсеСвойства/Ext/Style.xml",
+  "sourceSha256": "d4f23de82871523f9706e44e10357cc3c468693c5116c061dcf7ec748bf584c8",
+  "cases": [
+    {"xml": "web:PeachPuff", "yaml": "Персиковый"},
+    {"xml": "web:MediumTurquoise", "yaml": "НейтральноБирюзовый"},
+    {"xml": "web:SaddleBrown", "yaml": "КожаноКоричневый"},
+    {"xml": "win:ToolTip", "yaml": "Подсказка"}
+  ]
+}

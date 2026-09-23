@@ -1,6 +1,223 @@
 use nkdk_compiled_rules::{Direction, PreparedInputs, convert_file, entry_id, validate_file};
 use nkdk_compiled_rules_probes as nkdk_compiled_rules;
 
+fn color_inputs(
+    owner: &str,
+    styles: &[(&str, &str)],
+) -> (nkdk_compiled_rules::EntryId, PreparedInputs) {
+    let sources = styles
+        .iter()
+        .map(|(name, kind)| {
+            format!(
+                "<MetaDataObject xmlns=\"http://v8.1c.ru/8.3/MDClasses\"><StyleItem><Properties><Name>{name}</Name><Type>{kind}</Type></Properties></StyleItem></MetaDataObject>"
+            )
+        })
+        .collect::<Vec<_>>();
+    color_inputs_from_xml(
+        owner,
+        &sources.iter().map(String::as_str).collect::<Vec<_>>(),
+    )
+}
+
+fn color_inputs_from_xml(
+    owner: &str,
+    sources: &[&str],
+) -> (nkdk_compiled_rules::EntryId, PreparedInputs) {
+    let producer = entry_id("probe.style-item-type-facts").unwrap();
+    let entry = entry_id(owner).unwrap();
+    let generation = nkdk_conversion_core::facts::Generation(1);
+    let budget = nkdk_conversion_core::facts::prepared::FactBudget {
+        text: nkdk_conversion_core::facts::text::TextBudget {
+            entries: 20,
+            bytes: 4096,
+        },
+        rows: 20,
+    };
+    let mut builder = nkdk_compiled_rules::fact_builder(generation, budget);
+    for source in sources {
+        let issues = nkdk_compiled_rules::contribute_file(
+            producer,
+            Direction::XmlToYaml,
+            source.as_bytes(),
+            &PreparedInputs::default(),
+            &mut builder,
+        );
+        assert!(issues.is_empty(), "{issues:?}");
+    }
+    let facts = std::sync::Arc::new(builder.finish());
+    (
+        entry,
+        nkdk_compiled_rules::prepare_fact_inputs(entry, facts, generation, vec![]).unwrap(),
+    )
+}
+
+fn assert_color_value(
+    entry: nkdk_compiled_rules::EntryId,
+    inputs: &PreparedInputs,
+    xml_value: &str,
+    yaml: &str,
+) {
+    let xml = format!("<Root><Color>{xml_value}</Color></Root>");
+    let imported = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), inputs).unwrap();
+    assert_eq!(String::from_utf8(imported.bytes).unwrap(), yaml);
+    let exported = convert_file(entry, Direction::YamlToXml, yaml.as_bytes(), inputs).unwrap();
+    assert!(
+        String::from_utf8(exported.bytes)
+            .unwrap()
+            .contains(&format!("<Color>{xml_value}</Color>"))
+    );
+}
+
+#[test]
+fn color_uses_the_five_existing_xml_forms_in_both_directions() {
+    let (entry, inputs) = color_inputs("probe.color-owner", &[("ПоясняющийТекст", "Color")]);
+    for (xml, yaml) in [
+        (
+            include_str!(
+                "../../../../packages/rules/metadata/commonObjects/color/__fixtures__/absolute.xml"
+            ),
+            "Цвет: \"#C3C0C3\"",
+        ),
+        (
+            include_str!(
+                "../../../../packages/rules/metadata/commonObjects/color/__fixtures__/win.xml"
+            ),
+            "Цвет: ТеньКнопкиСветлая",
+        ),
+        (
+            include_str!(
+                "../../../../packages/rules/metadata/commonObjects/color/__fixtures__/web.xml"
+            ),
+            "Цвет: АкварельноСиний",
+        ),
+        (
+            include_str!(
+                "../../../../packages/rules/metadata/commonObjects/color/__fixtures__/style.xml"
+            ),
+            "Цвет: ЦветОсобогоТекста",
+        ),
+        (
+            include_str!(
+                "../../../../packages/rules/metadata/commonObjects/color/__fixtures__/customStyle.xml"
+            ),
+            "Цвет: ЭлементСтиля.ПоясняющийТекст",
+        ),
+    ] {
+        let input_xml = format!("<Root>{xml}</Root>");
+        let imported =
+            convert_file(entry, Direction::XmlToYaml, input_xml.as_bytes(), &inputs).unwrap();
+        assert_eq!(String::from_utf8(imported.bytes).unwrap(), yaml);
+        let exported = convert_file(entry, Direction::YamlToXml, yaml.as_bytes(), &inputs).unwrap();
+        let exported = String::from_utf8(exported.bytes).unwrap();
+        assert!(exported.contains(xml), "{exported}");
+    }
+}
+
+#[test]
+fn color_matches_independent_e2e_style_values() {
+    let evidence: serde_json::Value =
+        serde_json::from_str(include_str!("../../../../tests/migration/color-e2e.json")).unwrap();
+    let source =
+        include_str!("../../../../e2e/fixtures/xml/cf/Styles/СтильВсеСвойства/Ext/Style.xml");
+    let (entry, inputs) = color_inputs("probe.color-owner", &[]);
+    for case in evidence["cases"].as_array().unwrap() {
+        let xml_value = case["xml"].as_str().unwrap();
+        let yaml_value = case["yaml"].as_str().unwrap();
+        assert!(source.contains(&format!("<Color>{xml_value}</Color>")));
+        let yaml = format!("Цвет: {yaml_value}");
+        assert_color_value(entry, &inputs, xml_value, &yaml);
+    }
+}
+
+#[test]
+fn color_preserves_raw_forms_and_omits_auto() {
+    let (entry, inputs) = color_inputs("probe.color-owner", &[("ПоясняющийТекст", "Color")]);
+    for (xml_value, yaml) in [
+        ("0", "Цвет: \"0\""),
+        (
+            "0:615512b6-4378-4fce-86f1-a56725f945da",
+            "Цвет: 0:615512b6-4378-4fce-86f1-a56725f945da",
+        ),
+    ] {
+        assert_color_value(entry, &inputs, xml_value, yaml);
+    }
+    for xml in ["<Root><Color>auto</Color></Root>", "<Root></Root>"] {
+        let imported = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+        assert!(
+            imported.bytes.is_empty(),
+            "{}",
+            String::from_utf8_lossy(&imported.bytes)
+        );
+    }
+    let exported = convert_file(entry, Direction::YamlToXml, b"", &inputs).unwrap();
+    let exported = String::from_utf8(exported.bytes).unwrap();
+    assert!(!exported.contains("<Color>"), "{exported}");
+}
+
+#[test]
+fn color_style_item_checks_the_prepared_name_and_type_index() {
+    let (owner, inputs) = color_inputs_from_xml(
+        "probe.color-owner",
+        &[
+            include_str!("../../../../e2e/fixtures/xml/cf/StyleItems/ЭлементСтиляЦвет.xml"),
+            include_str!(
+                "../../../../e2e/fixtures/xml/cf/StyleItems/ЭлементСтиляШрифтВсеСвойства.xml"
+            ),
+        ],
+    );
+    let xml = "<Root><Color>style:ЭлементСтиляЦвет</Color></Root>";
+    let imported = convert_file(owner, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+    assert_eq!(
+        String::from_utf8(imported.bytes).unwrap(),
+        "Цвет: ЭлементСтиля.ЭлементСтиляЦвет"
+    );
+    assert!(
+        validate_file(owner, "Цвет: ЭлементСтиля.Неизвестный".as_bytes(), &inputs)
+            .iter()
+            .any(|issue| issue.code.as_deref() == Some("color.style-item"))
+    );
+    assert!(
+        validate_file(
+            owner,
+            "Цвет: ЭлементСтиля.ЭлементСтиляШрифтВсеСвойства".as_bytes(),
+            &inputs
+        )
+        .iter()
+        .any(|issue| issue.code.as_deref() == Some("color.style-item"))
+    );
+    assert!(
+        validate_file(
+            owner,
+            "Цвет: ЭлементСтиля.SpecialTextColor".as_bytes(),
+            &inputs
+        )
+        .iter()
+        .any(|issue| issue.code.as_deref() == Some("color.style-item"))
+    );
+}
+
+#[test]
+fn malformed_color_preserves_its_xml_without_losing_a_sibling() {
+    let (entry, inputs) = color_inputs("probe.color-with-sibling", &[]);
+    for (value, annotation) in [
+        ("#oops", "!xml/invalid"),
+        ("0:wrong-uuid", "!xml/invalid"),
+        ("other:Color", "!xml/raw"),
+    ] {
+        let xml = format!("<Root><Color>{value}</Color><Note>Сосед</Note></Root>");
+        let imported = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+        let yaml = String::from_utf8(imported.bytes).unwrap();
+        assert!(yaml.contains(annotation), "{yaml}");
+        assert!(yaml.contains("Примечание: Сосед"), "{yaml}");
+        let exported = convert_file(entry, Direction::YamlToXml, yaml.as_bytes(), &inputs).unwrap();
+        let exported = String::from_utf8(exported.bytes).unwrap();
+        assert!(
+            exported.contains(&format!("<Color>{value}</Color>")),
+            "{exported}"
+        );
+        assert!(exported.contains("<Note>Сосед</Note>"), "{exported}");
+    }
+}
 #[test]
 fn disjoint_style_choice_prefers_exact_name_and_rejects_open_collision() {
     let inputs = PreparedInputs::default();

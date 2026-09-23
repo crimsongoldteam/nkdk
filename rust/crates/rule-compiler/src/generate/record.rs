@@ -1270,7 +1270,35 @@ fn generate_at(
             .iter()
             .any(|field| field.attribute.is_none() || !field.yaml_visible)
     {
-        writeln!(out,"fn {finalize_name}(original:&[u8],candidate:Vec<u8>,_value:&V{id},inputs:&InputView<'_>)->core::Result<Vec<u8>> {{ if !({required_missing}) {{match verify_{id}(original,&candidate,inputs) {{Ok(())=>return Ok(candidate),Err(error) if error.code.as_deref()==Some(\"xml.round-trip-mismatch\")=>{{}},Err(error)=>return Err(error)}}}} let ordinary=write_xml_{id}(&read_yaml_{id}(&candidate,inputs)?,inputs)?; let mut candidate=candidate;").unwrap();
+        writeln!(out,"fn {finalize_name}(original:&[u8],candidate:Vec<u8>,_value:&V{id},inputs:&InputView<'_>)->core::Result<Vec<u8>> {{ if !({required_missing}) {{match verify_{id}(original,&candidate,inputs) {{Ok(())=>return Ok(candidate),Err(error) if error.code.as_deref()==Some(\"xml.round-trip-mismatch\")=>{{}},Err(error)=>return Err(error)}}}} ").unwrap();
+        let mut canonical_omissions = Vec::new();
+        for (i, field) in physical_fields(&fields) {
+            let Some(presence) = field.presence else {
+                continue;
+            };
+            let missing = presence
+                .canonical
+                .iter()
+                .enumerate()
+                .filter_map(|(case, rule)| (rule.form == XmlForm::Missing).then_some(case + 1))
+                .collect::<Vec<_>>();
+            if missing.is_empty() || presence.yaml_omit_when.is_none() || field.attribute.is_some()
+            {
+                continue;
+            }
+            canonical_omissions.push((i, missing));
+        }
+        if !canonical_omissions.is_empty() {
+            out.push_str(
+                "if _value.raw.is_empty() {let mut omitted:Vec<&[(&str,&str)]>=Vec::new();",
+            );
+            for (i, cases) in canonical_omissions {
+                let path = path_code(fields[i].path);
+                writeln!(out,"if _value.f{i}.is_some() && omit_{id}_{i}(_value,inputs)? && {:?}.contains(&xml_form_{id}_{i}(_value,inputs)?) && core::xml::Tree::capture(original,{path})?.is_some() {{omitted.push({path});}}",cases).unwrap();
+            }
+            writeln!(out,"if !omitted.is_empty() {{let restored=write_xml_{id}(&read_yaml_{id}(&candidate,inputs)?,inputs)?;if core::proof::verify_with_canonical_omissions(original,&restored,&omitted,|path|xml_scalar_{id}(_value,path),xml_qname_attribute_{id},xml_qname_text_{id}).is_ok(){{return Ok(candidate);}}}}}}").unwrap();
+        }
+        writeln!(out,"let ordinary=write_xml_{id}(&read_yaml_{id}(&candidate,inputs)?,inputs)?; let mut candidate=candidate;").unwrap();
         for (i, field) in physical_fields(&fields) {
             if let Some(attribute) = field.attribute {
                 if !field.yaml_visible {

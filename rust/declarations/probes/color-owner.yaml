@@ -1,0 +1,9 @@
+format: nkdk-declarations/1
+kind: object
+id: probe.color-owner
+imports: {color: common.color}
+inputs: {styleTypes: {index: metadata.style-item-types}}
+value: {kind: record, fields: [{name: color, type: {use: color, bind: {styleTypes: {input: styleTypes}}}}]}
+representations:
+  xml: {kind: record, fields: [{field: color, path: [Root, Color]}]}
+  yaml: {kind: mapping, fields: [{field: color, key: Цвет}]}

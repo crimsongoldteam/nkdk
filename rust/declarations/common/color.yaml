@@ -1,0 +1,113 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: common.color-standard-style
+  imports: {color: system.StyleColors}
+  value: {kind: record, fields: [{name: color, type: {use: color}}]}
+  representations:
+    xml: {kind: text-pattern, parts: [{literal: 'style:'}, {field: color}]}
+    yaml: {kind: text-pattern, parts: [{field: color}]}
+- kind: value
+  id: common.color-style-item
+  imports: {name: common.metadata-name}
+  inputs:
+    styleTypes:
+      type: {kind: index, key: {kind: scalar, scalar: text}, value: {kind: scalar, scalar: text}}
+  value: {kind: record, fields: [{name: name, type: {use: name}}]}
+  representations:
+    xml: {kind: text-pattern, parts: [{literal: 'style:'}, {field: name}]}
+    yaml: {kind: text-pattern, parts: [{literal: 'ЭлементСтиля.'}, {field: name}]}
+  constraints:
+  - id: style-item-type
+    appliesTo: [xml-import, yaml-validation]
+    assert:
+      match:
+        value: {lookup: {in: {input: styleTypes}, key: {field: name}}}
+        present: {as: styleType, then: {eq: [{var: styleType}, {literal: Color}]}}
+        absent: {literal: false}
+    diagnostic: {code: color.style-item, severity: error, at: {self: true}, message: Элемент стиля отсутствует или имеет другой тип}
+- kind: value
+  id: common.color-windows
+  imports: {color: system.WindowsColors}
+  value: {kind: record, fields: [{name: color, type: {use: color}}]}
+  representations:
+    xml: {kind: text-pattern, parts: [{literal: 'win:'}, {field: color}]}
+    yaml: {kind: text-pattern, parts: [{field: color}]}
+- kind: value
+  id: common.color-web
+  imports: {color: system.WebColors}
+  value: {kind: record, fields: [{name: color, type: {use: color}}]}
+  representations:
+    xml: {kind: text-pattern, parts: [{literal: 'web:'}, {field: color}]}
+    yaml: {kind: text-pattern, parts: [{field: color}]}
+- kind: value
+  id: common.color-absolute
+  value: {kind: record, fields: [{name: hex, type: {kind: scalar, scalar: text}}]}
+  representations:
+    xml: {kind: text-pattern, parts: [{literal: '#'}, {field: hex}]}
+    yaml: {kind: text-pattern, parts: [{literal: '#'}, {field: hex}]}
+  constraints:
+  - id: hex
+    appliesTo: [xml-import, yaml-validation]
+    assert: {matches: {value: {field: hex}, pattern: '[0-9A-Fa-f]{6}'}}
+    diagnostic: {code: color.hex, severity: error, at: {self: true}, message: Недопустимый цвет RGB}
+- kind: value
+  id: common.color-raw-zero
+  value: {kind: record, fields: []}
+  representations:
+    xml: {kind: text-pattern, parts: [{literal: '0'}]}
+    yaml: {kind: text-pattern, parts: [{literal: '0'}]}
+- kind: value
+  id: common.color-raw-reference
+  value: {kind: record, fields: [{name: uuid, type: {kind: scalar, scalar: text}}]}
+  representations:
+    xml: {kind: text-pattern, parts: [{literal: '0:'}, {field: uuid}]}
+    yaml: {kind: text-pattern, parts: [{literal: '0:'}, {field: uuid}]}
+  constraints:
+  - id: uuid
+    appliesTo: [xml-import, yaml-validation]
+    assert: {matches: {value: {field: uuid}, pattern: '[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}'}}
+    diagnostic: {code: color.uuid, severity: error, at: {self: true}, message: Недопустимый UUID цвета}
+- kind: value
+  id: common.color-auto
+  value: {kind: record, fields: []}
+  representations:
+    xml: {kind: text-pattern, parts: [{literal: auto}]}
+    yaml: {kind: text-pattern, parts: [{literal: auto}]}
+- kind: value
+  id: common.color
+  imports:
+    standardStyle: common.color-standard-style
+    styleItem: common.color-style-item
+    windows: common.color-windows
+    web: common.color-web
+    absolute: common.color-absolute
+    rawZero: common.color-raw-zero
+    rawReference: common.color-raw-reference
+    auto: common.color-auto
+  inputs:
+    styleTypes:
+      type: {kind: index, key: {kind: scalar, scalar: text}, value: {kind: scalar, scalar: text}}
+  value:
+    kind: choice
+    variants:
+    - {name: СтандартныйЦветСтиля, type: {use: standardStyle}}
+    - {name: ЭлементСтиля, type: {use: styleItem, bind: {styleTypes: {input: styleTypes}}}}
+    - {name: ЦветWindows, type: {use: windows}}
+    - {name: ЦветWeb, type: {use: web}}
+    - {name: АбсолютныйЦвет, type: {use: absolute}}
+    - {name: НулеваяСсылка, type: {use: rawZero}}
+    - {name: СсылкаПоUUID, type: {use: rawReference}}
+    - {name: Авто, type: {use: auto}}
+  representations:
+    xml: {kind: choice, fallback: ЭлементСтиля}
+    yaml: {kind: choice}
+  presence:
+  - target: self
+    xml:
+      missing: {denotes: {absent: true}}
+      canonical: [{when: {isVariant: {value: {self: true}, variant: Авто}}, form: missing}]
+    yaml:
+      missing: {denotes: {absent: true}}
+      omitWhen: {isVariant: {value: {self: true}, variant: Авто}}

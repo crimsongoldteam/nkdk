@@ -1,0 +1,21 @@
+format: nkdk-declarations/1
+kind: object
+id: probe.color-with-sibling
+imports: {color: common.color}
+inputs: {styleTypes: {index: metadata.style-item-types}}
+value:
+  kind: record
+  fields:
+  - {name: color, type: {use: color, bind: {styleTypes: {input: styleTypes}}}}
+  - {name: note, type: {kind: scalar, scalar: text}}
+representations:
+  xml:
+    kind: record
+    fields:
+    - {field: color, path: [Root, Color]}
+    - {field: note, path: [Root, Note]}
+  yaml:
+    kind: mapping
+    fields:
+    - {field: color, key: Цвет}
+    - {field: note, key: Примечание}
