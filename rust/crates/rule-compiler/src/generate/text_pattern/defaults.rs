@@ -72,7 +72,7 @@ pub(super) fn definition(codec: &Codec<'_>, name: &str) -> Result<String, Diagno
                         Ok(format!("{:?}=>{:?},", variant.value, spelling.text))
                     })
                     .collect::<Result<String, Diagnostic>>()?;
-                writeln!(defaults,"let default_{index}_yaml=match &*default_{index}{{{arms}_=>return Err(RuntimeDiagnostic::new(\"value.enum\",\"Unknown projected enum default\"))}};").unwrap();
+                writeln!(defaults,"let default_{index}_yaml=match std::convert::AsRef::<str>::as_ref(&default_{index}){{{arms}_=>return Err(RuntimeDiagnostic::new(\"value.enum\",\"Unknown projected enum default\"))}};").unwrap();
                 format!("default_{index}_yaml")
             } else {
                 format!("default_{index}")

@@ -17,7 +17,11 @@ fn main() {
         if path.starts_with("declarations/probes/") {
             accepted_probes.contains(path)
         } else if path.starts_with("declarations/candidates/") {
-            path == "declarations/candidates/standard-attributes.generated.yaml"
+            matches!(
+                path,
+                "declarations/candidates/standard-attributes.generated.yaml"
+                    | "declarations/candidates/document-attributes.generated.yaml"
+            )
         } else {
             true
         }

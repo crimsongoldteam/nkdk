@@ -125,6 +125,7 @@
 ],
 "declarationHashes":[
 {"path":"rust/declarations/candidates/document-attributes.generated.yaml","sha256":"78d01ec97f2c3d42ae838fc9bffef637531fd37a387feddad488136f2744fc14"},
+{"path":"rust/declarations/candidates/standard-attributes.generated.yaml","sha256":"12ea54cd92fdc159455361bc6e3f9835c9d711fd1692999c9d88bfc6762affa6"},
 {"path":"rust/declarations/common/additional-index-row.yaml","sha256":"8a04decc9f2c123354b7041ca15108e3c9700b5bc189d3cd713b9598705c751d"},
 {"path":"rust/declarations/common/additional-indexes.yaml","sha256":"2dc1c62d453ef017d0c96d387be474122bde0732af501ed0dce368a022cc9cdb"},
 {"path":"rust/declarations/common/base-reference-state.yaml","sha256":"0575c791f36437fee9065c100657fabc63cbe89bc778840be40ba2be2de7cdfe"},
@@ -269,6 +270,7 @@
 {"path":"rust/declarations/probes/document-object-links.yaml","sha256":"702e82be3e327196cbe643ae9a190ef06c11bfa04fb242de33efe7703ee34000"},
 {"path":"rust/declarations/probes/document-register-links.yaml","sha256":"d5b06dae04a2301e82fbd63fd8c32bc4337c8cc35658ae271787f56296896e83"},
 {"path":"rust/declarations/probes/document-register-records.yaml","sha256":"3a7cda92171e85169fc9ff559d6bcff8b5dd48b5f10990706e5480c755392e4d"},
+{"path":"rust/declarations/probes/document-resource-routes.yaml","sha256":"491fcd3b0a96d472e60674255ef140d9b6f2b37e5d84f9a03114e5ff333e5d4f"},
 {"path":"rust/declarations/probes/enum.yaml","sha256":"a116af606deb8535729474ee4a70b5c2ddf6e6d12591bad7cd156b3cf6cd7a3d"},
 {"path":"rust/declarations/probes/exchange-plan-content-metadata.yaml","sha256":"890db22a3c854eb0329e6bf55574cd3e9d296e6750676c7a65153636ca247f23"},
 {"path":"rust/declarations/probes/external-choice-form.yaml","sha256":"9c9b6b11e3813eb6dd6a4087c54476264123ab702524c944cb656e2e46cb3036"},
