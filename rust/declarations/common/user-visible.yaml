@@ -1,0 +1,75 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: common.user-visible-role
+  namespaces: {xr: 'http://v8.1c.ru/8.3/xcf/readable'}
+  imports: {boolean: common.boolean}
+  value:
+    kind: record
+    fields:
+    - {name: name, type: {kind: scalar, scalar: text}}
+    - {name: value, type: {use: boolean}}
+  representations:
+    xml:
+      kind: record
+      fields:
+      - {field: name, path: [], attribute: name}
+      - {field: value, path: []}
+    yaml:
+      kind: mapping
+      fields:
+      - {field: name, key: Имя}
+      - {field: value, key: Значение}
+- kind: value
+  id: common.user-visible-roles
+  namespaces: {xr: 'http://v8.1c.ru/8.3/xcf/readable'}
+  imports: {role: common.user-visible-role}
+  inputs:
+    roles:
+      type:
+        kind: sequence
+        item:
+          kind: record
+          fields:
+          - {name: name, type: {kind: scalar, scalar: text}}
+          - {name: yamlName, type: {kind: scalar, scalar: text}}
+  value: {kind: sequence, item: {use: role}}
+  representations:
+    xml: {kind: element-sequence, path: [xr:Value]}
+    yaml: {kind: record-mapping, key: name, value: value, keyTable: {input: roles, internal: name, external: yamlName}}
+- kind: value
+  id: common.user-visible
+  namespaces: {xr: 'http://v8.1c.ru/8.3/xcf/readable'}
+  imports: {boolean: common.boolean, roles: common.user-visible-roles}
+  inputs:
+    roles:
+      type:
+        kind: sequence
+        item:
+          kind: record
+          fields:
+          - {name: name, type: {kind: scalar, scalar: text}}
+          - {name: yamlName, type: {kind: scalar, scalar: text}}
+  value:
+    kind: record
+    fields:
+    - {name: common, type: {use: boolean}}
+    - {name: values, type: {use: roles, bind: {roles: {input: roles}}}}
+  representations:
+    xml:
+      kind: record
+      fields:
+      - {field: common, path: [xr:Common]}
+      - {field: values, path: []}
+    yaml:
+      kind: mapping
+      fields:
+      - {field: common, key: Разрешить}
+      - {field: values, key: Роли}
+  presence:
+  - target: {field: common}
+    yaml: {default: {literal: true}}
+  - target: {field: values}
+    yaml: {missing: {denotes: {sequence: []}}}
+    xml: {missing: {denotes: {sequence: []}}}

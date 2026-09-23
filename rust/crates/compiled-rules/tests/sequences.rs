@@ -4,6 +4,56 @@ use nkdk_compiled_rules::{
 };
 use nkdk_compiled_rules_probes as nkdk_compiled_rules;
 
+#[test]
+fn user_visible_maps_role_names_and_booleans_without_xml_reference() {
+    let entry = entry_id("probe.user-visible").unwrap();
+    let inputs = prepare_inputs(
+        entry,
+        vec![(
+            "roles".into(),
+            InputValue::Sequence(
+                ["Менеджер", "Администратор", "Пользователь"]
+                    .into_iter()
+                    .map(|name| {
+                        InputValue::Record(vec![
+                            ("name".into(), InputValue::Text(format!("Role.{name}"))),
+                            ("yamlName".into(), InputValue::Text(name.into())),
+                        ])
+                    })
+                    .collect(),
+            ),
+        )],
+    )
+    .unwrap();
+    let source = include_str!(
+        "../../../../packages/rules/metadata/commonObjects/userVisible/__fixtures__/withSingleValue.xml"
+    );
+    for (body, expected) in [
+        (source, "Менеджер: Истина"),
+        (
+            include_str!(
+                "../../../../packages/rules/metadata/commonObjects/userVisible/__fixtures__/withMultipleValues.xml"
+            ),
+            "Пользователь: Ложь",
+        ),
+        (
+            include_str!(
+                "../../../../packages/rules/metadata/commonObjects/userVisible/__fixtures__/withEmptyValues.xml"
+            ),
+            "Разрешить: Ложь",
+        ),
+    ] {
+        let xml = format!("<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\">{body}</Root>");
+        let yaml = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+        let text = String::from_utf8_lossy(&yaml.bytes);
+        assert!(text.contains(expected), "{text}");
+        assert!(!text.contains("!xml/raw"), "{text}");
+        verify_candidate(entry, xml.as_bytes(), &yaml.bytes, &inputs).unwrap();
+        let restored = convert_file(entry, Direction::YamlToXml, &yaml.bytes, &inputs).unwrap();
+        nkdk_conversion_core::proof::verify(xml.as_bytes(), &restored.bytes, |_| false).unwrap();
+    }
+}
+
 fn metadata_value_inputs(entry: nkdk_compiled_rules::EntryId) -> PreparedInputs {
     prepare_inputs(
         entry,
@@ -575,6 +625,14 @@ fn child_subsystem_names_round_trip_existing_owner_and_repeated_names() {
         nkdk_conversion_core::proof::verify(xml.as_bytes(), &restored.bytes, |_| false).unwrap();
     }
     verify_empty_collection_variants(entry, "ChildObjects");
+    for xml in [
+        "<Root><ChildObjects><Subsystem/></ChildObjects></Root>",
+        "<Root><ChildObjects><Subsystem>Первая</Subsystem><Subsystem/><Subsystem>Вторая</Subsystem></ChildObjects></Root>",
+    ] {
+        let yaml = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+        assert!(!String::from_utf8_lossy(&yaml.bytes).contains("!xml/raw"));
+        verify_candidate(entry, xml.as_bytes(), &yaml.bytes, &inputs).unwrap();
+    }
     let empty = convert_file(
         entry,
         Direction::YamlToXml,

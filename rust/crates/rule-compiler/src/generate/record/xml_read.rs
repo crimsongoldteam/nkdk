@@ -172,6 +172,11 @@ pub(super) fn generate(
         for (index, _) in group {
             writeln!(out, "self.positions[{index}]=core::Position::xml(*offset);").unwrap();
         }
+        for (index, scalar) in physical_fields(fields) {
+            if scalar.attribute.is_none() && scalar.path == field.path {
+                writeln!(out,"self.positions[{index}]=core::Position::xml(*offset);self.r{index}=Some(String::new());").unwrap();
+            }
+        }
         out.push_str("return Ok(()); }\n");
     }
     for (i, field) in physical_fields(fields) {

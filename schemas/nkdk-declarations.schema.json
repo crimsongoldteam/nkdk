@@ -2366,6 +2366,17 @@
             "emptyTag": {
               "type": "string",
               "minLength": 1
+            },
+            "keyTable": {
+              "type": "object",
+              "properties": {
+                "input": { "type": "string", "minLength": 1 },
+                "internal": { "type": "string", "minLength": 1 },
+                "external": { "type": "string", "minLength": 1 },
+                "empty": { "type": "string", "minLength": 1 }
+              },
+              "required": ["input", "internal", "external"],
+              "additionalProperties": false
             }
           },
           "required": [

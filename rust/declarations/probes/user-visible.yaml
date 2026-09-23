@@ -1,0 +1,17 @@
+format: nkdk-declarations/1
+kind: object
+id: probe.user-visible
+imports: {visible: common.user-visible}
+inputs:
+  roles:
+    type:
+      kind: sequence
+      item:
+        kind: record
+        fields:
+        - {name: name, type: {kind: scalar, scalar: text}}
+        - {name: yamlName, type: {kind: scalar, scalar: text}}
+value: {kind: record, fields: [{name: visible, type: {use: visible, bind: {roles: {input: roles}}}}]}
+representations:
+  xml: {kind: record, fields: [{field: visible, path: [Root, UserVisible]}]}
+  yaml: {kind: mapping, fields: [{field: visible, key: Использование}]}

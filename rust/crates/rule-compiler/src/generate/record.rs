@@ -194,11 +194,31 @@ fn generate_at(
         .windows(2)
         .any(|pair| !pair[1].1.path.starts_with(pair[0].1.path))
         || headers.last().is_some_and(|(_, header)| {
+            let inline_fields = fields
+                .iter()
+                .filter(|field| {
+                    field.xml.is_some() && field.attribute.is_none() && field.path == header.path
+                })
+                .count();
+            if inline_fields > 1 {
+                return true;
+            }
             fields
                 .iter()
                 .filter(|field| field.xml.is_some() && field.attribute.is_none())
                 .any(|field| {
-                    field.path.len() <= header.path.len() || !field.path.starts_with(header.path)
+                    !field.path.starts_with(header.path)
+                        || (field.path.len() == header.path.len()
+                            && (!field.attributes.is_empty()
+                                || !matches!(
+                                    field.codec,
+                                    Codec::Text
+                                        | Codec::TextTable(_)
+                                        | Codec::Boolean(..)
+                                        | Codec::Decimal
+                                        | Codec::Enumeration(..)
+                                        | Codec::States(..)
+                                )))
                 })
         })
     {
