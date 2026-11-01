@@ -1,0 +1,17 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.dcs-choice-parameter-links
+imports: {links: common.dcs-choice-parameter-links}
+value: {kind: record, fields: [{name: links, type: {use: links}}]}
+representations:
+  xml: {kind: record, fields: [{field: links, path: [Root, Links]}]}
+  yaml: {kind: mapping, fields: [{field: links, key: СвязиПараметровВыбора}]}
+presence:
+- target: {field: links}
+  xml:
+    missing: {denotes: {absent: true}}
+    empty: [{form: nil, denotes: {absent: true}}]
+    canonical: [{when: {not: {present: {field: links}}}, form: nil}]
+  yaml:
+    missing: {denotes: {absent: true}}
+    empty: [{form: null, denotes: {absent: true}}]

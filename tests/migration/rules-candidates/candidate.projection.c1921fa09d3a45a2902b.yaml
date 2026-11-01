@@ -1,0 +1,86 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.c1921fa09d3a45a2902b
+description: 'Кандидат проекции: относительный XML-корень Attributes; не полный владелец'
+imports:
+  part0: candidate.fragment.e50f0a35cee194edf20b
+compose:
+  - use: part0
+    bind:
+      defaultLanguage:
+        input: defaultLanguage
+      registeredLanguages:
+        input: registeredLanguages
+      styleTypes:
+        input: styleTypes
+      labels:
+        input: labels
+      codes:
+        input: codes
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  styleTypes:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: scalar
+        scalar: text
+    index: metadata.style-item-types
+  labels:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: code
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+    index: dcs.enumeration-labels
+  codes:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: label
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+    index: dcs.enumeration-codes

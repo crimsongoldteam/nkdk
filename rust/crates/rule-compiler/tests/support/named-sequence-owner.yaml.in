@@ -1,0 +1,7 @@
+- kind: object
+  id: test.owner
+  imports: {rows: test.rows}
+  value: {kind: record, fields: [{name: rows, type: {use: rows}}]}
+  representations:
+    xml: {kind: record, fields: [{field: rows, path: @PATH@}]}
+    yaml: @YAML@

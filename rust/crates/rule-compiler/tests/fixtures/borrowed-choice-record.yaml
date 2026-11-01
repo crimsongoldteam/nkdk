@@ -1,0 +1,63 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: test.borrowed-payload
+  value:
+    kind: record
+    fields:
+    - {name: name, type: {kind: scalar, scalar: text}}
+    - {name: enabled, type: {kind: scalar, scalar: text}}
+  representations:
+    xml: {kind: record, fields: [{field: name, path: [Name]}, {field: enabled, path: [Enabled]}]}
+    yaml: {kind: mapping, fields: [{field: name, key: Name}, {field: enabled, key: Enabled}]}
+- kind: value
+  id: test.borrowed-active
+  imports: {payload: test.borrowed-payload}
+  value: {kind: record, fields: [{name: payload, type: {use: payload}}]}
+  representations:
+    xml: {kind: record, fields: [{field: payload, path: [Payload]}]}
+    yaml: {kind: mapping, fields: [{field: payload, key: Payload}]}
+- kind: fragment
+  id: test.borrowed-choice-consumer
+  imports: {selection: test.borrowed-selection}
+  inputs: {selected: {type: {use: selection}}}
+  value: {kind: record, fields: [{name: result, type: {kind: scalar, scalar: text}}]}
+  representations:
+    xml: {kind: record, fields: []}
+    yaml: {kind: mapping, fields: [{field: result, key: Результат}]}
+  presence:
+  - target: {field: result}
+    xml:
+      missing:
+        denotes:
+          if: {isVariant: {value: {input: selected}, variant: active}}
+          then:
+            if: {eq: [{get: {of: {get: {of: {if: {literal: true}, then: {variantValue: {value: {input: selected}, variant: active}}, else: {variantValue: {value: {input: selected}, variant: active}}}, field: payload}}, field: enabled}}, {literal: 'true'}]}
+            then: {get: {of: {get: {of: {if: {literal: true}, then: {variantValue: {value: {input: selected}, variant: active}}, else: {variantValue: {value: {input: selected}, variant: active}}}, field: payload}}, field: name}}
+            else: {literal: disabled}
+          else: {literal: inactive}
+    yaml: {missing: {denotes: {absent: true}}}
+- kind: value
+  id: test.borrowed-selection
+  imports: {active: test.borrowed-active}
+  value: {kind: choice, variants: [{name: active, type: {use: active}}]}
+  representations:
+    xml: {kind: choice, fallback: active}
+    yaml: {kind: choice, variants: [{variant: active, form: mapping, key: Payload}]}
+- kind: object
+  id: test.borrowed-choice-record
+  imports: {selection: test.borrowed-selection, consumer: test.borrowed-choice-consumer}
+  compose: [{use: consumer, bind: {selected: {field: selection}}}]
+  value: {kind: record, fields: [{name: selection, type: {use: selection}}]}
+  representations:
+    xml: {kind: record, fields: [{field: selection, path: [Root, Selection]}]}
+    yaml: {kind: mapping, fields: [{field: selection, key: Выбор}]}
+  constraints:
+  - id: selected-name
+    appliesTo: [xml-import, yaml-validation]
+    assert:
+      if: {isVariant: {value: {field: selection}, variant: active}}
+      then: {eq: [{get: {of: {get: {of: {variantValue: {value: {field: selection}, variant: active}}, field: payload}}, field: name}}, {literal: borrowed}]}
+      else: {literal: true}
+    diagnostic: {code: selected.name, severity: error, at: {field: selection}, message: Unexpected selected name}

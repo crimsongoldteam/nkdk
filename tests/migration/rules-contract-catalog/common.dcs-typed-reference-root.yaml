@@ -1,0 +1,254 @@
+format: nkdk-declarations/1
+kind: value
+id: common.dcs-typed-reference-root
+enum:
+  Constant:
+    yaml: Константа
+    xml: Константа
+    accept:
+      - Constant
+  Catalog:
+    yaml: Справочник
+    xml: Справочник
+    accept:
+      - Catalog
+  Document:
+    yaml: Документ
+    xml: Документ
+    accept:
+      - Document
+  Enum:
+    yaml: Перечисление
+    xml: Перечисление
+    accept:
+      - Enum
+  DefinedType:
+    yaml: ОпределяемыйТип
+    xml: ОпределяемыйТип
+    accept:
+      - DefinedType
+  Characteristic:
+    yaml: Характеристика
+    xml: Характеристика
+    accept:
+      - Characteristic
+  CommandGroup:
+    yaml: ГруппаКоманд
+    xml: ГруппаКоманд
+    accept:
+      - CommandGroup
+  Role:
+    yaml: Роль
+    xml: Роль
+    accept:
+      - Role
+  InformationRegister:
+    yaml: РегистрСведений
+    xml: РегистрСведений
+    accept:
+      - InformationRegister
+  AccumulationRegister:
+    yaml: РегистрНакопления
+    xml: РегистрНакопления
+    accept:
+      - AccumulationRegister
+  AccountingRegister:
+    yaml: РегистрБухгалтерии
+    xml: РегистрБухгалтерии
+    accept:
+      - AccountingRegister
+  CalculationRegister:
+    yaml: РегистрРасчета
+    xml: РегистрРасчета
+    accept:
+      - CalculationRegister
+  ExchangePlan:
+    yaml: ПланОбмена
+    xml: ПланОбмена
+    accept:
+      - ExchangePlan
+  ChartOfAccounts:
+    yaml: ПланСчетов
+    xml: ПланСчетов
+    accept:
+      - ChartOfAccounts
+  ChartOfCharacteristicTypes:
+    yaml: ПланВидовХарактеристик
+    xml: ПланВидовХарактеристик
+    accept:
+      - ChartOfCharacteristicTypes
+  ChartOfCalculationTypes:
+    yaml: ПланВидовРасчета
+    xml: ПланВидовРасчета
+    accept:
+      - ChartOfCalculationTypes
+  BusinessProcess:
+    yaml: БизнесПроцесс
+    xml: БизнесПроцесс
+    accept:
+      - BusinessProcess
+  BusinessProcessRoutePoint:
+    yaml: ТочкаМаршрутаБизнесПроцесса
+    xml: ТочкаМаршрутаБизнесПроцесса
+    accept:
+      - BusinessProcessRoutePoint
+  Task:
+    yaml: Задача
+    xml: Задача
+    accept:
+      - Task
+  DataProcessor:
+    yaml: Обработка
+    xml: Обработка
+    accept:
+      - DataProcessor
+  Report:
+    yaml: Отчет
+    xml: Отчет
+    accept:
+      - Report
+  DocumentNumerator:
+    yaml: НумераторДокументов
+    xml: НумераторДокументов
+    accept:
+      - DocumentNumerator
+  CommonCommand:
+    yaml: ОбщаяКоманда
+    xml: ОбщаяКоманда
+    accept:
+      - CommonCommand
+  CommonPicture:
+    yaml: ОбщаяКартинка
+    xml: ОбщаяКартинка
+    accept:
+      - CommonPicture
+  CommonTemplate:
+    yaml: ОбщийМакет
+    xml: ОбщийМакет
+    accept:
+      - CommonTemplate
+  CommonModule:
+    yaml: ОбщийМодуль
+    xml: ОбщийМодуль
+    accept:
+      - CommonModule
+  CommonAttribute:
+    yaml: ОбщийРеквизит
+    xml: ОбщийРеквизит
+    accept:
+      - CommonAttribute
+  CommonForm:
+    yaml: ОбщаяФорма
+    xml: ОбщаяФорма
+    accept:
+      - CommonForm
+  FilterCriterion:
+    yaml: КритерийОтбора
+    xml: КритерийОтбора
+    accept:
+      - FilterCriterion
+  ScheduledJob:
+    yaml: РегламентноеЗадание
+    xml: РегламентноеЗадание
+    accept:
+      - ScheduledJob
+  IntegrationService:
+    yaml: СервисИнтеграции
+    xml: СервисИнтеграции
+    accept:
+      - IntegrationService
+  Language:
+    yaml: Язык
+    xml: Язык
+    accept:
+      - Language
+  Style:
+    yaml: Стиль
+    xml: Стиль
+    accept:
+      - Style
+  Interface:
+    yaml: Интерфейс
+    xml: Интерфейс
+    accept:
+      - Interface
+  StyleItem:
+    yaml: ЭлементСтиля
+    xml: ЭлементСтиля
+    accept:
+      - StyleItem
+  FunctionalOption:
+    yaml: ФункциональнаяОпция
+    xml: ФункциональнаяОпция
+    accept:
+      - FunctionalOption
+  FunctionalOptionsParameter:
+    yaml: ПараметрФункциональныхОпций
+    xml: ПараметрФункциональныхОпций
+    accept:
+      - FunctionalOptionsParameter
+  DocumentJournal:
+    yaml: ЖурналДокументов
+    xml: ЖурналДокументов
+    accept:
+      - DocumentJournal
+  HTTPService:
+    yaml: HTTPСервис
+    xml: HTTPСервис
+    accept:
+      - HTTPService
+  WebSocketClient:
+    yaml: WebSocketКлиент
+    xml: WebSocketКлиент
+    accept:
+      - WebSocketClient
+  WebService:
+    yaml: WebСервис
+    xml: WebСервис
+    accept:
+      - WebService
+  Bot:
+    yaml: Бот
+    xml: Бот
+    accept:
+      - Bot
+  ExternalDataSource:
+    yaml: ВнешнийИсточникДанных
+    xml: ВнешнийИсточникДанных
+    accept:
+      - ExternalDataSource
+  EventSubscription:
+    yaml: ПодпискаНаСобытие
+    xml: ПодпискаНаСобытие
+    accept:
+      - EventSubscription
+  XDTOPackage:
+    yaml: ПакетXDTO
+    xml: ПакетXDTO
+    accept:
+      - XDTOPackage
+  WSReference:
+    yaml: WSСсылка
+    xml: WSСсылка
+    accept:
+      - WSReference
+  SessionParameter:
+    yaml: ПараметрСеанса
+    xml: ПараметрСеанса
+    accept:
+      - SessionParameter
+  SettingsStorage:
+    yaml: ХранилищеНастроек
+    xml: ХранилищеНастроек
+    accept:
+      - SettingsStorage
+  Subsystem:
+    yaml: Подсистема
+    xml: Подсистема
+    accept:
+      - Subsystem
+  Sequence:
+    yaml: Последовательность
+    xml: Последовательность
+    accept:
+      - Sequence

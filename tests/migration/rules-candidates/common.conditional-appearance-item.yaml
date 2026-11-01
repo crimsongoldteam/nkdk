@@ -1,0 +1,106 @@
+format: nkdk-declarations/1
+kind: value
+id: common.conditional-appearance-item
+description: >-
+  Проекция ConditionalAppearanceItemRules: use, fields, filter, appearance, presentation, viewMode, userSettingID,
+  userSettingPresentation, useInGroup, useInHierarchicalGroup, useInOverall, useInFieldsHeader, useInHeader,
+  useInParameters, useInFilter, useInResourceFieldsHeader, useInOverallHeader, useInOverallResourceFieldsHeader;
+  остальные свойства владельца не включены
+imports:
+  part0: candidate.fragment.3e3cb6fce028752dad73
+compose:
+  - use: part0
+    bind:
+      defaultLanguage:
+        input: defaultLanguage
+      registeredLanguages:
+        input: registeredLanguages
+      styleTypes:
+        input: styleTypes
+      labels:
+        input: labels
+      codes:
+        input: codes
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  styleTypes:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  labels:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: code
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  codes:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: label
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+yamlOrder:
+  - use
+  - fields
+  - filter
+  - appearance
+  - presentation
+  - viewMode
+  - userSettingID
+  - userSettingPresentation
+  - useInGroup
+  - useInHierarchicalGroup
+  - useInOverall
+  - useInFieldsHeader
+  - useInHeader
+  - useInParameters
+  - useInFilter
+  - useInResourceFieldsHeader
+  - useInOverallHeader
+  - useInOverallResourceFieldsHeader

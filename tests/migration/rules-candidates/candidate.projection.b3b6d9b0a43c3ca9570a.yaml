@@ -1,0 +1,66 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.b3b6d9b0a43c3ca9570a
+description: 'Кандидат проекции: относительный XML-корень SettingsStorage; не полный владелец'
+imports:
+  inputType1f8ea46361ff: common.path-root
+  part0: candidate.fragment.6931316ba77cc44fb363
+compose:
+  - use: part0
+    bind:
+      roots:
+        input: roots
+      formTargets:
+        input: formTargets
+      containingOwnerName:
+        input: containingOwnerName
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []
+inputs:
+  roots:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: kind
+            type:
+              use: inputType1f8ea46361ff
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+    index: metadata.roots
+  formTargets:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: parent
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+    index: metadata.forms
+  containingOwnerName:
+    type:
+      kind: scalar
+      scalar: text

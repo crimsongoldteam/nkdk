@@ -1,0 +1,27 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.structure-item-group
+value:
+  kind: record
+  fields:
+    - name: item
+      type:
+        use: value0
+        bind: {}
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: item
+        path:
+          - dcsset:item
+  yaml:
+    kind: mapping
+    fields:
+      - field: item
+        key: Структура
+presence: []
+namespaces:
+  dcsset: http://v8.1c.ru/8.1/data-composition-system/settings
+id: candidate.fragment.44451d0e7953772f7fab

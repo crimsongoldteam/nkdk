@@ -1,0 +1,37 @@
+format: nkdk-declarations/1
+kind: value
+imports:
+  item: candidate.collection.item.a7a6e85077a8fd6bc45b
+  inputType1f8ea46361ff: common.path-root
+value:
+  kind: sequence
+  item:
+    use: item
+    bind:
+      roots:
+        input: roots
+representations:
+  xml:
+    kind: element-sequence
+    path:
+      - ExtensionProperty
+  yaml:
+    kind: sequence
+inputs:
+  roots:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: kind
+            type:
+              use: inputType1f8ea46361ff
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+id: candidate.collection.list.294254511c4c2173ad91

@@ -1,0 +1,135 @@
+format: nkdk-declarations/1
+kind: value
+id: common.metadata-allowed-paths-0b8a64ef81b9305c.path42
+imports:
+  name: common.metadata-name
+  rootKind: common.path-root
+value:
+  kind: record
+  fields:
+    - name: name0
+      type:
+        use: name
+    - name: name1
+      type:
+        use: name
+    - name: name2
+      type:
+        use: name
+representations:
+  xml:
+    kind: text-pattern
+    separator: .
+    parts:
+      - literal: DataProcessor
+      - field: name0
+      - literal: TabularSection
+      - field: name1
+      - literal: Attribute
+      - field: name2
+  yaml:
+    kind: text-pattern
+    separator: .
+    parts:
+      - literal: Обработка
+      - field: name0
+      - literal: ТабличнаяЧасть
+      - field: name1
+      - literal: Реквизит
+      - field: name2
+inputs:
+  roots:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: kind
+            type:
+              use: rootKind
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  pathChildren:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: parent
+            type:
+              kind: scalar
+              scalar: text
+          - name: kind
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+constraints:
+  - id: target-exists
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    assert:
+      match:
+        value:
+          lookup:
+            in:
+              input: roots
+            key:
+              record:
+                kind:
+                  literal: DataProcessor
+                name:
+                  field: name0
+        present:
+          as: parent0
+          then:
+            match:
+              value:
+                lookup:
+                  in:
+                    input: pathChildren
+                  key:
+                    record:
+                      parent:
+                        var: parent0
+                      kind:
+                        literal: TabularSection
+                      name:
+                        field: name1
+              present:
+                as: parent1
+                then:
+                  present:
+                    lookup:
+                      in:
+                        input: pathChildren
+                      key:
+                        record:
+                          parent:
+                            var: parent1
+                          kind:
+                            literal: Attribute
+                          name:
+                            field: name2
+              absent:
+                literal: false
+        absent:
+          literal: false
+    diagnostic:
+      code: metadata.target-missing
+      severity: error
+      at:
+        self: true
+      message: Target is missing

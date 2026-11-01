@@ -1,0 +1,1369 @@
+format: nkdk-declarations/1
+kind: value
+id: common.dcs-primitive-enumeration-name
+namespaces:
+  n0: http://v8.1c.ru/8.1/data/enterprise
+  n1: http://v8.1c.ru/8.1/data-composition-system/core
+  n2: http://v8.1c.ru/8.1/data-composition-system/settings
+  n3: http://v8.1c.ru/8.1/data/ui
+  n4: http://v8.1c.ru/8.2/data/data-analysis
+value:
+  kind: scalar
+  scalar: text
+representations:
+  xml:
+    kind: qname-lexicon
+    values:
+      - name: n0:DynamicListSearchStringViewMode
+        literal: DynamicListSearchStringViewMode
+      - name: n0:XDTOFacetType
+        literal: XDTOFacetType
+      - name: n0:XMLForm
+        literal: XMLForm
+      - name: n0:WSParameterDirection
+        literal: WSParameterDirection
+      - name: n0:DOMBuilderAction
+        literal: DOMBuilderAction
+      - name: n0:DOMDocumentPosition
+        literal: DOMDocumentPosition
+      - name: n0:DOMNodeFilterParameters
+        literal: DOMNodeFilterParameters
+      - name: n0:DOMNodeType
+        literal: DOMNodeType
+      - name: n0:DOMXPathResultType
+        literal: DOMXPathResultType
+      - name: n0:HTMLContentCategory
+        literal: HTMLContentCategory
+      - name: n1:DataCompositionAccountingBalanceType
+        literal: DataCompositionAccountingBalanceType
+      - name: n1:DataCompositionAreaTemplateType
+        literal: DataCompositionAreaTemplateType
+      - name: n1:DataCompositionAttributesPlacement
+        literal: DataCompositionAttributesPlacement
+      - name: n1:DataCompositionBalanceType
+        literal: DataCompositionBalanceType
+      - name: n1:DataCompositionChartLegendPlacement
+        literal: DataCompositionChartLegendPlacement
+      - name: n1:DataCompositionConditionalAppearanceUse
+        literal: DataCompositionConditionalAppearanceUse
+      - name: n1:DataCompositionDataSetsLinkType
+        literal: DataCompositionDataSetsLinkType
+      - name: n1:DataCompositionDetailsProcessingAction
+        literal: DataCompositionDetailsProcessingAction
+      - name: n2:DataCompositionFieldPlacement
+        literal: DataCompositionFieldPlacement
+      - name: n1:DataCompositionFieldsTitleType
+        literal: DataCompositionFieldsTitleType
+      - name: n1:DataCompositionFilterApplicationType
+        literal: DataCompositionFilterApplicationType
+      - name: n1:DataCompositionFilterItemsGroupType
+        literal: DataCompositionFilterItemsGroupType
+      - name: n1:DataCompositionFixation
+        literal: DataCompositionFixation
+      - name: n1:DataCompositionGroupFieldsPlacement
+        literal: DataCompositionGroupFieldsPlacement
+      - name: n1:DataCompositionGroupPlacement
+        literal: DataCompositionGroupPlacement
+      - name: n1:DataCompositionGroupTemplateType
+        literal: DataCompositionGroupTemplateType
+      - name: n1:DataCompositionGroupType
+        literal: DataCompositionGroupType
+      - name: n1:DataCompositionGroupUseVariant
+        literal: DataCompositionGroupUseVariant
+      - name: n0:DCSParameterUse
+        literal: DCSParameterUse
+      - name: n1:DataCompositionPeriodAdditionType
+        literal: DataCompositionPeriodAdditionType
+      - name: n1:DataCompositionPeriodType
+        literal: DataCompositionPeriodType
+      - name: n1:DataCompositionPictureOutputType
+        literal: DataCompositionPictureOutputType
+      - name: n1:DataCompositionResourcesAutoPosition
+        literal: DataCompositionResourcesAutoPosition
+      - name: n1:DataCompositionResourcesPlacement
+        literal: DataCompositionResourcesPlacement
+      - name: n1:DataCompositionResourcesPlacementInChart
+        literal: DataCompositionResourcesPlacementInChart
+      - name: n1:DataCompositionResultItemType
+        literal: DataCompositionResultItemType
+      - name: n1:DataCompositionResultNestedItemsLayout
+        literal: DataCompositionResultNestedItemsLayout
+      - name: n1:DataCompositionSettingsItemState
+        literal: DataCompositionSettingsItemState
+      - name: n1:DataCompositionSettingsItemViewMode
+        literal: DataCompositionSettingsItemViewMode
+      - name: n1:DataCompositionSettingsRefreshMethod
+        literal: DataCompositionSettingsRefreshMethod
+      - name: n1:DataCompositionSettingsViewMode
+        literal: DataCompositionSettingsViewMode
+      - name: n1:DataCompositionSortDirection
+        literal: DataCompositionSortDirection
+      - name: n1:DataCompositionTextOutputType
+        literal: DataCompositionTextOutputType
+      - name: n1:DataCompositionTextPlacementType
+        literal: DataCompositionTextPlacementType
+      - name: n1:DataCompositionTotalPlacement
+        literal: DataCompositionTotalPlacement
+      - name: n0:OnUnavailabilityDataCompositionSettingsAction
+        literal: OnUnavailabilityDataCompositionSettingsAction
+      - name: n0:ResultCompositionMode
+        literal: ResultCompositionMode
+      - name: n0:SaveDataCompositionAppearance
+        literal: SaveDataCompositionAppearance
+      - name: n0:XSAttributeUseCategory
+        literal: XSAttributeUseCategory
+      - name: n0:XSComplexFinal
+        literal: XSComplexFinal
+      - name: n0:XSComponentType
+        literal: XSComponentType
+      - name: n0:XSCompositor
+        literal: XSCompositor
+      - name: n0:XSConstraint
+        literal: XSConstraint
+      - name: n0:XSContentModel
+        literal: XSContentModel
+      - name: n0:XSDerivationMethod
+        literal: XSDerivationMethod
+      - name: n0:XSDisallowedSubstitutions
+        literal: XSDisallowedSubstitutions
+      - name: n0:XSForm
+        literal: XSForm
+      - name: n0:XSIdentityConstraintCategory
+        literal: XSIdentityConstraintCategory
+      - name: n0:XSNamespaceConstraintCategory
+        literal: XSNamespaceConstraintCategory
+      - name: n0:XSProcessContents
+        literal: XSProcessContents
+      - name: n0:XSProhibitedSubstitutions
+        literal: XSProhibitedSubstitutions
+      - name: n0:XSSchemaFinal
+        literal: XSSchemaFinal
+      - name: n0:XSSimpleFinal
+        literal: XSSimpleFinal
+      - name: n0:XSSimpleTypeVariety
+        literal: XSSimpleTypeVariety
+      - name: n0:XSSubstitutionGroupExclusions
+        literal: XSSubstitutionGroupExclusions
+      - name: n0:XSWhitespaceHandling
+        literal: XSWhitespaceHandling
+      - name: n0:XSXPathVariety
+        literal: XSXPathVariety
+      - name: n0:EventLogDataStorageSplitPeriod
+        literal: EventLogDataStorageSplitPeriod
+      - name: n0:EventLogEntryTransactionMode
+        literal: EventLogEntryTransactionMode
+      - name: n0:EventLogEntryTransactionStatus
+        literal: EventLogEntryTransactionStatus
+      - name: n0:EventLogLevel
+        literal: EventLogLevel
+      - name: n0:DataLockControlMode
+        literal: DataLockControlMode
+      - name: n0:DataLockMode
+        literal: DataLockMode
+      - name: n0:AccountingRecordType
+        literal: AccountingRecordType
+      - name: n0:AccumulationRecordType
+        literal: AccumulationRecordType
+      - name: n0:AccumulationRegisterAggregatePeriodicity
+        literal: AccumulationRegisterAggregatePeriodicity
+      - name: n0:AccumulationRegisterAggregateUse
+        literal: AccumulationRegisterAggregateUse
+      - name: n0:AutoTimeMode
+        literal: AutoTimeMode
+      - name: n0:BusinessProcessRoutePointType
+        literal: BusinessProcessRoutePointType
+      - name: n0:CalculationRegisterPeriodType
+        literal: CalculationRegisterPeriodType
+      - name: n0:DocumentPostingMode
+        literal: DocumentPostingMode
+      - name: n0:DocumentWriteMode
+        literal: DocumentWriteMode
+      - name: n0:FoldersAndItemsUse
+        literal: FoldersAndItemsUse
+      - name: n0:PostingModeUse
+        literal: PostingModeUse
+      - name: n0:SliceUse
+        literal: SliceUse
+      - name: n0:BackgroundJobState
+        literal: BackgroundJobState
+      - name: n0:CryptoCertificateCheckMode
+        literal: CryptoCertificateCheckMode
+      - name: n0:CryptoCertificateIncludeMode
+        literal: CryptoCertificateIncludeMode
+      - name: n0:CryptoCertificateStorePlacement
+        literal: CryptoCertificateStorePlacement
+      - name: n0:CryptoCertificateStoreType
+        literal: CryptoCertificateStoreType
+      - name: n0:CryptoInteractiveModeUse
+        literal: CryptoInteractiveModeUse
+      - name: n0:FormattedDocumentFileType
+        literal: FormattedDocumentFileType
+      - name: n0:FormattedDocumentParagraphType
+        literal: FormattedDocumentParagraphType
+      - name: n0:RowGotoDirection
+        literal: RowGotoDirection
+      - name: n0:InternetMailAttachmentEncodingMode
+        literal: InternetMailAttachmentEncodingMode
+      - name: n0:InternetMailMessageImportance
+        literal: InternetMailMessageImportance
+      - name: n0:InternetMailMessageNonASCIISymbolsEncodingMode
+        literal: InternetMailMessageNonASCIISymbolsEncodingMode
+      - name: n0:InternetMailMessageParseStatus
+        literal: InternetMailMessageParseStatus
+      - name: n0:InternetMailProtocol
+        literal: InternetMailProtocol
+      - name: n0:InternetMailTextProcessing
+        literal: InternetMailTextProcessing
+      - name: n0:InternetMailTextType
+        literal: InternetMailTextType
+      - name: n0:POP3AuthenticationMode
+        literal: POP3AuthenticationMode
+      - name: n0:SMTPAuthenticationMode
+        literal: SMTPAuthenticationMode
+      - name: n0:UseInternetMailTokenAuthentication
+        literal: UseInternetMailTokenAuthentication
+      - name: n0:QueryBuilderDimensionType
+        literal: QueryBuilderDimensionType
+      - name: n0:AddInConnectionType
+        literal: AddInConnectionType
+      - name: n0:AddInType
+        literal: AddInType
+      - name: n0:AllowedLength
+        literal: AllowedLength
+      - name: n0:AllowedSign
+        literal: AllowedSign
+      - name: n0:ApplicationFormsOpenningMode
+        literal: ApplicationFormsOpenningMode
+      - name: n0:BorderType
+        literal: BorderType
+      - name: n0:BoundaryType
+        literal: BoundaryType
+      - name: n0:ByteOrderMarkUse
+        literal: ByteOrderMarkUse
+      - name: n0:ClientApplicationBaseFontVariant
+        literal: ClientApplicationBaseFontVariant
+      - name: n0:ClientApplicationFormScaleVariant
+        literal: ClientApplicationFormScaleVariant
+      - name: n0:ClientApplicationInterfaceVariant
+        literal: ClientApplicationInterfaceVariant
+      - name: n0:ClientApplicationType
+        literal: ClientApplicationType
+      - name: n0:ClientConnectionSpeed
+        literal: ClientConnectionSpeed
+      - name: n0:ClientRunMode
+        literal: ClientRunMode
+      - name: n0:ColorType
+        literal: ColorType
+      - name: n0:CompositeWordsSeparationMode
+        literal: CompositeWordsSeparationMode
+      - name: n0:ConfigurationExtensionApplicationIssueSeverity
+        literal: ConfigurationExtensionApplicationIssueSeverity
+      - name: n0:ConfigurationExtensionScope
+        literal: ConfigurationExtensionScope
+      - name: n0:ConfigurationExtensionsSource
+        literal: ConfigurationExtensionsSource
+      - name: n0:DataBaseConfigurationUpdateExecutionInformationItemType
+        literal: DataBaseConfigurationUpdateExecutionInformationItemType
+      - name: n0:DataBaseConfigurationUpdateState
+        literal: DataBaseConfigurationUpdateState
+      - name: n0:DatabaseTablespacesUseMode
+        literal: DatabaseTablespacesUseMode
+      - name: n0:DateFractions
+        literal: DateFractions
+      - name: n0:DialogReturnCode
+        literal: DialogReturnCode
+      - name: n0:DynamicListKeyType
+        literal: DynamicListKeyType
+      - name: n0:EnterKeyBehaviorType
+        literal: EnterKeyBehaviorType
+      - name: n0:ExternalDataSourceState
+        literal: ExternalDataSourceState
+      - name: n0:FillChecking
+        literal: FillChecking
+      - name: n0:FontType
+        literal: FontType
+      - name: n0:FullTextSearchMetadataUse
+        literal: FullTextSearchMetadataUse
+      - name: n0:FullTextSearchMode
+        literal: FullTextSearchMode
+      - name: n0:FullTextSearchRepresentationType
+        literal: FullTextSearchRepresentationType
+      - name: n0:FullTextSearchVersion
+        literal: FullTextSearchVersion
+      - name: n0:HashFunction
+        literal: HashFunction
+      - name: n0:InterfaceCompatibilityMode
+        literal: InterfaceCompatibilityMode
+      - name: n0:IntervalBoundVariant
+        literal: IntervalBoundVariant
+      - name: n0:Key
+        literal: Key
+      - name: n0:LocationRelativeToGeofence
+        literal: LocationRelativeToGeofence
+      - name: n0:MessageStatus
+        literal: MessageStatus
+      - name: n0:NumericValueType
+        literal: NumericValueType
+      - name: n0:PasswordPolicyComplianceCheckResult
+        literal: PasswordPolicyComplianceCheckResult
+      - name: n0:PeriodSettingsVariant
+        literal: PeriodSettingsVariant
+      - name: n0:PeriodVariant
+        literal: PeriodVariant
+      - name: n0:PictureType
+        literal: PictureType
+      - name: n0:PlatformType
+        literal: PlatformType
+      - name: n0:PredefinedDataUpdate
+        literal: PredefinedDataUpdate
+      - name: n0:QuestionDialogMode
+        literal: QuestionDialogMode
+      - name: n0:ReplacementMode
+        literal: ReplacementMode
+      - name: n0:RoundMode
+        literal: RoundMode
+      - name: n0:SearchDirection
+        literal: SearchDirection
+      - name: n0:SectionsPanelRepresentation
+        literal: SectionsPanelRepresentation
+      - name: n0:SortDirection
+        literal: SortDirection
+      - name: n0:StandardBeginningDateVariant
+        literal: StandardBeginningDateVariant
+      - name: n0:StandardGlobalSearchType
+        literal: StandardGlobalSearchType
+      - name: n0:StandardPeriodVariant
+        literal: StandardPeriodVariant
+      - name: n0:StringEncodingMethod
+        literal: StringEncodingMethod
+      - name: n0:TextEncoding
+        literal: TextEncoding
+      - name: n0:TransactionsIsolationLevel
+        literal: TransactionsIsolationLevel
+      - name: n0:UUIDVersion
+        literal: UUIDVersion
+      - name: n0:UpdateOnDataChange
+        literal: UpdateOnDataChange
+      - name: n0:UserPasswordHashAlgorithmType
+        literal: UserPasswordHashAlgorithmType
+      - name: n0:WorkingDateMode
+        literal: WorkingDateMode
+      - name: n0:XBaseEncoding
+        literal: XBaseEncoding
+      - name: n0:CalendarEventRecurrence
+        literal: CalendarEventRecurrence
+      - name: n0:ContactDataAddressType
+        literal: ContactDataAddressType
+      - name: n0:ContactDataEmailAddressType
+        literal: ContactDataEmailAddressType
+      - name: n0:ContactDataInstantMessagingAddressType
+        literal: ContactDataInstantMessagingAddressType
+      - name: n0:ContactDataPhoneNumberType
+        literal: ContactDataPhoneNumberType
+      - name: n0:ContactDataRelationshipType
+        literal: ContactDataRelationshipType
+      - name: n0:ContactDataURLType
+        literal: ContactDataURLType
+      - name: n0:CallLogCallType
+        literal: CallLogCallType
+      - name: n0:TelephonyToolsCallEventVariant
+        literal: TelephonyToolsCallEventVariant
+      - name: n0:TelephonyToolsSMSType
+        literal: TelephonyToolsSMSType
+      - name: n0:AudioRecordingChannelUse
+        literal: AudioRecordingChannelUse
+      - name: n0:AudioRecordingFormat
+        literal: AudioRecordingFormat
+      - name: n0:BarcodeType
+        literal: BarcodeType
+      - name: n0:CameraLightingType
+        literal: CameraLightingType
+      - name: n0:DeviceCameraType
+        literal: DeviceCameraType
+      - name: n0:DocumentScanningCheckingQuality
+        literal: DocumentScanningCheckingQuality
+      - name: n0:DocumentScanningOrientationDetectionMode
+        literal: DocumentScanningOrientationDetectionMode
+      - name: n0:DocumentScanningProcessingFilter
+        literal: DocumentScanningProcessingFilter
+      - name: n0:MultimediaRecordingStopButtonPlacement
+        literal: MultimediaRecordingStopButtonPlacement
+      - name: n0:VideoQuality
+        literal: VideoQuality
+      - name: n0:QuerySchemaAvailableTableParameterType
+        literal: QuerySchemaAvailableTableParameterType
+      - name: n0:QuerySchemaJoinType
+        literal: QuerySchemaJoinType
+      - name: n0:QuerySchemaOrderDirection
+        literal: QuerySchemaOrderDirection
+      - name: n0:QuerySchemaPeriodAdditionType
+        literal: QuerySchemaPeriodAdditionType
+      - name: n0:QuerySchemaTotalCalculationFieldType
+        literal: QuerySchemaTotalCalculationFieldType
+      - name: n0:QuerySchemaUnionType
+        literal: QuerySchemaUnionType
+      - name: n0:NewPlannerItemsTextType
+        literal: NewPlannerItemsTextType
+      - name: n0:PlannerCommandSource
+        literal: PlannerCommandSource
+      - name: n0:PlannerInsideDragAction
+        literal: PlannerInsideDragAction
+      - name: n0:PlannerInsideDragBoundaryChangeVariant
+        literal: PlannerInsideDragBoundaryChangeVariant
+      - name: n0:PlannerItemActionLocation
+        literal: PlannerItemActionLocation
+      - name: n0:PlannerItemEnableEditMode
+        literal: PlannerItemEnableEditMode
+      - name: n0:PlannerItemsBehaviorOnLackOfSpace
+        literal: PlannerItemsBehaviorOnLackOfSpace
+      - name: n0:PlannerItemsTimeRepresentation
+        literal: PlannerItemsTimeRepresentation
+      - name: n0:PlannerStandardCommand
+        literal: PlannerStandardCommand
+      - name: n0:JSONCharactersEscapeMode
+        literal: JSONCharactersEscapeMode
+      - name: n0:JSONDateFormat
+        literal: JSONDateFormat
+      - name: n0:JSONDateWritingVariant
+        literal: JSONDateWritingVariant
+      - name: n0:JSONLineBreak
+        literal: JSONLineBreak
+      - name: n0:JSONValueType
+        literal: JSONValueType
+      - name: n0:DeliverableNotificationSendErrorType
+        literal: DeliverableNotificationSendErrorType
+      - name: n0:DeliverableNotificationSubscriberType
+        literal: DeliverableNotificationSubscriberType
+      - name: n0:SoundAlert
+        literal: SoundAlert
+      - name: n0:InAppPurchaseService
+        literal: InAppPurchaseService
+      - name: n0:InAppPurchaseType
+        literal: InAppPurchaseType
+      - name: n0:FTPSecureConnectionUsageLevel
+        literal: FTPSecureConnectionUsageLevel
+      - name: n0:InternetConnectionType
+        literal: InternetConnectionType
+      - name: n0:MacOSCertificateSelectMode
+        literal: MacOSCertificateSelectMode
+      - name: n0:OSCertificateSelectMode
+        literal: OSCertificateSelectMode
+      - name: n0:RoamingUsage
+        literal: RoamingUsage
+      - name: n0:ServerTLSCertificateRevocationCheckMode
+        literal: ServerTLSCertificateRevocationCheckMode
+      - name: n0:WindowsCertificateSelectMode
+        literal: WindowsCertificateSelectMode
+      - name: n0:ByteOrder
+        literal: ByteOrder
+      - name: n0:PositionInStream
+        literal: PositionInStream
+      - name: n0:AdBannerRepresentation
+        literal: AdBannerRepresentation
+      - name: n0:AdStatus
+        literal: AdStatus
+      - name: n0:DataLineChangeType
+        literal: DataLineChangeType
+      - name: n0:RepresentableDocumentBatchFileType
+        literal: RepresentableDocumentBatchFileType
+      - name: n0:ClientApplicationAgentState
+        literal: ClientApplicationAgentState
+      - name: n1:DataCompositionDataRelevanceOutputType
+        literal: DataCompositionDataRelevanceOutputType
+      - name: n1:DataCompositionDatabaseCopyOutputType
+        literal: DataCompositionDatabaseCopyOutputType
+      - name: n0:DatabaseCopiesStandardReplicationVersion
+        literal: DatabaseCopiesStandardReplicationVersion
+      - name: n0:DatabaseCopiesUse
+        literal: DatabaseCopiesUse
+      - name: n0:DatabaseCopyContentItemFieldUse
+        literal: DatabaseCopyContentItemFieldUse
+      - name: n0:DatabaseCopyDBMSType
+        literal: DatabaseCopyDBMSType
+      - name: n0:DatabaseCopyReplicationType
+        literal: DatabaseCopyReplicationType
+      - name: n0:DatabaseCopyState
+        literal: DatabaseCopyState
+      - name: n0:DatabaseCopyTurnedOffReason
+        literal: DatabaseCopyTurnedOffReason
+      - name: n0:DatabaseCopyUpdateState
+        literal: DatabaseCopyUpdateState
+      - name: n0:RequiredDataRelevance
+        literal: RequiredDataRelevance
+      - name: n0:CollaborationSystemCommandSource
+        literal: CollaborationSystemCommandSource
+      - name: n0:CollaborationSystemDataDumpStatus
+        literal: CollaborationSystemDataDumpStatus
+      - name: n0:CollaborationSystemFromDataDumpRestoreStatus
+        literal: CollaborationSystemFromDataDumpRestoreStatus
+      - name: n0:CollaborationSystemMessageButtonPanelButtonAction
+        literal: CollaborationSystemMessageButtonPanelButtonAction
+      - name: n0:CollaborationSystemMessageButtonPanelButtonType
+        literal: CollaborationSystemMessageButtonPanelButtonType
+      - name: n0:CollaborationSystemNotificationRepresentation
+        literal: CollaborationSystemNotificationRepresentation
+      - name: n0:CollaborationSystemStandardCommand
+        literal: CollaborationSystemStandardCommand
+      - name: n0:CollaborationSystemUsersChoicePurpose
+        literal: CollaborationSystemUsersChoicePurpose
+      - name: n0:AdministrationActionOnResourceConsumptionLimitExcess
+        literal: AdministrationActionOnResourceConsumptionLimitExcess
+      - name: n0:AdministrationAssignmentRuleType
+        literal: AdministrationAssignmentRuleType
+      - name: n0:AdministrationConnectionSecurityLevel
+        literal: AdministrationConnectionSecurityLevel
+      - name: n0:AdministrationInfoBaseDeletionMode
+        literal: AdministrationInfoBaseDeletionMode
+      - name: n0:AdministrationProcessChoicePriority
+        literal: AdministrationProcessChoicePriority
+      - name: n0:AdministrationResourceConsumptionCounterFilterType
+        literal: AdministrationResourceConsumptionCounterFilterType
+      - name: n0:AdministrationResourceConsumptionCounterGroupType
+        literal: AdministrationResourceConsumptionCounterGroupType
+      - name: n0:AdministrationWorkProcessStatus
+        literal: AdministrationWorkProcessStatus
+      - name: n0:DuplexPrintingType
+        literal: DuplexPrintingType
+      - name: n0:PageOrientation
+        literal: PageOrientation
+      - name: n0:PagePlacementAlternation
+        literal: PagePlacementAlternation
+      - name: n0:PrintAccuracy
+        literal: PrintAccuracy
+      - name: n0:SpreadsheetDocumentAreaFillType
+        literal: SpreadsheetDocumentAreaFillType
+      - name: n0:SpreadsheetDocumentCellAreaType
+        literal: SpreadsheetDocumentCellAreaType
+      - name: n0:SpreadsheetDocumentCellLineType
+        literal: SpreadsheetDocumentCellLineType
+      - name: n0:SpreadsheetDocumentDetailUse
+        literal: SpreadsheetDocumentDetailUse
+      - name: n0:SpreadsheetDocumentDrawingLineType
+        literal: SpreadsheetDocumentDrawingLineType
+      - name: n0:SpreadsheetDocumentDrawingType
+        literal: SpreadsheetDocumentDrawingType
+      - name: n0:SpreadsheetDocumentFileType
+        literal: SpreadsheetDocumentFileType
+      - name: n0:SpreadsheetDocumentGroupHeaderPlacement
+        literal: SpreadsheetDocumentGroupHeaderPlacement
+      - name: n0:SpreadsheetDocumentPatternType
+        literal: SpreadsheetDocumentPatternType
+      - name: n0:SpreadsheetDocumentPointerType
+        literal: SpreadsheetDocumentPointerType
+      - name: n0:SpreadsheetDocumentSavedPicturesDensity
+        literal: SpreadsheetDocumentSavedPicturesDensity
+      - name: n0:SpreadsheetDocumentSelectionShowModeType
+        literal: SpreadsheetDocumentSelectionShowModeType
+      - name: n0:SpreadsheetDocumentShiftType
+        literal: SpreadsheetDocumentShiftType
+      - name: n0:SpreadsheetDocumentStepDirectionType
+        literal: SpreadsheetDocumentStepDirectionType
+      - name: n0:SpreadsheetDocumentTextPlacementType
+        literal: SpreadsheetDocumentTextPlacementType
+      - name: n0:SpreadsheetDocumentValuesReadingMode
+        literal: SpreadsheetDocumentValuesReadingMode
+      - name: n0:TextPositionRelativeToPicture
+        literal: TextPositionRelativeToPicture
+      - name: n0:UseSpreadsheetDocumentWidthReduction
+        literal: UseSpreadsheetDocumentWidthReduction
+      - name: n0:PivotTableColumnTotalPosition
+        literal: PivotTableColumnTotalPosition
+      - name: n0:PivotTableLinesShowType
+        literal: PivotTableLinesShowType
+      - name: n0:PivotTableRowTotalPosition
+        literal: PivotTableRowTotalPosition
+      - name: n0:QueryRecordType
+        literal: QueryRecordType
+      - name: n0:QueryResultIteration
+        literal: QueryResultIteration
+      - name: n0:ConnectedComponentsOfSystemOfLinearEquationsCalculationGettingMethod
+        literal: ConnectedComponentsOfSystemOfLinearEquationsCalculationGettingMethod
+      - name: n0:AdditionalUserVerificationMethod
+        literal: AdditionalUserVerificationMethod
+      - name: n0:BiometricVerificationMethod
+        literal: BiometricVerificationMethod
+      - name: n0:SecureStorageAccessProtectionMethod
+        literal: SecureStorageAccessProtectionMethod
+      - name: n0:ErrorCategory
+        literal: ErrorCategory
+      - name: n0:ErrorMessageDisplayVariant
+        literal: ErrorMessageDisplayVariant
+      - name: n0:ErrorReportingMode
+        literal: ErrorReportingMode
+      - name: n0:MobileClientSignatureVerificationMethod
+        literal: MobileClientSignatureVerificationMethod
+      - name: n0:OnMainServerUnavalableBehavior
+        literal: OnMainServerUnavalableBehavior
+      - name: n0:UsedServer
+        literal: UsedServer
+      - name: n0:PDFAttachmentRelationshipType
+        literal: PDFAttachmentRelationshipType
+      - name: n0:PDFDocumentFileType
+        literal: PDFDocumentFileType
+      - name: n0:PDFModificationAccessPermissions
+        literal: PDFModificationAccessPermissions
+      - name: n0:PDFSignatureType
+        literal: PDFSignatureType
+      - name: n0:ProgressiveWebApplicationMode
+        literal: ProgressiveWebApplicationMode
+      - name: n0:AdditionalShowMode
+        literal: AdditionalShowMode
+      - name: n0:AppearanceAreaType
+        literal: AppearanceAreaType
+      - name: n0:ArrowStyle
+        literal: ArrowStyle
+      - name: n0:AutoCapitalizationOnTextInput
+        literal: AutoCapitalizationOnTextInput
+      - name: n0:AutoCorrectionOnTextInput
+        literal: AutoCorrectionOnTextInput
+      - name: n0:AutoSaveFormDataInSettings
+        literal: AutoSaveFormDataInSettings
+      - name: n0:AutoShowClearButtonMode
+        literal: AutoShowClearButtonMode
+      - name: n0:AutoShowOpenButtonMode
+        literal: AutoShowOpenButtonMode
+      - name: n0:AutoShowStateMode
+        literal: AutoShowStateMode
+      - name: n0:AutonumerationInForm
+        literal: AutonumerationInForm
+      - name: n0:ButtonGroupRepresentation
+        literal: ButtonGroupRepresentation
+      - name: n0:ButtonLocationInCommandBar
+        literal: ButtonLocationInCommandBar
+      - name: n0:ButtonPictureLocation
+        literal: ButtonPictureLocation
+      - name: n0:ButtonRepresentation
+        literal: ButtonRepresentation
+      - name: n0:FormCommandButtonRepresentation
+        literal: FormCommandButtonRepresentation
+      - name: n0:ButtonShape
+        literal: ButtonShape
+      - name: n0:ButtonShapeRepresentation
+        literal: ButtonShapeRepresentation
+      - name: n0:CheckBoxType
+        literal: CheckBoxType
+      - name: n0:ChildFormItemsGroup
+        literal: ChildFormItemsGroup
+      - name: n0:ChildFormItemsWidth
+        literal: ChildFormItemsWidth
+      - name: n0:ChoiceButtonRepresentation
+        literal: ChoiceButtonRepresentation
+      - name: n0:ChoiceHistoryOnInput
+        literal: ChoiceHistoryOnInput
+      - name: n0:ClipboardDataStandardFormat
+        literal: ClipboardDataStandardFormat
+      - name: n0:CollapseFormItemsByImportance
+        literal: CollapseFormItemsByImportance
+      - name: n0:ColorDepth
+        literal: ColorDepth
+      - name: n0:ColumnEditMode
+        literal: ColumnEditMode
+      - name: n0:ColumnLocation
+        literal: ColumnLocation
+      - name: n0:ColumnSizeChange
+        literal: ColumnSizeChange
+      - name: n0:ColumnsGroup
+        literal: ColumnsGroup
+      - name: n0:CommandBarButtonAlignment
+        literal: CommandBarButtonAlignment
+      - name: n0:CommandBarButtonOrder
+        literal: CommandBarButtonOrder
+      - name: n0:CommandBarButtonRepresentation
+        literal: CommandBarButtonRepresentation
+      - name: n0:CommandBarButtonType
+        literal: CommandBarButtonType
+      - name: n0:CommandGroupCategory
+        literal: CommandGroupCategory
+      - name: n0:CommandParameterUseMode
+        literal: CommandParameterUseMode
+      - name: n0:ConnectorLineType
+        literal: ConnectorLineType
+      - name: n0:ConnectorTextLocation
+        literal: ConnectorTextLocation
+      - name: n0:ControlBorderType
+        literal: ControlBorderType
+      - name: n0:ControlCollapseMode
+        literal: ControlCollapseMode
+      - name: n0:ControlEdge
+        literal: ControlEdge
+      - name: n0:CurrentRowUse
+        literal: CurrentRowUse
+      - name: n0:DataChangeType
+        literal: DataChangeType
+      - name: n0:DateSelectionMode
+        literal: DateSelectionMode
+      - name: n0:DimensionAttributePlacementType
+        literal: DimensionAttributePlacementType
+      - name: n0:DimensionPlacementType
+        literal: DimensionPlacementType
+      - name: n0:DisplayImportance
+        literal: DisplayImportance
+      - name: n0:DragAction
+        literal: DragAction
+      - name: n0:DragAllowedActions
+        literal: DragAllowedActions
+      - name: n0:DrawingSelectionShowMode
+        literal: DrawingSelectionShowMode
+      - name: n0:EditTextUpdate
+        literal: EditTextUpdate
+      - name: n0:FitPageMode
+        literal: FitPageMode
+      - name: n0:FixingInTable
+        literal: FixingInTable
+      - name: n0:FoldersAndItems
+        literal: FoldersAndItems
+      - name: n0:FormButtonPictureLocation
+        literal: FormButtonPictureLocation
+      - name: n0:FormButtonType
+        literal: FormButtonType
+      - name: n0:FormCommandBarLabelLocation
+        literal: FormCommandBarLabelLocation
+      - name: n0:FormConversationsRepresentation
+        literal: FormConversationsRepresentation
+      - name: n0:FormDecorationType
+        literal: FormDecorationType
+      - name: n0:FormFieldType
+        literal: FormFieldType
+      - name: n0:FormGroupType
+        literal: FormGroupType
+      - name: n0:FormItemAdditionType
+        literal: FormItemAdditionType
+      - name: n0:FormItemCommandBarLabelLocation
+        literal: FormItemCommandBarLabelLocation
+      - name: n0:FormItemOrientation
+        literal: FormItemOrientation
+      - name: n0:FormItemSpacing
+        literal: FormItemSpacing
+      - name: n0:FormItemTitleLocation
+        literal: FormItemTitleLocation
+      - name: n0:FormPagesRepresentation
+        literal: FormPagesRepresentation
+      - name: n0:FormPagesState
+        literal: FormPagesState
+      - name: n0:FormStandardURLVariant
+        literal: FormStandardURLVariant
+      - name: n0:FormWindowOpeningMode
+        literal: FormWindowOpeningMode
+      - name: n0:GraphicalSchemaGridDrawMode
+        literal: GraphicalSchemaGridDrawMode
+      - name: n0:GraphicalSchemaItemPictureLocation
+        literal: GraphicalSchemaItemPictureLocation
+      - name: n0:GraphicalSchemaShapes
+        literal: GraphicalSchemaShapes
+      - name: n0:GraphicalSchemeElementSideType
+        literal: GraphicalSchemeElementSideType
+      - name: n0:HTMLDocumentFieldMode
+        literal: HTMLDocumentFieldMode
+      - name: n3:HorizontalAlign
+        literal: HorizontalAlign
+      - name: n0:IncompleteChoiceMode
+        literal: IncompleteChoiceMode
+      - name: n0:InitialListView
+        literal: InitialListView
+      - name: n0:InitialTreeView
+        literal: InitialTreeView
+      - name: n0:InputFieldAutofillHint
+        literal: InputFieldAutofillHint
+      - name: n0:InputFieldCommandSource
+        literal: InputFieldCommandSource
+      - name: n0:InputFieldMultipleValuePictureShape
+        literal: InputFieldMultipleValuePictureShape
+      - name: n0:InputFieldMultipleValuePictureSize
+        literal: InputFieldMultipleValuePictureSize
+      - name: n0:InputFieldStandardCommand
+        literal: InputFieldStandardCommand
+      - name: n0:ItemHeightControlVariant
+        literal: ItemHeightControlVariant
+      - name: n0:ItemHorizontalLocation
+        literal: ItemHorizontalLocation
+      - name: n0:ItemVerticalAlign
+        literal: ItemVerticalAlign
+      - name: n0:ItemsAndTitlesAlignVariant
+        literal: ItemsAndTitlesAlignVariant
+      - name: n0:LabelPictureLocation
+        literal: LabelPictureLocation
+      - name: n0:LinkedValueChangeMode
+        literal: LinkedValueChangeMode
+      - name: n0:ListEditMode
+        literal: ListEditMode
+      - name: n0:MainClientApplicationWindowMode
+        literal: MainClientApplicationWindowMode
+      - name: n0:NewRowShowCheckVariant
+        literal: NewRowShowCheckVariant
+      - name: n0:OnScreenKeyboardReturnKeyText
+        literal: OnScreenKeyboardReturnKeyText
+      - name: n0:Orientation
+        literal: Orientation
+      - name: n0:PanelPictureLocation
+        literal: PanelPictureLocation
+      - name: n0:PictureFormat
+        literal: PictureFormat
+      - name: n0:PictureSize
+        literal: PictureSize
+      - name: n0:PrintDialogUseMode
+        literal: PrintDialogUseMode
+      - name: n0:ProgressBarSmoothingMode
+        literal: ProgressBarSmoothingMode
+      - name: n0:RadioButtonType
+        literal: RadioButtonType
+      - name: n0:RefreshRequestMethod
+        literal: RefreshRequestMethod
+      - name: n0:ReportFormType
+        literal: ReportFormType
+      - name: n0:ReportResultViewMode
+        literal: ReportResultViewMode
+      - name: n0:SaveFormDataInSettings
+        literal: SaveFormDataInSettings
+      - name: n0:ScrollBarUse
+        literal: ScrollBarUse
+      - name: n0:ScrollingTextMode
+        literal: ScrollingTextMode
+      - name: n0:SearchControlLocation
+        literal: SearchControlLocation
+      - name: n0:SearchInTableOnInput
+        literal: SearchInTableOnInput
+      - name: n0:SearchStringLocation
+        literal: SearchStringLocation
+      - name: n0:SelectionShowMode
+        literal: SelectionShowMode
+      - name: n0:ShowTabs
+        literal: ShowTabs
+      - name: n3:SizeChangeMode
+        literal: SizeChangeMode
+      - name: n0:SpecialTextInputMode
+        literal: SpecialTextInputMode
+      - name: n0:SpellCheckingOnTextInput
+        literal: SpellCheckingOnTextInput
+      - name: n0:StandardAppearance
+        literal: StandardAppearance
+      - name: n0:StandardCommandsGroup
+        literal: StandardCommandsGroup
+      - name: n0:TableBehaviorOnHorizontalCompression
+        literal: TableBehaviorOnHorizontalCompression
+      - name: n0:TableBoxRowInputMode
+        literal: TableBoxRowInputMode
+      - name: n0:TableBoxRowSelectionMode
+        literal: TableBoxRowSelectionMode
+      - name: n0:TableBoxSelectionMode
+        literal: TableBoxSelectionMode
+      - name: n0:TableCurrentRowUse
+        literal: TableCurrentRowUse
+      - name: n0:TableHeightControlVariant
+        literal: TableHeightControlVariant
+      - name: n0:TableRepresentation
+        literal: TableRepresentation
+      - name: n0:TableRowInputMode
+        literal: TableRowInputMode
+      - name: n0:TableRowSelectionMode
+        literal: TableRowSelectionMode
+      - name: n0:TableSelectionMode
+        literal: TableSelectionMode
+      - name: n0:TaskListMode
+        literal: TaskListMode
+      - name: n0:TextDirection
+        literal: TextDirection
+      - name: n0:ThroughAlign
+        literal: ThroughAlign
+      - name: n0:TimeScalePosition
+        literal: TimeScalePosition
+      - name: n0:TitleLocation
+        literal: TitleLocation
+      - name: n0:ToolTipRepresentation
+        literal: ToolTipRepresentation
+      - name: n0:TrackBarMarkingAppearance
+        literal: TrackBarMarkingAppearance
+      - name: n0:UseMenuMode
+        literal: UseMenuMode
+      - name: n0:UseOutput
+        literal: UseOutput
+      - name: n0:UserNotificationStatus
+        literal: UserNotificationStatus
+      - name: n0:UsualGroupBehavior
+        literal: UsualGroupBehavior
+      - name: n0:UsualGroupControlRepresentation
+        literal: UsualGroupControlRepresentation
+      - name: n0:UsualGroupRepresentation
+        literal: UsualGroupRepresentation
+      - name: n3:VerticalAlign
+        literal: VerticalAlign
+      - name: n0:VerticalFormScroll
+        literal: VerticalFormScroll
+      - name: n0:ViewModeApplicationOnSetReportResult
+        literal: ViewModeApplicationOnSetReportResult
+      - name: n0:ViewScalingMode
+        literal: ViewScalingMode
+      - name: n0:ViewStatusLocation
+        literal: ViewStatusLocation
+      - name: n0:WarningOnEditRepresentation
+        literal: WarningOnEditRepresentation
+      - name: n0:WindowAppearanceModeChange
+        literal: WindowAppearanceModeChange
+      - name: n0:WindowAppearanceModeVariant
+        literal: WindowAppearanceModeVariant
+      - name: n0:WindowDockVariant
+        literal: WindowDockVariant
+      - name: n0:WindowLocationVariant
+        literal: WindowLocationVariant
+      - name: n0:WindowSizeChange
+        literal: WindowSizeChange
+      - name: n0:WindowStateVariant
+        literal: WindowStateVariant
+      - name: n0:AutoSeriesSeparation
+        literal: AutoSeriesSeparation
+      - name: n0:BarChartPointsOrder
+        literal: BarChartPointsOrder
+      - name: n0:BubbleChartNegativeValuesShowMode
+        literal: BubbleChartNegativeValuesShowMode
+      - name: n0:ChartAnimation
+        literal: ChartAnimation
+      - name: n0:ChartBoundaryDetectionMethod
+        literal: ChartBoundaryDetectionMethod
+      - name: n0:ChartBubbleSizeValueSource
+        literal: ChartBubbleSizeValueSource
+      - name: n0:ChartBubbleSizing
+        literal: ChartBubbleSizing
+      - name: n0:ChartColorPalette
+        literal: ChartColorPalette
+      - name: n0:ChartGridLinesShowMode
+        literal: ChartGridLinesShowMode
+      - name: n0:ChartLabelLocation
+        literal: ChartLabelLocation
+      - name: n0:ChartLabelType
+        literal: ChartLabelType
+      - name: n0:ChartLabelsOrientation
+        literal: ChartLabelsOrientation
+      - name: n0:ChartLegendPlacement
+        literal: ChartLegendPlacement
+      - name: n0:ChartLineType
+        literal: ChartLineType
+      - name: n0:ChartMarkerType
+        literal: ChartMarkerType
+      - name: n0:ChartOrientation
+        literal: ChartOrientation
+      - name: n0:ChartPlotAreaPlacement
+        literal: ChartPlotAreaPlacement
+      - name: n0:ChartPointsAxisValuesSource
+        literal: ChartPointsAxisValuesSource
+      - name: n0:ChartPointsConnectionType
+        literal: ChartPointsConnectionType
+      - name: n0:ChartReferenceBandBorderPosition
+        literal: ChartReferenceBandBorderPosition
+      - name: n0:ChartReferenceLinePosition
+        literal: ChartReferenceLinePosition
+      - name: n0:ChartScaleLabelLocation
+        literal: ChartScaleLabelLocation
+      - name: n0:ChartScaleLocation
+        literal: ChartScaleLocation
+      - name: n0:ChartScaleMarkLocation
+        literal: ChartScaleMarkLocation
+      - name: n0:ChartScaleTitlePlacement
+        literal: ChartScaleTitlePlacement
+      - name: n0:ChartScaleTitleTextSource
+        literal: ChartScaleTitleTextSource
+      - name: n0:ChartSelectionMode
+        literal: ChartSelectionMode
+      - name: n0:ChartSemitransparencyMode
+        literal: ChartSemitransparencyMode
+      - name: n0:ChartSeriesGraphicalRepresentationType
+        literal: ChartSeriesGraphicalRepresentationType
+      - name: n0:ChartSeriesOrderInLegend
+        literal: ChartSeriesOrderInLegend
+      - name: n0:ChartSeriesStackType
+        literal: ChartSeriesStackType
+      - name: n0:ChartSpaceMode
+        literal: ChartSpaceMode
+      - name: n0:ChartSplineMode
+        literal: ChartSplineMode
+      - name: n0:ChartTitleAreaPlacement
+        literal: ChartTitleAreaPlacement
+      - name: n0:ChartTrendlineApproximationType
+        literal: ChartTrendlineApproximationType
+      - name: n0:ChartTrendlineFactor
+        literal: ChartTrendlineFactor
+      - name: n0:ChartType
+        literal: ChartType
+      - name: n0:ChartValueEditState
+        literal: ChartValueEditState
+      - name: n0:ChartValuesBySeriesConnectionType
+        literal: ChartValuesBySeriesConnectionType
+      - name: n0:ChartValuesEditMode
+        literal: ChartValuesEditMode
+      - name: n0:ChartValuesToolTipFillType
+        literal: ChartValuesToolTipFillType
+      - name: n0:ChartValuesToolTipShowMode
+        literal: ChartValuesToolTipShowMode
+      - name: n0:GaugeChartValueRepresentation
+        literal: GaugeChartValueRepresentation
+      - name: n0:GaugeChartValuesScaleLabelsLocation
+        literal: GaugeChartValuesScaleLabelsLocation
+      - name: n0:MaxSeries
+        literal: MaxSeries
+      - name: n0:NonnumericChartValueUse
+        literal: NonnumericChartValueUse
+      - name: n0:PointsConnectionAcrossSkippedChartValuesType
+        literal: PointsConnectionAcrossSkippedChartValuesType
+      - name: n0:RadarChartScaleType
+        literal: RadarChartScaleType
+      - name: n0:ShowChartPopupReferenceLine
+        literal: ShowChartPopupReferenceLine
+      - name: n0:ShowChartScaleTitle
+        literal: ShowChartScaleTitle
+      - name: n0:ShowInChart
+        literal: ShowInChart
+      - name: n0:ShowInChartLegend
+        literal: ShowInChartLegend
+      - name: n0:StockChartUsedPointValue
+        literal: StockChartUsedPointValue
+      - name: n0:UsedChartValuesAxis
+        literal: UsedChartValuesAxis
+      - name: n0:GanttChartIntervalRepresentation
+        literal: GanttChartIntervalRepresentation
+      - name: n0:GanttChartIntervalTextRepresentation
+        literal: GanttChartIntervalTextRepresentation
+      - name: n0:GanttChartIntervalsSelectionMode
+        literal: GanttChartIntervalsSelectionMode
+      - name: n0:GanttChartLinkType
+        literal: GanttChartLinkType
+      - name: n0:GanttChartScaleKeeping
+        literal: GanttChartScaleKeeping
+      - name: n0:GanttChartTableLocation
+        literal: GanttChartTableLocation
+      - name: n0:GanttChartTextPlacementType
+        literal: GanttChartTextPlacementType
+      - name: n0:GanttChartValueTextRepresentation
+        literal: GanttChartValueTextRepresentation
+      - name: n0:GanttChartValuesSelectionMode
+        literal: GanttChartValuesSelectionMode
+      - name: n0:GanttChartVerticalStretch
+        literal: GanttChartVerticalStretch
+      - name: n0:ShowInGanttChart
+        literal: ShowInGanttChart
+      - name: n0:TimeScaleDayFormat
+        literal: TimeScaleDayFormat
+      - name: n0:TimeScaleUnitType
+        literal: TimeScaleUnitType
+      - name: n0:PivotChartLabelsOrientation
+        literal: PivotChartLabelsOrientation
+      - name: n0:PivotChartScaleKeeping
+        literal: PivotChartScaleKeeping
+      - name: n0:PivotChartType
+        literal: PivotChartType
+      - name: n0:PivotChartValuesShowMode
+        literal: PivotChartValuesShowMode
+      - name: n0:DendrogramOrientation
+        literal: DendrogramOrientation
+      - name: n0:DendrogramScaleKeeping
+        literal: DendrogramScaleKeeping
+      - name: n0:GeographicalSchemaDataSourceOrganizationType
+        literal: GeographicalSchemaDataSourceOrganizationType
+      - name: n0:GeographicalSchemaLayerSeriesImportModeType
+        literal: GeographicalSchemaLayerSeriesImportModeType
+      - name: n0:GeographicalSchemaLayerSeriesShowMode
+        literal: GeographicalSchemaLayerSeriesShowMode
+      - name: n0:GeographicalSchemaLegendItemShowScaleType
+        literal: GeographicalSchemaLegendItemShowScaleType
+      - name: n0:GeographicalSchemaLineType
+        literal: GeographicalSchemaLineType
+      - name: n0:GeographicalSchemaMarkerType
+        literal: GeographicalSchemaMarkerType
+      - name: n0:GeographicalSchemaObjectFindType
+        literal: GeographicalSchemaObjectFindType
+      - name: n0:GeographicalSchemaPointObjectDrawingType
+        literal: GeographicalSchemaPointObjectDrawingType
+      - name: n0:GeographicalSchemaProjection
+        literal: GeographicalSchemaProjection
+      - name: n0:GeographicalSchemaShowMode
+        literal: GeographicalSchemaShowMode
+      - name: n0:PaintingReferencePointPosition
+        literal: PaintingReferencePointPosition
+      - name: n0:SeriesValuesDrawingMode
+        literal: SeriesValuesDrawingMode
+      - name: n0:IntegrationServiceChannelState
+        literal: IntegrationServiceChannelState
+      - name: n0:ArchiveFileCompressionLevel
+        literal: ArchiveFileCompressionLevel
+      - name: n0:ArchiveFileCompressionMethod
+        literal: ArchiveFileCompressionMethod
+      - name: n0:ArchiveFileEncryptionMethod
+        literal: ArchiveFileEncryptionMethod
+      - name: n0:ArchiveFileRestoreFilePathsMode
+        literal: ArchiveFileRestoreFilePathsMode
+      - name: n0:ArchiveFileStorePathMode
+        literal: ArchiveFileStorePathMode
+      - name: n0:ArchiveFileSubDirProcessingMode
+        literal: ArchiveFileSubDirProcessingMode
+      - name: n0:ArchiveFileType
+        literal: ArchiveFileType
+      - name: n0:FileNamesEncodingInArchiveFile
+        literal: FileNamesEncodingInArchiveFile
+      - name: n0:FileAccess
+        literal: FileAccess
+      - name: n0:FileCompareMethod
+        literal: FileCompareMethod
+      - name: n0:FileDialogMode
+        literal: FileDialogMode
+      - name: n0:FileDialogSection
+        literal: FileDialogSection
+      - name: n0:FileDragMode
+        literal: FileDragMode
+      - name: n0:FileOpenMode
+        literal: FileOpenMode
+      - name: n0:GetFilesArchiveMode
+        literal: GetFilesArchiveMode
+      - name: n0:IncomingShareRequestStandardCommand
+        literal: IncomingShareRequestStandardCommand
+      - name: n0:MobileDeviceLibraryDirType
+        literal: MobileDeviceLibraryDirType
+      - name: n0:ShareRequestDataProcessingVariant
+        literal: ShareRequestDataProcessingVariant
+      - name: n0:AccountMainPresentation
+        literal: AccountMainPresentation
+      - name: n0:AccumulationRegisterType
+        literal: AccumulationRegisterType
+      - name: n0:AttributeUse
+        literal: AttributeUse
+      - name: n0:BinaryDataBlockStorageUseMode
+        literal: BinaryDataBlockStorageUseMode
+      - name: n0:BinaryDataStorageMode
+        literal: BinaryDataStorageMode
+      - name: n0:BusinessProcessNumberPeriodicity
+        literal: BusinessProcessNumberPeriodicity
+      - name: n0:BusinessProcessNumberType
+        literal: BusinessProcessNumberType
+      - name: n0:CalculationRegisterPeriodicity
+        literal: CalculationRegisterPeriodicity
+      - name: n0:CalculationTypeMainPresentation
+        literal: CalculationTypeMainPresentation
+      - name: n0:CatalogCodeType
+        literal: CatalogCodeType
+      - name: n0:CatalogCodesSeries
+        literal: CatalogCodesSeries
+      - name: n0:CatalogMainPresentation
+        literal: CatalogMainPresentation
+      - name: n0:CharOfAccountCodeSeries
+        literal: CharOfAccountCodeSeries
+      - name: n0:CharacteristicKindCodesSeries
+        literal: CharacteristicKindCodesSeries
+      - name: n0:CharacteristicTypeMainPresentation
+        literal: CharacteristicTypeMainPresentation
+      - name: n0:ChartOfCalculationTypesBaseUse
+        literal: ChartOfCalculationTypesBaseUse
+      - name: n0:ChartOfCalculationTypesCodeType
+        literal: ChartOfCalculationTypesCodeType
+      - name: n0:ChoiceDataGetModeOnInputByString
+        literal: ChoiceDataGetModeOnInputByString
+      - name: n0:ChoiceMode
+        literal: ChoiceMode
+      - name: n0:CommonAttributeAuthenticationSeparation
+        literal: CommonAttributeAuthenticationSeparation
+      - name: n0:CommonAttributeAutoUse
+        literal: CommonAttributeAutoUse
+      - name: n0:CommonAttributeConfigurationExtensionsSeparation
+        literal: CommonAttributeConfigurationExtensionsSeparation
+      - name: n0:CommonAttributeDataSeparation
+        literal: CommonAttributeDataSeparation
+      - name: n0:CommonAttributeSeparatedDataUse
+        literal: CommonAttributeSeparatedDataUse
+      - name: n0:CommonAttributeUse
+        literal: CommonAttributeUse
+      - name: n0:CommonAttributeUsersSeparation
+        literal: CommonAttributeUsersSeparation
+      - name: n0:CompatibilityMode
+        literal: CompatibilityMode
+      - name: n0:ConfigurationExtensionPurpose
+        literal: ConfigurationExtensionPurpose
+      - name: n0:CreateOnInput
+        literal: CreateOnInput
+      - name: n0:DataExchangeMainPresentation
+        literal: DataExchangeMainPresentation
+      - name: n0:DataHistoryUse
+        literal: DataHistoryUse
+      - name: n0:DefaultDataLockControlMode
+        literal: DefaultDataLockControlMode
+      - name: n0:DocumentNumberPeriodicity
+        literal: DocumentNumberPeriodicity
+      - name: n0:DocumentNumberType
+        literal: DocumentNumberType
+      - name: n0:EditType
+        literal: EditType
+      - name: n0:ExternalDataSourceTableDataType
+        literal: ExternalDataSourceTableDataType
+      - name: n0:ExternalDataSourceTableType
+        literal: ExternalDataSourceTableType
+      - name: n0:FormType
+        literal: FormType
+      - name: n0:FullTextSearchOnInputByString
+        literal: FullTextSearchOnInputByString
+      - name: n0:HTTPMethod
+        literal: HTTPMethod
+      - name: n0:HierarchyType
+        literal: HierarchyType
+      - name: n0:Indexing
+        literal: Indexing
+      - name: n0:InformationRegisterPeriodicity
+        literal: InformationRegisterPeriodicity
+      - name: n0:IntegrationServiceChannelMessageDirection
+        literal: IntegrationServiceChannelMessageDirection
+      - name: n0:ModalityUseMode
+        literal: ModalityUseMode
+      - name: n0:MoveBoundaryOnPosting
+        literal: MoveBoundaryOnPosting
+      - name: n0:ObjectAutonumerationMode
+        literal: ObjectAutonumerationMode
+      - name: n0:ObjectBelonging
+        literal: ObjectBelonging
+      - name: n0:Posting
+        literal: Posting
+      - name: n0:RealTimePosting
+        literal: RealTimePosting
+      - name: n0:RegisterRecordsDeletion
+        literal: RegisterRecordsDeletion
+      - name: n0:RegisterRecordsWritingOnPost
+        literal: RegisterRecordsWritingOnPost
+      - name: n0:RegisterWriteMode
+        literal: RegisterWriteMode
+      - name: n0:ReturnValuesReuse
+        literal: ReturnValuesReuse
+      - name: n0:ScriptVariant
+        literal: ScriptVariant
+      - name: n0:SearchStringModeOnInputByString
+        literal: SearchStringModeOnInputByString
+      - name: n0:SequenceFilling
+        literal: SequenceFilling
+      - name: n0:SessionReuseMode
+        literal: SessionReuseMode
+      - name: n0:StyleElementType
+        literal: StyleElementType
+      - name: n0:SubordinationUse
+        literal: SubordinationUse
+      - name: n0:SynchronousExtensionAndAddInCallUseMode
+        literal: SynchronousExtensionAndAddInCallUseMode
+      - name: n0:SynchronousPlatformExtensionAndAddInCallUseMode
+        literal: SynchronousPlatformExtensionAndAddInCallUseMode
+      - name: n0:TaskMainPresentation
+        literal: TaskMainPresentation
+      - name: n0:TaskNumberAutoPrefix
+        literal: TaskNumberAutoPrefix
+      - name: n0:TaskNumberType
+        literal: TaskNumberType
+      - name: n0:TemplateType
+        literal: TemplateType
+      - name: n0:TransferDirection
+        literal: TransferDirection
+      - name: n0:TypeReductionMode
+        literal: TypeReductionMode
+      - name: n0:UseFullTextSearch
+        literal: UseFullTextSearch
+      - name: n0:UseQuickChoice
+        literal: UseQuickChoice
+      - name: n0:PresentationAdditionType
+        literal: PresentationAdditionType
+      - name: n0:ReportBuilderDetailsFillType
+        literal: ReportBuilderDetailsFillType
+      - name: n0:ReportBuilderDimensionType
+        literal: ReportBuilderDimensionType
+      - name: n0:TotalPlacementType
+        literal: TotalPlacementType
+      - name: n0:XMLAttributeType
+        literal: XMLAttributeType
+      - name: n0:XMLCanonicalizationType
+        literal: XMLCanonicalizationType
+      - name: n0:XMLNodeType
+        literal: XMLNodeType
+      - name: n0:XMLSpace
+        literal: XMLSpace
+      - name: n0:XMLTypeAssignment
+        literal: XMLTypeAssignment
+      - name: n0:XMLValidationType
+        literal: XMLValidationType
+      - name: n0:AllowedMessageNo
+        literal: AllowedMessageNo
+      - name: n0:AutoChangeRecord
+        literal: AutoChangeRecord
+      - name: n0:DataItemReceive
+        literal: DataItemReceive
+      - name: n0:DataItemSend
+        literal: DataItemSend
+      - name: n4:AnalysisDataType
+        literal: AnalysisDataType
+      - name: n4:AssociationRulesDataSourceType
+        literal: AssociationRulesDataSourceType
+      - name: n4:AssociationRulesPruneType
+        literal: AssociationRulesPruneType
+      - name: n4:ClusterizationMethod
+        literal: ClusterizationMethod
+      - name: n4:DataAnalysisAssociationRulesOrderType
+        literal: DataAnalysisAssociationRulesOrderType
+      - name: n4:DataAnalysisColumnTypeAssociationRules
+        literal: DataAnalysisColumnTypeAssociationRules
+      - name: n4:DataAnalysisColumnTypeClusterization
+        literal: DataAnalysisColumnTypeClusterization
+      - name: n4:DataAnalysisColumnTypeDecisionTree
+        literal: DataAnalysisColumnTypeDecisionTree
+      - name: n4:DataAnalysisColumnTypeSequentialPatterns
+        literal: DataAnalysisColumnTypeSequentialPatterns
+      - name: n4:DataAnalysisColumnTypeSummaryStatistics
+        literal: DataAnalysisColumnTypeSummaryStatistics
+      - name: n4:DataAnalysisDistanceMetricType
+        literal: DataAnalysisDistanceMetricType
+      - name: n0:DataAnalysisFieldType
+        literal: DataAnalysisFieldType
+      - name: n4:DataAnalysisNumericValueUseType
+        literal: DataAnalysisNumericValueUseType
+      - name: n4:DataAnalysisResultTableFillType
+        literal: DataAnalysisResultTableFillType
+      - name: n4:DataAnalysisSequentialPatternsOrderType
+        literal: DataAnalysisSequentialPatternsOrderType
+      - name: n4:DataAnalysisStandardizationType
+        literal: DataAnalysisStandardizationType
+      - name: n4:DataAnalysisTimeIntervalUnitType
+        literal: DataAnalysisTimeIntervalUnitType
+      - name: n4:DecisionTreeSimplificationType
+        literal: DecisionTreeSimplificationType
+      - name: n4:PredictionModelColumnType
+        literal: PredictionModelColumnType
+      - name: n0:FileNamesEncodingInZipFile
+        literal: FileNamesEncodingInZipFile
+      - name: n0:ZIPCompressionLevel
+        literal: ZIPCompressionLevel
+      - name: n0:ZIPCompressionMethod
+        literal: ZIPCompressionMethod
+      - name: n0:ZIPEncryptionMethod
+        literal: ZIPEncryptionMethod
+      - name: n0:ZIPRestoreFilePathsMode
+        literal: ZIPRestoreFilePathsMode
+      - name: n0:ZIPStorePathMode
+        literal: ZIPStorePathMode
+      - name: n0:ZIPSubDirProcessingMode
+        literal: ZIPSubDirProcessingMode
+      - name: n0:Chars
+        literal: Chars
+      - name: n0:PictureLib
+        literal: PictureLib
+      - name: n0:StyleBorders
+        literal: StyleBorders
+      - name: n0:StyleColors
+        literal: StyleColors
+      - name: n0:StyleFonts
+        literal: StyleFonts
+      - name: n0:WebColors
+        literal: WebColors
+      - name: n0:WindowsColors
+        literal: WindowsColors
+      - name: n0:WindowsFonts
+        literal: WindowsFonts
+      - name: n0:BinaryDataStorageLocationUse
+        literal: BinaryDataStorageLocationUse
+      - name: n0:StatePresentation
+        literal: StatePresentation
+      - name: n0:ButtonLocationInContextMenu
+        literal: ButtonLocationInContextMenu
+      - name: n0:RequiredMobileApplicationPermissionMessages
+        literal: RequiredMobileApplicationPermissionMessages
+      - name: n0:RequiredMobileApplicationPermissions
+        literal: RequiredMobileApplicationPermissions
+      - name: n0:MobileApplicationFunctionalities
+        literal: MobileApplicationFunctionalities
+  yaml:
+    kind: scalar
+    scalar: text

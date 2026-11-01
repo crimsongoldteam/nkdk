@@ -1,16 +1,41 @@
 format: nkdk-declarations/1
-kind: value
-id: common.functional-options-property
-value: {kind: sequence, item: {kind: scalar, scalar: text}}
-representations:
-  xml: {kind: element-sequence, path: [Item], item: {kind: text}}
-  yaml: {kind: sequence, item: {kind: scalar, scalar: text}}
-presence:
-- target: self
-  xml:
-    missing: {denotes: {absent: true}}
-    empty: [{form: empty-element, denotes: {absent: true}}]
-  yaml:
-    missing: {denotes: {absent: true}}
-    empty: [{form: empty-sequence, denotes: {absent: true}}]
-    omitWhen: {not: {present: {self: true}}}
+kind: catalog
+declarations:
+- kind: value
+  id: common.functional-option-link
+  imports: {name: common.metadata-name}
+  value: {kind: record, fields: [{name: name, type: {use: name}}]}
+  representations:
+    xml: {kind: text-pattern, parts: [{literal: 'FunctionalOption.'}, {field: name}]}
+    yaml: {kind: text-pattern, parts: [{field: name}]}
+- kind: value
+  id: common.empty-functional-option-link
+  value: {kind: record, fields: []}
+  representations:
+    xml: {kind: text-pattern, parts: [{literal: ''}]}
+    yaml: {kind: text-pattern, parts: [{literal: ''}]}
+- kind: value
+  id: common.functional-option-item
+  imports: {link: common.functional-option-link, empty: common.empty-functional-option-link}
+  value:
+    kind: choice
+    variants:
+    - {name: link, type: {use: link}}
+    - {name: empty, type: {use: empty}}
+  representations: {xml: {kind: choice}, yaml: {kind: choice, fallback: link}}
+- kind: value
+  id: common.functional-options-property
+  imports: {item: common.functional-option-item}
+  value: {kind: sequence, item: {use: item}}
+  representations:
+    xml: {kind: element-sequence, path: [Item], item: {kind: declared}}
+    yaml: {kind: sequence, item: {kind: declared}}
+  presence:
+  - target: self
+    xml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: empty-element, denotes: {absent: true}}]
+    yaml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: empty-sequence, denotes: {absent: true}}]
+      omitWhen: {not: {present: {self: true}}}

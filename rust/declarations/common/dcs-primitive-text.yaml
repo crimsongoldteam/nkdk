@@ -1,0 +1,53 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: common.dcs-primitive-text-kind
+  namespaces:
+    xs: http://www.w3.org/2001/XMLSchema
+    xr: http://v8.1c.ru/8.3/xcf/readable
+    v8: http://v8.1c.ru/8.1/data/core
+  value: {kind: scalar, scalar: text}
+  representations:
+    xml:
+      kind: qname-lexicon
+      values:
+      - {name: xs:string, literal: string}
+      - {name: xr:MDObjectRef, literal: reference}
+      - {name: v8:Type, literal: type}
+      - {name: v8:UUID, literal: uuid}
+    yaml: {kind: scalar, scalar: text}
+- kind: value
+  id: common.dcs-primitive-text
+  namespaces: {xsi: http://www.w3.org/2001/XMLSchema-instance}
+  imports: {kind: common.dcs-primitive-text-kind, text: common.string}
+  value:
+    kind: record
+    fields:
+    - {name: kind, type: {use: kind}}
+    - {name: source, type: {use: text}}
+    - {name: value, type: {use: text}}
+  representations:
+    xml: {kind: record, fields: [{field: kind, path: [], attribute: xsi:type}, {field: source, path: []}]}
+    yaml: {kind: projection, field: value}
+  presence:
+  - target: {field: kind}
+    xml: {missing: {denotes: {literal: string}}}
+    yaml: {missing: {denotes: {literal: string}}}
+  - target: {field: source}
+    yaml:
+      missing:
+        denotes: {if: {present: {field: value}}, then: {field: value}, else: {literal: ''}}
+  - target: {field: value}
+    xml:
+      missing:
+        denotes:
+          if:
+            and:
+            - {eq: [{field: kind}, {literal: type}]}
+            - {matches: {value: {field: source}, pattern: '[^:]+:Undefined'}}
+          then: {absent: true}
+          else: {field: source}
+    yaml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: null, denotes: {absent: true}}]

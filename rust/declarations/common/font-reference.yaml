@@ -1,0 +1,243 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: common.font-standard-style
+  namespaces: {style: 'http://v8.1c.ru/8.1/data/ui/style'}
+  imports: {font: system.StyleFonts}
+  value: {kind: record, fields: [{name: font, type: {use: font}}]}
+  representations:
+    xml: {kind: text-pattern, parts: [{literal: 'style:'}, {field: font}]}
+    yaml: {kind: text-pattern, parts: [{field: font}]}
+- kind: value
+  id: common.font-style-item
+  namespaces: {style: 'http://v8.1c.ru/8.1/data/ui/style'}
+  imports: {name: common.metadata-name}
+  inputs:
+    styleTypes:
+      type: {kind: index, key: {kind: scalar, scalar: text}, value: {kind: scalar, scalar: text}}
+  value: {kind: record, fields: [{name: name, type: {use: name}}]}
+  representations:
+    xml: {kind: text-pattern, parts: [{literal: 'style:'}, {field: name}]}
+    yaml: {kind: text-pattern, parts: [{literal: 'ЭлементСтиля.'}, {field: name}]}
+  constraints:
+  - id: style-item-type
+    appliesTo: [xml-import, yaml-validation]
+    assert:
+      match:
+        value: {lookup: {in: {input: styleTypes}, key: {field: name}}}
+        present: {as: styleType, then: {eq: [{var: styleType}, {literal: Font}]}}
+        absent: {literal: false}
+    diagnostic: {code: font.style-item, severity: error, at: {self: true}, message: Элемент стиля отсутствует или имеет другой тип}
+- kind: value
+  id: common.font-windows
+  namespaces: {sys: 'http://v8.1c.ru/8.1/data/ui/fonts/system'}
+  imports: {font: system.WindowsFonts}
+  value: {kind: record, fields: [{name: font, type: {use: font}}]}
+  representations:
+    xml: {kind: text-pattern, parts: [{literal: 'sys:'}, {field: font}]}
+    yaml: {kind: text-pattern, parts: [{field: font}]}
+- kind: value
+  id: common.font-reference
+  imports:
+    standardStyle: common.font-standard-style
+    styleItem: common.font-style-item
+    windows: common.font-windows
+  inputs:
+    styleTypes:
+      type: {kind: index, key: {kind: scalar, scalar: text}, value: {kind: scalar, scalar: text}}
+  value:
+    kind: choice
+    variants:
+    - {name: СтандартныйШрифтСтиля, type: {use: standardStyle}}
+    - {name: ЭлементСтиля, type: {use: styleItem, bind: {styleTypes: {input: styleTypes}}}}
+    - {name: ШрифтWindows, type: {use: windows}}
+  representations:
+    xml: {kind: choice, fallback: ЭлементСтиля}
+    yaml: {kind: choice}
+- kind: value
+  id: common.font-normal
+  imports:
+    reference: common.font-reference
+    kind: common.string
+    text: common.string
+    number: common.exact-decimal
+    boolean: common.boolean
+  inputs:
+    styleTypes:
+      type: {kind: index, key: {kind: scalar, scalar: text}, value: {kind: scalar, scalar: text}}
+  value:
+    kind: record
+    fields:
+    - {name: reference, type: {use: reference, bind: {styleTypes: {input: styleTypes}}}}
+    - {name: kind, type: {use: kind}}
+    - {name: faceName, type: {use: text}}
+    - {name: height, type: {use: number}}
+    - {name: scale, type: {use: number}}
+    - {name: bold, type: {use: boolean}}
+    - {name: italic, type: {use: boolean}}
+    - {name: underline, type: {use: boolean}}
+    - {name: strikeout, type: {use: boolean}}
+  representations:
+    xml:
+      kind: record
+      fields:
+      - {field: reference, path: [], attribute: ref}
+      - {field: faceName, path: [], attribute: faceName}
+      - {field: height, path: [], attribute: height}
+      - {field: bold, path: [], attribute: bold}
+      - {field: italic, path: [], attribute: italic}
+      - {field: underline, path: [], attribute: underline}
+      - {field: strikeout, path: [], attribute: strikeout}
+      - {field: kind, path: [], attribute: kind}
+      - {field: scale, path: [], attribute: scale}
+    yaml:
+      kind: mapping
+      fields:
+      - {field: reference, key: Вид}
+      - {field: kind, key: ВидXML}
+      - {field: faceName, key: Имя}
+      - {field: height, key: Размер}
+      - {field: scale, key: Масштаб}
+      - {field: bold, key: Полужирный}
+      - {field: italic, key: Наклонный}
+      - {field: underline, key: Подчеркивание}
+      - {field: strikeout, key: Зачеркивание}
+  presence:
+  - target: {field: reference}
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}}
+  - target: {field: kind}
+    yaml:
+      missing:
+        denotes:
+          if: {isVariant: {value: {field: reference}, variant: ШрифтWindows}}
+          then: {literal: WindowsFont}
+          else:
+            if: {present: {field: reference}}
+            then: {literal: StyleItem}
+            else: {literal: Absolute}
+      omitWhen: {present: {field: reference}}
+  - target: {field: faceName}
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}}
+  - target: {field: height}
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}}
+  - target: {field: scale}
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}}
+  - target: {field: bold}
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}}
+  - target: {field: italic}
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}}
+  - target: {field: underline}
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}}
+  - target: {field: strikeout}
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}}
+  constraints:
+  - id: known-font-kind
+    appliesTo: [xml-import, yaml-validation]
+    assert:
+      or:
+      - {eq: [{field: kind}, {literal: Absolute}]}
+      - {eq: [{field: kind}, {literal: StyleItem}]}
+      - {eq: [{field: kind}, {literal: WindowsFont}]}
+      - {eq: [{field: kind}, {literal: AutoFont}]}
+    diagnostic: {code: font.kind, severity: error, at: {self: true}, message: Неизвестный вид шрифта}
+- kind: value
+  id: common.font-raw-reference
+  imports:
+    text: common.string
+    kind: system.FontType
+    number: common.exact-decimal
+    boolean: common.boolean
+  value:
+    kind: record
+    fields:
+    - {name: kind, type: {use: kind}}
+    - {name: reference, type: {use: text}}
+    - {name: faceName, type: {use: text}}
+    - {name: height, type: {use: number}}
+    - {name: scale, type: {use: number}}
+    - {name: bold, type: {use: boolean}}
+    - {name: italic, type: {use: boolean}}
+    - {name: underline, type: {use: boolean}}
+    - {name: strikeout, type: {use: boolean}}
+  representations:
+    xml:
+      kind: record
+      fields:
+      - {field: reference, path: [], attribute: ref}
+      - {field: faceName, path: [], attribute: faceName}
+      - {field: height, path: [], attribute: height}
+      - {field: bold, path: [], attribute: bold}
+      - {field: italic, path: [], attribute: italic}
+      - {field: underline, path: [], attribute: underline}
+      - {field: strikeout, path: [], attribute: strikeout}
+      - {field: kind, path: [], attribute: kind}
+      - {field: scale, path: [], attribute: scale}
+    yaml:
+      kind: mapping
+      fields:
+      - {field: kind, key: Вид}
+      - {field: reference, key: Значение}
+      - {field: faceName, key: Имя}
+      - {field: height, key: Размер}
+      - {field: scale, key: Масштаб}
+      - {field: bold, key: Полужирный}
+      - {field: italic, key: Наклонный}
+      - {field: underline, key: Подчеркивание}
+      - {field: strikeout, key: Зачеркивание}
+  presence:
+  - target: {field: kind}
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}}
+  - target: {field: reference}
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}}
+  - target: {field: faceName}
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}}
+  - target: {field: height}
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}}
+  - target: {field: scale}
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}}
+  - target: {field: bold}
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}}
+  - target: {field: italic}
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}}
+  - target: {field: underline}
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}}
+  - target: {field: strikeout}
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}}
+- kind: value
+  id: common.font
+  imports: {normal: common.font-normal, raw: common.font-raw-reference}
+  inputs: {styleTypes: {type: {kind: index, key: {kind: scalar, scalar: text}, value: {kind: scalar, scalar: text}}}}
+  value:
+    kind: choice
+    variants:
+    - {name: normal, type: {use: normal, bind: {styleTypes: {input: styleTypes}}}}
+    - {name: raw, type: {use: raw}}
+  representations:
+    xml: {kind: choice, fallback: raw}
+    yaml:
+      kind: choice
+      variants:
+      - {variant: raw, form: mapping, key: Вид, value: ЭлементСтиля}
+      - {variant: raw, form: mapping, key: Вид, value: WindowsШрифт}
+      - {variant: raw, form: mapping, key: Вид, value: Абсолютный}
+      - {variant: raw, form: mapping, key: Вид, value: АвтоШрифт}
+      - {variant: normal, form: mapping, key: Вид}
+      - {variant: normal, form: mapping, key: ВидXML}

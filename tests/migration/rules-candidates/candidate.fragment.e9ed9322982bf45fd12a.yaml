@@ -1,0 +1,34 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.string
+value:
+  kind: record
+  fields:
+    - name: order
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: order
+        path:
+          - Order
+  yaml:
+    kind: mapping
+    fields:
+      - field: order
+        key: Порядок
+presence:
+  - target:
+      field: order
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+id: candidate.fragment.e9ed9322982bf45fd12a

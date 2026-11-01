@@ -1,0 +1,119 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.form-event-bindings
+value:
+  kind: record
+  fields:
+    - name: events
+      type:
+        use: value0
+        bind:
+          eventNames:
+            sequence:
+              - record:
+                  xml:
+                    literal: OnChange
+                  yaml:
+                    literal: ПриИзменении
+              - record:
+                  xml:
+                    literal: AutoComplete
+                  yaml:
+                    literal: АвтоПодбор
+              - record:
+                  xml:
+                    literal: MultipleValuesAdd
+                  yaml:
+                    literal: ДобавлениеМножественныхЗначений
+              - record:
+                  xml:
+                    literal: EditTextChange
+                  yaml:
+                    literal: ИзменениеТекстаРедактирования
+              - record:
+                  xml:
+                    literal: StartChoice
+                  yaml:
+                    literal: НачалоВыбора
+              - record:
+                  xml:
+                    literal: StartListChoice
+                  yaml:
+                    literal: НачалоВыбораИзСписка
+              - record:
+                  xml:
+                    literal: ChoiceProcessing
+                  yaml:
+                    literal: ОбработкаВыбора
+              - record:
+                  xml:
+                    literal: MultipleValueURLProcessing
+                  yaml:
+                    literal: ОбработкаНавигационнойСсылкиМножественногоЗначения
+              - record:
+                  xml:
+                    literal: CommandGenerateProcessing
+                  yaml:
+                    literal: ОбработкаФормированияКоманд
+              - record:
+                  xml:
+                    literal: TextEditEnd
+                  yaml:
+                    literal: ОкончаниеВводаТекста
+              - record:
+                  xml:
+                    literal: Opening
+                  yaml:
+                    literal: Открытие
+              - record:
+                  xml:
+                    literal: MultipleValueOpening
+                  yaml:
+                    literal: ОткрытиеМножественногоЗначения
+              - record:
+                  xml:
+                    literal: Clearing
+                  yaml:
+                    literal: Очистка
+              - record:
+                  xml:
+                    literal: Tuning
+                  yaml:
+                    literal: Регулирование
+              - record:
+                  xml:
+                    literal: Creating
+                  yaml:
+                    literal: Создание
+              - record:
+                  xml:
+                    literal: MultipleValuesDelete
+                  yaml:
+                    literal: УдалениеМножественныхЗначений
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: events
+        path:
+          - f:Events
+  yaml:
+    kind: mapping
+    fields:
+      - field: events
+        key: События
+presence:
+  - target:
+      field: events
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+namespaces:
+  f: http://v8.1c.ru/8.3/xcf/logform
+id: candidate.fragment.9648261b696618010308

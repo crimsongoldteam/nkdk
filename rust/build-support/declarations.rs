@@ -1,7 +1,18 @@
 use std::{
+    collections::BTreeSet,
     fs, io,
     path::{Path, PathBuf},
 };
+
+#[allow(dead_code)]
+pub fn manifest_paths(path: &Path) -> io::Result<BTreeSet<String>> {
+    Ok(fs::read_to_string(path)?
+        .lines()
+        .map(str::trim)
+        .filter(|line| !line.is_empty() && !line.starts_with('#'))
+        .map(|line| format!("declarations/{line}"))
+        .collect())
+}
 fn collect(directory: &Path, files: &mut Vec<PathBuf>) -> io::Result<()> {
     for entry in fs::read_dir(directory)? {
         let entry = entry?;

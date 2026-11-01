@@ -1,0 +1,7 @@
+format: nkdk-declarations/1
+kind: value
+id: common.dcs-typed-undefined-token
+enum:
+  Undefined:
+    xml: Undefined
+    yaml: Неопределено

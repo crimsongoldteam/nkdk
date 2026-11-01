@@ -1,0 +1,1583 @@
+{
+  "version": 1,
+  "owners": [
+    {
+      "symbol": "MetadataAccountingRegisterRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataAccountingRegister/rules.ts",
+      "sources": [
+        {
+          "entry": "migration.resource-presence-source",
+          "inputs": {},
+          "factDirections": [],
+          "newOwner": {
+            "template": {
+              "files": []
+            }
+          },
+          "resourcePresence": {
+            "field": "files",
+            "paths": [
+              {
+                "name": "recordSetModule",
+                "xml": [
+                  "Ext",
+                  "RecordSetModule.bsl"
+                ],
+                "yaml": [
+                  "МодульНабораЗаписей.bsl"
+                ]
+              },
+              {
+                "name": "managerModule",
+                "xml": [
+                  "Ext",
+                  "ManagerModule.bsl"
+                ],
+                "yaml": [
+                  "МодульМенеджера.bsl"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataAccumulationRegisterRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataAccumulationRegister/rules.ts",
+      "sources": [
+        {
+          "entry": "migration.resource-presence-source",
+          "inputs": {},
+          "factDirections": [],
+          "newOwner": {
+            "template": {
+              "files": []
+            }
+          },
+          "resourcePresence": {
+            "field": "files",
+            "paths": [
+              {
+                "name": "managerModule",
+                "xml": [
+                  "Ext",
+                  "ManagerModule.bsl"
+                ],
+                "yaml": [
+                  "МодульМенеджера.bsl"
+                ]
+              },
+              {
+                "name": "recordSetModule",
+                "xml": [
+                  "Ext",
+                  "RecordSetModule.bsl"
+                ],
+                "yaml": [
+                  "МодульНабораЗаписей.bsl"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataBotRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataBot/rules.ts",
+      "sources": [
+        {
+          "entry": "migration.resource-presence-source",
+          "inputs": {},
+          "factDirections": [],
+          "newOwner": {
+            "template": {
+              "files": []
+            }
+          },
+          "resourcePresence": {
+            "field": "files",
+            "paths": [
+              {
+                "name": "module",
+                "xml": [
+                  "Ext",
+                  "Module.bsl"
+                ],
+                "yaml": [
+                  "Модуль.bsl"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataBusinessProcessRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataBusinessProcess/rules.ts",
+      "sources": [
+        {
+          "entry": "migration.resource-presence-source",
+          "inputs": {},
+          "factDirections": [],
+          "newOwner": {
+            "template": {
+              "files": []
+            }
+          },
+          "resourcePresence": {
+            "field": "files",
+            "paths": [
+              {
+                "name": "flowchart",
+                "xml": [
+                  "Ext",
+                  "Flowchart.xml"
+                ],
+                "yaml": [
+                  "Flowchart.xml"
+                ]
+              },
+              {
+                "name": "objectModule",
+                "xml": [
+                  "Ext",
+                  "ObjectModule.bsl"
+                ],
+                "yaml": [
+                  "МодульОбъекта.bsl"
+                ]
+              },
+              {
+                "name": "managerModule",
+                "xml": [
+                  "Ext",
+                  "ManagerModule.bsl"
+                ],
+                "yaml": [
+                  "МодульМенеджера.bsl"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "RecalculationRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataCalculationRegister/recalculation/rules.ts",
+      "sources": [
+        {
+          "entry": "migration.resource-presence-source",
+          "inputs": {},
+          "factDirections": [],
+          "newOwner": {
+            "template": {
+              "files": []
+            }
+          },
+          "resourcePresence": {
+            "field": "files",
+            "paths": [
+              {
+                "name": "recordSetModule",
+                "xml": [
+                  "Ext",
+                  "RecordSetModule.bsl"
+                ],
+                "yaml": [
+                  "МодульНабораЗаписей.bsl"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataCalculationRegisterRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataCalculationRegister/rules.ts",
+      "sources": [
+        {
+          "entry": "migration.resource-presence-source",
+          "inputs": {},
+          "factDirections": [],
+          "newOwner": {
+            "template": {
+              "files": []
+            }
+          },
+          "resourcePresence": {
+            "field": "files",
+            "paths": [
+              {
+                "name": "recordSetModule",
+                "xml": [
+                  "Ext",
+                  "RecordSetModule.bsl"
+                ],
+                "yaml": [
+                  "МодульНабораЗаписей.bsl"
+                ]
+              },
+              {
+                "name": "managerModule",
+                "xml": [
+                  "Ext",
+                  "ManagerModule.bsl"
+                ],
+                "yaml": [
+                  "МодульМенеджера.bsl"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataCatalogRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataCatalog/rules.ts",
+      "sources": [
+        {
+          "entry": "migration.resource-presence-source",
+          "inputs": {},
+          "factDirections": [],
+          "newOwner": {
+            "template": {
+              "files": []
+            }
+          },
+          "resourcePresence": {
+            "field": "files",
+            "paths": [
+              {
+                "name": "objectModule",
+                "xml": [
+                  "Ext",
+                  "ObjectModule.bsl"
+                ],
+                "yaml": [
+                  "МодульОбъекта.bsl"
+                ]
+              },
+              {
+                "name": "managerModule",
+                "xml": [
+                  "Ext",
+                  "ManagerModule.bsl"
+                ],
+                "yaml": [
+                  "МодульМенеджера.bsl"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataChartOfAccountsRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataChartOfAccounts/rules.ts",
+      "sources": [
+        {
+          "entry": "migration.resource-presence-source",
+          "inputs": {},
+          "factDirections": [],
+          "newOwner": {
+            "template": {
+              "files": []
+            }
+          },
+          "resourcePresence": {
+            "field": "files",
+            "paths": [
+              {
+                "name": "objectModule",
+                "xml": [
+                  "Ext",
+                  "ObjectModule.bsl"
+                ],
+                "yaml": [
+                  "МодульОбъекта.bsl"
+                ]
+              },
+              {
+                "name": "managerModule",
+                "xml": [
+                  "Ext",
+                  "ManagerModule.bsl"
+                ],
+                "yaml": [
+                  "МодульМенеджера.bsl"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataChartOfCalculationTypesRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataChartOfCalculationTypes/rules.ts",
+      "sources": [
+        {
+          "entry": "migration.resource-presence-source",
+          "inputs": {},
+          "factDirections": [],
+          "newOwner": {
+            "template": {
+              "files": []
+            }
+          },
+          "resourcePresence": {
+            "field": "files",
+            "paths": [
+              {
+                "name": "objectModule",
+                "xml": [
+                  "Ext",
+                  "ObjectModule.bsl"
+                ],
+                "yaml": [
+                  "МодульОбъекта.bsl"
+                ]
+              },
+              {
+                "name": "managerModule",
+                "xml": [
+                  "Ext",
+                  "ManagerModule.bsl"
+                ],
+                "yaml": [
+                  "МодульМенеджера.bsl"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataChartOfCharacteristicTypesRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataChartOfCharacteristicTypes/rules.ts",
+      "sources": [
+        {
+          "entry": "migration.resource-presence-source",
+          "inputs": {},
+          "factDirections": [],
+          "newOwner": {
+            "template": {
+              "files": []
+            }
+          },
+          "resourcePresence": {
+            "field": "files",
+            "paths": [
+              {
+                "name": "objectModule",
+                "xml": [
+                  "Ext",
+                  "ObjectModule.bsl"
+                ],
+                "yaml": [
+                  "МодульОбъекта.bsl"
+                ]
+              },
+              {
+                "name": "managerModule",
+                "xml": [
+                  "Ext",
+                  "ManagerModule.bsl"
+                ],
+                "yaml": [
+                  "МодульМенеджера.bsl"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataCommonCommandRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataCommonCommand/rules.ts",
+      "sources": [
+        {
+          "entry": "migration.resource-presence-source",
+          "inputs": {},
+          "factDirections": [],
+          "newOwner": {
+            "template": {
+              "files": []
+            }
+          },
+          "resourcePresence": {
+            "field": "files",
+            "paths": [
+              {
+                "name": "commandModule",
+                "xml": [
+                  "Ext",
+                  "CommandModule.bsl"
+                ],
+                "yaml": [
+                  "Модуль.bsl"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataCommonFormRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataCommonForm/rules.ts",
+      "sources": [
+        {
+          "entry": "migration.resource-presence-source",
+          "inputs": {},
+          "factDirections": [],
+          "newOwner": {
+            "template": {
+              "files": []
+            }
+          },
+          "resourcePresence": {
+            "field": "files",
+            "paths": [
+              {
+                "name": "module",
+                "xml": [
+                  "Ext",
+                  "Form",
+                  "Module.bsl"
+                ],
+                "yaml": [
+                  "Модуль.bsl"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataCommonModuleRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataCommonModule/rules.ts",
+      "sources": [
+        {
+          "entry": "migration.resource-presence-source",
+          "inputs": {},
+          "factDirections": [],
+          "newOwner": {
+            "template": {
+              "files": []
+            }
+          },
+          "resourcePresence": {
+            "field": "files",
+            "paths": [
+              {
+                "name": "module",
+                "xml": [
+                  "Ext",
+                  "Module.bsl"
+                ],
+                "yaml": [
+                  "Модуль.bsl"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataCommonTemplateRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataCommonTemplate/rules.ts",
+      "sources": [
+        {
+          "entry": "migration.resource-presence-source",
+          "inputs": {},
+          "factDirections": [],
+          "newOwner": {
+            "template": {
+              "files": []
+            }
+          },
+          "resourcePresence": {
+            "field": "files",
+            "paths": [
+              {
+                "name": "template",
+                "xml": [
+                  "Ext",
+                  "Template.xml"
+                ],
+                "yaml": [
+                  "Template.xml"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataConstantRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataConstant/rules.ts",
+      "sources": [
+        {
+          "entry": "migration.resource-presence-source",
+          "inputs": {},
+          "factDirections": [],
+          "newOwner": {
+            "template": {
+              "files": []
+            }
+          },
+          "resourcePresence": {
+            "field": "files",
+            "paths": [
+              {
+                "name": "managerModule",
+                "xml": [
+                  "Ext",
+                  "ManagerModule.bsl"
+                ],
+                "yaml": [
+                  "МодульМенеджера.bsl"
+                ]
+              },
+              {
+                "name": "valueManagerModule",
+                "xml": [
+                  "Ext",
+                  "ValueManagerModule.bsl"
+                ],
+                "yaml": [
+                  "МодульМенеджераЗначения.bsl"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataDocumentRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataDocument/rules.ts",
+      "sources": [
+        {
+          "entry": "migration.resource-presence-source",
+          "inputs": {},
+          "factDirections": [],
+          "newOwner": {
+            "template": {
+              "files": []
+            }
+          },
+          "resourcePresence": {
+            "field": "files",
+            "paths": [
+              {
+                "name": "objectModule",
+                "xml": [
+                  "Ext",
+                  "ObjectModule.bsl"
+                ],
+                "yaml": [
+                  "МодульОбъекта.bsl"
+                ]
+              },
+              {
+                "name": "managerModule",
+                "xml": [
+                  "Ext",
+                  "ManagerModule.bsl"
+                ],
+                "yaml": [
+                  "МодульМенеджера.bsl"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataDocumentJournalRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataDocumentJournal/rules.ts",
+      "sources": [
+        {
+          "entry": "migration.resource-presence-source",
+          "inputs": {},
+          "factDirections": [],
+          "newOwner": {
+            "template": {
+              "files": []
+            }
+          },
+          "resourcePresence": {
+            "field": "files",
+            "paths": [
+              {
+                "name": "managerModule",
+                "xml": [
+                  "Ext",
+                  "ManagerModule.bsl"
+                ],
+                "yaml": [
+                  "МодульМенеджера.bsl"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataEnumerationRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataEnumeration/rules.ts",
+      "sources": [
+        {
+          "entry": "migration.resource-presence-source",
+          "inputs": {},
+          "factDirections": [],
+          "newOwner": {
+            "template": {
+              "files": []
+            }
+          },
+          "resourcePresence": {
+            "field": "files",
+            "paths": [
+              {
+                "name": "managerModule",
+                "xml": [
+                  "Ext",
+                  "ManagerModule.bsl"
+                ],
+                "yaml": [
+                  "МодульМенеджера.bsl"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataExchangePlanRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataExchangePlan/rules.ts",
+      "sources": [
+        {
+          "entry": "migration.resource-presence-source",
+          "inputs": {},
+          "factDirections": [],
+          "newOwner": {
+            "template": {
+              "files": []
+            }
+          },
+          "resourcePresence": {
+            "field": "files",
+            "paths": [
+              {
+                "name": "objectModule",
+                "xml": [
+                  "Ext",
+                  "ObjectModule.bsl"
+                ],
+                "yaml": [
+                  "МодульОбъекта.bsl"
+                ]
+              },
+              {
+                "name": "managerModule",
+                "xml": [
+                  "Ext",
+                  "ManagerModule.bsl"
+                ],
+                "yaml": [
+                  "МодульМенеджера.bsl"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataFilterCriterionRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataFilterCriterion/rules.ts",
+      "sources": [
+        {
+          "entry": "migration.resource-presence-source",
+          "inputs": {},
+          "factDirections": [],
+          "newOwner": {
+            "template": {
+              "files": []
+            }
+          },
+          "resourcePresence": {
+            "field": "files",
+            "paths": [
+              {
+                "name": "managerModule",
+                "xml": [
+                  "Ext",
+                  "ManagerModule.bsl"
+                ],
+                "yaml": [
+                  "МодульМенеджера.bsl"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataHTTPServiceRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataHTTPService/rules.ts",
+      "sources": [
+        {
+          "entry": "migration.resource-presence-source",
+          "inputs": {},
+          "factDirections": [],
+          "newOwner": {
+            "template": {
+              "files": []
+            }
+          },
+          "resourcePresence": {
+            "field": "files",
+            "paths": [
+              {
+                "name": "module",
+                "xml": [
+                  "Ext",
+                  "Module.bsl"
+                ],
+                "yaml": [
+                  "Модуль.bsl"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataInformationRegisterRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataInformationRegister/rules.ts",
+      "sources": [
+        {
+          "entry": "migration.resource-presence-source",
+          "inputs": {},
+          "factDirections": [],
+          "newOwner": {
+            "template": {
+              "files": []
+            }
+          },
+          "resourcePresence": {
+            "field": "files",
+            "paths": [
+              {
+                "name": "recordSetModule",
+                "xml": [
+                  "Ext",
+                  "RecordSetModule.bsl"
+                ],
+                "yaml": [
+                  "МодульНабораЗаписей.bsl"
+                ]
+              },
+              {
+                "name": "managerModule",
+                "xml": [
+                  "Ext",
+                  "ManagerModule.bsl"
+                ],
+                "yaml": [
+                  "МодульМенеджера.bsl"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataIntegrationServiceRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataIntegrationService/rules.ts",
+      "sources": [
+        {
+          "entry": "migration.resource-presence-source",
+          "inputs": {},
+          "factDirections": [],
+          "newOwner": {
+            "template": {
+              "files": []
+            }
+          },
+          "resourcePresence": {
+            "field": "files",
+            "paths": [
+              {
+                "name": "module",
+                "xml": [
+                  "Ext",
+                  "Module.bsl"
+                ],
+                "yaml": [
+                  "Модуль.bsl"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataRoleRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataRole/rules.ts",
+      "sources": [
+        {
+          "entry": "migration.resource-presence-source",
+          "inputs": {},
+          "factDirections": [],
+          "newOwner": {
+            "template": {
+              "files": []
+            }
+          },
+          "resourcePresence": {
+            "field": "files",
+            "paths": [
+              {
+                "name": "rights",
+                "xml": [
+                  "Ext",
+                  "Rights.xml"
+                ],
+                "yaml": [
+                  "Rights.xml"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataSequenceRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataSequence/rules.ts",
+      "sources": [
+        {
+          "entry": "migration.resource-presence-source",
+          "inputs": {},
+          "factDirections": [],
+          "newOwner": {
+            "template": {
+              "files": []
+            }
+          },
+          "resourcePresence": {
+            "field": "files",
+            "paths": [
+              {
+                "name": "recordSetModule",
+                "xml": [
+                  "Ext",
+                  "RecordSetModule.bsl"
+                ],
+                "yaml": [
+                  "МодульНабораЗаписей.bsl"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataSettingsStorageRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataSettingsStorage/rules.ts",
+      "sources": [
+        {
+          "entry": "migration.resource-presence-source",
+          "inputs": {},
+          "factDirections": [],
+          "newOwner": {
+            "template": {
+              "files": []
+            }
+          },
+          "resourcePresence": {
+            "field": "files",
+            "paths": [
+              {
+                "name": "managerModule",
+                "xml": [
+                  "Ext",
+                  "ManagerModule.bsl"
+                ],
+                "yaml": [
+                  "МодульМенеджера.bsl"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataStyleRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataStyle/rules.ts",
+      "sources": [
+        {
+          "entry": "migration.resource-presence-source",
+          "inputs": {},
+          "factDirections": [],
+          "newOwner": {
+            "template": {
+              "files": []
+            }
+          },
+          "resourcePresence": {
+            "field": "files",
+            "paths": [
+              {
+                "name": "style",
+                "xml": [
+                  "Ext",
+                  "Style.xml"
+                ],
+                "yaml": [
+                  "Style.xml"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataTaskRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataTask/rules.ts",
+      "sources": [
+        {
+          "entry": "migration.resource-presence-source",
+          "inputs": {},
+          "factDirections": [],
+          "newOwner": {
+            "template": {
+              "files": []
+            }
+          },
+          "resourcePresence": {
+            "field": "files",
+            "paths": [
+              {
+                "name": "objectModule",
+                "xml": [
+                  "Ext",
+                  "ObjectModule.bsl"
+                ],
+                "yaml": [
+                  "МодульОбъекта.bsl"
+                ]
+              },
+              {
+                "name": "managerModule",
+                "xml": [
+                  "Ext",
+                  "ManagerModule.bsl"
+                ],
+                "yaml": [
+                  "МодульМенеджера.bsl"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataWebServiceRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataWebService/rules.ts",
+      "sources": [
+        {
+          "entry": "migration.resource-presence-source",
+          "inputs": {},
+          "factDirections": [],
+          "newOwner": {
+            "template": {
+              "files": []
+            }
+          },
+          "resourcePresence": {
+            "field": "files",
+            "paths": [
+              {
+                "name": "module",
+                "xml": [
+                  "Ext",
+                  "Module.bsl"
+                ],
+                "yaml": [
+                  "Модуль.bsl"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataWebSocketClientRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataWebSocketClient/rules.ts",
+      "sources": [
+        {
+          "entry": "migration.resource-presence-source",
+          "inputs": {},
+          "factDirections": [],
+          "newOwner": {
+            "template": {
+              "files": []
+            }
+          },
+          "resourcePresence": {
+            "field": "files",
+            "paths": [
+              {
+                "name": "module",
+                "xml": [
+                  "Ext",
+                  "Module.bsl"
+                ],
+                "yaml": [
+                  "Модуль.bsl"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataXDTOPackageRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataXDTOPackage/rules.ts",
+      "sources": [
+        {
+          "entry": "migration.resource-presence-source",
+          "inputs": {},
+          "factDirections": [],
+          "newOwner": {
+            "template": {
+              "files": []
+            }
+          },
+          "resourcePresence": {
+            "field": "files",
+            "paths": [
+              {
+                "name": "package",
+                "xml": [
+                  "Ext",
+                  "Package.bin"
+                ],
+                "yaml": [
+                  "Package.bin"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataExternalDataSourceCubeRules",
+      "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCube/rules.ts",
+      "sources": [
+        {
+          "entry": "migration.resource-presence-source",
+          "inputs": {},
+          "factDirections": [],
+          "newOwner": {
+            "template": {
+              "files": []
+            }
+          },
+          "resourcePresence": {
+            "field": "files",
+            "paths": [
+              {
+                "name": "recordSetModule",
+                "xml": [
+                  "Ext",
+                  "RecordSetModule.bsl"
+                ],
+                "yaml": [
+                  "МодульНабораЗаписей.bsl"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataExternalDataSourceCubeCollectionRules",
+      "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCube/rules.ts",
+      "sources": [
+        {
+          "entry": "migration.resource-presence-source",
+          "inputs": {},
+          "factDirections": [],
+          "newOwner": {
+            "template": {
+              "files": []
+            }
+          },
+          "resourcePresence": {
+            "field": "files",
+            "paths": [
+              {
+                "name": "recordSetModule",
+                "xml": [
+                  "Ext",
+                  "RecordSetModule.bsl"
+                ],
+                "yaml": [
+                  "МодульНабораЗаписей.bsl"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataExternalDataSourceDimensionTableRules",
+      "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceDimensionTable/rules.ts",
+      "sources": [
+        {
+          "entry": "migration.resource-presence-source",
+          "inputs": {},
+          "factDirections": [],
+          "newOwner": {
+            "template": {
+              "files": []
+            }
+          },
+          "resourcePresence": {
+            "field": "files",
+            "paths": [
+              {
+                "name": "managerModule",
+                "xml": [
+                  "Ext",
+                  "ManagerModule.bsl"
+                ],
+                "yaml": [
+                  "МодульМенеджера.bsl"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataExternalDataSourceDimensionTableCollectionRules",
+      "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceDimensionTable/rules.ts",
+      "sources": [
+        {
+          "entry": "migration.resource-presence-source",
+          "inputs": {},
+          "factDirections": [],
+          "newOwner": {
+            "template": {
+              "files": []
+            }
+          },
+          "resourcePresence": {
+            "field": "files",
+            "paths": [
+              {
+                "name": "managerModule",
+                "xml": [
+                  "Ext",
+                  "ManagerModule.bsl"
+                ],
+                "yaml": [
+                  "МодульМенеджера.bsl"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataExternalDataSourceTableRules",
+      "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceTable/rules.ts",
+      "sources": [
+        {
+          "entry": "migration.resource-presence-source",
+          "inputs": {},
+          "factDirections": [],
+          "newOwner": {
+            "template": {
+              "files": []
+            }
+          },
+          "resourcePresence": {
+            "field": "files",
+            "paths": [
+              {
+                "name": "managerModule",
+                "xml": [
+                  "Ext",
+                  "ManagerModule.bsl"
+                ],
+                "yaml": [
+                  "МодульМенеджера.bsl"
+                ]
+              },
+              {
+                "name": "objectModule",
+                "xml": [
+                  "Ext",
+                  "ObjectModule.bsl"
+                ],
+                "yaml": [
+                  "МодульОбъекта.bsl"
+                ]
+              },
+              {
+                "name": "recordSetModule",
+                "xml": [
+                  "Ext",
+                  "RecordSetModule.bsl"
+                ],
+                "yaml": [
+                  "МодульНабораЗаписей.bsl"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataExternalDataSourceTableCollectionRules",
+      "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceTable/rules.ts",
+      "sources": [
+        {
+          "entry": "migration.resource-presence-source",
+          "inputs": {},
+          "factDirections": [],
+          "newOwner": {
+            "template": {
+              "files": []
+            }
+          },
+          "resourcePresence": {
+            "field": "files",
+            "paths": [
+              {
+                "name": "managerModule",
+                "xml": [
+                  "Ext",
+                  "ManagerModule.bsl"
+                ],
+                "yaml": [
+                  "МодульМенеджера.bsl"
+                ]
+              },
+              {
+                "name": "objectModule",
+                "xml": [
+                  "Ext",
+                  "ObjectModule.bsl"
+                ],
+                "yaml": [
+                  "МодульОбъекта.bsl"
+                ]
+              },
+              {
+                "name": "recordSetModule",
+                "xml": [
+                  "Ext",
+                  "RecordSetModule.bsl"
+                ],
+                "yaml": [
+                  "МодульНабораЗаписей.bsl"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "blockers": [
+    {
+      "symbol": "MetadataAccountingRegisterCommandRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataAccountingRegister/rules.ts",
+      "properties": [
+        {
+          "properties": [
+            "commandModule"
+          ],
+          "reason": "unresolved-resource-path",
+          "parameter": "xmlPath"
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataAccumulationRegisterCommandRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataAccumulationRegister/rules.ts",
+      "properties": [
+        {
+          "properties": [
+            "commandModule"
+          ],
+          "reason": "unresolved-resource-path",
+          "parameter": "xmlPath"
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataCalculationRegisterCommandRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataCalculationRegister/rules.ts",
+      "properties": [
+        {
+          "properties": [
+            "commandModule"
+          ],
+          "reason": "unresolved-resource-path",
+          "parameter": "xmlPath"
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataChartOfAccountsCommandRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataChartOfAccounts/rules.ts",
+      "properties": [
+        {
+          "properties": [
+            "commandModule"
+          ],
+          "reason": "unresolved-resource-path",
+          "parameter": "xmlPath"
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataChartOfCalculationTypesCommandRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataChartOfCalculationTypes/rules.ts",
+      "properties": [
+        {
+          "properties": [
+            "commandModule"
+          ],
+          "reason": "unresolved-resource-path",
+          "parameter": "xmlPath"
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataChartOfCharacteristicTypesCommandRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataChartOfCharacteristicTypes/rules.ts",
+      "properties": [
+        {
+          "properties": [
+            "commandModule"
+          ],
+          "reason": "unresolved-resource-path",
+          "parameter": "xmlPath"
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataDataProcessorCommandRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataDataProcessor/rules.ts",
+      "properties": [
+        {
+          "properties": [
+            "commandModule"
+          ],
+          "reason": "unresolved-resource-path",
+          "parameter": "xmlPath"
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataDataProcessorRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataDataProcessor/rules.ts",
+      "properties": [
+        {
+          "properties": [
+            "objectModule"
+          ],
+          "reason": "unresolved-resource-path",
+          "parameter": "xmlPath"
+        },
+        {
+          "properties": [
+            "managerModule"
+          ],
+          "reason": "unresolved-resource-path",
+          "parameter": "xmlPath"
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataDocumentCommandRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataDocument/rules.ts",
+      "properties": [
+        {
+          "properties": [
+            "commandModule"
+          ],
+          "reason": "unresolved-resource-path",
+          "parameter": "xmlPath"
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataDocumentJournalCommandRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataDocumentJournal/rules.ts",
+      "properties": [
+        {
+          "properties": [
+            "commandModule"
+          ],
+          "reason": "unresolved-resource-path",
+          "parameter": "xmlPath"
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataExchangePlanCommandRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataExchangePlan/rules.ts",
+      "properties": [
+        {
+          "properties": [
+            "commandModule"
+          ],
+          "reason": "unresolved-resource-path",
+          "parameter": "xmlPath"
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataInformationRegisterCommandRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataInformationRegister/rules.ts",
+      "properties": [
+        {
+          "properties": [
+            "commandModule"
+          ],
+          "reason": "unresolved-resource-path",
+          "parameter": "xmlPath"
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataReportCommandRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataReport/rules.ts",
+      "properties": [
+        {
+          "properties": [
+            "commandModule"
+          ],
+          "reason": "unresolved-resource-path",
+          "parameter": "xmlPath"
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataReportRules",
+      "path": "packages/rules/metadata/appliedObjects/metadataReport/rules.ts",
+      "properties": [
+        {
+          "properties": [
+            "objectModule"
+          ],
+          "reason": "unresolved-resource-path",
+          "parameter": "xmlPath"
+        },
+        {
+          "properties": [
+            "managerModule"
+          ],
+          "reason": "unresolved-resource-path",
+          "parameter": "xmlPath"
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataCommandRules",
+      "path": "packages/rules/metadata/commonObjects/metadataCommand/rules.ts",
+      "properties": [
+        {
+          "properties": [
+            "commandModule"
+          ],
+          "reason": "unresolved-resource-path",
+          "parameter": "xmlPath"
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataExternalDataSourceCubeCommandRules",
+      "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCube/rules.ts",
+      "properties": [
+        {
+          "properties": [
+            "commandModule"
+          ],
+          "reason": "unresolved-resource-path",
+          "parameter": "xmlPath"
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataExternalDataSourceDimensionTableCommandRules",
+      "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceDimensionTable/rules.ts",
+      "properties": [
+        {
+          "properties": [
+            "commandModule"
+          ],
+          "reason": "unresolved-resource-path",
+          "parameter": "xmlPath"
+        }
+      ]
+    },
+    {
+      "symbol": "MetadataExternalDataSourceTableCommandRules",
+      "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceTable/rules.ts",
+      "properties": [
+        {
+          "properties": [
+            "commandModule"
+          ],
+          "reason": "unresolved-resource-path",
+          "parameter": "xmlPath"
+        }
+      ]
+    }
+  ]
+}

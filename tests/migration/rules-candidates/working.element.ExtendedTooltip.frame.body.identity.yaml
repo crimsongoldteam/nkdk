@@ -1,0 +1,258 @@
+format: nkdk-declarations/1
+kind: fragment
+id: working.element.ExtendedTooltip.frame.body.identity
+imports:
+  name: common.xml-name
+inputs:
+  component:
+    type:
+      kind: scalar
+      scalar: text
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  ownerName:
+    type:
+      kind: scalar
+      scalar: text
+  names:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: component
+            type:
+              kind: scalar
+              scalar: text
+          - name: owner
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  identities:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: component
+            type:
+              kind: scalar
+              scalar: text
+          - name: owner
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+value:
+  kind: record
+  fields:
+    - name: name
+      type:
+        use: name
+    - name: id
+      type:
+        kind: scalar
+        scalar: text
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: name
+        path: []
+        attribute: name
+      - field: id
+        path: []
+        attribute: id
+  yaml:
+    kind: mapping
+    fields:
+      - field: name
+        key: Имя
+      - field: id
+        key: Идентификатор
+presence:
+  - target:
+      field: name
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          variant:
+            name: explicit
+            value:
+              record:
+                name:
+                  match:
+                    value:
+                      lookup:
+                        in:
+                          input: names
+                        key:
+                          record:
+                            component:
+                              input: component
+                            owner:
+                              input: owner
+                            name:
+                              concat:
+                                - input: ownerName
+                                - literal: РасширеннаяПодсказка
+                    present:
+                      as: indexedName
+                      then:
+                        if:
+                          exists:
+                            in:
+                              sequence:
+                                - concat:
+                                    - input: ownerName
+                                    - literal: РасширеннаяПодсказка
+                                - concat:
+                                    - input: ownerName
+                                    - literal: ExtendedTooltip
+                            as: variantName
+                            where:
+                              eq:
+                                - var: variantName
+                                - var: indexedName
+                        then:
+                          var: indexedName
+                        else:
+                          concat:
+                            - input: ownerName
+                            - literal: РасширеннаяПодсказка
+                    absent:
+                      concat:
+                        - input: ownerName
+                        - literal: РасширеннаяПодсказка
+      omitWhen:
+        eq:
+          - get:
+              of:
+                variantValue:
+                  value:
+                    field: name
+                  variant: explicit
+              field: name
+          - match:
+              value:
+                lookup:
+                  in:
+                    input: names
+                  key:
+                    record:
+                      component:
+                        input: component
+                      owner:
+                        input: owner
+                      name:
+                        concat:
+                          - input: ownerName
+                          - literal: РасширеннаяПодсказка
+              present:
+                as: indexedName
+                then:
+                  if:
+                    exists:
+                      in:
+                        sequence:
+                          - concat:
+                              - input: ownerName
+                              - literal: РасширеннаяПодсказка
+                          - concat:
+                              - input: ownerName
+                              - literal: ExtendedTooltip
+                      as: variantName
+                      where:
+                        eq:
+                          - var: variantName
+                          - var: indexedName
+                  then:
+                    var: indexedName
+                  else:
+                    concat:
+                      - input: ownerName
+                      - literal: РасширеннаяПодсказка
+              absent:
+                concat:
+                  - input: ownerName
+                  - literal: РасширеннаяПодсказка
+  - target:
+      field: id
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          require:
+            lookup:
+              in:
+                input: identities
+              key:
+                record:
+                  component:
+                    input: component
+                  owner:
+                    input: owner
+                  name:
+                    concat:
+                      - input: ownerName
+                      - literal: РасширеннаяПодсказка
+      omitWhen:
+        eq:
+          - field: id
+          - require:
+              lookup:
+                in:
+                  input: identities
+                key:
+                  record:
+                    component:
+                      input: component
+                    owner:
+                      input: owner
+                    name:
+                      concat:
+                        - input: ownerName
+                        - literal: РасширеннаяПодсказка
+constraints:
+  - id: identity-text
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      present:
+        field: id
+    assert:
+      matches:
+        value:
+          field: id
+        pattern: -?[0-9]+
+    diagnostic:
+      code: element.identity
+      severity: error
+      at:
+        field: id
+      message: Недопустимый идентификатор элемента
+namespaces:
+  md: http://v8.1c.ru/8.3/xcf/logform

@@ -122,9 +122,28 @@ fn resource_contracts_are_composed_and_reject_unprepared_paths() {
     }
 }
 
+#[test]
+fn resource_path_can_choose_from_prepared_inputs_without_owner_specific_code() {
+    let source = "format: nkdk-declarations/1\nkind: resources\nid: resource.conditional\ninputs: {name: {type: {kind: scalar, scalar: text}}, parent: {type: {kind: scalar, scalar: text}}}\nvalue: {kind: record, fields: []}\nrepresentations:\n  xml: {kind: record, fields: []}\n  yaml: {kind: mapping, fields: []}\nresources:\n- oneOf:\n  - xml: {if: {eq: [{input: parent}, {literal: ''}]}, then: {sequence: [{literal: Commands}, {input: name}, {literal: Module.bsl}]}, else: {sequence: [{literal: Cubes}, {input: parent}, {literal: Commands}, {input: name}, {literal: Module.bsl}]}}\n    yaml: {sequence: [{literal: Команды}, {concat: [{input: name}, {literal: '.bsl'}]}]}\n";
+    let module = parse(SourceFile {
+        path: "conditional.yaml",
+        bytes: source.as_bytes(),
+    })
+    .unwrap();
+    let generated = generate(&link(&[module]).unwrap()).unwrap();
+    let text = String::from_utf8(generated.files[0].contents.clone()).unwrap();
+    assert!(text.contains("if inputs.text("));
+    compile_resource_catalog(&generated);
+}
+
 fn compile_resource_catalog(generated: &nkdk_rule_compiler::GeneratedSources) {
     use std::{fs, process::Command};
-    let root = std::env::temp_dir().join(format!("nkdk-resource-catalog-{}", std::process::id()));
+    static NEXT_DIR: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+    let root = std::env::temp_dir().join(format!(
+        "nkdk-resource-catalog-{}-{}",
+        std::process::id(),
+        NEXT_DIR.fetch_add(1, std::sync::atomic::Ordering::Relaxed)
+    ));
     fs::create_dir_all(root.join("src")).unwrap();
     let core = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../conversion-core");
     fs::write(root.join("Cargo.toml"), format!("[package]\nname = \"resource-catalog\"\nversion = \"0.0.0\"\nedition = \"2024\"\n[dependencies]\nnkdk-conversion-core = {{ path = {:?} }}\n[workspace]\n", core)).unwrap();

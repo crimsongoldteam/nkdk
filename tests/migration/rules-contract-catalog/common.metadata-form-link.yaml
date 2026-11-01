@@ -81,6 +81,10 @@ presence:
       missing:
         denotes:
           absent: true
+      empty:
+        - form: 'null'
+          denotes:
+            absent: true
 constraints:
   - id: form-exists
     appliesTo:

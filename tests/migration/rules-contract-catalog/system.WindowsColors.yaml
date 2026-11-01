@@ -1,0 +1,42 @@
+format: nkdk-declarations/1
+kind: value
+id: system.WindowsColors
+enum:
+  ActiveBorder: ГраницаАктивногоОкна
+  InactiveBorder: ГраницаНеактивногоОкна
+  ActiveTitleBar: ЗаголовокАктивногоОкна
+  InactiveTitleBar: ЗаголовокНеактивногоОкна
+  ButtonFace: Кнопка
+  ButtonHighlight: КнопкаПодсвеченная
+  Highlight: Подсвеченный
+  ToolTip: Подсказка
+  ScrollBar: ПолосаПрокрутки
+  ApplicationWorkspace: РабочаяОбластьПриложения
+  Desktop: РабочийСтол
+  WindowFrame: РамкаОкна
+  MenuBar: СтрокаМеню
+  ActiveTitleBarText: ТекстЗаголовкаАктивногоОкна
+  InactiveTitleBarText: ТекстЗаголовкаНеактивногоОкна
+  ButtonText: ТекстКнопки
+  DisabledText: ТекстНедоступный
+  WindowText: ТекстОкна
+  HighlightText: ТекстПодсвеченный
+  ToolTipText: ТекстПодсказки
+  MenuItemText: ТекстПунктаМеню
+  ButtonShadow: ТеньКнопки
+  ButtonLightShadow: ТеньКнопкиСветлая
+  ButtonDarkShadow: ТеньКнопкиТемная
+  WindowBackground: ФонОкна
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  t: http://v8.1c.ru/8.1/data/enterprise
+projections:
+  - id: system.WindowsColors.dcs
+    xml:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: t:WindowsColors
+      content:
+        kind: text

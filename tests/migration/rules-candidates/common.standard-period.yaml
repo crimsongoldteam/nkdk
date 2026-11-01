@@ -4,6 +4,12 @@ id: common.standard-period
 imports:
   variant: system.StandardPeriodVariant.core
   date: common.date-time-seconds
+parameters:
+  typedXML:
+    type:
+      kind: scalar
+      scalar: boolean
+    default: true
 namespaces:
   v8: http://v8.1c.ru/8.1/data/core
   xsi: http://www.w3.org/2001/XMLSchema-instance
@@ -19,6 +25,27 @@ value:
     - name: endDate
       type:
         use: date
+dataPath:
+  type: StandardPeriod
+  aliases:
+    - СтандартныйПериод
+  members:
+    - field: variant
+      internal: Variant
+      terminalTypes:
+        - StandardPeriodVariant
+    - field: startDate
+      internal: StartDate
+      terminalTypes:
+        - dateTime
+    - field: endDate
+      internal: EndDate
+      terminalTypes:
+        - dateTime
+  views:
+    formConditionalFilter:
+      - startDate
+      - endDate
 representations:
   xml:
     kind: with-attributes
@@ -26,6 +53,8 @@ representations:
       - name: xsi:type
         value:
           qname: v8:StandardPeriod
+        when:
+          parameter: typedXML
     content:
       kind: record
       fields:

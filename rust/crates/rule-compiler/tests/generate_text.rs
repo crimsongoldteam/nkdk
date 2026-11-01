@@ -1,5 +1,6 @@
 use nkdk_rule_compiler::{SourceFile, generate, link, parse};
 use std::{fs, process::Command};
+mod support;
 
 #[test]
 fn generated_text_transitions_preserve_the_independent_contract() {
@@ -15,19 +16,8 @@ fn generated_text_transitions_preserve_the_independent_contract() {
     let owner = format!(
         "format: nkdk-declarations/1\nkind: object\nid: test.text-transition\ntypes:\n{local_types}\nvalue:\n  kind: record\n  fields:\n    - {{name: source, type: {{kind: scalar, scalar: text}}}}\n    - {{name: expected, type: {{kind: scalar, scalar: text}}}}\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - {{field: source, path: [Root, Source]}}\n      - {{field: expected, path: [Root, Expected]}}\n  yaml:\n    kind: mapping\n    fields:\n      - {{field: source, key: Source}}\n      - {{field: expected, key: Expected}}\nconstraints:\n  - id: transformed-text\n    appliesTo: [yaml-validation, xml-import]\n    assert:\n      match:\n        value: {{transform: {{local: name-words, value: {{field: source}}}}}}\n        present:\n          as: converted\n          then: {{eq: [{{var: converted}}, {{field: expected}}]}}\n        absent: {{literal: false}}\n    diagnostic:\n      code: example.text-result\n      severity: error\n      at: {{field: source}}\n      message: Unexpected transformed text\n"
     );
-    let root = std::env::temp_dir().join(format!(
-        "nkdk-text-generated-{}-{}",
-        std::process::id(),
-        std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap()
-            .as_nanos()
-    ));
-    fs::create_dir_all(root.join("src")).unwrap();
-    let core = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .parent()
-        .unwrap()
-        .join("conversion-core");
+    let root = support::generated_crate_root("text-generated");
+    let core = support::conversion_core_path();
     fs::write(root.join("Cargo.toml"), format!("[package]\nname=\"text-generated-contract\"\nversion=\"0.0.0\"\nedition=\"2024\"\n[dependencies]\nnkdk-conversion-core={{path={core:?}}}\n[workspace]\n")).unwrap();
     let observations: serde_json::Value = serde_json::from_str(include_str!(
         "../../../../tests/migration/name-text-contract.json"
@@ -189,18 +179,79 @@ fn main() {
         .unwrap()
         .0;
     let sequence = sequence.replace(assertion, "      exists:\n        in: {input: wanted}\n        as: candidate\n        where: {eq: [{var: candidate}, {field: expected}]}\n");
-    execute(
-        &root,
-        &sequence,
-        r#"include!("generated.rs");
+    let sequence_main = r#"include!("generated.rs");
 fn main() {
     let entry=entry_id("test.text-transition").unwrap();
-    for (values, valid) in [("wanted: [ru, en]", true), ("wanted: [fr]", false), ("wanted: []", false)] {
+    for (values, valid) in [("wanted: [ru, ru, en]", true), ("wanted: [ru, ru]", false), ("wanted: []", false)] {
         let inputs=read_inputs(entry, values.as_bytes()).unwrap();
         assert_eq!(validate_file(entry, b"Source: x\nExpected: en", &inputs).is_empty(), valid);
     }
-}"#,
+}"#;
+    execute(&root, &sequence, sequence_main);
+    let first_text = sequence.replace(
+        "in: {input: wanted}",
+        "in: {firstBy: {in: {input: wanted}, as: key, key: {var: key}}}",
     );
+    for first_text in [
+        first_text.clone(),
+        first_text.replace(
+            "key: {var: key}",
+            "key: {concat: [{var: key}, {literal: suffix}]}",
+        ),
+        first_text.replace(
+            "in: {input: wanted}",
+            "in: {firstBy: {in: {input: wanted}, as: inner, key: {var: inner}}}",
+        ),
+    ] {
+        execute(&root, &first_text, sequence_main);
+    }
+    // Select the first physical row per key while retaining all source rows.
+    let assertion = sequence
+        .split_once("    assert:\n")
+        .unwrap()
+        .1
+        .split_once("    diagnostic:")
+        .unwrap()
+        .0;
+    let rows = sequence.replace(
+        "wanted: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}",
+        "wanted: {type: {kind: sequence, item: {kind: record, fields: [{name: key, type: {kind: scalar, scalar: text}}, {name: result, type: {kind: scalar, scalar: text}}]}}}",
+    ).replace(assertion, "      each:\n        in: {firstBy: {in: {input: wanted}, as: row, key: {get: {of: {var: row}, field: key}}}}\n        as: row\n        where: {eq: [{get: {of: {var: row}, field: result}}, {field: expected}]}\n");
+    for (kind, first, second) in [
+        ("text", "ru", "en"),
+        ("boolean", "true", "false"),
+        (
+            "number, profile: decimal",
+            "9007199254740993",
+            "9007199254740992",
+        ),
+    ] {
+        let source = rows.replace(
+            "name: key, type: {kind: scalar, scalar: text}",
+            &format!("name: key, type: {{kind: scalar, scalar: {kind}}}"),
+        );
+        let duplicate = if kind.starts_with("number") {
+            format!("{first}.0")
+        } else {
+            first.to_owned()
+        };
+        let main = format!(
+            r#"include!("generated.rs");
+fn main() {{
+    let entry=entry_id("test.text-transition").unwrap();
+    for (values, valid) in [
+        ("wanted: [{{key: {first}, result: ok}}, {{key: {duplicate}, result: wrong}}, {{key: {second}, result: ok}}]", true),
+        ("wanted: [{{key: {first}, result: wrong}}, {{key: {first}, result: ok}}]", false),
+        ("wanted: [{{key: {first}, result: ok}}, {{key: {second}, result: wrong}}]", false),
+        ("wanted: []", true),
+    ] {{
+        let inputs=read_inputs(entry, values.as_bytes()).unwrap();
+        assert_eq!(validate_file(entry, b"Source: x\nExpected: ok", &inputs).is_empty(), valid, "{{values}}");
+    }}
+}}"#
+        );
+        execute(&root, &source, &main);
+    }
     fs::remove_dir_all(root).unwrap();
 }
 

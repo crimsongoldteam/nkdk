@@ -1,6 +1,12 @@
 format: nkdk-declarations/1
 kind: value
 id: common.color
+parameters:
+  retainAuto:
+    type:
+      kind: scalar
+      scalar: boolean
+    default: false
 imports:
   standardStyle: common.color-standard-style
   styleItem: common.color-style-item
@@ -64,17 +70,23 @@ presence:
           absent: true
       canonical:
         - when:
-            isVariant:
-              value:
-                self: true
-              variant: Авто
+            and:
+              - isVariant:
+                  value:
+                    self: true
+                  variant: Авто
+              - not:
+                  parameter: retainAuto
           form: missing
     yaml:
       missing:
         denotes:
           absent: true
       omitWhen:
-        isVariant:
-          value:
-            self: true
-          variant: Авто
+        and:
+          - isVariant:
+              value:
+                self: true
+              variant: Авто
+          - not:
+              parameter: retainAuto

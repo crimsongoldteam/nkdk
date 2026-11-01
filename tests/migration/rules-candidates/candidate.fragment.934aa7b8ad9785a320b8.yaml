@@ -1,0 +1,27 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.dcs-typed-values
+value:
+  kind: record
+  fields:
+    - name: rightValue
+      type:
+        use: value0
+        bind: {}
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: rightValue
+        path:
+          - dcsset:right
+  yaml:
+    kind: mapping
+    fields:
+      - field: rightValue
+        key: ПравоеЗначение
+presence: []
+namespaces:
+  dcsset: http://v8.1c.ru/8.1/data-composition-system/settings
+id: candidate.fragment.934aa7b8ad9785a320b8

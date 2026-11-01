@@ -17,7 +17,10 @@ export function sourceContract(entry, sourceTag, catalog, container) {
     compose.push({use:alias,...(Object.keys(lifted.bind).length?{bind:lifted.bind}:{})});
     const xml=module.representations.xml.fields[0],yaml=module.representations.yaml.fields[0];
     if(xml.attribute)throw new Error('Source contract requires element properties');
-    fields.push({name:property.name,xmlPath:xml.path,...(yaml?{yaml:yaml.key}:{})});
+    const leaf=xml.path.at(-1),prefix=leaf.includes(':')?leaf.split(':')[0]:undefined;
+    const namespace=prefix?module.namespaces?.[prefix]:undefined;
+    if(prefix && !namespace)throw new Error('Unresolved source field namespace');
+    fields.push({name:property.name,xmlPath:xml.path,...(property.qname?{qname:true}:{}),...(namespace?{namespace}:{}),...(yaml?{yaml:yaml.key}:{})});
     origins.push({...derived.source,entry:module.id});modules.push(module);
   }
   if(!fields.length)throw new Error('Empty source contract');

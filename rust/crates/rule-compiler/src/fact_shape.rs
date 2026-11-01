@@ -4,15 +4,21 @@ use nkdk_rule_model::{LinkedType, ScalarType};
 pub(crate) fn columns(key: &LinkedType) -> Option<Vec<&str>> {
     match key {
         value if text_cell(value) => Some(Vec::new()),
-        LinkedType::Record(fields)
-            if !fields.is_empty() && fields.iter().all(|field| text_cell(&field.value)) =>
-        {
-            let mut names: Vec<_> = fields.iter().map(|field| field.name.as_str()).collect();
-            names.sort_unstable();
-            Some(names)
-        }
+        LinkedType::Record(fields) if !fields.is_empty() => record_columns(key),
         _ => None,
     }
+}
+
+pub(crate) fn record_columns(key: &LinkedType) -> Option<Vec<&str>> {
+    let LinkedType::Record(fields) = key else {
+        return None;
+    };
+    if !fields.iter().all(|field| text_cell(&field.value)) {
+        return None;
+    }
+    let mut names: Vec<_> = fields.iter().map(|field| field.name.as_str()).collect();
+    names.sort_unstable();
+    Some(names)
 }
 
 pub(crate) fn text_cell(value: &LinkedType) -> bool {

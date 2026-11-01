@@ -1,0 +1,5 @@
+format: nkdk-declarations/1
+kind: value
+id: common.dcs-explicit-string-kind
+enum:
+  Строка: Строка

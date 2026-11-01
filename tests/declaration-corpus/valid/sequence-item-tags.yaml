@@ -1,0 +1,16 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+  - kind: value
+    id: common.marked-line
+    value: {kind: record, fields: [{name: text, type: {kind: scalar, scalar: text}}]}
+    representations:
+      xml: {kind: record, fields: [{field: text, path: [Value]}]}
+      yaml: {kind: projection, field: text}
+  - kind: value
+    id: common.marked-lines
+    imports: {line: common.marked-line}
+    value: {kind: sequence, item: {use: line}}
+    representations:
+      xml: {kind: element-sequence, path: [Line]}
+      yaml: {kind: sequence, itemTag: изменять}

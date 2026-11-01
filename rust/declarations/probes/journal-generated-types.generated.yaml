@@ -1,0 +1,303 @@
+# Generated from packages/rules/metadata/appliedObjects/metadataDocumentJournal/rules.ts by tools/rules-migration/src/journal-identity-operation.mjs
+format: nkdk-declarations/1
+kind: object
+id: migration.journal-generated-types
+imports:
+  types: common.internal-generated-types
+  states: journal.property-states
+namespaces:
+  md: http://v8.1c.ru/8.3/MDClasses
+inputs:
+  ownerName:
+    type:
+      kind: scalar
+      scalar: text
+  component:
+    type:
+      kind: scalar
+      scalar: text
+  parent:
+    type:
+      kind: scalar
+      scalar: text
+  identitySeed:
+    type:
+      kind: scalar
+      scalar: text
+  identities:
+    index: metadata.own-identities
+types:
+  short-name:
+    kind: text-transform
+    units: utf16
+    classes:
+      separator:
+        - - 46
+          - 46
+    state:
+      finished: false
+    transitions:
+      - when:
+          class: separator
+        emit: discard
+        set:
+          finished: true
+      - when:
+          flag: finished
+        emit: discard
+        set: {}
+      - emit: append
+        set: {}
+    result:
+      separator: ''
+      first:
+        kind: identity
+      rest:
+        kind: identity
+      lowercase: []
+      emptyInput: absent
+      noTokens: absent
+value:
+  kind: record
+  fields:
+    - name: types
+      type:
+        use: types
+    - name: states
+      type:
+        use: states
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: types
+        path:
+          - md:MetaDataObject
+          - md:DocumentJournal
+          - md:InternalInfo
+      - field: states
+        path:
+          - md:MetaDataObject
+          - md:DocumentJournal
+          - md:InternalInfo
+  yaml:
+    kind: mapping
+    fields:
+      - field: types
+        key: ВнутренниеТипы
+      - field: states
+        key: Изменять
+contributions:
+  - index: metadata.internal-type-ids
+    forEach:
+      in:
+        field: types
+      as: row
+    key:
+      record:
+        owner:
+          require:
+            lookup:
+              in:
+                input: identities
+              key:
+                record:
+                  component:
+                    input: component
+                  owner:
+                    input: parent
+                  kind:
+                    literal: DocumentJournal
+                  name:
+                    input: ownerName
+        name:
+          match:
+            value:
+              transform:
+                local: short-name
+                value:
+                  get:
+                    of:
+                      var: row
+                    field: name
+            present:
+              as: name
+              then:
+                var: name
+            absent:
+              literal: ''
+    value:
+      get:
+        of:
+          var: row
+        field: typeId
+  - index: metadata.internal-value-ids
+    forEach:
+      in:
+        field: types
+      as: row
+    key:
+      record:
+        owner:
+          require:
+            lookup:
+              in:
+                input: identities
+              key:
+                record:
+                  component:
+                    input: component
+                  owner:
+                    input: parent
+                  kind:
+                    literal: DocumentJournal
+                  name:
+                    input: ownerName
+        name:
+          match:
+            value:
+              transform:
+                local: short-name
+                value:
+                  get:
+                    of:
+                      var: row
+                    field: name
+            present:
+              as: name
+              then:
+                var: name
+            absent:
+              literal: ''
+    value:
+      get:
+        of:
+          var: row
+        field: valueId
+presence:
+  - target:
+      field: types
+    yaml:
+      missing:
+        denotes:
+          sequence:
+            - record:
+                name:
+                  concat:
+                    - literal: DocumentJournalSelection.
+                    - input: ownerName
+                category:
+                  literal: Selection
+                typeId:
+                  identity:
+                    seed:
+                      input: identitySeed
+                    domain: uuid
+                    format: uuid
+                    address:
+                      - literal: ЖурналДокументов
+                      - input: ownerName
+                      - literal: InternalInfo
+                      - literal: GeneratedType
+                      - concat:
+                          - literal: DocumentJournalSelection.
+                          - input: ownerName
+                      - literal: TypeId
+                valueId:
+                  identity:
+                    seed:
+                      input: identitySeed
+                    domain: uuid
+                    format: uuid
+                    address:
+                      - literal: ЖурналДокументов
+                      - input: ownerName
+                      - literal: InternalInfo
+                      - literal: GeneratedType
+                      - concat:
+                          - literal: DocumentJournalSelection.
+                          - input: ownerName
+                      - literal: ValueId
+            - record:
+                name:
+                  concat:
+                    - literal: DocumentJournalList.
+                    - input: ownerName
+                category:
+                  literal: List
+                typeId:
+                  identity:
+                    seed:
+                      input: identitySeed
+                    domain: uuid
+                    format: uuid
+                    address:
+                      - literal: ЖурналДокументов
+                      - input: ownerName
+                      - literal: InternalInfo
+                      - literal: GeneratedType
+                      - concat:
+                          - literal: DocumentJournalList.
+                          - input: ownerName
+                      - literal: TypeId
+                valueId:
+                  identity:
+                    seed:
+                      input: identitySeed
+                    domain: uuid
+                    format: uuid
+                    address:
+                      - literal: ЖурналДокументов
+                      - input: ownerName
+                      - literal: InternalInfo
+                      - literal: GeneratedType
+                      - concat:
+                          - literal: DocumentJournalList.
+                          - input: ownerName
+                      - literal: ValueId
+            - record:
+                name:
+                  concat:
+                    - literal: DocumentJournalManager.
+                    - input: ownerName
+                category:
+                  literal: Manager
+                typeId:
+                  identity:
+                    seed:
+                      input: identitySeed
+                    domain: uuid
+                    format: uuid
+                    address:
+                      - literal: ЖурналДокументов
+                      - input: ownerName
+                      - literal: InternalInfo
+                      - literal: GeneratedType
+                      - concat:
+                          - literal: DocumentJournalManager.
+                          - input: ownerName
+                      - literal: TypeId
+                valueId:
+                  identity:
+                    seed:
+                      input: identitySeed
+                    domain: uuid
+                    format: uuid
+                    address:
+                      - literal: ЖурналДокументов
+                      - input: ownerName
+                      - literal: InternalInfo
+                      - literal: GeneratedType
+                      - concat:
+                          - literal: DocumentJournalManager.
+                          - input: ownerName
+                      - literal: ValueId
+  - target:
+      field: states
+    xml:
+      missing:
+        denotes:
+          sequence: []
+    yaml:
+      default:
+        sequence: []

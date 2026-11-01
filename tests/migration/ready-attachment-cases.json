@@ -252,6 +252,36 @@
     },
     {
       "entry": "migration.metadata-root-index",
+      "xml": "<Root><Kind>AccountingRegister</Kind><Name>РегистрБухгалтерии1</Name><Identity>83b220b0-0b60-4163-aa2d-1c6a9304b7dc</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерии1.xml"
+    },
+    {
+      "entry": "migration.metadata-root-index",
+      "xml": "<Root><Kind>AccountingRegister</Kind><Name>РегистрБухгалтерииВсеСвойстваОбороты</Name><Identity>28c1195f-ffed-4f2e-994d-663362cadd4d</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты.xml"
+    },
+    {
+      "entry": "migration.metadata-root-index",
+      "xml": "<Root><Kind>AccountingRegister</Kind><Name>РегистрБухгалтерииПоУмолчанию</Name><Identity>95af6512-9dc3-45ed-bebd-dd2a97f0069f</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерииПоУмолчанию.xml"
+    },
+    {
+      "entry": "migration.metadata-root-index",
+      "xml": "<Root><Kind>AccumulationRegister</Kind><Name>РегистрНакопления1</Name><Identity>1eba5047-9b2b-4b7b-8ece-13e62b1049c7</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/AccumulationRegisters/РегистрНакопления1.xml"
+    },
+    {
+      "entry": "migration.metadata-root-index",
+      "xml": "<Root><Kind>AccumulationRegister</Kind><Name>РегистрНакопленияВсеСвойстваОбороты</Name><Identity>e9194700-40e3-475f-91a5-fcdef0f9d75c</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/AccumulationRegisters/РегистрНакопленияВсеСвойстваОбороты.xml"
+    },
+    {
+      "entry": "migration.metadata-root-index",
+      "xml": "<Root><Kind>AccumulationRegister</Kind><Name>РегистрНакопленияПоУмолчанию</Name><Identity>0b25c160-c52c-4c11-9f23-f4a3eae33cd4</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/AccumulationRegisters/РегистрНакопленияПоУмолчанию.xml"
+    },
+    {
+      "entry": "migration.metadata-root-index",
       "xml": "<Root><Kind>BusinessProcess</Kind><Name>БизнесПроцесс1</Name><Identity>ded3835a-260f-481d-8da9-facf543e0f42</Identity></Root>",
       "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцесс1.xml"
     },
@@ -279,6 +309,26 @@
       "entry": "migration.metadata-root-index",
       "xml": "<Root><Kind>BusinessProcess</Kind><Name>БизнесПроцессПоУмолчанию</Name><Identity>d71a7a40-1552-4061-94ba-462ab002a8c0</Identity></Root>",
       "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессПоУмолчанию.xml"
+    },
+    {
+      "entry": "migration.metadata-root-index",
+      "xml": "<Root><Kind>CalculationRegister</Kind><Name>РегистрРасчета1</Name><Identity>1dad0117-9cbc-401b-a3e1-c973eef11fe4</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчета1.xml"
+    },
+    {
+      "entry": "migration.metadata-root-index",
+      "xml": "<Root><Kind>CalculationRegister</Kind><Name>РегистрРасчетаВедущий</Name><Identity>45f00fe5-80b1-44e6-877d-989f8d853429</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВедущий.xml"
+    },
+    {
+      "entry": "migration.metadata-root-index",
+      "xml": "<Root><Kind>CalculationRegister</Kind><Name>РегистрРасчетаВсеСвойства</Name><Identity>963bef13-9fd2-432c-ac46-133d20e7dc0f</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВсеСвойства.xml"
+    },
+    {
+      "entry": "migration.metadata-root-index",
+      "xml": "<Root><Kind>CalculationRegister</Kind><Name>РегистрРасчетаПоУмолчанию</Name><Identity>a970e8e8-3b0d-450c-a703-b4696255cadb</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаПоУмолчанию.xml"
     },
     {
       "entry": "migration.metadata-root-index",
@@ -867,6 +917,56 @@
     },
     {
       "entry": "migration.metadata-root-index",
+      "xml": "<Root><Kind>InformationRegister</Kind><Name>ЗначенияХарактеристикОбъектов</Name><Identity>ed340dc3-8423-4c83-83ea-6f502fefd5b3</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/ЗначенияХарактеристикОбъектов.xml"
+    },
+    {
+      "entry": "migration.metadata-root-index",
+      "xml": "<Root><Kind>InformationRegister</Kind><Name>РегистрСведений1</Name><Identity>864c9ce3-ec4e-4330-841b-841b2cd112be</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведений1.xml"
+    },
+    {
+      "entry": "migration.metadata-root-index",
+      "xml": "<Root><Kind>InformationRegister</Kind><Name>РегистрСведенийАдресация</Name><Identity>107dc6ff-c307-4635-9740-513ea31bab81</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийАдресация.xml"
+    },
+    {
+      "entry": "migration.metadata-root-index",
+      "xml": "<Root><Kind>InformationRegister</Kind><Name>РегистрСведенийВсеСвойстваНезависимый</Name><Identity>879a6653-1fee-49d6-aa2d-fdfd9fc2d9ae</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый.xml"
+    },
+    {
+      "entry": "migration.metadata-root-index",
+      "xml": "<Root><Kind>InformationRegister</Kind><Name>РегистрСведенийГрафик</Name><Identity>8b56aac4-7933-454d-8908-8ac378292289</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийГрафик.xml"
+    },
+    {
+      "entry": "migration.metadata-root-index",
+      "xml": "<Root><Kind>InformationRegister</Kind><Name>РегистрСведенийКомандныйИнтерфейс</Name><Identity>9004bd27-2dac-49e4-87bf-f47919dd66c9</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийКомандныйИнтерфейс.xml"
+    },
+    {
+      "entry": "migration.metadata-root-index",
+      "xml": "<Root><Kind>InformationRegister</Kind><Name>РегистрСведенийКомандныйИнтерфейс1</Name><Identity>a7291e11-57bc-4a6b-a09b-30a6ceb66252</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийКомандныйИнтерфейс1.xml"
+    },
+    {
+      "entry": "migration.metadata-root-index",
+      "xml": "<Root><Kind>InformationRegister</Kind><Name>РегистрСведенийПоУмолчанию</Name><Identity>686f2c94-7ff6-4f17-865e-bcf6b8478b4f</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийПоУмолчанию.xml"
+    },
+    {
+      "entry": "migration.metadata-root-index",
+      "xml": "<Root><Kind>InformationRegister</Kind><Name>РегистрСведенийПодчиненРегистратору</Name><Identity>939a53b9-c7ba-4315-a11e-fa15590651bf</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийПодчиненРегистратору.xml"
+    },
+    {
+      "entry": "migration.metadata-root-index",
+      "xml": "<Root><Kind>InformationRegister</Kind><Name>РегистрСведенийПроверкаХарактеристик</Name><Identity>e7f7210b-8a6e-4b42-8847-a7396b2a0511</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийПроверкаХарактеристик.xml"
+    },
+    {
+      "entry": "migration.metadata-root-index",
       "xml": "<Root><Kind>Task</Kind><Name>Задача1</Name><Identity>d6522fd9-d724-48da-a8e3-d19c535a23d8</Identity></Root>",
       "source": "e2e/fixtures/xml/cf/Tasks/Задача1.xml"
     },
@@ -906,6 +1006,306 @@
       "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаПоУмолчанию.xml"
     },
     {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>28c1195f-ffed-4f2e-994d-663362cadd4d</Parent><Name>ФормаСписка</Name><Identity>b7015f07-a302-48c6-9a55-101ce50f2841</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты/Forms/ФормаСписка.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>e9194700-40e3-475f-91a5-fcdef0f9d75c</Parent><Name>ФормаСписка</Name><Identity>1b72db0a-934a-431d-9a8f-623b4fcb6112</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/AccumulationRegisters/РегистрНакопленияВсеСвойстваОбороты/Forms/ФормаСписка.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>f790632a-04a3-4e35-bb1e-d3c4ed5a2f0e</Parent><Name>ФормаВыбора</Name><Identity>8714684a-07b8-43d4-b9b4-f07bf3d53c7e</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства/Forms/ФормаВыбора.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>f790632a-04a3-4e35-bb1e-d3c4ed5a2f0e</Parent><Name>ФормаЗадачи</Name><Identity>f2201d72-9daf-47b4-986c-6b022e8220bd</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства/Forms/ФормаЗадачи.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>f790632a-04a3-4e35-bb1e-d3c4ed5a2f0e</Parent><Name>ФормаСписка</Name><Identity>9a216186-2d08-47e6-85a7-c37eb4eb9598</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/BusinessProcesses/БизнесПроцессВсеСвойства/Forms/ФормаСписка.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>963bef13-9fd2-432c-ac46-133d20e7dc0f</Parent><Name>ФормаСписка</Name><Identity>cbc448b2-b679-4473-ae51-2dbf6fd03d8f</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВсеСвойства/Forms/ФормаСписка.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>48e146d4-396e-4cc2-bc0b-ce75097b2573</Parent><Name>ФормаЭлемента</Name><Identity>1e8badcc-b1d1-483f-bb39-edb36ee7fb1d</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/Catalogs/ПараметрыВыбора/Forms/ФормаЭлемента.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>85c9d17e-a93a-47e6-ab54-9c37126fb1fa</Parent><Name>ФормаЭлемента</Name><Identity>3e7316a8-7842-40bf-87a7-85a61671793f</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникCоВсемиОбъектами/Forms/ФормаЭлемента.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>000f4b80-92c9-48d0-9845-ce77c1420161</Parent><Name>ФормаВыбора</Name><Identity>962f8ac2-b2e6-45bc-94e6-d422ca8f1025</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникВладелец/Forms/ФормаВыбора.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>600e1684-aa0a-495c-b40e-f76eb682746e</Parent><Name>ФормаЭлемента</Name><Identity>f26a6997-7313-46d9-9ea7-e586245ec5d8</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникКомандныйИнтерфейс/Forms/ФормаЭлемента.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>f8ffca12-d09d-4111-ba91-67077462df5b</Parent><Name>Минимальная</Name><Identity>4e9b2646-e73a-4c98-ad43-19ac74b24770</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный/Forms/Минимальная.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>f8ffca12-d09d-4111-ba91-67077462df5b</Parent><Name>ФормаВыбора</Name><Identity>03832dfd-eeea-4243-89f4-7e0775d3944a</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный/Forms/ФормаВыбора.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>f8ffca12-d09d-4111-ba91-67077462df5b</Parent><Name>ФормаВыбораГруппы</Name><Identity>f87e74f0-7043-4af6-8c22-80863d983831</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный/Forms/ФормаВыбораГруппы.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>f8ffca12-d09d-4111-ba91-67077462df5b</Parent><Name>ФормаГруппы</Name><Identity>f45cc6f5-7c56-4d14-96cb-e403e7111c84</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный/Forms/ФормаГруппы.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>f8ffca12-d09d-4111-ba91-67077462df5b</Parent><Name>ФормаСписка</Name><Identity>97125ea9-eb1f-4b7e-8b1a-87c50e6009c3</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный/Forms/ФормаСписка.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>f8ffca12-d09d-4111-ba91-67077462df5b</Parent><Name>ФормаЭлемента</Name><Identity>f5577b5c-efe3-48a4-99d2-d77ea4d4187f</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникПолный/Forms/ФормаЭлемента.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>52dc511c-8448-4f84-8643-21916e56d775</Parent><Name>ФормаВыбора</Name><Identity>d51d2e71-f536-4608-9bc3-d7d02cbcfd3c</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникРеквизит/Forms/ФормаВыбора.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>b47a9e20-e2c8-4091-9025-b0cf97b28126</Parent><Name>ФормаВыбора</Name><Identity>71dfa53d-870d-4458-9679-33c64f55b741</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникСПредопределенными/Forms/ФормаВыбора.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>f4eb6828-49ca-4d6c-9ecd-5a691c60b276</Parent><Name>ФормаЭлемента</Name><Identity>d2161686-8e3e-4cae-bf7d-797853505766</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникФормаВсеСвойства/Forms/ФормаЭлемента.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>dbc9a40c-8bd3-4f15-b001-346b132d9e8d</Parent><Name>ФормаЭлемента</Name><Identity>e36f8928-f662-4ea2-a454-722e4f6f9d17</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/Catalogs/СправочникФормаТабличнаяЧасть/Forms/ФормаЭлемента.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>06cc2a86-f916-4f8f-964e-66a9ad7b1fc0</Parent><Name>ФормаВыбора</Name><Identity>803ea1e2-6d31-4c5e-a099-c5e3ffe43c59</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства/Forms/ФормаВыбора.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>06cc2a86-f916-4f8f-964e-66a9ad7b1fc0</Parent><Name>ФормаЗаписи</Name><Identity>65653deb-18e4-4487-8fe2-229996f8acb1</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства/Forms/ФормаЗаписи.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>06cc2a86-f916-4f8f-964e-66a9ad7b1fc0</Parent><Name>ФормаСписка</Name><Identity>034f189f-8333-4440-96e6-e6501608a114</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/ChartsOfAccounts/ПланСчетовВсеСвойства/Forms/ФормаСписка.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>9c6be49a-58d9-4ed5-8037-a77cf3616582</Parent><Name>ФормаВидаРасчета</Name><Identity>9086da57-9a58-4480-a530-9b041aa5297a</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства/Forms/ФормаВидаРасчета.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>9c6be49a-58d9-4ed5-8037-a77cf3616582</Parent><Name>ФормаВыбора</Name><Identity>672063e3-5065-4a9b-b659-cf9a7f47fd53</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства/Forms/ФормаВыбора.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>9c6be49a-58d9-4ed5-8037-a77cf3616582</Parent><Name>ФормаСписка</Name><Identity>2b0d2fd0-3828-432d-a76a-2103fa40e59c</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/ChartsOfCalculationTypes/ПланРасчетаВсеСвойства/Forms/ФормаСписка.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>83430a5b-11ad-4b28-bff4-f3c3f45f0360</Parent><Name>ФормаВыбора</Name><Identity>82a7c4f0-b185-4c65-b29c-8fd749a4fe85</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства/Forms/ФормаВыбора.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>83430a5b-11ad-4b28-bff4-f3c3f45f0360</Parent><Name>ФормаВыбораГруппы</Name><Identity>8803da73-c132-464f-890d-217ee10c6a01</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства/Forms/ФормаВыбораГруппы.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>83430a5b-11ad-4b28-bff4-f3c3f45f0360</Parent><Name>ФормаГруппы</Name><Identity>463c937c-f7d7-4c70-b181-53b66dbd222a</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства/Forms/ФормаГруппы.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>83430a5b-11ad-4b28-bff4-f3c3f45f0360</Parent><Name>ФормаСписка</Name><Identity>81faf4ca-4ce0-42cc-8e8f-1d0c8c36dbbb</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства/Forms/ФормаСписка.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>83430a5b-11ad-4b28-bff4-f3c3f45f0360</Parent><Name>ФормаЭлемента</Name><Identity>baa0c1ec-5aca-4827-848a-40e5e3281969</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/ChartsOfCharacteristicTypes/ПланВидовХарактеристикВсеСвойства/Forms/ФормаЭлемента.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>d09aded1-3722-43c0-aff2-25f1c29159ea</Parent><Name>Форма</Name><Identity>cf0bc989-3255-4c3b-81d9-104424ec18cb</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/DataProcessors/ОбработкаВсеСвойства/Forms/Форма.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>eaa3ce17-c186-4aac-9667-0f4409e5043c</Parent><Name>ФормаСписка</Name><Identity>5fa96490-5245-44f7-a93a-a76d5e1b1cb0</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/DocumentJournals/ЖурналДокументовВсеСвойства/Forms/ФормаСписка.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>2f109eaa-d341-4592-a04f-3f199e75d879</Parent><Name>ФормаВыбора</Name><Identity>3e3cd30c-7bdc-4923-b1be-31e716828cca</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства/Forms/ФормаВыбора.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>2f109eaa-d341-4592-a04f-3f199e75d879</Parent><Name>ФормаДокумента</Name><Identity>e65a7d08-b367-48a2-8fb5-9682bd4ad7e4</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства/Forms/ФормаДокумента.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>2f109eaa-d341-4592-a04f-3f199e75d879</Parent><Name>ФормаДокументаВсеСвойства</Name><Identity>1822c61a-5a01-4461-99dc-656e5c69a263</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства/Forms/ФормаДокументаВсеСвойства.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>2f109eaa-d341-4592-a04f-3f199e75d879</Parent><Name>ФормаСписка</Name><Identity>773de08f-1a80-4bc2-aeb7-85dcdd721220</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства/Forms/ФормаСписка.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>b143f868-111c-4446-a622-42513cdc675f</Parent><Name>ФормаДокумента</Name><Identity>5c208f1a-207c-4ef1-8183-8fbc88fad128</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/Documents/ДокументКнопкаСПараметрами/Forms/ФормаДокумента.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>ec93e916-ecd7-45c4-8e73-ea76f186183c</Parent><Name>ФормаВыбора</Name><Identity>58810ceb-f75e-4ab6-a7e0-246ced939a6a</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/Enums/ПеречислениеВсеСвойства/Forms/ФормаВыбора.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>ec93e916-ecd7-45c4-8e73-ea76f186183c</Parent><Name>ФормаСписка</Name><Identity>8a972455-f21c-4752-b565-3a02ad004435</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/Enums/ПеречислениеВсеСвойства/Forms/ФормаСписка.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>795bd97c-bf59-484f-8fea-c3189e5b197b</Parent><Name>ФормаВыбора</Name><Identity>9b69f5bc-e780-4752-afc8-b83a33caeacf</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства/Forms/ФормаВыбора.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>795bd97c-bf59-484f-8fea-c3189e5b197b</Parent><Name>ФормаСписка</Name><Identity>09c75099-f3f7-40d1-be69-28004286719e</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства/Forms/ФормаСписка.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>795bd97c-bf59-484f-8fea-c3189e5b197b</Parent><Name>ФормаУзла</Name><Identity>f8f029bb-ab9c-4055-b468-2b400b4cee18</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/ExchangePlans/ПланОбменаВсеСвойства/Forms/ФормаУзла.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>1838370c-89b3-4870-967f-3a56177d74ca</Parent><Name>ФормаЗаписи</Name><Identity>5c4b116e-d9e2-4248-89fe-aa6a2d46436d</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства/Forms/ФормаЗаписи.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>1838370c-89b3-4870-967f-3a56177d74ca</Parent><Name>ФормаСписка</Name><Identity>7b2e595d-f11a-4de2-82d8-93697625e792</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства/Forms/ФормаСписка.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>61def258-8564-4ebe-8985-8cdfeca43828</Parent><Name>ФормаВыбора</Name><Identity>eaa6c70a-77e9-4486-a3ae-22d7faf48a8a</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства/Forms/ФормаВыбора.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>61def258-8564-4ebe-8985-8cdfeca43828</Parent><Name>ФормаОбъекта</Name><Identity>bff00030-f31e-47e4-b91e-cdf457f7b2aa</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства/Forms/ФормаОбъекта.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>61def258-8564-4ebe-8985-8cdfeca43828</Parent><Name>ФормаСписка</Name><Identity>66457fe4-2908-4e40-b50f-6b4fb5761a11</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства/Forms/ФормаСписка.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>f95f51b6-2066-4076-9691-3f86bffd3e6a</Parent><Name>ФормаСписка</Name><Identity>23ec1467-fc42-404b-aa2b-525b5f81b5f0</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/FilterCriteria/КритерийОтбораВсеСвойства/Forms/ФормаСписка.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>864c9ce3-ec4e-4330-841b-841b2cd112be</Parent><Name>ФормаЗаписи</Name><Identity>90b0a085-cfaf-4904-a519-88c190c00bc2</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведений1/Forms/ФормаЗаписи.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>879a6653-1fee-49d6-aa2d-fdfd9fc2d9ae</Parent><Name>ФормаЗаписи</Name><Identity>5fcbdf60-96a5-4928-acfd-003656188e68</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый/Forms/ФормаЗаписи.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>879a6653-1fee-49d6-aa2d-fdfd9fc2d9ae</Parent><Name>ФормаСписка</Name><Identity>74bff7ca-ebbb-4a22-a23c-baf2ef0c5a6e</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/InformationRegisters/РегистрСведенийВсеСвойстваНезависимый/Forms/ФормаСписка.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>5f67e404-0a01-4480-aa68-1149a6e085cc</Parent><Name>ФормаВарианта</Name><Identity>99753e0f-11ab-4978-9bdc-253717797644</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаВарианта.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>5f67e404-0a01-4480-aa68-1149a6e085cc</Parent><Name>ФормаНастроек</Name><Identity>d9a80980-0b5f-4814-8218-7465de5a6c44</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаНастроек.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>5f67e404-0a01-4480-aa68-1149a6e085cc</Parent><Name>ФормаОтчета</Name><Identity>0921068c-e41c-4651-a4bc-89752d6a6445</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаОтчета.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>93a122b3-1062-46c2-8f12-5806459164ed</Parent><Name>ФормаЗагрузки</Name><Identity>3e0b1e47-0837-4fb0-a44b-6f7762fbc872</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/SettingsStorages/ХранилищеНастроекВсеСвойства/Forms/ФормаЗагрузки.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>93a122b3-1062-46c2-8f12-5806459164ed</Parent><Name>ФормаСохранения</Name><Identity>a3ce474b-a801-4044-994d-f85a375ba0a6</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/SettingsStorages/ХранилищеНастроекВсеСвойства/Forms/ФормаСохранения.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>cdd7e9c6-691f-429c-a06f-27f74773fd84</Parent><Name>ФормаВыбора</Name><Identity>a5a63fc2-dc1d-4a9d-8227-e363c7d9ff9d</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства/Forms/ФормаВыбора.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>cdd7e9c6-691f-429c-a06f-27f74773fd84</Parent><Name>ФормаЗадачи</Name><Identity>6d6e7e0c-b366-4ad4-b551-f1b75c956b6f</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства/Forms/ФормаЗадачи.xml"
+    },
+    {
+      "entry": "migration.metadata-form-index",
+      "xml": "<Root><Parent>cdd7e9c6-691f-429c-a06f-27f74773fd84</Parent><Name>ФормаСписка</Name><Identity>5516efa6-4361-4837-b12d-76f633f04006</Identity></Root>",
+      "source": "e2e/fixtures/xml/cf/Tasks/ЗадачаВсеСвойства/Forms/ФормаСписка.xml"
+    },
+    {
       "entry": "migration.metadata-child-index",
       "xml": "<Root><Kind>Table</Kind><Name>ТаблицаВсеСвойства</Name><Parent>aa0a162f-bf96-4951-9c81-f6a8014ab7e8</Parent><Identity>61def258-8564-4ebe-8985-8cdfeca43828</Identity></Root>",
       "source": "e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства.xml"
@@ -932,6 +1332,345 @@
         ]
       },
       "source": "e2e/fixtures/xml/cf/DefinedTypes/ОпределяемыйТипВсеСвойства.xml"
+    },
+    {
+      "id": "form-column-number-0",
+      "entry": "contract.form-column-number-source",
+      "xml": "<Columns xmlns=\"http://v8.1c.ru/8.3/xcf/logform\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Column name=\"Отступ\" id=\"1\">\n\t\t\t<Title>\n\t\t\t\t<v8:item>\n\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t<v8:content>Отступ</v8:content>\n\t\t\t\t</v8:item>\n\t\t\t</Title>\n\t\t\t<Type>\n\t\t\t\t<v8:Type>xs:string</v8:Type>\n\t\t\t\t<v8:StringQualifiers>\n\t\t\t\t\t<v8:Length>0</v8:Length>\n\t\t\t\t\t<v8:AllowedLength>Variable</v8:AllowedLength>\n\t\t\t\t</v8:StringQualifiers>\n\t\t\t</Type>\n\t\t</Column></Columns>",
+      "inputs": {
+        "component": "cf",
+        "owner": "FormProbe",
+        "parent": "Атрибут.График"
+      }
+    },
+    {
+      "id": "form-column-number-1",
+      "entry": "contract.form-column-number-source",
+      "xml": "<Columns xmlns=\"http://v8.1c.ru/8.3/xcf/logform\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Column name=\"Сумма\" id=\"2\">\n\t\t\t\t<Title>\n\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t<v8:content>Сумма</v8:content>\n\t\t\t\t\t</v8:item>\n\t\t\t\t</Title>\n\t\t\t\t<Type>\n\t\t\t\t\t<v8:Type>xs:decimal</v8:Type>\n\t\t\t\t\t<v8:NumberQualifiers>\n\t\t\t\t\t\t<v8:Digits>10</v8:Digits>\n\t\t\t\t\t\t<v8:FractionDigits>2</v8:FractionDigits>\n\t\t\t\t\t\t<v8:AllowedSign>Any</v8:AllowedSign>\n\t\t\t\t\t</v8:NumberQualifiers>\n\t\t\t\t</Type>\n\t\t\t</Column></Columns>",
+      "inputs": {
+        "component": "cf",
+        "owner": "FormProbe",
+        "parent": "Атрибут.График"
+      }
+    },
+    {
+      "id": "form-column-numbers-repeated",
+      "entry": "contract.form-column-number-source",
+      "xml": "<Columns xmlns=\"http://v8.1c.ru/8.3/xcf/logform\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Column name=\"Отступ\" id=\"1\">\n\t\t\t<Title>\n\t\t\t\t<v8:item>\n\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t<v8:content>Отступ</v8:content>\n\t\t\t\t</v8:item>\n\t\t\t</Title>\n\t\t\t<Type>\n\t\t\t\t<v8:Type>xs:string</v8:Type>\n\t\t\t\t<v8:StringQualifiers>\n\t\t\t\t\t<v8:Length>0</v8:Length>\n\t\t\t\t\t<v8:AllowedLength>Variable</v8:AllowedLength>\n\t\t\t\t</v8:StringQualifiers>\n\t\t\t</Type>\n\t\t</Column><Column name=\"Отступ\" id=\"2\">\n\t\t\t\t<Title>\n\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t<v8:content>Сумма</v8:content>\n\t\t\t\t\t</v8:item>\n\t\t\t\t</Title>\n\t\t\t\t<Type>\n\t\t\t\t\t<v8:Type>xs:decimal</v8:Type>\n\t\t\t\t\t<v8:NumberQualifiers>\n\t\t\t\t\t\t<v8:Digits>10</v8:Digits>\n\t\t\t\t\t\t<v8:FractionDigits>2</v8:FractionDigits>\n\t\t\t\t\t\t<v8:AllowedSign>Any</v8:AllowedSign>\n\t\t\t\t\t</v8:NumberQualifiers>\n\t\t\t\t</Type>\n\t\t\t</Column></Columns>",
+      "inputs": {
+        "component": "cf",
+        "owner": "FormProbe",
+        "parent": "Атрибут.График"
+      }
+    },
+    {
+      "id": "form-column-number-empty-name",
+      "entry": "contract.form-column-number-source",
+      "xml": "<Columns xmlns=\"http://v8.1c.ru/8.3/xcf/logform\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Column name=\"\" id=\"1\">\n\t\t\t<Title>\n\t\t\t\t<v8:item>\n\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t<v8:content>Отступ</v8:content>\n\t\t\t\t</v8:item>\n\t\t\t</Title>\n\t\t\t<Type>\n\t\t\t\t<v8:Type>xs:string</v8:Type>\n\t\t\t\t<v8:StringQualifiers>\n\t\t\t\t\t<v8:Length>0</v8:Length>\n\t\t\t\t\t<v8:AllowedLength>Variable</v8:AllowedLength>\n\t\t\t\t</v8:StringQualifiers>\n\t\t\t</Type>\n\t\t</Column></Columns>",
+      "inputs": {
+        "component": "cf",
+        "owner": "FormProbe",
+        "parent": "Атрибут.График"
+      }
+    },
+    {
+      "id": "form-column-group-mode-source",
+      "entry": "contract.form-column-group-modes",
+      "xml": "<Columns xmlns=\"http://v8.1c.ru/8.3/xcf/logform\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><AdditionalColumns table=\"ГрафикНачислений\">\n\t\t\t<Column name=\"Сумма\" id=\"2\">\n\t\t\t\t<Title>\n\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t<v8:content>Сумма</v8:content>\n\t\t\t\t\t</v8:item>\n\t\t\t\t</Title>\n\t\t\t\t<Type>\n\t\t\t\t\t<v8:Type>xs:decimal</v8:Type>\n\t\t\t\t\t<v8:NumberQualifiers>\n\t\t\t\t\t\t<v8:Digits>10</v8:Digits>\n\t\t\t\t\t\t<v8:FractionDigits>2</v8:FractionDigits>\n\t\t\t\t\t\t<v8:AllowedSign>Any</v8:AllowedSign>\n\t\t\t\t\t</v8:NumberQualifiers>\n\t\t\t\t</Type>\n\t\t\t</Column>\n\t\t</AdditionalColumns></Columns>",
+      "inputs": {
+        "component": "cf",
+        "owner": "FormProbe",
+        "parent": "Атрибут.График",
+        "origin": "current"
+      }
+    },
+    {
+      "id": "form-column-numbers-additional",
+      "entry": "contract.form-column-number-source",
+      "xml": "<Columns xmlns=\"http://v8.1c.ru/8.3/xcf/logform\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Column name=\"Сумма\" id=\"2\">\n\t\t\t\t<Title>\n\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t<v8:content>Сумма</v8:content>\n\t\t\t\t\t</v8:item>\n\t\t\t\t</Title>\n\t\t\t\t<Type>\n\t\t\t\t\t<v8:Type>xs:decimal</v8:Type>\n\t\t\t\t\t<v8:NumberQualifiers>\n\t\t\t\t\t\t<v8:Digits>10</v8:Digits>\n\t\t\t\t\t\t<v8:FractionDigits>2</v8:FractionDigits>\n\t\t\t\t\t\t<v8:AllowedSign>Any</v8:AllowedSign>\n\t\t\t\t\t</v8:NumberQualifiers>\n\t\t\t\t</Type>\n\t\t\t</Column></Columns>",
+      "inputs": {
+        "component": "cf",
+        "owner": "FormProbe",
+        "parent": "Атрибут.График.ДополнительныеКолонки.ГрафикНачислений"
+      }
+    },
+    {
+      "id": "form-column-live-yaml",
+      "entry": "metadata.public-form-column-requests",
+      "yaml": "Реквизиты:\n  График:\n    Тип: ТаблицаЗначений\n    Колонки:\n      Отступ: {Тип: Строка}\n    ДополнительныеКолонки:\n      ГрафикНачислений:\n        Сумма: {Тип: \"Число(10, 2)\"}\nПрочиеНастройки: {ПроизвольноеПоле: true}",
+      "inputs": {
+        "component": "cf",
+        "owner": "FormProbe"
+      },
+      "snapshotYAML": "Реквизиты:\n  График:\n    Колонки:\n      Отступ: {}\n    ДополнительныеКолонки:\n      ГрафикНачислений:\n        Сумма: {}"
+    },
+    {
+      "id": "form-column-public-group-modes",
+      "entry": "metadata.public-form-additional-group-modes",
+      "yaml": "Реквизиты:\n  График:\n    Тип: ТаблицаЗначений\n    Колонки:\n      Отступ: {Тип: Строка}\n    ДополнительныеКолонки:\n      ГрафикНачислений:\n        Сумма: {Тип: \"Число(10, 2)\"}\nПрочиеНастройки: {ПроизвольноеПоле: true}",
+      "inputs": {
+        "component": "cf",
+        "owner": "FormProbe"
+      },
+      "snapshotYAML": "Реквизиты:\n  График:\n    ДополнительныеКолонки:\n      ГрафикНачислений: {}"
+    },
+    {
+      "id": "form-column-historical-reservations",
+      "entry": "contract.form-column-reservations",
+      "yaml": "attributes: \"1\"\ncolumns: \"2\"\nattribute: \"7\"",
+      "inputs": {
+        "component": "cf",
+        "owner": "FormProbe"
+      }
+    },
+    {
+      "id": "form-column-foreign-reservations",
+      "entry": "contract.form-column-reservations",
+      "yaml": "attributes: \"1\"\ncolumns: \"2\"\nattribute: \"7\"",
+      "inputs": {
+        "component": "cf",
+        "owner": "OtherForm"
+      }
+    },
+    {
+      "id": "form-column-public-empty-table",
+      "entry": "metadata.public-form-column-requests",
+      "yaml": "Реквизиты:\n  График:\n    ДополнительныеКолонки:\n      \"\":\n        Сумма: {Тип: \"Число(10, 2)\"}",
+      "inputs": {
+        "component": "cf",
+        "owner": "FormProbe"
+      }
+    },
+    {
+      "id": "form-column-empty-table-modes",
+      "entry": "metadata.public-form-additional-group-modes",
+      "yaml": "Реквизиты:\n  График:\n    ДополнительныеКолонки:\n      \"\":\n        Сумма: {Тип: \"Число(10, 2)\"}",
+      "inputs": {
+        "component": "cf",
+        "owner": "FormProbe"
+      },
+      "snapshotYAML": "Реквизиты:\n  График:\n    ДополнительныеКолонки:\n      \"\": {}"
+    },
+    {
+      "id": "form-column-repeated-table-modes",
+      "entry": "contract.form-column-group-modes",
+      "xml": "<Columns xmlns=\"http://v8.1c.ru/8.3/xcf/logform\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><AdditionalColumns table=\"ГрафикНачислений\">\n\t\t\t<Column name=\"Сумма\" id=\"2\">\n\t\t\t\t<Title>\n\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t<v8:content>Сумма</v8:content>\n\t\t\t\t\t</v8:item>\n\t\t\t\t</Title>\n\t\t\t\t<Type>\n\t\t\t\t\t<v8:Type>xs:decimal</v8:Type>\n\t\t\t\t\t<v8:NumberQualifiers>\n\t\t\t\t\t\t<v8:Digits>10</v8:Digits>\n\t\t\t\t\t\t<v8:FractionDigits>2</v8:FractionDigits>\n\t\t\t\t\t\t<v8:AllowedSign>Any</v8:AllowedSign>\n\t\t\t\t\t</v8:NumberQualifiers>\n\t\t\t\t</Type>\n\t\t\t</Column>\n\t\t</AdditionalColumns><AdditionalColumns table=\"ГрафикНачислений\">\n\t\t\t<Column name=\"Сумма\" id=\"3\">\n\t\t\t\t<Title>\n\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t<v8:content>Сумма</v8:content>\n\t\t\t\t\t</v8:item>\n\t\t\t\t</Title>\n\t\t\t\t<Type>\n\t\t\t\t\t<v8:Type>xs:decimal</v8:Type>\n\t\t\t\t\t<v8:NumberQualifiers>\n\t\t\t\t\t\t<v8:Digits>10</v8:Digits>\n\t\t\t\t\t\t<v8:FractionDigits>2</v8:FractionDigits>\n\t\t\t\t\t\t<v8:AllowedSign>Any</v8:AllowedSign>\n\t\t\t\t\t</v8:NumberQualifiers>\n\t\t\t\t</Type>\n\t\t\t</Column>\n\t\t</AdditionalColumns></Columns>",
+      "inputs": {
+        "component": "cf",
+        "owner": "FormProbe",
+        "parent": "Атрибут.График",
+        "origin": "current"
+      }
+    },
+    {
+      "id": "form-column-repeated-table-number-0",
+      "entry": "contract.form-column-number-source",
+      "xml": "<Columns xmlns=\"http://v8.1c.ru/8.3/xcf/logform\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Column name=\"Сумма\" id=\"2\">\n\t\t\t\t<Title>\n\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t<v8:content>Сумма</v8:content>\n\t\t\t\t\t</v8:item>\n\t\t\t\t</Title>\n\t\t\t\t<Type>\n\t\t\t\t\t<v8:Type>xs:decimal</v8:Type>\n\t\t\t\t\t<v8:NumberQualifiers>\n\t\t\t\t\t\t<v8:Digits>10</v8:Digits>\n\t\t\t\t\t\t<v8:FractionDigits>2</v8:FractionDigits>\n\t\t\t\t\t\t<v8:AllowedSign>Any</v8:AllowedSign>\n\t\t\t\t\t</v8:NumberQualifiers>\n\t\t\t\t</Type>\n\t\t\t</Column></Columns>",
+      "inputs": {
+        "component": "cf",
+        "owner": "FormProbe",
+        "parent": "Атрибут.График.ДополнительныеКолонки[0]"
+      }
+    },
+    {
+      "id": "form-column-repeated-table-number-1",
+      "entry": "contract.form-column-number-source",
+      "xml": "<Columns xmlns=\"http://v8.1c.ru/8.3/xcf/logform\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Column name=\"Сумма\" id=\"3\">\n\t\t\t\t<Title>\n\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t<v8:content>Сумма</v8:content>\n\t\t\t\t\t</v8:item>\n\t\t\t\t</Title>\n\t\t\t\t<Type>\n\t\t\t\t\t<v8:Type>xs:decimal</v8:Type>\n\t\t\t\t\t<v8:NumberQualifiers>\n\t\t\t\t\t\t<v8:Digits>10</v8:Digits>\n\t\t\t\t\t\t<v8:FractionDigits>2</v8:FractionDigits>\n\t\t\t\t\t\t<v8:AllowedSign>Any</v8:AllowedSign>\n\t\t\t\t\t</v8:NumberQualifiers>\n\t\t\t\t</Type>\n\t\t\t</Column></Columns>",
+      "inputs": {
+        "component": "cf",
+        "owner": "FormProbe",
+        "parent": "Атрибут.График.ДополнительныеКолонки[1]"
+      }
+    },
+    {
+      "id": "form-column-public-repeated-tables",
+      "entry": "metadata.public-form-column-requests",
+      "yaml": "Реквизиты:\n  График:\n    # Сохранённая аномалия повторных таблиц mixedColumns.xml; ожидаемый XML проверяется независимо.\n    ДополнительныеКолонки: !xml/raw\n      $значение:\n        ГрафикНачислений:\n          Сумма:\n            Тип: Число(10, 2)\n      $xml:\n        \"{http://v8.1c.ru/8.3/xcf/logform}AdditionalColumns\":\n          - _table: ГрафикНачислений\n            \"{http://v8.1c.ru/8.3/xcf/logform}Column\":\n              _name: Сумма\n              _id: \"2\"\n              \"{http://v8.1c.ru/8.3/xcf/logform}Title\":\n                \"{http://v8.1c.ru/8.1/data/core}item\":\n                  \"{http://v8.1c.ru/8.1/data/core}lang\": ru\n                  \"{http://v8.1c.ru/8.1/data/core}content\": Сумма\n              \"{http://v8.1c.ru/8.3/xcf/logform}Type\":\n                \"{http://v8.1c.ru/8.1/data/core}Type\":\n                  \"#qname\":\n                    - http://www.w3.org/2001/XMLSchema\n                    - decimal\n                \"{http://v8.1c.ru/8.1/data/core}NumberQualifiers\":\n                  \"{http://v8.1c.ru/8.1/data/core}Digits\": \"10\"\n                  \"{http://v8.1c.ru/8.1/data/core}FractionDigits\": \"2\"\n                  \"{http://v8.1c.ru/8.1/data/core}AllowedSign\": Any\n          - _table: ГрафикНачислений\n            \"{http://v8.1c.ru/8.3/xcf/logform}Column\":\n              _name: Сумма\n              _id: \"3\"\n              \"{http://v8.1c.ru/8.3/xcf/logform}Title\":\n                \"{http://v8.1c.ru/8.1/data/core}item\":\n                  \"{http://v8.1c.ru/8.1/data/core}lang\": ru\n                  \"{http://v8.1c.ru/8.1/data/core}content\": Сумма\n              \"{http://v8.1c.ru/8.3/xcf/logform}Type\":\n                \"{http://v8.1c.ru/8.1/data/core}Type\":\n                  \"#qname\":\n                    - http://www.w3.org/2001/XMLSchema\n                    - decimal\n                \"{http://v8.1c.ru/8.1/data/core}NumberQualifiers\":\n                  \"{http://v8.1c.ru/8.1/data/core}Digits\": \"10\"\n                  \"{http://v8.1c.ru/8.1/data/core}FractionDigits\": \"2\"\n                  \"{http://v8.1c.ru/8.1/data/core}AllowedSign\": Any\n    ",
+      "inputs": {
+        "component": "cf",
+        "owner": "FormProbe"
+      }
+    },
+    {
+      "id": "form-column-public-repeated-table-modes",
+      "entry": "metadata.public-form-additional-group-modes",
+      "yaml": "Реквизиты:\n  График:\n    # Сохранённая аномалия повторных таблиц mixedColumns.xml; ожидаемый XML проверяется независимо.\n    ДополнительныеКолонки: !xml/raw\n      $значение:\n        ГрафикНачислений:\n          Сумма:\n            Тип: Число(10, 2)\n      $xml:\n        \"{http://v8.1c.ru/8.3/xcf/logform}AdditionalColumns\":\n          - _table: ГрафикНачислений\n            \"{http://v8.1c.ru/8.3/xcf/logform}Column\":\n              _name: Сумма\n              _id: \"2\"\n              \"{http://v8.1c.ru/8.3/xcf/logform}Title\":\n                \"{http://v8.1c.ru/8.1/data/core}item\":\n                  \"{http://v8.1c.ru/8.1/data/core}lang\": ru\n                  \"{http://v8.1c.ru/8.1/data/core}content\": Сумма\n              \"{http://v8.1c.ru/8.3/xcf/logform}Type\":\n                \"{http://v8.1c.ru/8.1/data/core}Type\":\n                  \"#qname\":\n                    - http://www.w3.org/2001/XMLSchema\n                    - decimal\n                \"{http://v8.1c.ru/8.1/data/core}NumberQualifiers\":\n                  \"{http://v8.1c.ru/8.1/data/core}Digits\": \"10\"\n                  \"{http://v8.1c.ru/8.1/data/core}FractionDigits\": \"2\"\n                  \"{http://v8.1c.ru/8.1/data/core}AllowedSign\": Any\n          - _table: ГрафикНачислений\n            \"{http://v8.1c.ru/8.3/xcf/logform}Column\":\n              _name: Сумма\n              _id: \"3\"\n              \"{http://v8.1c.ru/8.3/xcf/logform}Title\":\n                \"{http://v8.1c.ru/8.1/data/core}item\":\n                  \"{http://v8.1c.ru/8.1/data/core}lang\": ru\n                  \"{http://v8.1c.ru/8.1/data/core}content\": Сумма\n              \"{http://v8.1c.ru/8.3/xcf/logform}Type\":\n                \"{http://v8.1c.ru/8.1/data/core}Type\":\n                  \"#qname\":\n                    - http://www.w3.org/2001/XMLSchema\n                    - decimal\n                \"{http://v8.1c.ru/8.1/data/core}NumberQualifiers\":\n                  \"{http://v8.1c.ru/8.1/data/core}Digits\": \"10\"\n                  \"{http://v8.1c.ru/8.1/data/core}FractionDigits\": \"2\"\n                  \"{http://v8.1c.ru/8.1/data/core}AllowedSign\": Any\n    ",
+      "inputs": {
+        "component": "cf",
+        "owner": "FormProbe"
+      }
+    },
+    {
+      "id": "form-column-public-renamed",
+      "entry": "metadata.public-form-column-requests",
+      "yaml": "Реквизиты:\n  График:\n    Тип: ТаблицаЗначений\n    Колонки:\n      Новый: {Тип: Строка}\n    ДополнительныеКолонки:\n      ГрафикНачислений:\n        Сумма: {Тип: \"Число(10, 2)\"}\nПрочиеНастройки: {ПроизвольноеПоле: true}",
+      "inputs": {
+        "component": "cf",
+        "owner": "FormProbe"
+      }
+    },
+    {
+      "id": "form-public-number-requests",
+      "entry": "metadata.public-form-number-requests",
+      "yaml": "Реквизиты:\n  График:\n    Тип: ТаблицаЗначений\n    Колонки:\n      Отступ: {Тип: Строка}\n    ДополнительныеКолонки:\n      ГрафикНачислений:\n        Сумма: {Тип: \"Число(10, 2)\"}\nПрочиеНастройки: {ПроизвольноеПоле: true}",
+      "inputs": {
+        "component": "cf",
+        "owner": "FormProbe"
+      },
+      "snapshotYAML": "Реквизиты:\n  График:\n    Колонки:\n      Отступ: {}\n    ДополнительныеКолонки:\n      ГрафикНачислений:\n        Сумма: {}"
+    },
+    {
+      "id": "form-attribute-existing-number",
+      "entry": "metadata.current-form-attribute-file-source",
+      "yaml": "Реквизиты:\n  - Имя: График\n    Идентификатор: \"9\"",
+      "inputs": {
+        "component": "cf",
+        "owner": "FormProbe"
+      }
+    },
+    {
+      "id": "form-number-two-attributes",
+      "entry": "metadata.public-form-number-requests",
+      "yaml": "Реквизиты:\n  График:\n    Тип: ТаблицаЗначений\n    Колонки:\n      Отступ: {Тип: Строка}\n    ДополнительныеКолонки:\n      ГрафикНачислений:\n        Сумма: {Тип: \"Число(10, 2)\"}\n  Второй:\n    Колонки:\n      Новый: {Тип: Булево}\nПрочиеНастройки: {ПроизвольноеПоле: true}",
+      "inputs": {
+        "component": "cf",
+        "owner": "FormProbe"
+      }
+    },
+    {
+      "id": "form-number-two-attribute-modes",
+      "entry": "metadata.public-form-additional-group-modes",
+      "yaml": "Реквизиты:\n  График:\n    Тип: ТаблицаЗначений\n    Колонки:\n      Отступ: {Тип: Строка}\n    ДополнительныеКолонки:\n      ГрафикНачислений:\n        Сумма: {Тип: \"Число(10, 2)\"}\n  Второй:\n    Колонки:\n      Новый: {Тип: Булево}\nПрочиеНастройки: {ПроизвольноеПоле: true}",
+      "inputs": {
+        "component": "cf",
+        "owner": "FormProbe"
+      }
+    },
+    {
+      "id": "form-number-empty-attribute",
+      "entry": "metadata.public-form-number-requests",
+      "yaml": "Реквизиты:\n  \"\":\n    Колонки:\n      Отступ: {Тип: Строка}",
+      "inputs": {
+        "component": "cf",
+        "owner": "FormProbe"
+      }
+    },
+    {
+      "id": "form-number-empty-attribute-modes",
+      "entry": "metadata.public-form-additional-group-modes",
+      "yaml": "Реквизиты:\n  \"\":\n    Колонки:\n      Отступ: {Тип: Строка}",
+      "inputs": {
+        "component": "cf",
+        "owner": "FormProbe"
+      }
+    },
+    {
+      "id": "form-number-repeated-attributes",
+      "entry": "metadata.public-form-number-requests",
+      "yaml": "# Сохранённый повтор имени; смысловая запись одна, исходных реквизита два.\nРеквизиты: !xml/raw\n  $значение:\n    Повтор:\n      Колонки:\n        Отступ: {Тип: Строка}\n  $xml:\n    \"{http://v8.1c.ru/8.3/xcf/logform}Attribute\":\n      - _name: Повтор\n        \"{http://v8.1c.ru/8.3/xcf/logform}Columns\":\n          \"{http://v8.1c.ru/8.3/xcf/logform}Column\": {_name: Отступ}\n      - _name: Повтор\n        \"{http://v8.1c.ru/8.3/xcf/logform}Columns\":\n          \"{http://v8.1c.ru/8.3/xcf/logform}Column\": {_name: Отступ}\n",
+      "inputs": {
+        "component": "cf",
+        "owner": "FormProbe"
+      }
+    },
+    {
+      "id": "form-number-repeated-attribute-groups",
+      "entry": "metadata.public-form-additional-group-modes",
+      "yaml": "# Сохранённый повтор имени; смысловая запись одна, исходных реквизита два.\nРеквизиты: !xml/raw\n  $значение:\n    Повтор:\n      Колонки:\n        Отступ: {Тип: Строка}\n  $xml:\n    \"{http://v8.1c.ru/8.3/xcf/logform}Attribute\":\n      - _name: Повтор\n        \"{http://v8.1c.ru/8.3/xcf/logform}Columns\":\n          \"{http://v8.1c.ru/8.3/xcf/logform}Column\": {_name: Отступ}\n      - _name: Повтор\n        \"{http://v8.1c.ru/8.3/xcf/logform}Columns\":\n          \"{http://v8.1c.ru/8.3/xcf/logform}Column\": {_name: Отступ}\n",
+      "inputs": {
+        "component": "cf",
+        "owner": "FormProbe"
+      }
+    },
+    {
+      "id": "form-number-repeated-attributes-with-groups",
+      "entry": "metadata.public-form-number-requests",
+      "yaml": "# Сохранённый повтор имени; смысловая запись одна, исходных реквизита два.\nРеквизиты: !xml/raw\n  $значение:\n    Повтор:\n      Колонки:\n        Отступ: {Тип: Строка}\n      ДополнительныеКолонки:\n        G:\n          Сумма: {Тип: \"Число(10, 2)\"}\n  $xml:\n    \"{http://v8.1c.ru/8.3/xcf/logform}Attribute\":\n      - _name: Повтор\n        \"{http://v8.1c.ru/8.3/xcf/logform}Columns\":\n          \"{http://v8.1c.ru/8.3/xcf/logform}Column\": {_name: Отступ}\n          \"{http://v8.1c.ru/8.3/xcf/logform}AdditionalColumns\":\n            _table: G\n            \"{http://v8.1c.ru/8.3/xcf/logform}Column\": {_name: Сумма}\n      - _name: Повтор\n        \"{http://v8.1c.ru/8.3/xcf/logform}Columns\":\n          \"{http://v8.1c.ru/8.3/xcf/logform}Column\": {_name: Отступ}\n          \"{http://v8.1c.ru/8.3/xcf/logform}AdditionalColumns\":\n            _table: G\n            \"{http://v8.1c.ru/8.3/xcf/logform}Column\": {_name: Сумма}\n",
+      "inputs": {
+        "component": "cf",
+        "owner": "FormProbe"
+      }
+    },
+    {
+      "id": "form-number-repeated-attribute-group-modes",
+      "entry": "metadata.public-form-additional-group-modes",
+      "yaml": "# Сохранённый повтор имени; смысловая запись одна, исходных реквизита два.\nРеквизиты: !xml/raw\n  $значение:\n    Повтор:\n      Колонки:\n        Отступ: {Тип: Строка}\n      ДополнительныеКолонки:\n        G:\n          Сумма: {Тип: \"Число(10, 2)\"}\n  $xml:\n    \"{http://v8.1c.ru/8.3/xcf/logform}Attribute\":\n      - _name: Повтор\n        \"{http://v8.1c.ru/8.3/xcf/logform}Columns\":\n          \"{http://v8.1c.ru/8.3/xcf/logform}Column\": {_name: Отступ}\n          \"{http://v8.1c.ru/8.3/xcf/logform}AdditionalColumns\":\n            _table: G\n            \"{http://v8.1c.ru/8.3/xcf/logform}Column\": {_name: Сумма}\n      - _name: Повтор\n        \"{http://v8.1c.ru/8.3/xcf/logform}Columns\":\n          \"{http://v8.1c.ru/8.3/xcf/logform}Column\": {_name: Отступ}\n          \"{http://v8.1c.ru/8.3/xcf/logform}AdditionalColumns\":\n            _table: G\n            \"{http://v8.1c.ru/8.3/xcf/logform}Column\": {_name: Сумма}\n",
+      "inputs": {
+        "component": "cf",
+        "owner": "FormProbe"
+      }
+    },
+    {
+      "id": "form-attribute-modes-997792877f0f1a18",
+      "entry": "metadata.public-form-attribute-modes",
+      "yaml": "Реквизиты:\n  График:\n    Тип: ТаблицаЗначений\n    Колонки:\n      Отступ: {Тип: Строка}\n    ДополнительныеКолонки:\n      ГрафикНачислений:\n        Сумма: {Тип: \"Число(10, 2)\"}\nПрочиеНастройки: {ПроизвольноеПоле: true}",
+      "inputs": {
+        "component": "cf",
+        "owner": "FormProbe"
+      }
+    },
+    {
+      "id": "form-attribute-modes-ed5673fbfe131fe5",
+      "entry": "metadata.public-form-attribute-modes",
+      "yaml": "Реквизиты:\n  График:\n    ДополнительныеКолонки:\n      \"\":\n        Сумма: {Тип: \"Число(10, 2)\"}",
+      "inputs": {
+        "component": "cf",
+        "owner": "FormProbe"
+      }
+    },
+    {
+      "id": "form-attribute-modes-04183d712a57fc10",
+      "entry": "metadata.public-form-attribute-modes",
+      "yaml": "Реквизиты:\n  График:\n    # Сохранённая аномалия повторных таблиц mixedColumns.xml; ожидаемый XML проверяется независимо.\n    ДополнительныеКолонки: !xml/raw\n      $значение:\n        ГрафикНачислений:\n          Сумма:\n            Тип: Число(10, 2)\n      $xml:\n        \"{http://v8.1c.ru/8.3/xcf/logform}AdditionalColumns\":\n          - _table: ГрафикНачислений\n            \"{http://v8.1c.ru/8.3/xcf/logform}Column\":\n              _name: Сумма\n              _id: \"2\"\n              \"{http://v8.1c.ru/8.3/xcf/logform}Title\":\n                \"{http://v8.1c.ru/8.1/data/core}item\":\n                  \"{http://v8.1c.ru/8.1/data/core}lang\": ru\n                  \"{http://v8.1c.ru/8.1/data/core}content\": Сумма\n              \"{http://v8.1c.ru/8.3/xcf/logform}Type\":\n                \"{http://v8.1c.ru/8.1/data/core}Type\":\n                  \"#qname\":\n                    - http://www.w3.org/2001/XMLSchema\n                    - decimal\n                \"{http://v8.1c.ru/8.1/data/core}NumberQualifiers\":\n                  \"{http://v8.1c.ru/8.1/data/core}Digits\": \"10\"\n                  \"{http://v8.1c.ru/8.1/data/core}FractionDigits\": \"2\"\n                  \"{http://v8.1c.ru/8.1/data/core}AllowedSign\": Any\n          - _table: ГрафикНачислений\n            \"{http://v8.1c.ru/8.3/xcf/logform}Column\":\n              _name: Сумма\n              _id: \"3\"\n              \"{http://v8.1c.ru/8.3/xcf/logform}Title\":\n                \"{http://v8.1c.ru/8.1/data/core}item\":\n                  \"{http://v8.1c.ru/8.1/data/core}lang\": ru\n                  \"{http://v8.1c.ru/8.1/data/core}content\": Сумма\n              \"{http://v8.1c.ru/8.3/xcf/logform}Type\":\n                \"{http://v8.1c.ru/8.1/data/core}Type\":\n                  \"#qname\":\n                    - http://www.w3.org/2001/XMLSchema\n                    - decimal\n                \"{http://v8.1c.ru/8.1/data/core}NumberQualifiers\":\n                  \"{http://v8.1c.ru/8.1/data/core}Digits\": \"10\"\n                  \"{http://v8.1c.ru/8.1/data/core}FractionDigits\": \"2\"\n                  \"{http://v8.1c.ru/8.1/data/core}AllowedSign\": Any\n    ",
+      "inputs": {
+        "component": "cf",
+        "owner": "FormProbe"
+      }
+    },
+    {
+      "id": "form-attribute-modes-4378c5010d51342d",
+      "entry": "metadata.public-form-attribute-modes",
+      "yaml": "Реквизиты:\n  График:\n    Тип: ТаблицаЗначений\n    Колонки:\n      Новый: {Тип: Строка}\n    ДополнительныеКолонки:\n      ГрафикНачислений:\n        Сумма: {Тип: \"Число(10, 2)\"}\nПрочиеНастройки: {ПроизвольноеПоле: true}",
+      "inputs": {
+        "component": "cf",
+        "owner": "FormProbe"
+      }
+    },
+    {
+      "id": "form-attribute-modes-4cbb3d60d1272e2d",
+      "entry": "metadata.public-form-attribute-modes",
+      "yaml": "Реквизиты:\n  График:\n    Тип: ТаблицаЗначений\n    Колонки:\n      Отступ: {Тип: Строка}\n    ДополнительныеКолонки:\n      ГрафикНачислений:\n        Сумма: {Тип: \"Число(10, 2)\"}\n  Второй:\n    Колонки:\n      Новый: {Тип: Булево}\nПрочиеНастройки: {ПроизвольноеПоле: true}",
+      "inputs": {
+        "component": "cf",
+        "owner": "FormProbe"
+      }
+    },
+    {
+      "id": "form-attribute-modes-da9d549dc502e967",
+      "entry": "metadata.public-form-attribute-modes",
+      "yaml": "Реквизиты:\n  \"\":\n    Колонки:\n      Отступ: {Тип: Строка}",
+      "inputs": {
+        "component": "cf",
+        "owner": "FormProbe"
+      }
+    },
+    {
+      "id": "form-attribute-modes-832eaf92fe53bddc",
+      "entry": "metadata.public-form-attribute-modes",
+      "yaml": "# Сохранённый повтор имени; смысловая запись одна, исходных реквизита два.\nРеквизиты: !xml/raw\n  $значение:\n    Повтор:\n      Колонки:\n        Отступ: {Тип: Строка}\n  $xml:\n    \"{http://v8.1c.ru/8.3/xcf/logform}Attribute\":\n      - _name: Повтор\n        \"{http://v8.1c.ru/8.3/xcf/logform}Columns\":\n          \"{http://v8.1c.ru/8.3/xcf/logform}Column\": {_name: Отступ}\n      - _name: Повтор\n        \"{http://v8.1c.ru/8.3/xcf/logform}Columns\":\n          \"{http://v8.1c.ru/8.3/xcf/logform}Column\": {_name: Отступ}\n",
+      "inputs": {
+        "component": "cf",
+        "owner": "FormProbe"
+      }
+    },
+    {
+      "id": "form-attribute-modes-1cdb88215f18ea50",
+      "entry": "metadata.public-form-attribute-modes",
+      "yaml": "# Сохранённый повтор имени; смысловая запись одна, исходных реквизита два.\nРеквизиты: !xml/raw\n  $значение:\n    Повтор:\n      Колонки:\n        Отступ: {Тип: Строка}\n      ДополнительныеКолонки:\n        G:\n          Сумма: {Тип: \"Число(10, 2)\"}\n  $xml:\n    \"{http://v8.1c.ru/8.3/xcf/logform}Attribute\":\n      - _name: Повтор\n        \"{http://v8.1c.ru/8.3/xcf/logform}Columns\":\n          \"{http://v8.1c.ru/8.3/xcf/logform}Column\": {_name: Отступ}\n          \"{http://v8.1c.ru/8.3/xcf/logform}AdditionalColumns\":\n            _table: G\n            \"{http://v8.1c.ru/8.3/xcf/logform}Column\": {_name: Сумма}\n      - _name: Повтор\n        \"{http://v8.1c.ru/8.3/xcf/logform}Columns\":\n          \"{http://v8.1c.ru/8.3/xcf/logform}Column\": {_name: Отступ}\n          \"{http://v8.1c.ru/8.3/xcf/logform}AdditionalColumns\":\n            _table: G\n            \"{http://v8.1c.ru/8.3/xcf/logform}Column\": {_name: Сумма}\n",
+      "inputs": {
+        "component": "cf",
+        "owner": "FormProbe"
+      }
     }
   ],
   "cases": [
@@ -2327,35 +3066,15 @@
     {
       "id": "joined-MetadataConfigurationRules-absent-help",
       "entry": "candidate.joined.MetadataConfigurationRules",
-      "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:app=\"http://v8.1c.ru/8.2/managed-application/core\"><Name>Конфигурация</Name>\n\t\t\t<Comment>Комментарий</Comment>\n\t\t\t<NamePrefix />\n\t\t\t<ConfigurationExtensionCompatibilityMode>Version8_3_27</ConfigurationExtensionCompatibilityMode>\n\t\t\t<DefaultRunMode>ManagedApplication</DefaultRunMode>\n\t\t\t<UsePurposes>\n\t\t\t\t<v8:Value xsi:type=\"app:ApplicationUsePurpose\">PlatformApplication</v8:Value>\n\t\t\t</UsePurposes>\n\t\t\t<ScriptVariant>Russian</ScriptVariant>\n\t\t\t<Vendor>Поставщик</Vendor>\n\t\t\t<Version>Версия</Version>\n\t\t\t<UpdateCatalogAddress>Адрес каталогиа обновлений</UpdateCatalogAddress>\n\t\t\t<IncludeHelpInContents>true</IncludeHelpInContents>\n\t\t\t<UseManagedFormInOrdinaryApplication>false</UseManagedFormInOrdinaryApplication>\n\t\t\t<UseOrdinaryFormInManagedApplication>false</UseOrdinaryFormInManagedApplication>\n\t\t\t<DefaultReportAppearanceTemplate>Античный</DefaultReportAppearanceTemplate>\n\t\t\t<DefaultSearchForm>CommonForm.ФормаПоиска</DefaultSearchForm>\n\t\t\t<MainClientApplicationWindowMode>Normal</MainClientApplicationWindowMode>\n\t\t\t<DataLockControlMode>AutomaticAndManaged</DataLockControlMode>\n\t\t\t<ObjectAutonumerationMode>AutoFree</ObjectAutonumerationMode>\n\t\t\t<ModalityUseMode>UseWithWarnings</ModalityUseMode>\n\t\t\t<SynchronousPlatformExtensionAndAddInCallUseMode>UseWithWarnings</SynchronousPlatformExtensionAndAddInCallUseMode>\n\t\t\t<InterfaceCompatibilityMode>TaxiEnableVersion8_2</InterfaceCompatibilityMode>\n\t\t\t<DatabaseTablespacesUseMode>DontUse</DatabaseTablespacesUseMode>\n\t\t\t<CompatibilityMode>Version8_3_27</CompatibilityMode>\n\t\t\t<DefaultConstantsForm />\n\t\t</Properties>",
-      "yaml": "Имя: Конфигурация\nКомментарий: Комментарий\nРежимСовместимостиРасширенияКонфигурации: Версия8_3_27\nПоставщик: Поставщик\nВерсия: Версия\nАдресКаталогаОбновлений: Адрес каталогиа обновлений\nВключатьСправкуВСодержание: Истина\nОсновнойМакетОформленияОтчета: Античный\nОсновнаяФормаПоиска: CommonForm.ФормаПоиска\nРежимУправленияБлокировкойДанных: АвтоматическийИУправляемый\nРежимАвтонумерацииОбъектов: ОсвобождатьАвтоматически\nРежимИспользованияМодальности: ИспользоватьСПредупреждениями\nРежимИспользованияСинхронныхВызововРасширенийПлатформыИВнешнихКомпонент: ИспользоватьСПредупреждениями\nРежимСовместимостиИнтерфейса: ТаксиРазрешитьВерсия8_2\nРежимСовместимости: Версия8_3_27",
+      "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:app=\"http://v8.1c.ru/8.2/managed-application/core\"><Name>Конфигурация</Name>\n\t\t\t<Comment>Комментарий</Comment>\n\t\t\t<NamePrefix />\n\t\t\t<ConfigurationExtensionCompatibilityMode>Version8_3_27</ConfigurationExtensionCompatibilityMode>\n\t\t\t<DefaultRunMode>ManagedApplication</DefaultRunMode>\n\t\t\t<UsePurposes>\n\t\t\t\t<v8:Value xsi:type=\"app:ApplicationUsePurpose\">PlatformApplication</v8:Value>\n\t\t\t</UsePurposes>\n\t\t\t<ScriptVariant>Russian</ScriptVariant>\n\t\t\t<DefaultRoles>\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">Role.Администратор</xr:Item>\n\t\t\t</DefaultRoles>\n\t\t\t<Vendor>Поставщик</Vendor>\n\t\t\t<Version>Версия</Version>\n\t\t\t<UpdateCatalogAddress>Адрес каталогиа обновлений</UpdateCatalogAddress>\n\t\t\t<IncludeHelpInContents>true</IncludeHelpInContents>\n\t\t\t<UseManagedFormInOrdinaryApplication>false</UseManagedFormInOrdinaryApplication>\n\t\t\t<UseOrdinaryFormInManagedApplication>false</UseOrdinaryFormInManagedApplication>\n\t\t\t<AdditionalFullTextSearchDictionaries>\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">CommonTemplate.ДополнительныйСловарьПолнотекстовогоПоиска</xr:Item>\n\t\t\t</AdditionalFullTextSearchDictionaries>\n\t\t\t<CommonSettingsStorage>SettingsStorage.ХранилищеНастроекВсеСвойства</CommonSettingsStorage>\n\t\t\t<ReportsUserSettingsStorage>SettingsStorage.ХранилищеНастроекВсеСвойства</ReportsUserSettingsStorage>\n\t\t\t<ReportsVariantsStorage>SettingsStorage.ХранилищеНастроекВсеСвойства</ReportsVariantsStorage>\n\t\t\t<FormDataSettingsStorage>SettingsStorage.ХранилищеНастроекВсеСвойства</FormDataSettingsStorage>\n\t\t\t<DynamicListsUserSettingsStorage>SettingsStorage.ХранилищеНастроекВсеСвойства</DynamicListsUserSettingsStorage>\n\t\t\t<URLExternalDataStorage>SettingsStorage.ХранилищеНастроекВсеСвойства</URLExternalDataStorage>\n\t\t\t<DefaultReportForm>CommonForm.ФормаОтчета</DefaultReportForm>\n\t\t\t<DefaultReportVariantForm>CommonForm.ФормаВариантаОтчета</DefaultReportVariantForm>\n\t\t\t<DefaultReportSettingsForm>CommonForm.ФормаНастроекОтчета</DefaultReportSettingsForm>\n\t\t\t<DefaultReportAppearanceTemplate>Античный</DefaultReportAppearanceTemplate>\n\t\t\t<DefaultDynamicListSettingsForm>CommonForm.ФормаНастроекДинамическогоСписка</DefaultDynamicListSettingsForm>\n\t\t\t<DefaultSearchForm>CommonForm.ФормаПоиска</DefaultSearchForm>\n\t\t\t<DefaultDataHistoryChangeHistoryForm>CommonForm.ФормаИсторииИзмененийИсторииДанных</DefaultDataHistoryChangeHistoryForm>\n\t\t\t<DefaultDataHistoryVersionDataForm>CommonForm.ФормаДанныхВерсииИсторииДанных</DefaultDataHistoryVersionDataForm>\n\t\t\t<DefaultDataHistoryVersionDifferencesForm>CommonForm.ФормаРазличийВерсийИсторииДанных</DefaultDataHistoryVersionDifferencesForm>\n\t\t\t<DefaultCollaborationSystemUsersChoiceForm>CommonForm.ФормаВыбораПользователейСистемыВзаимодействия</DefaultCollaborationSystemUsersChoiceForm>\n\t\t\t<StandaloneConfigurationRestrictionRoles>\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">Role.Администратор</xr:Item>\n\t\t\t</StandaloneConfigurationRestrictionRoles>\n\t\t\t<MainClientApplicationWindowMode>Normal</MainClientApplicationWindowMode>\n\t\t\t<DefaultInterface />\n\t\t\t<DefaultStyle>Style.СтильВсеСвойства</DefaultStyle>\n\t\t\t<DefaultLanguage>Language.Русский</DefaultLanguage>\n\t\t\t<DataLockControlMode>AutomaticAndManaged</DataLockControlMode>\n\t\t\t<ObjectAutonumerationMode>AutoFree</ObjectAutonumerationMode>\n\t\t\t<ModalityUseMode>UseWithWarnings</ModalityUseMode>\n\t\t\t<SynchronousPlatformExtensionAndAddInCallUseMode>UseWithWarnings</SynchronousPlatformExtensionAndAddInCallUseMode>\n\t\t\t<InterfaceCompatibilityMode>TaxiEnableVersion8_2</InterfaceCompatibilityMode>\n\t\t\t<DatabaseTablespacesUseMode>DontUse</DatabaseTablespacesUseMode>\n\t\t\t<CompatibilityMode>Version8_3_27</CompatibilityMode>\n\t\t\t<DefaultConstantsForm />\n\t\t</Properties>",
+      "yaml": "Имя: Конфигурация\nКомментарий: Комментарий\nРежимСовместимостиРасширенияКонфигурации: Версия8_3_27\nОсновныеРоли:\n  - Роль.Администратор\nПоставщик: Поставщик\nВерсия: Версия\nАдресКаталогаОбновлений: Адрес каталогиа обновлений\nВключатьСправкуВСодержание: Истина\nДополнительныеСловариПолнотекстовогоПоиска:\n  - ОбщийМакет.ДополнительныйСловарьПолнотекстовогоПоиска\nХранилищеОбщихНастроек: ХранилищеНастроек.ХранилищеНастроекВсеСвойства\nХранилищеПользовательскихНастроекОтчетов: ХранилищеНастроек.ХранилищеНастроекВсеСвойства\nХранилищеВариантовОтчетов: ХранилищеНастроек.ХранилищеНастроекВсеСвойства\nХранилищеНастроекДанныхФорм: ХранилищеНастроек.ХранилищеНастроекВсеСвойства\nХранилищеПользовательскихНастроекДинамическихСписков: ХранилищеНастроек.ХранилищеНастроекВсеСвойства\nХранилищеВнешнихДанныхНавигационныхСсылок: ХранилищеНастроек.ХранилищеНастроекВсеСвойства\nОсновнаяФормаОтчета: ОбщаяФорма.ФормаОтчета\nОсновнаяФормаВариантаОтчета: ОбщаяФорма.ФормаВариантаОтчета\nОсновнаяФормаНастроекОтчета: ОбщаяФорма.ФормаНастроекОтчета\nОсновнойМакетОформленияОтчета: Античный\nОсновнаяФормаНастроекДинамическогоСписка: ОбщаяФорма.ФормаНастроекДинамическогоСписка\nОсновнаяФормаПоиска: CommonForm.ФормаПоиска\nОсновнаяФормаИсторииИзмененийИсторииДанных: ОбщаяФорма.ФормаИсторииИзмененийИсторииДанных\nОсновнаяФормаДанныхВерсииИсторииДанных: ОбщаяФорма.ФормаДанныхВерсииИсторииДанных\nОсновнаяФормаРазличийВерсийИсторииДанных: ОбщаяФорма.ФормаРазличийВерсийИсторииДанных\nОсновнаяФормаВыбораПользователейСистемыВзаимодействия: ОбщаяФорма.ФормаВыбораПользователейСистемыВзаимодействия\nРолиОграниченияАвтономнойКонфигурации:\n  - Роль.Администратор\nОсновнойСтиль: Стиль.СтильВсеСвойства\nОсновнойЯзык: Русский\nРежимУправленияБлокировкойДанных: АвтоматическийИУправляемый\nРежимАвтонумерацииОбъектов: ОсвобождатьАвтоматически\nРежимИспользованияМодальности: ИспользоватьСПредупреждениями\nРежимИспользованияСинхронныхВызововРасширенийПлатформыИВнешнихКомпонент: ИспользоватьСПредупреждениями\nРежимСовместимостиИнтерфейса: ТаксиРазрешитьВерсия8_2\nРежимСовместимости: Версия8_3_27",
       "omittedXMLProperties": [
         "Synonym",
-        "DefaultRoles",
-        "AdditionalFullTextSearchDictionaries",
-        "CommonSettingsStorage",
-        "ReportsUserSettingsStorage",
-        "ReportsVariantsStorage",
-        "FormDataSettingsStorage",
-        "DynamicListsUserSettingsStorage",
-        "URLExternalDataStorage",
         "Content",
-        "DefaultReportForm",
-        "DefaultReportVariantForm",
-        "DefaultReportSettingsForm",
-        "DefaultDynamicListSettingsForm",
-        "DefaultDataHistoryChangeHistoryForm",
-        "DefaultDataHistoryVersionDataForm",
-        "DefaultDataHistoryVersionDifferencesForm",
-        "DefaultCollaborationSystemUsersChoiceForm",
         "RequiredMobileApplicationPermissions",
         "UsedMobileApplicationFunctionalities",
-        "StandaloneConfigurationRestrictionRoles",
         "MobileApplicationURLs",
         "AllowedIncomingShareRequestTypes",
-        "DefaultInterface",
-        "DefaultStyle",
-        "DefaultLanguage",
         "BriefInformation",
         "DetailedInformation",
         "Copyright",
@@ -2373,6 +3092,9 @@
           "sha256": "c42b1757896997d357b39a7eb7c4b54487f1783f0626bc9cefe3c3c89215da40"
         }
       ],
+      "factBindings": {
+        "roots": "metadata.roots"
+      },
       "inputs": {
         "attachment_pages": []
       },
@@ -2383,35 +3105,15 @@
     {
       "id": "joined-MetadataConfigurationRules-external-help",
       "entry": "candidate.joined.MetadataConfigurationRules",
-      "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:app=\"http://v8.1c.ru/8.2/managed-application/core\"><Name>Конфигурация</Name>\n\t\t\t<Comment>Комментарий</Comment>\n\t\t\t<NamePrefix />\n\t\t\t<ConfigurationExtensionCompatibilityMode>Version8_3_27</ConfigurationExtensionCompatibilityMode>\n\t\t\t<DefaultRunMode>ManagedApplication</DefaultRunMode>\n\t\t\t<UsePurposes>\n\t\t\t\t<v8:Value xsi:type=\"app:ApplicationUsePurpose\">PlatformApplication</v8:Value>\n\t\t\t</UsePurposes>\n\t\t\t<ScriptVariant>Russian</ScriptVariant>\n\t\t\t<Vendor>Поставщик</Vendor>\n\t\t\t<Version>Версия</Version>\n\t\t\t<UpdateCatalogAddress>Адрес каталогиа обновлений</UpdateCatalogAddress>\n\t\t\t<IncludeHelpInContents>true</IncludeHelpInContents>\n\t\t\t<UseManagedFormInOrdinaryApplication>false</UseManagedFormInOrdinaryApplication>\n\t\t\t<UseOrdinaryFormInManagedApplication>false</UseOrdinaryFormInManagedApplication>\n\t\t\t<DefaultReportAppearanceTemplate>Античный</DefaultReportAppearanceTemplate>\n\t\t\t<DefaultSearchForm>CommonForm.ФормаПоиска</DefaultSearchForm>\n\t\t\t<MainClientApplicationWindowMode>Normal</MainClientApplicationWindowMode>\n\t\t\t<DataLockControlMode>AutomaticAndManaged</DataLockControlMode>\n\t\t\t<ObjectAutonumerationMode>AutoFree</ObjectAutonumerationMode>\n\t\t\t<ModalityUseMode>UseWithWarnings</ModalityUseMode>\n\t\t\t<SynchronousPlatformExtensionAndAddInCallUseMode>UseWithWarnings</SynchronousPlatformExtensionAndAddInCallUseMode>\n\t\t\t<InterfaceCompatibilityMode>TaxiEnableVersion8_2</InterfaceCompatibilityMode>\n\t\t\t<DatabaseTablespacesUseMode>DontUse</DatabaseTablespacesUseMode>\n\t\t\t<CompatibilityMode>Version8_3_27</CompatibilityMode>\n\t\t\t<DefaultConstantsForm />\n\t\t</Properties>",
-      "yaml": "Имя: Конфигурация\nКомментарий: Комментарий\nРежимСовместимостиРасширенияКонфигурации: Версия8_3_27\nПоставщик: Поставщик\nВерсия: Версия\nАдресКаталогаОбновлений: Адрес каталогиа обновлений\nВключатьСправкуВСодержание: Истина\nОсновнойМакетОформленияОтчета: Античный\nОсновнаяФормаПоиска: CommonForm.ФормаПоиска\nРежимУправленияБлокировкойДанных: АвтоматическийИУправляемый\nРежимАвтонумерацииОбъектов: ОсвобождатьАвтоматически\nРежимИспользованияМодальности: ИспользоватьСПредупреждениями\nРежимИспользованияСинхронныхВызововРасширенийПлатформыИВнешнихКомпонент: ИспользоватьСПредупреждениями\nРежимСовместимостиИнтерфейса: ТаксиРазрешитьВерсия8_2\nРежимСовместимости: Версия8_3_27",
+      "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:app=\"http://v8.1c.ru/8.2/managed-application/core\"><Name>Конфигурация</Name>\n\t\t\t<Comment>Комментарий</Comment>\n\t\t\t<NamePrefix />\n\t\t\t<ConfigurationExtensionCompatibilityMode>Version8_3_27</ConfigurationExtensionCompatibilityMode>\n\t\t\t<DefaultRunMode>ManagedApplication</DefaultRunMode>\n\t\t\t<UsePurposes>\n\t\t\t\t<v8:Value xsi:type=\"app:ApplicationUsePurpose\">PlatformApplication</v8:Value>\n\t\t\t</UsePurposes>\n\t\t\t<ScriptVariant>Russian</ScriptVariant>\n\t\t\t<DefaultRoles>\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">Role.Администратор</xr:Item>\n\t\t\t</DefaultRoles>\n\t\t\t<Vendor>Поставщик</Vendor>\n\t\t\t<Version>Версия</Version>\n\t\t\t<UpdateCatalogAddress>Адрес каталогиа обновлений</UpdateCatalogAddress>\n\t\t\t<IncludeHelpInContents>true</IncludeHelpInContents>\n\t\t\t<UseManagedFormInOrdinaryApplication>false</UseManagedFormInOrdinaryApplication>\n\t\t\t<UseOrdinaryFormInManagedApplication>false</UseOrdinaryFormInManagedApplication>\n\t\t\t<AdditionalFullTextSearchDictionaries>\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">CommonTemplate.ДополнительныйСловарьПолнотекстовогоПоиска</xr:Item>\n\t\t\t</AdditionalFullTextSearchDictionaries>\n\t\t\t<CommonSettingsStorage>SettingsStorage.ХранилищеНастроекВсеСвойства</CommonSettingsStorage>\n\t\t\t<ReportsUserSettingsStorage>SettingsStorage.ХранилищеНастроекВсеСвойства</ReportsUserSettingsStorage>\n\t\t\t<ReportsVariantsStorage>SettingsStorage.ХранилищеНастроекВсеСвойства</ReportsVariantsStorage>\n\t\t\t<FormDataSettingsStorage>SettingsStorage.ХранилищеНастроекВсеСвойства</FormDataSettingsStorage>\n\t\t\t<DynamicListsUserSettingsStorage>SettingsStorage.ХранилищеНастроекВсеСвойства</DynamicListsUserSettingsStorage>\n\t\t\t<URLExternalDataStorage>SettingsStorage.ХранилищеНастроекВсеСвойства</URLExternalDataStorage>\n\t\t\t<DefaultReportForm>CommonForm.ФормаОтчета</DefaultReportForm>\n\t\t\t<DefaultReportVariantForm>CommonForm.ФормаВариантаОтчета</DefaultReportVariantForm>\n\t\t\t<DefaultReportSettingsForm>CommonForm.ФормаНастроекОтчета</DefaultReportSettingsForm>\n\t\t\t<DefaultReportAppearanceTemplate>Античный</DefaultReportAppearanceTemplate>\n\t\t\t<DefaultDynamicListSettingsForm>CommonForm.ФормаНастроекДинамическогоСписка</DefaultDynamicListSettingsForm>\n\t\t\t<DefaultSearchForm>CommonForm.ФормаПоиска</DefaultSearchForm>\n\t\t\t<DefaultDataHistoryChangeHistoryForm>CommonForm.ФормаИсторииИзмененийИсторииДанных</DefaultDataHistoryChangeHistoryForm>\n\t\t\t<DefaultDataHistoryVersionDataForm>CommonForm.ФормаДанныхВерсииИсторииДанных</DefaultDataHistoryVersionDataForm>\n\t\t\t<DefaultDataHistoryVersionDifferencesForm>CommonForm.ФормаРазличийВерсийИсторииДанных</DefaultDataHistoryVersionDifferencesForm>\n\t\t\t<DefaultCollaborationSystemUsersChoiceForm>CommonForm.ФормаВыбораПользователейСистемыВзаимодействия</DefaultCollaborationSystemUsersChoiceForm>\n\t\t\t<StandaloneConfigurationRestrictionRoles>\n\t\t\t\t<xr:Item xsi:type=\"xr:MDObjectRef\">Role.Администратор</xr:Item>\n\t\t\t</StandaloneConfigurationRestrictionRoles>\n\t\t\t<MainClientApplicationWindowMode>Normal</MainClientApplicationWindowMode>\n\t\t\t<DefaultInterface />\n\t\t\t<DefaultStyle>Style.СтильВсеСвойства</DefaultStyle>\n\t\t\t<DefaultLanguage>Language.Русский</DefaultLanguage>\n\t\t\t<DataLockControlMode>AutomaticAndManaged</DataLockControlMode>\n\t\t\t<ObjectAutonumerationMode>AutoFree</ObjectAutonumerationMode>\n\t\t\t<ModalityUseMode>UseWithWarnings</ModalityUseMode>\n\t\t\t<SynchronousPlatformExtensionAndAddInCallUseMode>UseWithWarnings</SynchronousPlatformExtensionAndAddInCallUseMode>\n\t\t\t<InterfaceCompatibilityMode>TaxiEnableVersion8_2</InterfaceCompatibilityMode>\n\t\t\t<DatabaseTablespacesUseMode>DontUse</DatabaseTablespacesUseMode>\n\t\t\t<CompatibilityMode>Version8_3_27</CompatibilityMode>\n\t\t\t<DefaultConstantsForm />\n\t\t</Properties>",
+      "yaml": "Имя: Конфигурация\nКомментарий: Комментарий\nРежимСовместимостиРасширенияКонфигурации: Версия8_3_27\nОсновныеРоли:\n  - Роль.Администратор\nПоставщик: Поставщик\nВерсия: Версия\nАдресКаталогаОбновлений: Адрес каталогиа обновлений\nВключатьСправкуВСодержание: Истина\nДополнительныеСловариПолнотекстовогоПоиска:\n  - ОбщийМакет.ДополнительныйСловарьПолнотекстовогоПоиска\nХранилищеОбщихНастроек: ХранилищеНастроек.ХранилищеНастроекВсеСвойства\nХранилищеПользовательскихНастроекОтчетов: ХранилищеНастроек.ХранилищеНастроекВсеСвойства\nХранилищеВариантовОтчетов: ХранилищеНастроек.ХранилищеНастроекВсеСвойства\nХранилищеНастроекДанныхФорм: ХранилищеНастроек.ХранилищеНастроекВсеСвойства\nХранилищеПользовательскихНастроекДинамическихСписков: ХранилищеНастроек.ХранилищеНастроекВсеСвойства\nХранилищеВнешнихДанныхНавигационныхСсылок: ХранилищеНастроек.ХранилищеНастроекВсеСвойства\nОсновнаяФормаОтчета: ОбщаяФорма.ФормаОтчета\nОсновнаяФормаВариантаОтчета: ОбщаяФорма.ФормаВариантаОтчета\nОсновнаяФормаНастроекОтчета: ОбщаяФорма.ФормаНастроекОтчета\nОсновнойМакетОформленияОтчета: Античный\nОсновнаяФормаНастроекДинамическогоСписка: ОбщаяФорма.ФормаНастроекДинамическогоСписка\nОсновнаяФормаПоиска: CommonForm.ФормаПоиска\nОсновнаяФормаИсторииИзмененийИсторииДанных: ОбщаяФорма.ФормаИсторииИзмененийИсторииДанных\nОсновнаяФормаДанныхВерсииИсторииДанных: ОбщаяФорма.ФормаДанныхВерсииИсторииДанных\nОсновнаяФормаРазличийВерсийИсторииДанных: ОбщаяФорма.ФормаРазличийВерсийИсторииДанных\nОсновнаяФормаВыбораПользователейСистемыВзаимодействия: ОбщаяФорма.ФормаВыбораПользователейСистемыВзаимодействия\nРолиОграниченияАвтономнойКонфигурации:\n  - Роль.Администратор\nОсновнойСтиль: Стиль.СтильВсеСвойства\nОсновнойЯзык: Русский\nРежимУправленияБлокировкойДанных: АвтоматическийИУправляемый\nРежимАвтонумерацииОбъектов: ОсвобождатьАвтоматически\nРежимИспользованияМодальности: ИспользоватьСПредупреждениями\nРежимИспользованияСинхронныхВызововРасширенийПлатформыИВнешнихКомпонент: ИспользоватьСПредупреждениями\nРежимСовместимостиИнтерфейса: ТаксиРазрешитьВерсия8_2\nРежимСовместимости: Версия8_3_27",
       "omittedXMLProperties": [
         "Synonym",
-        "DefaultRoles",
-        "AdditionalFullTextSearchDictionaries",
-        "CommonSettingsStorage",
-        "ReportsUserSettingsStorage",
-        "ReportsVariantsStorage",
-        "FormDataSettingsStorage",
-        "DynamicListsUserSettingsStorage",
-        "URLExternalDataStorage",
         "Content",
-        "DefaultReportForm",
-        "DefaultReportVariantForm",
-        "DefaultReportSettingsForm",
-        "DefaultDynamicListSettingsForm",
-        "DefaultDataHistoryChangeHistoryForm",
-        "DefaultDataHistoryVersionDataForm",
-        "DefaultDataHistoryVersionDifferencesForm",
-        "DefaultCollaborationSystemUsersChoiceForm",
         "RequiredMobileApplicationPermissions",
         "UsedMobileApplicationFunctionalities",
-        "StandaloneConfigurationRestrictionRoles",
         "MobileApplicationURLs",
         "AllowedIncomingShareRequestTypes",
-        "DefaultInterface",
-        "DefaultStyle",
-        "DefaultLanguage",
         "BriefInformation",
         "DetailedInformation",
         "Copyright",
@@ -2429,6 +3131,9 @@
           "sha256": "c42b1757896997d357b39a7eb7c4b54487f1783f0626bc9cefe3c3c89215da40"
         }
       ],
+      "factBindings": {
+        "roots": "metadata.roots"
+      },
       "inputs": {
         "attachment_pages": [
           "ru"
@@ -2449,11 +3154,9 @@
     {
       "id": "joined-MetadataCommonFormRules-absent-help",
       "entry": "candidate.joined.MetadataCommonFormRules",
-      "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:app=\"http://v8.1c.ru/8.2/managed-application/core\"><Synonym>\n\t\t\t\t<v8:item>\n\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t<v8:content>Button</v8:content>\n\t\t\t\t</v8:item>\n\t\t\t</Synonym>\n\t\t\t<Comment />\n\t\t\t<FormType>Managed</FormType>\n\t\t\t<IncludeHelpInContents>false</IncludeHelpInContents>\n\t\t\t<UsePurposes>\n\t\t\t\t<v8:Value xsi:type=\"app:ApplicationUsePurpose\">PlatformApplication</v8:Value>\n\t\t\t\t<v8:Value xsi:type=\"app:ApplicationUsePurpose\">MobilePlatformApplication</v8:Value>\n\t\t\t</UsePurposes>\n\t\t\t<UseStandardCommands>false</UseStandardCommands>\n\t\t\t<ExtendedPresentation />\n\t\t\t<Explanation />\n\t\t</Properties>",
+      "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:app=\"http://v8.1c.ru/8.2/managed-application/core\"><Name>Button</Name>\n\t\t\t<Synonym>\n\t\t\t\t<v8:item>\n\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t<v8:content>Button</v8:content>\n\t\t\t\t</v8:item>\n\t\t\t</Synonym>\n\t\t\t<Comment />\n\t\t\t<FormType>Managed</FormType>\n\t\t\t<IncludeHelpInContents>false</IncludeHelpInContents>\n\t\t\t<UsePurposes>\n\t\t\t\t<v8:Value xsi:type=\"app:ApplicationUsePurpose\">PlatformApplication</v8:Value>\n\t\t\t\t<v8:Value xsi:type=\"app:ApplicationUsePurpose\">MobilePlatformApplication</v8:Value>\n\t\t\t</UsePurposes>\n\t\t\t<UseStandardCommands>false</UseStandardCommands>\n\t\t\t<ExtendedPresentation />\n\t\t\t<Explanation />\n\t\t</Properties>",
       "yaml": "НазначенияИспользования: ПлатформаИМобильноеПриложение\nИспользоватьСтандартныеКоманды: Ложь",
-      "omittedXMLProperties": [
-        "Name"
-      ],
+      "omittedXMLProperties": [],
       "xmlQNamePaths": [],
       "source": [
         {
@@ -2481,11 +3184,9 @@
     {
       "id": "joined-MetadataCommonFormRules-external-help",
       "entry": "candidate.joined.MetadataCommonFormRules",
-      "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:app=\"http://v8.1c.ru/8.2/managed-application/core\"><Synonym>\n\t\t\t\t<v8:item>\n\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t<v8:content>Button</v8:content>\n\t\t\t\t</v8:item>\n\t\t\t</Synonym>\n\t\t\t<Comment />\n\t\t\t<FormType>Managed</FormType>\n\t\t\t<IncludeHelpInContents>false</IncludeHelpInContents>\n\t\t\t<UsePurposes>\n\t\t\t\t<v8:Value xsi:type=\"app:ApplicationUsePurpose\">PlatformApplication</v8:Value>\n\t\t\t\t<v8:Value xsi:type=\"app:ApplicationUsePurpose\">MobilePlatformApplication</v8:Value>\n\t\t\t</UsePurposes>\n\t\t\t<UseStandardCommands>false</UseStandardCommands>\n\t\t\t<ExtendedPresentation />\n\t\t\t<Explanation />\n\t\t</Properties>",
+      "xml": "<Properties xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:app=\"http://v8.1c.ru/8.2/managed-application/core\"><Name>Button</Name>\n\t\t\t<Synonym>\n\t\t\t\t<v8:item>\n\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t<v8:content>Button</v8:content>\n\t\t\t\t</v8:item>\n\t\t\t</Synonym>\n\t\t\t<Comment />\n\t\t\t<FormType>Managed</FormType>\n\t\t\t<IncludeHelpInContents>false</IncludeHelpInContents>\n\t\t\t<UsePurposes>\n\t\t\t\t<v8:Value xsi:type=\"app:ApplicationUsePurpose\">PlatformApplication</v8:Value>\n\t\t\t\t<v8:Value xsi:type=\"app:ApplicationUsePurpose\">MobilePlatformApplication</v8:Value>\n\t\t\t</UsePurposes>\n\t\t\t<UseStandardCommands>false</UseStandardCommands>\n\t\t\t<ExtendedPresentation />\n\t\t\t<Explanation />\n\t\t</Properties>",
       "yaml": "НазначенияИспользования: ПлатформаИМобильноеПриложение\nИспользоватьСтандартныеКоманды: Ложь",
-      "omittedXMLProperties": [
-        "Name"
-      ],
+      "omittedXMLProperties": [],
       "xmlQNamePaths": [],
       "source": [
         {
@@ -2879,6 +3580,50 @@
       "scope": "Resource path from original rule; byte preservation checked by Rust resource integration"
     },
     {
+      "id": "module-MetadataAccountingRegisterCommandRules-commandModule",
+      "entry": "candidate.attachment.fragment.command-module-resource",
+      "xml": "<Probe><Name>example</Name></Probe>",
+      "yaml": "Проверка: example",
+      "inputs": {
+        "name": "example"
+      },
+      "resources": [
+        {
+          "xml": [
+            "Commands",
+            "example",
+            "Ext",
+            "CommandModule.bsl"
+          ],
+          "yaml": [
+            "Команды",
+            "example.bsl"
+          ]
+        },
+        {
+          "xml": [
+            "Commands",
+            "example",
+            "Ext",
+            "CommandModule.bin"
+          ],
+          "yaml": [
+            "Команды",
+            "example.bin"
+          ]
+        }
+      ],
+      "resourceGroups": [
+        2
+      ],
+      "source": {
+        "path": "packages/rules/metadata/appliedObjects/metadataAccountingRegister/rules.ts",
+        "line": 99,
+        "column": 5
+      },
+      "scope": "Resource path from original rule; byte preservation checked by Rust resource integration"
+    },
+    {
       "id": "module-MetadataAccountingRegisterRules-recordSetModule",
       "entry": "candidate.attachment.fragment.record-set-module-resource",
       "xml": "<Probe><Name>example</Name></Probe>",
@@ -2944,6 +3689,50 @@
       "source": {
         "path": "packages/rules/metadata/appliedObjects/metadataAccountingRegister/rules.ts",
         "line": 277,
+        "column": 5
+      },
+      "scope": "Resource path from original rule; byte preservation checked by Rust resource integration"
+    },
+    {
+      "id": "module-MetadataAccumulationRegisterCommandRules-commandModule",
+      "entry": "candidate.attachment.fragment.command-module-resource",
+      "xml": "<Probe><Name>example</Name></Probe>",
+      "yaml": "Проверка: example",
+      "inputs": {
+        "name": "example"
+      },
+      "resources": [
+        {
+          "xml": [
+            "Commands",
+            "example",
+            "Ext",
+            "CommandModule.bsl"
+          ],
+          "yaml": [
+            "Команды",
+            "example.bsl"
+          ]
+        },
+        {
+          "xml": [
+            "Commands",
+            "example",
+            "Ext",
+            "CommandModule.bin"
+          ],
+          "yaml": [
+            "Команды",
+            "example.bin"
+          ]
+        }
+      ],
+      "resourceGroups": [
+        2
+      ],
+      "source": {
+        "path": "packages/rules/metadata/appliedObjects/metadataAccumulationRegister/rules.ts",
+        "line": 51,
         "column": 5
       },
       "scope": "Resource path from original rule; byte preservation checked by Rust resource integration"
@@ -3159,6 +3948,50 @@
       "scope": "Resource path from original rule; byte preservation checked by Rust resource integration"
     },
     {
+      "id": "module-MetadataCalculationRegisterCommandRules-commandModule",
+      "entry": "candidate.attachment.fragment.command-module-resource",
+      "xml": "<Probe><Name>example</Name></Probe>",
+      "yaml": "Проверка: example",
+      "inputs": {
+        "name": "example"
+      },
+      "resources": [
+        {
+          "xml": [
+            "Commands",
+            "example",
+            "Ext",
+            "CommandModule.bsl"
+          ],
+          "yaml": [
+            "Команды",
+            "example.bsl"
+          ]
+        },
+        {
+          "xml": [
+            "Commands",
+            "example",
+            "Ext",
+            "CommandModule.bin"
+          ],
+          "yaml": [
+            "Команды",
+            "example.bin"
+          ]
+        }
+      ],
+      "resourceGroups": [
+        2
+      ],
+      "source": {
+        "path": "packages/rules/metadata/appliedObjects/metadataCalculationRegister/rules.ts",
+        "line": 46,
+        "column": 5
+      },
+      "scope": "Resource path from original rule; byte preservation checked by Rust resource integration"
+    },
+    {
       "id": "module-MetadataCalculationRegisterRules-recordSetModule",
       "entry": "candidate.attachment.fragment.record-set-module-resource",
       "xml": "<Probe><Name>example</Name></Probe>",
@@ -3229,6 +4062,41 @@
       "scope": "Resource path from original rule; byte preservation checked by Rust resource integration"
     },
     {
+      "id": "module-MetadataCatalogRules-objectModule",
+      "entry": "candidate.attachment.fragment.object-module-resource",
+      "xml": "<Probe><Name>example</Name></Probe>",
+      "yaml": "Проверка: example",
+      "resources": [
+        {
+          "xml": [
+            "Ext",
+            "ObjectModule.bsl"
+          ],
+          "yaml": [
+            "МодульОбъекта.bsl"
+          ]
+        },
+        {
+          "xml": [
+            "Ext",
+            "ObjectModule.bin"
+          ],
+          "yaml": [
+            "МодульОбъекта.bin"
+          ]
+        }
+      ],
+      "resourceGroups": [
+        2
+      ],
+      "source": {
+        "path": "packages/rules/metadata/appliedObjects/metadataCatalog/rules.ts",
+        "line": 416,
+        "column": 5
+      },
+      "scope": "Resource path from original rule; byte preservation checked by Rust resource integration"
+    },
+    {
       "id": "module-MetadataCatalogRules-managerModule",
       "entry": "candidate.attachment.fragment.manager-module-resource",
       "xml": "<Probe><Name>example</Name></Probe>",
@@ -3259,6 +4127,50 @@
       "source": {
         "path": "packages/rules/metadata/appliedObjects/metadataCatalog/rules.ts",
         "line": 424,
+        "column": 5
+      },
+      "scope": "Resource path from original rule; byte preservation checked by Rust resource integration"
+    },
+    {
+      "id": "module-MetadataChartOfAccountsCommandRules-commandModule",
+      "entry": "candidate.attachment.fragment.command-module-resource",
+      "xml": "<Probe><Name>example</Name></Probe>",
+      "yaml": "Проверка: example",
+      "inputs": {
+        "name": "example"
+      },
+      "resources": [
+        {
+          "xml": [
+            "Commands",
+            "example",
+            "Ext",
+            "CommandModule.bsl"
+          ],
+          "yaml": [
+            "Команды",
+            "example.bsl"
+          ]
+        },
+        {
+          "xml": [
+            "Commands",
+            "example",
+            "Ext",
+            "CommandModule.bin"
+          ],
+          "yaml": [
+            "Команды",
+            "example.bin"
+          ]
+        }
+      ],
+      "resourceGroups": [
+        2
+      ],
+      "source": {
+        "path": "packages/rules/metadata/appliedObjects/metadataChartOfAccounts/rules.ts",
+        "line": 52,
         "column": 5
       },
       "scope": "Resource path from original rule; byte preservation checked by Rust resource integration"
@@ -3334,6 +4246,50 @@
       "scope": "Resource path from original rule; byte preservation checked by Rust resource integration"
     },
     {
+      "id": "module-MetadataChartOfCalculationTypesCommandRules-commandModule",
+      "entry": "candidate.attachment.fragment.command-module-resource",
+      "xml": "<Probe><Name>example</Name></Probe>",
+      "yaml": "Проверка: example",
+      "inputs": {
+        "name": "example"
+      },
+      "resources": [
+        {
+          "xml": [
+            "Commands",
+            "example",
+            "Ext",
+            "CommandModule.bsl"
+          ],
+          "yaml": [
+            "Команды",
+            "example.bsl"
+          ]
+        },
+        {
+          "xml": [
+            "Commands",
+            "example",
+            "Ext",
+            "CommandModule.bin"
+          ],
+          "yaml": [
+            "Команды",
+            "example.bin"
+          ]
+        }
+      ],
+      "resourceGroups": [
+        2
+      ],
+      "source": {
+        "path": "packages/rules/metadata/appliedObjects/metadataChartOfCalculationTypes/rules.ts",
+        "line": 47,
+        "column": 5
+      },
+      "scope": "Resource path from original rule; byte preservation checked by Rust resource integration"
+    },
+    {
       "id": "module-MetadataChartOfCalculationTypesRules-objectModule",
       "entry": "candidate.attachment.fragment.object-module-resource",
       "xml": "<Probe><Name>example</Name></Probe>",
@@ -3399,6 +4355,50 @@
       "source": {
         "path": "packages/rules/metadata/appliedObjects/metadataChartOfCalculationTypes/rules.ts",
         "line": 389,
+        "column": 5
+      },
+      "scope": "Resource path from original rule; byte preservation checked by Rust resource integration"
+    },
+    {
+      "id": "module-MetadataChartOfCharacteristicTypesCommandRules-commandModule",
+      "entry": "candidate.attachment.fragment.command-module-resource",
+      "xml": "<Probe><Name>example</Name></Probe>",
+      "yaml": "Проверка: example",
+      "inputs": {
+        "name": "example"
+      },
+      "resources": [
+        {
+          "xml": [
+            "Commands",
+            "example",
+            "Ext",
+            "CommandModule.bsl"
+          ],
+          "yaml": [
+            "Команды",
+            "example.bsl"
+          ]
+        },
+        {
+          "xml": [
+            "Commands",
+            "example",
+            "Ext",
+            "CommandModule.bin"
+          ],
+          "yaml": [
+            "Команды",
+            "example.bin"
+          ]
+        }
+      ],
+      "resourceGroups": [
+        2
+      ],
+      "source": {
+        "path": "packages/rules/metadata/appliedObjects/metadataChartOfCharacteristicTypes/rules.ts",
+        "line": 49,
         "column": 5
       },
       "scope": "Resource path from original rule; byte preservation checked by Rust resource integration"
@@ -3651,6 +4651,50 @@
       "scope": "Resource path from original rule; byte preservation checked by Rust resource integration"
     },
     {
+      "id": "module-MetadataDocumentCommandRules-commandModule",
+      "entry": "candidate.attachment.fragment.command-module-resource",
+      "xml": "<Probe><Name>example</Name></Probe>",
+      "yaml": "Проверка: example",
+      "inputs": {
+        "name": "example"
+      },
+      "resources": [
+        {
+          "xml": [
+            "Commands",
+            "example",
+            "Ext",
+            "CommandModule.bsl"
+          ],
+          "yaml": [
+            "Команды",
+            "example.bsl"
+          ]
+        },
+        {
+          "xml": [
+            "Commands",
+            "example",
+            "Ext",
+            "CommandModule.bin"
+          ],
+          "yaml": [
+            "Команды",
+            "example.bin"
+          ]
+        }
+      ],
+      "resourceGroups": [
+        2
+      ],
+      "source": {
+        "path": "packages/rules/metadata/appliedObjects/metadataDocument/rules.ts",
+        "line": 38,
+        "column": 5
+      },
+      "scope": "Resource path from original rule; byte preservation checked by Rust resource integration"
+    },
+    {
       "id": "module-MetadataDocumentRules-objectModule",
       "entry": "candidate.attachment.fragment.object-module-resource",
       "xml": "<Probe><Name>example</Name></Probe>",
@@ -3721,6 +4765,50 @@
       "scope": "Resource path from original rule; byte preservation checked by Rust resource integration"
     },
     {
+      "id": "module-MetadataDocumentJournalCommandRules-commandModule",
+      "entry": "candidate.attachment.fragment.command-module-resource",
+      "xml": "<Probe><Name>example</Name></Probe>",
+      "yaml": "Проверка: example",
+      "inputs": {
+        "name": "example"
+      },
+      "resources": [
+        {
+          "xml": [
+            "Commands",
+            "example",
+            "Ext",
+            "CommandModule.bsl"
+          ],
+          "yaml": [
+            "Команды",
+            "example.bsl"
+          ]
+        },
+        {
+          "xml": [
+            "Commands",
+            "example",
+            "Ext",
+            "CommandModule.bin"
+          ],
+          "yaml": [
+            "Команды",
+            "example.bin"
+          ]
+        }
+      ],
+      "resourceGroups": [
+        2
+      ],
+      "source": {
+        "path": "packages/rules/metadata/appliedObjects/metadataDocumentJournal/rules.ts",
+        "line": 34,
+        "column": 5
+      },
+      "scope": "Resource path from original rule; byte preservation checked by Rust resource integration"
+    },
+    {
       "id": "module-MetadataDocumentJournalRules-managerModule",
       "entry": "candidate.attachment.fragment.manager-module-resource",
       "xml": "<Probe><Name>example</Name></Probe>",
@@ -3786,6 +4874,50 @@
       "source": {
         "path": "packages/rules/metadata/appliedObjects/metadataEnumeration/rules.ts",
         "line": 175,
+        "column": 5
+      },
+      "scope": "Resource path from original rule; byte preservation checked by Rust resource integration"
+    },
+    {
+      "id": "module-MetadataExchangePlanCommandRules-commandModule",
+      "entry": "candidate.attachment.fragment.command-module-resource",
+      "xml": "<Probe><Name>example</Name></Probe>",
+      "yaml": "Проверка: example",
+      "inputs": {
+        "name": "example"
+      },
+      "resources": [
+        {
+          "xml": [
+            "Commands",
+            "example",
+            "Ext",
+            "CommandModule.bsl"
+          ],
+          "yaml": [
+            "Команды",
+            "example.bsl"
+          ]
+        },
+        {
+          "xml": [
+            "Commands",
+            "example",
+            "Ext",
+            "CommandModule.bin"
+          ],
+          "yaml": [
+            "Команды",
+            "example.bin"
+          ]
+        }
+      ],
+      "resourceGroups": [
+        2
+      ],
+      "source": {
+        "path": "packages/rules/metadata/appliedObjects/metadataExchangePlan/rules.ts",
+        "line": 46,
         "column": 5
       },
       "scope": "Resource path from original rule; byte preservation checked by Rust resource integration"
@@ -3926,6 +5058,50 @@
       "source": {
         "path": "packages/rules/metadata/appliedObjects/metadataHTTPService/rules.ts",
         "line": 66,
+        "column": 5
+      },
+      "scope": "Resource path from original rule; byte preservation checked by Rust resource integration"
+    },
+    {
+      "id": "module-MetadataInformationRegisterCommandRules-commandModule",
+      "entry": "candidate.attachment.fragment.command-module-resource",
+      "xml": "<Probe><Name>example</Name></Probe>",
+      "yaml": "Проверка: example",
+      "inputs": {
+        "name": "example"
+      },
+      "resources": [
+        {
+          "xml": [
+            "Commands",
+            "example",
+            "Ext",
+            "CommandModule.bsl"
+          ],
+          "yaml": [
+            "Команды",
+            "example.bsl"
+          ]
+        },
+        {
+          "xml": [
+            "Commands",
+            "example",
+            "Ext",
+            "CommandModule.bin"
+          ],
+          "yaml": [
+            "Команды",
+            "example.bin"
+          ]
+        }
+      ],
+      "resourceGroups": [
+        2
+      ],
+      "source": {
+        "path": "packages/rules/metadata/appliedObjects/metadataInformationRegister/rules.ts",
+        "line": 36,
         "column": 5
       },
       "scope": "Resource path from original rule; byte preservation checked by Rust resource integration"
@@ -4272,6 +5448,144 @@
       "scope": "Resource path from original rule; byte preservation checked by Rust resource integration"
     },
     {
+      "id": "module-MetadataCommandRules-commandModule",
+      "entry": "candidate.attachment.fragment.command-module-resource",
+      "xml": "<Probe><Name>example</Name></Probe>",
+      "yaml": "Проверка: example",
+      "inputs": {
+        "name": "example"
+      },
+      "resources": [
+        {
+          "xml": [
+            "Commands",
+            "example",
+            "Ext",
+            "CommandModule.bsl"
+          ],
+          "yaml": [
+            "Команды",
+            "example.bsl"
+          ]
+        },
+        {
+          "xml": [
+            "Commands",
+            "example",
+            "Ext",
+            "CommandModule.bin"
+          ],
+          "yaml": [
+            "Команды",
+            "example.bin"
+          ]
+        }
+      ],
+      "resourceGroups": [
+        2
+      ],
+      "source": {
+        "path": "packages/rules/metadata/commonObjects/metadataCommand/rules.ts",
+        "line": 121,
+        "column": 5
+      },
+      "scope": "Resource path from original rule; byte preservation checked by Rust resource integration"
+    },
+    {
+      "id": "module-MetadataExternalDataSourceCubeCommandRules-commandModule-with-parent",
+      "entry": "candidate.attachment.fragment.command-module-with-parent-resource.0368f71b5938",
+      "xml": "<Probe><Name>example</Name></Probe>",
+      "yaml": "Проверка: example",
+      "inputs": {
+        "name": "example",
+        "parentName": "example"
+      },
+      "resources": [
+        {
+          "xml": [
+            "Cubes",
+            "example",
+            "Commands",
+            "example",
+            "Ext",
+            "CommandModule.bsl"
+          ],
+          "yaml": [
+            "Команды",
+            "example.bsl"
+          ]
+        },
+        {
+          "xml": [
+            "Cubes",
+            "example",
+            "Commands",
+            "example",
+            "Ext",
+            "CommandModule.bin"
+          ],
+          "yaml": [
+            "Команды",
+            "example.bin"
+          ]
+        }
+      ],
+      "resourceGroups": [
+        2
+      ],
+      "source": {
+        "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCube/rules.ts",
+        "line": 24,
+        "column": 5
+      },
+      "scope": "Resource path from original rule; byte preservation checked by Rust resource integration"
+    },
+    {
+      "id": "module-MetadataExternalDataSourceCubeCommandRules-commandModule-without-parent",
+      "entry": "candidate.attachment.fragment.command-module-with-parent-resource.0368f71b5938",
+      "xml": "<Probe><Name>example</Name></Probe>",
+      "yaml": "Проверка: example",
+      "inputs": {
+        "name": "example",
+        "parentName": ""
+      },
+      "resources": [
+        {
+          "xml": [
+            "Commands",
+            "example",
+            "Ext",
+            "CommandModule.bsl"
+          ],
+          "yaml": [
+            "Команды",
+            "example.bsl"
+          ]
+        },
+        {
+          "xml": [
+            "Commands",
+            "example",
+            "Ext",
+            "CommandModule.bin"
+          ],
+          "yaml": [
+            "Команды",
+            "example.bin"
+          ]
+        }
+      ],
+      "resourceGroups": [
+        2
+      ],
+      "source": {
+        "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceCube/rules.ts",
+        "line": 24,
+        "column": 5
+      },
+      "scope": "Resource path from original rule; byte preservation checked by Rust resource integration"
+    },
+    {
       "id": "module-MetadataExternalDataSourceCubeRules-recordSetModule",
       "entry": "candidate.attachment.fragment.record-set-module-resource",
       "xml": "<Probe><Name>example</Name></Probe>",
@@ -4342,6 +5656,100 @@
       "scope": "Resource path from original rule; byte preservation checked by Rust resource integration"
     },
     {
+      "id": "module-MetadataExternalDataSourceDimensionTableCommandRules-commandModule-with-parent",
+      "entry": "candidate.attachment.fragment.command-module-with-parent-resource.3c30aa6fc2c7",
+      "xml": "<Probe><Name>example</Name></Probe>",
+      "yaml": "Проверка: example",
+      "inputs": {
+        "name": "example",
+        "parentName": "example"
+      },
+      "resources": [
+        {
+          "xml": [
+            "DimensionTables",
+            "example",
+            "Commands",
+            "example",
+            "Ext",
+            "CommandModule.bsl"
+          ],
+          "yaml": [
+            "Команды",
+            "example.bsl"
+          ]
+        },
+        {
+          "xml": [
+            "DimensionTables",
+            "example",
+            "Commands",
+            "example",
+            "Ext",
+            "CommandModule.bin"
+          ],
+          "yaml": [
+            "Команды",
+            "example.bin"
+          ]
+        }
+      ],
+      "resourceGroups": [
+        2
+      ],
+      "source": {
+        "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceDimensionTable/rules.ts",
+        "line": 20,
+        "column": 5
+      },
+      "scope": "Resource path from original rule; byte preservation checked by Rust resource integration"
+    },
+    {
+      "id": "module-MetadataExternalDataSourceDimensionTableCommandRules-commandModule-without-parent",
+      "entry": "candidate.attachment.fragment.command-module-with-parent-resource.3c30aa6fc2c7",
+      "xml": "<Probe><Name>example</Name></Probe>",
+      "yaml": "Проверка: example",
+      "inputs": {
+        "name": "example",
+        "parentName": ""
+      },
+      "resources": [
+        {
+          "xml": [
+            "Commands",
+            "example",
+            "Ext",
+            "CommandModule.bsl"
+          ],
+          "yaml": [
+            "Команды",
+            "example.bsl"
+          ]
+        },
+        {
+          "xml": [
+            "Commands",
+            "example",
+            "Ext",
+            "CommandModule.bin"
+          ],
+          "yaml": [
+            "Команды",
+            "example.bin"
+          ]
+        }
+      ],
+      "resourceGroups": [
+        2
+      ],
+      "source": {
+        "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceDimensionTable/rules.ts",
+        "line": 20,
+        "column": 5
+      },
+      "scope": "Resource path from original rule; byte preservation checked by Rust resource integration"
+    },
+    {
       "id": "module-MetadataExternalDataSourceDimensionTableRules-managerModule",
       "entry": "candidate.attachment.fragment.manager-module-resource",
       "xml": "<Probe><Name>example</Name></Probe>",
@@ -4408,6 +5816,100 @@
         "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceDimensionTable/rules.ts",
         "line": 183,
         "column": 3
+      },
+      "scope": "Resource path from original rule; byte preservation checked by Rust resource integration"
+    },
+    {
+      "id": "module-MetadataExternalDataSourceTableCommandRules-commandModule-with-parent",
+      "entry": "candidate.attachment.fragment.command-module-with-parent-resource.932a771716c7",
+      "xml": "<Probe><Name>example</Name></Probe>",
+      "yaml": "Проверка: example",
+      "inputs": {
+        "name": "example",
+        "parentName": "example"
+      },
+      "resources": [
+        {
+          "xml": [
+            "Tables",
+            "example",
+            "Commands",
+            "example",
+            "Ext",
+            "CommandModule.bsl"
+          ],
+          "yaml": [
+            "Команды",
+            "example.bsl"
+          ]
+        },
+        {
+          "xml": [
+            "Tables",
+            "example",
+            "Commands",
+            "example",
+            "Ext",
+            "CommandModule.bin"
+          ],
+          "yaml": [
+            "Команды",
+            "example.bin"
+          ]
+        }
+      ],
+      "resourceGroups": [
+        2
+      ],
+      "source": {
+        "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceTable/rules.ts",
+        "line": 23,
+        "column": 5
+      },
+      "scope": "Resource path from original rule; byte preservation checked by Rust resource integration"
+    },
+    {
+      "id": "module-MetadataExternalDataSourceTableCommandRules-commandModule-without-parent",
+      "entry": "candidate.attachment.fragment.command-module-with-parent-resource.932a771716c7",
+      "xml": "<Probe><Name>example</Name></Probe>",
+      "yaml": "Проверка: example",
+      "inputs": {
+        "name": "example",
+        "parentName": ""
+      },
+      "resources": [
+        {
+          "xml": [
+            "Commands",
+            "example",
+            "Ext",
+            "CommandModule.bsl"
+          ],
+          "yaml": [
+            "Команды",
+            "example.bsl"
+          ]
+        },
+        {
+          "xml": [
+            "Commands",
+            "example",
+            "Ext",
+            "CommandModule.bin"
+          ],
+          "yaml": [
+            "Команды",
+            "example.bin"
+          ]
+        }
+      ],
+      "resourceGroups": [
+        2
+      ],
+      "source": {
+        "path": "packages/rules/metadata/commonObjects/metadataExternalDataSourceTable/rules.ts",
+        "line": 23,
+        "column": 5
       },
       "scope": "Resource path from original rule; byte preservation checked by Rust resource integration"
     },

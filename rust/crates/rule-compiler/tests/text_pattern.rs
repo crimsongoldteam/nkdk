@@ -1,6 +1,98 @@
 use nkdk_rule_compiler::{SourceFile, link, parse, schema};
 
 #[test]
+fn paired_text_patterns_accept_a_contextual_optional_yaml_prefix() {
+    let source = r#"format: nkdk-declarations/1
+kind: value
+id: common.contextual-path
+value:
+  kind: record
+  fields:
+  - {name: domain, type: {kind: scalar, scalar: text}}
+  - {name: name, type: {kind: scalar, scalar: text}}
+representations:
+  xml: {kind: text-pattern, parts: [{field: domain}, {literal: '::'}, {field: name}]}
+  yaml:
+    kind: text-pattern
+    parts:
+    - {optional: domain, parts: [{literal: 'full:'}, {field: domain}, {literal: '::'}]}
+    - {field: name}
+presence:
+- target: {field: domain}
+  yaml: {missing: {denotes: {literal: local}}, omitWhen: {eq: [{field: domain}, {literal: local}]}}
+"#;
+    let owner = r#"format: nkdk-declarations/1
+kind: object
+id: test.contextual-path
+imports: {path: common.contextual-path}
+value: {kind: record, fields: [{name: path, type: {use: path}}]}
+representations:
+  xml: {kind: record, fields: [{field: path, path: [Root, Path]}]}
+  yaml: {kind: mapping, fields: [{field: path, key: Path}]}
+"#;
+    let module = parse(SourceFile {
+        path: "contextual-path.yaml",
+        bytes: source.as_bytes(),
+    })
+    .unwrap();
+    let owner = parse(SourceFile {
+        path: "owner.yaml",
+        bytes: owner.as_bytes(),
+    })
+    .unwrap();
+    let program = link(&[module, owner]).unwrap();
+    nkdk_rule_compiler::generate(&program)
+        .expect("paired text patterns should support optional YAML prefixes");
+}
+
+#[test]
+fn scalar_shorthand_of_a_record_uses_its_declared_defaults() {
+    let source = r#"format: nkdk-declarations/1
+kind: object
+id: test.record-scalar-shorthand
+value:
+  kind: record
+  fields:
+  - {name: field, type: {kind: scalar, scalar: text}}
+  - {name: mode, type: {kind: scalar, scalar: text}}
+representations:
+  xml: {kind: record, fields: [{field: field, path: [Root, Field]}, {field: mode, path: [Root, Mode]}]}
+  yaml:
+    kind: mapping
+    fields: [{field: field, key: Поле}, {field: mode, key: Режим}]
+    shorthand:
+    - id: plain-field
+      representation: {kind: scalar, scalar: text, capture: name}
+      denotes: {record: {field: {capture: name}, mode: {literal: Auto}}}
+presence:
+- target: {field: mode}
+  xml: {missing: {denotes: {literal: Auto}}}
+  yaml: {missing: {denotes: {literal: Auto}}, omitWhen: {eq: [{field: mode}, {literal: Auto}]}}
+"#;
+    let module = parse(SourceFile {
+        path: "record-shorthand.yaml",
+        bytes: source.as_bytes(),
+    })
+    .unwrap();
+    let program = link(&[module]).unwrap();
+    assert_eq!(program.entries[0].shorthands.len(), 1);
+    nkdk_rule_compiler::generate(&program).unwrap();
+    let conflicting = source.replace("mode: {literal: Auto}}}", "mode: {literal: Manual}}}");
+    let module = parse(SourceFile {
+        path: "record-shorthand.yaml",
+        bytes: conflicting.as_bytes(),
+    })
+    .unwrap();
+    let program = link(&[module]).unwrap();
+    assert!(
+        nkdk_rule_compiler::generate(&program)
+            .unwrap_err()
+            .iter()
+            .any(|error| error.message.contains("different from the YAML default"))
+    );
+}
+
+#[test]
 fn exact_style_words_are_disjoint_from_the_declared_open_variant() {
     let source = include_str!("../../../declarations/probes/disjoint-style-choice.yaml");
     let modules = nkdk_rule_compiler::parse_many(SourceFile {
@@ -46,11 +138,13 @@ fn text_patterns_cover_typed_fields_without_ambiguous_capture() {
         read(&constrained).unwrap(),
     ])
     .unwrap();
-    let errors = nkdk_rule_compiler::generate(&program).unwrap_err();
+    let generated = nkdk_rule_compiler::generate(&program)
+        .expect("nested scalar constraints are propagated through the text pattern");
     assert!(
-        errors
+        generated
+            .files
             .iter()
-            .any(|error| error.message.contains("Nested text checks"))
+            .any(|file| { String::from_utf8_lossy(&file.contents).contains("nested.check") })
     );
 
     let conditional_source = format!(
@@ -138,14 +232,20 @@ fn text_patterns_cover_typed_fields_without_ambiguous_capture() {
     let whole_tail = format!(
         "{framed}\nconstraints:\n- id: tail-check\n  appliesTo: [xml-import, yaml-validation]\n  forms: [text, scalar]\n  assert: {{each: {{in: {{get: {{of: {{self: true}}, field: tail}}}}, as: row, where: {{literal: true}}}}}}\n  diagnostic: {{code: tail.check, severity: error, at: {{self: true}}, message: Tail check}}\n"
     );
-    let unsupported = link(&[
+    let constrained = link(&[
         read(&whole_tail).unwrap(),
         read(sequence).unwrap(),
         read(&row).unwrap(),
         read(&frame_owner).unwrap(),
     ])
     .unwrap();
-    assert!(nkdk_rule_compiler::generate(&unsupported).is_err());
+    let generated = nkdk_rule_compiler::generate(&constrained).unwrap();
+    assert!(
+        generated
+            .files
+            .iter()
+            .any(|file| String::from_utf8_lossy(&file.contents).contains("tail.check"))
+    );
     for invalid in [
         framed.replace(
             "{literal: '::'}, {field: tail}",
@@ -403,5 +503,57 @@ fn choice_resolves_named_variants_and_rejects_missing_or_recursive_types() {
         choice.replace("name: first", "name: ''"),
     ] {
         assert!(link(&[read(&invalid).unwrap(), first.clone(), second.clone()]).is_err());
+    }
+}
+
+#[test]
+fn empty_record_choice_defaults_use_their_literal_text_pattern() {
+    for (variant, literal, field) in [("vacant", "", "value"), ("automatic", "Auto", "renamed")] {
+        let source = format!(
+            r#"format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: test.constant-record
+  value: {{kind: record, fields: []}}
+  representations:
+    xml: {{kind: text-pattern, parts: [{{literal: '{literal}'}}]}}
+    yaml: {{kind: text-pattern, parts: [{{literal: '{literal}'}}]}}
+- kind: value
+  id: test.text
+  value: {{kind: scalar, scalar: text}}
+  representations: {{xml: {{kind: text}}, yaml: {{kind: scalar, scalar: text}}}}
+- kind: value
+  id: test.other-text
+  imports: {{text: test.text}}
+  value: {{kind: record, fields: [{{name: text, type: {{use: text}}}}, {{name: extra, type: {{use: text}}}}]}}
+  representations: {{xml: {{kind: record, fields: [{{field: text, path: [Text]}}, {{field: extra, path: [Extra]}}]}}, yaml: {{kind: mapping, fields: [{{field: text, key: Text}}, {{field: extra, key: Extra}}]}}}}
+  presence: [{{target: {{field: extra}}, yaml: {{missing: {{denotes: {{literal: ''}}}}}}}}]
+- kind: value
+  id: test.default-choice
+  imports: {{constant: test.constant-record, text: test.other-text}}
+  value: {{kind: choice, variants: [{{name: {variant}, type: {{use: constant}}}}, {{name: text, type: {{use: text}}}}]}}
+  representations: {{xml: {{kind: choice, fallback: text}}, yaml: {{kind: choice, variants: [{{variant: text, form: mapping, key: Text}}]}}}}
+- kind: object
+  id: test.default-owner
+  inputs: {{external: {{type: {{kind: scalar, scalar: boolean}}}}}}
+  imports: {{value: test.default-choice}}
+  value: {{kind: record, fields: [{{name: {field}, type: {{use: value}}}}]}}
+  representations:
+    xml: {{kind: record, fields: [{{field: {field}, path: [Root, Value]}}]}}
+    yaml: {{kind: mapping, fields: [{{field: {field}, key: Result}}]}}
+  presence:
+  - target: {{field: {field}}}
+    xml: {{missing: {{denotes: {{absent: true}}}}}}
+    yaml:
+      missing: {{denotes: {{if: {{input: external}}, then: {{absent: true}}, else: {{variant: {{name: {variant}, value: {{record: {{}}}}}}}}}}}}
+      omitWhen: {{if: {{input: external}}, then: {{literal: false}}, else: {{isVariant: {{value: {{field: {field}}}, variant: {variant}}}}}}}
+"#
+        );
+        nkdk_rule_compiler::compile(&[SourceFile {
+            path: "empty-record-default.yaml",
+            bytes: source.as_bytes(),
+        }])
+        .expect("empty records with constant patterns and renamed variants must compile");
     }
 }

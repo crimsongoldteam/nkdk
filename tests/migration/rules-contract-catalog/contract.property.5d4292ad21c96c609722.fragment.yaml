@@ -1,0 +1,37 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.form-parameters
+value:
+  kind: record
+  fields:
+    - name: parameters
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: parameters
+        path:
+          - Form
+          - f:Parameters
+  yaml:
+    kind: mapping
+    fields:
+      - field: parameters
+        key: Параметры
+presence:
+  - target:
+      field: parameters
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+namespaces:
+  f: http://v8.1c.ru/8.3/xcf/logform
+id: contract.property.5d4292ad21c96c609722.fragment

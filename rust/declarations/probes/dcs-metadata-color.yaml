@@ -1,0 +1,13 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.dcs-metadata-color
+imports: {color: common.dcs-metadata-color}
+inputs: {styleTypes: {index: metadata.style-item-types}}
+value: {kind: record, fields: [{name: color, type: {use: color, bind: {styleTypes: {input: styleTypes}}}}]}
+representations:
+  xml: {kind: record, fields: [{field: color, path: [Root, Color]}]}
+  yaml: {kind: mapping, fields: [{field: color, key: Цвет}]}
+presence:
+- target: {field: color}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {missing: {denotes: {absent: true}}}

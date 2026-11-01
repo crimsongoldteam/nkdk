@@ -3,6 +3,7 @@ use super::*;
 
 pub(super) fn specialize(entries: &mut Vec<LinkedEntry>) -> Result<(), Diagnostic> {
     let originals = entries.clone();
+    let graph = crate::linked_graph::ReferenceGraph::new(&originals);
     let mut instances: Vec<(u32, Vec<LinkedExpression>, u32)> = Vec::new();
     let mut next_id = originals.iter().map(|entry| entry.id).max().unwrap_or(0) + 1;
     let mut cursor = 0;
@@ -10,14 +11,9 @@ pub(super) fn specialize(entries: &mut Vec<LinkedEntry>) -> Result<(), Diagnosti
         let owner_index = cursor;
         cursor += 1;
         let owner = entries[owner_index].clone();
-        // Generic definitions are specialized through their concrete callers first.
-        if !owner.parameters.is_empty() {
-            continue;
-        }
-
         let fields = match &owner.value {
             LinkedType::Record(fields) | LinkedType::Choice(fields) => fields.clone(),
-            LinkedType::Sequence(item) if super::scalar_inputs::typed_collection(&owner) => {
+            LinkedType::Sequence(item) => {
                 vec![LinkedField {
                     name: "item".into(),
                     value: *item.clone(),
@@ -35,10 +31,53 @@ pub(super) fn specialize(entries: &mut Vec<LinkedEntry>) -> Result<(), Diagnosti
             else {
                 continue;
             };
-            let common = originals
-                .iter()
-                .find(|value| value.id == *entry)
-                .expect("linked scalar target");
+            let Some(common) = originals.iter().find(|value| value.id == *entry) else {
+                // A static profile already retains its caller's runtime bindings.
+                continue;
+            };
+            // Structured choices already bind their alternatives in the
+            // choice generator; keep that lowering boundary unchanged.
+            if matches!(owner.value, LinkedType::Record(_) | LinkedType::Sequence(_))
+                && graph.recursive(common.id)
+                && !common.parameters.is_empty()
+                && (matches!(common.value, LinkedType::Record(_))
+                    && crate::plan::xml_fields(&common.xml).is_some()
+                    || matches!(&common.value, LinkedType::Sequence(item) if item.as_reference().is_some()))
+                && arguments
+                    .iter()
+                    .all(|argument| matches!(argument.kind, LinkedExpressionKind::Literal(_)))
+            {
+                // Bind build-time parameters independently of runtime inputs.
+                // The latter must stay in the caller's lexical scope, including
+                // when the same profile is reused at every recursive depth.
+                let id = if let Some(id) = profile(&instances, *entry, arguments) {
+                    id
+                } else {
+                    let mut instance = common.clone();
+                    bind(&mut instance, arguments)?;
+                    let id = publish(instance, arguments, entries, &mut next_id);
+                    instances.push((*entry, arguments.clone(), id));
+                    id
+                };
+                let target = field_value(&mut entries[owner_index].value, field_index);
+                *target = LinkedType::BoundReference {
+                    entry: id,
+                    bindings: bindings.clone(),
+                    arguments: Vec::new(),
+                };
+                continue;
+            }
+            // A literal recursive edge is independent of the template's own
+            // parameters. Bind it above so reusable recursive roots retain its
+            // static profile; defer the remaining template-dependent uses.
+            if !owner.parameters.is_empty() {
+                continue;
+            }
+            if matches!(owner.value, LinkedType::Sequence(_))
+                && !super::scalar_inputs::typed_collection(&owner)
+            {
+                continue;
+            }
             let static_record = matches!(common.value, LinkedType::Record(_))
                 && !common.parameters.is_empty()
                 && common.inputs.is_empty()
@@ -69,6 +108,18 @@ pub(super) fn specialize(entries: &mut Vec<LinkedEntry>) -> Result<(), Diagnosti
             {
                 continue;
             }
+            // A record's input may depend on a sibling field of the caller.
+            // Keep that binding in the caller's scope; specializing the record
+            // would turn the caller's field number into a field of this record.
+            // A placed structured choice keeps the same lexical boundary as a
+            // record. Inlining a caller field into its variants would make that
+            // field refer to an unrelated slot inside each variant.
+            let structured = matches!(common.value, LinkedType::Record(_))
+                || matches!((&common.value, &common.yaml),
+                    (LinkedType::Choice(_), YamlRepresentation::Choice { variants, .. }) if !variants.is_empty());
+            if structured && bindings.iter().any(|binding| caller_field(&binding.value)) {
+                continue;
+            }
             if common.inputs.is_empty()
                 && arguments
                     .iter()
@@ -80,16 +131,13 @@ pub(super) fn specialize(entries: &mut Vec<LinkedEntry>) -> Result<(), Diagnosti
                     "Scalar profiles require resolved static arguments",
                 ));
             }
-            let id = if let Some((_, _, id)) = instances.iter().find(|(target, args, _)| {
-                bindings.is_empty()
-                    && common.inputs.is_empty()
-                    && target == entry
-                    && args
-                        .iter()
-                        .map(|arg| &arg.kind)
-                        .eq(arguments.iter().map(|arg| &arg.kind))
-            }) {
-                *id
+            let cached = if bindings.is_empty() && common.inputs.is_empty() {
+                profile(&instances, *entry, arguments)
+            } else {
+                None
+            };
+            let id = if let Some(id) = cached {
+                id
             } else {
                 let mut instance = if common.inputs.is_empty() {
                     let mut instance = common.clone();
@@ -103,33 +151,77 @@ pub(super) fn specialize(entries: &mut Vec<LinkedEntry>) -> Result<(), Diagnosti
                     };
                     instance
                 };
-                instance.id = next_id;
                 if !common.inputs.is_empty() {
                     instance.input_scope = Some(owner.id);
                 }
-                next_id += 1;
-                instance.name = format!("{}@scalar-{}", common.name, instance.id);
-                while entries.iter().any(|entry| entry.name == instance.name) {
-                    instance.name.push('@');
-                }
-                let id = instance.id;
-                entries.push(instance);
+                let id = publish(instance, arguments, entries, &mut next_id);
                 if bindings.is_empty() {
                     instances.push((*entry, arguments.clone(), id));
                 }
                 id
             };
-            let target = match &mut entries[owner_index].value {
-                LinkedType::Record(fields) | LinkedType::Choice(fields) => {
-                    &mut fields[field_index].value
-                }
-                LinkedType::Sequence(item) => item.as_mut(),
-                _ => unreachable!(),
-            };
+            let target = field_value(&mut entries[owner_index].value, field_index);
             *target = LinkedType::Reference(id);
         }
     }
     Ok(())
+}
+fn field_value(value: &mut LinkedType, index: usize) -> &mut LinkedType {
+    match value {
+        LinkedType::Record(fields) | LinkedType::Choice(fields) => &mut fields[index].value,
+        LinkedType::Sequence(item) => item.as_mut(),
+        _ => unreachable!(),
+    }
+}
+fn profile(
+    instances: &[(u32, Vec<LinkedExpression>, u32)],
+    target: u32,
+    arguments: &[LinkedExpression],
+) -> Option<u32> {
+    instances.iter().find_map(|(entry, args, id)| {
+        (*entry == target
+            && args
+                .iter()
+                .map(|arg| &arg.kind)
+                .eq(arguments.iter().map(|arg| &arg.kind)))
+        .then_some(*id)
+    })
+}
+fn publish(
+    mut instance: LinkedEntry,
+    arguments: &[LinkedExpression],
+    entries: &mut Vec<LinkedEntry>,
+    next_id: &mut u32,
+) -> u32 {
+    instance.id = *next_id;
+    *next_id += 1;
+    use sha2::{Digest, Sha256};
+    let mut digest = Sha256::new();
+    digest.update(b"nkdk-static-profile/1");
+    digest.update((instance.name.len() as u64).to_le_bytes());
+    digest.update(instance.name.as_bytes());
+    for argument in arguments {
+        let meaning = format!("{:?}", argument.kind);
+        digest.update((meaning.len() as u64).to_le_bytes());
+        digest.update(meaning.as_bytes());
+    }
+    let profile = format!("{:x}", digest.finalize());
+    instance.name = format!("{}@scalar-{profile}", instance.name);
+    // Specializations reuse their declaration's path type, not another alias.
+    instance.data_path = None;
+    while entries.iter().any(|entry| entry.name == instance.name) {
+        instance.name.push('@');
+    }
+    let id = instance.id;
+    entries.push(instance);
+    id
+}
+fn caller_field(value: &LinkedExpression) -> bool {
+    match &value.kind {
+        LinkedExpressionKind::Field(_) => true,
+        LinkedExpressionKind::Operation { arguments, .. } => arguments.iter().any(caller_field),
+        _ => false,
+    }
 }
 fn bind(entry: &mut LinkedEntry, arguments: &[LinkedExpression]) -> Result<(), Diagnostic> {
     if entry.parameters.len() != arguments.len() {
@@ -146,6 +238,7 @@ fn bind(entry: &mut LinkedEntry, arguments: &[LinkedExpression]) -> Result<(), D
             &mut rule.xml_missing,
             &mut rule.yaml_missing,
             &mut rule.yaml_omit_when,
+            &mut rule.yaml_null_when,
         ]
         .into_iter()
         .flatten()

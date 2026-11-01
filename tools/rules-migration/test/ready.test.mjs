@@ -143,4 +143,23 @@ test('static module profiles preserve both alternatives and block other routing 
     {xml:['Ext','ManagerModule.bin'],yaml:['МодульМенеджера.bin']},
   ]);
   assert.deepEqual(result.resourceGroups,[2]);
+  const registered=JSON.parse(readFileSync(new URL('../../../tests/migration/rules-extraction.json',import.meta.url))).entries
+    .find(row=>row.symbol==='MetadataCatalogRules').properties.find(row=>row.name==='objectModule');
+  const objectCatalog=new Map([['fragment.object-module-resource',{}]]);
+  assert.equal(readyAttachment(registered,objectCatalog,profiles).status,'ready');
+  for(const change of [{kind:'unknown'},{yamlFile:'Другой.bsl'},{xmlPath:'Ext/Other.bsl'}])
+    assert.equal(readyAttachment({...registered,parameters:{...registered.parameters,
+      syncArea:{...registered.parameters.syncArea,...change}}},objectCatalog,profiles).status,'blocked');
+
+});
+
+test('dynamic module resource cases use the reviewed path with the sample name',async()=>{
+  const {fileResourceCases}=await import('../src/file-resource-cases.mjs');
+  const property={name:'commandModule',type:'Module',parameters:{xmlPath:{$unresolved:{expression:'({ name }: { name: string }) => "Commands/" + name + "/Ext/CommandModule.bsl"'}},nkdkPath:{$unresolved:{expression:'({ name }: { name: string }) => "Команды/" + name + ".bsl"'}}}};
+  const [result]=fileResourceCases({entries:[{path:'source',symbol:'Owner',properties:[property]}]},[{path:'source',symbol:'Owner',property:'commandModule',status:'ready',candidate:'candidate'}]);
+  assert.deepEqual(result.inputs,{name:'example'});
+  assert.deepEqual(result.resources,[
+    {xml:['Commands','example','Ext','CommandModule.bsl'],yaml:['Команды','example.bsl']},
+    {xml:['Commands','example','Ext','CommandModule.bin'],yaml:['Команды','example.bin']},
+  ]);
 });

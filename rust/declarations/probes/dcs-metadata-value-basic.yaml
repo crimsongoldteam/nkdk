@@ -1,0 +1,54 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.dcs-metadata-value-basic
+imports: {field: common.dcs-metadata-field, link: common.type-link-dcs, align: common.dcs-horizontal-align-nullable, folders: common.dcs-folders-and-items-use-nullable}
+value:
+  kind: record
+  fields:
+  - {name: field, type: {use: field}}
+  - {name: link, type: {use: link}}
+  - {name: align, type: {use: align}}
+  - {name: folders, type: {use: folders}}
+representations:
+  xml:
+    kind: record
+    fields:
+    - {field: field, path: [Root, Field]}
+    - {field: link, path: [Root, Link]}
+    - {field: align, path: [Root, Align]}
+    - {field: folders, path: [Root, Folders]}
+  yaml:
+    kind: mapping
+    fields:
+    - {field: field, key: Поле}
+    - {field: link, key: СвязьТипа}
+    - {field: align, key: Выравнивание}
+    - {field: folders, key: ГруппыИЭлементы}
+presence:
+- target: {field: field}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {missing: {denotes: {absent: true}}}
+- target: {field: link}
+  xml:
+    missing: {denotes: {absent: true}}
+    empty: [{form: nil, denotes: {absent: true}}]
+    canonical: [{when: {not: {present: {field: link}}}, form: nil}]
+  yaml:
+    missing: {denotes: {absent: true}}
+    empty: [{form: null, denotes: {absent: true}}]
+- target: {field: align}
+  xml:
+    missing: {denotes: {absent: true}}
+    empty: [{form: nil, denotes: {absent: true}}]
+    canonical: [{when: {not: {present: {field: align}}}, form: nil}]
+  yaml:
+    missing: {denotes: {absent: true}}
+    empty: [{form: null, denotes: {absent: true}}]
+- target: {field: folders}
+  xml:
+    missing: {denotes: {absent: true}}
+    empty: [{form: nil, denotes: {absent: true}}]
+    canonical: [{when: {not: {present: {field: folders}}}, form: nil}]
+  yaml:
+    missing: {denotes: {absent: true}}
+    empty: [{form: null, denotes: {absent: true}}]

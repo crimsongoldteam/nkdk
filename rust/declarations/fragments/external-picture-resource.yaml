@@ -1,0 +1,19 @@
+format: nkdk-declarations/1
+kind: fragment
+id: fragment.external-picture-resource
+inputs:
+  descriptorXml: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  descriptorYaml: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  payloadXml: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  payloadYaml: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+value: {kind: record, fields: []}
+representations:
+  xml: {kind: record, fields: []}
+  yaml: {kind: mapping, fields: []}
+resources:
+- oneOf:
+  - xml: {input: descriptorXml}
+    yaml: {input: descriptorYaml}
+- remainder:
+    xml: {input: payloadXml}
+    yaml: {input: payloadYaml}

@@ -1,0 +1,24 @@
+# Только неизменяемая идентичность; пути относительно XML-корня регистрации.
+format: nkdk-declarations/1
+kind: object
+namespaces: {md: 'http://v8.1c.ru/8.3/MDClasses'}
+value:
+  kind: record
+  fields:
+  - {name: identity, type: {kind: scalar, scalar: text}}
+  - {name: baseIdentity, type: {kind: scalar, scalar: text}}
+representations:
+  xml:
+    kind: record
+    fields:
+    - {field: identity, path: [], attribute: uuid}
+    - {field: baseIdentity, path: [md:Properties, md:ExtendedConfigurationObject]}
+  yaml:
+    kind: mapping
+    fields:
+    - {field: identity, key: Идентификатор}
+    - {field: baseIdentity, key: ИдентификаторОсновнойКонфигурации}
+presence:
+- target: {field: baseIdentity}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {missing: {denotes: {absent: true}}}

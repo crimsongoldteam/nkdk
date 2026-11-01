@@ -1,0 +1,35 @@
+format: nkdk-declarations/1
+kind: value
+id: common.dcs-explicit-string
+imports:
+  kind: common.dcs-explicit-string-kind
+  text: common.string
+value:
+  kind: record
+  fields:
+    - name: kind
+      type:
+        use: kind
+    - name: text
+      type:
+        use: text
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: text
+        path: []
+  yaml:
+    kind: mapping
+    fields:
+      - field: kind
+        key: Тип
+      - field: text
+        key: Значение
+presence:
+  - target:
+      field: kind
+    xml:
+      missing:
+        denotes:
+          literal: Строка

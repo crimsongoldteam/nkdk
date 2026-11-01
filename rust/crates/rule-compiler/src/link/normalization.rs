@@ -21,8 +21,7 @@ pub(super) fn resolve(
         module,
         &module.value,
         &module.source,
-        modules,
-        ids,
+        (modules, ids),
         &mut BTreeSet::new(),
     )?;
     if !matches!(expected, LinkedType::Sequence(_)) {

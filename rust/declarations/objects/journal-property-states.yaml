@@ -1,0 +1,108 @@
+# Generated from rules.ts by tools/rules-migration/src/internal-info-operation.mjs
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+  - format: nkdk-declarations/1
+    kind: value
+    id: journal.property-state-name
+    value:
+      kind: enum
+      variants:
+        - name: Synonym
+          value: Synonym
+        - name: DefaultForm
+          value: DefaultForm
+        - name: ListPresentation
+          value: ListPresentation
+        - name: ExtendedListPresentation
+          value: ExtendedListPresentation
+        - name: Explanation
+          value: Explanation
+        - name: ManagerModule
+          value: ManagerModule
+    representations:
+      xml:
+        kind: text
+        values:
+          - value: Synonym
+            text: Synonym
+          - value: DefaultForm
+            text: DefaultForm
+          - value: ListPresentation
+            text: ListPresentation
+          - value: ExtendedListPresentation
+            text: ExtendedListPresentation
+          - value: Explanation
+            text: Explanation
+          - value: ManagerModule
+            text: ManagerModule
+      yaml:
+        kind: scalar
+        values:
+          - value: Synonym
+            literal: Синоним
+          - value: DefaultForm
+            literal: ОсновнаяФорма
+          - value: ListPresentation
+            literal: ПредставлениеСписка
+          - value: ExtendedListPresentation
+            literal: РасширенноеПредставлениеСписка
+          - value: Explanation
+            literal: Пояснение
+          - value: ManagerModule
+            literal: МодульМенеджера
+  - format: nkdk-declarations/1
+    kind: value
+    id: journal.property-state-row
+    imports:
+      name: journal.property-state-name
+    namespaces:
+      xr: http://v8.1c.ru/8.3/xcf/readable
+    value:
+      kind: record
+      fields:
+        - name: name
+          type:
+            use: name
+        - name: mode
+          type:
+            kind: scalar
+            scalar: text
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: name
+            path:
+              - xr:Property
+          - field: mode
+            path:
+              - xr:State
+      yaml:
+        kind: projection
+        field: name
+    presence:
+      - target:
+          field: mode
+        yaml:
+          missing:
+            denotes:
+              literal: Extended
+  - format: nkdk-declarations/1
+    kind: value
+    id: journal.property-states
+    imports:
+      row: journal.property-state-row
+    namespaces:
+      xr: http://v8.1c.ru/8.3/xcf/readable
+    value:
+      kind: sequence
+      item:
+        use: row
+    representations:
+      xml:
+        kind: element-sequence
+        path:
+          - xr:PropertyState
+      yaml:
+        kind: sequence

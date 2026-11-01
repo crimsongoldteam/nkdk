@@ -1,0 +1,7 @@
+format: nkdk-declarations/1
+kind: value
+id: common.event-call-type
+enum:
+  Before: Перед
+  After: После
+  Override: Вместо

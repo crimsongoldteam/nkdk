@@ -128,3 +128,45 @@ impl<T> Rewrite<T> {
             .chain(&self.suffix)
     }
 }
+
+/// Groups a finite compiled key domain in first-appearance order.
+/// Rows move once; empty groups and rejected keys never discard a value.
+/// This is a structural primitive, independent of XML names or YAML tags.
+pub struct GroupSequence<const N: usize, T> {
+    slots: [Option<usize>; N],
+    groups: Vec<(usize, Vec<T>)>,
+}
+impl<const N: usize, T> Default for GroupSequence<N, T> {
+    fn default() -> Self {
+        Self {
+            slots: [None; N],
+            groups: Vec::new(),
+        }
+    }
+}
+impl<const N: usize, T> GroupSequence<N, T> {
+    /// Some(true) marks a first occurrence, Some(false) an existing group.
+    /// The caller decides whether another declaration is valid for its source.
+    pub fn declare(&mut self, key: usize) -> Option<bool> {
+        let slot = self.slots.get_mut(key)?;
+        if slot.is_some() {
+            return Some(false);
+        }
+        *slot = Some(self.groups.len());
+        self.groups.push((key, Vec::new()));
+        Some(true)
+    }
+    /// An out-of-domain key returns the untouched row to the caller.
+    pub fn push(&mut self, key: usize, row: T) -> Result<(), T> {
+        if self.declare(key).is_none() {
+            return Err(row);
+        }
+        self.groups[self.slots[key].expect("declared group")]
+            .1
+            .push(row);
+        Ok(())
+    }
+    pub fn into_groups(self) -> Vec<(usize, Vec<T>)> {
+        self.groups
+    }
+}

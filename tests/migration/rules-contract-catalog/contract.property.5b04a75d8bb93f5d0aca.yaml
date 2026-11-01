@@ -1,0 +1,81 @@
+format: nkdk-declarations/1
+kind: object
+imports:
+  value0: common.string
+  value1: system.CompatibilityMode
+  value2: system.ClientRunMode
+  value3: common.use-purposes
+  value4: system.ScriptVariant
+  inputType1f8ea46361ff: common.path-root
+  value6: common.metadata-object-link-list
+  value7: common.boolean
+  value8: common.metadata-object-link
+  value9: system.MainClientApplicationWindowMode
+  value10: common.metadata-item-link-roots
+  value11: system.DefaultDataLockControlMode
+  value12: system.ObjectAutonumerationMode
+  value13: system.ModalityUseMode
+  value14: system.SynchronousExtensionAndAddInCallUseMode
+  value15: system.InterfaceCompatibilityMode
+  value16: system.DatabaseTablespacesUseMode
+value:
+  kind: record
+  fields:
+    - name: usePurposes
+      type:
+        use: value3
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: usePurposes
+        path:
+          - Properties
+          - UsePurposes
+  yaml:
+    kind: mapping
+    fields:
+      - field: usePurposes
+        key: НазначенияИспользования
+presence:
+  - target:
+      field: usePurposes
+    xml:
+      missing:
+        denotes:
+          sequence:
+            - literal: PlatformApplication
+      empty:
+        - form: empty-element
+          denotes:
+            sequence:
+              - literal: PlatformApplication
+    yaml:
+      missing:
+        denotes:
+          sequence:
+            - literal: PlatformApplication
+      omitWhen:
+        eq:
+          - field: usePurposes
+          - sequence:
+              - literal: PlatformApplication
+constraints: []
+inputs:
+  roots:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: kind
+            type:
+              use: inputType1f8ea46361ff
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+id: contract.property.5b04a75d8bb93f5d0aca

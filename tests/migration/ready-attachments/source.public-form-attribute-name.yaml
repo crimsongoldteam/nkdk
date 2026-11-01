@@ -1,0 +1,22 @@
+format: nkdk-declarations/1
+kind: value
+id: source.public-form-attribute-name
+value:
+  kind: record
+  fields:
+    - name: name
+      type:
+        kind: scalar
+        scalar: text
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: name
+        path: []
+        attribute: name
+  yaml:
+    kind: mapping
+    fields:
+      - field: name
+        key: Имя

@@ -1,0 +1,8 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.metadata-role-link
+imports: {link: common.metadata-role-link}
+value: {kind: record, fields: [{name: link, type: {use: link}}]}
+representations:
+  xml: {kind: record, fields: [{field: link, path: [Root, Link]}]}
+  yaml: {kind: mapping, fields: [{field: link, key: Ссылка}]}

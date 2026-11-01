@@ -1,0 +1,97 @@
+# Generated from packages/rules/metadata/appliedObjects/metadataEnumeration/rules.ts by tools/rules-migration/src/enumeration-identity-operation.mjs
+format: nkdk-declarations/1
+kind: object
+id: migration.enumeration-own-identity
+namespaces:
+  md: http://v8.1c.ru/8.3/MDClasses
+imports:
+  facts: fragment.metadata-own-identity
+inputs:
+  component:
+    type:
+      kind: scalar
+      scalar: text
+  parent:
+    type:
+      kind: scalar
+      scalar: text
+  ownerName:
+    type:
+      kind: scalar
+      scalar: text
+  identitySeed:
+    type:
+      kind: scalar
+      scalar: text
+value:
+  kind: record
+  fields:
+    - name: name
+      type:
+        kind: scalar
+        scalar: text
+    - name: uuid
+      type:
+        kind: scalar
+        scalar: text
+compose:
+  - use: facts
+    bind:
+      component:
+        input: component
+      owner:
+        input: parent
+      kind:
+        literal: Enum
+      name:
+        field: name
+      identity:
+        field: uuid
+representations:
+  xml:
+    kind: with-attributes
+    attributes:
+      - name: version
+        value:
+          text: '2.20'
+    content:
+      kind: record
+      fields:
+        - field: name
+          path:
+            - md:MetaDataObject
+            - md:Enum
+            - md:Properties
+            - md:Name
+        - field: uuid
+          path:
+            - md:MetaDataObject
+            - md:Enum
+          attribute: uuid
+  yaml:
+    kind: mapping
+    fields:
+      - field: name
+        key: name
+      - field: uuid
+        key: uuid
+presence:
+  - target:
+      field: name
+    yaml:
+      missing:
+        denotes:
+          input: ownerName
+  - target:
+      field: uuid
+    yaml:
+      missing:
+        denotes:
+          identity:
+            seed:
+              input: identitySeed
+            domain: uuid
+            format: uuid
+            address:
+              - literal: Перечисление
+              - input: ownerName

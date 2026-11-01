@@ -1,0 +1,22 @@
+format: nkdk-declarations/1
+kind: value
+id: system.HorizontalAlign
+enum:
+  Auto: Авто
+  Left: Лево
+  Justify: ПоШирине
+  Right: Право
+  Center: Центр
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  t: http://v8.1c.ru/8.1/data/ui
+projections:
+  - id: system.HorizontalAlign.dcs
+    xml:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: t:HorizontalAlign
+      content:
+        kind: text

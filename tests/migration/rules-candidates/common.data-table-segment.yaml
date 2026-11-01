@@ -1,0 +1,28 @@
+format: nkdk-declarations/1
+kind: value
+id: common.data-table-segment
+imports:
+  object: common.metadata-object-segment
+  section: common.data-table-section
+  virtual: common.data-table-virtual
+  base: common.data-table-base
+value:
+  kind: choice
+  variants:
+    - name: object
+      type:
+        use: object
+    - name: section
+      type:
+        use: section
+    - name: virtual
+      type:
+        use: virtual
+    - name: base
+      type:
+        use: base
+representations:
+  xml:
+    kind: choice
+  yaml:
+    kind: choice

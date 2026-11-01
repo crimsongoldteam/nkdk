@@ -1,0 +1,22 @@
+format: nkdk-declarations/1
+kind: value
+id: source.form-additional-group-mode-row
+value:
+  kind: record
+  fields:
+    - name: table
+      type:
+        kind: scalar
+        scalar: text
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: table
+        path: []
+        attribute: table
+  yaml:
+    kind: mapping
+    fields:
+      - field: table
+        key: Таблица

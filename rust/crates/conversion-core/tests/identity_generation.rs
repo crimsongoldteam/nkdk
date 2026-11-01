@@ -1,6 +1,6 @@
 use nkdk_conversion_core::facts::{
     FactState,
-    identity::{IdentityFormat, LogicalAddress, OperationIdentity},
+    identity::{IdentityFormat, LogicalAddress, OperationIdentity, derive},
 };
 use std::borrow::Cow;
 
@@ -59,5 +59,30 @@ fn operation_identity_matches_legacy_vectors_and_only_creates_missing_values() {
                 );
             }
         }
+    }
+}
+
+#[test]
+fn declarative_identity_uses_escaped_segments_and_rejects_bad_seed() {
+    let seed = "01".repeat(32);
+    assert_eq!(
+        derive(
+            &seed,
+            "uuid",
+            IdentityFormat::Uuid,
+            &["Перечисление", "А.Б", "Значение", "В"]
+        )
+        .unwrap(),
+        "1a1b9642-4bdf-4717-a456-d78c682862b1"
+    );
+    let non_hex = "xz".repeat(32);
+    for bad in ["", non_hex.as_str()] {
+        assert_eq!(
+            derive(bad, "uuid", IdentityFormat::Uuid, &["Объект"])
+                .unwrap_err()
+                .code
+                .as_deref(),
+            Some("identity.seed")
+        );
     }
 }

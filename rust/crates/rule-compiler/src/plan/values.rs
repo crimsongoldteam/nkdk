@@ -36,6 +36,7 @@ impl<'a> FieldPlan<'a> {
     }
     pub(crate) fn diagnostic_key(&self) -> &'a str {
         self.yaml
+            .filter(|mapping| mapping.file.is_none())
             .map(|mapping| mapping.key.as_str())
             .or_else(|| {
                 self.xml
@@ -84,7 +85,16 @@ impl<'a> RecordPlan<'a> {
         match &expression.kind {
             LinkedExpressionKind::Field(index) => {
                 let field = &self.fields[*index as usize];
-                if field.yaml.is_none() {
+                if field.yaml.is_none()
+                    || self.entry.presence.iter().any(|rule| {
+                        rule.target == LinkedPresenceTarget::Field(*index)
+                            && rule
+                                .yaml_missing
+                                .as_ref()
+                                .is_some_and(|value| self.requires_runtime(value, program))
+                    })
+                {
+                    // Structural schemas see written fields, not computed omitted values.
                     return true;
                 }
                 field.field.value.as_reference().is_some_and(|(id, _, _)| {
@@ -106,6 +116,8 @@ impl<'a> RecordPlan<'a> {
             LinkedExpressionKind::Input(_)
             | LinkedExpressionKind::Parameter(_)
             | LinkedExpressionKind::Variable(_)
+            | LinkedExpressionKind::Ordinal(_)
+            | LinkedExpressionKind::CollectionPosition(_)
             | LinkedExpressionKind::Capture(_)
             | LinkedExpressionKind::SelfValue => true,
             _ => false,
@@ -114,7 +126,10 @@ impl<'a> RecordPlan<'a> {
     pub(crate) fn applies(entry: &LinkedEntry) -> bool {
         matches!(entry.value, LinkedType::Record(_))
             && (matches!(entry.yaml, YamlRepresentation::Mapping(_))
-                || matches!(entry.yaml, YamlRepresentation::Projection(_))
+                || matches!(
+                    entry.yaml,
+                    YamlRepresentation::Projection(_) | YamlRepresentation::GroupedSequence(_)
+                )
                 || (xml_fields(&entry.xml).is_some()
                     && matches!(entry.yaml, YamlRepresentation::TextPattern(_))))
     }
@@ -123,6 +138,7 @@ impl<'a> RecordPlan<'a> {
             LinkedType::Record(fields),
             YamlRepresentation::Mapping(_)
             | YamlRepresentation::Projection(_)
+            | YamlRepresentation::GroupedSequence(_)
             | YamlRepresentation::TextPattern(_),
         ) = (&entry.value, &entry.yaml)
         else {
@@ -149,6 +165,13 @@ impl<'a> RecordPlan<'a> {
                 let covered = nkdk_rule_model::text_pattern_fields(parts)
                     .into_iter()
                     .collect();
+                check_coverage(fields, &covered, &entry.presence, side, &entry.source)?;
+                continue;
+            }
+            if let (RepresentationSide::Yaml, YamlRepresentation::GroupedSequence(groups)) =
+                (side, &entry.yaml)
+            {
+                let covered = groups.iter().map(|group| group.field.as_str()).collect();
                 check_coverage(fields, &covered, &entry.presence, side, &entry.source)?;
                 continue;
             }

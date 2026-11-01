@@ -1,0 +1,51 @@
+format: nkdk-declarations/1
+kind: value
+id: common.internal-contained-objects
+namespaces:
+  xr: http://v8.1c.ru/8.3/xcf/readable
+value:
+  kind: sequence
+  item:
+    kind: record
+    fields:
+      - name: classId
+        type:
+          kind: scalar
+          scalar: text
+      - name: objectId
+        type:
+          kind: scalar
+          scalar: text
+representations:
+  xml:
+    kind: element-sequence
+    path:
+      - xr:ContainedObject
+    item:
+      kind: record
+      fields:
+        - field: classId
+          path:
+            - xr:ClassId
+        - field: objectId
+          path:
+            - xr:ObjectId
+  yaml:
+    kind: sequence
+    item:
+      kind: mapping
+      fields:
+        - field: classId
+          key: Класс
+        - field: objectId
+          key: Объект
+presence:
+  - target: self
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true

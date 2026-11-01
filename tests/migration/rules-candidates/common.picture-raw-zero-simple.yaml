@@ -1,0 +1,23 @@
+format: nkdk-declarations/1
+kind: value
+id: common.picture-raw-zero-simple
+namespaces:
+  xr: http://v8.1c.ru/8.3/xcf/readable
+imports:
+  reference: common.picture-zero-reference
+value:
+  kind: record
+  fields:
+    - name: reference
+      type:
+        use: reference
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: reference
+        path:
+          - xr:Ref
+  yaml:
+    kind: projection
+    field: reference

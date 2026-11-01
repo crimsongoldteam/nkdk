@@ -1,0 +1,16 @@
+format: nkdk-declarations/1
+kind: value
+id: common.user-settings-id
+imports: {boolean: common.boolean, reference: common.metadata-link-uuid}
+value:
+  kind: choice
+  variants:
+  - {name: boolean, type: {use: boolean}}
+  - {name: reference, type: {use: reference}}
+representations:
+  xml: {kind: choice, fallback: reference}
+  yaml: {kind: choice, fallback: reference}
+presence:
+- target: self
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {missing: {denotes: {absent: true}}}

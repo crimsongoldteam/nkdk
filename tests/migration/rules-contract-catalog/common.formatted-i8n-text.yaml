@@ -89,6 +89,9 @@ representations:
 presence:
   - target: self
     xml:
+      missing:
+        denotes:
+          absent: true
       canonical:
         - when:
             and:
@@ -115,6 +118,10 @@ presence:
                           - literal: ''
           form: missing
         - form: ordinary
+    yaml:
+      missing:
+        denotes:
+          absent: true
   - target:
       field: text
     yaml:
@@ -137,8 +144,12 @@ constraints:
     assert:
       or:
         - field: formatted
-        - present:
-            field: text
+        - exists:
+            in:
+              field: text
+            as: translation
+            where:
+              literal: true
     diagnostic:
       severity: error
       at:

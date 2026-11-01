@@ -99,13 +99,8 @@ pub(super) fn types(entries: &BTreeMap<u32, LinkedEntry>) -> Result<(), Diagnost
         } else {
             vec![target]
         };
-        let mut width = None;
         for variant in variants {
-            let (xml, _) = item_layout(variant, xml_separator, yaml_separator, true)?;
-            if width.is_some_and(|width| width != xml.len()) {
-                return Err(invalid());
-            }
-            width = Some(xml.len());
+            item_layout(variant, xml_separator, yaml_separator, true)?;
         }
     }
     Ok(())

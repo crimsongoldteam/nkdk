@@ -1,0 +1,63 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: common.dcs-system-enumeration-kind
+  enum: {СистемноеПеречисление: СистемноеПеречисление}
+- kind: value
+  id: common.dcs-system-enumeration
+  namespaces: {xsi: http://www.w3.org/2001/XMLSchema-instance}
+  imports: {kind: common.dcs-system-enumeration-kind, name: common.dcs-enumeration-name, text: common.string}
+  inputs:
+    labels:
+      type:
+        kind: index
+        key: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}, {name: code, type: {kind: scalar, scalar: text}}]}
+        value: {kind: scalar, scalar: text}
+    codes:
+      type:
+        kind: index
+        key: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}, {name: label, type: {kind: scalar, scalar: text}}]}
+        value: {kind: scalar, scalar: text}
+  value:
+    kind: record
+    fields:
+    - {name: kind, type: {use: kind}}
+    - {name: name, type: {use: name}}
+    - {name: code, type: {use: text}}
+    - {name: label, type: {use: text}}
+  representations:
+    xml: {kind: record, fields: [{field: name, path: [], attribute: xsi:type}, {field: code, path: []}]}
+    yaml: {kind: mapping, fields: [{field: kind, key: Тип}, {field: name, key: Имя}, {field: label, key: Значение}]}
+  presence:
+  - target: {field: kind}
+    xml: {missing: {denotes: {literal: СистемноеПеречисление}}}
+  - target: {field: code}
+    yaml:
+      missing:
+        denotes:
+          match:
+            value: {lookup: {in: {input: codes}, key: {record: {name: {field: name}, label: {field: label}}}}}
+            present: {as: code, then: {var: code}}
+            absent: {literal: ''}
+  - target: {field: label}
+    xml:
+      missing:
+        denotes:
+          if: {present: {field: name}}
+          then:
+            match:
+              value: {lookup: {in: {input: labels}, key: {record: {name: {field: name}, code: {field: code}}}}}
+              present: {as: label, then: {var: label}}
+              absent: {literal: ''}
+          else: {literal: ''}
+  constraints:
+  - id: known-xml-value
+    appliesTo: [xml-import]
+    when: {present: {field: name}}
+    assert: {present: {lookup: {in: {input: labels}, key: {record: {name: {field: name}, code: {field: code}}}}}}
+    diagnostic: {code: dcs.enum-value, severity: error, at: {self: true}, message: Неизвестное значение системного перечисления}
+  - id: known-yaml-value
+    appliesTo: [yaml-validation]
+    assert: {present: {lookup: {in: {input: codes}, key: {record: {name: {field: name}, label: {field: label}}}}}}
+    diagnostic: {code: dcs.enum-value, severity: error, at: {self: true}, message: Неизвестное значение системного перечисления}

@@ -4,6 +4,7 @@ id: common.owner-or-common-form-link
 imports:
   own: common.owner-form-link
   common: common.common-form-link
+  empty: common.metadata-link-empty
   rootKind: common.path-root
 inputs:
   owner: {type: {kind: scalar, scalar: text}}
@@ -18,6 +19,7 @@ value:
   variants:
   - {name: own, type: {use: own, bind: {owner: {input: owner}, forms: {input: forms}}}}
   - {name: common, type: {use: common, bind: {roots: {input: roots}}}}
+  - {name: empty, type: {use: empty}}
 representations:
   xml: {kind: choice}
-  yaml: {kind: choice}
+  yaml: {kind: choice, fallback: own}

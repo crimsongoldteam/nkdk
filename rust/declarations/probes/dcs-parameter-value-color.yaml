@@ -1,0 +1,22 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.dcs-parameter-value-color
+imports: {item: common.dcs-parameter-value}
+inputs:
+  styleTypes: {index: metadata.style-item-types}
+  defaultLanguage: {type: {kind: scalar, scalar: text}}
+  registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  labels: {index: dcs.enumeration-labels}
+  codes: {index: dcs.enumeration-codes}
+value:
+  kind: record
+  fields:
+  - name: item
+    type: {use: item, bind: {parameterName: {literal: ЦветФона}, valueProfile: {literal: Color}, styleTypes: {input: styleTypes}, defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}, labels: {input: labels}, codes: {input: codes}}}
+representations:
+  xml: {kind: record, fields: [{field: item, path: [Root, Item]}]}
+  yaml: {kind: mapping, fields: [{field: item, key: ЦветФона}]}
+presence:
+- target: {field: item}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {missing: {denotes: {absent: true}}}

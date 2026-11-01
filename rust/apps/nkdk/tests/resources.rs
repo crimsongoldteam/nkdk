@@ -56,6 +56,17 @@ fn prepared_files_preserve_alternatives_and_do_not_publish_partial_output() {
         .with_documents(documents)
         .unwrap();
     assert_eq!(fs::read(group.root().join("a.bin")).unwrap(), [0, 255, 42]);
+    let group = group
+        .with_documents(vec![(
+            RelativePath::new(["empty.txt"], 64).unwrap(),
+            vec![],
+        )])
+        .unwrap();
+    assert!(group.root().join("empty.txt").is_file());
+    assert_eq!(
+        fs::metadata(group.root().join("empty.txt")).unwrap().len(),
+        0
+    );
     let root_path = group.root().to_path_buf();
     assert!(
         group
@@ -99,6 +110,40 @@ fn prepared_files_preserve_alternatives_and_do_not_publish_partial_output() {
         .unwrap();
     assert!(stage(&failed_copy, Direction::XmlToYaml, &source, &temp).is_err());
     assert_eq!(fs::read_dir(&temp).unwrap().count(), 0);
+    assert!(
+        nkdk::resource_files::load_relative_documents(
+            &[],
+            &source.join("a.bin/not-a-directory"),
+            limits,
+            32
+        )
+        .unwrap()
+        .is_empty()
+    );
+    let paths = [RelativePath::new(["a.bin"], 64).unwrap()];
+    let fresh = nkdk::resource_files::load_relative_documents(&paths, &source, limits, 32).unwrap();
+    assert_eq!(fresh[0].1, b"changed");
+    assert!(
+        nkdk::resource_files::load_relative_documents(
+            &[paths[0].clone(), paths[0].clone()],
+            &source,
+            limits,
+            32
+        )
+        .is_err()
+    );
+    assert!(
+        nkdk::resource_files::load_relative_documents(
+            &paths,
+            &source,
+            Limits {
+                path_bytes: 1,
+                ..limits
+            },
+            32
+        )
+        .is_err()
+    );
     let fixtures = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../../e2e/fixtures");
     let check = |entry_name: &str,
                  input_values,
@@ -369,14 +414,7 @@ fn prepared_files_preserve_alternatives_and_do_not_publish_partial_output() {
                 _ => 0,
             };
             check(
-                &format!(
-                    "migration.{kind}-{}",
-                    if kind == "document" {
-                        "resource-routes"
-                    } else {
-                        "identity-and-children"
-                    }
-                ),
+                &format!("migration.{kind}-resource-routes"),
                 vec![
                     ("templates".into(), prepared_names(template_names)),
                     ("forms".into(), prepared_names(form_names)),
@@ -550,6 +588,45 @@ fn group_conversion_keeps_external_documents_and_resources_together() {
             fs::write(&path, bytes).unwrap();
         } else {
             fs::remove_file(&path).unwrap();
+        }
+        let primary = b"<Root><Name>x</Name></Root>";
+        let material = nkdk::facts::load_source(
+            entry,
+            Direction::XmlToYaml,
+            primary.to_vec(),
+            &source,
+            FILE_LIMITS,
+            1_000_000,
+        )
+        .unwrap();
+        assert_eq!(material.bytes, primary);
+        assert_eq!(material.documents.len(), usize::from(document.is_some()));
+        if let Some(expected) = document {
+            assert_eq!(material.documents[0].0.segments(), ["Ext", "Help.xml"]);
+            assert_eq!(material.documents[0].1, expected);
+        }
+        let yaml_material = nkdk::facts::load_source(
+            entry,
+            Direction::YamlToXml,
+            "Имя: x".as_bytes().to_vec(),
+            &source,
+            FILE_LIMITS,
+            0,
+        )
+        .unwrap();
+        assert!(yaml_material.documents.is_empty());
+        if document.is_some() {
+            assert!(
+                nkdk::facts::load_source(
+                    entry,
+                    Direction::XmlToYaml,
+                    primary.to_vec(),
+                    &source,
+                    FILE_LIMITS,
+                    0
+                )
+                .is_err()
+            );
         }
         let yaml = execute(
             Direction::XmlToYaml,
@@ -789,6 +866,158 @@ fn assert_file_routes(
 }
 
 #[test]
+fn resource_paths_choose_the_parent_prefix_from_declared_inputs() {
+    use nkdk_compiled_rules_probes::{InputValue, entry_id, prepare_inputs, resource_requests};
+    let entry = entry_id("probe.conditional-resource").unwrap();
+    for (parent, expected) in [
+        ("", vec!["Commands", "Action", "Ext", "CommandModule.bsl"]),
+        (
+            "Cube",
+            vec![
+                "Cubes",
+                "Cube",
+                "Commands",
+                "Action",
+                "Ext",
+                "CommandModule.bsl",
+            ],
+        ),
+    ] {
+        let inputs = prepare_inputs(
+            entry,
+            vec![
+                ("name".into(), InputValue::Text("Action".into())),
+                ("parent".into(), InputValue::Text(parent.into())),
+                ("container".into(), InputValue::Text("Cubes".into())),
+            ],
+        )
+        .unwrap();
+        let plan = resource_requests(entry, &inputs, FILE_LIMITS).unwrap();
+        let (xml, yaml) = plan.groups()[0][0].paths(Direction::XmlToYaml);
+        assert_eq!(xml.segments(), expected);
+        assert_eq!(yaml.segments(), ["Команды", "Action.bsl"]);
+    }
+}
+
+#[test]
+fn nested_command_modules_round_trip_existing_e2e_files() {
+    use nkdk_compiled_rules_probes::{InputValue, entry_id, prepare_inputs, resource_requests};
+    let entry = entry_id("probe.conditional-resource").unwrap();
+    let workspace = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../../e2e/fixtures");
+    let xml_root = workspace.join("xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства");
+    let yaml_root =
+        workspace.join("nkdk/cf/ВнешнийИсточникДанных/ВнешнийИсточникДанныхВсеСвойства");
+    let temporary =
+        Temp(std::env::temp_dir().join(format!("nkdk-nested-command-e2e-{}", std::process::id())));
+    fs::create_dir_all(&temporary.0).unwrap();
+    for (container, parent, yaml_container) in [
+        ("Cubes", "КубВсеСвойства", "Кубы"),
+        ("Tables", "ТаблицаВсеСвойства", "Таблицы"),
+    ] {
+        let inputs = prepare_inputs(
+            entry,
+            vec![
+                ("name".into(), InputValue::Text("Команда1".into())),
+                ("parent".into(), InputValue::Text(parent.into())),
+                ("container".into(), InputValue::Text(container.into())),
+            ],
+        )
+        .unwrap();
+        let plan = resource_requests(entry, &inputs, FILE_LIMITS).unwrap();
+        let original = xml_root
+            .join(container)
+            .join(parent)
+            .join("Commands/Команда1/Ext/CommandModule.bsl");
+        let expected = yaml_root
+            .join(yaml_container)
+            .join(parent)
+            .join("Команды/Команда1.bsl");
+        let imported = stage(&plan, Direction::XmlToYaml, &xml_root, &temporary.0).unwrap();
+        assert_eq!(
+            fs::read(imported.root().join("Команды/Команда1.bsl")).unwrap(),
+            fs::read(&expected).unwrap()
+        );
+        let exported = stage(&plan, Direction::YamlToXml, imported.root(), &temporary.0).unwrap();
+        assert_eq!(
+            fs::read(
+                exported
+                    .root()
+                    .join(container)
+                    .join(parent)
+                    .join("Commands/Команда1/Ext/CommandModule.bsl")
+            )
+            .unwrap(),
+            fs::read(original).unwrap()
+        );
+    }
+}
+
+#[test]
+fn external_picture_descriptor_and_payload_follow_one_declaration() {
+    use nkdk_compiled_rules_probes::{entry_id, prepare_inputs, resource_requests};
+    let entry = entry_id("resources.common-picture-external-picture").unwrap();
+    let inputs = prepare_inputs(entry, vec![]).unwrap();
+    let plan = resource_requests(entry, &inputs, FILE_LIMITS).unwrap();
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../../../e2e/fixtures/xml/cf/CommonPictures/ОбщаяКартинкаОднаКартинка");
+    let temporary =
+        Temp(std::env::temp_dir().join(format!("nkdk-picture-resource-{}", std::process::id())));
+    fs::create_dir_all(&temporary.0).unwrap();
+    let imported = stage(&plan, Direction::XmlToYaml, &root, &temporary.0).unwrap();
+    for (source, target) in [
+        ("Ext/Picture.xml", "Картинка/Picture.xml"),
+        ("Ext/Picture/Picture.png", "Картинка/Picture.png"),
+    ] {
+        assert_eq!(
+            fs::read(imported.root().join(target)).unwrap(),
+            fs::read(root.join(source)).unwrap()
+        );
+    }
+    let restored = stage(&plan, Direction::YamlToXml, imported.root(), &temporary.0).unwrap();
+    assert_eq!(restored.files().len(), 2);
+    assert_eq!(
+        fs::read(restored.root().join("Ext/Picture.xml")).unwrap(),
+        fs::read(root.join("Ext/Picture.xml")).unwrap()
+    );
+    assert_eq!(
+        fs::read(restored.root().join("Ext/Picture/Picture.png")).unwrap(),
+        fs::read(root.join("Ext/Picture/Picture.png")).unwrap()
+    );
+    let entry = entry_id("resources.configuration-pictures").unwrap();
+    let inputs = prepare_inputs(entry, vec![]).unwrap();
+    let plan = resource_requests(entry, &inputs, FILE_LIMITS).unwrap();
+    for root in ["xml/cf", "xml/cfe/control", "xml/cfe/all-extension"] {
+        let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../../../e2e/fixtures")
+            .join(root);
+        let imported = stage(&plan, Direction::XmlToYaml, &root, &temporary.0).unwrap();
+        let restored = stage(&plan, Direction::YamlToXml, imported.root(), &temporary.0).unwrap();
+        for (source, target) in [
+            (
+                "Ext/MainSectionPicture.xml",
+                "КартинкаОсновногоРаздела/MainSectionPicture.xml",
+            ),
+            ("Ext/Logo.xml", "Логотип/Logo.xml"),
+            ("Ext/Logo/Picture.png", "Логотип/Picture.png"),
+            ("Ext/Splash.xml", "Заставка/Splash.xml"),
+            ("Ext/Splash/Picture.png", "Заставка/Picture.png"),
+        ] {
+            let original = fs::read(root.join(source)).ok();
+            assert_eq!(
+                fs::read(imported.root().join(target)).ok(),
+                original,
+                "{source}"
+            );
+            assert_eq!(
+                fs::read(restored.root().join(source)).ok(),
+                original,
+                "{source}"
+            );
+        }
+    }
+}
+
+#[test]
 fn static_module_entries_preserve_e2e_files_and_configuration_groups() {
     use nkdk_compiled_rules_probes::{entry_id, prepare_inputs, resource_requests};
     let temporary =
@@ -856,6 +1085,134 @@ fn static_module_entries_preserve_e2e_files_and_configuration_groups() {
             &workspace.join("e2e/fixtures/xml").join(owner),
             &temporary.0,
             &borrowed,
+        );
+    }
+}
+
+#[path = "support/resource_names.rs"]
+mod resource_names;
+
+#[test]
+fn schema_resources_preserve_e2e_bytes_and_use_current_file_names() {
+    use nkdk::resource_files::{FileNameMode, file_names};
+    use nkdk_compiled_rules::{InputValue, entry_id, prepare_inputs, resource_requests};
+    let entry = entry_id("resources.ws-definition-schemas").expect("working common resources");
+    let root = Temp(std::env::temp_dir().join(format!("nkdk-schemas-{}", std::process::id())));
+    let temporary = root.0.join("staging");
+    fs::create_dir_all(&temporary).unwrap();
+    let fixtures = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../../e2e/fixtures/xml");
+    let extensions = vec!["xsd".to_owned()];
+    let names = |source: &std::path::Path, directory| {
+        file_names(
+            source,
+            &RelativePath::new([directory], 64).unwrap(),
+            &extensions,
+            FileNameMode::FileName,
+            false,
+            FILE_LIMITS,
+        )
+        .unwrap()
+    };
+    let plan = |files: Vec<String>| {
+        let inputs = prepare_inputs(
+            entry,
+            vec![(
+                "files".into(),
+                InputValue::Sequence(files.into_iter().map(InputValue::Text).collect()),
+            )],
+        )
+        .unwrap();
+        resource_requests(entry, &inputs, FILE_LIMITS).unwrap()
+    };
+    for (index, owner) in [
+        "cf/WSReferences/WSСсылкаВсеСвойства",
+        "cf/WSReferences/WSСсылкаПоУмолчанию",
+        "cfe/all-extension/WSReferences/WSСсылкаВсеСвойства",
+        "cfe/all-extension/WSReferences/WSСсылкаПоУмолчанию",
+        "cfe/all-extension/WSReferences/WSСсылкаВсеСвойстваExt",
+        "cfe/all-extension/WSReferences/WSСсылкаПоУмолчаниюExt",
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        let fixture = fixtures.join(owner);
+        assert!(
+            names(&fixture, "Ext").is_empty(),
+            "real corpus has no separate XSD files"
+        );
+        let source = root.0.join(index.to_string());
+        let empty = stage(
+            &plan(names(&source, "Ext")),
+            Direction::XmlToYaml,
+            &source,
+            &temporary,
+        )
+        .unwrap();
+        assert!(empty.files().is_empty());
+        fs::create_dir_all(source.join("Ext/nested")).unwrap();
+        let file = fixture.join("Ext/WSDefinition.xml");
+        let bytes = fs::read(if file.is_file() {
+            file
+        } else {
+            fixtures.join("cf/WSReferences/WSСсылкаВсеСвойства/Ext/WSDefinition.xml")
+        })
+        .unwrap();
+        for (file, content) in [
+            ("one.xsd", bytes.as_slice()),
+            ("two.XsD", b"".as_slice()),
+            ("WSDefinition.xml", bytes.as_slice()),
+            ("nested/ignored.xsd", bytes.as_slice()),
+        ] {
+            fs::write(source.join("Ext").join(file), content).unwrap();
+        }
+        let imported = stage(
+            &plan(names(&source, "Ext")),
+            Direction::XmlToYaml,
+            &source,
+            &temporary,
+        )
+        .unwrap();
+        assert_eq!(imported.files().len(), 2);
+        assert_eq!(
+            fs::read(imported.root().join("XSD/one.xsd")).unwrap(),
+            bytes
+        );
+        assert!(
+            fs::read(imported.root().join("XSD/two.XsD"))
+                .unwrap()
+                .is_empty()
+        );
+        assert!(!imported.root().join("XSD/WSDefinition.xml").exists());
+        fs::remove_dir_all(&source).unwrap();
+        let exported = stage(
+            &plan(names(imported.root(), "XSD")),
+            Direction::YamlToXml,
+            imported.root(),
+            &temporary,
+        )
+        .unwrap();
+        assert_eq!(
+            fs::read(exported.root().join("Ext/one.xsd")).unwrap(),
+            bytes
+        );
+        assert!(exported.root().join("Ext/two.XsD").is_file());
+        fs::remove_file(imported.root().join("XSD/one.xsd")).unwrap();
+        fs::write(imported.root().join("XSD/new.xsd"), b"current data").unwrap();
+        let changed = stage(
+            &plan(names(imported.root(), "XSD")),
+            Direction::YamlToXml,
+            imported.root(),
+            &temporary,
+        )
+        .unwrap();
+        assert!(!changed.root().join("Ext/one.xsd").exists());
+        assert_eq!(
+            fs::read(changed.root().join("Ext/new.xsd")).unwrap(),
+            b"current data"
+        );
+        assert_eq!(
+            fs::read(exported.root().join("Ext/one.xsd")).unwrap(),
+            bytes
         );
     }
 }

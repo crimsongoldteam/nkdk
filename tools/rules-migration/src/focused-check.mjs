@@ -7,6 +7,7 @@ import {performance} from 'node:perf_hooks';
 import {yaml} from './candidate-catalog.mjs';
 import {selectContracts} from './focused-catalog.mjs';
 import {writeFocused} from './focused-output.mjs';
+import {runtimeExportsFromCaseFile} from './runtime-exports.mjs';
 import {loadSources} from './source-snapshot.mjs';
 
 const started=performance.now();
@@ -37,7 +38,9 @@ for(const module of selected.modules) {
 }
 const directory=resolve('rust/target/migration-focused',batch.id);
 const paths=writeFocused(directory,files,selected.manifest);
-const env={...process.env,NKDK_MIGRATION_CATALOG:paths.catalog,CARGO_INCREMENTAL:'0',CARGO_PROFILE_DEV_DEBUG:'0',CARGO_PROFILE_TEST_DEBUG:'0'};
+const env={...process.env,NKDK_MIGRATION_CATALOG:paths.catalog,
+  NKDK_MIGRATION_EXPORTS:runtimeExportsFromCaseFile(paths.cases),
+  CARGO_INCREMENTAL:'0',CARGO_PROFILE_DEV_DEBUG:'0',CARGO_PROFILE_TEST_DEBUG:'0'};
 const common=['--offline','--locked','--manifest-path','../tools/rules-migration/runtime/Cargo.toml','--target-dir','target/migration-contracts','-j','1'];
 const result={preparationSeconds:(performance.now()-started)/1000,batch:batch.id,cases:selected.manifest.cases.length,properties:selected.propertyCount,declarations:selected.modules.length,fullContractDeclarations:modules.length,newlyConnectedProperties:0,steps:[]};
 console.log(`${result.properties} properties; ${result.cases} cases; ${result.declarations}/${result.fullContractDeclarations} contract declarations`);

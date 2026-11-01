@@ -1,0 +1,83 @@
+format: nkdk-declarations/1
+kind: value
+imports:
+  item: candidate.collection.item.b907d1f0e39ccbbae9d2
+value:
+  kind: sequence
+  item:
+    use: item
+    bind:
+      defaultLanguage:
+        input: defaultLanguage
+      registeredLanguages:
+        input: registeredLanguages
+      styleTypes:
+        input: styleTypes
+      labels:
+        input: labels
+      codes:
+        input: codes
+representations:
+  xml:
+    kind: element-sequence
+    path:
+      - dcsset:item
+  yaml:
+    kind: sequence
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  styleTypes:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  labels:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: code
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  codes:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: label
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+namespaces:
+  dcsset: http://v8.1c.ru/8.1/data-composition-system/settings
+id: candidate.collection.list.53675af000ccd12ac422

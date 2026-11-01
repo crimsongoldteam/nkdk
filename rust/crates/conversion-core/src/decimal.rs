@@ -31,3 +31,8 @@ pub fn format(value: &Decimal, comma: bool) -> String {
     }
     text
 }
+
+/// Exact semantic position, materialized only when a decimal operation needs it.
+pub fn from_position(position: usize) -> Decimal {
+    Decimal::parse_owned(position.to_string()).expect("usize is an exact finite decimal")
+}

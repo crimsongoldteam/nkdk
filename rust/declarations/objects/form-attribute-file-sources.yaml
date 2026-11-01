@@ -1,0 +1,87 @@
+# Per-file identity projection; full public form conversion is separate.
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+  - kind: value
+    id: source.form-attribute-id-row
+    value: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}, {name: id, type: {kind: scalar, scalar: text}}]}
+    representations:
+      xml: {kind: record, fields: [{field: name, path: [], attribute: name}, {field: id, path: [], attribute: id}]}
+      yaml: {kind: mapping, fields: [{field: name, key: Имя}, {field: id, key: Идентификатор}]}
+    presence:
+      - {target: {field: id}, xml: {missing: {denotes: {absent: true}}}, yaml: {missing: {denotes: {absent: true}}}}
+  - kind: value
+    id: source.form-attribute-id-rows
+    namespaces: {f: 'http://v8.1c.ru/8.3/xcf/logform'}
+    imports: {row: source.form-attribute-id-row}
+    value: {kind: sequence, item: {use: row}}
+    representations:
+      xml: {kind: element-sequence, path: [f:Attribute], item: {kind: declared}}
+      yaml: {kind: sequence, item: {kind: declared}}
+  - kind: object
+    id: metadata.current-form-attribute-file-source
+    namespaces: {f: 'http://v8.1c.ru/8.3/xcf/logform'}
+    imports: {rows: source.form-attribute-id-rows}
+    inputs:
+      component: {type: {kind: scalar, scalar: text}}
+      owner: {type: {kind: scalar, scalar: text}}
+    value: {kind: record, fields: [{name: rows, type: {use: rows}}]}
+    representations:
+      xml: {kind: record, fields: [{field: rows, path: [f:Form, f:Attributes]}]}
+      yaml: {kind: mapping, fields: [{field: rows, key: Реквизиты}]}
+    presence:
+      - {target: {field: rows}, xml: {missing: {denotes: {absent: true}}}, yaml: {missing: {denotes: {absent: true}}}}
+    contributions:
+      - index: metadata.form-attribute-address-modes
+        duplicates: coalesce-equal
+        forEach: {in: {field: rows}, as: row}
+        key: {record: {component: {input: component}, owner: {input: owner}, origin: {literal: current}, name: {get: {of: {var: row}, field: name}}}}
+        value: {if: {and: [{not: {eq: [{get: {of: {var: row}, field: name}}, {literal: ''}]}}, {one: {in: {field: rows}, as: candidate, where: {eq: [{get: {of: {var: candidate}, field: name}}, {get: {of: {var: row}, field: name}}]}}}]}, then: {literal: named}, else: {literal: positional}}
+      - index: metadata.current-form-attribute-candidates
+        forEach: {in: {field: rows}, as: row, index: position}
+        key: {record: {component: {input: component}, owner: {input: owner}, name: {if: {and: [{not: {eq: [{get: {of: {var: row}, field: name}}, {literal: ''}]}}, {one: {in: {field: rows}, as: candidate, where: {eq: [{get: {of: {var: candidate}, field: name}}, {get: {of: {var: row}, field: name}}]}}}]}, then: {logicalAddress: {parts: [{literal: Атрибут}, {get: {of: {var: row}, field: name}}]}}, else: {logicalAddress: {parts: [{literal: Атрибут}, {var: position}]}}}}}
+        value: {literal: present}
+      - index: metadata.form-attribute-identities
+        forEach: {in: {field: rows}, as: row, index: position}
+        key: {record: {component: {input: component}, owner: {input: owner}, name: {if: {and: [{not: {eq: [{get: {of: {var: row}, field: name}}, {literal: ''}]}}, {one: {in: {field: rows}, as: candidate, where: {eq: [{get: {of: {var: candidate}, field: name}}, {get: {of: {var: row}, field: name}}]}}}]}, then: {logicalAddress: {parts: [{literal: Атрибут}, {get: {of: {var: row}, field: name}}]}}, else: {logicalAddress: {parts: [{literal: Атрибут}, {var: position}]}}}}}
+        value: {get: {of: {var: row}, field: id}}
+        when: {present: {get: {of: {var: row}, field: id}}}
+      - index: metadata.form-attribute-identities
+        forEach: {in: {field: rows}, as: row, index: position}
+        key: {record: {component: {input: component}, owner: {input: owner}, name: {if: {and: [{not: {eq: [{get: {of: {var: row}, field: name}}, {literal: ''}]}}, {one: {in: {field: rows}, as: candidate, where: {eq: [{get: {of: {var: candidate}, field: name}}, {get: {of: {var: row}, field: name}}]}}}]}, then: {logicalAddress: {parts: [{literal: Атрибут}, {get: {of: {var: row}, field: name}}]}}, else: {logicalAddress: {parts: [{literal: Атрибут}, {var: position}]}}}}}
+        allocate: {scope: [component, owner], first: 1}
+  - kind: object
+    id: metadata.base-form-attribute-file-source
+    namespaces: {f: 'http://v8.1c.ru/8.3/xcf/logform'}
+    imports: {rows: source.form-attribute-id-rows}
+    inputs:
+      component: {type: {kind: scalar, scalar: text}}
+      owner: {type: {kind: scalar, scalar: text}}
+      current: {index: metadata.current-form-attribute-candidates}
+    value: {kind: record, fields: [{name: rows, type: {use: rows}}]}
+    representations:
+      xml: {kind: record, fields: [{field: rows, path: [f:Form, f:BaseForm, f:Attributes]}]}
+      yaml: {kind: mapping, fields: [{field: rows, key: Реквизиты}]}
+    presence:
+      - {target: {field: rows}, xml: {missing: {denotes: {absent: true}}}, yaml: {missing: {denotes: {absent: true}}}}
+    contributions:
+      - index: metadata.form-attribute-address-modes
+        duplicates: coalesce-equal
+        forEach: {in: {field: rows}, as: row}
+        key: {record: {component: {input: component}, owner: {input: owner}, origin: {literal: base}, name: {get: {of: {var: row}, field: name}}}}
+        value: {if: {and: [{not: {eq: [{get: {of: {var: row}, field: name}}, {literal: ''}]}}, {one: {in: {field: rows}, as: candidate, where: {eq: [{get: {of: {var: candidate}, field: name}}, {get: {of: {var: row}, field: name}}]}}}]}, then: {literal: named}, else: {literal: positional}}
+      - index: metadata.form-attribute-identities
+        forEach: {in: {field: rows}, as: row, index: position}
+        key: {record: {component: {input: component}, owner: {input: owner}}}
+        reserve: {get: {of: {var: row}, field: id}}
+        when: {present: {get: {of: {var: row}, field: id}}}
+      - index: metadata.form-attribute-identities
+        forEach: {in: {field: rows}, as: row, index: position}
+        key: {record: {component: {input: component}, owner: {input: owner}, name: {if: {and: [{not: {eq: [{get: {of: {var: row}, field: name}}, {literal: ''}]}}, {one: {in: {field: rows}, as: candidate, where: {eq: [{get: {of: {var: candidate}, field: name}}, {get: {of: {var: row}, field: name}}]}}}]}, then: {logicalAddress: {parts: [{literal: Атрибут}, {get: {of: {var: row}, field: name}}]}}, else: {logicalAddress: {parts: [{literal: Атрибут}, {var: position}]}}}}}
+        value: {get: {of: {var: row}, field: id}}
+        when: {and: [{present: {get: {of: {var: row}, field: id}}}, {not: {present: {lookup: {in: {input: current}, key: {record: {component: {input: component}, owner: {input: owner}, name: {if: {and: [{not: {eq: [{get: {of: {var: row}, field: name}}, {literal: ''}]}}, {one: {in: {field: rows}, as: candidate, where: {eq: [{get: {of: {var: candidate}, field: name}}, {get: {of: {var: row}, field: name}}]}}}]}, then: {logicalAddress: {parts: [{literal: Атрибут}, {get: {of: {var: row}, field: name}}]}}, else: {logicalAddress: {parts: [{literal: Атрибут}, {var: position}]}}}}}}}}}]}
+      - index: metadata.form-attribute-identities
+        forEach: {in: {field: rows}, as: row, index: position}
+        key: {record: {component: {input: component}, owner: {input: owner}, name: {if: {and: [{not: {eq: [{get: {of: {var: row}, field: name}}, {literal: ''}]}}, {one: {in: {field: rows}, as: candidate, where: {eq: [{get: {of: {var: candidate}, field: name}}, {get: {of: {var: row}, field: name}}]}}}]}, then: {logicalAddress: {parts: [{literal: Атрибут}, {get: {of: {var: row}, field: name}}]}}, else: {logicalAddress: {parts: [{literal: Атрибут}, {var: position}]}}}}}
+        allocate: {scope: [component, owner], first: 1000001, phase: 1}
+        when: {not: {present: {lookup: {in: {input: current}, key: {record: {component: {input: component}, owner: {input: owner}, name: {if: {and: [{not: {eq: [{get: {of: {var: row}, field: name}}, {literal: ''}]}}, {one: {in: {field: rows}, as: candidate, where: {eq: [{get: {of: {var: candidate}, field: name}}, {get: {of: {var: row}, field: name}}]}}}]}, then: {logicalAddress: {parts: [{literal: Атрибут}, {get: {of: {var: row}, field: name}}]}}, else: {logicalAddress: {parts: [{literal: Атрибут}, {var: position}]}}}}}}}}}

@@ -1,4 +1,40 @@
+mod support;
 use nkdk_rule_compiler::{SourceFile, compile, link, parse, schema};
+
+#[test]
+fn composed_record_can_be_a_named_collection_item() {
+    let source = br#"format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: fragment
+  id: test.row-fields
+  value: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}]}
+  representations:
+    xml: {kind: record, fields: [{field: name, path: [Name]}]}
+    yaml: {kind: mapping, fields: [{field: name, key: name}]}
+@COMPOSED_ROW@
+- kind: value
+  id: test.rows
+  imports: {row: test.row}
+  value: {kind: sequence, item: {use: row}}
+  representations:
+    xml: {kind: element-sequence, path: [Item]}
+    yaml: {kind: record-mapping, key: name}
+"#;
+    let mut source = String::from_utf8(source.to_vec()).unwrap().replace(
+        "@COMPOSED_ROW@",
+        &support::composed_record("test.row", "test.row-fields"),
+    );
+    source.push_str(&support::named_sequence_owner(
+        "[Root, Items]",
+        "{kind: mapping, fields: [{field: rows, key: Items}]}",
+    ));
+    compile(&[SourceFile {
+        path: "composed.yaml",
+        bytes: source.as_bytes(),
+    }])
+    .unwrap();
+}
 
 #[test]
 fn ordinary_sequences_have_typed_items_and_generate_both_directions() {
@@ -327,10 +363,309 @@ fn recursive_collection_compiles_through_a_reusable_value_module() {
     ])
     .expect("recursive collection generation");
     let source = std::str::from_utf8(&generated.files[0].contents).unwrap();
+    assert!(
+        !source.contains("fn write_mapping_rows_"),
+        "Sequence writers must not generate named-mapping output"
+    );
     assert!(source.contains("mod recursive_value_"));
     assert!(source.contains("struct Stored(Option<Box<recursive_value_"));
+    let default_header = format!(
+        "{}\n{}",
+        std::str::from_utf8(owner).unwrap(),
+        r#"presence:
+- target: {field: root}
+  yaml:
+    missing:
+      denotes:
+        record:
+          name: {literal: parent}
+          children:
+            sequence:
+"#
+    );
+    let projected_owner = format!(
+        "{default_header}{}",
+        r#"            - record:
+                name: {literal: child}
+                children:
+                  sequence:
+                  - record: {name: {literal: leaf}, children: {absent: true}}
+            - record: {name: {literal: sibling}, children: {absent: true}}
+"#
+    );
+    let generated = compile(&[
+        SourceFile {
+            path: "node.yaml",
+            bytes: node,
+        },
+        SourceFile {
+            path: "nodes.yaml",
+            bytes: nodes,
+        },
+        SourceFile {
+            path: "owner.yaml",
+            bytes: projected_owner.as_bytes(),
+        },
+    ])
+    .expect("recursive semantic construction");
+    let harness = r#"
+include!("generated.rs");
+@PAIR_HELPER@
+fn main(){
+ let entry=entry_id("applied.tree").unwrap();
+ for (xml,expected) in [
+  ("<Root><Name>parent</Name></Root>","Корень:\n  Имя: parent\n  Дети: []"),
+  ("<Root><Name>parent</Name><Item><Name>child</Name><Item><Name>leaf</Name></Item></Item><Item><Name>sibling</Name></Item></Root>","Корень:\n  Имя: parent\n  Дети:\n    -\n      Имя: child\n      Дети:\n        -\n          Имя: leaf\n          Дети: []\n    -\n      Имя: sibling\n      Дети: []"),
+ ] {assert_pair(entry,xml.as_bytes(),expected.as_bytes());}
+ let reverse=convert_file(entry,Direction::YamlToXml,b"",&PreparedInputs::default()).unwrap();
+ assert!(reverse.diagnostics.is_empty(),"{:?}",reverse.diagnostics);
+ let read=convert_file(entry,Direction::XmlToYaml,&reverse.bytes,&PreparedInputs::default()).unwrap();
+ assert_eq!(read.bytes,"Корень:\n  Имя: parent\n  Дети:\n    -\n      Имя: child\n      Дети:\n        -\n          Имя: leaf\n          Дети: []\n    -\n      Имя: sibling\n      Дети: []".as_bytes());
+}
+"#.replace("@PAIR_HELPER@",include_str!("support/semantic-pair.rs.in"));
+    support::run_generated("recursive-semantic-construction", generated, 0, &harness);
+
+    let projected_item = br#"format: nkdk-declarations/1
+kind: value
+id: common.boxed-node
+imports: {node: common.node}
+value: {kind: record, fields: [{name: node, type: {use: node}}]}
+representations:
+  xml: {kind: record, fields: [{field: node, path: []}]}
+  yaml: {kind: projection, field: node}
+"#;
+    let projected_nodes = std::str::from_utf8(nodes).unwrap().replace(
+        "imports: {node: common.node}",
+        "imports: {node: common.boxed-node}",
+    );
+    let projected_defaults = format!(
+        "{default_header}{}",
+        r#"            - record:
+                node:
+                  record:
+                    name: {literal: child}
+                    children:
+                      sequence:
+                      - record:
+                          node:
+                            record: {name: {literal: leaf}, children: {absent: true}}
+            - record:
+                node:
+                  record: {name: {literal: sibling}, children: {absent: true}}
+"#
+    );
+    let generated = compile(&[
+        SourceFile {
+            path: "node.yaml",
+            bytes: node,
+        },
+        SourceFile {
+            path: "boxed-node.yaml",
+            bytes: projected_item,
+        },
+        SourceFile {
+            path: "nodes.yaml",
+            bytes: projected_nodes.as_bytes(),
+        },
+        SourceFile {
+            path: "owner.yaml",
+            bytes: projected_defaults.as_bytes(),
+        },
+    ])
+    .expect("recursive collection of projected records");
+    support::run_generated("recursive-projected-construction", generated, 0, &harness);
+    let unsupported_node = std::str::from_utf8(node)
+        .unwrap()
+        .replace(
+            "imports: {children: common.nodes}",
+            "imports: {children: common.nodes, qualified: common.qualified}",
+        )
+        .replace(
+            "{name: name, type: {kind: scalar, scalar: text}}",
+            "{name: name, type: {use: qualified}}",
+        );
+    let mut unsupported_owner = projected_owner.clone();
+    for name in ["parent", "child", "leaf", "sibling"] {
+        unsupported_owner = unsupported_owner.replace(
+            &format!("name: {{literal: {name}}}"),
+            &format!(
+                "name: {{record: {{uri: {{literal: 'urn:test'}}, part: {{literal: {name}}}}}}}"
+            ),
+        );
+    }
+    let errors = compile(&[
+        SourceFile {
+            path: "qualified.yaml",
+            bytes: include_bytes!("fixtures/qname-common.yaml"),
+        },
+        SourceFile {
+            path: "node.yaml",
+            bytes: unsupported_node.as_bytes(),
+        },
+        SourceFile {
+            path: "nodes.yaml",
+            bytes: nodes,
+        },
+        SourceFile {
+            path: "owner.yaml",
+            bytes: unsupported_owner.as_bytes(),
+        },
+    ])
+    .expect_err("a back edge must not hide an unsupported QName constructor");
+    assert!(
+        errors
+            .iter()
+            .any(|error| error.code == "unsupported_generation_feature"
+                && error.message
+                    == "Missing record construction currently requires a projected YAML value"),
+        "{errors:?}"
+    );
     assert!(source.contains("static QNAMES_ACTIVE"));
     assert!(source.contains("fn target_path(path:&[core::xml::Name])"));
     assert!(source.contains("::qname_attribute(&path,name)"));
     assert!(source.contains("::qname_text(&path)"));
+}
+
+#[test]
+fn text_sequence_defaults_construct_ordered_semantic_rows() {
+    let row = include_str!("fixtures/text-pattern.yaml")
+        .replace("{literal: '['}, ", "")
+        .replace("{literal: '] '}", "{literal: '/'}");
+    let frame = row
+        .replace(
+            "id: common.text-pair",
+            "id: common.text-frame\nimports: {tail: common.text-sequence}",
+        )
+        .replace(
+            "representations:",
+            "  - {name: tail, type: {use: tail}}\nrepresentations:",
+        )
+        .replace(
+            "{field: name}]}",
+            "{field: name}, {literal: '::'}, {field: tail}]}",
+        )
+        .replace(
+            "{field: domain}]}",
+            "{field: domain}, {literal: '/'}, {field: tail}]}",
+        );
+    let first_kind =
+        "format: nkdk-declarations/1\nkind: value\nid: common.first-kind\nenum: {a: Первое}\n";
+    let second_kind = first_kind
+        .replace("first-kind", "second-kind")
+        .replace("a: Первое", "b: Второе");
+    let first = row
+        .replace(
+            "common.text-pair",
+            "common.choice-first\nimports: {kind: common.first-kind}",
+        )
+        .replace(
+            "{name: domain, type: {kind: scalar, scalar: text}}",
+            "{name: domain, type: {use: kind}}",
+        )
+        .replace(
+            "{field: name}, {literal: '/'}, {field: domain}",
+            "{field: domain}, {literal: '/'}, {field: name}",
+        );
+    let second = first
+        .replace("common.choice-first", "common.choice-second")
+        .replace("common.first-kind", "common.second-kind")
+        .replace("name: name", "name: code")
+        .replace("field: name", "field: code");
+    let choice_sequence = include_str!("fixtures/text-sequence.yaml")
+        .replace("id: common.text-sequence", "id: common.choice-sequence")
+        .replace("common.text-pair", "common.text-choice");
+    let choice_frame = frame
+        .replace("common.text-frame", "common.choice-frame")
+        .replace("common.text-sequence", "common.choice-sequence");
+    let sequence = include_bytes!("fixtures/text-sequence.yaml");
+    let owner = format!(
+        "{}\npresence:\n- target: {{field: pair}}\n  yaml:\n    missing:\n      denotes:\n        sequence:\n        - record: {{domain: {{literal: A}}, name: {{literal: First}}}}\n        - record: {{domain: {{literal: B}}, name: {{literal: Second}}}}\n",
+        include_str!("fixtures/text-pattern-owner.yaml")
+            .replace("common.text-pair", "common.text-sequence")
+    );
+    let frame_owner = format!(
+        "{}\npresence:\n- target: {{field: pair}}\n  yaml:\n    missing:\n      denotes:\n        record:\n          domain: {{literal: H}}\n          name: {{literal: Head}}\n          tail:\n            sequence:\n            - record: {{domain: {{literal: A}}, name: {{literal: First}}}}\n            - record: {{domain: {{literal: B}}, name: {{literal: Second}}}}\n",
+        include_str!("fixtures/text-pattern-owner.yaml")
+            .replace("test.text-pattern", "test.text-frame")
+            .replace("common.text-pair", "common.text-frame")
+    );
+    let choice_owner = frame_owner.replace("test.text-frame", "test.choice-frame").replace("common.text-frame", "common.choice-frame")
+        .replace("- record: {domain: {literal: A}, name: {literal: First}}", "- variant: {name: first, value: {record: {domain: {literal: a}, name: {literal: alpha}}}}")
+        .replace("- record: {domain: {literal: B}, name: {literal: Second}}", "- variant: {name: second, value: {record: {domain: {literal: b}, code: {literal: beta}}}}");
+    let generated = compile(&[
+        SourceFile {
+            path: "first-kind.yaml",
+            bytes: first_kind.as_bytes(),
+        },
+        SourceFile {
+            path: "second-kind.yaml",
+            bytes: second_kind.as_bytes(),
+        },
+        SourceFile {
+            path: "choice-first.yaml",
+            bytes: first.as_bytes(),
+        },
+        SourceFile {
+            path: "choice-second.yaml",
+            bytes: second.as_bytes(),
+        },
+        SourceFile {
+            path: "choice.yaml",
+            bytes: include_bytes!("fixtures/text-choice.yaml"),
+        },
+        SourceFile {
+            path: "choice-sequence.yaml",
+            bytes: choice_sequence.as_bytes(),
+        },
+        SourceFile {
+            path: "choice-frame.yaml",
+            bytes: choice_frame.as_bytes(),
+        },
+        SourceFile {
+            path: "choice-owner.yaml",
+            bytes: choice_owner.as_bytes(),
+        },
+        SourceFile {
+            path: "frame.yaml",
+            bytes: frame.as_bytes(),
+        },
+        SourceFile {
+            path: "frame-owner.yaml",
+            bytes: frame_owner.as_bytes(),
+        },
+        SourceFile {
+            path: "row.yaml",
+            bytes: row.as_bytes(),
+        },
+        SourceFile {
+            path: "sequence.yaml",
+            bytes: sequence,
+        },
+        SourceFile {
+            path: "owner.yaml",
+            bytes: owner.as_bytes(),
+        },
+    ])
+    .expect("semantic text sequence default");
+    let main = r#"
+include!("generated.rs");
+@PAIR_HELPER@
+fn main(){
+ for (id,xml,expected) in [
+  ("test.choice-frame",b"<Root><Pair>H::Head::a::alpha::b::beta</Pair></Root>".as_slice(), "Pair: Head/H/Первое/alpha/Второе/beta".as_bytes()),
+  ("test.text-pattern",b"<Root><Pair>A::First::B::Second</Pair></Root>".as_slice(), b"Pair: First/A/Second/B".as_slice()),
+  ("test.text-frame",b"<Root><Pair>H::Head::A::First::B::Second</Pair></Root>".as_slice(), b"Pair: Head/H/First/A/Second/B".as_slice()),
+ ] {
+ let entry=entry_id(id).unwrap();
+ assert_pair(entry,xml,expected);
+ let inputs=PreparedInputs::default();
+ let restored=convert_file(entry,Direction::YamlToXml,b"{}",&inputs).unwrap();
+ assert!(restored.diagnostics.is_empty(),"{:?}",restored.diagnostics);
+ verify_candidate(entry,xml,b"{}",&inputs).unwrap();
+ let projected=convert_file(entry,Direction::XmlToYaml,&restored.bytes,&inputs).unwrap();
+ assert_eq!(projected.bytes,expected);
+ }
+}
+"#.replace("@PAIR_HELPER@",include_str!("support/semantic-pair.rs.in"));
+    support::run_generated("text-sequence-semantic-default", generated, 0, &main);
 }

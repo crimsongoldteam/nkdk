@@ -1,0 +1,14 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.standard-period-untyped
+imports: {value: common.standard-period}
+value:
+  kind: record
+  fields: [{name: value, type: {use: value, with: {typedXML: false}}}]
+representations:
+  xml:
+    kind: record
+    fields: [{field: value, path: [Root, Period]}]
+  yaml:
+    kind: mapping
+    fields: [{field: value, key: Период}]

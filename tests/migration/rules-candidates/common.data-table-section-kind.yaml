@@ -1,0 +1,5 @@
+format: nkdk-declarations/1
+kind: value
+id: common.data-table-section-kind
+enum:
+  TabularSection: ТабличнаяЧасть

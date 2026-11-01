@@ -1,7 +1,7 @@
 import { dirname, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 import { configDefaults } from "vitest/config"
-import { defineConfig } from "vitest/config"
+import { defineConfig, type TestUserConfig } from "vitest/config"
 
 interface UnitIntegrationTestOptions {
   environment?: string
@@ -13,6 +13,7 @@ interface UnitIntegrationTestOptions {
 export function unitIntegrationVitestConfig(
   configUrl: string,
   testOptions: UnitIntegrationTestOptions = {},
+  unitTestOptions: Pick<TestUserConfig, "pool" | "vmMemoryLimit"> = {},
 ) {
   const packageDirectory = dirname(fileURLToPath(configUrl))
   const unitDependencyGuard = resolve(packageDirectory, "../../scripts/vitest/forbid-unit-external-dependencies")
@@ -20,16 +21,20 @@ export function unitIntegrationVitestConfig(
     test: {
       maxWorkers: 1,
       ...testOptions,
-      projects: unitIntegrationProjects(unitDependencyGuard),
+      projects: unitIntegrationProjects(unitDependencyGuard, unitTestOptions),
     },
   })
 }
 
-function unitIntegrationProjects(unitDependencyGuard: string) {
+function unitIntegrationProjects(
+  unitDependencyGuard: string,
+  unitTestOptions: Pick<TestUserConfig, "pool" | "vmMemoryLimit">,
+) {
   return [
     {
       test: {
         name: "unit",
+        ...unitTestOptions,
         exclude: [...configDefaults.exclude, "**/*.integration.test.ts"],
         setupFiles: [unitDependencyGuard],
       },

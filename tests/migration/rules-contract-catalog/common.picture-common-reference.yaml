@@ -1,0 +1,22 @@
+format: nkdk-declarations/1
+kind: value
+id: common.picture-common-reference
+imports:
+  name: common.metadata-name
+value:
+  kind: record
+  fields:
+    - name: name
+      type:
+        use: name
+representations:
+  xml:
+    kind: text-pattern
+    parts:
+      - literal: CommonPicture.
+      - field: name
+  yaml:
+    kind: text-pattern
+    parts:
+      - literal: ОбщаяКартинка.
+      - field: name

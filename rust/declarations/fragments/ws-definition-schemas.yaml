@@ -1,0 +1,14 @@
+format: nkdk-declarations/1
+kind: fragment
+id: fragment.ws-definition-schemas
+inputs:
+  files: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+value: {kind: record, fields: []}
+representations:
+  xml: {kind: record, fields: []}
+  yaml: {kind: mapping, fields: []}
+resources:
+- forEach: {in: {input: files}, as: file}
+  oneOf:
+  - xml: {sequence: [{literal: Ext}, {var: file}]}
+    yaml: {sequence: [{literal: XSD}, {var: file}]}

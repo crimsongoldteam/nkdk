@@ -1,22 +1,15 @@
 use super::*;
 use yaml_rust2::{
     Yaml,
-    parser::{Event, MarkedEventReceiver, Parser},
+    parser::{Event, MarkedEventReceiver},
     scanner::{Marker, TScalarStyle},
 };
 
 /// JSON is a subset of the accepted YAML input document. Record field order is
 /// significant and follows the declaration and the serialized mapping.
 pub fn read(source: &[u8]) -> Result<Vec<(String, InputValue)>> {
-    let source = std::str::from_utf8(source)
-        .map_err(|error| RuntimeDiagnostic::new("input.encoding", error.to_string()))?;
     let mut receiver = Receiver::default();
-    Parser::new_from_str(source)
-        .load(&mut receiver, true)
-        .map_err(|error| {
-            RuntimeDiagnostic::new("input.syntax", error.to_string())
-                .at(error.marker().line(), error.marker().col() + 1)
-        })?;
+    crate::yaml::parse_events(source, &mut receiver, "input.encoding", "input.syntax")?;
     if let Some(error) = receiver.error {
         return Err(error);
     }

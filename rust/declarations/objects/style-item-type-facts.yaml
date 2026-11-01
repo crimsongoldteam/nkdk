@@ -1,0 +1,37 @@
+format: nkdk-declarations/1
+kind: object
+id: metadata.style-item-type-facts
+namespaces: {md: 'http://v8.1c.ru/8.3/MDClasses'}
+imports: {type: system.StyleElementType}
+inputs: {ownerName: {type: {kind: scalar, scalar: text}}}
+value:
+  kind: record
+  fields:
+  - {name: name, type: {kind: scalar, scalar: text}}
+  - {name: type, type: {use: type}}
+representations:
+  xml:
+    kind: record
+    fields:
+    - {field: name, path: [md:MetaDataObject, md:StyleItem, md:Properties, md:Name]}
+    - {field: type, path: [md:MetaDataObject, md:StyleItem, md:Properties, md:Type]}
+  yaml: {kind: mapping, fields: [{field: type, key: Тип}]}
+presence:
+- target: {field: name}
+  yaml: {missing: {denotes: {input: ownerName}}}
+- target: {field: type}
+  xml: {missing: {denotes: {literal: Font}}}
+  yaml:
+    missing: {denotes: {literal: Font}}
+    empty: [{form: 'null', denotes: {literal: Font}}]
+contributions:
+- index: metadata.style-item-types
+  when: {present: {field: type}}
+  key: {field: name}
+  value:
+    if: {eq: [{field: type}, {literal: Font}]}
+    then: {literal: Font}
+    else:
+      if: {eq: [{field: type}, {literal: Color}]}
+      then: {literal: Color}
+      else: {literal: Border}

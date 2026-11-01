@@ -1,75 +1,212 @@
+# Generated from rules.ts by tools/rules-migration/src/internal-info-operation.mjs
 format: nkdk-declarations/1
 kind: fragment
-id: fragment.journal-internal-info
-imports: {types: common.internal-generated-types}
-namespaces: {md: 'http://v8.1c.ru/8.3/MDClasses'}
+imports:
+  types: common.internal-generated-types
+  states: journal.property-states
+namespaces:
+  md: http://v8.1c.ru/8.3/MDClasses
+  xr: http://v8.1c.ru/8.3/xcf/readable
 inputs:
-  owner: {type: {kind: scalar, scalar: text}}
-  name: {type: {kind: scalar, scalar: text}}
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  name:
+    type:
+      kind: scalar
+      scalar: text
   typeIds:
     type:
       kind: index
       key:
         kind: record
         fields:
-        - {name: owner, type: {kind: scalar, scalar: text}}
-        - {name: name, type: {kind: scalar, scalar: text}}
-      value: {kind: scalar, scalar: text}
+          - name: owner
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
   valueIds:
     type:
       kind: index
       key:
         kind: record
         fields:
-        - {name: owner, type: {kind: scalar, scalar: text}}
-        - {name: name, type: {kind: scalar, scalar: text}}
-      value: {kind: scalar, scalar: text}
-value: {kind: record, fields: [{name: types, type: {use: types}}]}
+          - name: owner
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+value:
+  kind: record
+  fields:
+    - name: types
+      type:
+        use: types
+    - name: states
+      type:
+        use: states
 representations:
-  xml: {kind: record, fields: [{field: types, path: ['md:MetaDataObject', 'md:DocumentJournal', 'md:InternalInfo']}]}
-  yaml: {kind: mapping, fields: [{field: types, key: ВнутренниеТипы}]}
-presence:
-- target: {field: types}
-  xml: {missing: {denotes: {absent: true}}}
+  xml:
+    kind: record
+    fields:
+      - field: types
+        path:
+          - md:MetaDataObject
+          - md:DocumentJournal
+          - md:InternalInfo
+      - field: states
+        path:
+          - md:MetaDataObject
+          - md:DocumentJournal
+          - md:InternalInfo
   yaml:
-    default:
-      sequence:
-      - record:
-          name: {concat: [{literal: 'DocumentJournalSelection.'}, {input: name}]}
-          category: {literal: Selection}
-          typeId:
-            require:
-              lookup:
-                in: {input: typeIds}
-                key: {record: {owner: {input: owner}, name: {literal: DocumentJournalSelection}}}
-          valueId:
-            require:
-              lookup:
-                in: {input: valueIds}
-                key: {record: {owner: {input: owner}, name: {literal: DocumentJournalSelection}}}
-      - record:
-          name: {concat: [{literal: 'DocumentJournalList.'}, {input: name}]}
-          category: {literal: List}
-          typeId:
-            require:
-              lookup:
-                in: {input: typeIds}
-                key: {record: {owner: {input: owner}, name: {literal: DocumentJournalList}}}
-          valueId:
-            require:
-              lookup:
-                in: {input: valueIds}
-                key: {record: {owner: {input: owner}, name: {literal: DocumentJournalList}}}
-      - record:
-          name: {concat: [{literal: 'DocumentJournalManager.'}, {input: name}]}
-          category: {literal: Manager}
-          typeId:
-            require:
-              lookup:
-                in: {input: typeIds}
-                key: {record: {owner: {input: owner}, name: {literal: DocumentJournalManager}}}
-          valueId:
-            require:
-              lookup:
-                in: {input: valueIds}
-                key: {record: {owner: {input: owner}, name: {literal: DocumentJournalManager}}}
+    kind: mapping
+    fields:
+      - field: types
+        key: ВнутренниеТипы
+      - field: states
+        key: Изменять
+presence:
+  - target:
+      field: types
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        sequence:
+          - record:
+              name:
+                concat:
+                  - literal: DocumentJournalSelection.
+                  - input: name
+              category:
+                literal: Selection
+              typeId:
+                require:
+                  lookup:
+                    in:
+                      input: typeIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        name:
+                          literal: DocumentJournalSelection
+              valueId:
+                require:
+                  lookup:
+                    in:
+                      input: valueIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        name:
+                          literal: DocumentJournalSelection
+          - record:
+              name:
+                concat:
+                  - literal: DocumentJournalList.
+                  - input: name
+              category:
+                literal: List
+              typeId:
+                require:
+                  lookup:
+                    in:
+                      input: typeIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        name:
+                          literal: DocumentJournalList
+              valueId:
+                require:
+                  lookup:
+                    in:
+                      input: valueIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        name:
+                          literal: DocumentJournalList
+          - record:
+              name:
+                concat:
+                  - literal: DocumentJournalManager.
+                  - input: name
+              category:
+                literal: Manager
+              typeId:
+                require:
+                  lookup:
+                    in:
+                      input: typeIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        name:
+                          literal: DocumentJournalManager
+              valueId:
+                require:
+                  lookup:
+                    in:
+                      input: valueIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        name:
+                          literal: DocumentJournalManager
+  - target:
+      field: states
+    xml:
+      missing:
+        denotes:
+          sequence: []
+    yaml:
+      default:
+        sequence: []
+id: fragment.journal-internal-info
+contributions:
+  - index: metadata.property-state-membership
+    duplicates: coalesce-equal
+    forEach:
+      in:
+        field: states
+      as: row
+    key:
+      record:
+        owner:
+          input: owner
+        property:
+          get:
+            of:
+              var: row
+            field: name
+        mode:
+          get:
+            of:
+              var: row
+            field: mode
+    value:
+      literal: present

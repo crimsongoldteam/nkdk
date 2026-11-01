@@ -388,6 +388,54 @@
         {
           "type": "object",
           "properties": {
+            "collectionPosition": {
+              "const": true
+            }
+          },
+          "required": [
+            "collectionPosition"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "logicalAddress": {
+              "type": "object",
+              "properties": {
+                "parent": {
+                  "$ref": "#/$defs/expression"
+                },
+                "parts": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "oneOf": [
+                      { "$ref": "#/$defs/expression" },
+                      {
+                        "type": "object",
+                        "properties": { "yamlField": { "type": "string", "minLength": 1 } },
+                        "required": ["yamlField"],
+                        "additionalProperties": false
+                      }
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "parts"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "logicalAddress"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
             "absent": {
               "const": true
             }
@@ -1068,14 +1116,24 @@
             "variant": {
               "type": "object",
               "properties": {
-                "name": {"type": "string", "minLength": 1},
-                "value": {"$ref": "#/$defs/expression"}
+                "name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "value": {
+                  "$ref": "#/$defs/expression"
+                }
               },
-              "required": ["name", "value"],
+              "required": [
+                "name",
+                "value"
+              ],
               "additionalProperties": false
             }
           },
-          "required": ["variant"],
+          "required": [
+            "variant"
+          ],
           "additionalProperties": false
         },
         {
@@ -1085,7 +1143,9 @@
               "$ref": "#/$defs/variantExpression"
             }
           },
-          "required": ["isVariant"],
+          "required": [
+            "isVariant"
+          ],
           "additionalProperties": false
         },
         {
@@ -1095,23 +1155,33 @@
               "$ref": "#/$defs/variantExpression"
             }
           },
-          "required": ["variantValue"],
+          "required": [
+            "variantValue"
+          ],
           "additionalProperties": false
         },
         {
           "type": "object",
           "properties": {
-            "variantText": {"$ref": "#/$defs/variantExpression"}
+            "variantText": {
+              "$ref": "#/$defs/variantExpression"
+            }
           },
-          "required": ["variantText"],
+          "required": [
+            "variantText"
+          ],
           "additionalProperties": false
         },
         {
           "type": "object",
           "properties": {
-            "textSegmentPrefix": {"$ref": "#/$defs/textSegmentPrefixExpression"}
+            "textSegmentPrefix": {
+              "$ref": "#/$defs/textSegmentPrefixExpression"
+            }
           },
-          "required": ["textSegmentPrefix"],
+          "required": [
+            "textSegmentPrefix"
+          ],
           "additionalProperties": false
         },
         {
@@ -1121,7 +1191,9 @@
               "$ref": "#/$defs/textLengthExpression"
             }
           },
-          "required": ["textLengthAtMost"],
+          "required": [
+            "textLengthAtMost"
+          ],
           "additionalProperties": false
         },
         {
@@ -1131,7 +1203,9 @@
               "$ref": "#/$defs/textLengthExpression"
             }
           },
-          "required": ["textLengthEquals"],
+          "required": [
+            "textLengthEquals"
+          ],
           "additionalProperties": false
         },
         {
@@ -1141,7 +1215,33 @@
               "$ref": "#/$defs/calendarExpression"
             }
           },
-          "required": ["calendarFits"],
+          "required": [
+            "calendarFits"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "decimalText": {
+              "$ref": "#/$defs/expression"
+            }
+          },
+          "required": [
+            "decimalText"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "enumText": {
+              "$ref": "#/$defs/expression"
+            }
+          },
+          "required": [
+            "enumText"
+          ],
           "additionalProperties": false
         },
         {
@@ -1151,7 +1251,9 @@
               "$ref": "#/$defs/decimalExpression"
             }
           },
-          "required": ["decimalFits"],
+          "required": [
+            "decimalFits"
+          ],
           "additionalProperties": false
         },
         {
@@ -1215,6 +1317,48 @@
           },
           "required": [
             "fold"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "identity": {
+              "type": "object",
+              "properties": {
+                "seed": {
+                  "$ref": "#/$defs/expression"
+                },
+                "domain": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "format": {
+                  "enum": [
+                    "uuid",
+                    "hex128",
+                    "hex160"
+                  ]
+                },
+                "address": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/expression"
+                  },
+                  "minItems": 1
+                }
+              },
+              "required": [
+                "seed",
+                "domain",
+                "format",
+                "address"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "identity"
           ],
           "additionalProperties": false
         },
@@ -1418,12 +1562,34 @@
                 },
                 "capture": {
                   "type": "string"
+                },
+                "prefix": {
+                  "type": "string"
+                },
+                "suffix": {
+                  "type": "string"
                 }
               },
               "required": [
                 "kind",
                 "scalar",
                 "capture"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "scalar"
+                },
+                "literal": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "kind",
+                "literal"
               ],
               "additionalProperties": false
             },
@@ -1460,6 +1626,41 @@
                 "capture"
               ],
               "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "scalar"
+                },
+                "field": {
+                  "type": "string"
+                },
+                "scalar": {
+                  "const": "text"
+                }
+              },
+              "required": [
+                "kind",
+                "field"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "mapping"
+                },
+                "field": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "kind",
+                "field"
+              ],
+              "additionalProperties": false
             }
           ]
         },
@@ -1468,14 +1669,41 @@
         },
         "when": {
           "$ref": "#/$defs/expression"
+        },
+        "canonical": {
+          "type": "boolean"
         }
       },
       "required": [
         "id",
-        "representation",
-        "denotes"
+        "representation"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "representation": {
+                "required": [
+                  "field"
+                ]
+              }
+            }
+          },
+          "then": {
+            "not": {
+              "required": [
+                "denotes"
+              ]
+            }
+          },
+          "else": {
+            "required": [
+              "denotes"
+            ]
+          }
+        }
+      ]
     },
     "presence": {
       "type": "object",
@@ -1528,6 +1756,9 @@
                     ]
                   },
                   "denotes": {
+                    "$ref": "#/$defs/expression"
+                  },
+                  "when": {
                     "$ref": "#/$defs/expression"
                   }
                 },
@@ -1599,6 +1830,9 @@
                   },
                   "denotes": {
                     "$ref": "#/$defs/expression"
+                  },
+                  "when": {
+                    "$ref": "#/$defs/expression"
                   }
                 },
                 "required": [
@@ -1612,6 +1846,9 @@
               "$ref": "#/$defs/expression"
             },
             "default": {
+              "$ref": "#/$defs/expression"
+            },
+            "nullWhen": {
               "$ref": "#/$defs/expression"
             }
           },
@@ -2133,6 +2370,13 @@
                 },
                 "item": {
                   "$ref": "#/$defs/xmlCollection"
+                },
+                "next": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "string"
+                  }
                 }
               },
               "required": [
@@ -2205,13 +2449,18 @@
                   },
                   "key": {
                     "type": "string"
-                  }
+                  },
+                  "file": { "$ref": "#/$defs/expression" }
                 },
-                "required": [
-                  "field",
-                  "key"
-                ],
+                "required": ["field"],
+                "oneOf": [{"required": ["key"]}, {"required": ["file"]}],
                 "additionalProperties": false
+              }
+            },
+            "shorthand": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/shorthand"
               }
             }
           },
@@ -2237,6 +2486,39 @@
           "required": [
             "kind",
             "field"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "grouped-sequence"
+            },
+            "groups": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "properties": {
+                  "field": {
+                    "type": "string"
+                  },
+                  "itemTag": {
+                    "type": "string",
+                    "pattern": "^(?!xml(?:/|$))[\\p{L}\\p{N}_./-]+$"
+                  }
+                },
+                "required": [
+                  "field"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "kind",
+            "groups"
           ],
           "additionalProperties": false
         }
@@ -2286,7 +2568,15 @@
               }
             },
             "singleton": {
-              "const": "scalar"
+              "enum": [
+                "scalar",
+                "value"
+              ]
+            },
+            "itemTag": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^(?!xml(?:/|$))[^\\s!]+$"
             }
           },
           "required": [
@@ -2297,8 +2587,31 @@
             {
               "if": {
                 "required": [
-                  "singleton"
+                  "itemTag"
                 ]
+              },
+              "then": {
+                "properties": {
+                  "item": {
+                    "properties": {
+                      "kind": {
+                        "const": "declared"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "required": [
+                  "singleton"
+                ],
+                "properties": {
+                  "singleton": {
+                    "const": "scalar"
+                  }
+                }
               },
               "then": {
                 "required": [
@@ -2338,6 +2651,29 @@
                   }
                 }
               }
+            },
+            {
+              "if": {
+                "required": [
+                  "singleton"
+                ],
+                "properties": {
+                  "singleton": {
+                    "const": "value"
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "item": {
+                    "properties": {
+                      "kind": {
+                        "const": "declared"
+                      }
+                    }
+                  }
+                }
+              }
             }
           ]
         },
@@ -2355,6 +2691,13 @@
               "type": "string",
               "minLength": 1
             },
+            "groupKey": {
+              "type": "string",
+              "minLength": 1
+            },
+            "emptyRowNull": {
+              "type": "boolean"
+            },
             "restoreFrom": {
               "type": "string",
               "minLength": 1
@@ -2370,13 +2713,152 @@
             "keyTable": {
               "type": "object",
               "properties": {
-                "input": { "type": "string", "minLength": 1 },
-                "internal": { "type": "string", "minLength": 1 },
-                "external": { "type": "string", "minLength": 1 },
-                "empty": { "type": "string", "minLength": 1 }
+                "input": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "internal": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "external": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "empty": {
+                  "type": "string",
+                  "minLength": 1
+                }
               },
-              "required": ["input", "internal", "external"],
+              "required": [
+                "input",
+                "internal",
+                "external"
+              ],
               "additionalProperties": false
+            },
+            "maxItems": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "itemInputs": {
+              "type": "object",
+              "minProperties": 1,
+              "additionalProperties": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "rowKey": {
+                        "const": true
+                      }
+                    },
+                    "required": [
+                      "rowKey"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "lookup": {
+                        "type": "object",
+                        "properties": {
+                          "in": {
+                            "type": "object",
+                            "properties": {
+                              "input": {
+                                "type": "string",
+                                "minLength": 1
+                              }
+                            },
+                            "required": [
+                              "input"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "key": {
+                            "type": "object",
+                            "properties": {
+                              "rowKey": {
+                                "const": true
+                              }
+                            },
+                            "required": [
+                              "rowKey"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "default": {
+                            "type": "object",
+                            "properties": {
+                              "input": {
+                                "type": "string",
+                                "minLength": 1
+                              }
+                            },
+                            "required": [
+                              "input"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "required": [
+                          "in",
+                          "key",
+                          "default"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "required": [
+                      "lookup"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "table": {
+                        "type": "object",
+                        "properties": {
+                          "key": {
+                            "type": "object",
+                            "properties": {
+                              "rowKey": {
+                                "const": true
+                              }
+                            },
+                            "required": [
+                              "rowKey"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "values": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "string"
+                            }
+                          },
+                          "default": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "key",
+                          "values",
+                          "default"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "required": [
+                      "table"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
             }
           },
           "required": [
@@ -3014,13 +3496,27 @@
               },
               "xml": {
                 "$ref": "#/$defs/enumProjectionXml"
+              },
+              "yaml": {
+                "$ref": "#/$defs/enumProjectionYaml"
               }
             },
             "required": [
-              "id",
-              "xml"
+              "id"
             ],
-            "additionalProperties": false
+            "additionalProperties": false,
+            "anyOf": [
+              {
+                "required": [
+                  "xml"
+                ]
+              },
+              {
+                "required": [
+                  "yaml"
+                ]
+              }
+            ]
           }
         },
         "contributions": {
@@ -3037,6 +3533,22 @@
               },
               "value": {
                 "$ref": "#/$defs/expression"
+              },
+              "reserve": {
+                "$ref": "#/$defs/expression"
+              },
+              "allocate": {
+                "type": "object",
+                "properties": {
+                  "scope": {
+                    "type": "array",
+                    "items": {"type": "string", "minLength": 1},
+                    "uniqueItems": true
+                  },
+                  "first": {"type": "integer", "minimum": 1, "maximum": 18446744073709551615}
+                },
+                "required": ["scope", "first"],
+                "additionalProperties": false
               },
               "forEach": {
                 "type": "object",
@@ -3066,12 +3578,26 @@
                   "referencePrefix"
                 ],
                 "additionalProperties": false
+              },
+              "when": {
+                "$ref": "#/$defs/expression"
+              },
+              "duplicates": {
+                "enum": [
+                  "reject",
+                  "coalesce-equal"
+                ],
+                "description": "Equal projected key/value rows may be coalesced; conflicting values stay ambiguous."
               }
             },
             "required": [
               "index",
-              "key",
-              "value"
+              "key"
+            ],
+            "oneOf": [
+              {"required": ["value"], "not": {"anyOf": [{"required": ["allocate"]}, {"required": ["reserve"]}]}},
+              {"required": ["allocate"], "not": {"anyOf": [{"required": ["value"]}, {"required": ["reserve"]}, {"required": ["union"]}]}},
+              {"required": ["reserve"], "not": {"anyOf": [{"required": ["value"]}, {"required": ["allocate"]}, {"required": ["union"]}, {"required": ["duplicates"]}]}}
             ],
             "additionalProperties": false
           }
@@ -3164,6 +3690,18 @@
           "items": {
             "$ref": "#/$defs/stateRelation"
           }
+        },
+        "xmlOrder": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "dataPath": {
+          "$ref": "#/$defs/dataPath"
         }
       },
       "required": [
@@ -3669,7 +4207,9 @@
                   "xml": {
                     "$ref": "#/$defs/xmlChoice"
                   },
-                  "yaml": {"$ref": "#/$defs/yamlChoice"}
+                  "yaml": {
+                    "$ref": "#/$defs/yamlChoice"
+                  }
                 },
                 "required": [
                   "xml",
@@ -3750,7 +4290,9 @@
                       "xml": {
                         "$ref": "#/$defs/xmlChoice"
                       },
-                      "yaml": {"$ref": "#/$defs/yamlChoice"}
+                      "yaml": {
+                        "$ref": "#/$defs/yamlChoice"
+                      }
                     },
                     "required": [
                       "xml",
@@ -3945,13 +4487,27 @@
               },
               "xml": {
                 "$ref": "#/$defs/enumProjectionXml"
+              },
+              "yaml": {
+                "$ref": "#/$defs/enumProjectionYaml"
               }
             },
             "required": [
-              "id",
-              "xml"
+              "id"
             ],
-            "additionalProperties": false
+            "additionalProperties": false,
+            "anyOf": [
+              {
+                "required": [
+                  "xml"
+                ]
+              },
+              {
+                "required": [
+                  "yaml"
+                ]
+              }
+            ]
           }
         }
       },
@@ -3964,6 +4520,18 @@
     },
     "enumProjectionXml": {
       "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "yaml-text"
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "additionalProperties": false
+        },
         {
           "type": "object",
           "properties": {
@@ -4342,8 +4910,13 @@
     "yamlChoice": {
       "type": "object",
       "properties": {
-        "kind": {"const": "choice"},
-        "fallback": {"type": "string", "minLength": 1},
+        "kind": {
+          "const": "choice"
+        },
+        "fallback": {
+          "type": "string",
+          "minLength": 1
+        },
         "variants": {
           "type": "array",
           "minItems": 1,
@@ -4352,28 +4925,158 @@
               {
                 "type": "object",
                 "properties": {
-                  "variant": {"type": "string", "minLength": 1},
-                  "form": {"const": "sequence"}
+                  "variant": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "form": {
+                    "enum": [
+                      "scalar",
+                      "tagged"
+                    ]
+                  },
+                  "tag": {
+                    "type": "string"
+                  }
                 },
-                "required": ["variant", "form"],
+                "required": [
+                  "variant",
+                  "form",
+                  "tag"
+                ],
                 "additionalProperties": false
               },
               {
                 "type": "object",
                 "properties": {
-                  "variant": {"type": "string", "minLength": 1},
-                  "form": {"const": "mapping"},
-                  "key": {"type": "string", "minLength": 1},
-                  "value": {"type": "string"}
+                  "variant": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "form": {
+                    "const": "scalar-input"
+                  },
+                  "input": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "equals": {
+                    "type": "string"
+                  }
                 },
-                "required": ["variant", "form", "key"],
+                "required": [
+                  "variant",
+                  "form",
+                  "input",
+                  "equals"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "variant": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "form": {
+                    "const": "input-profile"
+                  },
+                  "input": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "equals": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "variant",
+                  "form",
+                  "input",
+                  "equals"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "variant": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "form": {
+                    "const": "mapping-input"
+                  },
+                  "input": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "equals": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "variant",
+                  "form",
+                  "input",
+                  "equals"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "variant": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "form": {
+                    "const": "sequence"
+                  }
+                },
+                "required": [
+                  "variant",
+                  "form"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "variant": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "form": {
+                    "const": "mapping"
+                  },
+                  "key": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "value": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "variant",
+                  "form"
+                ],
+                "dependentRequired": {
+                  "value": [
+                    "key"
+                  ]
+                },
                 "additionalProperties": false
               }
             ]
           }
         }
       },
-      "required": ["kind"],
+      "required": [
+        "kind"
+      ],
       "additionalProperties": false
     },
     "xmlChoice": {
@@ -4381,10 +5084,17 @@
         {
           "type": "object",
           "properties": {
-            "kind": {"const": "choice"},
-            "fallback": {"type": "string", "minLength": 1}
+            "kind": {
+              "const": "choice"
+            },
+            "fallback": {
+              "type": "string",
+              "minLength": 1
+            }
           },
-          "required": ["kind"],
+          "required": [
+            "kind"
+          ],
           "additionalProperties": false
         },
         {
@@ -4402,16 +5112,43 @@
               "items": {
                 "type": "object",
                 "properties": {
-                  "variant": {"type": "string", "minLength": 1},
+                  "variant": {
+                    "type": "string",
+                    "minLength": 1
+                  },
                   "in": {
                     "type": "array",
                     "minItems": 1,
-                    "items": {"type": "string", "minLength": 1}
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
                   },
-                  "emit": {"type": "string", "minLength": 1}
+                  "emit": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "from": {
+                    "type": "string",
+                    "minLength": 1
+                  }
                 },
-                "required": ["variant", "in", "emit"],
-                "additionalProperties": false
+                "required": [
+                  "variant"
+                ],
+                "additionalProperties": false,
+                "oneOf": [
+                  {
+                    "required": [
+                      "in"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "from"
+                    ]
+                  }
+                ]
               }
             },
             "otherwise": {
@@ -4419,7 +5156,12 @@
               "minLength": 1
             }
           },
-          "required": ["kind", "attribute", "variants", "otherwise"],
+          "required": [
+            "kind",
+            "attribute",
+            "variants",
+            "otherwise"
+          ],
           "additionalProperties": false
         },
         {
@@ -4600,49 +5342,95 @@
     "variantExpression": {
       "type": "object",
       "properties": {
-        "value": {"$ref": "#/$defs/expression"},
-        "variant": {"type": "string", "minLength": 1}
+        "value": {
+          "$ref": "#/$defs/expression"
+        },
+        "variant": {
+          "type": "string",
+          "minLength": 1
+        }
       },
-      "required": ["value", "variant"],
+      "required": [
+        "value",
+        "variant"
+      ],
       "additionalProperties": false
     },
     "textLengthExpression": {
       "type": "object",
       "properties": {
-        "value": {"$ref": "#/$defs/expression"},
-        "limit": {"$ref": "#/$defs/expression"}
+        "value": {
+          "$ref": "#/$defs/expression"
+        },
+        "limit": {
+          "$ref": "#/$defs/expression"
+        }
       },
-      "required": ["value", "limit"],
+      "required": [
+        "value",
+        "limit"
+      ],
       "additionalProperties": false
     },
     "textSegmentPrefixExpression": {
       "type": "object",
       "properties": {
-        "value": {"$ref": "#/$defs/expression"},
-        "prefix": {"$ref": "#/$defs/expression"},
-        "separator": {"type": "string", "minLength": 1}
+        "value": {
+          "$ref": "#/$defs/expression"
+        },
+        "prefix": {
+          "$ref": "#/$defs/expression"
+        },
+        "separator": {
+          "type": "string",
+          "minLength": 1
+        }
       },
-      "required": ["value", "prefix", "separator"],
+      "required": [
+        "value",
+        "prefix",
+        "separator"
+      ],
       "additionalProperties": false
     },
     "calendarExpression": {
       "type": "object",
       "properties": {
-        "value": {"$ref": "#/$defs/expression"},
-        "fraction": {"$ref": "#/$defs/expression"}
+        "value": {
+          "$ref": "#/$defs/expression"
+        },
+        "fraction": {
+          "$ref": "#/$defs/expression"
+        }
       },
-      "required": ["value", "fraction"],
+      "required": [
+        "value",
+        "fraction"
+      ],
       "additionalProperties": false
     },
     "decimalExpression": {
       "type": "object",
       "properties": {
-        "value": {"$ref": "#/$defs/expression"},
-        "digits": {"$ref": "#/$defs/expression"},
-        "fraction": {"$ref": "#/$defs/expression"},
-        "sign": {"$ref": "#/$defs/expression"}
+        "value": {
+          "$ref": "#/$defs/expression"
+        },
+        "digits": {
+          "$ref": "#/$defs/expression"
+        },
+        "fraction": {
+          "$ref": "#/$defs/expression"
+        },
+        "sign": {
+          "$ref": "#/$defs/expression"
+        }
       },
-      "required": ["value", "digits", "fraction", "sign"],
+      "required": [
+        "value",
+        "digits",
+        "fraction",
+        "sign"
+      ],
       "additionalProperties": false
     },
     "textPatternPart": {
@@ -4693,6 +5481,89 @@
           "additionalProperties": false
         }
       ]
+    },
+    "dataPath": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "members": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "field": {
+                "type": "string",
+                "minLength": 1
+              },
+              "internal": {
+                "type": "string",
+                "minLength": 1
+              },
+              "terminalTypes": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true
+              }
+            },
+            "required": [
+              "field",
+              "internal",
+              "terminalTypes"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "views": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
+          }
+        }
+      },
+      "required": [
+        "type",
+        "members"
+      ],
+      "additionalProperties": false
+    },
+    "enumProjectionYaml": {
+      "type": "object",
+      "properties": {
+        "overrides": {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": {
+            "minLength": 1
+          },
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "overrides"
+      ],
+      "additionalProperties": false
     }
   },
   "required": [

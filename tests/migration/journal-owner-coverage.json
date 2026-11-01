@@ -1,0 +1,29 @@
+{
+  "assembled": [
+    "xmlRoot",
+    "internalInfo",
+    "uuid",
+    "name",
+    "synonym",
+    "comment",
+    "defaultForm",
+    "auxiliaryForm",
+    "useStandardCommands",
+    "registeredDocuments",
+    "includeHelpInContents",
+    "standardAttributes",
+    "listPresentation",
+    "extendedListPresentation",
+    "explanation",
+    "objectBelonging",
+    "extendedConfigurationObject",
+    "columns",
+    "forms",
+    "templates",
+    "commands",
+    "additionalIndexes",
+    "managerModule",
+    "help"
+  ],
+  "pending": []
+}

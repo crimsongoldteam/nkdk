@@ -1,0 +1,91 @@
+format: nkdk-declarations/1
+kind: value
+id: common.metadata-allowed-direct-object
+imports:
+  rootKind: common.path-root
+  name: common.metadata-name
+  memberKind: common.path-member-kind
+inputs:
+  allowedObjectRoots:
+    type:
+      kind: sequence
+      item:
+        use: rootKind
+  allowedMemberPaths:
+    type:
+      kind: sequence
+      item:
+        kind: record
+        fields:
+          - name: root
+            type:
+              use: rootKind
+          - name: kind
+            type:
+              use: memberKind
+  allowOwner:
+    type:
+      kind: scalar
+      scalar: boolean
+value:
+  kind: record
+  fields:
+    - name: root
+      type:
+        use: rootKind
+    - name: name
+      type:
+        use: name
+representations:
+  xml:
+    kind: text-pattern
+    separator: .
+    parts:
+      - field: root
+      - field: name
+  yaml:
+    kind: text-pattern
+    separator: .
+    parts:
+      - field: root
+      - field: name
+constraints:
+  - id: allowed-root
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    assert:
+      or:
+        - exists:
+            in:
+              input: allowedObjectRoots
+            as: allowed
+            where:
+              eq:
+                - var: allowed
+                - get:
+                    of:
+                      self: true
+                    field: root
+        - and:
+            - input: allowOwner
+            - exists:
+                in:
+                  input: allowedMemberPaths
+                as: allowed
+                where:
+                  eq:
+                    - get:
+                        of:
+                          var: allowed
+                        field: root
+                    - get:
+                        of:
+                          self: true
+                        field: root
+    diagnostic:
+      code: metadata.target-root
+      severity: error
+      at:
+        self: true
+      message: Object root is not allowed

@@ -1,0 +1,85 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.9d0db7ae66cf9bf08272
+description: 'Кандидат проекции: относительный XML-корень Properties; не полный владелец'
+imports:
+  part0: candidate.fragment.005c1b164180436637b2
+  part1: candidate.fragment.bf9213978a55fd470f06
+  inputType1f8ea46361ff: common.path-root
+  part2: candidate.fragment.f8fe74e36e6f2d3d775f
+compose:
+  - use: part0
+  - use: part1
+    bind:
+      ownerName:
+        input: ownerName
+      defaultLanguage:
+        input: defaultLanguage
+      registeredLanguages:
+        input: registeredLanguages
+  - use: part2
+    bind:
+      owner:
+        input: owner
+      forms:
+        input: forms
+      roots:
+        input: roots
+      defaultLanguage:
+        input: defaultLanguage
+      registeredLanguages:
+        input: registeredLanguages
+      ownerName:
+        input: ownerName
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []
+inputs:
+  ownerName:
+    type:
+      kind: scalar
+      scalar: text
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  forms:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  roots:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: kind
+            type:
+              use: inputType1f8ea46361ff
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+    index: metadata.roots

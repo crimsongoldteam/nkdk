@@ -1,0 +1,116 @@
+# Читаем исходную декларацию и части расширения; списки типов не копируются.
+base: common.type-description
+extension:
+  imports: {description: common.type-description, compatibility: common.boolean}
+  namespaces:
+    xr: http://v8.1c.ru/8.3/xcf/readable
+    xsi: http://www.w3.org/2001/XMLSchema-instance
+  value:
+    kind: record
+    fields:
+    - {name: sourceKind, type: {kind: scalar, scalar: text}}
+    - {name: checked, type: {use: description, with: {addTypeDescriptionAttributeToXML: true}}}
+    - {name: notified, type: {use: description, with: {addTypeDescriptionAttributeToXML: true}}}
+    - {name: extended, type: {use: description, with: {addTypeDescriptionAttributeToXML: true}}}
+    - {name: compatible, type: {use: compatibility}}
+  representations:
+    xml:
+      kind: record
+      fields:
+      - {field: sourceKind, path: [], attribute: 'xsi:type'}
+      - {field: checked, path: [xr:CheckValue]}
+      - {field: notified, path: [xr:NotifyValue]}
+      - {field: extended, path: [xr:ExtendValue]}
+  presence:
+  - {target: {field: sourceKind}, xml: {missing: {denotes: {absent: true}}}, yaml: {missing: {denotes: {absent: true}}}}
+  - {target: {field: checked}, xml: {missing: {denotes: {absent: true}}}, yaml: {missing: {denotes: {absent: true}}}}
+  - {target: {field: notified}, xml: {missing: {denotes: {absent: true}}}, yaml: {missing: {denotes: {absent: true}}}}
+  - {target: {field: extended}, xml: {missing: {denotes: {absent: true}}}, yaml: {missing: {denotes: {absent: true}}}}
+  - target: {field: compatible}
+    xml:
+      missing:
+        denotes: &compatible
+          or:
+          # Описание без типов остаётся неизвестным, как в исходном договоре.
+          - not:
+              or:
+              - {exists: {in: {field: items}, as: item, where: {literal: true}}}
+              - {if: {present: {field: checked}}, then: {exists: {in: {get: {of: {field: checked}, field: items}}, as: item, where: {literal: true}}}, else: {literal: false}}
+              - {if: {present: {field: notified}}, then: {exists: {in: {get: {of: {field: notified}, field: items}}, as: item, where: {literal: true}}}, else: {literal: false}}
+              - {if: {present: {field: extended}}, then: {exists: {in: {get: {of: {field: extended}, field: items}}, as: item, where: {literal: true}}}, else: {literal: false}}
+          - exists:
+              in: {field: items}
+              as: item
+              where: &allowedType
+                matches:
+                  value: {get: {of: {var: item}, field: value}}
+                  pattern: &allowedTypeName 'Строка|ФиксированнаяСтрока|Число|ПоложительноеЧисло|Дата|Время|ДатаВремя|Булево|УникальныйИдентификатор|ОпределяемыйТип\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'
+          - {if: {present: {field: checked}}, then: {exists: {in: {get: {of: {field: checked}, field: items}}, as: item, where: *allowedType}}, else: {literal: false}}
+          - {if: {present: {field: notified}}, then: {exists: {in: {get: {of: {field: notified}, field: items}}, as: item, where: *allowedType}}, else: {literal: false}}
+          - {if: {present: {field: extended}}, then: {exists: {in: {get: {of: {field: extended}, field: items}}, as: item, where: *allowedType}}, else: {literal: false}}
+    yaml: {missing: {denotes: *compatible}}
+
+# Первичная запись CF/CFE содержит общую проекцию items. Каждый элемент
+# сам вычисляет пригодность через каноническое описание типа и пометку.
+primary:
+  imports: {compatibility: common.boolean}
+  value:
+    kind: record
+    fields:
+    - {name: compatible, type: {use: compatibility}}
+  representations:
+    xml: {kind: record, fields: [{field: compatible, path: [Compatibility]}]}
+    yaml: {kind: projection, field: items}
+  presence:
+  - target: {field: compatible}
+    xml:
+      missing:
+        denotes: &primaryCompatible
+          or:
+          - {not: {exists: {in: {field: items}, as: item, where: {literal: true}}}}
+          - {exists: {in: {field: items}, as: item, where: {get: {of: {var: item}, field: compatible}}}}
+    yaml: {missing: {denotes: *primaryCompatible}}
+
+# Пометки относятся к состоянию элемента, а не меняют его описание типа.
+# Эта проекция используется только для чтения фактов текущего YAML.
+primaryTagged:
+  declarations:
+  - kind: value
+    id: candidate.member-source.primary-type-choice
+    imports: {item: candidate.member-source.primary-type-pattern}
+    value:
+      kind: choice
+      variants:
+      - {name: changed, type: &primaryItem {use: item}}
+      - {name: notified, type: *primaryItem}
+      - {name: plain, type: *primaryItem}
+    representations:
+      xml: {kind: choice, fallback: plain}
+      yaml:
+        kind: choice
+        variants:
+        - {variant: changed, form: scalar, tag: изменять}
+        - {variant: notified, form: scalar, tag: проверять}
+  - kind: value
+    id: candidate.member-source.primary-type-row
+    imports: {item: candidate.member-source.primary-type-choice, compatibility: common.boolean}
+    value:
+      kind: record
+      fields:
+      - {name: item, type: *primaryItem}
+      - {name: compatible, type: {use: compatibility}}
+    representations:
+      xml: {kind: record, fields: [{field: item, path: [Item]}, {field: compatible, path: [Compatibility]}]}
+      yaml: {kind: projection, field: item}
+    presence:
+    - target: {field: compatible}
+      xml:
+        missing:
+          denotes: &rowCompatible
+            if: {isVariant: {value: {field: item}, variant: changed}}
+            then: {matches: {value: {get: {of: {variantValue: {value: {field: item}, variant: changed}}, field: value}}, pattern: *allowedTypeName}}
+            else:
+              if: {isVariant: {value: {field: item}, variant: notified}}
+              then: {matches: {value: {get: {of: {variantValue: {value: {field: item}, variant: notified}}, field: value}}, pattern: *allowedTypeName}}
+              else: {matches: {value: {get: {of: {variantValue: {value: {field: item}, variant: plain}}, field: value}}, pattern: *allowedTypeName}}
+      yaml: {missing: {denotes: *rowCompatible}}

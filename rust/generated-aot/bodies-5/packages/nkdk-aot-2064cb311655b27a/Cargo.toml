@@ -1,0 +1,29 @@
+[package]
+name="nkdk-aot-2064cb311655b27a"
+version="0.0.0"
+edition="2024"
+[lib]
+test=false
+[dependencies]
+nkdk-conversion-core = { path = "../../../../crates/conversion-core" }
+nkdk-aot-08543c7a22a0a6b7 = { path = "../nkdk-aot-08543c7a22a0a6b7" }
+nkdk-aot-0ef273a67359c331 = { path = "../nkdk-aot-0ef273a67359c331" }
+nkdk-aot-26199fc1e0cff6dd = { path = "../nkdk-aot-26199fc1e0cff6dd" }
+nkdk-aot-3421af588f529ecf = { path = "../nkdk-aot-3421af588f529ecf" }
+nkdk-aot-35bd62d3d6951db6 = { path = "../nkdk-aot-35bd62d3d6951db6" }
+nkdk-aot-4ca1633ccd40ee38 = { path = "../nkdk-aot-4ca1633ccd40ee38" }
+nkdk-aot-4dd005dd33c58cb5 = { path = "../nkdk-aot-4dd005dd33c58cb5" }
+nkdk-aot-573c66400e322130 = { path = "../nkdk-aot-573c66400e322130" }
+nkdk-aot-689833cd35d7518a = { path = "../nkdk-aot-689833cd35d7518a" }
+nkdk-aot-6e1be42dcbb79724 = { path = "../nkdk-aot-6e1be42dcbb79724" }
+nkdk-aot-73541f9f6d6d5f88 = { path = "../nkdk-aot-73541f9f6d6d5f88" }
+nkdk-aot-7debcff960eb0446 = { path = "../nkdk-aot-7debcff960eb0446" }
+nkdk-aot-82f204770b9446ac = { path = "../nkdk-aot-82f204770b9446ac" }
+nkdk-aot-b010cb33733233bf = { path = "../nkdk-aot-b010cb33733233bf" }
+nkdk-aot-ba69bf523b366a31 = { path = "../nkdk-aot-ba69bf523b366a31" }
+nkdk-aot-bab2e43b2cb51635 = { path = "../nkdk-aot-bab2e43b2cb51635" }
+nkdk-aot-ca35071d4eb78993 = { path = "../nkdk-aot-ca35071d4eb78993" }
+nkdk-aot-d937c15689974ef7 = { path = "../nkdk-aot-d937c15689974ef7" }
+nkdk-aot-df2027a033d4d8a6 = { path = "../nkdk-aot-df2027a033d4d8a6" }
+nkdk-aot-e221af39efbd8072 = { path = "../nkdk-aot-e221af39efbd8072" }
+nkdk-aot-e380e7c77055978f = { path = "../nkdk-aot-e380e7c77055978f" }

@@ -11527,7 +11527,7 @@
     },
     {
       "path": "packages/rules/tests/metadataTestRunner.ts",
-      "sha256": "514acb4d864752c42072d60246ab8c90701a9bb5a4789e0a2dba328c9cfd88cf"
+      "sha256": "0f6e95d13f3650d0ea92f8d7677379075c3cbc0d4035bd44ffddfba346be56ff"
     },
     {
       "path": "packages/rules/tests/metadataWorkerTestPool.ts",
@@ -12535,7 +12535,7 @@
     },
     {
       "path": "packages/runtime/metadata/ruleRuntime/xmlAnomaly/localProof.test.ts",
-      "sha256": "950d704809fe5ab88c99a5abbfdcaa2daa0c0694d654f1e727ba0c4bc734672a"
+      "sha256": "85afd44ed08533692e526282cfb4aeb3ee20a13574f705407ff2002b89fa8d2d"
     },
     {
       "path": "packages/runtime/metadata/ruleRuntime/xmlAnomaly/localProof.ts",
@@ -12843,7 +12843,7 @@
     },
     {
       "path": "packages/runtime/vitest.config.ts",
-      "sha256": "77bf1047bce912d702e88fbb3cb138d74cb87cb1a3848810be77e80e0f53490e"
+      "sha256": "45f42096bc519ecb3d0d3d3647443a4cba445567c683202a3cf98f052698544f"
     },
     {
       "path": "packages/runtime/worker.ts",
@@ -18340,7 +18340,11 @@
         "xmlParents": [],
         "yaml": "Элементы",
         "keyField": null,
-        "yamlAsArray": true
+        "yamlAsArray": true,
+        "ownerXmlRoot": [
+          "ListSettings",
+          "dcsset:order"
+        ]
       },
       "context": {
         "ownerFactRole": null,
@@ -19354,7 +19358,10 @@
         "xmlParents": [],
         "yaml": "ВычисляемыеПоля",
         "keyField": "dataPath",
-        "yamlAsArray": true
+        "yamlAsArray": true,
+        "ownerXmlRoot": [
+          "Settings"
+        ]
       },
       "context": {
         "ownerFactRole": null,
@@ -19384,7 +19391,10 @@
         "xmlParents": [],
         "yaml": "Поля",
         "keyField": null,
-        "yamlAsArray": true
+        "yamlAsArray": true,
+        "ownerXmlRoot": [
+          "Settings"
+        ]
       },
       "context": {
         "ownerFactRole": null,
@@ -19414,7 +19424,10 @@
         "xmlParents": [],
         "yaml": "Параметры",
         "keyField": "name",
-        "yamlAsArray": false
+        "yamlAsArray": false,
+        "ownerXmlRoot": [
+          "Settings"
+        ]
       },
       "context": {
         "ownerFactRole": null,

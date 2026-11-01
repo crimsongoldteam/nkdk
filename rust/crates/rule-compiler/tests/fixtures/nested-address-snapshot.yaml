@@ -1,0 +1,98 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: fragment
+  id: test.address-row-data
+  inputs:
+    parent: {type: {kind: scalar, scalar: text}}
+    named: {type: {kind: scalar, scalar: boolean}}
+    position: {type: {kind: scalar, scalar: number, profile: decimal}}
+    saved: {type: {kind: index, key: {kind: scalar, scalar: text}, value: {kind: scalar, scalar: text}}}
+  value: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}, {name: token, type: {kind: scalar, scalar: text}}]}
+  representations:
+    xml: {kind: record, fields: [{field: name, path: [], attribute: name}, {field: token, path: [], attribute: token}]}
+    yaml: {kind: mapping, fields: [{field: name, key: Имя}]}
+  presence:
+  - target: {field: token}
+    xml: {missing: {denotes: {absent: true}}}
+    yaml:
+      missing:
+        denotes:
+          lookup:
+            in: {input: saved}
+            key: {if: {input: named}, then: {logicalAddress: {parent: {input: parent}, parts: [{field: name}]}}, else: {logicalAddress: {parent: {input: parent}, parts: [{input: position}]}}}
+  contributions:
+  - index: test.address-identities
+    key: {if: {input: named}, then: {logicalAddress: {parent: {input: parent}, parts: [{field: name}]}}, else: {logicalAddress: {parent: {input: parent}, parts: [{input: position}]}}}
+    value: {field: token}
+- kind: value
+  id: test.address-row
+  imports: {data: test.address-row-data}
+  inputs:
+    parent: {type: {kind: scalar, scalar: text}}
+    named: {type: {kind: scalar, scalar: boolean}}
+    position: {type: {kind: scalar, scalar: number, profile: decimal}}
+    saved: {type: {kind: index, key: {kind: scalar, scalar: text}, value: {kind: scalar, scalar: text}}}
+  compose: [{use: data, bind: {parent: {input: parent}, named: {input: named}, position: {input: position}, saved: {input: saved}}}]
+  value: {kind: record, fields: []}
+  representations:
+    xml: {kind: record, fields: []}
+    yaml: {kind: mapping, fields: []}
+- kind: value
+  id: test.address-list
+  imports: {row: test.address-row}
+  inputs:
+    parent: {type: {kind: scalar, scalar: text}}
+    saved: {type: {kind: index, key: {kind: scalar, scalar: text}, value: {kind: scalar, scalar: text}}}
+  value: {kind: sequence, item: {use: row, bind: {parent: {input: parent}, named: {literal: false}, position: {collectionPosition: true}, saved: {input: saved}}}}
+  representations:
+    xml: {kind: element-sequence, path: [Item], item: {kind: declared}}
+    yaml: {kind: sequence, item: {kind: declared}}
+- kind: value
+  id: test.address-named
+  imports: {row: test.address-row}
+  inputs:
+    parent: {type: {kind: scalar, scalar: text}}
+    saved: {type: {kind: index, key: {kind: scalar, scalar: text}, value: {kind: scalar, scalar: text}}}
+  value: {kind: sequence, item: {use: row, bind: {parent: {input: parent}, named: {literal: true}, position: {collectionPosition: true}, saved: {input: saved}}}}
+  representations:
+    xml: {kind: element-sequence, path: [Item], item: {kind: declared}}
+    yaml: {kind: record-mapping, key: name}
+- kind: fragment
+  id: test.address-fields
+  imports: {list: test.address-list, named: test.address-named}
+  inputs:
+    parent: {type: {kind: scalar, scalar: text}}
+    saved: {type: {kind: index, key: {kind: scalar, scalar: text}, value: {kind: scalar, scalar: text}}}
+  value:
+    kind: record
+    fields:
+    - {name: list, type: {use: list, bind: {parent: {logicalAddress: {parent: {input: parent}, parts: [{yamlField: list}]}}, saved: {input: saved}}}}
+    - {name: named, type: {use: named, bind: {parent: {logicalAddress: {parent: {input: parent}, parts: [{yamlField: named}]}}, saved: {input: saved}}}}
+    - {name: spare, type: {kind: scalar, scalar: text}}
+  representations:
+    xml: {kind: record, fields: [{field: list, path: [Root, List]}, {field: named, path: [Root, Named]}, {field: spare, path: [Root, Spare]}]}
+    yaml: {kind: mapping, fields: [{field: list, key: 'Список.А[0]%'}, {field: named, key: Имена}, {field: spare, key: Сосед}]}
+- kind: object
+  id: test.address-owner
+  imports: {fields: test.address-fields}
+  inputs:
+    parent: {type: {kind: scalar, scalar: text}}
+    saved: {index: test.address-identities}
+  compose: [{use: fields, bind: {parent: {input: parent}, saved: {input: saved}}}]
+  value: {kind: record, fields: []}
+  representations:
+    xml: {kind: record, fields: []}
+    yaml: {kind: mapping, fields: []}
+  contributions:
+  - {index: test.address-boundaries, key: {logicalAddress: {parent: {input: parent}, parts: [{yamlField: list}]}}, value: {literal: list}}
+  - {index: test.address-boundaries, key: {logicalAddress: {parent: {input: parent}, parts: [{yamlField: named}]}}, value: {literal: named}}
+- kind: object
+  id: test.address-projection
+  inputs: {parent: {type: {kind: scalar, scalar: text}}}
+  value: {kind: record, fields: [{name: word, type: {kind: scalar, scalar: text}}]}
+  representations:
+    xml: {kind: record, fields: [{field: word, path: [Projected, Word]}]}
+    yaml: {kind: projection, field: word}
+  contributions:
+  - {index: test.address-boundaries, key: {logicalAddress: {parent: {input: parent}, parts: [{yamlField: word}]}}, value: {field: word}}

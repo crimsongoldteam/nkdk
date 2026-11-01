@@ -1,0 +1,9 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.journal-property-state-probe
+imports: {states: journal.property-states}
+namespaces: {md: 'http://v8.1c.ru/8.3/MDClasses'}
+value: {kind: record, fields: [{name: states, type: {use: states}}]}
+representations:
+  xml: {kind: record, fields: [{field: states, path: ['md:MetaDataObject', 'md:DocumentJournal', 'md:InternalInfo']}]}
+  yaml: {kind: mapping, fields: [{field: states, key: Изменять}]}

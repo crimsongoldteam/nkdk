@@ -1,0 +1,33 @@
+format: nkdk-declarations/1
+kind: fragment
+id: working.element.ExtendedTooltip.frame.body.ordinary.22
+description: 'Кандидат проекции: относительный XML-корень Font; не полный владелец'
+imports:
+  part0: working.element.ExtendedTooltip.frame.body.ordinary.23
+compose:
+  - use: part0
+    bind:
+      styleTypes:
+        input: styleTypes
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []
+inputs:
+  styleTypes:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: scalar
+        scalar: text
+namespaces:
+  md: http://v8.1c.ru/8.3/xcf/logform

@@ -1,0 +1,59 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.form-event-bindings
+value:
+  kind: record
+  fields:
+    - name: events
+      type:
+        use: value0
+        bind:
+          eventNames:
+            sequence:
+              - record:
+                  xml:
+                    literal: OnChange
+                  yaml:
+                    literal: ПриИзменении
+              - record:
+                  xml:
+                    literal: BeforeWrite
+                  yaml:
+                    literal: ПередЗаписью
+              - record:
+                  xml:
+                    literal: BeforePrint
+                  yaml:
+                    literal: ПередПечатью
+              - record:
+                  xml:
+                    literal: AfterWrite
+                  yaml:
+                    literal: ПослеЗаписи
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: events
+        path:
+          - f:Events
+  yaml:
+    kind: mapping
+    fields:
+      - field: events
+        key: События
+presence:
+  - target:
+      field: events
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+namespaces:
+  f: http://v8.1c.ru/8.3/xcf/logform
+id: candidate.fragment.13ba4fb7bcb3a8ad69e8

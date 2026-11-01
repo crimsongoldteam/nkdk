@@ -1,7 +1,7 @@
 format: nkdk-declarations/1
 kind: fragment
 id: fragment.document-register-records
-imports: {links: common.document-register-links, rootKind: common.path-root}
+imports: {links: common.metadata-item-links-allowed-roots, rootKind: common.path-root}
 namespaces: {md: 'http://v8.1c.ru/8.3/MDClasses'}
 inputs:
   owner: {type: {kind: scalar, scalar: text}}
@@ -10,7 +10,7 @@ inputs:
       kind: index
       key: {kind: record, fields: [{name: kind, type: {use: rootKind}}, {name: name, type: {kind: scalar, scalar: text}}]}
       value: {kind: scalar, scalar: text}
-value: {kind: record, fields: [{name: RegisterRecords, type: {use: links, bind: {roots: {input: roots}}}}]}
+value: {kind: record, fields: [{name: RegisterRecords, type: {use: links, bind: {roots: {input: roots}, allowedRoots: {sequence: [{literal: InformationRegister}, {literal: AccumulationRegister}, {literal: AccountingRegister}, {literal: CalculationRegister}]}}}}]}
 representations:
   xml: {kind: record, fields: [{field: RegisterRecords, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:RegisterRecords']}]}
   yaml: {kind: mapping, fields: [{field: RegisterRecords, key: Движения}]}

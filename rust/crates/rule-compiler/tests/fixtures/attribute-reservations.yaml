@@ -1,0 +1,35 @@
+format: nkdk-declarations/1
+kind: object
+id: test.occupied
+namespaces: {a: 'urn:a', b: 'urn:b'}
+inputs:
+  owner: {type: {kind: scalar, scalar: text}}
+value:
+  kind: record
+  fields:
+    - {name: outer, type: {kind: scalar, scalar: text}}
+    - {name: inner, type: {kind: scalar, scalar: text}}
+    - {name: reset, type: {kind: scalar, scalar: text}}
+representations:
+  xml:
+    kind: record
+    fields:
+      - {field: outer, path: [a:Root], attribute: key}
+      - {field: inner, path: [a:Root, a:Group], attribute: key}
+      - {field: reset, path: [a:Root, a:Group, b:Reset], attribute: key}
+  yaml:
+    kind: mapping
+    fields:
+      - {field: outer, key: Outer}
+      - {field: inner, key: Inner}
+      - {field: reset, key: Reset}
+contributions:
+  - index: test.occupied-numbers
+    key: {record: {owner: {input: owner}, kind: {literal: outer}}}
+    reserve: {field: outer}
+  - index: test.occupied-numbers
+    key: {record: {owner: {input: owner}, kind: {literal: inner}}}
+    reserve: {field: inner}
+  - index: test.other-numbers
+    key: {record: {owner: {input: owner}}}
+    reserve: {field: reset}

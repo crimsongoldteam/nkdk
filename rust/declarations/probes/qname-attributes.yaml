@@ -1,0 +1,25 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: probe.attribute-name
+  namespaces: {a: 'urn:first', b: 'urn:second'}
+  value: {kind: scalar, scalar: text}
+  representations:
+    xml:
+      kind: qname-lexicon
+      values: [{name: 'a:Item', literal: Первый}, {name: 'b:Item', literal: Второй}]
+    yaml: {kind: scalar, scalar: text}
+- kind: object
+  id: probe.qname-attributes
+  imports: {name: probe.attribute-name, text: common.string}
+  value:
+    kind: record
+    fields: [{name: primary, type: {use: name}}, {name: secondary, type: {use: name}}, {name: other, type: {use: text}}]
+  representations:
+    xml:
+      kind: record
+      fields: [{field: primary, path: [Root], attribute: kind}, {field: secondary, path: [Root], attribute: alternate}, {field: other, path: [Root, Other]}]
+    yaml:
+      kind: mapping
+      fields: [{field: primary, key: Первый}, {field: secondary, key: Второй}, {field: other, key: Сосед}]

@@ -1,0 +1,47 @@
+format: nkdk-declarations/1
+kind: value
+id: common.metadata-item-link
+imports:
+  object: common.metadata-root-path
+  member: common.metadata-structural-path
+  uuid: common.metadata-link-uuid
+  empty: common.metadata-link-empty
+parameters:
+  typedXML:
+    type:
+      kind: scalar
+      scalar: boolean
+    default: false
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  xr: http://v8.1c.ru/8.3/xcf/readable
+value:
+  kind: choice
+  variants:
+    - name: object
+      type:
+        use: object
+    - name: member
+      type:
+        use: member
+    - name: uuid
+      type:
+        use: uuid
+    - name: empty
+      type:
+        use: empty
+representations:
+  xml:
+    kind: with-attributes
+    attributes:
+      - name: xsi:type
+        value:
+          qname: xr:MDObjectRef
+        when:
+          parameter: typedXML
+    content:
+      kind: choice
+      fallback: uuid
+  yaml:
+    kind: choice
+    fallback: uuid

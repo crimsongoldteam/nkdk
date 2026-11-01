@@ -498,57 +498,78 @@
       "path": "packages/rules/metadata/commonObjects/characteristicsDescription/__fixtures__/data.ts",
       "sha256": "aa4f0d8b57cd95ddd194e0d601a8c97bda56a9d12639c6a90d598268420d38fc",
       "group": "characteristicsDescription",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/characteristics-descriptions.yaml",
+      "verifiedCases": [
+        "tools/rules-migration/src/characteristics-check.mjs",
+        "docs/superpowers/reports/2026-09-28-characteristics-descriptions-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/characteristicsDescription/fromXMLToYAML.integration.test.ts",
       "sha256": "990f979a70711ee3e0459904fc105bf0e88bf35e3fb3d307f7551e30b0e58f44",
       "group": "characteristicsDescription",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/characteristics-descriptions.yaml",
+      "verifiedCases": [
+        "tools/rules-migration/src/characteristics-check.mjs",
+        "docs/superpowers/reports/2026-09-28-characteristics-descriptions-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/characteristicsDescription/fromYAMLToXML.integration.test.ts",
       "sha256": "ba376e9dda3dc462b412d3929c8276d10706c4c6a561d206b21c04b0893fddf9",
       "group": "characteristicsDescription",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/characteristics-descriptions.yaml",
+      "verifiedCases": [
+        "tools/rules-migration/src/characteristics-check.mjs",
+        "docs/superpowers/reports/2026-09-28-characteristics-descriptions-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/characteristicsDescription/registerCollectionRule.ts",
       "sha256": "ef2d61dc259ecc55edcb701bed2b6a023f47912f6e0afbfc0ac22ff8fd11ecee",
       "group": "characteristicsDescription",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/characteristics-descriptions.yaml",
+      "verifiedCases": [
+        "tools/rules-migration/src/characteristics-check.mjs",
+        "docs/superpowers/reports/2026-09-28-characteristics-descriptions-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/characteristicsDescription/rules.ts",
       "sha256": "0ac4b6a4b1b745486950a625890de9fc25c33460da3178b4aef22a1cbb3b2fed",
       "group": "characteristicsDescription",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/characteristics-descriptions.yaml",
+      "verifiedCases": [
+        "tools/rules-migration/src/characteristics-check.mjs",
+        "docs/superpowers/reports/2026-09-28-characteristics-descriptions-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/characteristicsDescription/toJSONSchema.ts",
       "sha256": "56ae34ccee2f952d73526ed084903509a205b5cb78bb80c74218d4adfbdc9517",
       "group": "characteristicsDescription",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/characteristics-descriptions.yaml",
+      "verifiedCases": [
+        "tools/rules-migration/src/characteristics-check.mjs",
+        "docs/superpowers/reports/2026-09-28-characteristics-descriptions-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/characteristicsDescription/types.ts",
       "sha256": "f610f680d6fa156d68e13e6ba62a676be28ba2179340dcf4dfcd6a2524f51482",
       "group": "characteristicsDescription",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/characteristics-descriptions.yaml",
+      "verifiedCases": [
+        "tools/rules-migration/src/characteristics-check.mjs",
+        "docs/superpowers/reports/2026-09-28-characteristics-descriptions-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/childFileItemNames/fromXML.test.ts",
@@ -754,113 +775,169 @@
       "path": "packages/rules/metadata/commonObjects/choiceForm/resolve.test.ts",
       "sha256": "bea853979ee4b2e39edaf91da1c02d0ae55075098d93a248807143c5c3186c9e",
       "group": "choiceForm",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/type-form-link.generated.yaml",
+      "verifiedCases": [
+        "tools/rules-migration/src/choice-form-cases.mjs",
+        "tools/rules-migration/test/emit.test.mjs",
+        "docs/superpowers/reports/2026-09-29-choice-form-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/choiceForm/resolve.ts",
       "sha256": "047bda20ff1c7c216489452c8b6bf2fcaf51ddf896d17d303d63f9ccd94f6b45",
       "group": "choiceForm",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/type-form-link.generated.yaml",
+      "verifiedCases": [
+        "tools/rules-migration/src/choice-form-cases.mjs",
+        "tools/rules-migration/test/emit.test.mjs",
+        "docs/superpowers/reports/2026-09-29-choice-form-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/choiceList/__fixtures__/data.ts",
       "sha256": "87bb3e55d886e6cd8dd8958b02da98a954c524802e2b16e88e4d06fc35e63f65",
       "group": "choiceList",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/choice-list.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/choice_list.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-choice-list-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/choiceList/fromXML.integration.test.ts",
       "sha256": "7b84cbba0ed18b74661821120cdcc9ea62940c2fdc8cecacc55773bab4150860",
       "group": "choiceList",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/choice-list.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/choice_list.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-choice-list-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/choiceList/fromXML.ts",
       "sha256": "d02e09e88f416cbab92262e3ea45404dbbb60ca9f6ecae033847ed20880846a3",
       "group": "choiceList",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/choice-list.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/choice_list.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-choice-list-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/choiceList/fromYAML.test.ts",
       "sha256": "538ad442b30d9b877a45b150afc532bd88a8eb244f0c0b802abb856704d5bd70",
       "group": "choiceList",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/choice-list.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/choice_list.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-choice-list-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/choiceList/fromYAML.ts",
       "sha256": "2e423bca858e79555e906ca48306bbbfb99b1f8470f7336a0855bbe1165a6ef7",
       "group": "choiceList",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/choice-list.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/choice_list.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-choice-list-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/choiceList/toJSONSchema.test.ts",
       "sha256": "322c0922ff41587dc504b8c5c4e60b1c7d170cb8b5ed77d56af83d19d76c37b7",
       "group": "choiceList",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/choice-list.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/choice_list.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-choice-list-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/choiceList/toJSONSchema.ts",
       "sha256": "a1c5bfa3aba4279233543ea392c43e204ddd424b43e95cc6190946ccc7dea801",
       "group": "choiceList",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/choice-list.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/choice_list.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-choice-list-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/choiceList/toXML.integration.test.ts",
       "sha256": "a1e02581bc046828d7af692ac30bbefaa72d3ac6877fa415a4825845a5afea33",
       "group": "choiceList",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/choice-list.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/choice_list.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-choice-list-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/choiceList/toXML.ts",
       "sha256": "ea9c09943f3d1435a910b2c985a97638a7f57d34ab998bd11c8e2e2059f2b879",
       "group": "choiceList",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/choice-list.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/choice_list.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-choice-list-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/choiceList/toYAML.test.ts",
       "sha256": "0ff146786de0f85969907224d0e82bc0e9bbe4df10148e9aefd62526c3b5a23f",
       "group": "choiceList",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/choice-list.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/choice_list.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-choice-list-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/choiceList/toYAML.ts",
       "sha256": "11b8878184dd6defed27c454812b78ee4aa50aefd068abb6e4b2a4143d490777",
       "group": "choiceList",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/choice-list.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/choice_list.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-choice-list-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/choiceList/types.ts",
       "sha256": "e8833f04e00d7d8990e39719f2c85f40e8f0986abf23552c4fc7886c1d99b327",
       "group": "choiceList",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/choice-list.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/choice_list.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-choice-list-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/clientApplicationInterface/builders.ts",
@@ -1042,209 +1119,343 @@
       "path": "packages/rules/metadata/commonObjects/commonAttributeContent/fromXML.test.ts",
       "sha256": "e45c81ba0ae8c23bf6cedf606c0c8e4db3bc41d035339038dc661f5507467da7",
       "group": "commonAttributeContent",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/common-attribute-content.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/common_attribute_content.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-common-attribute-content-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/commonAttributeContent/fromXML.ts",
       "sha256": "1b87d887d639ef088d39ffabeff61c26d238977fe52b9bf4f86d4ced66e35113",
       "group": "commonAttributeContent",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/common-attribute-content.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/common_attribute_content.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-common-attribute-content-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/commonAttributeContent/fromYAML.test.ts",
       "sha256": "37b86924c2feca2a793b69bf4b0cbd807a0594b42772dd8ad26966ba064e9501",
       "group": "commonAttributeContent",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/common-attribute-content.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/common_attribute_content.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-common-attribute-content-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/commonAttributeContent/fromYAML.ts",
       "sha256": "a135d4fa5becaf5312bfe8bfbc34f94c6f69b5d29008d366c0a2e7e0b3aca44c",
       "group": "commonAttributeContent",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/common-attribute-content.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/common_attribute_content.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-common-attribute-content-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/commonAttributeContent/metadataPath.ts",
       "sha256": "91d5c744a55eef5f1362b18c25212f367d1abdf654b9c4113ae1bb5901c092dd",
       "group": "commonAttributeContent",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/common-attribute-content.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/common_attribute_content.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-common-attribute-content-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/commonAttributeContent/toJSONSchema.ts",
       "sha256": "b0292105f836b88cda8f80b7ae1d02f13ac8ee3f1da7f903a2145d198cc1bf61",
       "group": "commonAttributeContent",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/common-attribute-content.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/common_attribute_content.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-common-attribute-content-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/commonAttributeContent/toXML.test.ts",
       "sha256": "75a8793a98c610e04072995347d99a9710418881dae53ec28a29070c1eb5a4b1",
       "group": "commonAttributeContent",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/common-attribute-content.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/common_attribute_content.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-common-attribute-content-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/commonAttributeContent/toXML.ts",
       "sha256": "757e28f81409ea19ea756ee101c63a7b5c4127e79d4ef0bc910a26915e1e82d3",
       "group": "commonAttributeContent",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/common-attribute-content.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/common_attribute_content.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-common-attribute-content-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/commonAttributeContent/toYAML.test.ts",
       "sha256": "ae92c90ccbb2c4ebe5c334d6b5e951870a9197bcae6e896433fcf14f7bc756a0",
       "group": "commonAttributeContent",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/common-attribute-content.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/common_attribute_content.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-common-attribute-content-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/commonAttributeContent/toYAML.ts",
       "sha256": "9266c40ea3dad0611a19d9b35a6dc0ab9b089117aed15c6a730be6914038d0f9",
       "group": "commonAttributeContent",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/common-attribute-content.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/common_attribute_content.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-common-attribute-content-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/commonAttributeContent/types.ts",
       "sha256": "8fd5e830df214700f9c1131f14fdf73f186a4263d9dc717cd51edee6bfda2a28",
       "group": "commonAttributeContent",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/common-attribute-content.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/common_attribute_content.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-common-attribute-content-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/appearanceFields/__fixtures__/data.ts",
       "sha256": "7c766a176958f0f2c95a76661d67f51207926e288a0e955258b304fcf0f1c1fa",
       "group": "dataCompositionSystem",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/appearance-fields.generated.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/dcs-appearance-parameter.yaml",
+        "tests/migration/proposals/appearance-strings/collection-cases.mjs",
+        "rust/declarations/probes/dcs-schema-field-appearance.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-07-appearance-field-profiles.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/appearanceFields/builders.ts",
       "sha256": "2552463387c09aaf375235462b00149e2269c3e2ff1698674b75bb4333975cbe",
       "group": "dataCompositionSystem",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/appearance-fields.generated.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/dcs-appearance-parameter.yaml",
+        "tests/migration/proposals/appearance-strings/collection-cases.mjs",
+        "rust/declarations/probes/dcs-schema-field-appearance.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-07-appearance-field-profiles.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/appearanceFields/fromXML.integration.test.ts",
       "sha256": "73f1c8ba334603654c6e242f6c7290b71d5d553e344613967fcbf2a62abe33be",
       "group": "dataCompositionSystem",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/appearance-fields.generated.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/dcs-appearance-parameter.yaml",
+        "tests/migration/proposals/appearance-strings/collection-cases.mjs",
+        "rust/declarations/probes/dcs-schema-field-appearance.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-07-appearance-field-profiles.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/appearanceFields/fromXML.ts",
       "sha256": "b5903ca5e0903e594032dc2d3ef0b9be73fe5a7ac77d87bf220b5734357157e7",
       "group": "dataCompositionSystem",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/appearance-fields.generated.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/dcs-appearance-parameter.yaml",
+        "tests/migration/proposals/appearance-strings/collection-cases.mjs",
+        "rust/declarations/probes/dcs-schema-field-appearance.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-07-appearance-field-profiles.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/appearanceFields/fromXMLToYAML.integration.test.ts",
       "sha256": "30365989f1017635434b66169f4e976760b6dcc173ecc07170175afe71914c81",
       "group": "dataCompositionSystem",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/appearance-fields.generated.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/dcs-appearance-parameter.yaml",
+        "tests/migration/proposals/appearance-strings/collection-cases.mjs",
+        "rust/declarations/probes/dcs-schema-field-appearance.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-07-appearance-field-profiles.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/appearanceFields/fromYAML.test.ts",
       "sha256": "6e45131e2767a08d8789079551ce5431295161985b750199881ec61f5383994a",
       "group": "dataCompositionSystem",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/appearance-fields.generated.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/dcs-appearance-parameter.yaml",
+        "tests/migration/proposals/appearance-strings/collection-cases.mjs",
+        "rust/declarations/probes/dcs-schema-field-appearance.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-07-appearance-field-profiles.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/appearanceFields/fromYAML.ts",
       "sha256": "58ed1bd6c7fccd7955487b053f0cf8ec935e52730577ae17aeeb6c0ff6efbb48",
       "group": "dataCompositionSystem",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/appearance-fields.generated.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/dcs-appearance-parameter.yaml",
+        "tests/migration/proposals/appearance-strings/collection-cases.mjs",
+        "rust/declarations/probes/dcs-schema-field-appearance.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-07-appearance-field-profiles.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/appearanceFields/fromYAMLToXML.integration.test.ts",
       "sha256": "cbc44df9dbc9e927c0ded5f3533f2e3ecff77a7308882b67ac1121de19b08dcb",
       "group": "dataCompositionSystem",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/appearance-fields.generated.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/dcs-appearance-parameter.yaml",
+        "tests/migration/proposals/appearance-strings/collection-cases.mjs",
+        "rust/declarations/probes/dcs-schema-field-appearance.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-07-appearance-field-profiles.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/appearanceFields/rules.ts",
       "sha256": "123d2110742468b351498862ff87098a7534d34deb57ec3823e14371817dcf24",
       "group": "dataCompositionSystem",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/appearance-fields.generated.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/dcs-appearance-parameter.yaml",
+        "tests/migration/proposals/appearance-strings/collection-cases.mjs",
+        "rust/declarations/probes/dcs-schema-field-appearance.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-07-appearance-field-profiles.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/appearanceFields/stringValues.ts",
       "sha256": "42ba65e5cdf6ec63a1652c7fa16461eead58268b38ae611e698d4a1d8308248d",
       "group": "dataCompositionSystem",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/appearance-fields.generated.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/dcs-appearance-parameter.yaml",
+        "tests/migration/proposals/appearance-strings/collection-cases.mjs",
+        "rust/declarations/probes/dcs-schema-field-appearance.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-07-appearance-field-profiles.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/appearanceFields/toJSONSchema.test.ts",
       "sha256": "5350204eca52e6caadbacac1d71293d59271a8478c9a8d6a31a3ac21071b1938",
       "group": "dataCompositionSystem",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/appearance-fields.generated.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/dcs-appearance-parameter.yaml",
+        "tests/migration/proposals/appearance-strings/collection-cases.mjs",
+        "rust/declarations/probes/dcs-schema-field-appearance.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-07-appearance-field-profiles.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/appearanceFields/toJSONSchema.ts",
       "sha256": "8fcb01b5fa83d2d4eb6b63923b0597a1dcf3f38a78dc57f4758414c6677dab47",
       "group": "dataCompositionSystem",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/appearance-fields.generated.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/dcs-appearance-parameter.yaml",
+        "tests/migration/proposals/appearance-strings/collection-cases.mjs",
+        "rust/declarations/probes/dcs-schema-field-appearance.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-07-appearance-field-profiles.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/appearanceFields/toXML.integration.test.ts",
       "sha256": "1443f9748b9362e2df359ac2e8d28389a9a0b5765b74d615503a7e77fe835293",
       "group": "dataCompositionSystem",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/appearance-fields.generated.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/dcs-appearance-parameter.yaml",
+        "tests/migration/proposals/appearance-strings/collection-cases.mjs",
+        "rust/declarations/probes/dcs-schema-field-appearance.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-07-appearance-field-profiles.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/appearanceFields/toXML.ts",
       "sha256": "b7c7aacc85f125289a933872630601032e6ff94c51d36df12b9ca5b96bdc3dd9",
       "group": "dataCompositionSystem",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/appearance-fields.generated.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/dcs-appearance-parameter.yaml",
+        "tests/migration/proposals/appearance-strings/collection-cases.mjs",
+        "rust/declarations/probes/dcs-schema-field-appearance.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-07-appearance-field-profiles.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/appearanceFields/types.ts",
       "sha256": "6477a36c87f5d06a7762848c6448b512f06ac1e136eb596ba58564f1ff6f7bd2",
       "group": "dataCompositionSystem",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/appearance-fields.generated.yaml",
+      "verifiedCases": [
+        "rust/declarations/common/dcs-appearance-parameter.yaml",
+        "tests/migration/proposals/appearance-strings/collection-cases.mjs",
+        "rust/declarations/probes/dcs-schema-field-appearance.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-07-appearance-field-profiles.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/availableFields/__fixtures__/data.ts",
@@ -1442,169 +1653,263 @@
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/calculatedField/__fixtures__/data.ts",
       "sha256": "9a536b9d787d930bbcfa83efb3a701f097ff932681806a70478b8803cfd217d6",
       "group": "dataCompositionSystem",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/probes/calculated-fields-working.generated.yaml",
+      "verifiedCases": [
+        "tests/migration/calculated-fields-working.json",
+        "tools/rules-migration/test/family-check.test.mjs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-09-calculated-fields.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/calculatedField/builders.ts",
       "sha256": "cd40d8d98fe33314f288fcf4b867f18a1a709b1ead4e28091bb5c1157a2fc286",
       "group": "dataCompositionSystem",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/probes/calculated-fields-working.generated.yaml",
+      "verifiedCases": [
+        "tests/migration/calculated-fields-working.json",
+        "tools/rules-migration/test/family-check.test.mjs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-09-calculated-fields.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/calculatedField/fromXMLToYAML.integration.test.ts",
       "sha256": "1e52574631cc24518537a79dfd1c0263c2e00e711f18bc261ba7205c88fdaa7a",
       "group": "dataCompositionSystem",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/probes/calculated-fields-working.generated.yaml",
+      "verifiedCases": [
+        "tests/migration/calculated-fields-working.json",
+        "tools/rules-migration/test/family-check.test.mjs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-09-calculated-fields.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/calculatedField/fromYAMLToXML.integration.test.ts",
       "sha256": "8a379c247075e3985d46429da91e0c6005d58e3e083ef45a5875301d03d1aa71",
       "group": "dataCompositionSystem",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/probes/calculated-fields-working.generated.yaml",
+      "verifiedCases": [
+        "tests/migration/calculated-fields-working.json",
+        "tools/rules-migration/test/family-check.test.mjs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-09-calculated-fields.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/calculatedField/rules.ts",
       "sha256": "3a0f718c5aa5ee9c8d9f09d4bb2a535bd92e564256375426a627d108bf6c16c2",
       "group": "dataCompositionSystem",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/probes/calculated-fields-working.generated.yaml",
+      "verifiedCases": [
+        "tests/migration/calculated-fields-working.json",
+        "tools/rules-migration/test/family-check.test.mjs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-09-calculated-fields.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/calculatedField/types.ts",
       "sha256": "578532237fe7f49be8143d39e68a98967398ec5f61dc72463a9060aec88f7e9a",
       "group": "dataCompositionSystem",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/probes/calculated-fields-working.generated.yaml",
+      "verifiedCases": [
+        "tests/migration/calculated-fields-working.json",
+        "tools/rules-migration/test/family-check.test.mjs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-09-calculated-fields.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/calculatedFieldOrderExpression/__fixtures__/data.ts",
       "sha256": "675ab17aa0637ebd269822c8a76ba929daec6f0addffc8980e3a568bc985b717",
       "group": "dataCompositionSystem",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/calculated-field-order-expressions.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-calculated-field-order-expressions-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/calculatedFieldOrderExpression/fromXMLToYAML.integration.test.ts",
       "sha256": "44fbed0b4667b7427404d6989623c5032b2a4da431143eb0d0f9d853d5f18d8d",
       "group": "dataCompositionSystem",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/calculated-field-order-expressions.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-calculated-field-order-expressions-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/calculatedFieldOrderExpression/fromXMLToYAML.ts",
       "sha256": "2d485427576dfc4f00031fb4624fcd820f9c665779d1279bdadb7998413d44d1",
       "group": "dataCompositionSystem",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/calculated-field-order-expressions.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-calculated-field-order-expressions-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/calculatedFieldOrderExpression/fromYAMLToXML.integration.test.ts",
       "sha256": "6f6c31178d68e1842cdc51a078fcaec14555b556d4e5bce6580d3373d8e1cf3c",
       "group": "dataCompositionSystem",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/calculated-field-order-expressions.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-calculated-field-order-expressions-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/calculatedFieldOrderExpression/rules.ts",
       "sha256": "bd80c2406de9c74338c7f0153f03e7c1397a9151aa97bb63811250744aa8e85f",
       "group": "dataCompositionSystem",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/calculated-field-order-expressions.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-calculated-field-order-expressions-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/calculatedFieldOrderExpression/types.ts",
       "sha256": "a2e56d2d6713767008d1838760dc0377fcbed9ef36e2d9a2179f5343768c9949",
       "group": "dataCompositionSystem",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/calculated-field-order-expressions.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-calculated-field-order-expressions-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/calculatedFieldUseRestriction/__fixtures__/data.ts",
       "sha256": "ecabb07f40c1b15d881bc31435472cd549549a3205eca7da58846744b9dbd2cd",
       "group": "dataCompositionSystem",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/calculated-field-use-restriction.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-calculated-field-use-restriction-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/calculatedFieldUseRestriction/fromXMLToYAML.integration.test.ts",
       "sha256": "5b0f2443fca9af59f56c049115ec7339cec10112984b00b2a5b90a913da0ac13",
       "group": "dataCompositionSystem",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/calculated-field-use-restriction.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-calculated-field-use-restriction-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/calculatedFieldUseRestriction/fromYAMLToXML.integration.test.ts",
       "sha256": "c9d5a9f3febd427db0a7725969ad0e08f42a27416c714414b838ff4c69f51fce",
       "group": "dataCompositionSystem",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/calculated-field-use-restriction.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-calculated-field-use-restriction-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/calculatedFieldUseRestriction/rules.ts",
       "sha256": "f2bb196b37db8c70e37c9c38f5dcd0c528089ede064dabfd4929f5c82bec13af",
       "group": "dataCompositionSystem",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/calculated-field-use-restriction.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-calculated-field-use-restriction-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/calculatedFieldUseRestriction/types.ts",
       "sha256": "6d90ddf6a21323568257a89c1149f4785caa1e1e6d70fc741a118d2da0491908",
       "group": "dataCompositionSystem",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/calculated-field-use-restriction.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-calculated-field-use-restriction-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/calculatedFields/__fixtures__/data.ts",
       "sha256": "01db29a20f606926ac0b6dce82b99f4c7b293c27c0cce8fcd180e0f6fd770b46",
       "group": "dataCompositionSystem",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/probes/calculated-fields-working.generated.yaml",
+      "verifiedCases": [
+        "tests/migration/calculated-fields-working.json",
+        "tools/rules-migration/test/family-check.test.mjs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-09-calculated-fields.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/calculatedFields/fromXMLToYAML.integration.test.ts",
       "sha256": "0c82f45ab26aeaa66565a0143dac074ccf976ef3c3e41b676f6f36e9c6b0019b",
       "group": "dataCompositionSystem",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/probes/calculated-fields-working.generated.yaml",
+      "verifiedCases": [
+        "tests/migration/calculated-fields-working.json",
+        "tools/rules-migration/test/family-check.test.mjs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-09-calculated-fields.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/calculatedFields/fromYAMLToXML.integration.test.ts",
       "sha256": "e0c8a90a60adc93f969aea0d30144491ee3c83d8c694bf7d0751c39cc7a07649",
       "group": "dataCompositionSystem",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/probes/calculated-fields-working.generated.yaml",
+      "verifiedCases": [
+        "tests/migration/calculated-fields-working.json",
+        "tools/rules-migration/test/family-check.test.mjs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-09-calculated-fields.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/calculatedFields/types.ts",
       "sha256": "5dd82644025ef3d658bd312a649490ed91f1f8a1dc1b0a73244b6586bf384d51",
       "group": "dataCompositionSystem",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/probes/calculated-fields-working.generated.yaml",
+      "verifiedCases": [
+        "tests/migration/calculated-fields-working.json",
+        "tools/rules-migration/test/family-check.test.mjs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-09-calculated-fields.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/conditionalAppearance/__fixtures__/data.ts",
@@ -2402,241 +2707,391 @@
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/parameterValue/__fixtures__/data.ts",
       "sha256": "9fed8ac1159b0d10a61bdd66282a60ec2eeb7c3f3a720abb75f7ea34ae38d229",
       "group": "dataCompositionSystem",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/dcs-parameter-value.yaml",
+      "verifiedCases": [
+        "tests/migration/settings-parameter-values-working.json",
+        "rust/declarations/probes/settings-parameter-values-working.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-08-shared-aot-value-bodies.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/parameterValue/dcsValueRule.ts",
       "sha256": "9e0ab146977498f93f43a957fd0d63ae6602b7a37531ed4206c9fe421e13babb",
       "group": "dataCompositionSystem",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/dcs-parameter-value.yaml",
+      "verifiedCases": [
+        "tests/migration/settings-parameter-values-working.json",
+        "rust/declarations/probes/settings-parameter-values-working.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-08-shared-aot-value-bodies.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/parameterValue/fromXML.integration.test.ts",
       "sha256": "21ff321f941cb9f665ee794968433d9982d50e998ac22b27d2577457f7c86308",
       "group": "dataCompositionSystem",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/dcs-parameter-value.yaml",
+      "verifiedCases": [
+        "tests/migration/settings-parameter-values-working.json",
+        "rust/declarations/probes/settings-parameter-values-working.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-08-shared-aot-value-bodies.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/parameterValue/fromXML.ts",
       "sha256": "80dc0da05928447684429aabc33820a8ad31f164e1f71e0260902be11ff09455",
       "group": "dataCompositionSystem",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/dcs-parameter-value.yaml",
+      "verifiedCases": [
+        "tests/migration/settings-parameter-values-working.json",
+        "rust/declarations/probes/settings-parameter-values-working.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-08-shared-aot-value-bodies.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/parameterValue/fromYAML.test.ts",
       "sha256": "d4f7f7ff3d5ac7703b5d2de230d60b04653279f467fb94a739a4dff61ce1f3d4",
       "group": "dataCompositionSystem",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/dcs-parameter-value.yaml",
+      "verifiedCases": [
+        "tests/migration/settings-parameter-values-working.json",
+        "rust/declarations/probes/settings-parameter-values-working.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-08-shared-aot-value-bodies.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/parameterValue/fromYAML.ts",
       "sha256": "aa0a75101a030b32bc3da300cb070665e56975eb7d9ee45e19571062dad6233d",
       "group": "dataCompositionSystem",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/dcs-parameter-value.yaml",
+      "verifiedCases": [
+        "tests/migration/settings-parameter-values-working.json",
+        "rust/declarations/probes/settings-parameter-values-working.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-08-shared-aot-value-bodies.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/parameterValue/toJSONSchema.test.ts",
       "sha256": "43155fb4b840eb0e6406b3ecf4855ba80adb911cae13b3d3f269ac9f6a8932b2",
       "group": "dataCompositionSystem",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/dcs-parameter-value.yaml",
+      "verifiedCases": [
+        "tests/migration/settings-parameter-values-working.json",
+        "rust/declarations/probes/settings-parameter-values-working.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-08-shared-aot-value-bodies.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/parameterValue/toJSONSchema.ts",
       "sha256": "5b9b42dd1cca1490e43dfdeff6a27c4b6485244f0e2d282969808b5a80b74f06",
       "group": "dataCompositionSystem",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/dcs-parameter-value.yaml",
+      "verifiedCases": [
+        "tests/migration/settings-parameter-values-working.json",
+        "rust/declarations/probes/settings-parameter-values-working.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-08-shared-aot-value-bodies.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/parameterValue/toXML.integration.test.ts",
       "sha256": "8f9dcf05190f35546a2ba2fedd6d944401544e4abcf5a238237e0fbabfacb52d",
       "group": "dataCompositionSystem",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/dcs-parameter-value.yaml",
+      "verifiedCases": [
+        "tests/migration/settings-parameter-values-working.json",
+        "rust/declarations/probes/settings-parameter-values-working.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-08-shared-aot-value-bodies.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/parameterValue/toXML.ts",
       "sha256": "b324f8dab0357c7c57cf062d412487a50bdc915a35f5b126246cd5e022bc261c",
       "group": "dataCompositionSystem",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/dcs-parameter-value.yaml",
+      "verifiedCases": [
+        "tests/migration/settings-parameter-values-working.json",
+        "rust/declarations/probes/settings-parameter-values-working.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-08-shared-aot-value-bodies.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/parameterValue/toYAML.test.ts",
       "sha256": "513849f3f13b3a2d65f58c069f266a5fbf7574fb48b882c57a844b109e4b55cb",
       "group": "dataCompositionSystem",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/dcs-parameter-value.yaml",
+      "verifiedCases": [
+        "tests/migration/settings-parameter-values-working.json",
+        "rust/declarations/probes/settings-parameter-values-working.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-08-shared-aot-value-bodies.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/parameterValue/toYAML.ts",
       "sha256": "969a7b421973dd8b59f1ef8600d168dc556f91e4783e1dda06390c9f1e686471",
       "group": "dataCompositionSystem",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/dcs-parameter-value.yaml",
+      "verifiedCases": [
+        "tests/migration/settings-parameter-values-working.json",
+        "rust/declarations/probes/settings-parameter-values-working.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-08-shared-aot-value-bodies.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/parameterValue/types.ts",
       "sha256": "d0b1ae514879575c8d0e667b729faf13e81770692167276e7a6dd132d141ba4e",
       "group": "dataCompositionSystem",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/dcs-parameter-value.yaml",
+      "verifiedCases": [
+        "tests/migration/settings-parameter-values-working.json",
+        "rust/declarations/probes/settings-parameter-values-working.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-08-shared-aot-value-bodies.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/parameterValue/userSettingPresentationXML.test.ts",
       "sha256": "5a7f159e0c6d9f9d7610558018a3e88199c46f4353965d59ccdadc3cf32a9eeb",
       "group": "dataCompositionSystem",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/dcs-parameter-value.yaml",
+      "verifiedCases": [
+        "tests/migration/settings-parameter-values-working.json",
+        "rust/declarations/probes/settings-parameter-values-working.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-08-shared-aot-value-bodies.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/parameterValue/userSettingPresentationXML.ts",
       "sha256": "4e4a39a164bb31804810a42130dd6ec31dcbba24abd7691690486d72c4384422",
       "group": "dataCompositionSystem",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/dcs-parameter-value.yaml",
+      "verifiedCases": [
+        "tests/migration/settings-parameter-values-working.json",
+        "rust/declarations/probes/settings-parameter-values-working.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-08-shared-aot-value-bodies.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/settingsParameterValueCollection/__fixtures__/data.ts",
       "sha256": "74e82c54f16b80c69a0cf1aaf3a9b058805e84fe906693519b2c6249099b7a30",
       "group": "dataCompositionSystem",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/dcs-settings-parameter-value-collection.yaml",
+      "verifiedCases": [
+        "tests/migration/settings-parameter-values-working.json",
+        "rust/declarations/probes/settings-parameter-values-working.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-08-shared-aot-value-bodies.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/settingsParameterValueCollection/dcscorItemsXML.test.ts",
       "sha256": "b522acf6d7b3396f34851b115f728ec7893e8c2d722ef1fc2d80d09aafdcbfa9",
       "group": "dataCompositionSystem",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/dcs-settings-parameter-value-collection.yaml",
+      "verifiedCases": [
+        "tests/migration/settings-parameter-values-working.json",
+        "rust/declarations/probes/settings-parameter-values-working.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-08-shared-aot-value-bodies.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/settingsParameterValueCollection/dcscorItemsXML.ts",
       "sha256": "f921213b3b24448ab3aa1a061f3e19fa8204ef07f5c2db98352c70aeb8b7927e",
       "group": "dataCompositionSystem",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/dcs-settings-parameter-value-collection.yaml",
+      "verifiedCases": [
+        "tests/migration/settings-parameter-values-working.json",
+        "rust/declarations/probes/settings-parameter-values-working.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-08-shared-aot-value-bodies.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/settingsParameterValueCollection/fromXML.integration.test.ts",
       "sha256": "588db174d332f961d9b9e30fb85c1134b22fb1ad32c1b079fb1d7e72bc3852ba",
       "group": "dataCompositionSystem",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/dcs-settings-parameter-value-collection.yaml",
+      "verifiedCases": [
+        "tests/migration/settings-parameter-values-working.json",
+        "rust/declarations/probes/settings-parameter-values-working.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-08-shared-aot-value-bodies.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/settingsParameterValueCollection/fromXML.ts",
       "sha256": "c8b0b625eb4da43aa4a82f83421950ad45a42408f958fada2049afd19b96bea1",
       "group": "dataCompositionSystem",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/dcs-settings-parameter-value-collection.yaml",
+      "verifiedCases": [
+        "tests/migration/settings-parameter-values-working.json",
+        "rust/declarations/probes/settings-parameter-values-working.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-08-shared-aot-value-bodies.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/settingsParameterValueCollection/fromYAML.test.ts",
       "sha256": "c9f14be827587c2b807c8f78ac45195f23674dc98b0ca654b5099c1b479621fc",
       "group": "dataCompositionSystem",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/dcs-settings-parameter-value-collection.yaml",
+      "verifiedCases": [
+        "tests/migration/settings-parameter-values-working.json",
+        "rust/declarations/probes/settings-parameter-values-working.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-08-shared-aot-value-bodies.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/settingsParameterValueCollection/fromYAML.ts",
       "sha256": "59a29c1d0c041d9780a613d07485af5935a85d3b970b9324379c5fa2b5cb7773",
       "group": "dataCompositionSystem",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/dcs-settings-parameter-value-collection.yaml",
+      "verifiedCases": [
+        "tests/migration/settings-parameter-values-working.json",
+        "rust/declarations/probes/settings-parameter-values-working.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-08-shared-aot-value-bodies.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/settingsParameterValueCollection/index.ts",
       "sha256": "978bd74c541d7e4df959d9cb6f495c5cd02cd8529c712f0b2200b1610490ebc0",
       "group": "dataCompositionSystem",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/dcs-settings-parameter-value-collection.yaml",
+      "verifiedCases": [
+        "tests/migration/settings-parameter-values-working.json",
+        "rust/declarations/probes/settings-parameter-values-working.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-08-shared-aot-value-bodies.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/settingsParameterValueCollection/ruleSet.ts",
       "sha256": "948fc11c01e8036b0296f2c95a5fdfe057d754402cbc08601836fb0a34fd8125",
       "group": "dataCompositionSystem",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/dcs-settings-parameter-value-collection.yaml",
+      "verifiedCases": [
+        "tests/migration/settings-parameter-values-working.json",
+        "rust/declarations/probes/settings-parameter-values-working.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-08-shared-aot-value-bodies.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/settingsParameterValueCollection/toJSONSchema.ts",
       "sha256": "45dd454bd6584cc371255d365bd12f667a9b4887e357b4aecc8d9017f3f3a1a9",
       "group": "dataCompositionSystem",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/dcs-settings-parameter-value-collection.yaml",
+      "verifiedCases": [
+        "tests/migration/settings-parameter-values-working.json",
+        "rust/declarations/probes/settings-parameter-values-working.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-08-shared-aot-value-bodies.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/settingsParameterValueCollection/toXML.integration.test.ts",
       "sha256": "e3be9f2f03e185043db8551cf84224b36411942e89e538f8f3970421e1d2f37d",
       "group": "dataCompositionSystem",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/dcs-settings-parameter-value-collection.yaml",
+      "verifiedCases": [
+        "tests/migration/settings-parameter-values-working.json",
+        "rust/declarations/probes/settings-parameter-values-working.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-08-shared-aot-value-bodies.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/settingsParameterValueCollection/toXML.ts",
       "sha256": "e0404a279b200cb141e64a7a779d27564b92aa0cdffe55700c94af740cab6ff4",
       "group": "dataCompositionSystem",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/dcs-settings-parameter-value-collection.yaml",
+      "verifiedCases": [
+        "tests/migration/settings-parameter-values-working.json",
+        "rust/declarations/probes/settings-parameter-values-working.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-08-shared-aot-value-bodies.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/settingsParameterValueCollection/toYAML.test.ts",
       "sha256": "53721fb4a33edcd03476425944e26991dbba0e309763b42c240f9a07ed58eb01",
       "group": "dataCompositionSystem",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/dcs-settings-parameter-value-collection.yaml",
+      "verifiedCases": [
+        "tests/migration/settings-parameter-values-working.json",
+        "rust/declarations/probes/settings-parameter-values-working.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-08-shared-aot-value-bodies.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/settingsParameterValueCollection/toYAML.ts",
       "sha256": "9ce7f813c891a351295779f415e09c0b5cfdff242464fc20736182d9ffc728a3",
       "group": "dataCompositionSystem",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/dcs-settings-parameter-value-collection.yaml",
+      "verifiedCases": [
+        "tests/migration/settings-parameter-values-working.json",
+        "rust/declarations/probes/settings-parameter-values-working.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-08-shared-aot-value-bodies.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/settingsParameterValueCollection/types.ts",
       "sha256": "e977e4422bf03bcf1171d6b7ac849a71aa9b432d8c1f785577f66cded6f61b64",
       "group": "dataCompositionSystem",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/dcs-settings-parameter-value-collection.yaml",
+      "verifiedCases": [
+        "tests/migration/settings-parameter-values-working.json",
+        "rust/declarations/probes/settings-parameter-values-working.generated.yaml",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-10-08-shared-aot-value-bodies.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/structuralSelections.test.ts",
@@ -3590,41 +4045,66 @@
       "path": "packages/rules/metadata/commonObjects/font/__fixtures__/data.ts",
       "sha256": "71a5435b467ae833d46fd6a95f0de2577182697285ce5bbd88f9d81e8158aa1f",
       "group": "font",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/font-reference.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/font-owner.yaml",
+        "rust/crates/compiled-rules-font/tests/font.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-24-font-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/font/fromXML.test.ts",
       "sha256": "f40b5b58cdc2aee99a6bee57c27399555591fb07cc87e20b2012ce9f31416dfd",
       "group": "font",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/font-reference.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/font-owner.yaml",
+        "rust/crates/compiled-rules-font/tests/font.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-24-font-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/font/fromXML.ts",
       "sha256": "06179c6e3f369710c01546567113d34940fcfae904377c8646289af2593cf6c4",
       "group": "font",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/font-reference.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/font-owner.yaml",
+        "rust/crates/compiled-rules-font/tests/font.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-24-font-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/font/fromYAML.test.ts",
       "sha256": "ca019c9d377d8712a73a2c0e26a55ef721410f53b2bde64688ab36f554cf93b4",
       "group": "font",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/font-reference.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/font-owner.yaml",
+        "rust/crates/compiled-rules-font/tests/font.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-24-font-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/font/fromYAML.ts",
       "sha256": "b7daf95edfdb4dedbe195611517d717e84d15c9bcaeee642d33e90d729dc4b69",
       "group": "font",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/font-reference.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/font-owner.yaml",
+        "rust/crates/compiled-rules-font/tests/font.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-24-font-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/font/toEnterprise.test.ts",
@@ -3646,49 +4126,79 @@
       "path": "packages/rules/metadata/commonObjects/font/toJSONSchema.ts",
       "sha256": "960ad1c5c89ce108c078f74e5855e01279a198b0a699444a0b166c236e2847be",
       "group": "font",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/font-reference.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/font-owner.yaml",
+        "rust/crates/compiled-rules-font/tests/font.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-24-font-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/font/toXML.test.ts",
       "sha256": "8854fa76241a0539c4afa7be0def2fae6cc252b11a141e5ccc2b53560149c72b",
       "group": "font",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/font-reference.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/font-owner.yaml",
+        "rust/crates/compiled-rules-font/tests/font.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-24-font-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/font/toXML.ts",
       "sha256": "b1bfb5fb20e43fb991a74005edfbf2c5f2b53fa64fc34767648d1241a33a1360",
       "group": "font",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/font-reference.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/font-owner.yaml",
+        "rust/crates/compiled-rules-font/tests/font.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-24-font-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/font/toYAML.test.ts",
       "sha256": "1c3162494e3df05726b4e22ed422247154748a06f6ee97de4690c80ca5660767",
       "group": "font",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/font-reference.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/font-owner.yaml",
+        "rust/crates/compiled-rules-font/tests/font.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-24-font-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/font/toYAML.ts",
       "sha256": "9e530b654ba02abda2c1f4fe9dc205c67ac639af9738efaaa5beb472c47c9c1c",
       "group": "font",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/font-reference.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/font-owner.yaml",
+        "rust/crates/compiled-rules-font/tests/font.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-24-font-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/font/types.ts",
       "sha256": "5033505b83c918b87853f87265f1e863fb74bb997e306bd69a3a0e9eab6f1911",
       "group": "font",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/font-reference.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/font-owner.yaml",
+        "rust/crates/compiled-rules-font/tests/font.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-24-font-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/formattedI8nText/__fixtures__/data.ts",
@@ -3862,81 +4372,121 @@
       "path": "packages/rules/metadata/commonObjects/functionalOptionsProperty/fromXML.integration.test.ts",
       "sha256": "8bf836214b50740921fa539a43d74e71d4b9f3cc14996c885617d8803312a385",
       "group": "functionalOptionsProperty",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/functional-options-property.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/functional-options-property.yaml",
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "docs/superpowers/reports/2026-09-25-functional-options-property-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/functionalOptionsProperty/fromXML.ts",
       "sha256": "689e7618bd2b4e40bf15e6343121b398e818ab1a34ef8bf05308cb987faae94f",
       "group": "functionalOptionsProperty",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/functional-options-property.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/functional-options-property.yaml",
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "docs/superpowers/reports/2026-09-25-functional-options-property-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/functionalOptionsProperty/fromYAML.test.ts",
       "sha256": "a0255a7fb391de04374eec45b4086d19a6d2848ef6e39c3ff106fd7988fec4c6",
       "group": "functionalOptionsProperty",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/functional-options-property.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/functional-options-property.yaml",
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "docs/superpowers/reports/2026-09-25-functional-options-property-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/functionalOptionsProperty/fromYAML.ts",
       "sha256": "32ca1b953b18dbf05667213064f5e687c456e401fa8fed8f8230c9da45fc3dfb",
       "group": "functionalOptionsProperty",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/functional-options-property.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/functional-options-property.yaml",
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "docs/superpowers/reports/2026-09-25-functional-options-property-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/functionalOptionsProperty/toJSONSchema.ts",
       "sha256": "0ffd2dd18947a506743573cc331dc7e4aa379611751047722b7893bbfcf2216b",
       "group": "functionalOptionsProperty",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/functional-options-property.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/functional-options-property.yaml",
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "docs/superpowers/reports/2026-09-25-functional-options-property-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/functionalOptionsProperty/toXML.integration.test.ts",
       "sha256": "b9b3c4e398e8b0b8bf8339ee710728fa33e644da1d01ab6c55cd2a2ad1fd3dd7",
       "group": "functionalOptionsProperty",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/functional-options-property.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/functional-options-property.yaml",
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "docs/superpowers/reports/2026-09-25-functional-options-property-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/functionalOptionsProperty/toXML.ts",
       "sha256": "3047e2771e2ea5796d51642f62539e21dfbe8aff064350821520fa7330c9458b",
       "group": "functionalOptionsProperty",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/functional-options-property.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/functional-options-property.yaml",
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "docs/superpowers/reports/2026-09-25-functional-options-property-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/functionalOptionsProperty/toYAML.test.ts",
       "sha256": "51bc932e7ff9b092d955dcfacca9a67fe8b9afe80f15325265b19a99a7b859eb",
       "group": "functionalOptionsProperty",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/functional-options-property.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/functional-options-property.yaml",
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "docs/superpowers/reports/2026-09-25-functional-options-property-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/functionalOptionsProperty/toYAML.ts",
       "sha256": "2f0424496ed5476f1eab46bcad5a97508f6b29348b072bd58e278af893e794bc",
       "group": "functionalOptionsProperty",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/functional-options-property.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/functional-options-property.yaml",
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "docs/superpowers/reports/2026-09-25-functional-options-property-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/functionalOptionsProperty/types.ts",
       "sha256": "139cf50f1c9a9f6d7542d5387ff3defbb43f509e9e189afb347278badd4437ac",
       "group": "functionalOptionsProperty",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/functional-options-property.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/functional-options-property.yaml",
+        "rust/crates/compiled-rules/tests/sequences.rs",
+        "docs/superpowers/reports/2026-09-25-functional-options-property-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/help/fromXML.ts",
@@ -4577,49 +5127,73 @@
       "path": "packages/rules/metadata/commonObjects/metadataCommandGroup/fromXML.ts",
       "sha256": "8ac6d59008dedcb322f7071bdacbfe19d1401e683a28a600a1d177f0c5445301",
       "group": "metadataCommandGroup",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/metadata-command-group.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/metadata-command-group.yaml",
+        "rust/crates/compiled-rules/tests/path_lexicons.rs",
+        "docs/superpowers/reports/2026-09-25-metadata-command-group-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/metadataCommandGroup/fromYAML.ts",
       "sha256": "9686cc89b5e531e43d3603c888dd923b51556609a05277c45f344cde4cc53b83",
       "group": "metadataCommandGroup",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/metadata-command-group.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/metadata-command-group.yaml",
+        "rust/crates/compiled-rules/tests/path_lexicons.rs",
+        "docs/superpowers/reports/2026-09-25-metadata-command-group-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/metadataCommandGroup/toJSONSchema.ts",
       "sha256": "cae468383b4c317b97e874669ce09f00761554c726922f76905baba89bb942a2",
       "group": "metadataCommandGroup",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/metadata-command-group.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/metadata-command-group.yaml",
+        "rust/crates/compiled-rules/tests/path_lexicons.rs",
+        "docs/superpowers/reports/2026-09-25-metadata-command-group-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/metadataCommandGroup/toXML.ts",
       "sha256": "bec6a4192d73d3861ac9ec95a8ea00c1536d3a68d5f06ddf901713073b444d5c",
       "group": "metadataCommandGroup",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/metadata-command-group.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/metadata-command-group.yaml",
+        "rust/crates/compiled-rules/tests/path_lexicons.rs",
+        "docs/superpowers/reports/2026-09-25-metadata-command-group-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/metadataCommandGroup/toYAML.ts",
       "sha256": "d34219cb3e6cad18308e110c8ed109b225c47377c9f8b57942f5dbe455da3186",
       "group": "metadataCommandGroup",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/metadata-command-group.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/metadata-command-group.yaml",
+        "rust/crates/compiled-rules/tests/path_lexicons.rs",
+        "docs/superpowers/reports/2026-09-25-metadata-command-group-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/metadataCommandGroup/types.ts",
       "sha256": "00f21588d0dd4d318ae70d2e7bcf3549a19ec445f86b9a10021396a2c6af98eb",
       "group": "metadataCommandGroup",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/metadata-command-group.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/metadata-command-group.yaml",
+        "rust/crates/compiled-rules/tests/path_lexicons.rs",
+        "docs/superpowers/reports/2026-09-25-metadata-command-group-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/metadataDocumentJournalColumn/__fixtures__/data.ts",
@@ -5889,81 +6463,131 @@
       "path": "packages/rules/metadata/commonObjects/metadataTabularSection/__fixtures__/data.ts",
       "sha256": "09ea0ea3b402da338c9d43f1cc7056b5c103c2750a544823185d63d7aeb5ff86",
       "group": "metadataTabularSection",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/candidates/tabular-sections.generated.yaml",
+      "verifiedCases": [
+        "tests/migration/tabular-section-family-operation.json",
+        "tests/migration/document-attributes-operation.json",
+        "rust/crates/rule-compiler/tests/contributions.rs",
+        "tools/rules-migration/test/tabular-section-family-operation.test.mjs"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/metadataTabularSection/__fixtures__/legacy/data.ts",
       "sha256": "f1af50e30dc68bafa862e34c5e82309883fdecabcbfe86c950449d5aa62ac20a",
       "group": "metadataTabularSection",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/candidates/tabular-sections.generated.yaml",
+      "verifiedCases": [
+        "tests/migration/tabular-section-family-operation.json",
+        "tests/migration/document-attributes-operation.json",
+        "rust/crates/rule-compiler/tests/contributions.rs",
+        "tools/rules-migration/test/tabular-section-family-operation.test.mjs"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/metadataTabularSection/fragments.ts",
       "sha256": "af13b2e028d01a75fa8c5bc29a9af282a461da5319972323dcb17ff123f3149b",
       "group": "metadataTabularSection",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/candidates/tabular-sections.generated.yaml",
+      "verifiedCases": [
+        "tests/migration/tabular-section-family-operation.json",
+        "tests/migration/document-attributes-operation.json",
+        "rust/crates/rule-compiler/tests/contributions.rs",
+        "tools/rules-migration/test/tabular-section-family-operation.test.mjs"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/metadataTabularSection/fromXMLToYAML.integration.test.ts",
       "sha256": "f6f294df327e65b1c8c070e9fd562a46d56c99c1d38cf3822377f4bdb1f4a90c",
       "group": "metadataTabularSection",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/candidates/tabular-sections.generated.yaml",
+      "verifiedCases": [
+        "tests/migration/tabular-section-family-operation.json",
+        "tests/migration/document-attributes-operation.json",
+        "rust/crates/rule-compiler/tests/contributions.rs",
+        "tools/rules-migration/test/tabular-section-family-operation.test.mjs"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/metadataTabularSection/fromYAMLToXML.integration.test.ts",
       "sha256": "bf8249f30a4c5953a95848d17a6de5846ce269fc616f1fd40760c98256d49ba7",
       "group": "metadataTabularSection",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/candidates/tabular-sections.generated.yaml",
+      "verifiedCases": [
+        "tests/migration/tabular-section-family-operation.json",
+        "tests/migration/document-attributes-operation.json",
+        "rust/crates/rule-compiler/tests/contributions.rs",
+        "tools/rules-migration/test/tabular-section-family-operation.test.mjs"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/metadataTabularSection/propertyStates.ts",
       "sha256": "0dc5fc736d803bfd3a8cc377ebfd751fe1a482a4f788c1746dd8dccf5f8e8d84",
       "group": "metadataTabularSection",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/candidates/tabular-sections.generated.yaml",
+      "verifiedCases": [
+        "tests/migration/tabular-section-family-operation.json",
+        "tests/migration/document-attributes-operation.json",
+        "rust/crates/rule-compiler/tests/contributions.rs",
+        "tools/rules-migration/test/tabular-section-family-operation.test.mjs"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/metadataTabularSection/register.ts",
       "sha256": "94d1ea7e162ac8828b2450835fbf18570f765960e98531d645c731ca61d8b98a",
       "group": "metadataTabularSection",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/candidates/tabular-sections.generated.yaml",
+      "verifiedCases": [
+        "tests/migration/tabular-section-family-operation.json",
+        "tests/migration/document-attributes-operation.json",
+        "rust/crates/rule-compiler/tests/contributions.rs",
+        "tools/rules-migration/test/tabular-section-family-operation.test.mjs"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/metadataTabularSection/rules.ts",
       "sha256": "27370962d1e6fcf5e9fcf777b23640abee8e202ec065a36cbe6aba36e81c403d",
       "group": "metadataTabularSection",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/candidates/tabular-sections.generated.yaml",
+      "verifiedCases": [
+        "tests/migration/tabular-section-family-operation.json",
+        "tests/migration/document-attributes-operation.json",
+        "rust/crates/rule-compiler/tests/contributions.rs",
+        "tools/rules-migration/test/tabular-section-family-operation.test.mjs"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/metadataTabularSection/toJSONSchema.test.ts",
       "sha256": "1b2da4c6100be7c1e5be007418927f5e32202ed3fcb666b505f1e18c5f28d6e0",
       "group": "metadataTabularSection",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/candidates/tabular-sections.generated.yaml",
+      "verifiedCases": [
+        "tests/migration/tabular-section-family-operation.json",
+        "tests/migration/document-attributes-operation.json",
+        "rust/crates/rule-compiler/tests/contributions.rs",
+        "tools/rules-migration/test/tabular-section-family-operation.test.mjs"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/metadataTabularSection/types.ts",
       "sha256": "b55ef8aea526c1733836dc2742f974d83b21efbd6373dd7fd017d6981514dbdf",
       "group": "metadataTabularSection",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/candidates/tabular-sections.generated.yaml",
+      "verifiedCases": [
+        "tests/migration/tabular-section-family-operation.json",
+        "tests/migration/document-attributes-operation.json",
+        "rust/crates/rule-compiler/tests/contributions.rs",
+        "tools/rules-migration/test/tabular-section-family-operation.test.mjs"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/metadataTargetOwnerResolver.ts",
@@ -6625,89 +7249,133 @@
       "path": "packages/rules/metadata/commonObjects/mobileDeviceCommandBarContent/__fixtures__/data.ts",
       "sha256": "22aa680ed929a21200ee42fc2f57450a52250d3c2d343744ec4f79531ce4b74a",
       "group": "mobileDeviceCommandBarContent",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/mobile-device-command-bar-content.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/mobile_device_command_bar_content.rs",
+        "rust/crates/compiled-rules/tests/choice_list.rs",
+        "docs/superpowers/reports/2026-09-25-mobile-device-command-bar-content-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/mobileDeviceCommandBarContent/fromXML.integration.test.ts",
       "sha256": "16b31ac6d15eacd0e95cd48f522cbf7e9a94dfcfa6949f7b99cec428651e47fe",
       "group": "mobileDeviceCommandBarContent",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/mobile-device-command-bar-content.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/mobile_device_command_bar_content.rs",
+        "rust/crates/compiled-rules/tests/choice_list.rs",
+        "docs/superpowers/reports/2026-09-25-mobile-device-command-bar-content-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/mobileDeviceCommandBarContent/fromXML.ts",
       "sha256": "8d61b95d157e52b84ac575e834bffb61843657cc76f13e67fe3e0d0342e8cb5b",
       "group": "mobileDeviceCommandBarContent",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/mobile-device-command-bar-content.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/mobile_device_command_bar_content.rs",
+        "rust/crates/compiled-rules/tests/choice_list.rs",
+        "docs/superpowers/reports/2026-09-25-mobile-device-command-bar-content-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/mobileDeviceCommandBarContent/fromYAML.test.ts",
       "sha256": "c560f5be903a1d904963525f999e58ac7a2700f4de6d952ab4e4d7f81deff593",
       "group": "mobileDeviceCommandBarContent",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/mobile-device-command-bar-content.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/mobile_device_command_bar_content.rs",
+        "rust/crates/compiled-rules/tests/choice_list.rs",
+        "docs/superpowers/reports/2026-09-25-mobile-device-command-bar-content-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/mobileDeviceCommandBarContent/fromYAML.ts",
       "sha256": "2edb8fe5d7d54f73f5c6ac968440302bb7c72424b2d20e2519c461a369cefe42",
       "group": "mobileDeviceCommandBarContent",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/mobile-device-command-bar-content.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/mobile_device_command_bar_content.rs",
+        "rust/crates/compiled-rules/tests/choice_list.rs",
+        "docs/superpowers/reports/2026-09-25-mobile-device-command-bar-content-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/mobileDeviceCommandBarContent/toJSONSchema.ts",
       "sha256": "3e88390c87d0a425043aa2e91b7bef413e2de4e59b87a524d3dc001ea5afaa59",
       "group": "mobileDeviceCommandBarContent",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/mobile-device-command-bar-content.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/mobile_device_command_bar_content.rs",
+        "rust/crates/compiled-rules/tests/choice_list.rs",
+        "docs/superpowers/reports/2026-09-25-mobile-device-command-bar-content-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/mobileDeviceCommandBarContent/toXML.integration.test.ts",
       "sha256": "c4db354254e3e610f3a40eb2d40e4e7e608f4d27f70403e9729ce3ddde598f27",
       "group": "mobileDeviceCommandBarContent",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/mobile-device-command-bar-content.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/mobile_device_command_bar_content.rs",
+        "rust/crates/compiled-rules/tests/choice_list.rs",
+        "docs/superpowers/reports/2026-09-25-mobile-device-command-bar-content-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/mobileDeviceCommandBarContent/toXML.ts",
       "sha256": "5b9bd6002797a9036620fc5ea02cd59500d9f419e0ec19c68e527afabb92e43e",
       "group": "mobileDeviceCommandBarContent",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/mobile-device-command-bar-content.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/mobile_device_command_bar_content.rs",
+        "rust/crates/compiled-rules/tests/choice_list.rs",
+        "docs/superpowers/reports/2026-09-25-mobile-device-command-bar-content-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/mobileDeviceCommandBarContent/toYAML.test.ts",
       "sha256": "2ac5b6065eb495c49c9861eff30679256867bbbcf628986114f9ea0b1a49f347",
       "group": "mobileDeviceCommandBarContent",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/mobile-device-command-bar-content.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/mobile_device_command_bar_content.rs",
+        "rust/crates/compiled-rules/tests/choice_list.rs",
+        "docs/superpowers/reports/2026-09-25-mobile-device-command-bar-content-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/mobileDeviceCommandBarContent/toYAML.ts",
       "sha256": "93f71953d15ba0acda14930d85f5ab79da8e6661cc6f9ee59d54d5fca14fd252",
       "group": "mobileDeviceCommandBarContent",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/mobile-device-command-bar-content.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/mobile_device_command_bar_content.rs",
+        "rust/crates/compiled-rules/tests/choice_list.rs",
+        "docs/superpowers/reports/2026-09-25-mobile-device-command-bar-content-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/mobileDeviceCommandBarContent/types.ts",
       "sha256": "2413d7214393342aca98723983c8382269d38dea8ef2f855927f28c18db10fe0",
       "group": "mobileDeviceCommandBarContent",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/mobile-device-command-bar-content.yaml",
+      "verifiedCases": [
+        "rust/crates/compiled-rules/tests/mobile_device_command_bar_content.rs",
+        "rust/crates/compiled-rules/tests/choice_list.rs",
+        "docs/superpowers/reports/2026-09-25-mobile-device-command-bar-content-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/module/fromXML.ts",
@@ -6910,41 +7578,66 @@
       "path": "packages/rules/metadata/commonObjects/picture/__fixtures__/data.ts",
       "sha256": "83b87d621c12a3904989ec8557686e9c8a5ec158c4b3cdd33154db2c287150b1",
       "group": "picture",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/picture.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/picture-owner.yaml",
+        "rust/crates/compiled-rules-picture/tests/picture.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-picture-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/picture/fromXML.integration.test.ts",
       "sha256": "ea99e45272a5d474d9c428369dc26734f4c333c4b79a91154d55b33d4556c51b",
       "group": "picture",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/picture.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/picture-owner.yaml",
+        "rust/crates/compiled-rules-picture/tests/picture.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-picture-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/picture/fromXML.ts",
       "sha256": "eebcd7fb2d8c05315c7e671d2731726e896bf3890c93f995e53555e02f1c6953",
       "group": "picture",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/picture.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/picture-owner.yaml",
+        "rust/crates/compiled-rules-picture/tests/picture.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-picture-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/picture/fromYAML.test.ts",
       "sha256": "3f1b1c650b283d5dd982cac49ca21c78f9505ff473a04706c7cdd9f43f00872b",
       "group": "picture",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/picture.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/picture-owner.yaml",
+        "rust/crates/compiled-rules-picture/tests/picture.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-picture-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/picture/fromYAML.ts",
       "sha256": "aa94364857093797926ebf705b1a0da736db007f11fd5e1d6fe16ce4ca441c9c",
       "group": "picture",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/picture.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/picture-owner.yaml",
+        "rust/crates/compiled-rules-picture/tests/picture.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-picture-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/picture/toEnterprise.test.ts",
@@ -6966,49 +7659,79 @@
       "path": "packages/rules/metadata/commonObjects/picture/toJSONSchema.ts",
       "sha256": "5f827827deb2a2d51350d8c10c9cc77cd66c0ceb68961904f7e37cf8667d883b",
       "group": "picture",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/picture.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/picture-owner.yaml",
+        "rust/crates/compiled-rules-picture/tests/picture.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-picture-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/picture/toXML.integration.test.ts",
       "sha256": "77bdb01499d1cb0d3140c6df9a0e6318576c33056894a87757c6e6568032f8c1",
       "group": "picture",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/picture.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/picture-owner.yaml",
+        "rust/crates/compiled-rules-picture/tests/picture.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-picture-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/picture/toXML.ts",
       "sha256": "c901b2a648b9763c27d42352e87a899539f958e05d1a6f5f739d5d96440a8796",
       "group": "picture",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/picture.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/picture-owner.yaml",
+        "rust/crates/compiled-rules-picture/tests/picture.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-picture-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/picture/toYAML.test.ts",
       "sha256": "63928e91785102a602a8429431a62a4c9995a5b0cfa4a7ab1e6aeb2f730bb89d",
       "group": "picture",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/picture.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/picture-owner.yaml",
+        "rust/crates/compiled-rules-picture/tests/picture.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-picture-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/picture/toYAML.ts",
       "sha256": "9719d04d28744f624cbf1f3686a09264e7572c6d8ef47b2ee2800ee12660130c",
       "group": "picture",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/picture.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/picture-owner.yaml",
+        "rust/crates/compiled-rules-picture/tests/picture.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-picture-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/picture/types.ts",
       "sha256": "50b0c3f3aa4ac311e60df641cdb6e86710aa6f7a86a2a2c4081e9e66f78381cd",
       "group": "picture",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/picture.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/picture-owner.yaml",
+        "rust/crates/compiled-rules-picture/tests/picture.rs",
+        "rust/crates/rule-compiler/tests/schema.rs",
+        "docs/superpowers/reports/2026-09-25-picture-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/predefined/builders.ts",
@@ -7897,89 +8620,133 @@
       "path": "packages/rules/metadata/commonObjects/styleItemValue/fromXML.test.ts",
       "sha256": "d9886c9d8a8694ef6c5ce03bf54ab58185bc979e54bc9554f68c2462316e37c9",
       "group": "styleItemValue",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/style-item-value.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/tagged-style-value.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "docs/superpowers/reports/2026-09-25-style-item-value-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/styleItemValue/fromXML.ts",
       "sha256": "fd0d9676a5defa031c8dbc026a160fa14c83c71b04df31c9231ab1e201d7a022",
       "group": "styleItemValue",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/style-item-value.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/tagged-style-value.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "docs/superpowers/reports/2026-09-25-style-item-value-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/styleItemValue/fromYAML.test.ts",
       "sha256": "58c0b41cda88108a1de15b6b9123a81b8545bf94c9dead262e668e767ef5d4a9",
       "group": "styleItemValue",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/style-item-value.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/tagged-style-value.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "docs/superpowers/reports/2026-09-25-style-item-value-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/styleItemValue/fromYAML.ts",
       "sha256": "19bee73173ed6a2e2b8baca3c2a44fd2902d6d7c012927bdb89d06bcfe24add4",
       "group": "styleItemValue",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/style-item-value.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/tagged-style-value.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "docs/superpowers/reports/2026-09-25-style-item-value-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/styleItemValue/toJSONSchema.test.ts",
       "sha256": "e54dd23d1deb4c2cdc71dff3ebc12192554461f6506d9c0cc48cf605e04a62b6",
       "group": "styleItemValue",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/style-item-value.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/tagged-style-value.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "docs/superpowers/reports/2026-09-25-style-item-value-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/styleItemValue/toJSONSchema.ts",
       "sha256": "0c8d1db54441f37b80c7fd5c25bcdd6985a249fff2c8f28533b85bfb47618494",
       "group": "styleItemValue",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/style-item-value.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/tagged-style-value.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "docs/superpowers/reports/2026-09-25-style-item-value-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/styleItemValue/toXML.test.ts",
       "sha256": "8f2313987fddbc405590dbc35f2f763480daba033dda5dd245e1f04d5d1b812d",
       "group": "styleItemValue",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/style-item-value.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/tagged-style-value.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "docs/superpowers/reports/2026-09-25-style-item-value-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/styleItemValue/toXML.ts",
       "sha256": "f86c398838232b3680c9dde2dce2999520aa65653e0781c26d7d1ab467a076bd",
       "group": "styleItemValue",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/style-item-value.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/tagged-style-value.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "docs/superpowers/reports/2026-09-25-style-item-value-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/styleItemValue/toYAML.test.ts",
       "sha256": "9b1c56203b962db7c1feceba6be66f1f569af8fb652c33827fc87e027f08e545",
       "group": "styleItemValue",
-      "status": "unreviewed",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/style-item-value.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/tagged-style-value.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "docs/superpowers/reports/2026-09-25-style-item-value-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/styleItemValue/toYAML.ts",
       "sha256": "dbf55b4512c31f05b98860a94a28741e2a1757883f49a8182ead8388af119755",
       "group": "styleItemValue",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/style-item-value.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/tagged-style-value.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "docs/superpowers/reports/2026-09-25-style-item-value-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/styleItemValue/types.ts",
       "sha256": "02859b1a9b64096471631f2e5ca4df9426c646cd243d8ef681110ba54422d79e",
       "group": "styleItemValue",
-      "status": "specified",
-      "implementation": null,
-      "verifiedCases": []
+      "status": "verified",
+      "implementation": "rust/declarations/common/style-item-value.yaml",
+      "verifiedCases": [
+        "rust/declarations/probes/tagged-style-value.yaml",
+        "rust/crates/compiled-rules/tests/scalars.rs",
+        "docs/superpowers/reports/2026-09-25-style-item-value-acceptance.md"
+      ]
     },
     {
       "path": "packages/rules/metadata/commonObjects/typeDescription/__fixtures__/data.ts",

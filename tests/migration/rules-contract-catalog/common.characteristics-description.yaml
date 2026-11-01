@@ -1,0 +1,169 @@
+format: nkdk-declarations/1
+kind: value
+id: common.characteristics-description
+namespaces:
+  xr: http://v8.1c.ru/8.3/xcf/readable
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+imports:
+  table: common.characteristics-table-link
+  field: common.characteristics-field-link
+  filter: common.characteristics-filter-value
+value:
+  kind: record
+  fields:
+    - name: characteristicTypes
+      type:
+        use: table
+    - name: keyField
+      type:
+        use: field
+    - name: typesFilterField
+      type:
+        use: field
+    - name: typesFilterValue
+      type:
+        use: filter
+    - name: dataPathField
+      type:
+        use: field
+    - name: multipleValuesUseField
+      type:
+        use: field
+    - name: characteristicValues
+      type:
+        use: table
+    - name: objectField
+      type:
+        use: field
+    - name: typeField
+      type:
+        use: field
+    - name: valueField
+      type:
+        use: field
+    - name: multipleValuesKeyField
+      type:
+        use: field
+    - name: multipleValuesOrderField
+      type:
+        use: field
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: characteristicTypes
+        path:
+          - xr:CharacteristicTypes
+        attribute: from
+      - field: keyField
+        path:
+          - xr:CharacteristicTypes
+          - xr:KeyField
+      - field: typesFilterField
+        path:
+          - xr:CharacteristicTypes
+          - xr:TypesFilterField
+      - field: typesFilterValue
+        path:
+          - xr:CharacteristicTypes
+          - xr:TypesFilterValue
+      - field: dataPathField
+        path:
+          - xr:CharacteristicTypes
+          - xr:DataPathField
+      - field: multipleValuesUseField
+        path:
+          - xr:CharacteristicTypes
+          - xr:MultipleValuesUseField
+      - field: characteristicValues
+        path:
+          - xr:CharacteristicValues
+        attribute: from
+      - field: objectField
+        path:
+          - xr:CharacteristicValues
+          - xr:ObjectField
+      - field: typeField
+        path:
+          - xr:CharacteristicValues
+          - xr:TypeField
+      - field: valueField
+        path:
+          - xr:CharacteristicValues
+          - xr:ValueField
+      - field: multipleValuesKeyField
+        path:
+          - xr:CharacteristicValues
+          - xr:MultipleValuesKeyField
+      - field: multipleValuesOrderField
+        path:
+          - xr:CharacteristicValues
+          - xr:MultipleValuesOrderField
+  yaml:
+    kind: mapping
+    fields:
+      - field: characteristicTypes
+        key: ВидыХарактеристик
+      - field: typesFilterValue
+        key: ЗначениеОтбораВидов
+      - field: characteristicValues
+        key: ЗначенияХарактеристик
+      - field: typeField
+        key: ПолеВида
+      - field: valueField
+        key: ПолеЗначения
+      - field: multipleValuesUseField
+        key: ПолеИспользованияМножественныхЗначений
+      - field: keyField
+        key: ПолеКлюча
+      - field: multipleValuesKeyField
+        key: ПолеКлючаМножественныхЗначений
+      - field: objectField
+        key: ПолеОбъекта
+      - field: typesFilterField
+        key: ПолеОтбораВидов
+      - field: multipleValuesOrderField
+        key: ПолеПорядкаМножественныхЗначений
+      - field: dataPathField
+        key: ПолеПутиКДанным
+presence:
+  - target:
+      field: characteristicTypes
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: characteristicValues
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: typesFilterValue
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: nil
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: typesFilterValue
+          form: nil
+    yaml:
+      missing:
+        denotes:
+          absent: true

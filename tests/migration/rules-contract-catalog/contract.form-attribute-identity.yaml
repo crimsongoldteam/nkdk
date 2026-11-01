@@ -1,0 +1,115 @@
+format: nkdk-declarations/1
+kind: object
+id: contract.form-attribute-identity
+namespaces:
+  f: http://v8.1c.ru/8.3/xcf/logform
+inputs:
+  component:
+    type:
+      kind: scalar
+      scalar: text
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  numbers:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: component
+            type:
+              kind: scalar
+              scalar: text
+          - name: owner
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+value:
+  kind: record
+  fields:
+    - name: name
+      type:
+        kind: scalar
+        scalar: text
+    - name: id
+      type:
+        kind: scalar
+        scalar: text
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: name
+        path:
+          - f:Attribute
+        attribute: name
+      - field: id
+        path:
+          - f:Attribute
+        attribute: id
+  yaml:
+    kind: mapping
+    fields:
+      - field: name
+        key: Имя
+presence:
+  - target:
+      field: id
+    yaml:
+      missing:
+        denotes:
+          match:
+            value:
+              lookup:
+                in:
+                  input: numbers
+                key:
+                  record:
+                    component:
+                      input: component
+                    owner:
+                      input: owner
+                    name:
+                      if:
+                        eq:
+                          - field: name
+                          - literal: ''
+                      then:
+                        logicalAddress:
+                          parts:
+                            - literal: Атрибут
+                            - collectionPosition: true
+                      else:
+                        logicalAddress:
+                          parts:
+                            - literal: Атрибут
+                            - field: name
+            present:
+              as: number
+              then:
+                var: number
+            absent:
+              require:
+                lookup:
+                  in:
+                    input: numbers
+                  key:
+                    record:
+                      component:
+                        input: component
+                      owner:
+                        input: owner
+                      name:
+                        logicalAddress:
+                          parts:
+                            - literal: Атрибут
+                            - collectionPosition: true

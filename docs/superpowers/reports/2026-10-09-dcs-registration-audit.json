@@ -1,0 +1,1356 @@
+{
+  "scope": "Static registrations through definePropertyTypeRule/defineMetadataItemRule/defineMetadataItemCollectionRule, not schema hooks or whole owner acceptance; uses mapped without owner preparation",
+  "namespaces": {
+    "xsi": "http://www.w3.org/2001/XMLSchema-instance",
+    "xs": "http://www.w3.org/2001/XMLSchema",
+    "v8": "http://v8.1c.ru/8.1/data/core",
+    "dcssch": "http://v8.1c.ru/8.1/data-composition-system/schema",
+    "dcsset": "http://v8.1c.ru/8.1/data-composition-system/settings",
+    "dcscor": "http://v8.1c.ru/8.1/data-composition-system/core",
+    "v8ui": "http://v8.1c.ru/8.1/data/ui",
+    "form": "http://v8.1c.ru/8.3/xcf/logform"
+  },
+  "registrations": [
+    {
+      "type": "AppearanceFields",
+      "registrations": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/appearanceFields/fromXML.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/appearanceFields/fromXML.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/appearanceFields/fromYAML.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/appearanceFields/rules.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/appearanceFields/rules.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/appearanceFields/rules.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/appearanceFields/toJSONSchema.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/appearanceFields/toXML.ts",
+          "registration": "definePropertyTypeRule"
+        }
+      ],
+      "collectionRegistration": null,
+      "uses": [
+        {
+          "owner": "CalculatedFieldRules",
+          "property": "appearance",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/calculatedField/rules.ts",
+          "status": "candidate",
+          "declaration": "common.appearance-fields"
+        },
+        {
+          "owner": "ConditionalAppearanceItemRules",
+          "property": "appearance",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/rules.ts",
+          "status": "candidate",
+          "declaration": "common.appearance-fields"
+        },
+        {
+          "owner": "DataCompositionSchemaDataSetFieldRules",
+          "property": "appearance",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/rules.ts",
+          "status": "candidate",
+          "declaration": "common.appearance-fields"
+        }
+      ]
+    },
+    {
+      "type": "AvailableFields",
+      "registrations": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/availableFields/fromXML.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/availableFields/fromYAML.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/availableFields/toJSONSchema.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/availableFields/toXML.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/availableFields/toYAML.ts",
+          "registration": "definePropertyTypeRule"
+        }
+      ],
+      "collectionRegistration": null,
+      "uses": [
+        {
+          "owner": "ConditionalAppearanceItemRules",
+          "property": "fields",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/rules.ts",
+          "status": "candidate",
+          "declaration": "common.dcs-available-fields"
+        },
+        {
+          "owner": "FilterRules",
+          "property": "availableFields",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filter/rules.ts",
+          "status": "candidate",
+          "declaration": "common.dcs-available-fields"
+        }
+      ]
+    },
+    {
+      "type": "DcsAvailableValues",
+      "registrations": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/availableValues/fromXML.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/availableValues/fromXML.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/availableValues/fromYAML.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/availableValues/toJSONSchema.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/availableValues/toXML.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/availableValues/toYAML.ts",
+          "registration": "definePropertyTypeRule"
+        }
+      ],
+      "collectionRegistration": null,
+      "uses": [
+        {
+          "owner": "CalculatedFieldRules",
+          "property": "availableValues",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/calculatedField/rules.ts",
+          "status": "candidate",
+          "declaration": "common.dcs-available-values"
+        },
+        {
+          "owner": "DataCompositionSchemaDataSetFieldRules",
+          "property": "availableValues",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/rules.ts",
+          "status": "candidate",
+          "declaration": "common.dcs-available-values"
+        }
+      ]
+    },
+    {
+      "type": "CalculatedField",
+      "registrations": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/calculatedField/types.ts",
+          "registration": "defineMetadataItemRule"
+        }
+      ],
+      "collectionRegistration": null,
+      "uses": []
+    },
+    {
+      "type": "CalculatedFieldOrderExpression",
+      "registrations": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/calculatedFieldOrderExpression/types.ts",
+          "registration": "defineMetadataItemCollectionRule"
+        }
+      ],
+      "collectionRegistration": {
+        "source": {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/calculatedFieldOrderExpression/types.ts",
+          "line": 16,
+          "column": 37
+        },
+        "type": "CalculatedFieldOrderExpression",
+        "item": {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/calculatedFieldOrderExpression/rules.ts",
+          "symbol": "CalculatedFieldOrderExpressionRules"
+        },
+        "parameters": {
+          "propertyType": "CalculatedFieldOrderExpression",
+          "xmlElement": "dcssch:orderExpression",
+          "yamlAsArray": true,
+          "configurationIndexAddressing": "yamlPath",
+          "fromXMLToYAML": {
+            "$unresolved": {
+              "kind": "expression",
+              "source": {
+                "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/calculatedFieldOrderExpression/fromXMLToYAML.ts",
+                "line": 6,
+                "column": 95
+              },
+              "sourceHash": "2d485427576dfc4f00031fb4624fcd820f9c665779d1279bdadb7998413d44d1",
+              "expression": "({\n  context,\n  xml,\n  traversal,\n}) => {\n  const itemXmlNodes = traversal.xmlNodes?.filter(\n    (node) => node.name === \"dcssch:orderExpression\",\n  )\n  const source = itemXmlNodes === undefined ? asRecord(xml)?.[\"dcssch:orderExpression\"] ?? xml : undefined\n  const items = itemXmlNodes === undefined\n    ? Array.isArray(source) ? source : source === undefined ? [] : [source]\n    : itemXmlNodes\n  const result = items.flatMap((item, index) => {\n    const itemXmlNode = itemXmlNodes?.[index]\n    const { xmlNodes: _parentXmlNodes, ...itemTraversal } = traversal\n    const yaml = importMetadataItemFromXMLToYAML({\n      context: withConfigurationIndexYamlCollectionItemContext(context, { index, yamlAsArray: true }),\n      rule: CalculatedFieldOrderExpressionRules,\n      xml: itemXmlNode ?? item,\n      traversal: {\n        ...itemTraversal,\n        pathCursor: traversal.pathCursor.child(index),\n        ...(itemXmlNode === undefined ? {} : { xmlNodes: [itemXmlNode] }),\n      },\n    })\n    return yaml === undefined ? [] : [yaml]\n  })\n\n  return result.length === 0 ? undefined : result\n}"
+            }
+          }
+        },
+        "issues": [
+          {
+            "kind": "expression",
+            "source": {
+              "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/calculatedFieldOrderExpression/fromXMLToYAML.ts",
+              "line": 6,
+              "column": 95
+            },
+            "sourceHash": "2d485427576dfc4f00031fb4624fcd820f9c665779d1279bdadb7998413d44d1",
+            "expression": "({\n  context,\n  xml,\n  traversal,\n}) => {\n  const itemXmlNodes = traversal.xmlNodes?.filter(\n    (node) => node.name === \"dcssch:orderExpression\",\n  )\n  const source = itemXmlNodes === undefined ? asRecord(xml)?.[\"dcssch:orderExpression\"] ?? xml : undefined\n  const items = itemXmlNodes === undefined\n    ? Array.isArray(source) ? source : source === undefined ? [] : [source]\n    : itemXmlNodes\n  const result = items.flatMap((item, index) => {\n    const itemXmlNode = itemXmlNodes?.[index]\n    const { xmlNodes: _parentXmlNodes, ...itemTraversal } = traversal\n    const yaml = importMetadataItemFromXMLToYAML({\n      context: withConfigurationIndexYamlCollectionItemContext(context, { index, yamlAsArray: true }),\n      rule: CalculatedFieldOrderExpressionRules,\n      xml: itemXmlNode ?? item,\n      traversal: {\n        ...itemTraversal,\n        pathCursor: traversal.pathCursor.child(index),\n        ...(itemXmlNode === undefined ? {} : { xmlNodes: [itemXmlNode] }),\n      },\n    })\n    return yaml === undefined ? [] : [yaml]\n  })\n\n  return result.length === 0 ? undefined : result\n}"
+          }
+        ]
+      },
+      "uses": [
+        {
+          "owner": "CalculatedFieldRules",
+          "property": "orderExpressions",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/calculatedField/rules.ts",
+          "status": "candidate",
+          "declaration": "common.calculated-field-order-expressions"
+        }
+      ]
+    },
+    {
+      "type": "CalculatedFields",
+      "registrations": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/calculatedFields/types.ts",
+          "registration": "defineMetadataItemCollectionRule"
+        }
+      ],
+      "collectionRegistration": {
+        "source": {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/calculatedFields/types.ts",
+          "line": 8,
+          "column": 37
+        },
+        "type": "CalculatedFields",
+        "item": {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/calculatedField/rules.ts",
+          "symbol": "CalculatedFieldRules"
+        },
+        "parameters": {
+          "propertyType": "CalculatedFields",
+          "xmlElement": "CalculatedField",
+          "yamlAsArray": true,
+          "keyField": "dataPath",
+          "configurationIndexAddressing": "yamlPath"
+        },
+        "issues": []
+      },
+      "uses": [
+        {
+          "owner": "DynamicListRules",
+          "property": "calculatedFields",
+          "path": "packages/rules/metadata/forms/commonObjects/dynamicList/rules.ts",
+          "status": "blocked",
+          "reason": "unsupported-common"
+        }
+      ]
+    },
+    {
+      "type": "CalculatedFieldUseRestriction",
+      "registrations": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/calculatedFieldUseRestriction/types.ts",
+          "registration": "defineMetadataItemRule"
+        }
+      ],
+      "collectionRegistration": null,
+      "uses": [
+        {
+          "owner": "CalculatedFieldRules",
+          "property": "useRestriction",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/calculatedField/rules.ts",
+          "status": "candidate",
+          "declaration": "common.calculated-field-use-restriction"
+        },
+        {
+          "owner": "DataCompositionSchemaDataSetFieldRules",
+          "property": "useRestriction",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/rules.ts",
+          "status": "candidate",
+          "declaration": "common.calculated-field-use-restriction"
+        },
+        {
+          "owner": "DataCompositionSchemaDataSetFieldRules",
+          "property": "attributeUseRestriction",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/rules.ts",
+          "status": "candidate",
+          "declaration": "common.calculated-field-use-restriction"
+        }
+      ]
+    },
+    {
+      "type": "ConditionalAppearance",
+      "registrations": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/conditionalAppearance/types.ts",
+          "registration": "defineMetadataItemRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/conditionalAppearance/types.ts",
+          "registration": "definePropertyTypeRule"
+        }
+      ],
+      "collectionRegistration": null,
+      "uses": [
+        {
+          "owner": "ClientApplicationFormRules",
+          "property": "attributesConditionalAppearance",
+          "path": "packages/rules/metadata/forms/clientApplicationForm/rules.ts",
+          "status": "candidate",
+          "declaration": "common.conditional-appearance"
+        },
+        {
+          "owner": "ClientApplicationFormWithExtendedPresentationRules",
+          "property": "attributesConditionalAppearance",
+          "path": "packages/rules/metadata/forms/clientApplicationForm/rules.ts",
+          "status": "candidate",
+          "declaration": "common.conditional-appearance"
+        },
+        {
+          "owner": "DynamicListRules",
+          "property": "conditionalAppearance",
+          "path": "packages/rules/metadata/forms/commonObjects/dynamicList/rules.ts",
+          "status": "candidate",
+          "declaration": "common.conditional-appearance"
+        }
+      ]
+    },
+    {
+      "type": "ConditionalAppearanceItems",
+      "registrations": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/types.ts",
+          "registration": "defineMetadataItemCollectionRule"
+        }
+      ],
+      "collectionRegistration": {
+        "source": {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/types.ts",
+          "line": 15,
+          "column": 37
+        },
+        "type": "ConditionalAppearanceItems",
+        "item": {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/rules.ts",
+          "symbol": "ConditionalAppearanceItemRules"
+        },
+        "parameters": {
+          "propertyType": "ConditionalAppearanceItems",
+          "xmlElement": "dcsset:item",
+          "yamlAsArray": true,
+          "configurationIndexAddressing": "yamlPath"
+        },
+        "issues": []
+      },
+      "uses": [
+        {
+          "owner": "ConditionalAppearanceRules",
+          "property": "conditionalAppearanceItems",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/conditionalAppearance/rules.ts",
+          "status": "candidate",
+          "declaration": "common.conditional-appearance-items"
+        }
+      ]
+    },
+    {
+      "type": "DataCompositionSchemaDataSetFieldKind",
+      "registrations": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/kind.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/kind.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/kind.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/kind.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/kind.ts",
+          "registration": "definePropertyTypeRule"
+        }
+      ],
+      "collectionRegistration": null,
+      "uses": [
+        {
+          "owner": "DataCompositionSchemaDataSetFieldRules",
+          "property": "kind",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/rules.ts",
+          "status": "candidate",
+          "declaration": "common.data-composition-schema-data-set-field-kind"
+        }
+      ]
+    },
+    {
+      "type": "DataCompositionSchemaDataSetField",
+      "registrations": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/types.ts",
+          "registration": "defineMetadataItemRule"
+        }
+      ],
+      "collectionRegistration": null,
+      "uses": []
+    },
+    {
+      "type": "DataSetFieldFields",
+      "registrations": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/types.ts",
+          "registration": "defineMetadataItemCollectionRule"
+        }
+      ],
+      "collectionRegistration": {
+        "source": {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/types.ts",
+          "line": 22,
+          "column": 37
+        },
+        "type": "DataSetFieldFields",
+        "item": {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/rules.ts",
+          "symbol": "DataCompositionSchemaDataSetFieldRules"
+        },
+        "parameters": {
+          "propertyType": "DataSetFieldFields",
+          "xmlElement": "Field",
+          "yamlAsArray": true,
+          "configurationIndexAddressing": "yamlPath"
+        },
+        "issues": []
+      },
+      "uses": [
+        {
+          "owner": "DynamicListRules",
+          "property": "fields",
+          "path": "packages/rules/metadata/forms/commonObjects/dynamicList/rules.ts",
+          "status": "blocked",
+          "reason": "unsupported-common"
+        }
+      ]
+    },
+    {
+      "type": "DcsLocalStringType",
+      "registrations": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dcsLocalStringType/fromXML.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dcsLocalStringType/fromYAML.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dcsLocalStringType/toJSONSchema.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dcsLocalStringType/toXML.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dcsLocalStringType/toYAML.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dcsLocalStringType/yamlScalarTagPolicy.ts",
+          "registration": "definePropertyTypeRule"
+        }
+      ],
+      "collectionRegistration": null,
+      "uses": [
+        {
+          "owner": "CalculatedFieldRules",
+          "property": "title",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/calculatedField/rules.ts",
+          "status": "candidate",
+          "declaration": "common.dcs-local-string-type"
+        },
+        {
+          "owner": "ConditionalAppearanceRules",
+          "property": "userSettingPresentation",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/conditionalAppearance/rules.ts",
+          "status": "candidate",
+          "declaration": "common.dcs-local-string-type"
+        },
+        {
+          "owner": "ConditionalAppearanceItemRules",
+          "property": "presentation",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/rules.ts",
+          "status": "candidate",
+          "declaration": "common.dcs-local-string-type"
+        },
+        {
+          "owner": "ConditionalAppearanceItemRules",
+          "property": "userSettingPresentation",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/rules.ts",
+          "status": "candidate",
+          "declaration": "common.dcs-local-string-type"
+        },
+        {
+          "owner": "DataCompositionSchemaDataSetFieldRules",
+          "property": "title",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/rules.ts",
+          "status": "candidate",
+          "declaration": "common.dcs-local-string-type"
+        },
+        {
+          "owner": "DCSParameterRules",
+          "property": "title",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dcsParameter/rules.ts",
+          "status": "candidate",
+          "declaration": "common.dcs-local-string-type"
+        },
+        {
+          "owner": "FilterRules",
+          "property": "userSettingPresentation",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filter/rules.ts",
+          "status": "candidate",
+          "declaration": "common.dcs-local-string-type"
+        },
+        {
+          "owner": "FilterItemComparisonRules",
+          "property": "presentation",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/rules.ts",
+          "status": "candidate",
+          "declaration": "common.dcs-local-string-type"
+        },
+        {
+          "owner": "FilterItemComparisonRules",
+          "property": "userSettingPresentation",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/rules.ts",
+          "status": "candidate",
+          "declaration": "common.dcs-local-string-type"
+        },
+        {
+          "owner": "FilterItemGroupRules",
+          "property": "presentation",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/rules.ts",
+          "status": "candidate",
+          "declaration": "common.dcs-local-string-type"
+        },
+        {
+          "owner": "FilterItemGroupRules",
+          "property": "userSettingPresentation",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/rules.ts",
+          "status": "candidate",
+          "declaration": "common.dcs-local-string-type"
+        },
+        {
+          "owner": "OrderRules",
+          "property": "userSettingPresentation",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/order/rules.ts",
+          "status": "candidate",
+          "declaration": "common.dcs-local-string-type"
+        },
+        {
+          "owner": "DynamicListRules",
+          "property": "itemsUserSettingPresentation",
+          "path": "packages/rules/metadata/forms/commonObjects/dynamicList/rules.ts",
+          "status": "candidate",
+          "declaration": "common.dcs-local-string-type"
+        }
+      ]
+    },
+    {
+      "type": "MetadataDcsMetadataValue",
+      "registrations": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dcsMetadataValue/fromXML.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dcsMetadataValue/fromXML.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dcsMetadataValue/fromXML.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dcsMetadataValue/fromYAML.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dcsMetadataValue/toJSONSchema.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dcsMetadataValue/toXML.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dcsMetadataValue/toYAML.ts",
+          "registration": "definePropertyTypeRule"
+        }
+      ],
+      "collectionRegistration": null,
+      "uses": [
+        {
+          "owner": "DCSParameterRules",
+          "property": "value",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dcsParameter/rules.ts",
+          "status": "candidate",
+          "declaration": "common.dcs-primitive-value"
+        }
+      ]
+    },
+    {
+      "type": "DCSParameters",
+      "registrations": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dcsParameter/types.ts",
+          "registration": "defineMetadataItemCollectionRule"
+        }
+      ],
+      "collectionRegistration": {
+        "source": {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dcsParameter/types.ts",
+          "line": 13,
+          "column": 37
+        },
+        "type": "DCSParameters",
+        "item": {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dcsParameter/rules.ts",
+          "symbol": "DCSParameterRules"
+        },
+        "parameters": {
+          "propertyType": "DCSParameters",
+          "xmlElement": "Parameter",
+          "keyField": "name",
+          "configurationIndexAddressing": "yamlPath"
+        },
+        "issues": []
+      },
+      "uses": [
+        {
+          "owner": "DynamicListRules",
+          "property": "parameters",
+          "path": "packages/rules/metadata/forms/commonObjects/dynamicList/rules.ts",
+          "status": "blocked",
+          "reason": "unsupported-common"
+        }
+      ]
+    },
+    {
+      "type": "DcsMetadataTypedValue",
+      "registrations": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dscMetadataTypedValue/fromXML.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dscMetadataTypedValue/fromXML.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dscMetadataTypedValue/fromYAML.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dscMetadataTypedValue/toXML.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dscMetadataTypedValue/toYAML.ts",
+          "registration": "definePropertyTypeRule"
+        }
+      ],
+      "collectionRegistration": null,
+      "uses": [
+        {
+          "owner": "FilterItemComparisonRules",
+          "property": "leftValue",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/rules.ts",
+          "status": "candidate",
+          "declaration": "common.dcs-typed-values"
+        },
+        {
+          "owner": "FilterItemComparisonRules",
+          "property": "rightValue",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/rules.ts",
+          "status": "candidate",
+          "declaration": "common.dcs-typed-values"
+        }
+      ]
+    },
+    {
+      "type": "Filter",
+      "registrations": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filter/types.ts",
+          "registration": "defineMetadataItemRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filter/types.ts",
+          "registration": "definePropertyTypeRule"
+        }
+      ],
+      "collectionRegistration": null,
+      "uses": [
+        {
+          "owner": "ConditionalAppearanceItemRules",
+          "property": "filter",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/rules.ts",
+          "status": "candidate",
+          "declaration": "common.filter"
+        },
+        {
+          "owner": "DynamicListRules",
+          "property": "filter",
+          "path": "packages/rules/metadata/forms/commonObjects/dynamicList/rules.ts",
+          "status": "candidate",
+          "declaration": "common.filter"
+        }
+      ]
+    },
+    {
+      "type": "DcsBoolean",
+      "registrations": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/fields/dcsBoolean.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/fields/dcsBoolean.ts",
+          "registration": "definePropertyTypeRule"
+        }
+      ],
+      "collectionRegistration": null,
+      "uses": []
+    },
+    {
+      "type": "DcsField",
+      "registrations": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/fields/dcsField.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/fields/dcsField.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/fields/dcsField.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/fields/dcsField.ts",
+          "registration": "definePropertyTypeRule"
+        }
+      ],
+      "collectionRegistration": null,
+      "uses": []
+    },
+    {
+      "type": "FilterItemFieldValue",
+      "registrations": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/typedValues.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/typedValues.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/typedValues.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/typedValues.ts",
+          "registration": "definePropertyTypeRule"
+        }
+      ],
+      "collectionRegistration": null,
+      "uses": []
+    },
+    {
+      "type": "FilterItemLocalStringTypeValue",
+      "registrations": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/typedValues.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/typedValues.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/typedValues.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/typedValues.ts",
+          "registration": "definePropertyTypeRule"
+        }
+      ],
+      "collectionRegistration": null,
+      "uses": []
+    },
+    {
+      "type": "FilterItemPresentationValue",
+      "registrations": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/typedValues.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/typedValues.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/typedValues.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/typedValues.ts",
+          "registration": "definePropertyTypeRule"
+        }
+      ],
+      "collectionRegistration": null,
+      "uses": []
+    },
+    {
+      "type": "FilterItemPrimitiveValue",
+      "registrations": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/typedValues.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/typedValues.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/typedValues.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/typedValues.ts",
+          "registration": "definePropertyTypeRule"
+        }
+      ],
+      "collectionRegistration": null,
+      "uses": []
+    },
+    {
+      "type": "FilterItem",
+      "registrations": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/types.ts",
+          "registration": "defineMetadataItemCollectionRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/types.ts",
+          "registration": "definePropertyTypeRule"
+        }
+      ],
+      "collectionRegistration": {
+        "source": {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/types.ts",
+          "line": 19,
+          "column": 37
+        },
+        "type": "FilterItem",
+        "item": {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/rules.ts",
+          "symbol": "FilterItemComparisonRules"
+        },
+        "parameters": {
+          "propertyType": "FilterItem",
+          "xmlElement": "dcsset:item",
+          "fromXMLToYAML": {
+            "$unresolved": {
+              "kind": "expression",
+              "source": {
+                "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/fromXMLToYAML.ts",
+                "line": 13,
+                "column": 75
+              },
+              "sourceHash": "5abdb254aebfe648a7e32dd337fa6b48eb35658d15782a8c810f132b79f0a974",
+              "expression": "({ context, xml, traversal }) => {\n  const itemNodes = traversal.xmlNodes?.flatMap(filterItemNodes)\n  const xmlRecord = itemNodes === undefined ? objectRecordOrUndefined(xml) : undefined\n  const source = xmlRecord?.[\"_xsi:type\"] === undefined ? (xmlRecord?.[\"dcsset:item\"] ?? xml) : xml\n  const items = itemNodes === undefined\n    ? Array.isArray(source) ? source : source === undefined ? [] : [source]\n    : itemNodes\n  const result = items.flatMap((value, index) => {\n    const itemNode = isXmlElementNode(value) ? value : undefined\n    const item = itemNode === undefined ? objectRecordOrUndefined(value) : undefined\n    const type = itemNode === undefined ? item?.[\"_xsi:type\"]\n      : xmlAttributeValue(itemNode, \"xsi:type\")\n    const itemRule =\n      type === \"dcsset:FilterItemComparison\"\n        ? FilterItemComparisonRules\n        : type === \"dcsset:FilterItemGroup\"\n          ? FilterItemGroupRules\n          : undefined\n    if (itemRule === undefined) return []\n\n    const { xmlNodes: _parentXmlNodes, ...itemTraversal } = traversal\n    const yaml = importMetadataItemFromXMLToYAML({\n      context: withConfigurationIndexYamlCollectionItemContext(context, { index, yamlAsArray: true }),\n      rule: itemRule,\n      xml: itemNode ?? item,\n      traversal: {\n        ...itemTraversal,\n        pathCursor: traversal.pathCursor.child(index),\n        ...(itemNode === undefined ? {} : { xmlNodes: [itemNode] }),\n      },\n    })\n    return yaml === undefined ? [] : [yaml]\n  })\n\n  return result.length === 0 ? undefined : result\n}"
+            }
+          },
+          "toJSONSchema": {
+            "$unresolved": {
+              "kind": "expression",
+              "source": {
+                "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/toJSONSchema.ts",
+                "line": 80,
+                "column": 67
+              },
+              "sourceHash": "dd6492f1ee0cd7a7aa503fc6608a6a7ab662ce2151fcf632d570b6b91c9e9f72",
+              "expression": "({ context }) => {\n  const itemSchema = Type.Cyclic(\n    {\n      FilterItem: Type.Union([\n        createFilterItemComparisonSchema(context),\n        exportMetadataItemToJSONSchema({\n          context: createFilterItemSchemaContext(context, {\n            FilterItem: Type.Array(Type.Ref(\"FilterItem\")),\n            FilterItemPresentationValue: createFilterItemPresentationValueJSONSchema(context),\n          }),\n          rule: FilterItemGroupRules,\n        }),\n      ]),\n    },\n    \"FilterItem\"\n  )\n  return Type.Array(itemSchema)\n}"
+            }
+          },
+          "yamlAsArray": true,
+          "configurationIndexAddressing": "yamlPath",
+          "schemaName": "FilterItem",
+          "schemaShape": "schema"
+        },
+        "issues": [
+          {
+            "kind": "expression",
+            "source": {
+              "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/fromXMLToYAML.ts",
+              "line": 13,
+              "column": 75
+            },
+            "sourceHash": "5abdb254aebfe648a7e32dd337fa6b48eb35658d15782a8c810f132b79f0a974",
+            "expression": "({ context, xml, traversal }) => {\n  const itemNodes = traversal.xmlNodes?.flatMap(filterItemNodes)\n  const xmlRecord = itemNodes === undefined ? objectRecordOrUndefined(xml) : undefined\n  const source = xmlRecord?.[\"_xsi:type\"] === undefined ? (xmlRecord?.[\"dcsset:item\"] ?? xml) : xml\n  const items = itemNodes === undefined\n    ? Array.isArray(source) ? source : source === undefined ? [] : [source]\n    : itemNodes\n  const result = items.flatMap((value, index) => {\n    const itemNode = isXmlElementNode(value) ? value : undefined\n    const item = itemNode === undefined ? objectRecordOrUndefined(value) : undefined\n    const type = itemNode === undefined ? item?.[\"_xsi:type\"]\n      : xmlAttributeValue(itemNode, \"xsi:type\")\n    const itemRule =\n      type === \"dcsset:FilterItemComparison\"\n        ? FilterItemComparisonRules\n        : type === \"dcsset:FilterItemGroup\"\n          ? FilterItemGroupRules\n          : undefined\n    if (itemRule === undefined) return []\n\n    const { xmlNodes: _parentXmlNodes, ...itemTraversal } = traversal\n    const yaml = importMetadataItemFromXMLToYAML({\n      context: withConfigurationIndexYamlCollectionItemContext(context, { index, yamlAsArray: true }),\n      rule: itemRule,\n      xml: itemNode ?? item,\n      traversal: {\n        ...itemTraversal,\n        pathCursor: traversal.pathCursor.child(index),\n        ...(itemNode === undefined ? {} : { xmlNodes: [itemNode] }),\n      },\n    })\n    return yaml === undefined ? [] : [yaml]\n  })\n\n  return result.length === 0 ? undefined : result\n}"
+          },
+          {
+            "kind": "expression",
+            "source": {
+              "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/toJSONSchema.ts",
+              "line": 80,
+              "column": 67
+            },
+            "sourceHash": "dd6492f1ee0cd7a7aa503fc6608a6a7ab662ce2151fcf632d570b6b91c9e9f72",
+            "expression": "({ context }) => {\n  const itemSchema = Type.Cyclic(\n    {\n      FilterItem: Type.Union([\n        createFilterItemComparisonSchema(context),\n        exportMetadataItemToJSONSchema({\n          context: createFilterItemSchemaContext(context, {\n            FilterItem: Type.Array(Type.Ref(\"FilterItem\")),\n            FilterItemPresentationValue: createFilterItemPresentationValueJSONSchema(context),\n          }),\n          rule: FilterItemGroupRules,\n        }),\n      ]),\n    },\n    \"FilterItem\"\n  )\n  return Type.Array(itemSchema)\n}"
+          }
+        ]
+      },
+      "uses": [
+        {
+          "owner": "FilterRules",
+          "property": "items",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filter/rules.ts",
+          "status": "candidate",
+          "declaration": "common.filter-item"
+        },
+        {
+          "owner": "FilterItemGroupRules",
+          "property": "items",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/rules.ts",
+          "status": "candidate",
+          "declaration": "common.filter-item"
+        }
+      ]
+    },
+    {
+      "type": "Order",
+      "registrations": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/order/types.ts",
+          "registration": "defineMetadataItemRule"
+        }
+      ],
+      "collectionRegistration": null,
+      "uses": [
+        {
+          "owner": "DynamicListRules",
+          "property": "order",
+          "path": "packages/rules/metadata/forms/commonObjects/dynamicList/rules.ts",
+          "status": "candidate",
+          "declaration": "common.dcs-order"
+        }
+      ]
+    },
+    {
+      "type": "OrderItemFields",
+      "registrations": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/orderItemFields/types.ts",
+          "registration": "defineMetadataItemCollectionRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/orderItemFields/types.ts",
+          "registration": "definePropertyTypeRule"
+        }
+      ],
+      "collectionRegistration": {
+        "source": {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/orderItemFields/types.ts",
+          "line": 29,
+          "column": 25
+        },
+        "type": "OrderItemFields",
+        "item": {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/orderItemFields/rules.ts",
+          "symbol": "OrderItemFieldRules"
+        },
+        "parameters": {
+          "propertyType": "OrderItemFields",
+          "fromXMLToYAML": {
+            "$unresolved": {
+              "kind": "expression",
+              "source": {
+                "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/orderItemFields/fromXMLToYAML.ts",
+                "line": 6,
+                "column": 80
+              },
+              "sourceHash": "37533833c7ee4b38b33f55bed92a673991de4bb6a97b92227fd0fe5eaf5d8026",
+              "expression": "({\n  context,\n  xml,\n  traversal,\n}) => {\n  const source = isXmlElementNode(xml)\n    ? xml.name === \"dcsset:item\" ? xml : xmlElementChildren(xml, \"dcsset:item\")\n    : asRecord(xml)?.[\"dcsset:item\"] ?? xml\n  const items = Array.isArray(source) ? source : source === undefined ? [] : [source]\n  const result = items.flatMap<unknown>((value, index) => {\n    const item = isXmlElementNode(value) ? value : asRecord(value)\n    if (item === undefined) return []\n    const xsiType = isXmlElementNode(item) ? xmlAttributeValue(item, \"xsi:type\") : item[\"_xsi:type\"]\n    if (xsiType === \"dcsset:OrderItemAuto\") return [\"[Авто]\"]\n    if (xsiType !== undefined && xsiType !== \"dcsset:OrderItemField\") return []\n\n    const yaml = importMetadataItemFromXMLToYAML({\n      context: withConfigurationIndexYamlCollectionItemContext(context, { index, yamlAsArray: true }),\n      rule: OrderItemFieldRules,\n      xml: item,\n      traversal: {\n        ...traversal,\n        pathCursor: traversal.pathCursor.child(index),\n      },\n    })\n    return yaml === undefined ? [] : [yaml]\n  })\n\n  return result.length === 0 ? undefined : result\n}"
+            }
+          },
+          "toJSONSchema": {
+            "$unresolved": {
+              "kind": "expression",
+              "source": {
+                "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/orderItemFields/toJSONSchema.ts",
+                "line": 6,
+                "column": 72
+              },
+              "sourceHash": "c8a80748932ace33a4166854d4dbfbf48288e5aa5e6004f88837dcb1fbfd5c6b",
+              "expression": "({ context }) =>\n  Type.Array(\n    Type.Union([\n      Type.Literal(\"[Авто]\"),\n      exportMetadataItemToJSONSchema({\n        context,\n        rule: OrderItemFieldRules,\n      }),\n    ])\n  )"
+            }
+          },
+          "yamlAsArray": true,
+          "configurationIndexAddressing": "yamlPath"
+        },
+        "issues": [
+          {
+            "kind": "expression",
+            "source": {
+              "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/orderItemFields/fromXMLToYAML.ts",
+              "line": 6,
+              "column": 80
+            },
+            "sourceHash": "37533833c7ee4b38b33f55bed92a673991de4bb6a97b92227fd0fe5eaf5d8026",
+            "expression": "({\n  context,\n  xml,\n  traversal,\n}) => {\n  const source = isXmlElementNode(xml)\n    ? xml.name === \"dcsset:item\" ? xml : xmlElementChildren(xml, \"dcsset:item\")\n    : asRecord(xml)?.[\"dcsset:item\"] ?? xml\n  const items = Array.isArray(source) ? source : source === undefined ? [] : [source]\n  const result = items.flatMap<unknown>((value, index) => {\n    const item = isXmlElementNode(value) ? value : asRecord(value)\n    if (item === undefined) return []\n    const xsiType = isXmlElementNode(item) ? xmlAttributeValue(item, \"xsi:type\") : item[\"_xsi:type\"]\n    if (xsiType === \"dcsset:OrderItemAuto\") return [\"[Авто]\"]\n    if (xsiType !== undefined && xsiType !== \"dcsset:OrderItemField\") return []\n\n    const yaml = importMetadataItemFromXMLToYAML({\n      context: withConfigurationIndexYamlCollectionItemContext(context, { index, yamlAsArray: true }),\n      rule: OrderItemFieldRules,\n      xml: item,\n      traversal: {\n        ...traversal,\n        pathCursor: traversal.pathCursor.child(index),\n      },\n    })\n    return yaml === undefined ? [] : [yaml]\n  })\n\n  return result.length === 0 ? undefined : result\n}"
+          },
+          {
+            "kind": "expression",
+            "source": {
+              "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/orderItemFields/toJSONSchema.ts",
+              "line": 6,
+              "column": 72
+            },
+            "sourceHash": "c8a80748932ace33a4166854d4dbfbf48288e5aa5e6004f88837dcb1fbfd5c6b",
+            "expression": "({ context }) =>\n  Type.Array(\n    Type.Union([\n      Type.Literal(\"[Авто]\"),\n      exportMetadataItemToJSONSchema({\n        context,\n        rule: OrderItemFieldRules,\n      }),\n    ])\n  )"
+          }
+        ]
+      },
+      "uses": [
+        {
+          "owner": "OrderRules",
+          "property": "items",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/order/rules.ts",
+          "status": "candidate",
+          "declaration": "common.dcs-order-item-fields"
+        }
+      ]
+    },
+    {
+      "type": "SettingsParameterValue",
+      "registrations": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/parameterValue/fromXML.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/parameterValue/fromYAML.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/parameterValue/toJSONSchema.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/parameterValue/toXML.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/parameterValue/toYAML.ts",
+          "registration": "definePropertyTypeRule"
+        }
+      ],
+      "collectionRegistration": null,
+      "uses": [
+        {
+          "owner": "AppearanceFieldsRules",
+          "property": "ЦветФона",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/appearanceFields/rules.ts",
+          "status": "blocked",
+          "reason": "dcs-parameter-collection-required"
+        },
+        {
+          "owner": "AppearanceFieldsRules",
+          "property": "ЦветТекста",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/appearanceFields/rules.ts",
+          "status": "blocked",
+          "reason": "dcs-parameter-collection-required"
+        },
+        {
+          "owner": "AppearanceFieldsRules",
+          "property": "Шрифт",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/appearanceFields/rules.ts",
+          "status": "blocked",
+          "reason": "dcs-parameter-collection-required"
+        },
+        {
+          "owner": "AppearanceFieldsRules",
+          "property": "ГоризонтальноеПоложение",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/appearanceFields/rules.ts",
+          "status": "blocked",
+          "reason": "dcs-parameter-collection-required"
+        },
+        {
+          "owner": "AppearanceFieldsRules",
+          "property": "Формат",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/appearanceFields/rules.ts",
+          "status": "blocked",
+          "reason": "dcs-parameter-collection-required"
+        },
+        {
+          "owner": "AppearanceFieldsRules",
+          "property": "ВыделятьОтрицательные",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/appearanceFields/rules.ts",
+          "status": "blocked",
+          "reason": "dcs-parameter-collection-required"
+        },
+        {
+          "owner": "AppearanceFieldsRules",
+          "property": "ОтметкаНезаполненного",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/appearanceFields/rules.ts",
+          "status": "blocked",
+          "reason": "dcs-parameter-collection-required"
+        },
+        {
+          "owner": "AppearanceFieldsRules",
+          "property": "Текст",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/appearanceFields/rules.ts",
+          "status": "blocked",
+          "reason": "dcs-parameter-collection-required"
+        },
+        {
+          "owner": "AppearanceFieldsRules",
+          "property": "Видимость",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/appearanceFields/rules.ts",
+          "status": "blocked",
+          "reason": "dcs-parameter-collection-required"
+        },
+        {
+          "owner": "AppearanceFieldsRules",
+          "property": "Доступность",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/appearanceFields/rules.ts",
+          "status": "blocked",
+          "reason": "dcs-parameter-collection-required"
+        },
+        {
+          "owner": "AppearanceFieldsRules",
+          "property": "ТолькоПросмотр",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/appearanceFields/rules.ts",
+          "status": "blocked",
+          "reason": "dcs-parameter-collection-required"
+        },
+        {
+          "owner": "AppearanceFieldsRules",
+          "property": "Отображать",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/appearanceFields/rules.ts",
+          "status": "blocked",
+          "reason": "dcs-parameter-collection-required"
+        }
+      ]
+    },
+    {
+      "type": "SettingsParameterValueCollection",
+      "registrations": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/settingsParameterValueCollection/fromXML.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/settingsParameterValueCollection/fromXML.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/settingsParameterValueCollection/fromYAML.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/settingsParameterValueCollection/toJSONSchema.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/settingsParameterValueCollection/toXML.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/settingsParameterValueCollection/toYAML.ts",
+          "registration": "definePropertyTypeRule"
+        }
+      ],
+      "collectionRegistration": null,
+      "uses": [
+        {
+          "owner": "DCSParameterRules",
+          "property": "editParameters",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dcsParameter/rules.ts",
+          "status": "candidate",
+          "declaration": "candidate.dcs-settings-parameter-value-collection.9d5e796ebbaa8071"
+        },
+        {
+          "owner": "DynamicListRules",
+          "property": "dataParameters",
+          "path": "packages/rules/metadata/forms/commonObjects/dynamicList/rules.ts",
+          "status": "candidate",
+          "declaration": "candidate.dcs-settings-parameter-value-collection.8d6e8278cefece2a"
+        }
+      ]
+    },
+    {
+      "type": "StructureItemGroupCollection",
+      "registrations": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/structureItemGroup/collection/fromXMLToYAML.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/structureItemGroup/collection/toXML.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/structureItemGroup/collection/toYAML.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/structureItemGroup/collection/types.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/structureItemGroup/toJSONSchema.ts",
+          "registration": "definePropertyTypeRule"
+        }
+      ],
+      "collectionRegistration": null,
+      "uses": [
+        {
+          "owner": "StructureItemGroupRules",
+          "property": "groupItems",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/structureItemGroup/rules.ts",
+          "status": "candidate",
+          "declaration": "common.group-item-collection"
+        }
+      ]
+    },
+    {
+      "type": "StructureItemGroup",
+      "registrations": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/structureItemGroup/fromYAML.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/structureItemGroup/toJSONSchema.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/structureItemGroup/toYAML.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/structureItemGroup/types.ts",
+          "registration": "defineMetadataItemRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/structureItemGroup/types.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/structureItemGroup/types.ts",
+          "registration": "definePropertyTypeRule"
+        }
+      ],
+      "collectionRegistration": null,
+      "uses": [
+        {
+          "owner": "StructureItemGroupRules",
+          "property": "item",
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/structureItemGroup/rules.ts",
+          "status": "candidate",
+          "declaration": "common.structure-item-group"
+        },
+        {
+          "owner": "DynamicListRules",
+          "property": "group",
+          "path": "packages/rules/metadata/forms/commonObjects/dynamicList/rules.ts",
+          "status": "candidate",
+          "declaration": "common.structure-item-group"
+        }
+      ]
+    },
+    {
+      "type": "GroupItemAuto",
+      "registrations": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemAuto/fromXML.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemAuto/fromXMLToYAML.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemAuto/fromYAML.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemAuto/toYAML.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/structureItemGroup/toJSONSchema.ts",
+          "registration": "definePropertyTypeRule"
+        }
+      ],
+      "collectionRegistration": null,
+      "uses": []
+    },
+    {
+      "type": "GroupItemField",
+      "registrations": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemField/fromXMLToYAML.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemField/fromYAML.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemField/toYAML.ts",
+          "registration": "definePropertyTypeRule"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/structureItemGroup/toJSONSchema.ts",
+          "registration": "definePropertyTypeRule"
+        }
+      ],
+      "collectionRegistration": null,
+      "uses": []
+    }
+  ]
+}

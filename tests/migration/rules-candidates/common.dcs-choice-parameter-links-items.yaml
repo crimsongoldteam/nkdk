@@ -1,0 +1,20 @@
+format: nkdk-declarations/1
+kind: value
+id: common.dcs-choice-parameter-links-items
+namespaces:
+  dcscor: http://v8.1c.ru/8.1/data-composition-system/core
+imports:
+  item: common.dcs-choice-parameter-link
+value:
+  kind: sequence
+  item:
+    use: item
+representations:
+  xml:
+    kind: element-sequence
+    path:
+      - dcscor:item
+    item:
+      kind: declared
+  yaml:
+    kind: sequence

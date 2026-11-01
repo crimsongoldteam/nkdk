@@ -1,0 +1,21 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: common.metadata-role-path
+  imports: {name: common.metadata-name}
+  value: {kind: record, fields: [{name: name, type: {use: name}}]}
+  representations:
+    xml: {kind: text-pattern, parts: [{literal: 'Role.'}, {field: name}]}
+    yaml: {kind: text-pattern, parts: [{field: name}]}
+- kind: value
+  id: common.metadata-role-link
+  imports: {role: common.metadata-role-path}
+  namespaces: {xsi: 'http://www.w3.org/2001/XMLSchema-instance', xr: 'http://v8.1c.ru/8.3/xcf/readable'}
+  value: {kind: choice, variants: [{name: role, type: {use: role}}]}
+  representations:
+    xml:
+      kind: with-attributes
+      attributes: [{name: xsi:type, value: {qname: xr:MDObjectRef}}]
+      content: {kind: choice}
+    yaml: {kind: choice}

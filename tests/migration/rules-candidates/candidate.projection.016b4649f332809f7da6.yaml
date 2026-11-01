@@ -1,0 +1,26 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.016b4649f332809f7da6
+description: 'Кандидат проекции: относительный XML-корень QueryText; не полный владелец'
+imports:
+  part0: candidate.fragment.b45a94c8423591692096
+compose:
+  - use: part0
+    bind:
+      parentName:
+        input: parentName
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []
+inputs:
+  parentName:
+    type:
+      kind: scalar
+      scalar: text

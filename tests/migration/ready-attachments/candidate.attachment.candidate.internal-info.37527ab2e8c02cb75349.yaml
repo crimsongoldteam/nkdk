@@ -1,0 +1,82 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.attachment.candidate.internal-info.37527ab2e8c02cb75349
+imports:
+  ready: candidate.internal-info.37527ab2e8c02cb75349
+compose:
+  - use: ready
+    bind:
+      owner:
+        input: owner
+      name:
+        input: name
+      typeIds:
+        input: typeIds
+      valueIds:
+        input: valueIds
+inputs:
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  name:
+    type:
+      kind: scalar
+      scalar: text
+  typeIds:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: owner
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  valueIds:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: owner
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+namespaces:
+  md: http://v8.1c.ru/8.3/MDClasses
+value:
+  kind: record
+  fields:
+    - name: probe
+      type:
+        kind: scalar
+        scalar: text
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: probe
+        path:
+          - md:TabularSection
+          - Probe
+          - Name
+  yaml:
+    kind: mapping
+    fields:
+      - field: probe
+        key: Проверка

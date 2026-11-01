@@ -1,0 +1,154 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.form-event-bindings
+value:
+  kind: record
+  fields:
+    - name: events
+      type:
+        use: value0
+        bind:
+          eventNames:
+            sequence:
+              - record:
+                  xml:
+                    literal: OnChange
+                  yaml:
+                    literal: ПриИзменении
+              - record:
+                  xml:
+                    literal: Selection
+                  yaml:
+                    literal: Выбор
+              - record:
+                  xml:
+                    literal: PlannerActionClick
+                  yaml:
+                    literal: НажатиеНаДействиеПланировщика
+              - record:
+                  xml:
+                    literal: URLClick
+                  yaml:
+                    literal: НажатиеНаНавигационнойСсылке
+              - record:
+                  xml:
+                    literal: WrappedTimeScaleHeaderClick
+                  yaml:
+                    literal: НажатиеНаПеренесенномЗаголовкеШкалыВремени
+              - record:
+                  xml:
+                    literal: DimensionItemClick
+                  yaml:
+                    literal: НажатиеНаЭлементеИзмерения
+              - record:
+                  xml:
+                    literal: TimeScaleItemClick
+                  yaml:
+                    literal: НажатиеНаЭлементеШкалыВремени
+              - record:
+                  xml:
+                    literal: DragStart
+                  yaml:
+                    literal: НачалоПеретаскивания
+              - record:
+                  xml:
+                    literal: CommandGenerateProcessing
+                  yaml:
+                    literal: ОбработкаФормированияКоманд
+              - record:
+                  xml:
+                    literal: DragEnd
+                  yaml:
+                    literal: ОкончаниеПеретаскивания
+              - record:
+                  xml:
+                    literal: BeforeStartQuickEdit
+                  yaml:
+                    literal: ПередНачаломБыстрогоРедактирования
+              - record:
+                  xml:
+                    literal: BeforeStartEdit
+                  yaml:
+                    literal: ПередНачаломРедактирования
+              - record:
+                  xml:
+                    literal: BeforePrint
+                  yaml:
+                    literal: ПередПечатью
+              - record:
+                  xml:
+                    literal: BeforeExpandDimensionItem
+                  yaml:
+                    literal: ПередРазворачиваниемЭлементаИзмерения
+              - record:
+                  xml:
+                    literal: BeforeCollapseDimensionItem
+                  yaml:
+                    literal: ПередСворачиваниемЭлементаИзмерения
+              - record:
+                  xml:
+                    literal: BeforeCreate
+                  yaml:
+                    literal: ПередСозданием
+              - record:
+                  xml:
+                    literal: BeforeDelete
+                  yaml:
+                    literal: ПередУдалением
+              - record:
+                  xml:
+                    literal: Drag
+                  yaml:
+                    literal: Перетаскивание
+              - record:
+                  xml:
+                    literal: OnActivate
+                  yaml:
+                    literal: ПриАктивизации
+              - record:
+                  xml:
+                    literal: OnEditEnd
+                  yaml:
+                    literal: ПриОкончанииРедактирования
+              - record:
+                  xml:
+                    literal: OnCurrentRepresentationPeriodChange
+                  yaml:
+                    literal: ПриСменеТекущегоПериодаОтображения
+              - record:
+                  xml:
+                    literal: DragCheck
+                  yaml:
+                    literal: ПроверкаПеретаскивания
+              - record:
+                  xml:
+                    literal: InsideDragCheck
+                  yaml:
+                    literal: ПроверкаПеретаскиванияВнутри
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: events
+        path:
+          - f:Events
+  yaml:
+    kind: mapping
+    fields:
+      - field: events
+        key: События
+presence:
+  - target:
+      field: events
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+namespaces:
+  f: http://v8.1c.ru/8.3/xcf/logform
+id: candidate.fragment.805025a8fc56cbf631a1

@@ -1,0 +1,38 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: object
+  id: migration.dcs-system-enumeration
+  imports: {value: common.dcs-system-enumeration, text: common.string}
+  inputs:
+    labels: {index: dcs.enumeration-labels}
+    codes: {index: dcs.enumeration-codes}
+  value:
+    kind: record
+    fields:
+    - {name: value, type: {use: value, bind: {labels: {input: labels}, codes: {input: codes}}}}
+    - {name: other, type: {use: text}}
+  representations:
+    xml: {kind: record, fields: [{field: value, path: [Root, Value]}, {field: other, path: [Root, Other]}]}
+    yaml: {kind: mapping, fields: [{field: value, key: Значение}, {field: other, key: Сосед}]}
+  presence:
+  - target: {field: other}
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}}
+- kind: object
+  id: migration.dcs-enumeration-lexeme
+  inputs:
+    name: {type: {kind: scalar, scalar: text}}
+    code: {type: {kind: scalar, scalar: text}}
+    label: {type: {kind: scalar, scalar: text}}
+  value: {kind: record, fields: [{name: source, type: {kind: scalar, scalar: text}}]}
+  representations:
+    xml: {kind: record, fields: [{field: source, path: [Root]}]}
+    yaml: {kind: mapping, fields: [{field: source, key: Источник}]}
+  contributions:
+  - index: dcs.enumeration-labels
+    key: {record: {name: {input: name}, code: {input: code}}}
+    value: {input: label}
+  - index: dcs.enumeration-codes
+    key: {record: {name: {input: name}, label: {input: label}}}
+    value: {input: code}

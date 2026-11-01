@@ -859,6 +859,27 @@ declarations:
             of:
               var: row
             field: uuid
+      - index: metadata.path-children
+        forEach:
+          in:
+            field: enumValues
+          as: row
+        key:
+          record:
+            parent:
+              input: owner
+            kind:
+              literal: EnumValue
+            name:
+              get:
+                of:
+                  var: row
+                field: name
+        value:
+          get:
+            of:
+              var: row
+            field: uuid
       - index: metadata.owner-members
         forEach:
           in:

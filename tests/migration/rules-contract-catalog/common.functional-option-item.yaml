@@ -1,0 +1,21 @@
+format: nkdk-declarations/1
+kind: value
+id: common.functional-option-item
+imports:
+  link: common.functional-option-link
+  empty: common.empty-functional-option-link
+value:
+  kind: choice
+  variants:
+    - name: link
+      type:
+        use: link
+    - name: empty
+      type:
+        use: empty
+representations:
+  xml:
+    kind: choice
+  yaml:
+    kind: choice
+    fallback: link

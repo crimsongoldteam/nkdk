@@ -1,0 +1,3 @@
+# Independently compiled next registered file owners; unchanged 8 MiB limit.
+objects/record-file-owners-3.generated.yaml
+objects/system-enumeration-index-source.yaml

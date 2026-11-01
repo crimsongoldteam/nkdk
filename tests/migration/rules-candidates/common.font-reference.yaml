@@ -1,0 +1,38 @@
+format: nkdk-declarations/1
+kind: value
+id: common.font-reference
+imports:
+  standardStyle: common.font-standard-style
+  styleItem: common.font-style-item
+  windows: common.font-windows
+inputs:
+  styleTypes:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: scalar
+        scalar: text
+value:
+  kind: choice
+  variants:
+    - name: СтандартныйШрифтСтиля
+      type:
+        use: standardStyle
+    - name: ЭлементСтиля
+      type:
+        use: styleItem
+        bind:
+          styleTypes:
+            input: styleTypes
+    - name: ШрифтWindows
+      type:
+        use: windows
+representations:
+  xml:
+    kind: choice
+    fallback: ЭлементСтиля
+  yaml:
+    kind: choice

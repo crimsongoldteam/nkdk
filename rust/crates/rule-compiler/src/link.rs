@@ -5,8 +5,10 @@ mod boolean;
 mod choice_contracts;
 mod collections;
 mod composition;
+pub(crate) use composition::instantiate_type;
 mod constraints;
 mod contributions;
+mod data_path;
 mod denotations;
 mod dependencies;
 mod enumeration;
@@ -32,6 +34,7 @@ mod text_table;
 mod type_graph;
 mod xml_attributes;
 mod xml_tree;
+mod yaml_addresses;
 use bindings::resolve_bindings;
 use nkdk_rule_model::*;
 use std::collections::{BTreeMap, BTreeSet};
@@ -50,6 +53,66 @@ pub(crate) fn identity_bindings(entry: &LinkedEntry) -> Vec<LinkedBinding> {
             },
         })
         .collect()
+}
+
+fn imported_module<'a>(
+    module: &Module,
+    usage: &TypeUse,
+    modules: &BTreeMap<&str, &'a Module>,
+    missing_message: &'static str,
+) -> Result<&'a Module, Diagnostic> {
+    let import = module
+        .imports
+        .iter()
+        .find(|import| import.name == usage.name)
+        .ok_or_else(|| diagnostic("missing_import_alias", &usage.source, missing_message))?;
+    Ok(modules[import.value.as_str()])
+}
+
+fn unique_linked_fields(fields: &[LinkedField]) -> Result<(), Diagnostic> {
+    let mut seen = BTreeMap::new();
+    for field in fields {
+        if let Some(first) = seen.insert(&field.name, &field.source) {
+            let mut error = diagnostic("duplicate_field", &field.source, "Composed fields collide");
+            error.related.push(first.clone());
+            return Err(error);
+        }
+    }
+    Ok(())
+}
+
+fn record_field<'a>(
+    shape: &'a LinkedType,
+    name: &str,
+    source: &SourceLocation,
+    non_record_message: &'static str,
+    missing_message: &'static str,
+) -> Result<(u32, &'a LinkedField), Diagnostic> {
+    let LinkedType::Record(fields) = shape else {
+        return Err(diagnostic("unknown_field", source, non_record_message));
+    };
+    fields
+        .iter()
+        .enumerate()
+        .find(|(_, field)| field.name == name)
+        .map(|(index, field)| (index as u32, field))
+        .ok_or_else(|| diagnostic("unknown_field", source, missing_message))
+}
+
+fn composed_fragment<'a>(
+    module: &Module,
+    usage: &TypeUse,
+    modules: &BTreeMap<&str, &'a Module>,
+) -> Result<&'a Module, Diagnostic> {
+    let target = imported_module(module, usage, modules, "Fragment alias is not declared")?;
+    if target.kind != ModuleKind::Fragment {
+        return Err(diagnostic(
+            "expected_fragment",
+            &usage.source,
+            "Composition target must be a fragment",
+        ));
+    }
+    Ok(target)
 }
 
 pub fn link(modules: &[Module]) -> Result<Program, Vec<Diagnostic>> {
@@ -129,8 +192,10 @@ pub fn link(modules: &[Module]) -> Result<Program, Vec<Diagnostic>> {
         contributions::validate_inputs(&entries).map_err(|error| vec![error])?;
         let program = Program { entries };
         choice_contracts::validate_selectors(&program).map_err(|error| vec![error])?;
+        data_path::validate(&program).map_err(|error| vec![error])?;
         state_relations::validate(modules, &program).map_err(|error| vec![error])?;
         for entry in &program.entries {
+            resources::validate_yaml_files(entry, &program).map_err(|error| vec![error])?;
             for side in [RepresentationSide::Xml, RepresentationSide::Yaml] {
                 crate::plan::scopes::read_schedule(&entry.value, &entry.presence, side, &program)
                     .map_err(|error| vec![error])?;
@@ -166,6 +231,7 @@ fn build_entry(
     let mut entry = LinkedEntry {
         id,
         input_scope: None,
+        xml_order_declared: !module.xml_order.is_empty(),
         field_dependencies: vec![],
         input_indexes: module.input_indexes.clone(),
         text_transforms: text::transforms(module),
@@ -174,7 +240,9 @@ fn build_entry(
         shorthands: shorthands::resolve(module, modules, ids)?,
         constraints: constraints::resolve_constraints(module, modules, ids)?,
         contributions: contributions::resolve(module, modules, ids)?,
+        data_path: module.data_path.clone(),
         resources: resources::resolve(module, modules, ids)?,
+        yaml_files: resources::yaml_files(module, modules, ids)?,
         parameters: parameters::resolve_parameters(module, modules, ids)?,
         name: module.id.clone(),
         namespaces: module.namespaces.clone(),
@@ -243,27 +311,10 @@ fn build_entry(
         let mut included_constraints = vec![];
         let mut included_contributions = vec![];
         let mut included_resources = vec![];
+        let mut included_yaml_files = vec![];
         let mut included_presence = vec![];
         for usage in &module.compose {
-            let import = module
-                .imports
-                .iter()
-                .find(|import| import.name == usage.name)
-                .ok_or_else(|| {
-                    diagnostic(
-                        "missing_import_alias",
-                        &usage.source,
-                        "Fragment alias is not declared",
-                    )
-                })?;
-            let target = modules[import.value.as_str()];
-            if target.kind != ModuleKind::Fragment {
-                return Err(diagnostic(
-                    "expected_fragment",
-                    &usage.source,
-                    "Composition target must be a fragment",
-                ));
-            }
+            let target = composed_fragment(module, usage, modules)?;
             if target.normalization.is_some() {
                 return Err(diagnostic(
                     "unsupported_link_feature",
@@ -294,6 +345,7 @@ fn build_entry(
             included_constraints.extend(fragment.constraints);
             included_contributions.extend(fragment.contributions);
             included_resources.extend(fragment.resources);
+            included_yaml_files.extend(fragment.yaml_files);
             included_presence.extend(fragment.presence);
             let (
                 LinkedType::Record(fields),
@@ -347,6 +399,8 @@ fn build_entry(
         }
         included_contributions.append(&mut entry.contributions);
         entry.contributions = included_contributions;
+        included_yaml_files.append(&mut entry.yaml_files);
+        entry.yaml_files = included_yaml_files;
         included_resources.append(&mut entry.resources);
         entry.resources = included_resources;
         included_constraints.append(&mut entry.constraints);
@@ -369,21 +423,40 @@ fn build_entry(
         *fields = included_fields;
         *xml = included_xml;
         *yaml = included_yaml;
-        let mut seen = BTreeMap::new();
-        for field in fields.iter() {
-            if let Some(first) = seen.insert(&field.name, &field.source) {
-                let mut error =
-                    diagnostic("duplicate_field", &field.source, "Composed fields collide");
-                error.related.push(first.clone());
-                return Err(error);
-            }
-        }
+        unique_linked_fields(fields)?;
         if !included_attributes.is_empty() {
             let content = std::mem::replace(&mut entry.xml, LinkedXml::Text);
             entry.xml = LinkedXml::WithAttributes {
                 attributes: included_attributes,
                 content: Box::new(content),
             };
+        }
+    }
+    if !module.xml_order.is_empty() {
+        let Some(fields) = composition::record_fields(&mut entry.xml) else {
+            return Err(diagnostic(
+                "unsupported_representation",
+                &module.source,
+                "xmlOrder requires a record representation",
+            ));
+        };
+        let mut remaining = std::mem::take(fields);
+        for name in &module.xml_order {
+            let Some(index) = remaining.iter().position(|field| &field.field == name) else {
+                return Err(diagnostic(
+                    "unknown_representation_field",
+                    &module.source,
+                    "xmlOrder must list each mapped field exactly once",
+                ));
+            };
+            fields.push(remaining.remove(index));
+        }
+        if !remaining.is_empty() {
+            return Err(diagnostic(
+                "incomplete_item_contract",
+                &module.source,
+                "xmlOrder must list each mapped field exactly once",
+            ));
         }
     }
     if !module.yaml_order.is_empty() {
@@ -532,25 +605,14 @@ fn resolve_type(
             result
         }
         TypeDefinition::Use(usage) => {
-            let import = module
-                .imports
-                .iter()
-                .find(|import| import.name == usage.name)
-                .ok_or_else(|| {
-                    diagnostic(
-                        "missing_import_alias",
-                        &usage.source,
-                        "Import alias is not declared",
-                    )
-                })?;
-            let target = modules[import.value.as_str()];
+            let target = imported_module(module, usage, modules, "Import alias is not declared")?;
             let bindings = resolve_bindings(module, target, usage, modules, ids)?;
             let arguments = parameters::resolve_arguments(module, target, usage, modules, ids)?;
             if bindings.is_empty() && arguments.is_empty() {
-                LinkedType::Reference(ids[import.value.as_str()])
+                LinkedType::Reference(ids[target.id.as_str()])
             } else {
                 LinkedType::BoundReference {
-                    entry: ids[import.value.as_str()],
+                    entry: ids[target.id.as_str()],
                     bindings,
                     arguments,
                 }
@@ -576,11 +638,33 @@ fn resolve_xml(
     Ok(match xml {
         XmlRepresentation::DiscriminatedChoice(choice) => {
             let attribute = expand_choice_name(module, &choice.attribute, source)?;
-            let mut seen = BTreeSet::new();
             let variants = choice
                 .variants
                 .iter()
                 .map(|case| {
+                    let mut seen = BTreeSet::new();
+                    let inherited = if let Some(alias) = &case.from {
+                        let import = module.imports.iter().find(|import| import.name == *alias).ok_or_else(|| diagnostic("missing_import_alias", source, "Choice selector source is not imported"))?;
+                        let target = modules[import.value.as_str()];
+                        let XmlRepresentation::DiscriminatedChoice(nested) = &target.representations.xml else {
+                            return Err(diagnostic("invalid_choice_selector", source, "Choice selector source must be a discriminated choice"));
+                        };
+                        if expand_choice_name(target, &nested.attribute, source)? != attribute {
+                            return Err(diagnostic("invalid_choice_selector", source, "Inherited choice must use the same XML attribute"));
+                        }
+                        let mut values = Vec::new();
+                        for nested_case in &nested.variants {
+                            for name in &nested_case.values {
+                                let expanded = expand_choice_name(target, name, source)?;
+                                if seen.insert((expanded.namespace.clone(), expanded.local.clone())) {
+                                    values.push(expanded);
+                                }
+                            }
+                        }
+                        values
+                    } else {
+                        Vec::new()
+                    };
                     let (values, emit) = resolve_choice_qnames(
                         module,
                         &case.values,
@@ -588,9 +672,12 @@ fn resolve_xml(
                         source,
                         &mut seen,
                     )?;
+                    let mut values = inherited.into_iter().chain(values).collect::<Vec<_>>();
+                    values.sort_by(|left, right| (&left.namespace, &left.local).cmp(&(&right.namespace, &right.local)));
                     Ok(DiscriminatedChoiceCase {
                         variant: case.variant.clone(),
                         values,
+                        from: None,
                         emit,
                     })
                 })
@@ -706,13 +793,17 @@ fn resolve_xml(
             LinkedXml::Tree(xml_tree::resolve(module, nodes, modules, ids)?)
         }
         XmlRepresentation::Declared => LinkedXml::Declared,
-        XmlRepresentation::ElementSequence { path, item } => {
+        XmlRepresentation::ElementSequence { path, next, item } => {
             let mut context = module.clone();
             if let TypeDefinition::Sequence(value) = &module.value {
                 context.value = *value.clone();
             }
             LinkedXml::ElementSequence {
                 path: expand_path(module, path, source)?,
+                next: next
+                    .as_ref()
+                    .map(|next| expand_path(module, next, source))
+                    .transpose()?,
                 item: Box::new(resolve_xml(&context, item, source, modules, ids)?),
             }
         }
@@ -900,13 +991,6 @@ fn validate_xml(
                         "Each choice variant needs one non-empty XML selector row",
                     ));
                 }
-                if case.emit.is_none() {
-                    return Err(diagnostic(
-                        "invalid_choice_emit",
-                        source,
-                        "Each discriminated choice variant needs a canonical QName",
-                    ));
-                }
             }
             if covered != names {
                 return Err(diagnostic(
@@ -963,7 +1047,23 @@ fn validate_xml(
             check_coverage(fields, &covered, presence, RepresentationSide::Xml, source)?;
         }
         (_, LinkedXml::Tree(nodes)) => xml_tree::validate(value, nodes, source)?,
-        (LinkedType::Sequence(item), LinkedXml::ElementSequence { item: xml, .. }) => {
+        (
+            LinkedType::Sequence(item),
+            LinkedXml::ElementSequence {
+                path,
+                next,
+                item: xml,
+            },
+        ) => {
+            if let Some(next) = next
+                && (next.len() != 1 || path.len() < 2 || path.first() == next.first())
+            {
+                return Err(diagnostic(
+                    "ambiguous_sequence_chain",
+                    source,
+                    "A linear sequence needs one next-node name distinct from the item wrapper",
+                ));
+            }
             validate_xml(item, xml, &[], source)?
         }
         (LinkedType::Scalar(ScalarType::Boolean), LinkedXml::BooleanTable(table)) => {
@@ -1109,6 +1209,34 @@ fn validate_yaml(
                 .collect();
             check_coverage(fields, &covered, presence, RepresentationSide::Yaml, source)?
         }
+        (LinkedType::Record(fields), YamlRepresentation::GroupedSequence(groups)) => {
+            let mut covered = BTreeSet::new();
+            let mut tags = BTreeSet::new();
+            for group in groups {
+                if !fields.iter().any(|field| field.name == group.field) {
+                    return Err(diagnostic(
+                        "unknown_representation_field",
+                        &group.source,
+                        "Unknown grouped field",
+                    ));
+                }
+                if !covered.insert(group.field.as_str()) {
+                    return Err(diagnostic(
+                        "duplicate_representation_field",
+                        &group.source,
+                        "Grouped field is repeated",
+                    ));
+                }
+                if !tags.insert(group.item_tag.as_deref()) {
+                    return Err(diagnostic(
+                        "yaml_group_tag_collision",
+                        &group.source,
+                        "Group marks must be distinct, including the unmarked group",
+                    ));
+                }
+            }
+            check_coverage(fields, &covered, presence, RepresentationSide::Yaml, source)?;
+        }
         (LinkedType::Record(fields), YamlRepresentation::Projection(name)) => {
             if !fields.iter().any(|field| field.name == *name) {
                 return Err(diagnostic(
@@ -1139,6 +1267,9 @@ fn validate_yaml(
                         "Field has multiple YAML mappings",
                     ));
                 }
+                if mapping.file.is_some() {
+                    continue;
+                }
                 if let Some(first) = keys.insert(&mapping.key, &mapping.source) {
                     let mut error = diagnostic(
                         "yaml_key_collision",
@@ -1157,9 +1288,10 @@ fn validate_yaml(
                 item: yaml,
                 shorthand,
                 singleton,
+                ..
             },
         ) => {
-            if *singleton
+            if singleton.is_some()
                 && (!shorthand.is_empty()
                     || !matches!(
                         **yaml,
@@ -1282,6 +1414,36 @@ fn resolve_data_type(
     ids: &BTreeMap<&str, u32>,
     visiting: &mut BTreeSet<String>,
 ) -> Result<LinkedType, Diagnostic> {
-    resolve_type(module, value, source, modules, ids, visiting)?;
-    expressions::field_shape(module, value, source, modules, ids, visiting)
+    match value {
+        TypeDefinition::Record(fields) | TypeDefinition::Choice(fields) => {
+            if matches!(value, TypeDefinition::Choice(_)) && fields.is_empty() {
+                return Err(diagnostic(
+                    "choice_variants",
+                    source,
+                    "Input choice requires named variants",
+                ));
+            }
+            for field in fields {
+                resolve_data_type(
+                    module,
+                    &field.definition,
+                    &field.source,
+                    modules,
+                    ids,
+                    visiting,
+                )?;
+            }
+        }
+        TypeDefinition::Sequence(item) => {
+            resolve_data_type(module, item, source, modules, ids, visiting)?;
+        }
+        TypeDefinition::Index { key, value } => {
+            resolve_data_type(module, key, source, modules, ids, visiting)?;
+            resolve_data_type(module, value, source, modules, ids, visiting)?;
+        }
+        _ => {
+            resolve_type(module, value, source, modules, ids, visiting)?;
+        }
+    }
+    expressions::field_shape(module, value, source, (modules, ids), visiting)
 }

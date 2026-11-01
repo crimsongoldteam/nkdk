@@ -1,0 +1,67 @@
+format: nkdk-declarations/1
+kind: value
+id: common.user-visible
+namespaces:
+  xr: http://v8.1c.ru/8.3/xcf/readable
+imports:
+  boolean: common.boolean
+  roles: common.user-visible-roles
+inputs:
+  roles:
+    type:
+      kind: sequence
+      item:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: yamlName
+            type:
+              kind: scalar
+              scalar: text
+value:
+  kind: record
+  fields:
+    - name: common
+      type:
+        use: boolean
+    - name: values
+      type:
+        use: roles
+        bind:
+          roles:
+            input: roles
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: common
+        path:
+          - xr:Common
+      - field: values
+        path: []
+  yaml:
+    kind: mapping
+    fields:
+      - field: common
+        key: Разрешить
+      - field: values
+        key: Роли
+presence:
+  - target:
+      field: common
+    yaml:
+      default:
+        literal: true
+  - target:
+      field: values
+    yaml:
+      missing:
+        denotes:
+          sequence: []
+    xml:
+      missing:
+        denotes:
+          sequence: []

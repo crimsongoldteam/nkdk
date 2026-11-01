@@ -1,0 +1,808 @@
+[
+  {
+    "symbol": "MetadataXDTOPackageRules",
+    "assembled": [
+      "xmlRoot",
+      "uuid",
+      "name",
+      "synonym",
+      "comment",
+      "namespace",
+      "package",
+      "objectBelonging",
+      "extendedConfigurationObject"
+    ],
+    "pending": [],
+    "blockers": [],
+    "complete": true,
+    "stateContracts": [
+      {
+        "property": "extendedConfigurationObject",
+        "representation": "tagged",
+        "requiresHistory": true,
+        "attached": true
+      },
+      {
+        "property": "synonym",
+        "representation": "plain",
+        "requiresHistory": false,
+        "attached": true
+      },
+      {
+        "property": "namespace",
+        "representation": "tagged",
+        "requiresHistory": true,
+        "attached": true
+      },
+      {
+        "property": "package",
+        "representation": "section",
+        "requiresHistory": true,
+        "attached": true
+      }
+    ],
+    "entry": "metadata.xdto-package",
+    "indexRequirements": {
+      "bindings": {
+        "state_states": "metadata.property-state-membership",
+        "state_baseIds": "metadata.base-identities",
+        "ordinary1_identities": "metadata.own-identities",
+        "resource_fingerprints": "metadata.resource-fingerprints",
+        "resource_registrations": "metadata.resource-registrations"
+      },
+      "missing": []
+    },
+    "factSources": [
+      "metadata.xdto-package.own-identity",
+      "metadata.xdto-package.states",
+      "metadata.xdto-package.base-identity"
+    ],
+    "route": "rust/operations/record-file-owners.routes.generated.yaml",
+    "verificationRequired": [
+      "full-file-fixtures",
+      "application-catalog"
+    ]
+  },
+  {
+    "symbol": "MetadataWebSocketClientRules",
+    "assembled": [
+      "xmlRoot",
+      "uuid",
+      "name",
+      "synonym",
+      "comment",
+      "predefined",
+      "autoConnect",
+      "serverURL",
+      "user",
+      "password",
+      "headers",
+      "useOSProxy",
+      "useOSAuthentication",
+      "timeout",
+      "module",
+      "objectBelonging",
+      "extendedConfigurationObject"
+    ],
+    "pending": [],
+    "blockers": [],
+    "complete": true,
+    "stateContracts": [
+      {
+        "property": "extendedConfigurationObject",
+        "representation": "tagged",
+        "requiresHistory": true,
+        "attached": true
+      },
+      {
+        "property": "synonym",
+        "representation": "plain",
+        "requiresHistory": false,
+        "attached": true
+      },
+      {
+        "property": "module",
+        "representation": "section",
+        "requiresHistory": true,
+        "attached": true
+      }
+    ],
+    "entry": "metadata.websocket-client",
+    "indexRequirements": {
+      "bindings": {
+        "state_states": "metadata.property-state-membership",
+        "state_baseIds": "metadata.base-identities",
+        "ordinary1_identities": "metadata.own-identities",
+        "resource_fingerprints": "metadata.resource-fingerprints",
+        "resource_registrations": "metadata.resource-registrations"
+      },
+      "missing": []
+    },
+    "factSources": [
+      "metadata.websocket-client.own-identity",
+      "metadata.websocket-client.states",
+      "metadata.websocket-client.base-identity"
+    ],
+    "route": "rust/operations/record-file-owners.routes.generated.yaml",
+    "verificationRequired": [
+      "full-file-fixtures",
+      "application-catalog"
+    ]
+  },
+  {
+    "symbol": "MetadataLanguageRules",
+    "assembled": [
+      "xmlRoot",
+      "uuid",
+      "name",
+      "synonym",
+      "comment",
+      "languageCode",
+      "objectBelonging",
+      "extendedConfigurationObject"
+    ],
+    "pending": [],
+    "blockers": [],
+    "complete": true,
+    "stateContracts": [
+      {
+        "property": "extendedConfigurationObject",
+        "representation": "tagged",
+        "requiresHistory": true,
+        "attached": true
+      },
+      {
+        "property": "synonym",
+        "representation": "plain",
+        "requiresHistory": false,
+        "attached": true
+      },
+      {
+        "property": "languageCode",
+        "representation": "tagged",
+        "requiresHistory": true,
+        "attached": true
+      }
+    ],
+    "entry": "metadata.language",
+    "indexRequirements": {
+      "bindings": {
+        "state_states": "metadata.property-state-membership",
+        "state_baseIds": "metadata.base-identities",
+        "ordinary1_identities": "metadata.own-identities"
+      },
+      "missing": []
+    },
+    "factSources": [
+      "metadata.language.own-identity",
+      "metadata.language.states",
+      "metadata.language.base-identity"
+    ],
+    "route": "rust/operations/record-file-owners.routes.generated.yaml",
+    "verificationRequired": [
+      "full-file-fixtures",
+      "application-catalog"
+    ]
+  },
+  {
+    "symbol": "MetadataEventSubscriptionRules",
+    "assembled": [
+      "xmlRoot",
+      "uuid",
+      "name",
+      "synonym",
+      "comment",
+      "source",
+      "event",
+      "handler",
+      "objectBelonging",
+      "extendedConfigurationObject"
+    ],
+    "pending": [],
+    "blockers": [],
+    "complete": true,
+    "stateContracts": [
+      {
+        "property": "extendedConfigurationObject",
+        "representation": "tagged",
+        "requiresHistory": true,
+        "attached": true
+      },
+      {
+        "property": "synonym",
+        "representation": "plain",
+        "requiresHistory": false,
+        "attached": true
+      }
+    ],
+    "entry": "metadata.event-subscription",
+    "indexRequirements": {
+      "bindings": {
+        "state_states": "metadata.property-state-membership",
+        "state_baseIds": "metadata.base-identities",
+        "ordinary1_identities": "metadata.own-identities"
+      },
+      "missing": []
+    },
+    "factSources": [
+      "metadata.event-subscription.own-identity",
+      "metadata.event-subscription.states",
+      "metadata.event-subscription.base-identity"
+    ],
+    "route": "rust/operations/record-file-owners.routes.generated.yaml",
+    "verificationRequired": [
+      "full-file-fixtures",
+      "application-catalog"
+    ]
+  },
+  {
+    "symbol": "MetadataSessionParameterRules",
+    "assembled": [
+      "xmlRoot",
+      "uuid",
+      "name",
+      "synonym",
+      "comment",
+      "type",
+      "objectBelonging",
+      "extendedConfigurationObject"
+    ],
+    "pending": [],
+    "blockers": [],
+    "complete": true,
+    "stateContracts": [
+      {
+        "property": "extendedConfigurationObject",
+        "representation": "tagged",
+        "requiresHistory": true,
+        "attached": true
+      },
+      {
+        "property": "synonym",
+        "representation": "plain",
+        "requiresHistory": false,
+        "attached": true
+      },
+      {
+        "property": "type",
+        "representation": "tagged",
+        "requiresHistory": true,
+        "attached": true
+      }
+    ],
+    "entry": "metadata.session-parameter",
+    "indexRequirements": {
+      "bindings": {
+        "state_states": "metadata.property-state-membership",
+        "state_baseIds": "metadata.base-identities",
+        "ordinary1_identities": "metadata.own-identities"
+      },
+      "missing": []
+    },
+    "factSources": [
+      "metadata.session-parameter.own-identity",
+      "metadata.session-parameter.states",
+      "metadata.session-parameter.base-identity"
+    ],
+    "route": "rust/operations/record-file-owners.routes.generated.yaml",
+    "verificationRequired": [
+      "full-file-fixtures",
+      "application-catalog"
+    ]
+  },
+  {
+    "symbol": "MetadataFunctionalOptionsParameterRules",
+    "assembled": [
+      "xmlRoot",
+      "uuid",
+      "name",
+      "synonym",
+      "comment",
+      "use",
+      "objectBelonging",
+      "extendedConfigurationObject"
+    ],
+    "pending": [],
+    "blockers": [],
+    "complete": true,
+    "stateContracts": [
+      {
+        "property": "extendedConfigurationObject",
+        "representation": "tagged",
+        "requiresHistory": true,
+        "attached": true
+      },
+      {
+        "property": "synonym",
+        "representation": "plain",
+        "requiresHistory": false,
+        "attached": true
+      }
+    ],
+    "entry": "metadata.functional-options-parameter",
+    "indexRequirements": {
+      "bindings": {
+        "state_states": "metadata.property-state-membership",
+        "state_baseIds": "metadata.base-identities",
+        "ordinary1_identities": "metadata.own-identities"
+      },
+      "missing": []
+    },
+    "factSources": [
+      "metadata.functional-options-parameter.own-identity",
+      "metadata.functional-options-parameter.states",
+      "metadata.functional-options-parameter.base-identity"
+    ],
+    "route": "rust/operations/record-file-owners.routes.generated.yaml",
+    "verificationRequired": [
+      "full-file-fixtures",
+      "application-catalog"
+    ]
+  },
+  {
+    "symbol": "MetadataStyleRules",
+    "assembled": [
+      "xmlRoot",
+      "uuid",
+      "name",
+      "synonym",
+      "comment",
+      "style",
+      "objectBelonging",
+      "extendedConfigurationObject"
+    ],
+    "pending": [],
+    "blockers": [],
+    "complete": true,
+    "stateContracts": [
+      {
+        "property": "extendedConfigurationObject",
+        "representation": "tagged",
+        "requiresHistory": true,
+        "attached": true
+      },
+      {
+        "property": "synonym",
+        "representation": "plain",
+        "requiresHistory": false,
+        "attached": true
+      },
+      {
+        "property": "style",
+        "representation": "section",
+        "requiresHistory": true,
+        "attached": true
+      }
+    ],
+    "entry": "metadata.style",
+    "indexRequirements": {
+      "bindings": {
+        "state_states": "metadata.property-state-membership",
+        "state_baseIds": "metadata.base-identities",
+        "ordinary1_identities": "metadata.own-identities",
+        "resource_fingerprints": "metadata.resource-fingerprints",
+        "resource_registrations": "metadata.resource-registrations"
+      },
+      "missing": []
+    },
+    "factSources": [
+      "metadata.style.own-identity",
+      "metadata.style.states",
+      "metadata.style.base-identity"
+    ],
+    "route": "rust/operations/record-file-owners.routes.generated.yaml",
+    "verificationRequired": [
+      "full-file-fixtures",
+      "application-catalog"
+    ]
+  },
+  {
+    "symbol": "MetadataStyleItemRules",
+    "assembled": [
+      "xmlRoot",
+      "uuid",
+      "name",
+      "synonym",
+      "comment",
+      "type",
+      "value",
+      "objectBelonging",
+      "extendedConfigurationObject"
+    ],
+    "pending": [],
+    "blockers": [],
+    "complete": true,
+    "stateContracts": [
+      {
+        "property": "extendedConfigurationObject",
+        "representation": "tagged",
+        "requiresHistory": true,
+        "attached": true
+      },
+      {
+        "property": "synonym",
+        "representation": "plain",
+        "requiresHistory": false,
+        "attached": true
+      },
+      {
+        "property": "type",
+        "representation": "tagged",
+        "requiresHistory": true,
+        "attached": true
+      },
+      {
+        "property": "value",
+        "representation": "plain",
+        "requiresHistory": false,
+        "attached": true
+      }
+    ],
+    "entry": "metadata.style-item",
+    "indexRequirements": {
+      "bindings": {
+        "state_states": "metadata.property-state-membership",
+        "state_baseIds": "metadata.base-identities",
+        "state_styleTypes": "metadata.style-item-types",
+        "ordinary1_identities": "metadata.own-identities"
+      },
+      "missing": []
+    },
+    "factSources": [
+      "metadata.style-item.own-identity",
+      "metadata.style-item.states",
+      "metadata.style-item.base-identity",
+      "metadata.style-item-type-facts"
+    ],
+    "route": "rust/operations/record-file-owners.routes.generated.yaml",
+    "verificationRequired": [
+      "full-file-fixtures",
+      "application-catalog"
+    ]
+  },
+  {
+    "symbol": "MetadataCommandGroupRules",
+    "assembled": [
+      "xmlRoot",
+      "uuid",
+      "name",
+      "synonym",
+      "comment",
+      "representation",
+      "toolTip",
+      "picture",
+      "category",
+      "objectBelonging",
+      "extendedConfigurationObject"
+    ],
+    "pending": [],
+    "blockers": [],
+    "complete": true,
+    "stateContracts": [
+      {
+        "property": "extendedConfigurationObject",
+        "representation": "tagged",
+        "requiresHistory": true,
+        "attached": true
+      },
+      {
+        "property": "synonym",
+        "representation": "plain",
+        "requiresHistory": false,
+        "attached": true
+      },
+      {
+        "property": "category",
+        "representation": "tagged",
+        "requiresHistory": true,
+        "attached": true
+      }
+    ],
+    "entry": "metadata.command-group",
+    "indexRequirements": {
+      "bindings": {
+        "state_states": "metadata.property-state-membership",
+        "state_baseIds": "metadata.base-identities",
+        "ordinary1_identities": "metadata.own-identities"
+      },
+      "missing": []
+    },
+    "factSources": [
+      "metadata.command-group.own-identity",
+      "metadata.command-group.states",
+      "metadata.command-group.base-identity"
+    ],
+    "route": "rust/operations/record-file-owners.routes.generated.yaml",
+    "verificationRequired": [
+      "full-file-fixtures",
+      "application-catalog"
+    ]
+  },
+  {
+    "symbol": "MetadataCommonModuleRules",
+    "assembled": [
+      "xmlRoot",
+      "uuid",
+      "name",
+      "synonym",
+      "comment",
+      "global",
+      "clientManagedApplication",
+      "server",
+      "externalConnection",
+      "clientOrdinaryApplication",
+      "serverCall",
+      "privileged",
+      "returnValuesReuse",
+      "module",
+      "objectBelonging",
+      "extendedConfigurationObject"
+    ],
+    "pending": [],
+    "blockers": [],
+    "complete": true,
+    "stateContracts": [
+      {
+        "property": "extendedConfigurationObject",
+        "representation": "tagged",
+        "requiresHistory": true,
+        "attached": true
+      },
+      {
+        "property": "synonym",
+        "representation": "plain",
+        "requiresHistory": false,
+        "attached": true
+      },
+      {
+        "property": "global",
+        "representation": "tagged",
+        "requiresHistory": true,
+        "attached": true
+      },
+      {
+        "property": "clientManagedApplication",
+        "representation": "tagged",
+        "requiresHistory": true,
+        "attached": true
+      },
+      {
+        "property": "clientOrdinaryApplication",
+        "representation": "tagged",
+        "requiresHistory": true,
+        "attached": true
+      },
+      {
+        "property": "server",
+        "representation": "tagged",
+        "requiresHistory": true,
+        "attached": true
+      },
+      {
+        "property": "externalConnection",
+        "representation": "tagged",
+        "requiresHistory": true,
+        "attached": true
+      },
+      {
+        "property": "privileged",
+        "representation": "tagged",
+        "requiresHistory": true,
+        "attached": true
+      },
+      {
+        "property": "serverCall",
+        "representation": "tagged",
+        "requiresHistory": true,
+        "attached": true
+      },
+      {
+        "property": "returnValuesReuse",
+        "representation": "tagged",
+        "requiresHistory": true,
+        "attached": true
+      },
+      {
+        "property": "module",
+        "representation": "section",
+        "requiresHistory": true,
+        "attached": true
+      }
+    ],
+    "entry": "metadata.common-module",
+    "indexRequirements": {
+      "bindings": {
+        "state_states": "metadata.property-state-membership",
+        "state_baseIds": "metadata.base-identities",
+        "ordinary1_identities": "metadata.own-identities",
+        "resource_fingerprints": "metadata.resource-fingerprints",
+        "resource_registrations": "metadata.resource-registrations"
+      },
+      "missing": []
+    },
+    "factSources": [
+      "metadata.common-module.own-identity",
+      "metadata.common-module.states",
+      "metadata.common-module.base-identity"
+    ],
+    "route": "rust/operations/record-file-owners.routes.generated.yaml",
+    "verificationRequired": [
+      "full-file-fixtures",
+      "application-catalog"
+    ]
+  },
+  {
+    "symbol": "MetadataBotRules",
+    "assembled": [
+      "xmlRoot",
+      "uuid",
+      "name",
+      "synonym",
+      "comment",
+      "objectBelonging",
+      "extendedConfigurationObject",
+      "predefined",
+      "picture",
+      "module"
+    ],
+    "pending": [],
+    "blockers": [],
+    "complete": true,
+    "stateContracts": [
+      {
+        "property": "extendedConfigurationObject",
+        "representation": "tagged",
+        "requiresHistory": true,
+        "attached": true
+      },
+      {
+        "property": "synonym",
+        "representation": "plain",
+        "requiresHistory": false,
+        "attached": true
+      },
+      {
+        "property": "module",
+        "representation": "section",
+        "requiresHistory": true,
+        "attached": true
+      }
+    ],
+    "entry": "metadata.bot",
+    "indexRequirements": {
+      "bindings": {
+        "state_states": "metadata.property-state-membership",
+        "state_baseIds": "metadata.base-identities",
+        "ordinary1_identities": "metadata.own-identities",
+        "resource_fingerprints": "metadata.resource-fingerprints",
+        "resource_registrations": "metadata.resource-registrations"
+      },
+      "missing": []
+    },
+    "factSources": [
+      "metadata.bot.own-identity",
+      "metadata.bot.states",
+      "metadata.bot.base-identity"
+    ],
+    "route": "rust/operations/record-file-owners.routes.generated.yaml",
+    "verificationRequired": [
+      "full-file-fixtures",
+      "application-catalog"
+    ]
+  },
+  {
+    "symbol": "MetadataRoleRules",
+    "assembled": [
+      "xmlRoot",
+      "uuid",
+      "name",
+      "synonym",
+      "comment",
+      "rights",
+      "objectBelonging",
+      "extendedConfigurationObject"
+    ],
+    "pending": [],
+    "blockers": [],
+    "complete": true,
+    "stateContracts": [
+      {
+        "property": "extendedConfigurationObject",
+        "representation": "tagged",
+        "requiresHistory": true,
+        "attached": true
+      },
+      {
+        "property": "synonym",
+        "representation": "plain",
+        "requiresHistory": false,
+        "attached": true
+      },
+      {
+        "property": "rights",
+        "representation": "section",
+        "requiresHistory": true,
+        "attached": true
+      }
+    ],
+    "entry": "metadata.role",
+    "indexRequirements": {
+      "bindings": {
+        "state_states": "metadata.property-state-membership",
+        "state_baseIds": "metadata.base-identities",
+        "ordinary1_identities": "metadata.own-identities",
+        "resource_fingerprints": "metadata.resource-fingerprints",
+        "resource_registrations": "metadata.resource-registrations"
+      },
+      "missing": []
+    },
+    "factSources": [
+      "metadata.role.own-identity",
+      "metadata.role.states",
+      "metadata.role.base-identity"
+    ],
+    "route": "rust/operations/record-file-owners.routes.generated.yaml",
+    "verificationRequired": [
+      "full-file-fixtures",
+      "application-catalog"
+    ]
+  },
+  {
+    "symbol": "MetadataCommonTemplateRules",
+    "assembled": [
+      "xmlRoot",
+      "uuid",
+      "name",
+      "synonym",
+      "comment",
+      "templateType",
+      "template",
+      "objectBelonging",
+      "extendedConfigurationObject"
+    ],
+    "pending": [],
+    "blockers": [],
+    "complete": true,
+    "stateContracts": [
+      {
+        "property": "extendedConfigurationObject",
+        "representation": "tagged",
+        "requiresHistory": true,
+        "attached": true
+      },
+      {
+        "property": "synonym",
+        "representation": "plain",
+        "requiresHistory": false,
+        "attached": true
+      },
+      {
+        "property": "template",
+        "representation": "section",
+        "requiresHistory": true,
+        "attached": true
+      }
+    ],
+    "entry": "metadata.common-template",
+    "indexRequirements": {
+      "bindings": {
+        "state_states": "metadata.property-state-membership",
+        "state_baseIds": "metadata.base-identities",
+        "ordinary1_identities": "metadata.own-identities",
+        "resource_fingerprints": "metadata.resource-fingerprints",
+        "resource_registrations": "metadata.resource-registrations"
+      },
+      "missing": []
+    },
+    "factSources": [
+      "metadata.common-template.own-identity",
+      "metadata.common-template.states",
+      "metadata.common-template.base-identity"
+    ],
+    "route": "rust/operations/record-file-owners.routes.generated.yaml",
+    "verificationRequired": [
+      "full-file-fixtures",
+      "application-catalog"
+    ]
+  }
+]

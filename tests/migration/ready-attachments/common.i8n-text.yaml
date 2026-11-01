@@ -348,6 +348,10 @@ presence:
               - parameter: excludeIfEqualNameYAML
               - isReady:
                   input: ownerName
+              - not:
+                  eq:
+                    - input: ownerName
+                    - literal: ''
           then:
             match:
               value:
@@ -391,6 +395,10 @@ presence:
             - parameter: excludeIfEqualNameYAML
             - isReady:
                 input: ownerName
+            - not:
+                eq:
+                  - input: ownerName
+                  - literal: ''
         then:
           match:
             value:

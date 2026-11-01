@@ -1,0 +1,58 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: common.dcs-explicit-string-kind
+  enum: {Строка: Строка}
+- kind: value
+  id: common.dcs-explicit-string
+  imports: {kind: common.dcs-explicit-string-kind, text: common.string}
+  value:
+    kind: record
+    fields:
+    - {name: kind, type: {use: kind}}
+    - {name: text, type: {use: text}}
+  representations:
+    xml: {kind: record, fields: [{field: text, path: []}]}
+    yaml: {kind: mapping, fields: [{field: kind, key: Тип}, {field: text, key: Значение}]}
+  presence:
+  - target: {field: kind}
+    xml: {missing: {denotes: {literal: Строка}}}
+- kind: value
+  id: common.dcs-field-choice
+  namespaces:
+    xsi: http://www.w3.org/2001/XMLSchema-instance
+    xs: http://www.w3.org/2001/XMLSchema
+    dcscor: http://v8.1c.ru/8.1/data-composition-system/core
+  imports:
+    field: common.dcs-filter-field
+    reference: common.dcs-design-time-value
+    text: common.dcs-explicit-string
+    boolean: common.boolean
+    decimal: common.exact-decimal
+    calendar: common.date-time-seconds
+  value:
+    kind: choice
+    variants:
+    - {name: field, type: {use: field}}
+    - {name: reference, type: {use: reference}}
+    - {name: text, type: {use: text}}
+    - {name: boolean, type: {use: boolean}}
+    - {name: decimal, type: {use: decimal}}
+    - {name: calendar, type: {use: calendar}}
+  representations:
+    xml:
+      kind: choice
+      attribute: xsi:type
+      variants:
+      - {variant: field, in: [dcscor:Field], emit: dcscor:Field}
+      - {variant: reference, in: [dcscor:DesignTimeValue], emit: dcscor:DesignTimeValue}
+      - {variant: text, in: [xs:string], emit: xs:string}
+      - {variant: boolean, in: [xs:boolean], emit: xs:boolean}
+      - {variant: decimal, in: [xs:decimal, xs:integer, xs:double, xs:float], emit: xs:decimal}
+      - {variant: calendar, in: [xs:dateTime], emit: xs:dateTime}
+      otherwise: text
+    yaml:
+      kind: choice
+      variants:
+      - {variant: text, form: mapping, key: Тип, value: Строка}

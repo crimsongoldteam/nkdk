@@ -1,5 +1,21 @@
 use nkdk_rule_compiler::{SourceFile, parse};
 
+fn keyed_mapping_second_field(
+    module: &nkdk_rule_model::Module,
+) -> &nkdk_rule_model::ExpressionKind {
+    use nkdk_rule_model::{ExpressionKind, YamlRepresentation};
+    let YamlRepresentation::KeyedMapping { shorthand, .. } = &module.representations.yaml else {
+        panic!("mapping expected")
+    };
+    let ExpressionKind::Sequence(items) = &shorthand[0].denotes.kind else {
+        panic!("sequence expected")
+    };
+    let ExpressionKind::Record(fields) = &items[0].kind else {
+        panic!("record expected")
+    };
+    &fields[1].value.kind
+}
+
 #[test]
 fn duplicate_keys_report_the_second_occurrence() {
     let errors = parse(SourceFile {
@@ -115,7 +131,11 @@ fn choice_rejects_fallback_with_xml_discriminator() {
 #[test]
 fn choice_rejects_duplicate_fallback_key() {
     let source = "format: nkdk-declarations/1\nkind: value\nid: test.choice\nvalue: {kind: choice, variants: []}\nrepresentations:\n  xml: {kind: choice, fallback: first, fallback: second}\n  yaml: {kind: choice}\n";
-    let errors = parse(SourceFile { path: "choice.yaml", bytes: source.as_bytes() }).unwrap_err();
+    let errors = parse(SourceFile {
+        path: "choice.yaml",
+        bytes: source.as_bytes(),
+    })
+    .unwrap_err();
     assert!(errors.iter().any(|error| error.code == "duplicate_key"));
 }
 
@@ -338,15 +358,32 @@ fn parses_named_collection_representations() {
     })
     .expect("collection declaration");
     assert_eq!(module.id, "common.translations");
-    let nkdk_rule_model::XmlRepresentation::ElementSequence { path, item } =
+    let nkdk_rule_model::XmlRepresentation::ElementSequence { path, next, item } =
         module.representations.xml
     else {
         panic!("XML collection expected")
     };
     assert_eq!(path, ["v8:item"]);
+    assert!(next.is_none());
     assert!(
         matches!(item.as_ref(), nkdk_rule_model::XmlRepresentation::Record(fields) if fields.len() == 2)
     );
+    let chain_source = source.replacen(
+        "path: [v8:item]",
+        "path: [v8:items, v8:item]\n    next: [v8:next]",
+        1,
+    );
+    let chain = parse(SourceFile {
+        path: "chain.yaml",
+        bytes: chain_source.as_bytes(),
+    })
+    .unwrap();
+    let nkdk_rule_model::XmlRepresentation::ElementSequence { next, .. } =
+        chain.representations.xml
+    else {
+        panic!("chain expected")
+    };
+    assert_eq!(next.unwrap(), ["v8:next"]);
     let nkdk_rule_model::YamlRepresentation::KeyedMapping { key, value, .. } =
         module.representations.yaml
     else {
@@ -399,6 +436,8 @@ fn shorthand_expressions_reject_ambiguous_or_malformed_syntax() {
         ("{input: true}", "expected_string"),
         ("{sequence: text}", "expected_sequence"),
         ("{record: []}", "expected_mapping"),
+        ("{collectionPosition: false}", "invalid_collection_position"),
+        ("{collectionPosition: 0}", "invalid_collection_position"),
     ] {
         let source = original.replace("{input: defaultLanguage}", replacement);
         let errors = parse(SourceFile {
@@ -416,7 +455,7 @@ fn shorthand_expressions_reject_ambiguous_or_malformed_syntax() {
 
 #[test]
 fn scalar_literals_preserve_lexical_values() {
-    use nkdk_rule_model::{ExpressionKind, ScalarLiteral, YamlRepresentation};
+    use nkdk_rule_model::{ExpressionKind, ScalarLiteral};
     let original = include_str!("../../../../tests/declaration-corpus/valid/i8n-text-core.yaml");
     for (literal, expected) in [
         ("\"\"", ScalarLiteral::Text(String::new())),
@@ -438,18 +477,9 @@ fn scalar_literals_preserve_lexical_values() {
             bytes: source.as_bytes(),
         })
         .unwrap_or_else(|errors| panic!("{literal}: {errors:?}"));
-        let YamlRepresentation::KeyedMapping { shorthand, .. } = module.representations.yaml else {
-            panic!("mapping expected")
-        };
-        let ExpressionKind::Sequence(items) = &shorthand[0].denotes.kind else {
-            panic!("sequence expected")
-        };
-        let ExpressionKind::Record(fields) = &items[0].kind else {
-            panic!("record expected")
-        };
         assert_eq!(
-            fields[1].value.kind,
-            ExpressionKind::Literal(expected),
+            keyed_mapping_second_field(&module),
+            &ExpressionKind::Literal(expected),
             "{literal}"
         );
     }
@@ -485,26 +515,17 @@ fn conditional_expression_reads_parameter_and_both_branches() {
         "{capture: text}",
         "{if: {parameter: preserveEmpty}, then: {literal: \"\"}, else: {capture: text}}",
     );
-    use nkdk_rule_model::{ExpressionKind, ScalarLiteral, YamlRepresentation};
+    use nkdk_rule_model::{ExpressionKind, ScalarLiteral};
     let module = parse(SourceFile {
         path: "conditional.yaml",
         bytes: source.as_bytes(),
     })
     .expect("conditional expression");
-    let YamlRepresentation::KeyedMapping { shorthand, .. } = module.representations.yaml else {
-        panic!("mapping expected")
-    };
-    let ExpressionKind::Sequence(items) = &shorthand[0].denotes.kind else {
-        panic!("sequence expected")
-    };
-    let ExpressionKind::Record(fields) = &items[0].kind else {
-        panic!("record expected")
-    };
     let ExpressionKind::Conditional {
         condition,
         then_value,
         else_value,
-    } = &fields[1].value.kind
+    } = keyed_mapping_second_field(&module)
     else {
         panic!("conditional expected")
     };
@@ -1258,6 +1279,53 @@ fn compact_catalog_compiles_through_the_same_linker_and_generator() {
             }])
             .is_err(),
             "{before}"
+        );
+    }
+}
+
+#[test]
+fn enum_projection_overrides_only_declared_yaml_spellings() {
+    use nkdk_rule_model::{XmlRepresentation, YamlRepresentation};
+
+    let source = "format: nkdk-declarations/1\nkind: value\nid: test.roots\nenum: {Catalog: Справочник, Document: Документ}\nprojections:\n- id: test.roots.plural\n  yaml: {overrides: {Catalog: Справочники}}\n".as_bytes();
+    let parsed = nkdk_rule_compiler::parse_many(SourceFile {
+        path: "roots.yaml",
+        bytes: source,
+    })
+    .unwrap();
+    assert_eq!(parsed.len(), 2);
+    let base = &parsed[0];
+    let projected = &parsed[1];
+    assert_eq!(base.representations.xml, projected.representations.xml);
+    let YamlRepresentation::EnumTable(base_yaml) = &base.representations.yaml else {
+        panic!("base YAML enum")
+    };
+    let YamlRepresentation::EnumTable(projected_yaml) = &projected.representations.yaml else {
+        panic!("projected YAML enum")
+    };
+    assert_eq!(base_yaml[0].text, "Справочник");
+    assert_eq!(projected_yaml[0].text, "Справочники");
+    assert_eq!(base_yaml[1].text, projected_yaml[1].text);
+    assert!(matches!(
+        projected.representations.xml,
+        XmlRepresentation::EnumTable(_)
+    ));
+    nkdk_rule_compiler::link(&parsed).unwrap();
+
+    for invalid in [
+        "yaml: {overrides: {Unknown: Новое}}",
+        "yaml: {overrides: {Catalog: Документ}}",
+    ] {
+        let text = String::from_utf8(source.to_vec())
+            .unwrap()
+            .replace("yaml: {overrides: {Catalog: Справочники}}", invalid);
+        assert_ne!(text.as_bytes(), source);
+        assert!(
+            nkdk_rule_compiler::parse_many(SourceFile {
+                path: "invalid.yaml",
+                bytes: text.as_bytes()
+            })
+            .is_err()
         );
     }
 }

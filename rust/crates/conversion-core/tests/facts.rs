@@ -15,6 +15,29 @@ fn prepared_index_distinguishes_missing_ambiguous_and_stale_facts() {
     assert_eq!(index.lookup(generation, &(9, 1)), FactState::Missing);
     assert_eq!(index.lookup(Generation(8), &(1, 1)), FactState::Unready);
     assert_eq!(index.lookup(generation, &(3, 1)), FactState::Ready(&30));
+    for (rows, expected) in [
+        (vec![(1, 10), (1, 10)], FactState::Ready(&10)),
+        (vec![(1, 10), (1, 20), (1, 10)], FactState::Ambiguous),
+    ] {
+        let mut builder = FactIndexBuilder::new(generation);
+        builder.extend(rows.clone());
+        assert_eq!(
+            builder.finish().lookup(generation, &1),
+            FactState::Ambiguous
+        );
+        let mut builder = FactIndexBuilder::new(generation);
+        builder.extend(rows);
+        let coalesced = builder.finish_coalesced();
+        assert_eq!(coalesced.lookup(generation, &1), expected);
+        assert_eq!(coalesced.lookup(Generation(8), &1), FactState::Unready);
+    }
+    let mut incomplete_equal = FactIndexBuilder::new(generation);
+    incomplete_equal.extend([(1, 10), (1, 10)]);
+    incomplete_equal.mark_unready();
+    assert_eq!(
+        incomplete_equal.finish_coalesced().lookup(generation, &1),
+        FactState::Unready
+    );
     let empty = FactIndexBuilder::<u32, u32>::new(generation).finish();
     assert_eq!(empty.lookup(generation, &0), FactState::Missing);
     let mut incomplete = FactIndexBuilder::new(generation);

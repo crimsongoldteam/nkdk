@@ -1,0 +1,85 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  inputType1f8ea46361ff: common.path-root
+  value1: common.form-settings-storage-link
+value:
+  kind: record
+  fields:
+    - name: settingsStorage
+      type:
+        use: value1
+        bind:
+          ownerName:
+            input: containingOwnerName
+          roots:
+            input: roots
+          formTargets:
+            input: formTargets
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: settingsStorage
+        path:
+          - Form
+          - SettingsStorage
+  yaml:
+    kind: mapping
+    fields:
+      - field: settingsStorage
+        key: ХранилищеНастроек
+presence:
+  - target:
+      field: settingsStorage
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+inputs:
+  roots:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: kind
+            type:
+              use: inputType1f8ea46361ff
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  formTargets:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: parent
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  containingOwnerName:
+    type:
+      kind: scalar
+      scalar: text
+id: contract.property.4573dc3ccde4e89a1290.fragment

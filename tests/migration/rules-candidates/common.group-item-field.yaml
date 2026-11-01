@@ -1,0 +1,191 @@
+format: nkdk-declarations/1
+kind: value
+id: common.group-item-field
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  dcsset: http://v8.1c.ru/8.1/data-composition-system/settings
+imports:
+  flag: common.boolean
+  text: common.string
+  group: system.DataCompositionGroupType
+  period: system.DataCompositionPeriodAdditionType
+  date: common.typed-date-time
+value:
+  kind: record
+  fields:
+    - name: use
+      type:
+        use: flag
+    - name: field
+      type:
+        use: text
+    - name: groupType
+      type:
+        use: group
+    - name: periodAdditionType
+      type:
+        use: period
+    - name: periodAdditionBegin
+      type:
+        use: date
+    - name: periodAdditionEnd
+      type:
+        use: date
+representations:
+  xml:
+    kind: with-attributes
+    attributes:
+      - name: xsi:type
+        value:
+          qname: dcsset:GroupItemField
+    content:
+      kind: record
+      fields:
+        - field: use
+          path:
+            - dcsset:use
+        - field: field
+          path:
+            - dcsset:field
+        - field: groupType
+          path:
+            - dcsset:groupType
+        - field: periodAdditionType
+          path:
+            - dcsset:periodAdditionType
+        - field: periodAdditionBegin
+          path:
+            - dcsset:periodAdditionBegin
+        - field: periodAdditionEnd
+          path:
+            - dcsset:periodAdditionEnd
+  yaml:
+    kind: mapping
+    fields:
+      - field: use
+        key: Использование
+      - field: field
+        key: Поле
+      - field: groupType
+        key: ТипГруппировки
+      - field: periodAdditionType
+        key: ТипДополнения
+      - field: periodAdditionBegin
+        key: НачалоПериода
+      - field: periodAdditionEnd
+        key: КонецПериода
+    shorthand:
+      - id: ordinary-field
+        representation:
+          kind: scalar
+          scalar: text
+          capture: name
+        denotes:
+          record:
+            use:
+              literal: true
+            field:
+              capture: name
+            groupType:
+              literal: Items
+            periodAdditionType:
+              literal: None
+            periodAdditionBegin:
+              literal: 0001-01-01T00:00:00
+            periodAdditionEnd:
+              literal: 0001-01-01T00:00:00
+      - id: disabled-field-legacy
+        representation:
+          kind: scalar
+          scalar: text
+          capture: name
+          prefix: (
+          suffix: )
+        denotes:
+          record:
+            use:
+              literal: false
+            field:
+              capture: name
+            groupType:
+              literal: Items
+            periodAdditionType:
+              literal: None
+            periodAdditionBegin:
+              literal: 0001-01-01T00:00:00
+            periodAdditionEnd:
+              literal: 0001-01-01T00:00:00
+presence:
+  - target:
+      field: use
+    xml:
+      missing:
+        denotes:
+          literal: true
+      canonical:
+        - when:
+            field: use
+          form: missing
+        - form: ordinary
+    yaml:
+      missing:
+        denotes:
+          literal: true
+      omitWhen:
+        field: use
+  - target:
+      field: groupType
+    xml:
+      missing:
+        denotes:
+          literal: Items
+    yaml:
+      missing:
+        denotes:
+          literal: Items
+      omitWhen:
+        eq:
+          - field: groupType
+          - literal: Items
+  - target:
+      field: periodAdditionType
+    xml:
+      missing:
+        denotes:
+          literal: None
+    yaml:
+      missing:
+        denotes:
+          literal: None
+      omitWhen:
+        eq:
+          - field: periodAdditionType
+          - literal: None
+  - target:
+      field: periodAdditionBegin
+    xml:
+      missing:
+        denotes:
+          literal: 0001-01-01T00:00:00
+    yaml:
+      missing:
+        denotes:
+          literal: 0001-01-01T00:00:00
+      omitWhen:
+        eq:
+          - field: periodAdditionBegin
+          - literal: 0001-01-01T00:00:00
+  - target:
+      field: periodAdditionEnd
+    xml:
+      missing:
+        denotes:
+          literal: 0001-01-01T00:00:00
+    yaml:
+      missing:
+        denotes:
+          literal: 0001-01-01T00:00:00
+      omitWhen:
+        eq:
+          - field: periodAdditionEnd
+          - literal: 0001-01-01T00:00:00

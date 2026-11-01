@@ -1,0 +1,1209 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+  - kind: value
+    id: common.dcs-appearance-kind
+    value:
+      kind: enum
+      variants:
+        - name: Поле
+          value: Поле
+        - name: ФорматированнаяСтрока
+          value: ФорматированнаяСтрока
+    representations:
+      xml:
+        kind: text
+        values:
+          - value: Поле
+            text: Поле
+          - value: ФорматированнаяСтрока
+            text: ФорматированнаяСтрока
+      yaml:
+        kind: scalar
+        values:
+          - value: Поле
+            literal: Поле
+          - value: ФорматированнаяСтрока
+            literal: ФорматированнаяСтрока
+  - format: nkdk-declarations/1
+    kind: value
+    id: common.dcs-appearance-boolean-value
+    imports:
+      value: common.dcs-primitive-choice
+    inputs:
+      labels:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: name
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: code
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+      codes:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: name
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: label
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+      defaultLanguage:
+        type:
+          kind: scalar
+          scalar: text
+      registeredLanguages:
+        type:
+          kind: sequence
+          item:
+            kind: scalar
+            scalar: text
+    value:
+      kind: record
+      fields:
+        - name: value
+          type:
+            use: value
+            with:
+              exportNilValue: true
+            bind:
+              labels:
+                input: labels
+              codes:
+                input: codes
+              defaultLanguage:
+                input: defaultLanguage
+              registeredLanguages:
+                input: registeredLanguages
+              onlyStringType:
+                literal: false
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: value
+            path: []
+      yaml:
+        kind: projection
+        field: value
+    constraints:
+      - id: boolean-only
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        assert:
+          isVariant:
+            value:
+              field: value
+            variant: boolean
+        diagnostic:
+          code: dcs.appearance-boolean
+          severity: error
+          at:
+            field: value
+          message: Нужно логическое значение
+  - kind: value
+    id: common.dcs-appearance-string-content
+    namespaces:
+      xsi: http://www.w3.org/2001/XMLSchema-instance
+      xs: http://www.w3.org/2001/XMLSchema
+      v8: http://v8.1c.ru/8.1/data/core
+    inputs:
+      defaultLanguage:
+        type:
+          kind: scalar
+          scalar: text
+      registeredLanguages:
+        type:
+          kind: sequence
+          item:
+            kind: scalar
+            scalar: text
+    imports:
+      text: common.string
+      localized: common.i8n-text
+    value:
+      kind: choice
+      variants:
+        - name: text
+          type:
+            use: text
+        - name: localized
+          type:
+            use: localized
+            with:
+              typedXML: true
+            bind:
+              defaultLanguage:
+                input: defaultLanguage
+              registeredLanguages:
+                input: registeredLanguages
+              ownerName:
+                literal: ''
+    representations:
+      xml:
+        kind: choice
+        attribute: xsi:type
+        variants:
+          - variant: text
+            in:
+              - xs:string
+            emit: xs:string
+          - variant: localized
+            in:
+              - v8:LocalStringType
+            emit: v8:LocalStringType
+        otherwise: text
+      yaml:
+        kind: choice
+        variants:
+          - variant: localized
+            form: mapping
+        fallback: text
+  - format: nkdk-declarations/1
+    kind: value
+    id: common.dcs-appearance-source-choice
+    namespaces:
+      xsi: http://www.w3.org/2001/XMLSchema-instance
+      v8ui: http://v8.1c.ru/8.1/data/ui
+      v8: http://v8.1c.ru/8.1/data/core
+      xs: http://www.w3.org/2001/XMLSchema
+      dcscor: http://v8.1c.ru/8.1/data-composition-system/core
+      ent: http://v8.1c.ru/8.1/data/enterprise
+    imports:
+      color: common.color
+      font: common.font-normal
+      horizontalAlign: system.HorizontalAlign.dcs
+      designTime: common.dcs-design-time-choice
+      primitive: common.dcs-appearance-boolean-value
+      primitiveSelector: common.dcs-primitive-choice
+    inputs:
+      valueProfile:
+        type:
+          kind: scalar
+          scalar: text
+      defaultLanguage:
+        type:
+          kind: scalar
+          scalar: text
+      registeredLanguages:
+        type:
+          kind: sequence
+          item:
+            kind: scalar
+            scalar: text
+      labels:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: name
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: code
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+      codes:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: name
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: label
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+      styleTypes:
+        type:
+          kind: index
+          key:
+            kind: scalar
+            scalar: text
+          value:
+            kind: scalar
+            scalar: text
+    value:
+      kind: choice
+      variants:
+        - name: color
+          type:
+            use: color
+            bind:
+              styleTypes:
+                input: styleTypes
+            with:
+              retainAuto: true
+        - name: font
+          type:
+            use: font
+            bind:
+              styleTypes:
+                input: styleTypes
+        - name: horizontalAlign
+          type:
+            use: horizontalAlign
+        - name: designTime
+          type:
+            use: designTime
+            bind:
+              defaultLanguage:
+                input: defaultLanguage
+              registeredLanguages:
+                input: registeredLanguages
+        - name: primitive
+          type:
+            use: primitive
+            bind:
+              labels:
+                input: labels
+              codes:
+                input: codes
+              defaultLanguage:
+                input: defaultLanguage
+              registeredLanguages:
+                input: registeredLanguages
+    representations:
+      xml:
+        kind: choice
+        attribute: xsi:type
+        variants:
+          - variant: color
+            in:
+              - v8ui:Color
+            emit: v8ui:Color
+          - variant: font
+            in:
+              - v8ui:Font
+            emit: v8ui:Font
+          - variant: horizontalAlign
+            in:
+              - v8ui:HorizontalAlign
+            emit: v8ui:HorizontalAlign
+          - variant: designTime
+            in:
+              - dcscor:DesignTimeValue
+              - dcscor:Field
+              - v8:LocalStringType
+              - v8:LocalFormattedStringType
+              - xs:string
+          - variant: primitive
+            from: primitiveSelector
+        otherwise: color
+      yaml:
+        kind: choice
+        variants:
+          - variant: font
+            form: mapping
+            key: Вид
+          - variant: font
+            form: mapping
+            key: ВидXML
+          - variant: font
+            form: input-profile
+            input: valueProfile
+            equals: Font
+          - variant: color
+            form: scalar-input
+            input: valueProfile
+            equals: Color
+          - variant: horizontalAlign
+            form: scalar-input
+            input: valueProfile
+            equals: HorizontalAlign
+          - variant: designTime
+            form: mapping
+            key: Тип
+          - variant: designTime
+            form: scalar-input
+            input: valueProfile
+            equals: DesignTimeValue
+          - variant: primitive
+            form: input-profile
+            input: valueProfile
+            equals: Primitive
+  - kind: value
+    id: common.dcs-appearance-parameter-content
+    inputs:
+      parameterName:
+        type:
+          kind: scalar
+          scalar: text
+      valueProfile:
+        type:
+          kind: scalar
+          scalar: text
+      styleTypes:
+        type:
+          kind: index
+          key:
+            kind: scalar
+            scalar: text
+          value:
+            kind: scalar
+            scalar: text
+      defaultLanguage:
+        type:
+          kind: scalar
+          scalar: text
+      registeredLanguages:
+        type:
+          kind: sequence
+          item:
+            kind: scalar
+            scalar: text
+      labels:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: name
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: code
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+      codes:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: name
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: label
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+    imports:
+      ordinary: common.dcs-appearance-source-choice
+      string: common.dcs-appearance-string-content
+    value:
+      kind: choice
+      variants:
+        - name: ordinary
+          type:
+            use: ordinary
+            bind:
+              valueProfile:
+                input: valueProfile
+              defaultLanguage:
+                input: defaultLanguage
+              registeredLanguages:
+                input: registeredLanguages
+              labels:
+                input: labels
+              codes:
+                input: codes
+              styleTypes:
+                input: styleTypes
+        - name: string
+          type:
+            use: string
+            bind:
+              defaultLanguage:
+                input: defaultLanguage
+              registeredLanguages:
+                input: registeredLanguages
+    representations:
+      xml:
+        kind: choice
+        fallback: ordinary
+      yaml:
+        kind: choice
+        variants:
+          - variant: string
+            form: input-profile
+            input: valueProfile
+            equals: DesignTimeValue
+        fallback: ordinary
+  - format: nkdk-declarations/1
+    kind: value
+    id: common.dcs-appearance-parameter
+    namespaces:
+      xsi: http://www.w3.org/2001/XMLSchema-instance
+      dcscor: http://v8.1c.ru/8.1/data-composition-system/core
+      dcsset: http://v8.1c.ru/8.1/data-composition-system/settings
+    imports:
+      text: common.string
+      flag: common.boolean
+      value: common.dcs-appearance-parameter-content
+      view: system.DataCompositionSettingsItemViewMode
+      presentation: common.dcs-local-string-type
+      source: common.dcs-appearance-source-choice
+      kind: common.dcs-appearance-kind
+    parameters:
+      settingsXsi:
+        type:
+          kind: scalar
+          scalar: boolean
+        default: true
+    inputs:
+      parameterName:
+        type:
+          kind: scalar
+          scalar: text
+      valueProfile:
+        type:
+          kind: scalar
+          scalar: text
+      styleTypes:
+        type:
+          kind: index
+          key:
+            kind: scalar
+            scalar: text
+          value:
+            kind: scalar
+            scalar: text
+      defaultLanguage:
+        type:
+          kind: scalar
+          scalar: text
+      registeredLanguages:
+        type:
+          kind: sequence
+          item:
+            kind: scalar
+            scalar: text
+      labels:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: name
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: code
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+      codes:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: name
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: label
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+    value:
+      kind: record
+      fields:
+        - name: use
+          type:
+            use: flag
+        - name: parameter
+          type:
+            use: text
+        - name: source
+          type:
+            use: source
+            bind:
+              valueProfile:
+                input: valueProfile
+              styleTypes:
+                input: styleTypes
+              defaultLanguage:
+                input: defaultLanguage
+              registeredLanguages:
+                input: registeredLanguages
+              labels:
+                input: labels
+              codes:
+                input: codes
+        - name: kind
+          type:
+            use: kind
+        - name: value
+          type:
+            use: value
+            bind:
+              parameterName:
+                input: parameterName
+              valueProfile:
+                input: valueProfile
+              styleTypes:
+                input: styleTypes
+              defaultLanguage:
+                input: defaultLanguage
+              registeredLanguages:
+                input: registeredLanguages
+              labels:
+                input: labels
+              codes:
+                input: codes
+        - name: viewMode
+          type:
+            use: view
+        - name: userSettingID
+          type:
+            use: text
+        - name: userSettingPresentation
+          type:
+            use: presentation
+            bind:
+              defaultLanguage:
+                input: defaultLanguage
+              registeredLanguages:
+                input: registeredLanguages
+    representations:
+      xml:
+        kind: with-attributes
+        attributes:
+          - name: xsi:type
+            value:
+              qname: dcsset:SettingsParameterValue
+            when:
+              parameter: settingsXsi
+        content:
+          kind: record
+          fields:
+            - field: use
+              path:
+                - dcscor:use
+            - field: parameter
+              path:
+                - dcscor:parameter
+            - field: source
+              path:
+                - dcscor:value
+            - field: viewMode
+              path:
+                - dcsset:viewMode
+            - field: userSettingID
+              path:
+                - dcsset:userSettingID
+            - field: userSettingPresentation
+              path:
+                - dcsset:userSettingPresentation
+      yaml:
+        kind: mapping
+        fields:
+          - field: use
+            key: Использовать
+          - field: kind
+            key: Тип
+          - field: value
+            key: Значение
+          - field: viewMode
+            key: РежимОтображения
+          - field: userSettingID
+            key: ИдентификаторПользовательскойНастройки
+          - field: userSettingPresentation
+            key: ПредставлениеПользовательскойНастройки
+        shorthand:
+          - id: ordinary-string
+            representation:
+              kind: scalar
+              scalar: text
+              capture: text
+            denotes:
+              record:
+                use:
+                  literal: true
+                parameter:
+                  input: parameterName
+                source:
+                  variant:
+                    name: designTime
+                    value:
+                      variant:
+                        name: text
+                        value:
+                          capture: text
+                kind:
+                  absent: true
+                value:
+                  variant:
+                    name: string
+                    value:
+                      variant:
+                        name: text
+                        value:
+                          capture: text
+                viewMode:
+                  absent: true
+                userSettingID:
+                  absent: true
+                userSettingPresentation:
+                  absent: true
+            when:
+              eq:
+                - input: valueProfile
+                - literal: DesignTimeValue
+          - id: projection-Color
+            representation:
+              kind: scalar
+              scalar: text
+              field: value
+            canonical: false
+            when:
+              eq:
+                - input: valueProfile
+                - literal: Color
+          - id: projection-HorizontalAlign
+            representation:
+              kind: scalar
+              scalar: text
+              field: value
+            canonical: false
+            when:
+              eq:
+                - input: valueProfile
+                - literal: HorizontalAlign
+          - id: projection-Font
+            representation:
+              kind: mapping
+              field: value
+            canonical: false
+            when:
+              eq:
+                - input: valueProfile
+                - literal: Font
+          - id: projection-Primitive
+            representation:
+              kind: scalar
+              scalar: text
+              field: value
+            canonical: false
+            when:
+              eq:
+                - input: valueProfile
+                - literal: Primitive
+    presence:
+      - target:
+          field: use
+        xml:
+          missing:
+            denotes:
+              literal: true
+          canonical:
+            - when:
+                field: use
+              form: missing
+            - form: ordinary
+        yaml:
+          missing:
+            denotes:
+              literal: true
+          omitWhen:
+            field: use
+      - target:
+          field: parameter
+        yaml:
+          missing:
+            denotes:
+              input: parameterName
+      - target:
+          field: source
+        xml:
+          missing:
+            denotes:
+              absent: true
+          empty:
+            - form: nil
+              denotes:
+                absent: true
+          canonical:
+            - when:
+                isNull:
+                  field: value
+              form: nil
+            - form: ordinary
+        yaml:
+          missing:
+            denotes:
+              if:
+                present:
+                  field: value
+              then:
+                if:
+                  eq:
+                    - input: valueProfile
+                    - literal: DesignTimeValue
+                then:
+                  variant:
+                    name: designTime
+                    value:
+                      if:
+                        and:
+                          - present:
+                              field: kind
+                          - eq:
+                              - field: kind
+                              - literal: Поле
+                      then:
+                        variant:
+                          name: field
+                          value:
+                            record:
+                              kind:
+                                literal: Поле
+                              field:
+                                variantValue:
+                                  value:
+                                    variantValue:
+                                      value:
+                                        field: value
+                                      variant: string
+                                  variant: text
+                      else:
+                        if:
+                          and:
+                            - present:
+                                field: kind
+                            - eq:
+                                - field: kind
+                                - literal: ФорматированнаяСтрока
+                        then:
+                          variant:
+                            name: formatted
+                            value:
+                              record:
+                                kind:
+                                  literal: МногоязычнаяФорматированнаяСтрока
+                                value:
+                                  record:
+                                    formatted:
+                                      literal: true
+                                    text:
+                                      variantValue:
+                                        value:
+                                          variantValue:
+                                            value:
+                                              field: value
+                                            variant: string
+                                        variant: localized
+                        else:
+                          if:
+                            isVariant:
+                              value:
+                                variantValue:
+                                  value:
+                                    field: value
+                                  variant: string
+                              variant: localized
+                          then:
+                            variant:
+                              name: localized
+                              value:
+                                record:
+                                  kind:
+                                    literal: МногоязычнаяСтрока
+                                  value:
+                                    variant:
+                                      name: localized
+                                      value:
+                                        variantValue:
+                                          value:
+                                            variantValue:
+                                              value:
+                                                field: value
+                                              variant: string
+                                          variant: localized
+                          else:
+                            variant:
+                              name: text
+                              value:
+                                variantValue:
+                                  value:
+                                    variantValue:
+                                      value:
+                                        field: value
+                                      variant: string
+                                  variant: text
+                else:
+                  variantValue:
+                    value:
+                      field: value
+                    variant: ordinary
+              else:
+                absent: true
+          empty:
+            - form: null
+              denotes:
+                absent: true
+      - target:
+          field: viewMode
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+      - target:
+          field: userSettingID
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+      - target:
+          field: userSettingPresentation
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+      - target:
+          field: kind
+        xml:
+          missing:
+            denotes:
+              if:
+                present:
+                  field: source
+              then:
+                if:
+                  isVariant:
+                    value:
+                      field: source
+                    variant: designTime
+                then:
+                  if:
+                    isVariant:
+                      value:
+                        variantValue:
+                          value:
+                            field: source
+                          variant: designTime
+                      variant: field
+                  then:
+                    literal: Поле
+                  else:
+                    if:
+                      isVariant:
+                        value:
+                          variantValue:
+                            value:
+                              field: source
+                            variant: designTime
+                        variant: formatted
+                    then:
+                      literal: ФорматированнаяСтрока
+                    else:
+                      absent: true
+                else:
+                  absent: true
+              else:
+                absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+      - target:
+          field: value
+        xml:
+          missing:
+            denotes:
+              if:
+                present:
+                  field: source
+              then:
+                if:
+                  isVariant:
+                    value:
+                      field: source
+                    variant: designTime
+                then:
+                  variant:
+                    name: string
+                    value:
+                      if:
+                        isVariant:
+                          value:
+                            variantValue:
+                              value:
+                                field: source
+                              variant: designTime
+                          variant: field
+                      then:
+                        variant:
+                          name: text
+                          value:
+                            get:
+                              of:
+                                variantValue:
+                                  value:
+                                    variantValue:
+                                      value:
+                                        field: source
+                                      variant: designTime
+                                  variant: field
+                              field: field
+                      else:
+                        if:
+                          isVariant:
+                            value:
+                              variantValue:
+                                value:
+                                  field: source
+                                variant: designTime
+                            variant: formatted
+                        then:
+                          variant:
+                            name: localized
+                            value:
+                              get:
+                                of:
+                                  get:
+                                    of:
+                                      variantValue:
+                                        value:
+                                          variantValue:
+                                            value:
+                                              field: source
+                                            variant: designTime
+                                        variant: formatted
+                                    field: value
+                                field: text
+                        else:
+                          if:
+                            isVariant:
+                              value:
+                                variantValue:
+                                  value:
+                                    field: source
+                                  variant: designTime
+                              variant: localized
+                          then:
+                            variant:
+                              name: localized
+                              value:
+                                variantValue:
+                                  value:
+                                    get:
+                                      of:
+                                        variantValue:
+                                          value:
+                                            variantValue:
+                                              value:
+                                                field: source
+                                              variant: designTime
+                                          variant: localized
+                                      field: value
+                                  variant: localized
+                          else:
+                            variant:
+                              name: text
+                              value:
+                                variantValue:
+                                  value:
+                                    variantValue:
+                                      value:
+                                        field: source
+                                      variant: designTime
+                                  variant: text
+                else:
+                  variant:
+                    name: ordinary
+                    value:
+                      field: source
+              else:
+                absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+          empty:
+            - form: 'null'
+              denotes:
+                absent: true
+          nullWhen:
+            isNull:
+              field: source
+      - target: self
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          empty:
+            - form: 'null'
+              denotes:
+                absent: true
+              when:
+                not:
+                  eq:
+                    - input: valueProfile
+                    - literal: DesignTimeValue
+    constraints:
+      - id: parameter-name
+        appliesTo:
+          - xml-import
+        assert:
+          eq:
+            - field: parameter
+            - input: parameterName
+        diagnostic:
+          code: dcs.parameter-name
+          severity: error
+          at:
+            field: parameter
+          message: Имя параметра не соответствует правилу
+      - id: selected-profile
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        assert:
+          not:
+            eq:
+              - input: valueProfile
+              - literal: ''
+        diagnostic:
+          code: dcs.parameter-profile-missing
+          severity: error
+          at:
+            field: parameter
+          message: Для параметра не определён тип значения
+      - id: parameter-profile
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        assert:
+          or:
+            - not:
+                present:
+                  field: source
+            - and:
+                - eq:
+                    - input: valueProfile
+                    - literal: Color
+                - isVariant:
+                    value:
+                      field: source
+                    variant: color
+            - and:
+                - eq:
+                    - input: valueProfile
+                    - literal: Font
+                - isVariant:
+                    value:
+                      field: source
+                    variant: font
+            - and:
+                - eq:
+                    - input: valueProfile
+                    - literal: HorizontalAlign
+                - isVariant:
+                    value:
+                      field: source
+                    variant: horizontalAlign
+            - and:
+                - eq:
+                    - input: valueProfile
+                    - literal: DesignTimeValue
+                - isVariant:
+                    value:
+                      field: source
+                    variant: designTime
+            - and:
+                - eq:
+                    - input: valueProfile
+                    - literal: Primitive
+                - isVariant:
+                    value:
+                      field: source
+                    variant: primitive
+        diagnostic:
+          code: dcs.parameter-profile
+          severity: error
+          at:
+            field: source
+          message: Значение не соответствует типу параметра
+      - id: explicit-color-value
+        appliesTo:
+          - yaml-validation
+        assert:
+          or:
+            - not:
+                eq:
+                  - input: valueProfile
+                  - literal: Color
+            - present:
+                field: value
+            - isNull:
+                field: value
+        diagnostic:
+          code: dcs.appearance-color-value
+          severity: error
+          at:
+            field: value
+          message: Укажите значение цвета или маркер Авто
+      - id: typed-value-required
+        appliesTo:
+          - yaml-validation
+        when:
+          present:
+            field: kind
+        assert:
+          present:
+            field: value
+        diagnostic:
+          code: dcs.appearance-typed-value
+          severity: error
+          at:
+            field: value
+          message: Для выбранного вида нужно значение

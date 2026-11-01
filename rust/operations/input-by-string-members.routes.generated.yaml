@@ -1,0 +1,879 @@
+format: nkdk-operation-routes/1
+routes: []
+factRoutes:
+  - xmlDir: BusinessProcesses
+    entry: migration.input-by-string-identity.businessprocess
+    factDirections:
+      - xml-to-yaml
+    inputs: {}
+  - xmlDir: BusinessProcesses
+    entry: candidate.input-by-string-states.businessprocess
+    factDirections:
+      - xml-to-yaml
+      - yaml-to-xml
+    inputs:
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.businessprocess
+          field: Идентификатор
+          storage: external
+  - xmlDir: BusinessProcesses
+    yamlDir: БизнесПроцесс
+    yamlFile: Свойства.yaml
+    entry: candidate.input-by-string-base-numbers.businessprocess.current-yaml
+    only:
+      - cf
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.businessprocess
+          field: Идентификатор
+          storage: external
+  - xmlDir: BusinessProcesses
+    yamlDir: БизнесПроцесс
+    yamlFile: Свойства.yaml
+    entry: candidate.input-by-string-base-numbers.businessprocess.current-yaml
+    only:
+      - cfe
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.businessprocess
+          field: Идентификатор
+          storage: external
+    baseSource:
+      component: cf
+      entry: migration.input-by-string-identity.businessprocess
+      field: Идентификатор
+      key:
+        snapshot:
+          entry: migration.input-by-string-identity.businessprocess
+          field: ИдентификаторОсновнойКонфигурации
+          storage: external
+          default: ''
+  - xmlDir: BusinessProcesses
+    yamlDir: БизнесПроцесс
+    yamlFile: Свойства.yaml
+    entry: candidate.member-source.overlay.52123e017d4f5114c238
+    only:
+      - cfe
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      component: component
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.businessprocess
+          field: Идентификатор
+          storage: external
+    baseSource:
+      component: cf
+      entry: migration.input-by-string-identity.businessprocess
+      field: Идентификатор
+      key:
+        snapshot:
+          entry: migration.input-by-string-identity.businessprocess
+          field: ИдентификаторОсновнойКонфигурации
+          storage: external
+          default: ''
+  - xmlDir: BusinessProcesses
+    yamlDir: БизнесПроцесс
+    yamlFile: Свойства.yaml
+    entry: candidate.member-source.overlay.c0d180bf989cbba7c4b5
+    only:
+      - cfe
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      component: component
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.businessprocess
+          field: Идентификатор
+          storage: external
+  - xmlDir: BusinessProcesses
+    yamlDir: БизнесПроцесс
+    yamlFile: Свойства.yaml
+    entry: candidate.member-source.owner.9ad4806d8f2d5783a876
+    only:
+      - cf
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      component: component
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.businessprocess
+          field: Идентификатор
+          storage: external
+  - xmlDir: Catalogs
+    entry: migration.input-by-string-identity.catalog
+    factDirections:
+      - xml-to-yaml
+    inputs: {}
+  - xmlDir: Catalogs
+    entry: candidate.input-by-string-states.catalog
+    factDirections:
+      - xml-to-yaml
+      - yaml-to-xml
+    inputs:
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.catalog
+          field: Идентификатор
+          storage: external
+  - xmlDir: Catalogs
+    yamlDir: Справочник
+    yamlFile: Свойства.yaml
+    entry: candidate.input-by-string-base-numbers.catalog.current-yaml
+    only:
+      - cf
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.catalog
+          field: Идентификатор
+          storage: external
+  - xmlDir: Catalogs
+    yamlDir: Справочник
+    yamlFile: Свойства.yaml
+    entry: candidate.input-by-string-base-numbers.catalog.current-yaml
+    only:
+      - cfe
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.catalog
+          field: Идентификатор
+          storage: external
+    baseSource:
+      component: cf
+      entry: migration.input-by-string-identity.catalog
+      field: Идентификатор
+      key:
+        snapshot:
+          entry: migration.input-by-string-identity.catalog
+          field: ИдентификаторОсновнойКонфигурации
+          storage: external
+          default: ''
+  - xmlDir: Catalogs
+    yamlDir: Справочник
+    yamlFile: Свойства.yaml
+    entry: candidate.member-source.overlay.07edfefaff500d5c15bf
+    only:
+      - cfe
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      component: component
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.catalog
+          field: Идентификатор
+          storage: external
+    baseSource:
+      component: cf
+      entry: migration.input-by-string-identity.catalog
+      field: Идентификатор
+      key:
+        snapshot:
+          entry: migration.input-by-string-identity.catalog
+          field: ИдентификаторОсновнойКонфигурации
+          storage: external
+          default: ''
+  - xmlDir: Catalogs
+    yamlDir: Справочник
+    yamlFile: Свойства.yaml
+    entry: candidate.member-source.overlay.a77cc9fec60a358cae50
+    only:
+      - cfe
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      component: component
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.catalog
+          field: Идентификатор
+          storage: external
+  - xmlDir: Catalogs
+    yamlDir: Справочник
+    yamlFile: Свойства.yaml
+    entry: candidate.member-source.owner.7d233013e48f0131e62c
+    only:
+      - cf
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      component: component
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.catalog
+          field: Идентификатор
+          storage: external
+  - xmlDir: ChartsOfAccounts
+    entry: migration.input-by-string-identity.chartofaccounts
+    factDirections:
+      - xml-to-yaml
+    inputs: {}
+  - xmlDir: ChartsOfAccounts
+    entry: candidate.input-by-string-states.chartofaccounts
+    factDirections:
+      - xml-to-yaml
+      - yaml-to-xml
+    inputs:
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.chartofaccounts
+          field: Идентификатор
+          storage: external
+  - xmlDir: ChartsOfAccounts
+    yamlDir: ПланСчетов
+    yamlFile: Свойства.yaml
+    entry: candidate.input-by-string-base-numbers.chartofaccounts.current-yaml
+    only:
+      - cf
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.chartofaccounts
+          field: Идентификатор
+          storage: external
+  - xmlDir: ChartsOfAccounts
+    yamlDir: ПланСчетов
+    yamlFile: Свойства.yaml
+    entry: candidate.input-by-string-base-numbers.chartofaccounts.current-yaml
+    only:
+      - cfe
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.chartofaccounts
+          field: Идентификатор
+          storage: external
+    baseSource:
+      component: cf
+      entry: migration.input-by-string-identity.chartofaccounts
+      field: Идентификатор
+      key:
+        snapshot:
+          entry: migration.input-by-string-identity.chartofaccounts
+          field: ИдентификаторОсновнойКонфигурации
+          storage: external
+          default: ''
+  - xmlDir: ChartsOfAccounts
+    yamlDir: ПланСчетов
+    yamlFile: Свойства.yaml
+    entry: candidate.member-source.overlay.373896352c4a3ed9e297
+    only:
+      - cfe
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      component: component
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.chartofaccounts
+          field: Идентификатор
+          storage: external
+  - xmlDir: ChartsOfAccounts
+    yamlDir: ПланСчетов
+    yamlFile: Свойства.yaml
+    entry: candidate.member-source.overlay.e8635fd9678a7898c991
+    only:
+      - cfe
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      component: component
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.chartofaccounts
+          field: Идентификатор
+          storage: external
+    baseSource:
+      component: cf
+      entry: migration.input-by-string-identity.chartofaccounts
+      field: Идентификатор
+      key:
+        snapshot:
+          entry: migration.input-by-string-identity.chartofaccounts
+          field: ИдентификаторОсновнойКонфигурации
+          storage: external
+          default: ''
+  - xmlDir: ChartsOfAccounts
+    yamlDir: ПланСчетов
+    yamlFile: Свойства.yaml
+    entry: candidate.member-source.owner.a38a9e72529ec043e2e1
+    only:
+      - cf
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      component: component
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.chartofaccounts
+          field: Идентификатор
+          storage: external
+  - xmlDir: ChartsOfCalculationTypes
+    entry: migration.input-by-string-identity.chartofcalculationtypes
+    factDirections:
+      - xml-to-yaml
+    inputs: {}
+  - xmlDir: ChartsOfCalculationTypes
+    entry: candidate.input-by-string-states.chartofcalculationtypes
+    factDirections:
+      - xml-to-yaml
+      - yaml-to-xml
+    inputs:
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.chartofcalculationtypes
+          field: Идентификатор
+          storage: external
+  - xmlDir: ChartsOfCalculationTypes
+    yamlDir: ПланВидовРасчета
+    yamlFile: Свойства.yaml
+    entry: >-
+      candidate.input-by-string-base-numbers.chartofcalculationtypes.current-yaml
+    only:
+      - cf
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.chartofcalculationtypes
+          field: Идентификатор
+          storage: external
+  - xmlDir: ChartsOfCalculationTypes
+    yamlDir: ПланВидовРасчета
+    yamlFile: Свойства.yaml
+    entry: >-
+      candidate.input-by-string-base-numbers.chartofcalculationtypes.current-yaml
+    only:
+      - cfe
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.chartofcalculationtypes
+          field: Идентификатор
+          storage: external
+    baseSource:
+      component: cf
+      entry: migration.input-by-string-identity.chartofcalculationtypes
+      field: Идентификатор
+      key:
+        snapshot:
+          entry: migration.input-by-string-identity.chartofcalculationtypes
+          field: ИдентификаторОсновнойКонфигурации
+          storage: external
+          default: ''
+  - xmlDir: ChartsOfCalculationTypes
+    yamlDir: ПланВидовРасчета
+    yamlFile: Свойства.yaml
+    entry: candidate.member-source.overlay.6e633b7e250f78358059
+    only:
+      - cfe
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      component: component
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.chartofcalculationtypes
+          field: Идентификатор
+          storage: external
+    baseSource:
+      component: cf
+      entry: migration.input-by-string-identity.chartofcalculationtypes
+      field: Идентификатор
+      key:
+        snapshot:
+          entry: migration.input-by-string-identity.chartofcalculationtypes
+          field: ИдентификаторОсновнойКонфигурации
+          storage: external
+          default: ''
+  - xmlDir: ChartsOfCalculationTypes
+    yamlDir: ПланВидовРасчета
+    yamlFile: Свойства.yaml
+    entry: candidate.member-source.overlay.efa2d8b71ae11f38af9c
+    only:
+      - cfe
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      component: component
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.chartofcalculationtypes
+          field: Идентификатор
+          storage: external
+  - xmlDir: ChartsOfCalculationTypes
+    yamlDir: ПланВидовРасчета
+    yamlFile: Свойства.yaml
+    entry: candidate.member-source.owner.d71761654836b727311a
+    only:
+      - cf
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      component: component
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.chartofcalculationtypes
+          field: Идентификатор
+          storage: external
+  - xmlDir: ChartsOfCharacteristicTypes
+    entry: migration.input-by-string-identity.chartofcharacteristictypes
+    factDirections:
+      - xml-to-yaml
+    inputs: {}
+  - xmlDir: ChartsOfCharacteristicTypes
+    entry: candidate.input-by-string-states.chartofcharacteristictypes
+    factDirections:
+      - xml-to-yaml
+      - yaml-to-xml
+    inputs:
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.chartofcharacteristictypes
+          field: Идентификатор
+          storage: external
+  - xmlDir: ChartsOfCharacteristicTypes
+    yamlDir: ПланВидовХарактеристик
+    yamlFile: Свойства.yaml
+    entry: >-
+      candidate.input-by-string-base-numbers.chartofcharacteristictypes.current-yaml
+    only:
+      - cf
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.chartofcharacteristictypes
+          field: Идентификатор
+          storage: external
+  - xmlDir: ChartsOfCharacteristicTypes
+    yamlDir: ПланВидовХарактеристик
+    yamlFile: Свойства.yaml
+    entry: >-
+      candidate.input-by-string-base-numbers.chartofcharacteristictypes.current-yaml
+    only:
+      - cfe
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.chartofcharacteristictypes
+          field: Идентификатор
+          storage: external
+    baseSource:
+      component: cf
+      entry: migration.input-by-string-identity.chartofcharacteristictypes
+      field: Идентификатор
+      key:
+        snapshot:
+          entry: migration.input-by-string-identity.chartofcharacteristictypes
+          field: ИдентификаторОсновнойКонфигурации
+          storage: external
+          default: ''
+  - xmlDir: ChartsOfCharacteristicTypes
+    yamlDir: ПланВидовХарактеристик
+    yamlFile: Свойства.yaml
+    entry: candidate.member-source.overlay.0033c2f7c1d45bc9cecc
+    only:
+      - cfe
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      component: component
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.chartofcharacteristictypes
+          field: Идентификатор
+          storage: external
+  - xmlDir: ChartsOfCharacteristicTypes
+    yamlDir: ПланВидовХарактеристик
+    yamlFile: Свойства.yaml
+    entry: candidate.member-source.overlay.8f1411f1cd2919102476
+    only:
+      - cfe
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      component: component
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.chartofcharacteristictypes
+          field: Идентификатор
+          storage: external
+    baseSource:
+      component: cf
+      entry: migration.input-by-string-identity.chartofcharacteristictypes
+      field: Идентификатор
+      key:
+        snapshot:
+          entry: migration.input-by-string-identity.chartofcharacteristictypes
+          field: ИдентификаторОсновнойКонфигурации
+          storage: external
+          default: ''
+  - xmlDir: ChartsOfCharacteristicTypes
+    yamlDir: ПланВидовХарактеристик
+    yamlFile: Свойства.yaml
+    entry: candidate.member-source.owner.5553df437dab184c27b7
+    only:
+      - cf
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      component: component
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.chartofcharacteristictypes
+          field: Идентификатор
+          storage: external
+  - xmlDir: Documents
+    entry: migration.input-by-string-identity.document
+    factDirections:
+      - xml-to-yaml
+    inputs: {}
+  - xmlDir: Documents
+    entry: candidate.input-by-string-states.document
+    factDirections:
+      - xml-to-yaml
+      - yaml-to-xml
+    inputs:
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.document
+          field: Идентификатор
+          storage: external
+  - xmlDir: Documents
+    yamlDir: Документ
+    yamlFile: Свойства.yaml
+    entry: candidate.input-by-string-base-numbers.document.current-yaml
+    only:
+      - cf
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.document
+          field: Идентификатор
+          storage: external
+  - xmlDir: Documents
+    yamlDir: Документ
+    yamlFile: Свойства.yaml
+    entry: candidate.input-by-string-base-numbers.document.current-yaml
+    only:
+      - cfe
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.document
+          field: Идентификатор
+          storage: external
+    baseSource:
+      component: cf
+      entry: migration.input-by-string-identity.document
+      field: Идентификатор
+      key:
+        snapshot:
+          entry: migration.input-by-string-identity.document
+          field: ИдентификаторОсновнойКонфигурации
+          storage: external
+          default: ''
+  - xmlDir: Documents
+    yamlDir: Документ
+    yamlFile: Свойства.yaml
+    entry: candidate.member-source.overlay.4d5ab781a179fe869fef
+    only:
+      - cfe
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      component: component
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.document
+          field: Идентификатор
+          storage: external
+  - xmlDir: Documents
+    yamlDir: Документ
+    yamlFile: Свойства.yaml
+    entry: candidate.member-source.overlay.8c957ddc904534f8c477
+    only:
+      - cfe
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      component: component
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.document
+          field: Идентификатор
+          storage: external
+    baseSource:
+      component: cf
+      entry: migration.input-by-string-identity.document
+      field: Идентификатор
+      key:
+        snapshot:
+          entry: migration.input-by-string-identity.document
+          field: ИдентификаторОсновнойКонфигурации
+          storage: external
+          default: ''
+  - xmlDir: Documents
+    yamlDir: Документ
+    yamlFile: Свойства.yaml
+    entry: candidate.member-source.owner.098a48b742ec3d8fa3ac
+    only:
+      - cf
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      component: component
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.document
+          field: Идентификатор
+          storage: external
+  - xmlDir: ExchangePlans
+    entry: migration.input-by-string-identity.exchangeplan
+    factDirections:
+      - xml-to-yaml
+    inputs: {}
+  - xmlDir: ExchangePlans
+    entry: candidate.input-by-string-states.exchangeplan
+    factDirections:
+      - xml-to-yaml
+      - yaml-to-xml
+    inputs:
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.exchangeplan
+          field: Идентификатор
+          storage: external
+  - xmlDir: ExchangePlans
+    yamlDir: ПланОбмена
+    yamlFile: Свойства.yaml
+    entry: candidate.input-by-string-base-numbers.exchangeplan.current-yaml
+    only:
+      - cf
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.exchangeplan
+          field: Идентификатор
+          storage: external
+  - xmlDir: ExchangePlans
+    yamlDir: ПланОбмена
+    yamlFile: Свойства.yaml
+    entry: candidate.input-by-string-base-numbers.exchangeplan.current-yaml
+    only:
+      - cfe
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.exchangeplan
+          field: Идентификатор
+          storage: external
+    baseSource:
+      component: cf
+      entry: migration.input-by-string-identity.exchangeplan
+      field: Идентификатор
+      key:
+        snapshot:
+          entry: migration.input-by-string-identity.exchangeplan
+          field: ИдентификаторОсновнойКонфигурации
+          storage: external
+          default: ''
+  - xmlDir: ExchangePlans
+    yamlDir: ПланОбмена
+    yamlFile: Свойства.yaml
+    entry: candidate.member-source.overlay.3789d510cdf7b60fb362
+    only:
+      - cfe
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      component: component
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.exchangeplan
+          field: Идентификатор
+          storage: external
+    baseSource:
+      component: cf
+      entry: migration.input-by-string-identity.exchangeplan
+      field: Идентификатор
+      key:
+        snapshot:
+          entry: migration.input-by-string-identity.exchangeplan
+          field: ИдентификаторОсновнойКонфигурации
+          storage: external
+          default: ''
+  - xmlDir: ExchangePlans
+    yamlDir: ПланОбмена
+    yamlFile: Свойства.yaml
+    entry: candidate.member-source.overlay.b505a33e2caf51040263
+    only:
+      - cfe
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      component: component
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.exchangeplan
+          field: Идентификатор
+          storage: external
+  - xmlDir: ExchangePlans
+    yamlDir: ПланОбмена
+    yamlFile: Свойства.yaml
+    entry: candidate.member-source.owner.675d83f3c5405727d74a
+    only:
+      - cf
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      component: component
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.exchangeplan
+          field: Идентификатор
+          storage: external
+  - xmlDir: Tasks
+    entry: migration.input-by-string-identity.task
+    factDirections:
+      - xml-to-yaml
+    inputs: {}
+  - xmlDir: Tasks
+    entry: candidate.input-by-string-states.task
+    factDirections:
+      - xml-to-yaml
+      - yaml-to-xml
+    inputs:
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.task
+          field: Идентификатор
+          storage: external
+  - xmlDir: Tasks
+    yamlDir: Задача
+    yamlFile: Свойства.yaml
+    entry: candidate.input-by-string-base-numbers.task.current-yaml
+    only:
+      - cf
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.task
+          field: Идентификатор
+          storage: external
+  - xmlDir: Tasks
+    yamlDir: Задача
+    yamlFile: Свойства.yaml
+    entry: candidate.input-by-string-base-numbers.task.current-yaml
+    only:
+      - cfe
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.task
+          field: Идентификатор
+          storage: external
+    baseSource:
+      component: cf
+      entry: migration.input-by-string-identity.task
+      field: Идентификатор
+      key:
+        snapshot:
+          entry: migration.input-by-string-identity.task
+          field: ИдентификаторОсновнойКонфигурации
+          storage: external
+          default: ''
+  - xmlDir: Tasks
+    yamlDir: Задача
+    yamlFile: Свойства.yaml
+    entry: candidate.member-source.overlay.0cfa7e7c0ed5297691be
+    only:
+      - cfe
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      component: component
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.task
+          field: Идентификатор
+          storage: external
+    baseSource:
+      component: cf
+      entry: migration.input-by-string-identity.task
+      field: Идентификатор
+      key:
+        snapshot:
+          entry: migration.input-by-string-identity.task
+          field: ИдентификаторОсновнойКонфигурации
+          storage: external
+          default: ''
+  - xmlDir: Tasks
+    yamlDir: Задача
+    yamlFile: Свойства.yaml
+    entry: candidate.member-source.overlay.d9fd865ce74ec1fc2323
+    only:
+      - cfe
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      component: component
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.task
+          field: Идентификатор
+          storage: external
+  - xmlDir: Tasks
+    yamlDir: Задача
+    yamlFile: Свойства.yaml
+    entry: candidate.member-source.owner.a16b06b3f63692a0387c
+    only:
+      - cf
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      component: component
+      owner:
+        snapshot:
+          entry: migration.input-by-string-identity.task
+          field: Идентификатор
+          storage: external

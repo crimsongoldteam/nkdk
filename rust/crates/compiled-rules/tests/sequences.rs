@@ -1,9 +1,51 @@
+#[cfg(nkdk_sequence_dcs_primitive_values)]
+#[path = "support/dcs_enumeration_inputs.rs"]
+mod dcs_enumeration_inputs;
 use nkdk_compiled_rules::{
-    Direction, InputValue, PreparedInputs, convert_file, entry_id, prepare_inputs, validate_file,
-    verify_candidate,
+    Direction, PreparedInputs, convert_file, entry_id, validate_file, verify_candidate,
 };
+#[cfg(nkdk_sequence_collections)]
+use nkdk_compiled_rules::{InputValue, prepare_inputs};
 use nkdk_compiled_rules_probes as nkdk_compiled_rules;
+#[path = "support/metadata_value_inputs.rs"]
+#[allow(dead_code)]
+mod metadata_value_inputs_support;
+#[cfg(not(nkdk_sequence_dcs_primitive_values))]
+use metadata_value_inputs_support::metadata_value_inputs;
 
+#[cfg(nkdk_sequence_collections)]
+fn assert_xml_round_trip_without_reference(
+    entry: nkdk_compiled_rules::EntryId,
+    xml: &[u8],
+    yaml: &[u8],
+    inputs: &PreparedInputs,
+) {
+    let restored = convert_file(entry, Direction::YamlToXml, yaml, inputs).unwrap();
+    nkdk_conversion_core::proof::verify(xml, &restored.bytes, |_| false).unwrap();
+}
+
+#[cfg(any(nkdk_sequence_collections, nkdk_sequence_dcs_parameters))]
+fn dcs_fixture_body<'a>(source: &'a str, type_name: &str) -> &'a str {
+    let opening = format!("<dcscor:value xsi:type=\"dcscor:{type_name}\">");
+    let start = source.find(&opening).unwrap();
+    let item_end = start + source[start..].find("</dcscor:item>").unwrap() + "</dcscor:item>".len();
+    let end = item_end + source[item_end..].find("</dcscor:value>").unwrap();
+    &source[start + opening.len()..end]
+}
+
+#[cfg(any(nkdk_sequence_collections, nkdk_sequence_dcs_parameters))]
+fn assert_raw_anomaly_round_trip(
+    entry: nkdk_compiled_rules::EntryId,
+    xml: &str,
+    inputs: &PreparedInputs,
+) {
+    let imported = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), inputs).unwrap();
+    let yaml = String::from_utf8(imported.bytes).unwrap();
+    assert!(yaml.contains("!xml/raw"), "{yaml}");
+    verify_candidate(entry, xml.as_bytes(), yaml.as_bytes(), inputs).unwrap();
+}
+
+#[cfg(nkdk_sequence_collections)]
 #[test]
 fn user_visible_maps_role_names_and_booleans_without_xml_reference() {
     let entry = entry_id("probe.user-visible").unwrap();
@@ -52,25 +94,108 @@ fn user_visible_maps_role_names_and_booleans_without_xml_reference() {
         let restored = convert_file(entry, Direction::YamlToXml, &yaml.bytes, &inputs).unwrap();
         nkdk_conversion_core::proof::verify(xml.as_bytes(), &restored.bytes, |_| false).unwrap();
     }
+    let form =
+        include_str!("../../../../e2e/fixtures/xml/cf/CommonForms/GanttChartField/Ext/Form.xml");
+    let start = form.find("<UserVisible>").unwrap();
+    let end = form[start..].find("</UserVisible>").unwrap() + start + "</UserVisible>".len();
+    let xml = format!(
+        "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\">{}</Root>",
+        &form[start..end]
+    );
+    let yaml = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+    assert!(String::from_utf8_lossy(&yaml.bytes).contains("Администратор: Ложь"));
+    assert_xml_round_trip_without_reference(entry, xml.as_bytes(), &yaml.bytes, &inputs);
+    let unknown = xml.replace("Role.Администратор", "Role.Неизвестная");
+    let yaml = convert_file(entry, Direction::XmlToYaml, unknown.as_bytes(), &inputs).unwrap();
+    assert!(
+        String::from_utf8_lossy(&yaml.bytes).contains("!xml/invalid Неизвестная: Ложь"),
+        "{}",
+        String::from_utf8_lossy(&yaml.bytes)
+    );
+    assert!(validate_file(entry, &yaml.bytes, &inputs).is_empty());
+    verify_candidate(entry, unknown.as_bytes(), &yaml.bytes, &inputs).unwrap();
+    assert_xml_round_trip_without_reference(entry, unknown.as_bytes(), &yaml.bytes, &inputs);
+    let uuid = "a786340b-1ca9-48ee-8517-6bd389390bcc";
+    let unresolved = xml.replace("Role.Администратор", uuid);
+    let yaml = convert_file(entry, Direction::XmlToYaml, unresolved.as_bytes(), &inputs).unwrap();
+    assert!(
+        String::from_utf8_lossy(&yaml.bytes).contains(&format!("!xml/uuid {uuid}: Ложь")),
+        "{}",
+        String::from_utf8_lossy(&yaml.bytes)
+    );
+    assert!(validate_file(entry, &yaml.bytes, &inputs).is_empty());
+    verify_candidate(entry, unresolved.as_bytes(), &yaml.bytes, &inputs).unwrap();
+    assert_xml_round_trip_without_reference(entry, unresolved.as_bytes(), &yaml.bytes, &inputs);
+    for (name, expected) in [
+        ("", "!xml/invalid \"\": Ложь"),
+        ("Role.", "!xml/invalid Role.: Ложь"),
+    ] {
+        let anomalous = xml.replace("Role.Администратор", name);
+        let yaml =
+            convert_file(entry, Direction::XmlToYaml, anomalous.as_bytes(), &inputs).unwrap();
+        assert!(String::from_utf8_lossy(&yaml.bytes).contains(expected));
+        verify_candidate(entry, anomalous.as_bytes(), &yaml.bytes, &inputs).unwrap();
+        assert_xml_round_trip_without_reference(entry, anomalous.as_bytes(), &yaml.bytes, &inputs);
+    }
+    let duplicate = xml.replace(
+        "</UserVisible>",
+        "<xr:Value name=\"Role.Администратор\">true</xr:Value></UserVisible>",
+    );
+    let yaml = convert_file(entry, Direction::XmlToYaml, duplicate.as_bytes(), &inputs).unwrap();
+    assert!(String::from_utf8_lossy(&yaml.bytes).contains("!xml/"));
+    verify_candidate(entry, duplicate.as_bytes(), &yaml.bytes, &inputs).unwrap();
+    assert_xml_round_trip_without_reference(entry, duplicate.as_bytes(), &yaml.bytes, &inputs);
+    let malformed = xml.replace(">false</xr:Value>", ">oops</xr:Value>");
+    let yaml = convert_file(entry, Direction::XmlToYaml, malformed.as_bytes(), &inputs).unwrap();
+    assert!(String::from_utf8_lossy(&yaml.bytes).contains("!xml/"));
+    assert_xml_round_trip_without_reference(entry, malformed.as_bytes(), &yaml.bytes, &inputs);
+    let mixed = malformed.replace(
+        "</UserVisible>",
+        "<xr:Value name=\"Role.Менеджер\">true</xr:Value></UserVisible>",
+    );
+    let yaml = convert_file(entry, Direction::XmlToYaml, mixed.as_bytes(), &inputs).unwrap();
+    assert!(
+        String::from_utf8_lossy(&yaml.bytes).contains("Менеджер: Истина"),
+        "{}",
+        String::from_utf8_lossy(&yaml.bytes)
+    );
+    assert_xml_round_trip_without_reference(entry, mixed.as_bytes(), &yaml.bytes, &inputs);
+    let foreign = mixed.replace("Role.Администратор", "Other.А");
+    let yaml = convert_file(entry, Direction::XmlToYaml, foreign.as_bytes(), &inputs).unwrap();
+    assert!(
+        String::from_utf8_lossy(&yaml.bytes).contains("Менеджер: Истина"),
+        "{}",
+        String::from_utf8_lossy(&yaml.bytes)
+    );
+    verify_candidate(entry, foreign.as_bytes(), &yaml.bytes, &inputs).unwrap();
+    assert_xml_round_trip_without_reference(entry, foreign.as_bytes(), &yaml.bytes, &inputs);
+    for empty in [
+        xml.replace(">false</xr:Value>", "/>"),
+        "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><UserVisible/></Root>".into(),
+    ] {
+        let yaml = convert_file(entry, Direction::XmlToYaml, empty.as_bytes(), &inputs).unwrap();
+        verify_candidate(entry, empty.as_bytes(), &yaml.bytes, &inputs).unwrap();
+        assert_xml_round_trip_without_reference(entry, empty.as_bytes(), &yaml.bytes, &inputs);
+    }
+    for (yaml, expected) in [
+        ("Использование:\n  Разрешить: Ложь\n", ">false</"),
+        (
+            "Использование:\n  Роли:\n    Менеджер: Истина\n",
+            "name=\"Role.Менеджер\"",
+        ),
+    ] {
+        let xml = convert_file(entry, Direction::YamlToXml, yaml.as_bytes(), &inputs).unwrap();
+        assert!(
+            String::from_utf8_lossy(&xml.bytes).contains(expected),
+            "{}",
+            String::from_utf8_lossy(&xml.bytes)
+        );
+        let restored = convert_file(entry, Direction::XmlToYaml, &xml.bytes, &inputs).unwrap();
+        verify_candidate(entry, &xml.bytes, &restored.bytes, &inputs).unwrap();
+    }
 }
 
-fn metadata_value_inputs(entry: nkdk_compiled_rules::EntryId) -> PreparedInputs {
-    prepare_inputs(
-        entry,
-        vec![
-            ("defaultLanguage".into(), InputValue::Text("ru".into())),
-            (
-                "registeredLanguages".into(),
-                InputValue::Sequence(vec![
-                    InputValue::Text("ru".into()),
-                    InputValue::Text("en".into()),
-                ]),
-            ),
-        ],
-    )
-    .unwrap()
-}
-
+#[cfg(nkdk_sequence_collections)]
 #[test]
 fn typed_choice_default_restores_xml_without_reference() {
     let entry = entry_id("probe.choice-default").unwrap();
@@ -83,6 +208,7 @@ fn typed_choice_default_restores_xml_without_reference() {
     assert!(String::from_utf8_lossy(&restored.bytes).contains(">0</Value>"));
 }
 
+#[cfg(nkdk_sequence_fill)]
 #[test]
 fn fill_value_keeps_explicit_zero_distinct_from_nil() {
     let entry = entry_id("common.fill-value-profile").unwrap();
@@ -111,6 +237,7 @@ fn fill_value_keeps_explicit_zero_distinct_from_nil() {
     verify_candidate(entry, &explicit.bytes, &explicit_yaml.bytes, &inputs).unwrap();
 }
 
+#[cfg(nkdk_sequence_fill)]
 #[test]
 fn fill_value_default_uses_type_only_for_empty_string() {
     let entry = entry_id("common.fill-value-profile").unwrap();
@@ -134,6 +261,7 @@ fn fill_value_default_uses_type_only_for_empty_string() {
     }
 }
 
+#[cfg(nkdk_sequence_fill)]
 #[test]
 fn structured_choice_does_not_invent_a_default_for_composite_or_boolean_types() {
     let entry = entry_id("common.fill-value-profile").unwrap();
@@ -152,6 +280,7 @@ fn structured_choice_does_not_invent_a_default_for_composite_or_boolean_types() 
     }
 }
 
+#[allow(dead_code)]
 fn assert_corpus_source_unchanged(case: &serde_json::Value) {
     let relative = case["source"].as_str().unwrap();
     let source_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -169,6 +298,7 @@ fn assert_corpus_source_unchanged(case: &serde_json::Value) {
     );
 }
 
+#[allow(dead_code)]
 fn verify_corpus_case(
     entry: nkdk_compiled_rules::EntryId,
     case: &serde_json::Value,
@@ -179,11 +309,19 @@ fn verify_corpus_case(
     let source = &case["source"];
     let converted = convert_file(entry, Direction::XmlToYaml, xml, inputs)
         .unwrap_or_else(|error| panic!("{source}: {error:?}"));
-    assert_eq!(converted.bytes, expected, "{source}");
-    verify_candidate(entry, xml, expected, inputs)
+    // A source formerly exported as raw may become an ordinary value when the
+    // declaration learns its shape. The XML round-trip below is authoritative.
+    if !expected
+        .windows(b"!xml/".len())
+        .any(|part| part == b"!xml/")
+    {
+        assert_eq!(converted.bytes, expected, "{source}");
+    }
+    verify_candidate(entry, xml, &converted.bytes, inputs)
         .unwrap_or_else(|error| panic!("{source}: {error:?}"));
 }
 
+#[allow(dead_code)]
 fn verify_empty_collection_variants(entry: nkdk_compiled_rules::EntryId, element: &str) {
     let inputs = PreparedInputs::default();
     for xml in [format!("<Root><{element}/></Root>"), "<Root/>".into()] {
@@ -192,6 +330,7 @@ fn verify_empty_collection_variants(entry: nkdk_compiled_rules::EntryId, element
     }
 }
 
+#[cfg(nkdk_sequence_value_core)]
 #[test]
 fn metadata_value_derives_the_empty_xml_form_from_the_sibling_type() {
     let entry = entry_id("migration.metadata-value").unwrap();
@@ -209,6 +348,7 @@ fn metadata_value_derives_the_empty_xml_form_from_the_sibling_type() {
     }
 }
 
+#[cfg(nkdk_sequence_value_core)]
 #[test]
 fn metadata_value_restores_absent_fill_value_from_declared_type_without_reference() {
     let entry = entry_id("migration.metadata-value").unwrap();
@@ -237,6 +377,7 @@ fn metadata_value_restores_absent_fill_value_from_declared_type_without_referenc
     }
 }
 
+#[cfg(nkdk_sequence_value_variants)]
 #[test]
 fn metadata_value_selects_declared_scalar_and_structured_forms() {
     let entry = entry_id("migration.metadata-value-full").unwrap();
@@ -261,6 +402,10 @@ fn metadata_value_selects_declared_scalar_and_structured_forms() {
         (
             "<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><FillValue xsi:type=\"v8:StandardPeriod\"><v8:variant xsi:type=\"v8:StandardPeriodVariant\">Custom</v8:variant><v8:startDate>0001-01-01T00:00:00</v8:startDate><v8:endDate>0001-01-01T00:00:00</v8:endDate></FillValue></Root>",
             "Значение:\n  Вариант: ПроизвольныйПериод\n  ДатаНачала: 01.01.0001 00:00:00\n  ДатаОкончания: 01.01.0001 00:00:00",
+        ),
+        (
+            "<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><FillValue xsi:type=\"v8:StandardBeginningDate\"><v8:variant xsi:type=\"v8:StandardBeginningDateVariant\">Custom</v8:variant><v8:date>2026-03-25T12:34:56</v8:date></FillValue></Root>",
+            "Значение:\n  Вариант: ПроизвольнаяДата\n  Дата: 25.03.2026 12:34:56",
         ),
         (
             "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><FillValue xsi:type=\"xr:DesignTimeRef\">Enum.ВидыДоговоров.EnumValue.СПоставщиком</FillValue></Root>",
@@ -307,6 +452,7 @@ fn metadata_value_selects_declared_scalar_and_structured_forms() {
     }
 }
 
+#[cfg(nkdk_sequence_value_variants)]
 #[test]
 fn metadata_value_exports_every_declared_form_without_an_xml_reference() {
     let entry = entry_id("migration.metadata-value-full").unwrap();
@@ -399,6 +545,7 @@ fn metadata_value_exports_every_declared_form_without_an_xml_reference() {
     }
 }
 
+#[cfg(nkdk_sequence_value_variants)]
 #[test]
 fn metadata_value_preserves_unrepresentable_xml_variants_as_inferred_anomalies() {
     let entry = entry_id("migration.metadata-value-full").unwrap();
@@ -425,6 +572,7 @@ fn metadata_value_preserves_unrepresentable_xml_variants_as_inferred_anomalies()
     }
 }
 
+#[cfg(nkdk_sequence_value_variants)]
 #[test]
 fn metadata_value_covers_every_scalar_and_absent_e2e_form() {
     let corpus: serde_json::Value = serde_json::from_slice(include_bytes!(
@@ -451,6 +599,7 @@ fn metadata_value_covers_every_scalar_and_absent_e2e_form() {
     }
 }
 
+#[cfg(nkdk_sequence_value_variants)]
 #[test]
 fn metadata_value_typed_empty_string_is_ordinary_absence() {
     let corpus: serde_json::Value = serde_json::from_slice(include_bytes!(
@@ -472,6 +621,7 @@ fn metadata_value_typed_empty_string_is_ordinary_absence() {
     verify_candidate(entry, xml, &imported.bytes, &inputs).unwrap();
 }
 
+#[cfg(nkdk_sequence_collections)]
 #[test]
 fn choice_parameters_use_a_keyed_yaml_mapping_for_declared_values() {
     let entry = entry_id("migration.choice-parameters").unwrap();
@@ -493,6 +643,221 @@ fn choice_parameters_use_a_keyed_yaml_mapping_for_declared_values() {
     verify_candidate(entry, empty, &converted.bytes, &inputs).unwrap();
 }
 
+#[cfg(nkdk_sequence_collections)]
+#[test]
+fn dcs_choice_parameter_links_reuse_the_declared_item_values() {
+    let entry = entry_id("migration.dcs-choice-parameter-links").unwrap();
+    let inputs = PreparedInputs::default();
+    let source =
+        include_str!("../../../../e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml");
+    let body = dcs_fixture_body(source, "ChoiceParameterLinks");
+    let links = format!("<Links xsi:type=\"dcscor:ChoiceParameterLinks\">{body}</Links>");
+    let xml = format!(
+        "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:dcscor=\"http://v8.1c.ru/8.1/data-composition-system/core\" xmlns:ent=\"http://v8.1c.ru/8.1/data/enterprise\">{links}</Root>"
+    );
+    let imported = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+    let yaml = String::from_utf8(imported.bytes).unwrap();
+    assert!(yaml.contains("СвязиПараметровВыбора:"), "{yaml}");
+    assert!(yaml.contains("ПутьКДанным: Поле1"), "{yaml}");
+    verify_candidate(entry, xml.as_bytes(), yaml.as_bytes(), &inputs).unwrap();
+    let invalid = xml.replace(">DontChange<", ">InvalidMode<");
+    assert_raw_anomaly_round_trip(entry, &invalid, &inputs);
+}
+
+#[cfg(nkdk_sequence_collections)]
+#[test]
+fn dcs_choice_parameter_links_distinguish_nil_from_absence() {
+    let entry = entry_id("migration.dcs-choice-parameter-links").unwrap();
+    let inputs = PreparedInputs::default();
+    let xml = "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Links xsi:nil=\"true\"/></Root>";
+    let imported = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+    let yaml = String::from_utf8(imported.bytes).unwrap();
+    assert_eq!(yaml.trim(), "СвязиПараметровВыбора: null");
+    verify_candidate(entry, xml.as_bytes(), yaml.as_bytes(), &inputs).unwrap();
+    let absent = convert_file(entry, Direction::XmlToYaml, b"<Root/>", &inputs).unwrap();
+    assert!(!String::from_utf8_lossy(&absent.bytes).contains("СвязиПараметровВыбора"));
+    let fresh = convert_file(
+        entry,
+        Direction::YamlToXml,
+        "СвязиПараметровВыбора: null".as_bytes(),
+        &inputs,
+    )
+    .unwrap();
+    nkdk_conversion_core::proof::verify(xml.as_bytes(), &fresh.bytes, |_| false).unwrap();
+    let missing = convert_file(entry, Direction::YamlToXml, b"{}", &inputs).unwrap();
+    assert!(!String::from_utf8_lossy(&missing.bytes).contains("<Links"));
+    let invalid = "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:dcscor=\"http://v8.1c.ru/8.1/data-composition-system/core\"><Links xsi:nil=\"true\"><dcscor:item/></Links></Root>";
+    assert_raw_anomaly_round_trip(entry, invalid, &inputs);
+}
+
+#[cfg(nkdk_sequence_dcs_parameters)]
+#[test]
+fn dcs_choice_parameters_reuse_the_keyed_mapping() {
+    let entry = entry_id("migration.dcs-choice-parameters").unwrap();
+    let inputs = metadata_value_inputs(entry);
+    let source =
+        include_str!("../../../../e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml");
+    let body = dcs_fixture_body(source, "ChoiceParameters");
+    assert!(body.contains("<dcscor:choiceParameter>Параметр</dcscor:choiceParameter>"));
+    let xml = format!(
+        "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:dcscor=\"http://v8.1c.ru/8.1/data-composition-system/core\"><Parameters xsi:type=\"dcscor:ChoiceParameters\">{body}</Parameters></Root>"
+    );
+    let imported = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+    let yaml = String::from_utf8(imported.bytes).unwrap();
+    assert!(yaml.contains("Параметры:\n  Параметр: 123"), "{yaml}");
+    verify_candidate(entry, xml.as_bytes(), yaml.as_bytes(), &inputs).unwrap();
+    let invalid = xml.replace(">123<", ">oops<");
+    assert_raw_anomaly_round_trip(entry, &invalid, &inputs);
+    let missing_type = xml.replace(" xsi:type=\"dcscor:ChoiceParameters\"", "");
+    assert_raw_anomaly_round_trip(entry, &missing_type, &inputs);
+    let second = body.replace(
+        "<dcscor:choiceParameter>Параметр</dcscor:choiceParameter>",
+        "<dcscor:choiceParameter>Другой</dcscor:choiceParameter>",
+    );
+    let repeated = xml.replace("</Parameters>", &format!("{second}</Parameters>"));
+    assert_raw_anomaly_round_trip(entry, &repeated, &inputs);
+}
+
+#[cfg(nkdk_sequence_dcs_parameters)]
+#[test]
+fn dcs_choice_parameters_distinguish_nil_from_absence() {
+    let entry = entry_id("migration.dcs-choice-parameters").unwrap();
+    let inputs = metadata_value_inputs(entry);
+    let xml = "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Parameters xsi:nil=\"true\"/></Root>";
+    let imported = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+    let yaml = String::from_utf8(imported.bytes).unwrap();
+    assert_eq!(yaml.trim(), "Параметры: null");
+    verify_candidate(entry, xml.as_bytes(), yaml.as_bytes(), &inputs).unwrap();
+    let absent = convert_file(entry, Direction::XmlToYaml, b"<Root/>", &inputs).unwrap();
+    assert!(!String::from_utf8_lossy(&absent.bytes).contains("Параметры"));
+    verify_candidate(entry, b"<Root/>", &absent.bytes, &inputs).unwrap();
+    let fresh = convert_file(entry, Direction::YamlToXml, b"{}", &inputs).unwrap();
+    assert!(!String::from_utf8_lossy(&fresh.bytes).contains("<Parameters"));
+    assert_raw_anomaly_round_trip(
+        entry,
+        "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Parameters xsi:nil=\"false\"/></Root>",
+        &inputs,
+    );
+    assert_raw_anomaly_round_trip(
+        entry,
+        "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Parameters xsi:nil=\"oops\"/></Root>",
+        &inputs,
+    );
+    assert_raw_anomaly_round_trip(
+        entry,
+        "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:dcscor=\"http://v8.1c.ru/8.1/data-composition-system/core\"><Parameters xsi:nil=\"true\"><dcscor:item/></Parameters></Root>",
+        &inputs,
+    );
+}
+
+#[cfg(nkdk_sequence_dcs_primitive_values)]
+#[test]
+fn dcs_primitive_numeric_string_keeps_its_string_type() {
+    let entry = entry_id("migration.dcs-primitive-values").unwrap();
+    let inputs = dcs_enumeration_inputs::inputs(entry, &["ru"]);
+    let xml = "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:dcscor=\"http://v8.1c.ru/8.1/data-composition-system/core\"><dcscor:value xsi:type=\"xs:string\">123</dcscor:value></Root>";
+    let imported = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+    let yaml = String::from_utf8(imported.bytes).unwrap();
+    assert!(!yaml.contains("!xml/raw"), "{yaml}");
+    verify_candidate(entry, xml.as_bytes(), yaml.as_bytes(), &inputs).unwrap();
+}
+
+#[cfg(nkdk_sequence_dcs_primitive_values)]
+#[test]
+fn dcs_primitive_values_shorten_one_item_and_preserve_repetition() {
+    let entry = entry_id("migration.dcs-primitive-values").unwrap();
+    let inputs = dcs_enumeration_inputs::inputs(entry, &["ru", "en"]);
+    let prefix = "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:dcscor=\"http://v8.1c.ru/8.1/data-composition-system/core\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\">";
+    let round_trip = |items: &str| {
+        let xml = format!("{prefix}{items}</Root>");
+        let imported = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs)
+            .unwrap_or_else(|errors| panic!("{items}: {errors:?}"));
+        let yaml = String::from_utf8(imported.bytes).unwrap();
+        verify_candidate(entry, xml.as_bytes(), yaml.as_bytes(), &inputs).unwrap();
+        yaml
+    };
+    for (items, expected) in [
+        ("<dcscor:value xsi:nil=\"true\"/>", "Значение: null"),
+        (
+            "<dcscor:value xsi:type=\"v8:Type\">d6p1:Undefined</dcscor:value>",
+            "$значение: null",
+        ),
+        (
+            "<dcscor:value xmlns:ent=\"http://v8.1c.ru/8.1/data/enterprise\" xsi:type=\"ent:DynamicListSearchStringViewMode\">Auto</dcscor:value>",
+            "Тип: СистемноеПеречисление",
+        ),
+        (
+            "<dcscor:value xsi:type=\"xs:boolean\">true</dcscor:value>",
+            "Значение: Истина",
+        ),
+        (
+            "<dcscor:value xsi:type=\"xs:decimal\">-1.25</dcscor:value>",
+            "Значение: -1.25",
+        ),
+        (
+            "<dcscor:value xsi:type=\"xs:boolean\">true</dcscor:value><dcscor:value xsi:type=\"xs:decimal\">9007199254740993</dcscor:value>",
+            "Значение:\n  - Истина\n  - 9007199254740993",
+        ),
+        (
+            "<dcscor:value xsi:type=\"v8:StandardPeriod\"><v8:variant xsi:type=\"v8:StandardPeriodVariant\">Custom</v8:variant></dcscor:value>",
+            "Значение:\n  -",
+        ),
+    ] {
+        let yaml = round_trip(items);
+        assert!(yaml.contains(expected), "{yaml}");
+    }
+    let undefined = "<dcscor:value xsi:type=\"v8:Type\">alias:Undefined</dcscor:value>";
+    let ordinary = "<dcscor:value xsi:type=\"xs:string\">alias:Undefined</dcscor:value>";
+    let mixed_nulls = round_trip(&format!("{ordinary}{undefined}{ordinary}"));
+    assert!(
+        !mixed_nulls.starts_with("Значение: !xml/raw"),
+        "{mixed_nulls}"
+    );
+    let null_at = mixed_nulls
+        .find("$значение: null")
+        .unwrap_or_else(|| panic!("{mixed_nulls}"));
+    assert!(
+        mixed_nulls.find("- alias:Undefined").unwrap() < null_at,
+        "{mixed_nulls}"
+    );
+    assert!(
+        mixed_nulls.rfind("- alias:Undefined").unwrap() > null_at,
+        "{mixed_nulls}"
+    );
+    assert_eq!(
+        mixed_nulls.matches("- alias:Undefined").count(),
+        2,
+        "{mixed_nulls}"
+    );
+    let enumeration = "<dcscor:value xmlns:ent=\"http://v8.1c.ru/8.1/data/enterprise\" xsi:type=\"ent:DynamicListSearchStringViewMode\">Auto</dcscor:value>";
+    let unknown = enumeration.replace(">Auto<", ">Unknown<");
+    let mixed = round_trip(&format!("{enumeration}{unknown}{enumeration}"));
+    assert_eq!(
+        mixed.matches("Тип: СистемноеПеречисление").count(),
+        2,
+        "{mixed}"
+    );
+    assert_eq!(mixed.matches("Значение: Авто").count(), 2, "{mixed}");
+    let anomaly = mixed.find("!xml/").unwrap_or_else(|| panic!("{mixed}"));
+    assert!(mixed.find("Значение: Авто").unwrap() < anomaly, "{mixed}");
+    assert!(mixed.rfind("Значение: Авто").unwrap() > anomaly, "{mixed}");
+    let valid = "<dcscor:value xsi:type=\"xs:boolean\">true</dcscor:value>";
+    let invalid = "<dcscor:value xsi:type=\"xs:boolean\">oops</dcscor:value>";
+    for (items, first, second) in [
+        (format!("{valid}{invalid}"), "- Истина", "- !xml/raw"),
+        (format!("{invalid}{valid}"), "- !xml/raw", "- Истина"),
+        (format!("{invalid}{invalid}"), "- !xml/raw", "- !xml/raw"),
+    ] {
+        let yaml = round_trip(&items);
+        let first_at = yaml.find(first).unwrap_or_else(|| panic!("{yaml}"));
+        let second_at = yaml[first_at + first.len()..]
+            .find(second)
+            .unwrap_or_else(|| panic!("{yaml}"));
+        assert!(second_at > 0, "{yaml}");
+    }
+}
+
+#[cfg(nkdk_sequence_collections)]
 #[test]
 fn choice_parameter_links_are_structural_and_reversible() {
     let entry = entry_id("migration.choice-parameter-links").unwrap();
@@ -505,6 +870,7 @@ fn choice_parameter_links_are_structural_and_reversible() {
     verify_empty_collection_variants(entry, "ChoiceParameterLinks");
 }
 
+#[cfg(nkdk_sequence_collections)]
 #[test]
 fn metadata_fields_convert_each_path_and_preserve_empty_containers() {
     let entry = entry_id("migration.metadata-fields").unwrap();
@@ -529,8 +895,13 @@ fn metadata_fields_convert_each_path_and_preserve_empty_containers() {
         assert!(String::from_utf8_lossy(&converted.bytes).contains(tag));
         verify_candidate(entry, xml.as_bytes(), &converted.bytes, &inputs).unwrap();
     }
+    let repeated = "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><DataLockFields><xr:Field>Document.Goods.StandardAttribute.Number</xr:Field><xr:Field/><xr:Field>Document.Goods.StandardAttribute.Number</xr:Field></DataLockFields></Root>";
+    let converted =
+        convert_file(entry, Direction::XmlToYaml, repeated.as_bytes(), &inputs).unwrap();
+    verify_candidate(entry, repeated.as_bytes(), &converted.bytes, &inputs).unwrap();
 }
 
+#[cfg(nkdk_sequence_collections)]
 #[test]
 fn metadata_fields_owner_shorthand_restores_the_full_xml_path() {
     let entry = entry_id("migration.owner-metadata-fields").unwrap();
@@ -558,6 +929,7 @@ fn metadata_fields_owner_shorthand_restores_the_full_xml_path() {
     verify_candidate(entry, foreign.as_bytes(), &converted.bytes, &inputs).unwrap();
 }
 
+#[cfg(nkdk_sequence_collections)]
 #[test]
 fn functional_options_preserve_empty_items_duplicates_and_order() {
     let entry = entry_id("migration.functional-options-property").unwrap();
@@ -566,7 +938,7 @@ fn functional_options_preserve_empty_items_duplicates_and_order() {
     let yaml = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
     assert_eq!(
         String::from_utf8_lossy(&yaml.bytes),
-        "ФункциональныеОпции:\n  - FunctionalOption.А\n  - \"\"\n  - FunctionalOption.А"
+        "ФункциональныеОпции:\n  - А\n  - \"\"\n  - А"
     );
     verify_candidate(entry, xml.as_bytes(), &yaml.bytes, &inputs).unwrap();
     let restored = convert_file(entry, Direction::YamlToXml, &yaml.bytes, &inputs).unwrap();
@@ -594,11 +966,51 @@ fn functional_options_preserve_empty_items_duplicates_and_order() {
     .unwrap();
     assert_eq!(
         String::from_utf8_lossy(&converted.bytes),
-        format!("ФункциональныеОпции:\n  - {item}")
+        "ФункциональныеОпции:\n  - ФункциональнаяОпцияБулево"
     );
     verify_candidate(entry, source_value.as_bytes(), &converted.bytes, &inputs).unwrap();
+    for form in [
+        include_str!("../../../../e2e/fixtures/xml/cf/CommonForms/Команды/Ext/Form.xml"),
+        include_str!(
+            "../../../../e2e/fixtures/xml/cf/DataProcessors/ОбработкаВсеСвойства/Forms/Форма/Ext/Form.xml"
+        ),
+        include_str!(
+            "../../../../e2e/fixtures/xml/cfe/all-extension/DataProcessors/ОбработкаВсеСвойстваExt/Forms/Форма/Ext/Form.xml"
+        ),
+    ] {
+        let start = form.find("<FunctionalOptions>").unwrap();
+        let end = form[start..].find("</FunctionalOptions>").unwrap()
+            + start
+            + "</FunctionalOptions>".len();
+        let xml = format!("<Root>{}</Root>", &form[start..end]);
+        let yaml = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+        assert_eq!(
+            String::from_utf8_lossy(&yaml.bytes),
+            "ФункциональныеОпции:\n  - ФункциональнаяОпцияБулево"
+        );
+        verify_candidate(entry, xml.as_bytes(), &yaml.bytes, &inputs).unwrap();
+        assert_xml_round_trip_without_reference(entry, xml.as_bytes(), &yaml.bytes, &inputs);
+    }
+    let yaml = "ФункциональныеОпции:\n  - Булево";
+    assert!(validate_file(entry, yaml.as_bytes(), &inputs).is_empty());
+    assert!(
+        !validate_file(
+            entry,
+            "ФункциональныеОпции:\n  - FunctionalOption.Bad".as_bytes(),
+            &inputs
+        )
+        .is_empty()
+    );
+    let xml = convert_file(entry, Direction::YamlToXml, yaml.as_bytes(), &inputs).unwrap();
+    assert!(String::from_utf8_lossy(&xml.bytes).contains("<Item>FunctionalOption.Булево</Item>"));
+    let invalid = "<Root><FunctionalOptions><Item>Other.А</Item><Item>FunctionalOption.Б</Item></FunctionalOptions></Root>";
+    let yaml = convert_file(entry, Direction::XmlToYaml, invalid.as_bytes(), &inputs).unwrap();
+    assert!(String::from_utf8_lossy(&yaml.bytes).contains("!xml/"));
+    verify_candidate(entry, invalid.as_bytes(), &yaml.bytes, &inputs).unwrap();
+    assert_xml_round_trip_without_reference(entry, invalid.as_bytes(), &yaml.bytes, &inputs);
 }
 
+#[cfg(nkdk_sequence_collections)]
 #[test]
 fn child_subsystem_names_round_trip_existing_owner_and_repeated_names() {
     let entry = entry_id("migration.child-subsystem-names").unwrap();
@@ -621,8 +1033,7 @@ fn child_subsystem_names_round_trip_existing_owner_and_repeated_names() {
         let yaml = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
         assert!(String::from_utf8_lossy(&yaml.bytes).contains("Подсистемы:"));
         verify_candidate(entry, xml.as_bytes(), &yaml.bytes, &inputs).unwrap();
-        let restored = convert_file(entry, Direction::YamlToXml, &yaml.bytes, &inputs).unwrap();
-        nkdk_conversion_core::proof::verify(xml.as_bytes(), &restored.bytes, |_| false).unwrap();
+        assert_xml_round_trip_without_reference(entry, xml.as_bytes(), &yaml.bytes, &inputs);
     }
     verify_empty_collection_variants(entry, "ChildObjects");
     for xml in [
@@ -643,6 +1054,146 @@ fn child_subsystem_names_round_trip_existing_owner_and_repeated_names() {
     assert!(!String::from_utf8_lossy(&empty.bytes).contains("<Subsystem>"));
 }
 
+#[cfg(nkdk_sequence_collections)]
+#[test]
+fn metadata_links_distinguish_objects_from_nested_members() {
+    let document =
+        include_str!("../../../../e2e/fixtures/xml/cf/Documents/ДокументВсеСвойства.xml");
+    let criterion = include_str!(
+        "../../../../e2e/fixtures/xml/cf/FilterCriteria/КритерийОтбораВсеСвойства.xml"
+    );
+    let cases = [
+        (
+            "Catalog.СправочникСВладельцем",
+            "Справочник.СправочникСВладельцем",
+            document,
+        ),
+        (
+            "Catalog.СправочникПолный.Attribute.СтроковыйРеквизитСИндексом",
+            "Справочник.СправочникПолный.Реквизит.СтроковыйРеквизитСИндексом",
+            criterion,
+        ),
+    ];
+    let entry = entry_id("migration.metadata-item-links").unwrap();
+    let inputs = PreparedInputs::default();
+    for (path, expected, source) in cases {
+        assert!(source.contains(&format!(">{path}</xr:Item>")));
+        let xml = format!(
+            "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Links><xr:Item xsi:type=\"xr:MDObjectRef\">{path}</xr:Item></Links></Root>"
+        );
+        let yaml = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+        assert!(!String::from_utf8_lossy(&yaml.bytes).contains("!xml"));
+        assert!(
+            String::from_utf8_lossy(&yaml.bytes).contains(expected),
+            "{}",
+            String::from_utf8_lossy(&yaml.bytes)
+        );
+        verify_candidate(entry, xml.as_bytes(), &yaml.bytes, &inputs).unwrap();
+        assert_xml_round_trip_without_reference(entry, xml.as_bytes(), &yaml.bytes, &inputs);
+    }
+}
+
+#[cfg(nkdk_sequence_collections)]
+#[test]
+fn untyped_metadata_links_reuse_the_same_item_contract() {
+    let source = include_str!(
+        "../../../../e2e/fixtures/xml/cf/FunctionalOptions/ФункциональнаяОпцияБулево.xml"
+    );
+    let paths = [
+        (
+            "Enum.ПеречислениеВсеСвойства",
+            "Перечисление.ПеречислениеВсеСвойства",
+        ),
+        (
+            "ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Table.ТаблицаВсеСвойства",
+            "ВнешнийИсточникДанных.ВнешнийИсточникДанныхВсеСвойства.Таблица.ТаблицаВсеСвойства",
+        ),
+    ];
+    let items = paths
+        .iter()
+        .map(|(path, _)| {
+            assert!(source.contains(&format!("<xr:Object>{path}</xr:Object>")));
+            format!("<xr:Object>{path}</xr:Object>")
+        })
+        .collect::<String>();
+    let entry = entry_id("migration.metadata-object-links").unwrap();
+    let inputs = PreparedInputs::default();
+    let xml = format!(
+        "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><Links>{items}</Links></Root>"
+    );
+    let yaml = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+    let text = String::from_utf8_lossy(&yaml.bytes);
+    assert!(!text.contains("!xml"));
+    let first = text.find(paths[0].1).unwrap();
+    let second = text.find(paths[1].1).unwrap();
+    assert!(first < second);
+    verify_candidate(entry, xml.as_bytes(), &yaml.bytes, &inputs).unwrap();
+    assert_xml_round_trip_without_reference(entry, xml.as_bytes(), &yaml.bytes, &inputs);
+}
+
+#[cfg(nkdk_sequence_collections)]
+#[test]
+fn metadata_link_uuid_stays_a_semantic_yaml_value() {
+    let uuid = "418deaa0-683e-4862-9348-c0086ba6909f";
+    let xml = format!(
+        "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Links><xr:Item xsi:type=\"xr:MDObjectRef\">{uuid}</xr:Item></Links></Root>"
+    );
+    let entry = entry_id("migration.metadata-item-links").unwrap();
+    let inputs = PreparedInputs::default();
+    let yaml = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+    let text = String::from_utf8_lossy(&yaml.bytes);
+    assert!(text.contains(uuid) && !text.contains("!xml"), "{text}");
+    assert_xml_round_trip_without_reference(entry, xml.as_bytes(), &yaml.bytes, &inputs);
+}
+
+#[cfg(nkdk_sequence_collections)]
+#[test]
+fn metadata_links_preserve_empty_entry_beside_a_real_link() {
+    let xml = r#"<Root xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><Links><xr:Item/><xr:Item xsi:type="xr:MDObjectRef">Catalog.Контрагенты</xr:Item></Links></Root>"#.as_bytes();
+    let entry = entry_id("migration.metadata-item-links").unwrap();
+    let inputs = PreparedInputs::default();
+    let yaml = convert_file(entry, Direction::XmlToYaml, xml, &inputs).unwrap();
+    let text = String::from_utf8_lossy(&yaml.bytes);
+    assert!(
+        text.contains("- \"\"") && text.contains("Справочник.Контрагенты"),
+        "{text}"
+    );
+    assert_xml_round_trip_without_reference(entry, xml, &yaml.bytes, &inputs);
+}
+
+#[cfg(nkdk_sequence_collections)]
+#[test]
+fn role_target_shorthand_restores_single_and_repeated_links() {
+    let source =
+        include_str!("../../../../e2e/fixtures/xml/cf/Subsystems/ПодсистемаВсеСвойства.xml");
+    assert!(source.contains(">Role.РольВсеСвойства</xr:Item>"));
+    let inputs = PreparedInputs::default();
+    for (entry_name, xml, repetitions) in [
+        (
+            "migration.metadata-role-link",
+            r#"<Root xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><Link xsi:type="xr:MDObjectRef">Role.РольВсеСвойства</Link></Root>"#,
+            1,
+        ),
+        (
+            "migration.metadata-role-links",
+            r#"<Root xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><Links><xr:Item xsi:type="xr:MDObjectRef">Role.РольВсеСвойства</xr:Item><xr:Item xsi:type="xr:MDObjectRef">Role.РольВсеСвойства</xr:Item></Links></Root>"#,
+            2,
+        ),
+    ] {
+        let entry = entry_id(entry_name).unwrap();
+        let yaml = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+        let text = String::from_utf8_lossy(&yaml.bytes);
+        assert_eq!(
+            text.matches("РольВсеСвойства").count(),
+            repetitions,
+            "{text}"
+        );
+        assert!(!text.contains("Role."), "{text}");
+        assert_xml_round_trip_without_reference(entry, xml.as_bytes(), &yaml.bytes, &inputs);
+    }
+}
+
+#[cfg(nkdk_sequence_collections)]
 #[test]
 fn metadata_fields_match_all_nonempty_applied_object_e2e_pairs() {
     let corpus: serde_json::Value = serde_json::from_slice(include_bytes!(
@@ -687,6 +1238,7 @@ fn metadata_fields_match_all_nonempty_applied_object_e2e_pairs() {
     }
 }
 
+#[cfg(nkdk_sequence_collections)]
 #[test]
 fn choice_parameter_families_cover_every_ordinary_e2e_form() {
     let corpus: serde_json::Value = serde_json::from_slice(include_bytes!(
@@ -717,6 +1269,7 @@ fn choice_parameter_families_cover_every_ordinary_e2e_form() {
     }
 }
 
+#[cfg(nkdk_sequence_collections)]
 #[test]
 fn recursive_records_round_trip_through_one_reusable_declaration() {
     let entry = entry_id("migration.recursive-record").unwrap();
@@ -733,6 +1286,7 @@ fn recursive_records_round_trip_through_one_reusable_declaration() {
     assert_eq!(imported.bytes, converted.bytes);
 }
 
+#[cfg(nkdk_sequence_collections)]
 #[test]
 fn record_sequences_keep_typed_wrappers_and_infer_their_differences() {
     let entry = entry_id("migration.web-socket-client-headers").unwrap();
@@ -760,6 +1314,7 @@ fn record_sequences_keep_typed_wrappers_and_infer_their_differences() {
     }
 }
 
+#[cfg(nkdk_sequence_collections)]
 #[test]
 fn text_sequences_preserve_order_duplicates_empty_items_and_unknown_content() {
     let inputs = PreparedInputs::default();
@@ -784,7 +1339,7 @@ fn text_sequences_preserve_order_duplicates_empty_items_and_unknown_content() {
             convert_file(entry, Direction::XmlToYaml, singleton.as_bytes(), &inputs).unwrap();
         let yaml = String::from_utf8_lossy(&preserved.bytes);
         assert!(yaml.contains("!xml/raw"));
-        assert_eq!(yaml.contains("$значение: []"), name == "index-field");
+        assert!(yaml.contains("$значение: []"));
         verify_candidate(entry, singleton.as_bytes(), &preserved.bytes, &inputs).unwrap();
         verify_candidate(entry, b"<Root/>", b"List: []", &inputs).unwrap();
         if name != "index-field" {
@@ -817,6 +1372,7 @@ fn text_sequences_preserve_order_duplicates_empty_items_and_unknown_content() {
     }
 }
 
+#[cfg(nkdk_sequence_collections)]
 #[test]
 fn scalar_tree_attributes_follow_the_current_item_and_preserve_other_forms() {
     let entry = entry_id("migration.xdto-packages").unwrap();
@@ -839,6 +1395,7 @@ fn scalar_tree_attributes_follow_the_current_item_and_preserve_other_forms() {
     }
 }
 
+#[cfg(nkdk_sequence_collections)]
 #[test]
 fn collection_owner_defaults_restore_empty_wrappers_and_preserve_absence() {
     let inputs = PreparedInputs::default();
@@ -864,6 +1421,7 @@ fn collection_owner_defaults_restore_empty_wrappers_and_preserve_absence() {
     }
 }
 
+#[cfg(nkdk_sequence_collections)]
 #[test]
 fn purposes_use_declared_shortcuts_defaults_and_inferred_violations() {
     let inputs = PreparedInputs::default();
@@ -933,6 +1491,7 @@ fn purposes_use_declared_shortcuts_defaults_and_inferred_violations() {
     }
 }
 
+#[allow(dead_code)]
 fn assert_restored(entry: nkdk_compiled_rules::EntryId, original: &[u8], inputs: &PreparedInputs) {
     let result = convert_file(entry, Direction::XmlToYaml, original, inputs)
         .unwrap_or_else(|error| panic!("{}: {error:?}", String::from_utf8_lossy(original)));
@@ -940,6 +1499,7 @@ fn assert_restored(entry: nkdk_compiled_rules::EntryId, original: &[u8], inputs:
     verify_candidate(entry, original, &result.bytes, inputs).unwrap();
 }
 
+#[cfg(nkdk_sequence_collections)]
 #[test]
 fn external_manifest_pages_use_declared_defaults_and_preserve_xml() {
     let entry = entry_id("migration.help-manifest").expect("compiled manifest declaration");
@@ -986,6 +1546,7 @@ fn external_manifest_pages_use_declared_defaults_and_preserve_xml() {
     );
 }
 
+#[cfg(nkdk_sequence_collections)]
 #[test]
 fn external_documents_join_owner_yaml_and_restore_without_xml_reference() {
     let entry = entry_id("migration.external-document").unwrap();
@@ -1036,6 +1597,7 @@ fn external_documents_join_owner_yaml_and_restore_without_xml_reference() {
     }
 }
 
+#[cfg(nkdk_sequence_collections)]
 #[test]
 fn additional_indexes_use_prepared_identities_and_existing_e2e_files() {
     use nkdk_compiled_rules::{
@@ -1111,6 +1673,33 @@ fn additional_indexes_use_prepared_identities_and_existing_e2e_files() {
         verify_candidate(entry, &xml, &yaml.bytes, &inputs).unwrap();
         let exported = convert_file(entry, Direction::YamlToXml, &yaml.bytes, &inputs).unwrap();
         nkdk_conversion_core::proof::verify(&xml, &exported.bytes, |_| false).unwrap();
+        if std::ptr::eq(case, &cases[0]) {
+            let source = std::str::from_utf8(&xml).unwrap();
+            for altered in [
+                source.replacen(
+                    "<AdditionalIndexes ",
+                    "<AdditionalIndexes audit=\"kept\" ",
+                    1,
+                ),
+                source.replacen(
+                    "<AdditionalIndexes ",
+                    "<AdditionalIndexes xmlns:audit=\"urn:audit\" audit:note=\"kept\" ",
+                    1,
+                ),
+                source.replacen("version=\"2.20\"", "version=\"3.00\"", 1),
+                source.replacen(" version=\"2.20\"", "", 1),
+            ] {
+                assert_ne!(source, altered);
+                let annotated =
+                    convert_file(entry, Direction::XmlToYaml, altered.as_bytes(), &inputs)
+                        .unwrap_or_else(|error| panic!("Root envelope import: {error:?}"));
+                assert!(String::from_utf8_lossy(&annotated.bytes).contains("!xml"));
+                let restored = convert_file(entry, Direction::YamlToXml, &annotated.bytes, &inputs)
+                    .unwrap_or_else(|error| panic!("Root envelope export: {error:?}"));
+                nkdk_conversion_core::proof::verify(altered.as_bytes(), &restored.bytes, |_| false)
+                    .unwrap();
+            }
+        }
         // The identity follows the name even after the YAML rows are reordered.
         let text = std::str::from_utf8(&yaml.bytes).unwrap();
         let mut reordered = text

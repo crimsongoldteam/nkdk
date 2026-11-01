@@ -1,0 +1,21 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: test.defaults-row
+  value: {kind: record, fields: [{name: label, type: {kind: scalar, scalar: text}}, {name: flag, type: {kind: scalar, scalar: @FLAG_TYPE@}}]}
+  representations:
+    xml: {kind: record, fields: [{field: label, path: [Label]}, {field: flag, path: [Flag]}]}
+    yaml: {kind: mapping, fields: [{field: label, key: Label}, {field: flag, key: Flag}]}
+  @ROW_PRESENCE@
+- kind: object
+  id: test.defaults-owner
+  imports: {row: test.defaults-row}
+  value: {kind: record, fields: [{name: data, type: {use: row}}]}
+  representations:
+    xml: {kind: record, fields: [{field: data, path: [Root, Data]}]}
+    yaml: {kind: mapping, fields: [{field: data, key: Data}]}
+  presence:
+  - target: {field: data}
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: @DENOTATION@}}

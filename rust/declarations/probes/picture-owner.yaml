@@ -1,0 +1,17 @@
+format: nkdk-declarations/1
+kind: object
+id: probe.picture-owner
+imports: {picture: common.picture, label: common.string}
+value: {kind: record, fields: [{name: picture, type: {use: picture}}, {name: label, type: {use: label}}]}
+representations:
+  xml: {kind: record, fields: [{field: picture, path: [Root, Picture]}, {field: label, path: [Root, Label]}]}
+  yaml: {kind: mapping, fields: [{field: picture, key: Картинка}, {field: label, key: Метка}]}
+presence:
+- target: {field: picture}
+  xml:
+    missing: {denotes: {absent: true}}
+    empty: [{form: empty-element, denotes: {absent: true}}]
+  yaml: {missing: {denotes: {absent: true}}}
+- target: {field: label}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {missing: {denotes: {absent: true}}}

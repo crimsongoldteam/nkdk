@@ -1,0 +1,7 @@
+{
+  "ChildTemplateNames": {
+    "fragment": "fragment.child-template-resources",
+    "namesInput": "names",
+    "descriptorResource": 0
+  }
+}

@@ -1,0 +1,153 @@
+format: nkdk-declarations/1
+kind: object
+id: contract.form-column-container
+namespaces:
+  f: http://v8.1c.ru/8.3/xcf/logform
+imports:
+  ordinary: candidate.collection.list.80ad27c0fd6fef7a1def
+  additional: candidate.collection.list.0064f5bd583adac387dc
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  roles:
+    type:
+      kind: sequence
+      item:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: yamlName
+            type:
+              kind: scalar
+              scalar: text
+  component:
+    type:
+      kind: scalar
+      scalar: text
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  parent:
+    type:
+      kind: scalar
+      scalar: text
+  numbers:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: component
+            type:
+              kind: scalar
+              scalar: text
+          - name: owner
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  groupModes:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: component
+            type:
+              kind: scalar
+              scalar: text
+          - name: owner
+            type:
+              kind: scalar
+              scalar: text
+          - name: origin
+            type:
+              kind: scalar
+              scalar: text
+          - name: parent
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+value:
+  kind: record
+  fields:
+    - name: ordinary
+      type:
+        use: ordinary
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          roles:
+            input: roles
+          component:
+            input: component
+          owner:
+            input: owner
+          parent:
+            input: parent
+          numbers:
+            input: numbers
+    - name: additional
+      type:
+        use: additional
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          roles:
+            input: roles
+          component:
+            input: component
+          owner:
+            input: owner
+          parent:
+            input: parent
+          numbers:
+            input: numbers
+          groupModes:
+            input: groupModes
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: ordinary
+        path:
+          - f:Columns
+      - field: additional
+        path:
+          - f:Columns
+  yaml:
+    kind: mapping
+    fields:
+      - field: ordinary
+        key: Колонки
+      - field: additional
+        key: ДополнительныеКолонки

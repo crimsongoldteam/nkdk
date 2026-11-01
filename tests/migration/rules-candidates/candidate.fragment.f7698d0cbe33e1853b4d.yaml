@@ -1,0 +1,40 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.choice-list
+value:
+  kind: record
+  fields:
+    - name: choiceList
+      type:
+        use: value0
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: choiceList
+        path:
+          - ChoiceList
+  yaml:
+    kind: mapping
+    fields:
+      - field: choiceList
+        key: СписокВыбора
+presence: []
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+id: candidate.fragment.f7698d0cbe33e1853b4d

@@ -1,0 +1,16 @@
+format: nkdk-declarations/1
+kind: value
+id: common.path-virtual-table
+enum:
+  SliceFirst: СрезПервых
+  SliceLast: СрезПоследних
+  Balance: Остатки
+  Turnovers: Обороты
+  BalanceAndTurnovers: ОстаткиИОбороты
+  RecordsWithExtDimensions: ДвиженияССубконто
+  DrCrTurnovers: ОборотыДтКт
+  ExtDimensions: Субконто
+  ScheduleData: ДанныеГрафика
+  ActualActionPeriod: ФактическийПериодДействия
+  Points: Точки
+  TasksByExecutive: ЗадачиПоИсполнителю

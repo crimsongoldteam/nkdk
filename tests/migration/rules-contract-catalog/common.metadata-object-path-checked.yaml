@@ -1,0 +1,73 @@
+format: nkdk-declarations/1
+kind: value
+id: common.metadata-object-path-checked
+imports:
+  root: common.path-root
+  name: common.metadata-name
+inputs:
+  roots:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: kind
+            type:
+              use: root
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+value:
+  kind: record
+  fields:
+    - name: root
+      type:
+        use: root
+    - name: name
+      type:
+        use: name
+representations:
+  xml:
+    kind: text-pattern
+    separator: .
+    parts:
+      - field: root
+      - field: name
+  yaml:
+    kind: text-pattern
+    separator: .
+    parts:
+      - field: root
+      - field: name
+constraints:
+  - id: target-exists
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    assert:
+      present:
+        lookup:
+          in:
+            input: roots
+          key:
+            record:
+              kind:
+                get:
+                  of:
+                    self: true
+                  field: root
+              name:
+                get:
+                  of:
+                    self: true
+                  field: name
+    diagnostic:
+      code: metadata.target-missing
+      severity: error
+      at:
+        self: true
+      message: Целевой объект отсутствует

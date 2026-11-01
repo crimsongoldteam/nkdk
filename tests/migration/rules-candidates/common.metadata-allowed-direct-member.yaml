@@ -1,0 +1,88 @@
+format: nkdk-declarations/1
+kind: value
+id: common.metadata-allowed-direct-member
+imports:
+  rootKind: common.path-root
+  name: common.metadata-name
+  memberKind: common.path-member-kind
+inputs:
+  allowedMemberPaths:
+    type:
+      kind: sequence
+      item:
+        kind: record
+        fields:
+          - name: root
+            type:
+              use: rootKind
+          - name: kind
+            type:
+              use: memberKind
+value:
+  kind: record
+  fields:
+    - name: root
+      type:
+        use: rootKind
+    - name: owner
+      type:
+        use: name
+    - name: kind
+      type:
+        use: memberKind
+    - name: name
+      type:
+        use: name
+representations:
+  xml:
+    kind: text-pattern
+    separator: .
+    parts:
+      - field: root
+      - field: owner
+      - field: kind
+      - field: name
+  yaml:
+    kind: text-pattern
+    separator: .
+    parts:
+      - field: root
+      - field: owner
+      - field: kind
+      - field: name
+constraints:
+  - id: allowed-member-path
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    assert:
+      exists:
+        in:
+          input: allowedMemberPaths
+        as: allowed
+        where:
+          and:
+            - eq:
+                - get:
+                    of:
+                      var: allowed
+                    field: root
+                - get:
+                    of:
+                      self: true
+                    field: root
+            - eq:
+                - get:
+                    of:
+                      var: allowed
+                    field: kind
+                - get:
+                    of:
+                      self: true
+                    field: kind
+    diagnostic:
+      code: metadata.target-path
+      severity: error
+      at:
+        self: true
+      message: Member path is not allowed

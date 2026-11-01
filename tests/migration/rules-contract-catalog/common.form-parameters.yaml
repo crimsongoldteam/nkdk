@@ -1,0 +1,20 @@
+format: nkdk-declarations/1
+kind: value
+id: common.form-parameters
+imports:
+  parameter: common.form-parameter
+namespaces:
+  f: http://v8.1c.ru/8.3/xcf/logform
+value:
+  kind: sequence
+  item:
+    use: parameter
+representations:
+  xml:
+    kind: element-sequence
+    path:
+      - f:Parameter
+  yaml:
+    kind: record-mapping
+    key: name
+    emptyRowNull: true

@@ -1,7 +1,7 @@
-use nkdk_compiled_rules_probes as nkdk_compiled_rules;
 use nkdk_compiled_rules::{
     Direction, PreparedInputs, convert_file, entry_id, validate_file, verify_candidate,
 };
+use nkdk_compiled_rules_probes as nkdk_compiled_rules;
 
 #[test]
 fn qualified_names_keep_uri_local_name_and_infer_xml_differences() {

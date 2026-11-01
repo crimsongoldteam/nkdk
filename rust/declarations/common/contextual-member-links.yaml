@@ -1,0 +1,67 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: common.contextual-member-path
+  imports: {root: common.path-root, kind: common.path-ordinary-member-kind, name: common.metadata-name}
+  inputs:
+    ownerName: {type: {kind: scalar, scalar: text}}
+  value:
+    kind: record
+    fields:
+    - {name: root, type: {use: root}}
+    - {name: owner, type: {use: name}}
+    - {name: kind, type: {use: kind}}
+    - {name: name, type: {use: name}}
+  representations:
+    xml: {kind: text-pattern, separator: '.', parts: [{field: root}, {field: owner}, {field: kind}, {field: name}]}
+    yaml:
+      kind: text-pattern
+      parts:
+      - optional: owner
+        parts:
+        - {literal: 'РегистрРасчета.'}
+        - {field: owner}
+        - {literal: '.'}
+        - {field: kind}
+        - {literal: '.'}
+      - {field: name}
+  presence:
+  - {target: {field: root}, yaml: {default: {literal: CalculationRegister}}}
+  - target: {field: owner}
+    yaml:
+      missing: {denotes: {input: ownerName}}
+      omitWhen: {and: [{eq: [{field: owner}, {input: ownerName}]}, {eq: [{field: kind}, {literal: Dimension}]}]}
+  - {target: {field: kind}, yaml: {default: {literal: Dimension}}}
+  constraints:
+  - id: calculation-register
+    appliesTo: [xml-import, yaml-validation]
+    assert: {eq: [{field: root}, {literal: CalculationRegister}]}
+    diagnostic: {code: metadata.root-kind, severity: error, at: {self: true}, message: Expected a calculation register}
+  - id: leading-member-kind
+    appliesTo: [xml-import, yaml-validation]
+    assert: {or: [{eq: [{field: kind}, {literal: Dimension}]}, {eq: [{field: kind}, {literal: Attribute}]}]}
+    diagnostic: {code: metadata.member-kind, severity: error, at: {self: true}, message: Expected a dimension or attribute}
+- kind: value
+  id: common.contextual-member-links
+  imports: {path: common.contextual-member-path}
+  inputs:
+    ownerName: {type: {kind: scalar, scalar: text}}
+  value: {kind: sequence, item: {use: path, bind: {ownerName: {input: ownerName}}}}
+  namespaces: {xr: 'http://v8.1c.ru/8.3/xcf/readable', xsi: 'http://www.w3.org/2001/XMLSchema-instance'}
+  representations:
+    xml:
+      kind: element-sequence
+      path: [xr:Item]
+      item: {kind: with-attributes, attributes: [{name: 'xsi:type', value: {qname: 'xr:MDObjectRef'}}], content: {kind: text}}
+    yaml: {kind: sequence, item: {kind: scalar, scalar: text}}
+  presence:
+  - target: self
+    xml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: empty-element, denotes: {sequence: []}}]
+      canonical: [{when: {not: {present: {self: true}}}, form: missing}, {form: ordinary}]
+    yaml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: empty-sequence, denotes: {sequence: []}}]
+      omitWhen: {not: {present: {self: true}}}

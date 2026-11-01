@@ -1,0 +1,19 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.dcs-design-time-formatted-text
+imports: {value: common.dcs-design-time-formatted-text}
+inputs:
+  defaultLanguage: {type: {kind: scalar, scalar: text}}
+  registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+value:
+  kind: record
+  fields:
+  - name: value
+    type:
+      use: value
+      bind:
+        defaultLanguage: {input: defaultLanguage}
+        registeredLanguages: {input: registeredLanguages}
+representations:
+  xml: {kind: record, fields: [{field: value, path: [Root, Value]}]}
+  yaml: {kind: mapping, fields: [{field: value, key: Значение}]}

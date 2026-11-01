@@ -10,10 +10,25 @@ pub(super) fn severity_name(severity: &Severity) -> &'static str {
     }
 }
 pub(super) fn violation(when: &str, assertion: &str) -> String {
-    if when == "true" {
+    if when == "false" || (when == "true" && assertion == "true") {
+        "false".into()
+    } else if when == "true" && assertion == "false" {
+        "true".into()
+    } else if when == "true" {
         format!("!({assertion})")
     } else {
         format!("({when}) && !({assertion})")
+    }
+}
+
+pub(super) fn yaml_form(entry: &LinkedEntry) -> LinkedForm {
+    if matches!(
+        entry.yaml,
+        YamlRepresentation::Projection(_) | YamlRepresentation::TextPattern(_)
+    ) {
+        LinkedForm::YamlScalar
+    } else {
+        LinkedForm::YamlMapping
     }
 }
 
@@ -31,7 +46,7 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
         return Ok(String::new());
     }
     if let Some(layout) = super::nested_record::lower(entry, program)? {
-        return generate_at(&layout.entry, program, None, Some(&layout.key));
+        return generate_at(&layout.entry, program, None, Some(&layout.key), false);
     }
     if super::composite::record(entry, program).is_some() {
         return Ok(String::new());
@@ -64,13 +79,11 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
                     {
                         return Ok(String::new());
                     }
-                    if !entry.constraints.is_empty()
-                        || common.constraints.iter().any(|rule| {
-                            rule.for_each.is_some()
-                                || !rule.forms.is_empty()
-                                || rule.diagnostic.at != LinkedDiagnosticTarget::SelfValue
-                        })
-                    {
+                    if common.constraints.iter().any(|rule| {
+                        rule.for_each.is_some()
+                            || !rule.forms.is_empty()
+                            || rule.diagnostic.at != LinkedDiagnosticTarget::SelfValue
+                    }) {
                         return Err(unsupported(
                             common,
                             "Ordinary sequence constraints currently target the whole value",
@@ -85,31 +98,69 @@ pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String,
                 };
                 let mut common = common.clone();
                 common.id = entry.id;
-                for constraint in &mut common.constraints {
-                    super::shorthand::specialize_constraint(
-                        constraint, bindings, arguments, entry,
-                    )?;
-                }
-                let YamlRepresentation::Mapping(mapping) = &entry.yaml else {
-                    return Err(unsupported(entry, "Owner needs a mapping"));
+                let common = super::collection_constraints::merge(
+                    &common, entry, program, bindings, arguments,
+                )?;
+                let key = match &entry.yaml {
+                    YamlRepresentation::Mapping(mapping) => Some(mapping[0].key.as_str()),
+                    YamlRepresentation::Projection(_) => None,
+                    _ => return Err(unsupported(entry, "Owner needs a mapping or projection")),
                 };
-                return generate_at(&common, program, Some(&mapping[0].key), None);
+                return generate_at(&common, program, key, None, false);
             }
         }
     }
-    generate_at(entry, program, None, None)
+    scalar_record(entry, program)
+}
+
+// A deferred property uses scalar-record storage even if its enclosing entry
+// would normally select owner composition. Generate checks for that same storage.
+pub(super) fn scalar_record(entry: &LinkedEntry, program: &Program) -> Result<String, Diagnostic> {
+    generate_at(entry, program, None, None, false)
+}
+
+// Declared items expose the same borrowed record contract as lexical inputs.
+// Use ordinary expression lowering without depending on their physical storage.
+pub(super) fn declared_sequence(
+    entry: &LinkedEntry,
+    program: &Program,
+    key: Option<&str>,
+) -> Result<String, Diagnostic> {
+    if entry.constraints.is_empty() {
+        return Ok(String::new());
+    }
+    if entry.constraints.iter().any(|rule| {
+        rule.for_each.is_some()
+            || rule.diagnostic.at != LinkedDiagnosticTarget::SelfValue
+            || rule
+                .diagnostic
+                .message
+                .iter()
+                .any(|part| !matches!(part, LinkedMessagePart::Text(_)))
+    }) {
+        return Err(unsupported(
+            entry,
+            "Declared-item collection constraints require a whole-value diagnostic",
+        ));
+    }
+    generate_at(entry, program, Some(key.unwrap_or("")), None, true)
 }
 fn generate_at(
     entry: &LinkedEntry,
     program: &Program,
     base: Option<&str>,
     record_key: Option<&str>,
+    declared: bool,
 ) -> Result<String, Diagnostic> {
+    // Storage follows the semantic value; a projection only changes its address.
+    let collection = matches!(entry.value, LinkedType::Sequence(_));
     let fields = match &entry.value {
         LinkedType::Record(fields) => fields.as_slice(),
         LinkedType::Sequence(item) => match item.as_ref() {
             LinkedType::Record(fields) => fields.as_slice(),
-            LinkedType::Scalar(ScalarType::Text) | LinkedType::Reference(_) => &[],
+            LinkedType::Scalar(ScalarType::Text)
+            | LinkedType::Reference(_)
+            | LinkedType::BoundReference { .. } => &[],
             _ => return Err(unsupported(entry, "Collection items need records")),
         },
         _ => {
@@ -140,7 +191,7 @@ fn generate_at(
         (
             "xml",
             ValidationPhase::XmlImport,
-            if base.is_some() {
+            if collection {
                 LinkedForm::XmlElementSequence
             } else {
                 LinkedForm::XmlRecord
@@ -149,10 +200,10 @@ fn generate_at(
         (
             "yaml",
             ValidationPhase::YamlValidation,
-            if base.is_some() {
+            if collection {
                 LinkedForm::YamlKeyedMapping
             } else {
-                LinkedForm::YamlMapping
+                yaml_form(entry)
             },
         ),
     ] {
@@ -163,7 +214,7 @@ fn generate_at(
                 constraint.applies_to.contains(&phase)
                     && (constraint.forms.is_empty()
                         || constraint.forms.contains(&form)
-                        || (base.is_some()
+                        || (collection
                             && side == "yaml"
                             && constraint.forms.contains(&LinkedForm::YamlScalar)))
             })
@@ -179,7 +230,7 @@ fn generate_at(
             out.push_str("if !_value.present {return Vec::new();}\n");
         }
         let mut item_checks = String::new();
-        if base.is_none() {
+        if !collection {
             for (index, field) in fields.iter().enumerate() {
                 let codec = match super::scalar::Codec::resolve(&field.value, entry, program) {
                     Ok(codec) => Some(codec),
@@ -193,7 +244,8 @@ fn generate_at(
                 }
             }
         }
-        if let Some(key) = base
+        if !declared
+            && collection
             && let Some(codec) = collection_values::codec(entry, program)?
             && let Some(method) = match codec {
                 scalar::Codec::Pattern(_)
@@ -203,23 +255,24 @@ fn generate_at(
             }
         {
             let xml = side == "xml";
-            writeln!(item_checks,"for (index,row) in _value.rows.iter().enumerate(){{errors.extend(row.fields[0].{method}({xml},_inputs).into_iter().map(|mut issue|{{issue.message=format!(\"Element {{}}: {{}}\",index+1,issue.message);_value.position.apply(_source,issue.field({key:?}))}}));}}").unwrap();
+            writeln!(item_checks,"for (index,row) in _value.rows.iter().enumerate(){{errors.extend(row.fields[0].{method}({xml},_inputs).into_iter().map(|mut issue|{{issue.message=format!(\"Element {{}}: {{}}\",index+1,issue.message);_value.position.apply(_source,issue{prefix})}}));}}").unwrap();
         }
         if selected.is_empty() && item_checks.is_empty() {
             out.push_str("Vec::new() }\n");
             continue;
         }
-        let storage = if base.is_none() {
+        let storage = if !collection {
             Some(super::expressions::record_storage(entry, program, fields)?)
         } else {
             None
         };
         let mut expressions = Expressions::new(entry, program, fields, storage.as_deref());
+        expressions.borrowed_sequence = declared;
         let mut body = String::new();
         for constraint in selected {
             expressions.fallible = false;
             if let Some(iteration) = &constraint.for_each {
-                if base.is_none() {
+                if !collection {
                     return Err(unsupported(
                         entry,
                         "Record iteration requires collection storage",
@@ -242,7 +295,12 @@ fn generate_at(
                 } else {
                     "let mut occurrences=std::collections::HashMap::new();"
                 };
-                writeln!(body, "let iterate = || -> core::Result<&[R{}]> {{ Ok({input}) }}; match iterate() {{ Err(error) => errors.push(error{prefix}), Ok(rows) => {{ {counter} for v{} in rows {{ {count}", entry.id, iteration.slot).unwrap();
+                let loop_open = super::expressions::iteration_loop(
+                    iteration,
+                    "rows",
+                    &format!("v{}", iteration.slot),
+                );
+                writeln!(body, "let iterate = || -> core::Result<&[R{}]> {{ Ok({input}) }}; match iterate() {{ Err(error) => errors.push(error{prefix}), Ok(rows) => {{ {counter} {loop_open} {count}", entry.id).unwrap();
             }
             let code = constraint.diagnostic.code.as_deref();
             let source = constraint.diagnostic.source.as_deref();
@@ -255,7 +313,7 @@ fn generate_at(
                 .map(|value| expressions.lower(value))
                 .transpose()?
                 .unwrap_or_else(|| "true".into());
-            if base.is_some() && side == "yaml" && !constraint.forms.is_empty() {
+            if collection && side == "yaml" && !constraint.forms.is_empty() {
                 let selected = constraint
                     .forms
                     .iter()
@@ -270,7 +328,7 @@ fn generate_at(
                     .join(" || ");
                 when = format!("({selected}) && ({when})");
             }
-            if base.is_none() {
+            if !collection {
                 let mut reads = BTreeSet::new();
                 read_fields(&constraint.assertion, &mut reads);
                 if let Some(value) = &constraint.when {
@@ -328,7 +386,9 @@ fn generate_at(
                 LinkedDiagnosticTarget::Occurrence { slot, field } => {
                     format!("v{slot}.positions[{field}]")
                 }
-                LinkedDiagnosticTarget::SelfValue if base.is_some() => "_value.position".into(),
+                LinkedDiagnosticTarget::SelfValue if collection && !declared => {
+                    "_value.position".into()
+                }
                 _ => "core::Position::default()".into(),
             };
             let severity = severity_name(&constraint.diagnostic.severity);
@@ -360,7 +420,7 @@ fn generate_at(
         out.push_str(&body);
         out.push_str("errors }\n");
     }
-    if base.is_none() {
+    if !collection {
         let id = entry.id;
         let keys = fields
             .iter()
@@ -393,10 +453,32 @@ pub(super) fn read_inputs(expression: &LinkedExpression, result: &mut BTreeSet<u
         }
     });
 }
-fn read_slots(expression: &LinkedExpression, visitor: &mut impl FnMut(&LinkedExpressionKind)) {
+fn read_slots(expression: &LinkedExpression, visitor: &mut dyn FnMut(&LinkedExpressionKind)) {
     match &expression.kind {
         LinkedExpressionKind::Operation {
-            operator: LinkedOperator::State(_),
+            operator: LinkedOperator::Conditional,
+            arguments,
+        } if matches!(&arguments[0].kind, LinkedExpressionKind::Operation {
+                operator: LinkedOperator::State(StatePredicate::Present), arguments: tested
+            } if matches!(tested[0].kind, LinkedExpressionKind::Input(_) | LinkedExpressionKind::Field(_))) =>
+        {
+            let LinkedExpressionKind::Operation {
+                arguments: tested, ..
+            } = &arguments[0].kind
+            else {
+                unreachable!()
+            };
+            // The selected branch may read this value, but its absence selects
+            // the other branch; it must not disable the complete constraint.
+            read_slots(&arguments[1], &mut |kind| {
+                if kind != &tested[0].kind {
+                    visitor(kind);
+                }
+            });
+            read_slots(&arguments[2], visitor);
+        }
+        LinkedExpressionKind::Operation {
+            operator: LinkedOperator::State(_) | LinkedOperator::IsVariant(_),
             arguments,
         } => {
             // Direct state predicates intentionally observe absent data.
@@ -415,5 +497,128 @@ fn read_slots(expression: &LinkedExpression, visitor: &mut impl FnMut(&LinkedExp
             }
         }
         kind => visitor(kind),
+    }
+}
+
+fn context_only(value: &LinkedExpression) -> bool {
+    match &value.kind {
+        LinkedExpressionKind::Field(_)
+        | LinkedExpressionKind::SelfValue
+        | LinkedExpressionKind::Capture(_) => false,
+        LinkedExpressionKind::Operation { arguments, .. } => arguments.iter().all(context_only),
+        _ => true,
+    }
+}
+
+/// An absent item has no fields to validate, but its context and key still do.
+pub(super) fn validate_absent_context(
+    entry: &LinkedEntry,
+    program: &Program,
+) -> Result<String, Diagnostic> {
+    let LinkedType::Record(fields) = &entry.value else {
+        return Err(unsupported(
+            entry,
+            "Absent context validation requires a record",
+        ));
+    };
+    let mut expressions = Expressions::new(entry, program, fields, None);
+    let mut checks = String::new();
+    for rule in &entry.constraints {
+        if !rule.applies_to.contains(&ValidationPhase::YamlValidation)
+            || !context_only(&rule.assertion)
+            || rule.when.as_ref().is_some_and(|when| !context_only(when))
+            || (!rule.forms.is_empty() && !rule.forms.contains(&LinkedForm::YamlScalar))
+        {
+            continue;
+        }
+        if rule.for_each.is_some() {
+            return Err(unsupported(
+                entry,
+                "Absent record context iterations are not generated",
+            ));
+        }
+        if rule.diagnostic.message.iter().any(
+            |part| matches!(part, LinkedMessagePart::Expression(value) if !context_only(value)),
+        ) {
+            return Err(unsupported(
+                entry,
+                "Absent record diagnostics must use context-only messages",
+            ));
+        }
+        let when = rule
+            .when
+            .as_ref()
+            .map(|value| expressions.lower(value))
+            .transpose()?
+            .unwrap_or_else(|| "true".to_owned());
+        let assertion = expressions.lower(&rule.assertion)?;
+        let message = expressions.message(&rule.diagnostic.message)?;
+        let condition = violation(&when, &assertion);
+        let code = &rule.diagnostic.code;
+        let source = &rule.diagnostic.source;
+        let severity = severity_name(&rule.diagnostic.severity);
+        let address = match rule.diagnostic.at {
+            LinkedDiagnosticTarget::SelfValue => String::new(),
+            LinkedDiagnosticTarget::Field(index) => format!(
+                ".field({:?})",
+                super::record::diagnostic_key(entry, &fields[index as usize].name)
+            ),
+            _ => {
+                return Err(unsupported(
+                    entry,
+                    "Absent record diagnostics cannot address an occurrence",
+                ));
+            }
+        };
+        writeln!(checks,"if {condition}{{return Err(RuntimeDiagnostic::declared({code:?},{source:?},core::Severity::{severity},{message}){address});}}").unwrap();
+    }
+    Ok(format!(
+        "let _inputs=inputs;{}{}",
+        expressions.constants, checks
+    ))
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn collection_checks_keep_row_storage_without_a_property_key() {
+        let modules = crate::parse_many(crate::SourceFile {
+            path: "i8n-text.yaml",
+            bytes: include_bytes!("../../../../declarations/common/i8n-text.yaml"),
+        })
+        .unwrap();
+        let linked = crate::link(&modules).unwrap();
+        let program = crate::plan::build(&linked).unwrap();
+        let mut entry = program
+            .entries
+            .iter()
+            .find(|entry| entry.name == "common.i8n-text")
+            .unwrap()
+            .clone();
+        // The row rule is independent of shorthand expansion and parameters.
+        entry.constraints.truncate(1);
+        entry.constraints[0]
+            .applies_to
+            .push(nkdk_rule_model::ValidationPhase::YamlValidation);
+        let entry = &entry;
+        let keyed = super::generate_at(entry, &program, Some("Translations"), None, false).unwrap();
+        let projected = super::generate_at(entry, &program, None, None, false).expect(
+            "a collection retains row storage when its outer property key is projected away",
+        );
+        assert!(keyed.contains("&_value.rows"));
+        assert!(projected.contains("&_value.rows"));
+        assert!(projected.contains("with_occurrence(occurrence)"));
+        assert!(projected.contains(&format!("fn issues_yaml_{}", entry.id)));
+        assert!(!projected.contains("_value.f0"));
+        assert!(!projected.contains(".field(\"Translations\")"));
+        assert_eq!(keyed.replace(".field(\"Translations\")", ""), projected);
+    }
+
+    #[test]
+    fn constant_constraints_do_not_emit_redundant_boolean_expressions() {
+        assert_eq!(super::violation("false", "true"), "false");
+        assert_eq!(super::violation("false", "false"), "false");
+        assert_eq!(super::violation("true", "true"), "false");
+        assert_eq!(super::violation("true", "false"), "true");
     }
 }

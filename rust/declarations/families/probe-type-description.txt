@@ -1,0 +1,7 @@
+migration.type-description
+migration.type-description-adopted
+migration.type-description-conditional
+migration.type-description-required
+migration.type-description-restricted
+migration.type-description-runtime-only
+migration.type-description-typed

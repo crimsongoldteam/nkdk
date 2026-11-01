@@ -1,0 +1,22 @@
+format: nkdk-declarations/1
+kind: value
+id: common.dcs-typed-reference-member
+imports:
+  empty: common.dcs-typed-empty-reference
+  name: common.metadata-name
+value:
+  kind: choice
+  variants:
+    - name: empty
+      type:
+        use: empty
+    - name: name
+      type:
+        use: name
+representations:
+  xml:
+    kind: choice
+    fallback: name
+  yaml:
+    kind: choice
+    fallback: name

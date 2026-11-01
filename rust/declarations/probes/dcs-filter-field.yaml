@@ -1,0 +1,10 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.dcs-filter-field
+imports: {field: common.dcs-filter-field}
+value:
+  kind: record
+  fields: [{name: field, type: {use: field}}]
+representations:
+  xml: {kind: record, fields: [{field: field, path: [Root, Field]}]}
+  yaml: {kind: mapping, fields: [{field: field, key: Поле}]}

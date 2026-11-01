@@ -293,6 +293,7 @@
         "baseIds": "metadata.base-identities"
       },
       "xml": "<ns0:ChildObjects xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:ns0=\"http://v8.1c.ru/8.3/MDClasses\"><ns0:EnumValue uuid=\"0940c048-29de-4953-b8af-267eaf8bf1c3\">\n\t\t\t\t<ns0:InternalInfo><xr:PropertyState><xr:Property>ExtendedConfigurationObject</xr:Property><xr:State>Notify</xr:State></xr:PropertyState></ns0:InternalInfo>\n\t\t\t\t<ns0:Properties>\n\t\t\t\t\t<ns0:ObjectBelonging>Adopted</ns0:ObjectBelonging>\n\t\t\t\t\t<ns0:Name>ЗначениеПеречисления1</ns0:Name>\n\t\t\t\t\t<ns0:Synonym />\n\t\t\t\t\t<ns0:Comment />\n\t\t\t\t\t<ns0:ExtendedConfigurationObject>3422552b-50dd-46cf-88bd-163e75331ff9</ns0:ExtendedConfigurationObject>\n\t\t\t\t</ns0:Properties>\n\t\t\t</ns0:EnumValue>\n\t\t\t<ns0:EnumValue uuid=\"0e2d0774-31ff-4411-9056-f7e97e9979c8\">\n\t\t\t\t<ns0:InternalInfo />\n\t\t\t\t<ns0:Properties>\n\t\t\t\t\t<ns0:ObjectBelonging>Adopted</ns0:ObjectBelonging>\n\t\t\t\t\t<ns0:Name>ЗначениеПеречисления2</ns0:Name>\n\t\t\t\t\t<ns0:Comment />\n\t\t\t\t\t<ns0:ExtendedConfigurationObject>915f7a59-e3e0-43d0-9a49-68375464d960</ns0:ExtendedConfigurationObject>\n\t\t\t\t</ns0:Properties>\n\t\t\t</ns0:EnumValue>\n\t\t\t</ns0:ChildObjects>",
+      "yaml": "Значения:\n  ЗначениеПеречисления1:\n    Синоним: \"\"\n    ПринадлежностьОбъекта: Заимствованный\n    ОбъектРасширяемойКонфигурации: !xml/invalid\n      $значение: !проверять\n  ЗначениеПеречисления2:\n    ПринадлежностьОбъекта: Заимствованный",
       "source": [
         {
           "path": "e2e/fixtures/xml/cfe/all-extension/Enums/ПеречислениеВсеСвойства.xml",
@@ -309,7 +310,6 @@
       ],
       "adaptation": "Complete EnumValue elements with original namespaces; context from source configuration",
       "annotation": "    ОбъектРасширяемойКонфигурации: !xml/invalid",
-      "noRaw": true,
       "retainedYAML": [
         "    Синоним: \"\"",
         "    ПринадлежностьОбъекта: Заимствованный"

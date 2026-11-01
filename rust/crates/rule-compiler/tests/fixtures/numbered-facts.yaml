@@ -1,0 +1,33 @@
+format: nkdk-declarations/1
+kind: object
+id: test.numbering
+inputs:
+  owner: {type: {kind: scalar, scalar: text}}
+value:
+  kind: record
+  fields:
+    - {name: name, type: {kind: scalar, scalar: text}}
+    - {name: id, type: {kind: scalar, scalar: text}}
+representations:
+  xml:
+    kind: record
+    fields:
+      - {field: name, path: [Item], attribute: name}
+      - {field: id, path: [Item], attribute: id}
+  yaml:
+    kind: mapping
+    fields:
+      - {field: name, key: Имя}
+      - {field: id, key: Номер}
+presence:
+  - target: {field: id}
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}}
+contributions:
+  - index: test.numbers
+    key: {record: {owner: {input: owner}, name: {field: name}}}
+    value: {field: id}
+    when: {present: {field: id}}
+  - index: test.numbers
+    key: {record: {owner: {input: owner}, name: {field: name}}}
+    allocate: {scope: [owner], first: 1}

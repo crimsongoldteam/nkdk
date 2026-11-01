@@ -59,16 +59,19 @@ describe("local XML proof", () => {
     const source = parseXmlDocumentWithSaxes(`<Root>${item.repeat(count)}</Root>`).roots[0]!
     let comparisons = 0
     const proof = createLocalXmlProof({ onValue: () => comparisons++ })
+    const differences: ReturnType<typeof proof.compare>[] = []
     const visit = (element: typeof source): ReturnType<typeof proof.finish> => {
       const content = element.content.map((child) => {
         if (child.type === "element") return visit(child)
         if (child.type === "text") return { type: "text" as const, value: "x" }
         throw new Error("Unexpected PI")
       })
-      expect(proof.compare(element, { name: element.name, content })).toEqual([])
+      const result = proof.compare(element, { name: element.name, content })
+      if (result.length !== 0) differences.push(result)
       return proof.finish(element)
     }
     visit(source)
+    expect(differences).toEqual([])
     expect(comparisons).toBe(count)
   })
 

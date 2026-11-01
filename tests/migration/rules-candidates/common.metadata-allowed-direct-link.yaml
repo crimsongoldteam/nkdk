@@ -1,0 +1,58 @@
+format: nkdk-declarations/1
+kind: value
+id: common.metadata-allowed-direct-link
+imports:
+  object: common.metadata-allowed-direct-object
+  member: common.metadata-allowed-direct-member
+  empty: common.metadata-link-empty
+  rootKind: common.path-root
+  memberKind: common.path-member-kind
+inputs:
+  allowedObjectRoots:
+    type:
+      kind: sequence
+      item:
+        use: rootKind
+  allowedMemberPaths:
+    type:
+      kind: sequence
+      item:
+        kind: record
+        fields:
+          - name: root
+            type:
+              use: rootKind
+          - name: kind
+            type:
+              use: memberKind
+  allowOwner:
+    type:
+      kind: scalar
+      scalar: boolean
+value:
+  kind: choice
+  variants:
+    - name: object
+      type:
+        use: object
+        bind:
+          allowedObjectRoots:
+            input: allowedObjectRoots
+          allowedMemberPaths:
+            input: allowedMemberPaths
+          allowOwner:
+            input: allowOwner
+    - name: member
+      type:
+        use: member
+        bind:
+          allowedMemberPaths:
+            input: allowedMemberPaths
+    - name: empty
+      type:
+        use: empty
+representations:
+  xml:
+    kind: choice
+  yaml:
+    kind: choice

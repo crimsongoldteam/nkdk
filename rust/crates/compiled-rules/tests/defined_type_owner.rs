@@ -1,8 +1,8 @@
-use nkdk_compiled_rules_probes as nkdk_compiled_rules;
 use nkdk_compiled_rules::{
     Direction, InputValue, contribute_file, convert_file, entry_id, fact_id, prepare_fact_inputs,
     verify_candidate,
 };
+use nkdk_compiled_rules_probes as nkdk_compiled_rules;
 use nkdk_conversion_core::facts::{Generation, prepared::FactBudget, text::TextBudget};
 use std::sync::Arc;
 

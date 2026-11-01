@@ -1,0 +1,49 @@
+format: nkdk-declarations/1
+kind: value
+id: common.metadata-nested-object-path
+imports:
+  root: common.path-root
+  name: common.metadata-name
+  kind: common.path-object-kind
+value:
+  kind: record
+  fields:
+    - name: root
+      type:
+        use: root
+    - name: owner
+      type:
+        use: name
+    - name: parentKind
+      type:
+        use: kind
+    - name: parent
+      type:
+        use: name
+    - name: childKind
+      type:
+        use: kind
+    - name: child
+      type:
+        use: name
+representations:
+  xml:
+    kind: text-pattern
+    separator: .
+    parts:
+      - field: root
+      - field: owner
+      - field: parentKind
+      - field: parent
+      - field: childKind
+      - field: child
+  yaml:
+    kind: text-pattern
+    separator: .
+    parts:
+      - field: root
+      - field: owner
+      - field: parentKind
+      - field: parent
+      - field: childKind
+      - field: child

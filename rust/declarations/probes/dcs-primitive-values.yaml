@@ -1,0 +1,23 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.dcs-primitive-values
+imports: {values: common.dcs-primitive-values}
+inputs:
+  labels: {index: dcs.enumeration-labels}
+  codes: {index: dcs.enumeration-codes}
+  defaultLanguage: {type: {kind: scalar, scalar: text}}
+  registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+value:
+  kind: record
+  fields:
+  - name: values
+    type:
+      use: values
+      bind:
+        labels: {input: labels}
+        codes: {input: codes}
+        defaultLanguage: {input: defaultLanguage}
+        registeredLanguages: {input: registeredLanguages}
+representations:
+  xml: {kind: record, fields: [{field: values, path: [Root]}]}
+  yaml: {kind: mapping, fields: [{field: values, key: Значение}]}

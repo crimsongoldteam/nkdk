@@ -194,9 +194,9 @@ pub(super) fn write_elements<'a>(value:&Stored,prepared:&'a Prepared,inputs:&Inp
     }
     out.push_str("Ok(false)}\n");
     if let Some(header) = header {
-        writeln!(out,"pub(super) fn with_attributes(value:&Stored,consume:impl FnOnce(&[Option<core::xml::WriteAttribute<'_>>])->core::Result<()>)->core::Result<()> {{with_header_xml_{id}_{header}(&value.0,consume)}}").unwrap();
+        writeln!(out,"pub(super) fn with_attributes(value:&Stored,inputs:&InputView<'_>,consume:impl FnOnce(&[Option<core::xml::WriteAttribute<'_>>])->core::Result<()>)->core::Result<()> {{with_header_xml_{id}_{header}(&value.0,inputs,consume)}}").unwrap();
     } else {
-        out.push_str("pub(super) fn with_attributes(_value:&Stored,consume:impl FnOnce(&[Option<core::xml::WriteAttribute<'_>>])->core::Result<()>)->core::Result<()> {consume(&[])}\n");
+        out.push_str("pub(super) fn with_attributes(_value:&Stored,_inputs:&InputView<'_>,consume:impl FnOnce(&[Option<core::xml::WriteAttribute<'_>>])->core::Result<()>)->core::Result<()> {consume(&[])}\n");
     }
     Ok(out)
 }

@@ -1,0 +1,9 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.calculated-field-order-expressions
+namespaces: {dcssch: 'http://v8.1c.ru/8.1/data-composition-system/schema'}
+imports: {items: common.calculated-field-order-expressions}
+value: {kind: record, fields: [{name: items, type: {use: items}}]}
+representations:
+  xml: {kind: record, fields: [{field: items, path: [Root]}]}
+  yaml: {kind: mapping, fields: [{field: items, key: ВыраженияУпорядочивания}]}

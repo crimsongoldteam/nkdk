@@ -1,0 +1,59 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  inputType1f8ea46361ff: common.path-root
+  value1: common.metadata-data-table-link
+value:
+  kind: record
+  fields:
+    - name: mainTable
+      type:
+        use: value1
+        bind:
+          allowedRoots:
+            sequence:
+              - literal: FilterCriterion
+              - literal: ExchangePlan
+              - literal: Constant
+              - literal: Catalog
+              - literal: Document
+              - literal: DocumentJournal
+              - literal: Enum
+              - literal: ChartOfCharacteristicTypes
+              - literal: ChartOfAccounts
+              - literal: ChartOfCalculationTypes
+              - literal: InformationRegister
+              - literal: AccumulationRegister
+              - literal: AccountingRegister
+              - literal: CalculationRegister
+              - literal: BusinessProcess
+              - literal: Task
+              - literal: ExternalDataSource
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: mainTable
+        path:
+          - MainTable
+  yaml:
+    kind: mapping
+    fields:
+      - field: mainTable
+        key: ОсновнаяТаблица
+presence:
+  - target:
+      field: mainTable
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+id: candidate.fragment.b79e1896757d972b5ead

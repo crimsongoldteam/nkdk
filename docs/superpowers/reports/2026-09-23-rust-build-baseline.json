@@ -1,0 +1,49 @@
+{
+  "date": "2026-09-23",
+  "platform": "Darwin",
+  "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+  "crate": "nkdk-compiled-rules-probes",
+  "flags": {
+    "CARGO_BUILD_JOBS": "1",
+    "CARGO_INCREMENTAL": "0",
+    "CARGO_PROFILE_DEV_DEBUG": "0",
+    "offline": true
+  },
+  "source_files": 262,
+  "generated_bytes": 46919743,
+  "clean": {
+    "cargo_elapsed": "2m 48s",
+    "generation": {
+      "stage": "generate",
+      "wall_ms": 48328,
+      "source_files": 262,
+      "generated_bytes": 46919743
+    },
+    "catalog_rustc": {
+      "crate": "nkdk_compiled_rules_probes",
+      "wall_seconds": 102.726,
+      "user_seconds": 147.802,
+      "system_seconds": 12.398,
+      "max_rss_bytes": 5133058048,
+      "exit_code": 0
+    }
+  },
+  "one_yaml_change": {
+    "wall_seconds": 147.403,
+    "generation": {
+      "stage": "generate",
+      "wall_ms": 48114,
+      "source_files": 262,
+      "generated_bytes": 46919743
+    },
+    "catalog_rustc": {
+      "crate": "nkdk_compiled_rules_probes",
+      "wall_seconds": 97.281,
+      "user_seconds": 140.855,
+      "system_seconds": 10.432,
+      "max_rss_bytes": 5618630656,
+      "exit_code": 0
+    }
+  },
+  "note": "The first incremental attempt included source formatting and was discarded; this is the stable repeat after touching only common/font-reference.yaml."
+}

@@ -1,0 +1,3 @@
+# Ownership of complete registered file owners and their independent sources.
+objects/record-file-owners.generated.yaml
+objects/style-item-type-facts.yaml

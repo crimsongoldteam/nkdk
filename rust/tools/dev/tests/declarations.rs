@@ -1,15 +1,8 @@
 use std::{fs, process::Command};
+mod support;
 #[test]
 fn declaration_commands_check_sources_and_export_the_same_schema() {
-    let root = std::env::temp_dir().join(format!(
-        "nkdk-declaration-cli-{}-{}",
-        std::process::id(),
-        std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap()
-            .as_nanos()
-    ));
-    fs::create_dir(&root).unwrap();
+    let root = support::temporary_directory("declaration-cli");
     let binary = env!("CARGO_BIN_EXE_nkdk-dev");
     let language = Command::new(binary)
         .args(["declarations", "language-schema"])

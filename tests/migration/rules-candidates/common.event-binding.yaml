@@ -1,0 +1,51 @@
+format: nkdk-declarations/1
+kind: value
+id: common.event-binding
+imports:
+  mode: common.event-call-type
+value:
+  kind: record
+  fields:
+    - name: name
+      type:
+        kind: scalar
+        scalar: text
+    - name: mode
+      type:
+        use: mode
+    - name: handler
+      type:
+        kind: scalar
+        scalar: text
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: name
+        path: []
+        attribute: name
+      - field: mode
+        path: []
+        attribute: callType
+      - field: handler
+        path: []
+  yaml:
+    kind: mapping
+    fields:
+      - field: name
+        key: Имя
+      - field: mode
+        key: Режим
+      - field: handler
+        key: Обработчик
+presence:
+  - target:
+      field: mode
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true

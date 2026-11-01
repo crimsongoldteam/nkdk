@@ -1,0 +1,109 @@
+format: nkdk-declarations/1
+kind: value
+id: source.public-form-additional-column-request
+inputs:
+  component:
+    type:
+      kind: scalar
+      scalar: text
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  parent:
+    type:
+      kind: scalar
+      scalar: text
+  groupModes:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: component
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: origin
+            type:
+              kind: scalar
+              scalar: text
+          - name: owner
+            type:
+              kind: scalar
+              scalar: text
+          - name: parent
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+imports:
+  columns: source.public-form-group-column-requests
+namespaces:
+  f: http://v8.1c.ru/8.3/xcf/logform
+value:
+  kind: record
+  fields:
+    - name: table
+      type:
+        kind: scalar
+        scalar: text
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: table
+        path: []
+        attribute: table
+  yaml:
+    kind: mapping
+    fields:
+      - field: table
+        key: Таблица
+compose:
+  - use: columns
+    bind:
+      component:
+        input: component
+      owner:
+        input: owner
+      parent:
+        if:
+          eq:
+            - require:
+                lookup:
+                  in:
+                    input: groupModes
+                  key:
+                    record:
+                      component:
+                        input: component
+                      name:
+                        field: table
+                      origin:
+                        literal: current
+                      owner:
+                        input: owner
+                      parent:
+                        input: parent
+            - literal: positional
+        then:
+          logicalAddress:
+            parent:
+              input: parent
+            parts:
+              - literal: ДополнительныеКолонки
+              - collectionPosition: true
+        else:
+          logicalAddress:
+            parent:
+              input: parent
+            parts:
+              - literal: ДополнительныеКолонки
+              - field: table

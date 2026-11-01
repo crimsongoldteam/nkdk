@@ -1,6 +1,7 @@
 mod catalog;
 mod constraints;
 mod contributions;
+mod data_path;
 mod decimal_text;
 mod enumeration;
 mod expressions;
@@ -24,6 +25,7 @@ use nkdk_rule_model::ComparisonOperator;
 use nkdk_rule_model::{
     BooleanLexeme, Diagnostic, Module, ModuleKind, NamedBinding, NamedType, Representations,
     ScalarType, SourceLocation, TypeDefinition, TypeField, XmlRepresentation, YamlRepresentation,
+    YamlSingleton,
 };
 use nkdk_rule_model::{CanonicalForm, Presence, PresenceTarget, XmlForm};
 use nkdk_rule_model::{
@@ -236,8 +238,10 @@ fn module(path: &str, mut root: Node) -> Result<Module, Diagnostic> {
             "normalization",
             "constraints",
             "contributions",
+            "dataPath",
             "resources",
             "compose",
+            "xmlOrder",
             "yamlOrder",
             "value",
             "representations",
@@ -525,6 +529,15 @@ fn module(path: &str, mut root: Node) -> Result<Module, Diagnostic> {
     }
     let (presence, state_relations) =
         state_relations::expand(path, fields, presence(path, fields)?)?;
+    let record_shorthand = if matches!(yaml_rep, YamlRepresentation::Mapping(_)) {
+        let mapping = yaml.mapping(path, &["kind", "fields", "shorthand"])?;
+        optional_field(mapping, "shorthand")
+            .map(|items| shorthands::shorthands(path, items))
+            .transpose()?
+            .unwrap_or_default()
+    } else {
+        vec![]
+    };
     Ok(Module {
         source: location(path, id_node),
         kind,
@@ -541,21 +554,16 @@ fn module(path: &str, mut root: Node) -> Result<Module, Diagnostic> {
         normalization: normalization(path, fields)?,
         constraints,
         contributions: contributions::parse(path, fields)?,
+        data_path: data_path::parse(path, fields)?,
         resources: resources::parse(path, fields)?,
         compose,
-        yaml_order: optional_field(fields, "yamlOrder")
-            .map(|node| {
-                sequence(path, node)?
-                    .iter()
-                    .map(|item| item.text(path).map(str::to_owned))
-                    .collect::<Result<Vec<_>, _>>()
-            })
-            .transpose()?
-            .unwrap_or_default(),
+        xml_order: field_order(path, fields, "xmlOrder")?,
+        yaml_order: field_order(path, fields, "yamlOrder")?,
         value: definition,
         representations: Representations {
             xml: xml_rep,
             yaml: yaml_rep,
+            shorthand: record_shorthand,
         },
     })
 }
@@ -622,24 +630,28 @@ fn boolean_table(
         .collect()
 }
 
+fn optional_mapping<'a>(
+    path: &str,
+    fields: &'a [(Node, Node)],
+    section: &str,
+    message: &'static str,
+) -> Result<Option<&'a [(Node, Node)]>, Diagnostic> {
+    let Some(value) = optional_field(fields, section) else {
+        return Ok(None);
+    };
+    match &value.shape {
+        Shape::Mapping(entries) => Ok(Some(entries)),
+        _ => Err(error(path, value.mark, "expected_mapping", message)),
+    }
+}
+
 fn named_bindings(
     path: &str,
     fields: &[(Node, Node)],
     section: &str,
 ) -> Result<Vec<NamedBinding>, Diagnostic> {
-    let Some(value) = fields.iter().find_map(|(key, value)| match &key.shape {
-        Shape::Scalar(name, _) if name == section => Some(value),
-        _ => None,
-    }) else {
+    let Some(entries) = optional_mapping(path, fields, section, "Expected named bindings")? else {
         return Ok(vec![]);
-    };
-    let Shape::Mapping(entries) = &value.shape else {
-        return Err(error(
-            path,
-            value.mark,
-            "expected_mapping",
-            "Expected named bindings",
-        ));
     };
     entries
         .iter()
@@ -666,19 +678,8 @@ fn location(path: &str, node: &Node) -> SourceLocation {
 }
 
 fn named_types(path: &str, fields: &[(Node, Node)]) -> Result<Vec<NamedType>, Diagnostic> {
-    let Some(value) = fields.iter().find_map(|(key, value)| match &key.shape {
-        Shape::Scalar(name, _) if name == "types" => Some(value),
-        _ => None,
-    }) else {
+    let Some(entries) = optional_mapping(path, fields, "types", "Expected local types")? else {
         return Ok(vec![]);
-    };
-    let Shape::Mapping(entries) = &value.shape else {
-        return Err(error(
-            path,
-            value.mark,
-            "expected_mapping",
-            "Expected local types",
-        ));
     };
     entries
         .iter()
@@ -868,6 +869,21 @@ fn representation_fields<'a>(
     }
 }
 
+fn xml_path(path: &str, route: &Node) -> Result<Vec<String>, Diagnostic> {
+    let Shape::Sequence(segments) = &route.shape else {
+        return Err(error(
+            path,
+            route.mark,
+            "expected_sequence",
+            "Expected XML path",
+        ));
+    };
+    segments
+        .iter()
+        .map(|segment| segment.text(path).map(str::to_owned))
+        .collect()
+}
+
 fn xml_fields(path: &str, representation: &Node) -> Result<Vec<XmlField>, Diagnostic> {
     representation_fields(path, representation, "record")?
         .iter()
@@ -875,18 +891,7 @@ fn xml_fields(path: &str, representation: &Node) -> Result<Vec<XmlField>, Diagno
             let fields = item.mapping(path, &["field", "path", "attribute", "file"])?;
             let name = item.field(path, fields, "field")?;
             let route = item.field(path, fields, "path")?;
-            let Shape::Sequence(segments) = &route.shape else {
-                return Err(error(
-                    path,
-                    route.mark,
-                    "expected_sequence",
-                    "Expected XML path",
-                ));
-            };
-            let segments = segments
-                .iter()
-                .map(|segment| segment.text(path).map(str::to_owned))
-                .collect::<Result<Vec<_>, _>>()?;
+            let segments = xml_path(path, route)?;
             let file = optional_field(fields, "file")
                 .map(|node| {
                     let Shape::Sequence(parts) = &node.shape else {
@@ -932,14 +937,49 @@ fn xml_fields(path: &str, representation: &Node) -> Result<Vec<XmlField>, Diagno
 }
 
 fn yaml_fields(path: &str, representation: &Node) -> Result<Vec<YamlField>, Diagnostic> {
-    representation_fields(path, representation, "mapping")?
+    let fields = representation.mapping(path, &["kind", "fields", "shorthand"])?;
+    representation.field(path, fields, "kind")?.literal(
+        path,
+        "mapping",
+        "unsupported_representation",
+    )?;
+    let members = representation.field(path, fields, "fields")?;
+    let Shape::Sequence(items) = &members.shape else {
+        return Err(error(
+            path,
+            members.mark,
+            "expected_sequence",
+            "Expected representation fields",
+        ));
+    };
+    items
         .iter()
         .map(|item| {
-            let fields = item.mapping(path, &["field", "key"])?;
+            let fields = item.mapping(path, &["field", "key", "file"])?;
             let name = item.field(path, fields, "field")?;
+            let key = optional_field(fields, "key");
+            let file = optional_field(fields, "file");
+            if key.is_some() == file.is_some() {
+                return Err(error(
+                    path,
+                    item.mark,
+                    "yaml_field_storage",
+                    "A YAML field requires exactly one key or file",
+                ));
+            }
+            let key = key.map(|node| node.text(path)).transpose()?.unwrap_or("");
+            if file.is_none() && key.is_empty() {
+                return Err(error(
+                    path,
+                    item.mark,
+                    "yaml_field_storage",
+                    "A YAML key must not be empty",
+                ));
+            }
             Ok(YamlField {
                 field: name.text(path)?.into(),
-                key: item.field(path, fields, "key")?.text(path)?.into(),
+                key: key.into(),
+                file: file.map(|node| expression(path, node)).transpose()?,
                 source: location(path, name),
             })
         })
@@ -958,7 +998,10 @@ fn xml_collection_content(
     path: &str,
     representation: &Node,
 ) -> Result<XmlRepresentation, Diagnostic> {
-    let fields = representation.mapping(path, &["kind", "path", "item", "fields", "children"])?;
+    let fields = representation.mapping(
+        path,
+        &["kind", "path", "next", "item", "fields", "children"],
+    )?;
     let kind = representation.field(path, fields, "kind")?;
     if kind.text(path)? == "declared" {
         representation.mapping(path, &["kind"])?;
@@ -978,27 +1021,19 @@ fn xml_collection_content(
     if kind.text(path)? == "record" {
         return Ok(XmlRepresentation::Record(xml_fields(path, representation)?));
     }
-    representation.mapping(path, &["kind", "path", "item"])?;
+    representation.mapping(path, &["kind", "path", "next", "item"])?;
     kind.literal(path, "element-sequence", "unsupported_representation")?;
     let route = representation.field(path, fields, "path")?;
-    let Shape::Sequence(segments) = &route.shape else {
-        return Err(error(
-            path,
-            route.mark,
-            "expected_sequence",
-            "Expected XML path",
-        ));
-    };
-    let segments = segments
-        .iter()
-        .map(|node| node.text(path).map(str::to_owned))
-        .collect::<Result<Vec<_>, _>>()?;
+    let segments = xml_path(path, route)?;
     let item = optional_field(fields, "item")
         .map(|item| xml_collection(path, item))
         .transpose()?
         .unwrap_or(XmlRepresentation::Declared);
     Ok(XmlRepresentation::ElementSequence {
         path: segments,
+        next: optional_field(fields, "next")
+            .map(|next| xml_path(path, next))
+            .transpose()?,
         item: Box::new(item),
     })
 }
@@ -1032,6 +1067,118 @@ fn yaml_keyed_mapping(path: &str, representation: &Node) -> Result<YamlRepresent
     })
 }
 
+fn require_row_key(path: &str, key: &Node) -> Result<(), Diagnostic> {
+    let fields = key.mapping(path, &["rowKey"])?;
+    if scalar_literal(path, key.field(path, fields, "rowKey")?)? != ScalarLiteral::Boolean(true) {
+        return Err(error(
+            path,
+            key.mark,
+            "invalid_item_input",
+            "Expected rowKey: true",
+        ));
+    }
+    Ok(())
+}
+
+fn record_item_inputs(
+    path: &str,
+    node: Option<&Node>,
+) -> Result<Vec<nkdk_rule_model::RecordItemInput>, Diagnostic> {
+    let Some(node) = node else {
+        return Ok(Vec::new());
+    };
+    let Shape::Mapping(entries) = &node.shape else {
+        return Err(error(
+            path,
+            node.mark,
+            "expected_mapping",
+            "Expected itemInputs mapping",
+        ));
+    };
+    entries
+        .iter()
+        .map(|(target, source)| {
+            let fields = source.mapping(path, &["rowKey", "lookup", "table"])?;
+            let source = if let Some(row_key) = optional_field(fields, "rowKey") {
+                if optional_field(fields, "lookup").is_some()
+                    || optional_field(fields, "table").is_some()
+                    || scalar_literal(path, row_key)? != ScalarLiteral::Boolean(true)
+                {
+                    return Err(error(
+                        path,
+                        source.mark,
+                        "invalid_item_input",
+                        "Expected rowKey: true",
+                    ));
+                }
+                nkdk_rule_model::RecordItemInputSource::RowKey
+            } else if let Some(table) = optional_field(fields, "table") {
+                if optional_field(fields, "lookup").is_some() {
+                    return Err(error(
+                        path,
+                        source.mark,
+                        "invalid_item_input",
+                        "Expected one item input source",
+                    ));
+                }
+                let table_fields = table.mapping(path, &["key", "values", "default"])?;
+                let key = table.field(path, table_fields, "key")?;
+                require_row_key(path, key)?;
+                let values = table.field(path, table_fields, "values")?;
+                let Shape::Mapping(entries) = &values.shape else {
+                    return Err(error(
+                        path,
+                        values.mark,
+                        "expected_mapping",
+                        "Expected table values mapping",
+                    ));
+                };
+                let mut seen = std::collections::BTreeSet::new();
+                let mut rows = Vec::with_capacity(entries.len());
+                for (key, value) in entries {
+                    let name = key.text(path)?.to_owned();
+                    if !seen.insert(name.clone()) {
+                        return Err(error(
+                            path,
+                            key.mark,
+                            "duplicate_table_key",
+                            "Table key is repeated",
+                        ));
+                    }
+                    rows.push((name, value.text(path)?.to_owned()));
+                }
+                nkdk_rule_model::RecordItemInputSource::Table {
+                    values: rows,
+                    default: table
+                        .field(path, table_fields, "default")?
+                        .text(path)?
+                        .to_owned(),
+                }
+            } else {
+                let lookup = source.field(path, fields, "lookup")?;
+                let lookup_fields = lookup.mapping(path, &["in", "key", "default"])?;
+                let input = lookup.field(path, lookup_fields, "in")?;
+                let input_fields = input.mapping(path, &["input"])?;
+                let key = lookup.field(path, lookup_fields, "key")?;
+                require_row_key(path, key)?;
+                let default = lookup.field(path, lookup_fields, "default")?;
+                let default_fields = default.mapping(path, &["input"])?;
+                nkdk_rule_model::RecordItemInputSource::Lookup {
+                    input: input.field(path, input_fields, "input")?.text(path)?.into(),
+                    default_input: default
+                        .field(path, default_fields, "input")?
+                        .text(path)?
+                        .into(),
+                }
+            };
+            Ok(nkdk_rule_model::RecordItemInput {
+                target: target.text(path)?.into(),
+                source,
+            })
+        })
+        .collect()
+}
+
 fn yaml_collection(path: &str, node: &Node) -> Result<YamlRepresentation, Diagnostic> {
     let fields = node.mapping(
         path,
@@ -1042,12 +1189,17 @@ fn yaml_collection(path: &str, node: &Node) -> Result<YamlRepresentation, Diagno
             "scalar",
             "key",
             "value",
+            "maxItems",
             "shorthand",
             "singleton",
             "omitEmptyFor",
             "restoreFrom",
             "emptyTag",
+            "emptyRowNull",
+            "groupKey",
             "keyTable",
+            "itemInputs",
+            "itemTag",
         ],
     )?;
     match node.field(path, fields, "kind")?.text(path)? {
@@ -1058,16 +1210,44 @@ fn yaml_collection(path: &str, node: &Node) -> Result<YamlRepresentation, Diagno
                     "kind",
                     "key",
                     "value",
+                    "maxItems",
                     "restoreFrom",
                     "omitEmptyFor",
                     "emptyTag",
+                    "emptyRowNull",
+                    "groupKey",
                     "keyTable",
+                    "itemInputs",
                 ],
             )?;
             Ok(YamlRepresentation::RecordMapping {
                 key: node.field(path, fields, "key")?.text(path)?.into(),
+                group_key: optional_field(fields, "groupKey")
+                    .map(|value| value.text(path).map(str::to_owned))
+                    .transpose()?,
+                item_inputs: record_item_inputs(path, optional_field(fields, "itemInputs"))?,
                 value: optional_field(fields, "value")
                     .map(|value| value.text(path).map(str::to_owned))
+                    .transpose()?,
+                max_items: optional_field(fields, "maxItems")
+                    .map(|value| {
+                        let ScalarLiteral::Number(number) = scalar_literal(path, value)? else {
+                            return Err(error(
+                                path,
+                                value.mark,
+                                "invalid_max_items",
+                                "Expected nonnegative integer maxItems",
+                            ));
+                        };
+                        number.parse::<usize>().map_err(|_| {
+                            error(
+                                path,
+                                value.mark,
+                                "invalid_max_items",
+                                "Expected nonnegative integer maxItems",
+                            )
+                        })
+                    })
                     .transpose()?,
                 restore_from: optional_field(fields, "restoreFrom")
                     .map(|value| value.text(path).map(str::to_owned))
@@ -1078,6 +1258,20 @@ fn yaml_collection(path: &str, node: &Node) -> Result<YamlRepresentation, Diagno
                 empty_tag: optional_field(fields, "emptyTag")
                     .map(|value| value.text(path).map(str::to_owned))
                     .transpose()?,
+                empty_row_null: optional_field(fields, "emptyRowNull")
+                    .map(|value| scalar_literal(path, value))
+                    .transpose()?
+                    .map(|value| match value {
+                        ScalarLiteral::Boolean(value) => Ok(value),
+                        _ => Err(error(
+                            path,
+                            node.mark,
+                            "invalid_empty_row_null",
+                            "Expected boolean emptyRowNull",
+                        )),
+                    })
+                    .transpose()?
+                    .unwrap_or(false),
                 key_table: optional_field(fields, "keyTable")
                     .map(|table| {
                         let fields =
@@ -1095,19 +1289,41 @@ fn yaml_collection(path: &str, node: &Node) -> Result<YamlRepresentation, Diagno
             })
         }
         "sequence" => {
-            node.mapping(path, &["kind", "item", "shorthand", "singleton"])?;
+            node.mapping(path, &["kind", "item", "itemTag", "shorthand", "singleton"])?;
+            let item = optional_field(fields, "item")
+                .map(|item| yaml_collection(path, item))
+                .transpose()?
+                .unwrap_or(YamlRepresentation::Declared);
+            let item_tag = optional_field(fields, "itemTag")
+                .map(|value| {
+                    let tag = semantic_item_tag(path, value)?;
+                    if item != YamlRepresentation::Declared {
+                        return Err(error(
+                            path,
+                            value.mark,
+                            "invalid_sequence_item_tag",
+                            "Item tags require declared items",
+                        ));
+                    }
+                    Ok(tag)
+                })
+                .transpose()?;
             Ok(YamlRepresentation::Sequence {
-                item: Box::new(
-                    optional_field(fields, "item")
-                        .map(|item| yaml_collection(path, item))
-                        .transpose()?
-                        .unwrap_or(YamlRepresentation::Declared),
-                ),
+                item: Box::new(item),
+                item_tag,
                 shorthand: sequence_shorthand::parse(path, optional_field(fields, "shorthand"))?,
                 singleton: optional_field(fields, "singleton")
-                    .map(|value| value.literal(path, "scalar", "invalid_singleton"))
-                    .transpose()?
-                    .is_some(),
+                    .map(|value| match value.text(path)? {
+                        "scalar" => Ok(YamlSingleton::Scalar),
+                        "value" => Ok(YamlSingleton::Value),
+                        _ => Err(error(
+                            path,
+                            value.mark,
+                            "invalid_singleton",
+                            "Expected scalar or value",
+                        )),
+                    })
+                    .transpose()?,
             })
         }
         "mapping" => Ok(YamlRepresentation::Mapping(yaml_fields(path, node)?)),
@@ -1126,19 +1342,9 @@ fn yaml_collection(path: &str, node: &Node) -> Result<YamlRepresentation, Diagno
 }
 
 fn named_inputs(path: &str, fields: &[(Node, Node)]) -> Result<Vec<NamedType>, Diagnostic> {
-    let Some(value) = fields.iter().find_map(|(key, value)| match &key.shape {
-        Shape::Scalar(name, _) if name == "inputs" => Some(value),
-        _ => None,
-    }) else {
+    let Some(entries) = optional_mapping(path, fields, "inputs", "Expected input declarations")?
+    else {
         return Ok(vec![]);
-    };
-    let Shape::Mapping(entries) = &value.shape else {
-        return Err(error(
-            path,
-            value.mark,
-            "expected_mapping",
-            "Expected input declarations",
-        ));
     };
     entries
         .iter()
@@ -1160,19 +1366,14 @@ fn named_inputs(path: &str, fields: &[(Node, Node)]) -> Result<Vec<NamedType>, D
 }
 
 fn parameters(path: &str, fields: &[(Node, Node)]) -> Result<Vec<Parameter>, Diagnostic> {
-    let Some(value) = fields.iter().find_map(|(key, value)| match &key.shape {
-        Shape::Scalar(name, _) if name == "parameters" => Some(value),
-        _ => None,
-    }) else {
+    let Some(entries) = optional_mapping(
+        path,
+        fields,
+        "parameters",
+        "Expected parameter declarations",
+    )?
+    else {
         return Ok(vec![]);
-    };
-    let Shape::Mapping(entries) = &value.shape else {
-        return Err(error(
-            path,
-            value.mark,
-            "expected_mapping",
-            "Expected parameter declarations",
-        ));
     };
     entries
         .iter()
@@ -1201,6 +1402,18 @@ fn optional_field<'a>(fields: &'a [(Node, Node)], name: &str) -> Option<&'a Node
         Shape::Scalar(key, _) if key == name => Some(value),
         _ => None,
     })
+}
+
+fn field_order(path: &str, fields: &[(Node, Node)], name: &str) -> Result<Vec<String>, Diagnostic> {
+    optional_field(fields, name)
+        .map(|node| {
+            sequence(path, node)?
+                .iter()
+                .map(|item| item.text(path).map(str::to_owned))
+                .collect::<Result<Vec<_>, _>>()
+        })
+        .transpose()
+        .map(Option::unwrap_or_default)
 }
 
 fn named_nodes<'a>(path: &str, node: Option<&'a Node>) -> Result<&'a [(Node, Node)], Diagnostic> {
@@ -1249,10 +1462,13 @@ fn composition(path: &str, fields: &[(Node, Node)]) -> Result<Vec<TypeUse>, Diag
 }
 
 fn iteration(path: &str, node: &Node) -> Result<Iteration, Diagnostic> {
-    let fields = node.mapping(path, &["in", "as"])?;
+    let fields = node.mapping(path, &["in", "as", "index"])?;
     Ok(Iteration {
         input: expression(path, node.field(path, fields, "in")?)?,
         binding: node.field(path, fields, "as")?.text(path)?.into(),
+        index: optional_field(fields, "index")
+            .map(|value| value.text(path).map(str::to_owned))
+            .transpose()?,
         source: location(path, node),
     })
 }
@@ -1288,7 +1504,10 @@ fn choice_representations(
             sequence(path, variants)?
                 .iter()
                 .map(|item| {
-                    let fields = item.mapping(path, &["variant", "form", "key", "value"])?;
+                    let fields = item.mapping(
+                        path,
+                        &["variant", "form", "key", "value", "tag", "input", "equals"],
+                    )?;
                     let form = item.field(path, fields, "form")?.text(path)?;
                     let form = match form {
                         "sequence" => {
@@ -1304,12 +1523,78 @@ fn choice_representations(
                             }
                             nkdk_rule_model::YamlChoiceForm::Sequence
                         }
-                        "mapping" => nkdk_rule_model::YamlChoiceForm::Mapping {
-                            key: item.field(path, fields, "key")?.text(path)?.into(),
-                            value: optional_field(fields, "value")
-                                .map(|value| value.text(path).map(str::to_owned))
-                                .transpose()?,
-                        },
+                        "mapping" => {
+                            if let Some(key) = optional_field(fields, "key") {
+                                nkdk_rule_model::YamlChoiceForm::Mapping {
+                                    key: key.text(path)?.into(),
+                                    value: optional_field(fields, "value")
+                                        .map(|value| value.text(path).map(str::to_owned))
+                                        .transpose()?,
+                                }
+                            } else if optional_field(fields, "value").is_none() {
+                                nkdk_rule_model::YamlChoiceForm::MappingAny
+                            } else {
+                                return Err(error(
+                                    path,
+                                    item.mark,
+                                    "invalid_choice_selector",
+                                    "A mapping choice value requires a key",
+                                ));
+                            }
+                        }
+                        "tagged" => {
+                            if ["key", "value", "input", "equals"]
+                                .iter()
+                                .any(|key| optional_field(fields, key).is_some())
+                            {
+                                return Err(error(
+                                    path,
+                                    item.mark,
+                                    "invalid_choice_selector",
+                                    "A tagged value selector declares only its tag",
+                                ));
+                            }
+                            nkdk_rule_model::YamlChoiceForm::Tagged {
+                                tag: item.field(path, fields, "tag")?.text(path)?.into(),
+                            }
+                        }
+                        "scalar" => {
+                            if optional_field(fields, "key").is_some()
+                                || optional_field(fields, "value").is_some()
+                            {
+                                return Err(error(
+                                    path,
+                                    item.mark,
+                                    "invalid_choice_selector",
+                                    "A scalar choice selector cannot declare key or value",
+                                ));
+                            }
+                            nkdk_rule_model::YamlChoiceForm::Scalar {
+                                tag: item.field(path, fields, "tag")?.text(path)?.into(),
+                            }
+                        }
+                        "scalar-input" | "mapping-input" | "input-profile" => {
+                            if ["key", "value", "tag"]
+                                .iter()
+                                .any(|key| optional_field(fields, key).is_some())
+                            {
+                                return Err(error(
+                                    path,
+                                    item.mark,
+                                    "invalid_choice_selector",
+                                    "An input profile cannot declare key, value or tag",
+                                ));
+                            }
+                            let input = item.field(path, fields, "input")?.text(path)?.into();
+                            let equals = item.field(path, fields, "equals")?.text(path)?.into();
+                            if form == "scalar-input" {
+                                nkdk_rule_model::YamlChoiceForm::ScalarInput { input, equals }
+                            } else if form == "mapping-input" {
+                                nkdk_rule_model::YamlChoiceForm::MappingInput { input, equals }
+                            } else {
+                                nkdk_rule_model::YamlChoiceForm::InputProfile { input, equals }
+                            }
+                        }
                         _ => {
                             return Err(error(
                                 path,
@@ -1357,13 +1642,38 @@ fn choice_representations(
     }
     let mut variants = Vec::new();
     for item in sequence(path, xml.field(path, xml_fields, "variants")?)? {
-        let fields = item.mapping(path, &["variant", "in", "emit"])?;
+        let fields = item.mapping(path, &["variant", "in", "from", "emit"])?;
+        let from = optional_field(fields, "from")
+            .map(|value| value.text(path).map(str::to_owned))
+            .transpose()?;
+        if from.is_some() && optional_field(fields, "in").is_some() {
+            return Err(error(
+                path,
+                item.mark,
+                "invalid_choice_selector",
+                "A choice selector cannot combine in and from",
+            ));
+        }
+        if from.is_none() && optional_field(fields, "in").is_none() {
+            return Err(error(
+                path,
+                item.mark,
+                "invalid_choice_selector",
+                "A choice selector requires in or from",
+            ));
+        }
         variants.push(nkdk_rule_model::DiscriminatedChoiceCase {
             variant: item.field(path, fields, "variant")?.text(path)?.into(),
-            values: sequence(path, item.field(path, fields, "in")?)?
-                .iter()
-                .map(|value| value.text(path).map(str::to_owned))
-                .collect::<Result<_, _>>()?,
+            values: optional_field(fields, "in")
+                .map(|values| {
+                    sequence(path, values)?
+                        .iter()
+                        .map(|value| value.text(path).map(str::to_owned))
+                        .collect::<Result<Vec<_>, _>>()
+                })
+                .transpose()?
+                .unwrap_or_default(),
+            from,
             emit: optional_field(fields, "emit")
                 .map(|value| value.text(path).map(str::to_owned))
                 .transpose()?,
@@ -1377,4 +1687,23 @@ fn choice_representations(
         }),
         yaml_representation,
     ))
+}
+
+fn semantic_item_tag(path: &str, value: &Node) -> Result<String, Diagnostic> {
+    let tag = value.text(path)?;
+    if tag.is_empty()
+        || tag == "xml"
+        || tag.starts_with("xml/")
+        || !tag
+            .chars()
+            .all(|c| c.is_alphanumeric() || matches!(c, '/' | '-' | '_' | '.'))
+    {
+        return Err(error(
+            path,
+            value.mark,
+            "invalid_sequence_item_tag",
+            "Expected a bare semantic tag name",
+        ));
+    }
+    Ok(tag.to_owned())
 }

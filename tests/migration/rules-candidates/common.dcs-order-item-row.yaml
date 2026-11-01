@@ -1,0 +1,20 @@
+format: nkdk-declarations/1
+kind: value
+id: common.dcs-order-item-row
+imports:
+  item: common.dcs-order-item
+value:
+  kind: record
+  fields:
+    - name: item
+      type:
+        use: item
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: item
+        path: []
+  yaml:
+    kind: projection
+    field: item

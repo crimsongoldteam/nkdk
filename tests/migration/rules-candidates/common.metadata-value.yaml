@@ -22,6 +22,7 @@ imports:
   fixedArray: common.metadata-fixed-array
   formChoice: common.metadata-form-choice-list-value
   period: common.standard-period
+  beginningDate: common.standard-beginning-date
 parameters:
   fixedArrayItem:
     type:
@@ -88,6 +89,9 @@ value:
     - name: period
       type:
         use: period
+    - name: beginningDate
+      type:
+        use: beginningDate
     - name: boolean
       type:
         use: boolean
@@ -137,6 +141,10 @@ representations:
         in:
           - v8:StandardPeriod
         emit: v8:StandardPeriod
+      - variant: beginningDate
+        in:
+          - v8:StandardBeginningDate
+        emit: v8:StandardBeginningDate
       - variant: boolean
         in:
           - xs:boolean
@@ -190,6 +198,9 @@ representations:
       - variant: period
         form: mapping
         key: Вариант
+      - variant: beginningDate
+        form: mapping
+        key: Вариант
 presence:
   - target: self
     xml:
@@ -211,7 +222,11 @@ presence:
         - when:
             parameter: exportNilValue
           form: nil
-        - form: missing
+        - when:
+            not:
+              present:
+                self: true
+          form: missing
     yaml:
       missing:
         denotes:

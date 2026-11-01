@@ -10,6 +10,7 @@ pub(super) fn instantiate(
         entry,
         Substitution {
             offset,
+            collection_depth: 0,
             bindings,
             arguments,
             project_self: true,
@@ -27,11 +28,28 @@ pub(super) fn instantiate_value(
         entry,
         Substitution {
             offset: 0,
+            collection_depth: 0,
             bindings,
             arguments,
             project_self: false,
         },
     )
+}
+
+/// Apply the bindings of a referenced choice to one selected value type.
+pub(crate) fn instantiate_type(
+    value: &mut LinkedType,
+    bindings: &[LinkedBinding],
+    arguments: &[LinkedExpression],
+) -> Result<(), Diagnostic> {
+    Substitution {
+        offset: 0,
+        collection_depth: 0,
+        bindings,
+        arguments,
+        project_self: false,
+    }
+    .value(value)
 }
 
 fn instantiate_with(
@@ -46,6 +64,11 @@ fn instantiate_with(
             *index += offset;
         }
         for value in rule.expressions_mut() {
+            substitution.expression(value)?;
+        }
+    }
+    for short in &mut entry.shorthands {
+        for value in short.expressions_mut() {
             substitution.expression(value)?;
         }
     }
@@ -66,6 +89,11 @@ fn instantiate_with(
             }
         }
     }
+    for file in &mut entry.yaml_files {
+        file.field += offset;
+        substitution.expression(&mut file.path)?;
+        resources::validate(&file.path)?;
+    }
     for group in &mut entry.resources {
         if let Some(iteration) = &mut group.for_each {
             substitution.expression(&mut iteration.input)?;
@@ -80,11 +108,16 @@ fn instantiate_with(
         }
     }
     for contribution in &mut entry.contributions {
+        if let Some(when) = &mut contribution.when {
+            substitution.expression(when)?;
+        }
         if let Some(iteration) = &mut contribution.for_each {
             substitution.expression(&mut iteration.input)?;
         }
         substitution.expression(&mut contribution.key)?;
-        substitution.expression(&mut contribution.value)?;
+        if let Some(value) = contribution.write.value_mut() {
+            substitution.expression(value)?;
+        }
     }
     Ok(())
 }
@@ -92,6 +125,7 @@ fn instantiate_with(
 struct Substitution<'a> {
     offset: u32,
     project_self: bool,
+    collection_depth: u32,
     bindings: &'a [LinkedBinding],
     arguments: &'a [LinkedExpression],
 }
@@ -129,7 +163,17 @@ impl Substitution<'_> {
                     self.expression(&mut binding.value)?;
                 }
             }
-            LinkedType::Sequence(item) | LinkedType::Optional(item) => self.value(item)?,
+            LinkedType::Sequence(item) => {
+                Substitution {
+                    collection_depth: self.collection_depth + 1,
+                    offset: self.offset,
+                    project_self: self.project_self,
+                    bindings: self.bindings,
+                    arguments: self.arguments,
+                }
+                .value(item)?;
+            }
+            LinkedType::Optional(item) => self.value(item)?,
             LinkedType::Record(fields) | LinkedType::Choice(fields) => {
                 for field in fields {
                     self.value(&mut field.value)?;
@@ -154,6 +198,7 @@ impl Substitution<'_> {
                         )
                     })?;
                 *value = binding.value.clone();
+                shift_collection_depth(value, self.collection_depth);
             }
             LinkedExpressionKind::Parameter(index) => {
                 let argument = self.arguments.get(*index as usize).ok_or_else(|| {
@@ -164,6 +209,7 @@ impl Substitution<'_> {
                     )
                 })?;
                 *value = argument.clone();
+                shift_collection_depth(value, self.collection_depth);
             }
             LinkedExpressionKind::Field(index) => *index += self.offset,
             LinkedExpressionKind::Operation { arguments, .. } => {
@@ -198,6 +244,20 @@ impl Substitution<'_> {
         }
         super::scalar_parameters::fold(value);
         Ok(())
+    }
+}
+
+/// Input substitution into a sequence item crosses a lexical collection boundary.
+/// Local ordinals in that item remain at depth zero; only incoming expressions shift.
+fn shift_collection_depth(value: &mut LinkedExpression, depth: u32) {
+    match &mut value.kind {
+        LinkedExpressionKind::CollectionPosition(current) => *current += depth,
+        LinkedExpressionKind::Operation { arguments, .. } => {
+            for argument in arguments {
+                shift_collection_depth(argument, depth);
+            }
+        }
+        _ => {}
     }
 }
 

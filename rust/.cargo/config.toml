@@ -1,3 +1,4 @@
 [build]
-# Generated rule crates are large; parallel rustc processes otherwise exhaust RAM.
-jobs = 2
+# Candidate rule families can still need several gigabytes per rustc process.
+# Keep the workspace peak bounded while those families are being simplified.
+jobs = 1

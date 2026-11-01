@@ -1,0 +1,134 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.i8n-text
+  value1: common.boolean
+value:
+  kind: record
+  fields:
+    - name: listPresentation
+      type:
+        use: value0
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            input: ownerName
+    - name: extendedListPresentation
+      type:
+        use: value0
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            input: ownerName
+    - name: explanation
+      type:
+        use: value0
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            input: ownerName
+    - name: includeHelpInContents
+      type:
+        use: value1
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: listPresentation
+        path:
+          - Properties
+          - ListPresentation
+      - field: extendedListPresentation
+        path:
+          - Properties
+          - ExtendedListPresentation
+      - field: explanation
+        path:
+          - Properties
+          - Explanation
+      - field: includeHelpInContents
+        path:
+          - Properties
+          - IncludeHelpInContents
+  yaml:
+    kind: mapping
+    fields:
+      - field: listPresentation
+        key: ПредставлениеСписка
+      - field: extendedListPresentation
+        key: РасширенноеПредставлениеСписка
+      - field: explanation
+        key: Пояснение
+      - field: includeHelpInContents
+        key: ВключатьСправкуВСодержание
+presence:
+  - target:
+      field: listPresentation
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: listPresentation
+          form: empty-element
+  - target:
+      field: extendedListPresentation
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: extendedListPresentation
+          form: empty-element
+  - target:
+      field: explanation
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: explanation
+          form: empty-element
+  - target:
+      field: includeHelpInContents
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  ownerName:
+    type:
+      kind: scalar
+      scalar: text
+id: candidate.fragment.77033a9a1c6d6f865156

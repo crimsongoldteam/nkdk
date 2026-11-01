@@ -1,0 +1,118 @@
+format: nkdk-declarations/1
+kind: value
+id: common.metadata-data-table-path
+imports:
+  root: common.path-root
+  name: common.metadata-name
+  tail: common.data-table-segments
+inputs:
+  allowedRoots:
+    type:
+      kind: sequence
+      item:
+        use: root
+value:
+  kind: record
+  fields:
+    - name: root
+      type:
+        use: root
+    - name: name
+      type:
+        use: name
+    - name: tail
+      type:
+        use: tail
+representations:
+  xml:
+    kind: text-pattern
+    parts:
+      - field: root
+      - literal: .
+      - field: name
+      - literal: .
+      - field: tail
+  yaml:
+    kind: text-pattern
+    parts:
+      - field: root
+      - literal: .
+      - field: name
+      - literal: .
+      - field: tail
+constraints:
+  - id: allowed-root
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    assert:
+      exists:
+        in:
+          input: allowedRoots
+        as: root
+        where:
+          eq:
+            - var: root
+            - field: root
+    diagnostic:
+      code: metadata.target-root
+      severity: error
+      at:
+        self: true
+      message: Недопустимый вид основной таблицы
+  - id: segment-order
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    assert:
+      present:
+        fold:
+          in:
+            field: tail
+          as: segment
+          state: previous
+          initial:
+            if:
+              literal: true
+            then:
+              literal: object
+            else:
+              absent: true
+          next:
+            if:
+              eq:
+                - var: previous
+                - literal: closed
+            then:
+              absent: true
+            else:
+              if:
+                isVariant:
+                  value:
+                    var: segment
+                  variant: object
+              then:
+                if:
+                  eq:
+                    - var: previous
+                    - literal: object
+                then:
+                  literal: object
+                else:
+                  absent: true
+              else:
+                if:
+                  isVariant:
+                    value:
+                      var: segment
+                    variant: section
+                then:
+                  literal: section
+                else:
+                  literal: closed
+    diagnostic:
+      code: metadata.table-segment-order
+      severity: error
+      at:
+        self: true
+      message: Вложенные объекты должны предшествовать табличным частям, виртуальная таблица должна быть последней

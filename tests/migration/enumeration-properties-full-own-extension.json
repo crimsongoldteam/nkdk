@@ -1,0 +1,145 @@
+{
+  "entry": "metadata.enumeration",
+  "coverage": {
+    "assembled": [
+      "xmlRoot",
+      "internalInfo",
+      "uuid",
+      "name",
+      "synonym",
+      "comment",
+      "objectBelonging",
+      "extendedConfigurationObject",
+      "useStandardCommands",
+      "standardAttributes",
+      "characteristics",
+      "quickChoice",
+      "choiceMode",
+      "defaultListForm",
+      "defaultChoiceForm",
+      "auxiliaryListForm",
+      "auxiliaryChoiceForm",
+      "managerModule",
+      "listPresentation",
+      "extendedListPresentation",
+      "explanation",
+      "choiceHistoryOnInput",
+      "enumValues",
+      "commands",
+      "forms",
+      "templates"
+    ],
+    "pending": []
+  },
+  "xml": "<ns0:MetaDataObject xmlns:ns0=\"http://v8.1c.ru/8.3/MDClasses\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"2.20\"><ns0:Enum uuid=\"8e2cf41e-3f1e-41e4-b888-a6f36854ef69\"><ns0:InternalInfo>\n\t\t\t<xr:GeneratedType name=\"EnumRef.ПеречислениеВсеСвойстваExt\" category=\"Ref\">\n\t\t\t\t<xr:TypeId>6dbab3d5-468d-48d2-9caa-bcb89cb6ac04</xr:TypeId>\n\t\t\t\t<xr:ValueId>d4475e89-9166-40f4-8102-6ec715673fc7</xr:ValueId>\n\t\t\t</xr:GeneratedType>\n\t\t\t<xr:GeneratedType name=\"EnumManager.ПеречислениеВсеСвойстваExt\" category=\"Manager\">\n\t\t\t\t<xr:TypeId>1d51264d-c06e-4659-9114-a831a6aba690</xr:TypeId>\n\t\t\t\t<xr:ValueId>44c93bc7-808d-48b9-803b-ccc56144775f</xr:ValueId>\n\t\t\t</xr:GeneratedType>\n\t\t\t<xr:GeneratedType name=\"EnumList.ПеречислениеВсеСвойстваExt\" category=\"List\">\n\t\t\t\t<xr:TypeId>7b1b1581-495b-4e9f-9eae-0cfbd2cf6c55</xr:TypeId>\n\t\t\t\t<xr:ValueId>4f615d58-2703-4701-9b10-cfdcba8df307</xr:ValueId>\n\t\t\t</xr:GeneratedType>\n\t\t</ns0:InternalInfo>\n\t\t<ns0:Properties><ns0:Name>ПеречислениеВсеСвойстваExt</ns0:Name>\n\t\t\t<ns0:Synonym>\n\t\t\t\t<v8:item>\n\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t<v8:content>Синоним</v8:content>\n\t\t\t\t</v8:item>\n\t\t\t</ns0:Synonym>\n\t\t\t<ns0:Comment>Комментарий</ns0:Comment>\n\t\t\t<ns0:UseStandardCommands>true</ns0:UseStandardCommands>\n\t\t\t<ns0:StandardAttributes>\n\t\t\t\t<xr:StandardAttribute name=\"Order\">\n\t\t\t\t\t<xr:LinkByType />\n\t\t\t\t\t<xr:FillChecking>DontCheck</xr:FillChecking>\n\t\t\t\t\t<xr:MultiLine>false</xr:MultiLine>\n\t\t\t\t\t<xr:FillFromFillingValue>false</xr:FillFromFillingValue>\n\t\t\t\t\t<xr:CreateOnInput>Auto</xr:CreateOnInput>\n\t\t\t\t\t<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>\n\t\t\t\t\t<xr:MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:ToolTip />\n\t\t\t\t\t<xr:ExtendedEdit>false</xr:ExtendedEdit>\n\t\t\t\t\t<xr:Format />\n\t\t\t\t\t<xr:ChoiceForm />\n\t\t\t\t\t<xr:QuickChoice>Auto</xr:QuickChoice>\n\t\t\t\t\t<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>\n\t\t\t\t\t<xr:EditFormat />\n\t\t\t\t\t<xr:PasswordMode>false</xr:PasswordMode>\n\t\t\t\t\t<xr:DataHistory>Use</xr:DataHistory>\n\t\t\t\t\t<xr:MarkNegatives>false</xr:MarkNegatives>\n\t\t\t\t\t<xr:MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:Synonym />\n\t\t\t\t\t<xr:Comment />\n\t\t\t\t\t<xr:FullTextSearch>Use</xr:FullTextSearch>\n\t\t\t\t\t<xr:ChoiceParameterLinks />\n\t\t\t\t\t<xr:FillValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:Mask />\n\t\t\t\t\t<xr:ChoiceParameters />\n\t\t\t\t</xr:StandardAttribute>\n\t\t\t\t<xr:StandardAttribute name=\"Ref\">\n\t\t\t\t\t<xr:LinkByType />\n\t\t\t\t\t<xr:FillChecking>DontCheck</xr:FillChecking>\n\t\t\t\t\t<xr:MultiLine>false</xr:MultiLine>\n\t\t\t\t\t<xr:FillFromFillingValue>false</xr:FillFromFillingValue>\n\t\t\t\t\t<xr:CreateOnInput>Auto</xr:CreateOnInput>\n\t\t\t\t\t<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>\n\t\t\t\t\t<xr:MaxValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:ToolTip />\n\t\t\t\t\t<xr:ExtendedEdit>false</xr:ExtendedEdit>\n\t\t\t\t\t<xr:Format />\n\t\t\t\t\t<xr:ChoiceForm />\n\t\t\t\t\t<xr:QuickChoice>Auto</xr:QuickChoice>\n\t\t\t\t\t<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>\n\t\t\t\t\t<xr:EditFormat />\n\t\t\t\t\t<xr:PasswordMode>false</xr:PasswordMode>\n\t\t\t\t\t<xr:DataHistory>Use</xr:DataHistory>\n\t\t\t\t\t<xr:MarkNegatives>false</xr:MarkNegatives>\n\t\t\t\t\t<xr:MinValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:Synonym />\n\t\t\t\t\t<xr:Comment />\n\t\t\t\t\t<xr:FullTextSearch>Use</xr:FullTextSearch>\n\t\t\t\t\t<xr:ChoiceParameterLinks />\n\t\t\t\t\t<xr:FillValue xsi:nil=\"true\" />\n\t\t\t\t\t<xr:Mask />\n\t\t\t\t\t<xr:ChoiceParameters />\n\t\t\t\t</xr:StandardAttribute>\n\t\t\t</ns0:StandardAttributes>\n\t\t\t<ns0:Characteristics>\n\t\t\t\t<xr:Characteristic>\n\t\t\t\t\t<xr:CharacteristicTypes from=\"InformationRegister.ЗначенияХарактеристикОбъектовExt\">\n\t\t\t\t\t\t<xr:KeyField>InformationRegister.ЗначенияХарактеристикОбъектовExt.Dimension.Справочник</xr:KeyField>\n\t\t\t\t\t\t<xr:TypesFilterField>-1</xr:TypesFilterField>\n\t\t\t\t\t\t<xr:TypesFilterValue xsi:nil=\"true\" />\n\t\t\t\t\t\t<xr:DataPathField>InformationRegister.ЗначенияХарактеристикОбъектовExt.StandardAttribute.Period</xr:DataPathField>\n\t\t\t\t\t\t<xr:MultipleValuesUseField>-1</xr:MultipleValuesUseField>\n\t\t\t\t\t</xr:CharacteristicTypes>\n\t\t\t\t\t<xr:CharacteristicValues from=\"Catalog.СправочникПолный\">\n\t\t\t\t\t\t<xr:ObjectField>Catalog.СправочникПолный.Attribute.Реквизит1</xr:ObjectField>\n\t\t\t\t\t\t<xr:TypeField>Catalog.СправочникПолный.Attribute.Реквизит1</xr:TypeField>\n\t\t\t\t\t\t<xr:ValueField>-1</xr:ValueField>\n\t\t\t\t\t\t<xr:MultipleValuesKeyField>-1</xr:MultipleValuesKeyField>\n\t\t\t\t\t\t<xr:MultipleValuesOrderField>-1</xr:MultipleValuesOrderField>\n\t\t\t\t\t</xr:CharacteristicValues>\n\t\t\t\t</xr:Characteristic>\n\t\t\t</ns0:Characteristics>\n\t\t\t<ns0:QuickChoice>false</ns0:QuickChoice>\n\t\t\t<ns0:ChoiceMode>BothWays</ns0:ChoiceMode>\n\t\t\t<ns0:DefaultListForm>Enum.ПеречислениеВсеСвойстваExt.Form.ФормаСписка</ns0:DefaultListForm>\n\t\t\t<ns0:DefaultChoiceForm>Enum.ПеречислениеВсеСвойстваExt.Form.ФормаВыбора</ns0:DefaultChoiceForm>\n\t\t\t<ns0:AuxiliaryListForm />\n\t\t\t<ns0:AuxiliaryChoiceForm />\n\t\t\t<ns0:ListPresentation>\n\t\t\t\t<v8:item>\n\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t<v8:content>Представление списка</v8:content>\n\t\t\t\t</v8:item>\n\t\t\t</ns0:ListPresentation>\n\t\t\t<ns0:ExtendedListPresentation>\n\t\t\t\t<v8:item>\n\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t<v8:content>Расширенное представление списка</v8:content>\n\t\t\t\t</v8:item>\n\t\t\t</ns0:ExtendedListPresentation>\n\t\t\t<ns0:Explanation>\n\t\t\t\t<v8:item>\n\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t<v8:content>Пояснение\n</v8:content>\n\t\t\t\t</v8:item>\n\t\t\t</ns0:Explanation>\n\t\t\t<ns0:ChoiceHistoryOnInput>DontUse</ns0:ChoiceHistoryOnInput>\n\t\t</ns0:Properties><ns0:ChildObjects><ns0:EnumValue uuid=\"db841222-6797-438d-b143-f3cd6fe92289\">\n\t\t\t\t<ns0:Properties>\n\t\t\t\t\t<ns0:Name>ЗначениеПеречисления1</ns0:Name>\n\t\t\t\t\t<ns0:Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Синоним</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</ns0:Synonym>\n\t\t\t\t\t<ns0:Comment>Комментарий</ns0:Comment>\n\t\t\t\t</ns0:Properties>\n\t\t\t</ns0:EnumValue>\n\t\t\t<ns0:EnumValue uuid=\"6da97163-e16a-42a7-b9e6-d1b946bd96a8\">\n\t\t\t\t<ns0:Properties>\n\t\t\t\t\t<ns0:Name>ЗначениеПеречисления2</ns0:Name>\n\t\t\t\t\t<ns0:Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Синоним 2</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</ns0:Synonym>\n\t\t\t\t\t<ns0:Comment>Комментарий 2</ns0:Comment>\n\t\t\t\t</ns0:Properties>\n\t\t\t</ns0:EnumValue>\n\t\t\t<ns0:Form>ФормаСписка</ns0:Form>\n\t\t\t<ns0:Form>ФормаВыбора</ns0:Form>\n\t\t\t<ns0:Template>Макет</ns0:Template>\n\t\t\t<ns0:Command uuid=\"b027ea41-dde3-46b7-ab42-dd0e8eaeb781\">\n\t\t\t\t<ns0:Properties>\n\t\t\t\t\t<ns0:Name>Команда1</ns0:Name>\n\t\t\t\t\t<ns0:Synonym>\n\t\t\t\t\t\t<v8:item>\n\t\t\t\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t\t\t\t<v8:content>Синоним команды</v8:content>\n\t\t\t\t\t\t</v8:item>\n\t\t\t\t\t</ns0:Synonym>\n\t\t\t\t\t<ns0:Comment />\n\t\t\t\t\t<ns0:Group>NavigationPanelImportant</ns0:Group>\n\t\t\t\t\t<ns0:CommandParameterType />\n\t\t\t\t\t<ns0:ParameterUseMode>Single</ns0:ParameterUseMode>\n\t\t\t\t\t<ns0:ModifiesData>false</ns0:ModifiesData>\n\t\t\t\t\t<ns0:Representation>Auto</ns0:Representation>\n\t\t\t\t\t<ns0:ToolTip />\n\t\t\t\t\t<ns0:Picture />\n\t\t\t\t\t<ns0:Shortcut />\n\t\t\t\t\t<ns0:OnMainServerUnavalableBehavior>Auto</ns0:OnMainServerUnavalableBehavior>\n\t\t\t\t</ns0:Properties>\n\t\t\t</ns0:Command>\n\t\t</ns0:ChildObjects></ns0:Enum></ns0:MetaDataObject>",
+  "yaml": "Синоним: Синоним\nКомментарий: Комментарий\nИспользоватьСтандартныеКоманды: Истина\nХарактеристики:\n  - ВидыХарактеристик: РегистрСведений.ЗначенияХарактеристикОбъектовExt\n    ЗначенияХарактеристик: Справочник.СправочникПолный\n    ПолеВида: Справочник.СправочникПолный.Реквизит.Реквизит1\n    ПолеКлюча: РегистрСведений.ЗначенияХарактеристикОбъектовExt.Измерение.Справочник\n    ПолеОбъекта: Справочник.СправочникПолный.Реквизит.Реквизит1\n    ПолеПутиКДанным: РегистрСведений.ЗначенияХарактеристикОбъектовExt.СтандартныйРеквизит.Период\nБыстрыйВыбор: Ложь\nОсновнаяФормаСписка: ФормаСписка\nОсновнаяФормаДляВыбора: ФормаВыбора\nДополнительнаяФормаСписка: null\nДополнительнаяФормаДляВыбора: null\nПредставлениеСписка: Представление списка\nРасширенноеПредставлениеСписка: Расширенное представление списка\nПояснение: |\n  Пояснение\nИсторияВыбораПриВводе: НеИспользовать\nСтандартныеРеквизиты:\n  Порядок:\n    ФормаВыбора: null\n  Ссылка:\n    ФормаВыбора: null\nКоманды:\n  Команда1:\n    Синоним: Синоним команды\n    Группа: ПанельНавигацииВажное\nЗначения:\n  ЗначениеПеречисления1:\n    Синоним: Синоним\n    Комментарий: Комментарий\n  ЗначениеПеречисления2:\n    Синоним: Синоним 2\n    Комментарий: Комментарий 2",
+  "ownerIdentity": "8e2cf41e-3f1e-41e4-b888-a6f36854ef69",
+  "ownerInternalTypes": [
+    {
+      "name": "EnumRef.ПеречислениеВсеСвойстваExt",
+      "typeId": "6dbab3d5-468d-48d2-9caa-bcb89cb6ac04",
+      "valueId": "d4475e89-9166-40f4-8102-6ec715673fc7"
+    },
+    {
+      "name": "EnumManager.ПеречислениеВсеСвойстваExt",
+      "typeId": "1d51264d-c06e-4659-9114-a831a6aba690",
+      "valueId": "44c93bc7-808d-48b9-803b-ccc56144775f"
+    },
+    {
+      "name": "EnumList.ПеречислениеВсеСвойстваExt",
+      "typeId": "7b1b1581-495b-4e9f-9eae-0cfbd2cf6c55",
+      "valueId": "4f615d58-2703-4701-9b10-cfdcba8df307"
+    }
+  ],
+  "ownerPath": "Enum.ПеречислениеВсеСвойстваExt",
+  "ownerForms": [
+    "ФормаСписка",
+    "ФормаВыбора"
+  ],
+  "ownerChildIdentities": [
+    {
+      "kind": "EnumValue",
+      "name": "ЗначениеПеречисления1",
+      "identity": "db841222-6797-438d-b143-f3cd6fe92289"
+    },
+    {
+      "kind": "EnumValue",
+      "name": "ЗначениеПеречисления2",
+      "identity": "6da97163-e16a-42a7-b9e6-d1b946bd96a8"
+    },
+    {
+      "kind": "Command",
+      "name": "Команда1",
+      "identity": "b027ea41-dde3-46b7-ab42-dd0e8eaeb781"
+    }
+  ],
+  "ownerTemplates": [
+    "Макет"
+  ],
+  "xmlQNamePaths": [],
+  "source": [
+    {
+      "path": "e2e/fixtures/xml/cfe/all-extension/Enums/ПеречислениеВсеСвойстваExt.xml",
+      "sha256": "8f577527689eefef44b06a17631e99694c23c22d6201af2409c40e23eb8175d9"
+    },
+    {
+      "path": "e2e/fixtures/nkdk/cfe/Расширение_All/Перечисление/ПеречислениеВсеСвойстваExt/Свойства.yaml",
+      "sha256": "22c5485c22b464a285733900b6c299a62b238102f5de5ad899f773f67b85886e"
+    }
+  ],
+  "inputs": {
+    "ownerName": "ПеречислениеВсеСвойстваExt",
+    "owner": "Enum.ПеречислениеВсеСвойстваExt",
+    "ownerIdentity": "8e2cf41e-3f1e-41e4-b888-a6f36854ef69",
+    "forms": [
+      "ФормаСписка",
+      "ФормаВыбора"
+    ],
+    "templates": [
+      "Макет"
+    ],
+    "commandNames": [
+      "Команда1"
+    ],
+    "defaultLanguage": "ru",
+    "registeredLanguages": [
+      "ru",
+      "en"
+    ],
+    "component": "cfe",
+    "compatibilityMode": "Version8_3_27",
+    "componentKind": "extension",
+    "profiles": [
+      {
+        "name": "Order",
+        "yamlName": "Порядок",
+        "pathName": "Порядок",
+        "emptyForm": "mapping",
+        "policy": "notSpecified",
+        "expectedKind": "",
+        "maxTextLength": "",
+        "maxNumberDigits": "",
+        "allowedTextLength": "",
+        "owners": []
+      },
+      {
+        "name": "Ref",
+        "yamlName": "Ссылка",
+        "pathName": "Ссылка",
+        "emptyForm": "mapping",
+        "policy": "notSpecified",
+        "expectedKind": "",
+        "maxTextLength": "",
+        "maxNumberDigits": "",
+        "allowedTextLength": "",
+        "owners": []
+      }
+    ],
+    "owners": [],
+    "canonicalNames": [
+      "Order",
+      "Ref"
+    ],
+    "elidableNames": []
+  }
+}

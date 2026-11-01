@@ -4,8 +4,27 @@ import { createHash } from 'node:crypto';
 
 export function evaluator(program) {
   let steps = 0;
+  const membershipSafety=new WeakMap();
   const unknown = (node, reason) => ({kind:'unknown', reason, source: node && location(node)});
   const scalar = value => ({kind:'scalar', value});
+  function readOnlyMembership(node) {
+    const declaration=node.parent;
+    if(!ts.isExternalModule(node.getSourceFile()) ||
+      !ts.isVariableDeclaration(declaration) || !ts.isIdentifier(declaration.name) ||
+      !ts.isVariableDeclarationList(declaration.parent) || !(declaration.parent.flags & ts.NodeFlags.Const) ||
+      declaration.parent.parent.modifiers?.some(modifier=>modifier.kind===ts.SyntaxKind.ExportKeyword))return false;
+    if(membershipSafety.has(declaration))return membershipSafety.get(declaration);
+    let safe=true;
+    function visit(part) {
+      if(ts.isIdentifier(part) && part!==declaration.name && program.target(part)===declaration) {
+        const access=part.parent,call=access.parent;
+        if(!ts.isPropertyAccessExpression(access) || access.expression!==part || access.name.text!=='has' ||
+          !ts.isCallExpression(call) || call.expression!==access)safe=false;
+      }
+      ts.forEachChild(part,visit);
+    }
+    visit(node.getSourceFile());membershipSafety.set(declaration,safe);return safe;
+  }
   function evaluate(input, env = new Map(), active = new Set()) {
     const node = unwrap(input);
     if (!node) return scalar(undefined);
@@ -27,6 +46,17 @@ export function evaluator(program) {
     if (node.kind === ts.SyntaxKind.TrueKeyword) return scalar(true);
     if (node.kind === ts.SyntaxKind.FalseKeyword) return scalar(false);
     if (node.kind === ts.SyntaxKind.NullKeyword) return scalar(null);
+    if(ts.isPrefixUnaryExpression(node) && node.operator===ts.SyntaxKind.ExclamationToken) {
+      const value=run(node.operand);
+      return value.kind==='scalar'?scalar(!value.value):unknown(node,'dynamic-negation');
+    }
+    if(ts.isNewExpression(node) && ts.isIdentifier(node.expression) && node.expression.text==='Set' &&
+      !program.target(node.expression) && node.arguments?.length===1 && readOnlyMembership(node)) {
+      const values=run(node.arguments[0]);
+      return values.kind==='array' && values.values.every(value=>value.kind==='scalar')
+        ? {kind:'literal-membership',values:values.values.map(value=>value.value)}
+        : unknown(node,'dynamic-membership');
+    }
     if (ts.isIdentifier(node)) {
       const declaration = program.target(node);
       if (env.has(declaration)) return env.get(declaration);
@@ -121,7 +151,13 @@ export function evaluator(program) {
       return condition.kind === 'scalar' ? run(condition.value ? node.whenTrue : node.whenFalse) : unknown(node, 'dynamic-condition');
     }
     if (ts.isBinaryExpression(node)) {
-      const left = run(node.left), right = run(node.right);
+      const left = run(node.left);
+      if ([ts.SyntaxKind.AmpersandAmpersandToken,ts.SyntaxKind.BarBarToken].includes(node.operatorToken.kind)) {
+        if(left.kind!=='scalar')return unknown(node,'dynamic-logical-condition');
+        const useRight=node.operatorToken.kind===ts.SyntaxKind.AmpersandAmpersandToken ? Boolean(left.value) : !left.value;
+        return useRight ? run(node.right) : left;
+      }
+      const right = run(node.right);
       const equality = node.operatorToken.kind === ts.SyntaxKind.EqualsEqualsEqualsToken;
       const inequality = node.operatorToken.kind === ts.SyntaxKind.ExclamationEqualsEqualsToken;
       if (equality || inequality) {
@@ -137,6 +173,11 @@ export function evaluator(program) {
       return unknown(node, 'unsupported-operation');
     }
     if (ts.isCallExpression(node)) {
+      if(ts.isPropertyAccessExpression(node.expression) && node.expression.name.text==='has' && node.arguments.length===1) {
+        const receiver=run(node.expression.expression),argument=run(node.arguments[0]);
+        if(receiver.kind==='literal-membership' && argument.kind==='scalar')
+          return scalar(receiver.values.includes(argument.value));
+      }
       if(ts.isPropertyAccessExpression(node.expression) && node.expression.name.text==='replace' && node.arguments.length===2) {
         const receiver=run(node.expression.expression),replacement=run(node.arguments[1]),pattern=unwrap(node.arguments[0]);
         if(receiver.kind==='scalar' && typeof receiver.value==='string' && replacement.kind==='scalar' && typeof replacement.value==='string' && ts.isRegularExpressionLiteral(pattern)) {
@@ -217,7 +258,8 @@ export function evaluator(program) {
       }
       const body = fn.node.body;
       if (!ts.isBlock(body)) return evaluate(body, local, next);
-      for (const statement of body.statements) {
+      function execute(statements) {
+      for (const statement of statements) {
         if (ts.isReturnStatement(statement)) return evaluate(statement.expression, local, next);
         if (ts.isVariableStatement(statement) && (statement.declarationList.flags & ts.NodeFlags.Const)) {
           for (const declaration of statement.declarationList.declarations) {
@@ -226,9 +268,18 @@ export function evaluator(program) {
             if (initial.kind === 'unknown') return initial;
             local.set(declaration, initial);
           }
+        } else if(ts.isIfStatement(statement)) {
+          const condition=evaluate(statement.expression,local,next);
+          if(condition.kind!=='scalar')return unknown(statement,'dynamic-function-condition');
+          const branch=condition.value?statement.thenStatement:statement.elseStatement;
+          if(branch) {
+            const result=execute(ts.isBlock(branch)?branch.statements:[branch]);
+            if(result!==undefined)return result;
+          }
         } else return unknown(statement, 'unsupported-function-statement');
       }
-      return scalar(undefined);
+      }
+      return execute(body.statements)??scalar(undefined);
       }
       if(ts.isPropertyAccessExpression(node.expression) && node.expression.name.text==='map' && node.arguments.length===1) {
         const receiver=run(node.expression.expression), callback=run(node.arguments[0]);

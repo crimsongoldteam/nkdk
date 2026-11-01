@@ -1,0 +1,8 @@
+migration.journal-columns
+migration.metadata-own-identity
+migration.metadata-base-identity
+migration.journal-own-identity
+migration.journal-generated-types
+migration.journal-base-identity
+migration.journal-columns-identity-source
+migration.journal-commands-identity-source

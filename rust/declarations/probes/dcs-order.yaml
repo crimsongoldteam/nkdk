@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.dcs-order
+namespaces: {dcsset: 'http://v8.1c.ru/8.1/data-composition-system/settings'}
+imports: {order: common.dcs-order}
+inputs:
+  defaultLanguage: {type: {kind: scalar, scalar: text}}
+  registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+value:
+  kind: record
+  fields:
+  - name: order
+    type:
+      use: order
+      bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}}
+representations:
+  xml: {kind: record, fields: [{field: order, path: [Root, dcsset:order]}]}
+  yaml: {kind: mapping, fields: [{field: order, key: Порядок}]}

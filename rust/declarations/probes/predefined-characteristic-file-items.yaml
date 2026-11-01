@@ -1,0 +1,53 @@
+# Generated from packages/rules/metadata/commonObjects/predefined/rules.ts by file-envelope-operation.mjs
+format: nkdk-declarations/1
+kind: value
+id: probe.predefined-characteristic-file-items
+namespaces:
+  p: http://v8.1c.ru/8.3/xcf/predef
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+imports:
+  item: probe.predefined-catalog-item
+inputs:
+  parent:
+    type:
+      kind: scalar
+      scalar: text
+  identities:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: scalar
+        scalar: text
+value:
+  kind: sequence
+  item:
+    use: item
+    with:
+      emitType: true
+    bind:
+      parent:
+        input: parent
+      identities:
+        input: identities
+representations:
+  xml:
+    kind: with-attributes
+    attributes:
+      - name: xsi:type
+        value:
+          qname: p:PlanOfCharacteristicKindPredefinedItems
+      - name: version
+        value:
+          text: '2.20'
+    content:
+      kind: element-sequence
+      path:
+        - p:Item
+      item:
+        kind: declared
+  yaml:
+    kind: record-mapping
+    key: name

@@ -1,0 +1,31 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.child-file-item-names
+imports: {names: common.child-object-names}
+inputs:
+  tables: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  cubes: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  recalculations: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  dimensionTables: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+value:
+  kind: record
+  fields:
+  - {name: tables, type: {use: names, bind: {names: {input: tables}}}}
+  - {name: cubes, type: {use: names, bind: {names: {input: cubes}}}}
+  - {name: recalculations, type: {use: names, bind: {names: {input: recalculations}}}}
+  - {name: dimensionTables, type: {use: names, bind: {names: {input: dimensionTables}}}}
+representations:
+  xml:
+    kind: record
+    fields:
+    - {field: tables, path: [Root, ChildObjects, Table]}
+    - {field: cubes, path: [Root, ChildObjects, Cube]}
+    - {field: recalculations, path: [Root, ChildObjects, Recalculation]}
+    - {field: dimensionTables, path: [Root, ChildObjects, DimensionTable]}
+  yaml:
+    kind: mapping
+    fields:
+    - {field: tables, key: Таблицы}
+    - {field: cubes, key: Кубы}
+    - {field: recalculations, key: Перерасчеты}
+    - {field: dimensionTables, key: ТаблицыИзмерений}

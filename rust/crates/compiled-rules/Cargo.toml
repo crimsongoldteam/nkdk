@@ -4,6 +4,7 @@ version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 publish.workspace = true
+build = false
 autotests = false
 # Generated declarations are exercised by tests/*.rs. The library has no unit tests;
 # avoid compiling the entire catalog again as an empty unit-test executable.
@@ -14,13 +15,33 @@ test = false
 workspace = true
 
 [dependencies]
+nkdk-compiled-rules-elements = {path="../compiled-rules-elements"}
+nkdk-compiled-rules-elements-2 = {path="../compiled-rules-elements-2"}
+nkdk-compiled-rules-bodies = {path="../compiled-rules-bodies"}
+nkdk-compiled-rules-bodies-2 = {path="../compiled-rules-bodies-2"}
+nkdk-compiled-rules-bodies-3 = {path="../compiled-rules-bodies-3"}
+nkdk-compiled-rules-bodies-4 = {path="../compiled-rules-bodies-4"}
+nkdk-compiled-rules-bodies-5 = {path="../compiled-rules-bodies-5"}
+nkdk-compiled-rules-base = {path="../compiled-rules-base"}
+nkdk-compiled-rules-owners = {path="../compiled-rules-owners"}
+nkdk-compiled-rules-owners-2 = {path="../compiled-rules-owners-2"}
+nkdk-compiled-rules-owners-3 = {path="../compiled-rules-owners-3"}
+nkdk-compiled-rules-members = {path="../compiled-rules-members"}
+nkdk-compiled-rules-members-2 = {path="../compiled-rules-members-2"}
 nkdk-conversion-core = { path = "../conversion-core" }
-[build-dependencies]
-nkdk-rule-compiler = { path = "../rule-compiler" }
+
+
+nkdk-compiled-rules-inputs = {path="../compiled-rules-inputs"}
+nkdk-compiled-rules-inputs-2 = {path="../compiled-rules-inputs-2"}
 
 [dev-dependencies]
 serde_json = { version = "=1.0.150", features = ["arbitrary_precision"] }
+yaml-rust2.workspace = true
 
 [[test]]
-name = "standard_attributes"
-path = "tests/standard_attributes.rs"
+name = "enumeration"
+path = "tests/enumeration.rs"
+
+[[test]]
+name = "catalog_attribute"
+path = "tests/catalog_attribute.rs"

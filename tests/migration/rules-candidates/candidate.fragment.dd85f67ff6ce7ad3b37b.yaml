@@ -1,0 +1,189 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.form-event-bindings
+value:
+  kind: record
+  fields:
+    - name: events
+      type:
+        use: value0
+        bind:
+          eventNames:
+            sequence:
+              - record:
+                  xml:
+                    literal: Selection
+                  yaml:
+                    literal: Выбор
+              - record:
+                  xml:
+                    literal: ValueChoice
+                  yaml:
+                    literal: ВыборЗначения
+              - record:
+                  xml:
+                    literal: DragStart
+                  yaml:
+                    literal: НачалоПеретаскивания
+              - record:
+                  xml:
+                    literal: ChoiceProcessing
+                  yaml:
+                    literal: ОбработкаВыбора
+              - record:
+                  xml:
+                    literal: NewWriteProcessing
+                  yaml:
+                    literal: ОбработкаЗаписиНового
+              - record:
+                  xml:
+                    literal: RefreshRequestProcessing
+                  yaml:
+                    literal: ОбработкаЗапросаОбновления
+              - record:
+                  xml:
+                    literal: DragEnd
+                  yaml:
+                    literal: ОкончаниеПеретаскивания
+              - record:
+                  xml:
+                    literal: OnLoadUserSettingsAtServer
+                  yaml:
+                    literal: ПриЗагрузкеПользовательскихНастроекНаСервере
+              - record:
+                  xml:
+                    literal: URLListGetProcessing
+                  yaml:
+                    literal: ОбработкаПолученияСпискаНавигационныхСсылок
+              - record:
+                  xml:
+                    literal: URLGetProcessing
+                  yaml:
+                    literal: ОбработкаПолученияНавигационнойСсылки
+              - record:
+                  xml:
+                    literal: OnGetDataAtServer
+                  yaml:
+                    literal: ПриПолученииДанныхНаСервере
+              - record:
+                  xml:
+                    literal: OnSaveUserSettingsAtServer
+                  yaml:
+                    literal: ПриСохраненииПользовательскихНастроекНаСервере
+              - record:
+                  xml:
+                    literal: OnUpdateUserSettingSetAtServer
+                  yaml:
+                    literal: ПриОбновленииСоставаПользовательскихНастроекНаСервере
+              - record:
+                  xml:
+                    literal: BeforeLoadUserSettingsAtServer
+                  yaml:
+                    literal: ПередЗагрузкойПользовательскихНастроекНаСервере
+              - record:
+                  xml:
+                    literal: BeforeAddRow
+                  yaml:
+                    literal: ПередНачаломДобавления
+              - record:
+                  xml:
+                    literal: BeforeRowChange
+                  yaml:
+                    literal: ПередНачаломИзменения
+              - record:
+                  xml:
+                    literal: BeforeEditEnd
+                  yaml:
+                    literal: ПередОкончаниемРедактирования
+              - record:
+                  xml:
+                    literal: BeforeExpand
+                  yaml:
+                    literal: ПередРазворачиванием
+              - record:
+                  xml:
+                    literal: BeforeCollapse
+                  yaml:
+                    literal: ПередСворачиванием
+              - record:
+                  xml:
+                    literal: BeforeDeleteRow
+                  yaml:
+                    literal: ПередУдалением
+              - record:
+                  xml:
+                    literal: Drag
+                  yaml:
+                    literal: Перетаскивание
+              - record:
+                  xml:
+                    literal: AfterDeleteRow
+                  yaml:
+                    literal: ПослеУдаления
+              - record:
+                  xml:
+                    literal: OnActivateField
+                  yaml:
+                    literal: ПриАктивизацииПоля
+              - record:
+                  xml:
+                    literal: OnActivateRow
+                  yaml:
+                    literal: ПриАктивизацииСтроки
+              - record:
+                  xml:
+                    literal: OnActivateCell
+                  yaml:
+                    literal: ПриАктивизацииЯчейки
+              - record:
+                  xml:
+                    literal: OnChange
+                  yaml:
+                    literal: ПриИзменении
+              - record:
+                  xml:
+                    literal: OnStartEdit
+                  yaml:
+                    literal: ПриНачалеРедактирования
+              - record:
+                  xml:
+                    literal: OnEditEnd
+                  yaml:
+                    literal: ПриОкончанииРедактирования
+              - record:
+                  xml:
+                    literal: OnCurrentParentChange
+                  yaml:
+                    literal: ПриСменеТекущегоРодителя
+              - record:
+                  xml:
+                    literal: DragCheck
+                  yaml:
+                    literal: ПроверкаПеретаскивания
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: events
+        path:
+          - f:Events
+  yaml:
+    kind: mapping
+    fields:
+      - field: events
+        key: События
+presence:
+  - target:
+      field: events
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+namespaces:
+  f: http://v8.1c.ru/8.3/xcf/logform
+id: candidate.fragment.dd85f67ff6ce7ad3b37b

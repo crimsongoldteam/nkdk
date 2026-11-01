@@ -16,9 +16,15 @@ pub struct Mapping {
 fn error(code: &str, message: &str, position: Position) -> RuntimeDiagnostic {
     position.apply(&[], RuntimeDiagnostic::new(code, message))
 }
-fn target(property: &str, key: Option<(&str, u32)>, position: Position) -> RuntimeDiagnostic {
-    let mut value =
-        RuntimeDiagnostic::declared(None, Some("structure"), Severity::Error, "").field(property);
+fn target(
+    property: Option<&str>,
+    key: Option<(&str, u32)>,
+    position: Position,
+) -> RuntimeDiagnostic {
+    let mut value = RuntimeDiagnostic::declared(None, Some("structure"), Severity::Error, "");
+    if let Some(property) = property {
+        value = value.field(property);
+    }
     if let Some((key, occurrence)) = key {
         value = value
             .field(key)
@@ -133,6 +139,14 @@ impl Mapping {
         rows: impl Iterator<Item = (&'a str, Position)>,
         issues: &[RuntimeDiagnostic],
     ) -> Result<Self> {
+        Self::infer_at(Some(property), rows, issues)
+    }
+    /// The same mapping contract can occupy a property or the whole value.
+    pub fn infer_at<'a>(
+        property: Option<&str>,
+        rows: impl Iterator<Item = (&'a str, Position)>,
+        issues: &[RuntimeDiagnostic],
+    ) -> Result<Self> {
         if let Some(issue) = issues
             .iter()
             .find(|issue| issue.kind == IssueKind::Structural && issue.severity == Severity::Error)
@@ -193,6 +207,15 @@ impl Mapping {
     pub fn validate_with_evidence<'a>(
         &self,
         property: &str,
+        rows: impl Iterator<Item = (&'a str, Position)>,
+        issues: Vec<RuntimeDiagnostic>,
+        evidence: &[RuntimeDiagnostic],
+    ) -> Vec<RuntimeDiagnostic> {
+        self.validate_at(Some(property), rows, issues, evidence)
+    }
+    pub fn validate_at<'a>(
+        &self,
+        property: Option<&str>,
         rows: impl Iterator<Item = (&'a str, Position)>,
         mut issues: Vec<RuntimeDiagnostic>,
         evidence: &[RuntimeDiagnostic],

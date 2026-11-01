@@ -1,9 +1,11 @@
+mod documents;
 mod read;
 mod records;
 mod view;
 use crate::{EntryId, Result, RuntimeDiagnostic, decimal::Decimal};
+pub use documents::DocumentOverlay;
 pub use read::read;
-pub use records::{RecordInput, Records};
+pub use records::{ChoiceRecordView, RecordInput, RecordView, Records};
 pub use view::{InputRef, InputView};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -88,6 +90,7 @@ impl InputType {
 #[derive(Debug, Default)]
 pub struct PreparedInputs {
     documents: Vec<(crate::resources::RelativePath, Vec<u8>)>,
+    document_limits: Option<(crate::resources::Limits, usize)>,
     entry: Option<EntryId>,
     values: Vec<Option<InputValue>>,
 }
@@ -127,6 +130,25 @@ impl PreparedInputs {
         Ok(self)
     }
 
+    pub fn with_document_limits(
+        mut self,
+        limits: crate::resources::Limits,
+        max_bytes: usize,
+    ) -> Result<Self> {
+        self.view().overlay_documents(&[], limits, max_bytes)?;
+        self.document_limits = Some((limits, max_bytes));
+        Ok(self)
+    }
+    pub fn document_limits(&self) -> (crate::resources::Limits, usize) {
+        self.document_limits.unwrap_or((
+            crate::resources::Limits {
+                groups: 65536,
+                routes: 100_000,
+                path_bytes: 16 * 1024 * 1024,
+            },
+            64 * 1024 * 1024,
+        ))
+    }
     pub fn with_documents(
         mut self,
         documents: Vec<(crate::resources::RelativePath, Vec<u8>)>,
@@ -141,19 +163,19 @@ impl PreparedInputs {
             }
         }
         self.documents = documents;
+        if let Some((limits, max_bytes)) = self.document_limits {
+            self.view().overlay_documents(&[], limits, max_bytes)?;
+        }
         Ok(self)
     }
-    pub fn document(&self, path: &[&str]) -> &[u8] {
+    pub fn into_documents(self) -> Vec<(crate::resources::RelativePath, Vec<u8>)> {
         self.documents
-            .iter()
-            .find(|(candidate, _)| {
-                candidate
-                    .segments()
-                    .iter()
-                    .map(String::as_str)
-                    .eq(path.iter().copied())
-            })
-            .map_or(&[], |(_, bytes)| bytes.as_slice())
+    }
+    pub fn document(&self, path: &[&str]) -> &[u8] {
+        self.document_optional(path).unwrap_or(&[])
+    }
+    pub fn document_optional(&self, path: &[&str]) -> Option<&[u8]> {
+        documents::find(&self.documents, path)
     }
 
     pub fn prepare(
@@ -185,6 +207,7 @@ impl PreparedInputs {
         }
         Ok(Self {
             documents: Vec::new(),
+            document_limits: None,
             entry: Some(entry),
             values: slots,
         })

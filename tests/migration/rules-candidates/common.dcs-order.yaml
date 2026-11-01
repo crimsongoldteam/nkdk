@@ -1,0 +1,119 @@
+format: nkdk-declarations/1
+kind: value
+id: common.dcs-order
+namespaces:
+  dcsset: http://v8.1c.ru/8.1/data-composition-system/settings
+imports:
+  items: common.dcs-order-item-fields
+  view: system.DataCompositionSettingsItemViewMode
+  setting: common.user-settings-id
+  title: common.dcs-local-string-type
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+value:
+  kind: record
+  fields:
+    - name: items
+      type:
+        use: items
+    - name: viewMode
+      type:
+        use: view
+    - name: userSettingID
+      type:
+        use: setting
+    - name: userSettingPresentation
+      type:
+        use: title
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: items
+        path: []
+      - field: viewMode
+        path:
+          - dcsset:viewMode
+      - field: userSettingID
+        path:
+          - dcsset:userSettingID
+      - field: userSettingPresentation
+        path:
+          - dcsset:userSettingPresentation
+  yaml:
+    kind: mapping
+    fields:
+      - field: items
+        key: Элементы
+      - field: viewMode
+        key: РежимОтображения
+      - field: userSettingID
+        key: ИспользоватьПользовательскуюНастройку
+      - field: userSettingPresentation
+        key: ПредставлениеПользовательскойНастройки
+presence:
+  - target:
+      field: items
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: viewMode
+    xml:
+      missing:
+        denotes:
+          literal: Auto
+      canonical:
+        - when:
+            eq:
+              - field: viewMode
+              - literal: Auto
+          form: missing
+        - form: ordinary
+    yaml:
+      missing:
+        denotes:
+          literal: Auto
+      omitWhen:
+        eq:
+          - field: viewMode
+          - literal: Auto
+  - target:
+      field: userSettingID
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: userSettingPresentation
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true

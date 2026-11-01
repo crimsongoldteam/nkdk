@@ -12,6 +12,8 @@ pub struct LinkedEntry {
     pub id: u32,
     /// Caller whose input slots were captured when this profile was specialized.
     pub input_scope: Option<u32>,
+    /// Only an explicit declaration may replace the legacy XML write order.
+    pub xml_order_declared: bool,
     pub name: String,
     pub namespaces: Vec<crate::NamedBinding>,
     pub kind: ModuleKind,
@@ -22,7 +24,9 @@ pub struct LinkedEntry {
     pub field_dependencies: Vec<Vec<u32>>,
     pub constraints: Vec<LinkedConstraint>,
     pub contributions: Vec<LinkedContribution>,
+    pub data_path: Option<crate::DataPathDefinition>,
     pub resources: Vec<crate::ResourceGroup<LinkedExpression, LinkedIteration>>,
+    pub yaml_files: Vec<LinkedYamlFile>,
     pub shorthands: Vec<LinkedShorthand>,
     pub presence: Vec<LinkedPresence>,
     pub normalization: Option<LinkedNormalization>,
@@ -30,6 +34,12 @@ pub struct LinkedEntry {
     pub xml: LinkedXml,
     pub yaml: YamlRepresentation,
     pub source: SourceLocation,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LinkedYamlFile {
+    pub field: u32,
+    pub path: LinkedExpression,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -114,6 +124,7 @@ pub enum LinkedXml {
     Record(Vec<LinkedXmlField>),
     ElementSequence {
         path: Vec<ExpandedName>,
+        next: Option<Vec<ExpandedName>>,
         item: Box<LinkedXml>,
     },
 }
@@ -166,8 +177,12 @@ impl LinkedExpression {
 pub enum LinkedExpressionKind {
     Absent,
     Input(u32),
+    /// Input supplied by the containing record-mapping row after placement.
+    RowInput(u32),
     Parameter(u32),
     Variable(u32),
+    Ordinal(u32),
+    CollectionPosition(u32),
     Capture(u32),
     SelfValue,
     Operation {
@@ -188,6 +203,8 @@ pub struct LinkedParameter {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum LinkedOperator {
+    Identity { domain: String, format: String },
+    LogicalAddress { parent: bool },
     ConstructVariant(u32),
     IsVariant(u32),
     VariantValue(u32),
@@ -197,6 +214,8 @@ pub enum LinkedOperator {
     TextLengthAtMost,
     TextLengthEquals,
     CalendarFits,
+    DecimalText,
+    EnumText,
     DecimalFits,
     VariantField { variant: u32, field: u32 },
     Lookup,
@@ -280,6 +299,7 @@ pub enum LinkedDiagnosticTarget {
 pub struct LinkedIteration {
     pub input: LinkedExpression,
     pub slot: u32,
+    pub index: Option<u32>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -290,11 +310,36 @@ pub enum LinkedMessagePart {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LinkedShorthand {
+    pub canonical: bool,
     pub id: String,
     pub representation: LinkedShorthandRepresentation,
     pub denotes: LinkedExpression,
     pub when: Option<LinkedExpression>,
     pub source: SourceLocation,
+}
+
+impl LinkedShorthand {
+    /// All expressions share the declaration's lexical input scope.
+    pub fn expressions_mut(&mut self) -> impl Iterator<Item = &mut LinkedExpression> {
+        let (prefix, suffix, absent): (
+            &mut [LinkedExpression],
+            &mut [LinkedExpression],
+            &mut [LinkedExpression],
+        ) = match &mut self.representation {
+            LinkedShorthandRepresentation::KeyedMapping {
+                prefix,
+                suffix,
+                absent_keys,
+                ..
+            } => (prefix, suffix, absent_keys),
+            _ => (&mut [], &mut [], &mut []),
+        };
+        std::iter::once(&mut self.denotes)
+            .chain(self.when.iter_mut())
+            .chain(prefix.iter_mut())
+            .chain(suffix.iter_mut())
+            .chain(absent.iter_mut())
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -305,6 +350,7 @@ pub struct LinkedPresence {
     pub xml_empty: Vec<LinkedEmpty>,
     pub yaml_empty: Vec<LinkedEmpty>,
     pub yaml_omit_when: Option<LinkedExpression>,
+    pub yaml_null_when: Option<LinkedExpression>,
     pub canonical: Vec<LinkedCanonical>,
     pub source: SourceLocation,
 }
@@ -315,11 +361,14 @@ impl LinkedPresence {
             .iter_mut()
             .chain(&mut self.yaml_missing)
             .chain(&mut self.yaml_omit_when)
+            .chain(&mut self.yaml_null_when)
             .chain(
                 self.xml_empty
                     .iter_mut()
                     .chain(&mut self.yaml_empty)
-                    .map(|form| &mut form.denotes),
+                    .flat_map(|form| {
+                        std::iter::once(&mut form.denotes).chain(form.when.iter_mut())
+                    }),
             )
             .chain(
                 self.canonical
@@ -339,6 +388,7 @@ pub struct LinkedCanonical {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LinkedEmpty {
+    pub when: Option<LinkedExpression>,
     pub form: crate::EmptyKind,
     pub denotes: LinkedExpression,
     pub source: SourceLocation,
@@ -378,7 +428,13 @@ pub enum LinkedPresenceTarget {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum LinkedShorthandRepresentation {
-    ScalarText,
+    MappingField(u32),
+    ScalarField(u32),
+    ScalarLiteral(String),
+    ScalarText {
+        prefix: String,
+        suffix: String,
+    },
     KeyedMapping {
         prefix: Vec<LinkedExpression>,
         suffix: Vec<LinkedExpression>,
@@ -403,9 +459,11 @@ pub enum LinkedXmlAttributeValue {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LinkedContribution {
     pub for_each: Option<LinkedIteration>,
+    pub when: Option<LinkedExpression>,
     pub index: String,
     pub union_reference_prefix: Option<String>,
+    pub coalesce_equal: bool,
     pub key: LinkedExpression,
-    pub value: LinkedExpression,
+    pub write: crate::IndexWrite<LinkedExpression>,
     pub source: SourceLocation,
 }

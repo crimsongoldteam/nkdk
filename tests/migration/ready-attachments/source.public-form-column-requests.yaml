@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: value
+id: source.public-form-column-requests
+inputs:
+  component:
+    type:
+      kind: scalar
+      scalar: text
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  parent:
+    type:
+      kind: scalar
+      scalar: text
+imports:
+  row: source.public-form-column-request
+namespaces:
+  f: http://v8.1c.ru/8.3/xcf/logform
+value:
+  kind: sequence
+  item:
+    use: row
+    bind:
+      component:
+        input: component
+      owner:
+        input: owner
+      parent:
+        input: parent
+representations:
+  xml:
+    kind: element-sequence
+    path:
+      - f:Column
+  yaml:
+    kind: record-mapping
+    key: name

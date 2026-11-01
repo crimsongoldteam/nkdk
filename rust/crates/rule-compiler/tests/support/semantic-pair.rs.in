@@ -1,0 +1,22 @@
+// Independent expectations protect both directions; round-trip alone can hide paired errors.
+#[allow(dead_code)]
+fn assert_pair(entry: core::EntryId, source: &[u8], expected: &[u8]) -> core::FileResult {
+    let inputs = PreparedInputs::default();
+    let yaml = convert_file(entry, Direction::XmlToYaml, source, &inputs).unwrap();
+    assert_eq!(yaml.bytes, expected);
+    assert!(yaml.diagnostics.is_empty(), "{:?}", yaml.diagnostics);
+    assert!(validate_file(entry, expected, &inputs).is_empty());
+    verify_candidate(entry, source, expected, &inputs).unwrap();
+    let xml = convert_file(entry, Direction::YamlToXml, expected, &inputs).unwrap();
+    assert!(xml.diagnostics.is_empty(), "{:?}", xml.diagnostics);
+    xml
+}
+
+#[allow(dead_code)]
+fn assert_preserved_pair(entry: core::EntryId, source: &[u8]) -> core::FileResult {
+    let inputs = PreparedInputs::default();
+    let yaml = convert_file(entry, Direction::XmlToYaml, source, &inputs).unwrap();
+    assert!(String::from_utf8_lossy(&yaml.bytes).contains("!xml"));
+    verify_candidate(entry, source, &yaml.bytes, &inputs).unwrap();
+    yaml
+}

@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.974dbd0d832a02619ba9
+description: 'Кандидат проекции: относительный XML-корень RowsPicture; не полный владелец'
+imports:
+  part0: candidate.fragment.96aff4e30c8af50def60
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

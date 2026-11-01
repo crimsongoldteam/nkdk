@@ -2,6 +2,36 @@
 use super::*;
 use std::fmt::Write;
 
+pub(super) fn container_slots(entry: &LinkedEntry, parts: usize) -> usize {
+    if entry
+        .contributions
+        .iter()
+        .any(|value| value.for_each.is_some())
+    {
+        parts
+    } else {
+        0
+    }
+}
+
+fn anomalous_property_key<'a>(part: &'a LinkedEntry, program: &Program) -> Option<&'a str> {
+    let (YamlRepresentation::Mapping(yaml), LinkedXml::Record(xml)) = (&part.yaml, &part.xml)
+    else {
+        return None;
+    };
+    let repeated = matches!(part.value, LinkedType::Sequence(_))
+        || matches!(&part.value, LinkedType::Record(fields) if fields.len() == 1
+            && composite::reference(&fields[0].value)
+                .and_then(|(id, _, _)| program.entries.iter().find(|entry| entry.id == id))
+                .is_some_and(|entry| matches!(entry.value, LinkedType::Sequence(_))));
+    (yaml.len() == 1
+        && yaml[0].file.is_none()
+        && xml.len() == 1
+        && xml[0].attribute.is_none()
+        && !repeated)
+        .then(|| yaml[0].key.as_str())
+}
+
 pub(super) fn applies(entry: &LinkedEntry, program: &Program) -> bool {
     matches!(super::attributes::content(&entry.xml).0, LinkedXml::Record(fields) if fields.iter().any(|field|field.file.is_some()))
         || matches!(&entry.value, LinkedType::Record(fields) if fields.iter().any(|field| {
@@ -10,7 +40,7 @@ pub(super) fn applies(entry: &LinkedEntry, program: &Program) -> bool {
                 match common.value {
                     LinkedType::Record(_)=>fields.len()>1 && !matches!(xml,LinkedXml::TextPattern(_)),
                     LinkedType::Sequence(_)=>fields.len()>1 && !matches!(xml,LinkedXml::TextSequence{..}),
-                    LinkedType::Choice(_)=>matches!(common.yaml,YamlRepresentation::Choice { variants: ref selectors, .. } if !selectors.is_empty()),
+                    LinkedType::Choice(_)=>matches!(common.yaml,YamlRepresentation::Choice { variants: ref selectors, .. } if !selectors.is_empty() || (!common.inputs.is_empty() && matches!(xml,LinkedXml::Choice { fallback: Some(_) }))),
                     _=>false,
                 }
             })
@@ -18,25 +48,55 @@ pub(super) fn applies(entry: &LinkedEntry, program: &Program) -> bool {
 }
 
 pub(super) fn generate(entry: &LinkedEntry, program: &Program) -> Result<String, Diagnostic> {
-    generate_at(entry, program, None)
+    generate_at_profiled(entry, program, None).map(|result| result.source)
+}
+
+pub(super) struct GeneratedOwner {
+    pub source: String,
+    pub parts: Vec<(String, &'static str, usize)>,
+}
+
+pub(super) fn generate_profiled(
+    entry: &LinkedEntry,
+    program: &Program,
+) -> Result<GeneratedOwner, Diagnostic> {
+    generate_at_profiled(entry, program, None)
 }
 pub(super) fn generate_at(
     entry: &LinkedEntry,
     program: &Program,
     boundary: Option<&[ExpandedName]>,
 ) -> Result<String, Diagnostic> {
+    generate_at_profiled(entry, program, boundary).map(|result| result.source)
+}
+fn generate_at_profiled(
+    entry: &LinkedEntry,
+    program: &Program,
+    boundary: Option<&[ExpandedName]>,
+) -> Result<GeneratedOwner, Diagnostic> {
     let original = entry;
     let prepared = program.composition(entry)?;
     let entry = prepared.entry();
     let mut shape = entry.clone();
     shape.presence.clear();
+    shape.shorthands.clear();
     plain_shape(&shape)?;
     let parts = &prepared.parts;
+    let grouped = grouped::prepare(entry, parts, program)?;
+    let group_field = if grouped.is_some() {
+        "group_order:Vec<usize>,"
+    } else {
+        ""
+    };
     let yaml_slots = crate::plan::records::yaml_slots(entry, parts);
+    let anomalous_keys = yaml_slots
+        .iter()
+        .filter_map(|slot| anomalous_property_key(&parts[*slot], program))
+        .collect::<Vec<_>>();
     let input_scope =
         super::value::InputScope::prepare(original, parts, &prepared.captures, program)?;
     let scope_full = input_scope.bind(entry.id, "value.", None);
-    let scope_finish_xml =
+    let mut scope_finish_xml =
         input_scope.finish(entry.id, parts.len(), crate::plan::RepresentationSide::Xml);
     let scope_finish_yaml =
         input_scope.finish(entry.id, parts.len(), crate::plan::RepresentationSide::Yaml);
@@ -49,6 +109,19 @@ pub(super) fn generate_at(
             fields.first().and_then(|field| field.file.clone())
         })
         .collect();
+    // External partitions are decoded after their primary-field dependencies.
+    // They have no events in the primary stream, but share its lexical frame.
+    for (slot, file) in files.iter().enumerate() {
+        if let Some(path) = file {
+            scope_finish_xml = scope_finish_xml.replace(
+                &format!("self.p{slot}.finish(source,inputs)?"),
+                &format!(
+                    "part_{}_{slot}::read_xml_document(inputs.document(&{path:?}),inputs)?",
+                    entry.id
+                ),
+            );
+        }
+    }
     let primary = files
         .iter()
         .enumerate()
@@ -107,7 +180,15 @@ pub(super) fn generate_at(
     };
 
     let id = entry.id;
+    let native_short = !entry.shorthands.is_empty();
+    let mapping_alias = entry.shorthands.iter().any(|short| {
+        matches!(
+            short.representation,
+            LinkedShorthandRepresentation::MappingField(_)
+        )
+    });
     let mut out = String::new();
+    let mut profile_parts = Vec::new();
     if let Some(attributes) = &generated_attributes {
         out.push_str(&attributes.definitions);
     }
@@ -131,8 +212,10 @@ pub(super) fn generate_at(
     let mut aliases = Vec::new();
     let mut attributes = Vec::new();
     let projected_slot = crate::plan::records::yaml_projection_slot(entry, parts);
-    let mut stateful = files.iter().all(Option::is_none);
-    let mut yaml_stateful = stateful;
+    let mut stateful = true;
+    // YAML contains both primary and external fields in one stream.
+    // Its finish schedule, unlike XML routing, does not depend on file placement.
+    let mut yaml_stateful = true;
     for (slot, child) in parts.iter().enumerate() {
         let LinkedXml::Record(xml) = &child.xml else {
             unreachable!()
@@ -161,8 +244,17 @@ pub(super) fn generate_at(
             },
             &names,
         )?;
-        stateful &= emitted.xml_stateful;
+        stateful &= files[slot].is_some() || emitted.xml_stateful;
         yaml_stateful &= emitted.yaml_stateful;
+        let variant_bytes: usize = emitted.choice_variants.iter().map(|(_, bytes)| bytes).sum();
+        for (name, bytes) in emitted.choice_variants {
+            profile_parts.push((name, "owner-choice-variant", bytes));
+        }
+        profile_parts.push((
+            String::new(),
+            emitted.mechanism,
+            emitted.source.len() - variant_bytes,
+        ));
         out.push_str(&emitted.source);
         let mapping = xml.first();
         paths.push(
@@ -204,6 +296,24 @@ pub(super) fn generate_at(
         );
         attributes.push(names);
     }
+    // Several fields may share an XML container. Its physical name is only a
+    // recovery alias, so route it once; semantic YAML property names retain
+    // their own unambiguous slots.
+    let declared_keys = keys
+        .iter()
+        .flatten()
+        .copied()
+        .collect::<std::collections::HashSet<_>>();
+    let mut seen_aliases = std::collections::HashSet::new();
+    for (slot, group) in aliases.iter_mut().enumerate() {
+        group.retain(|name| {
+            if keys[slot].contains(name) {
+                true
+            } else {
+                !declared_keys.contains(name) && seen_aliases.insert(*name)
+            }
+        });
+    }
     writeln!(out, "fn infer_xml_owner_{id}(mut value:V{id},source:&[u8],inputs:&InputView<'_>)->core::Result<V{id}>{{").unwrap();
     for &slot in input_scope.order(crate::plan::RepresentationSide::Xml) {
         let mut ready = vec![true; parts.len()];
@@ -226,31 +336,20 @@ pub(super) fn generate_at(
             {
                 continue;
             }
-            if (attributes[left].is_empty()
-                && attributes[right].is_empty()
-                && routes[left].iter().any(|left| {
-                    routes[right]
-                        .iter()
-                        .any(|right| left.starts_with(right) || right.starts_with(left))
-                }))
-                || paths[left][0] != paths[right][0]
+            if owned_routes[left].iter().any(|left| {
+                owned_routes[right]
+                    .iter()
+                    .any(|right| crate::plan::xml_ownership::overlaps(left, right))
+            }) || paths[left][0] != paths[right][0]
             {
                 return Err(unsupported(
                     entry,
-                    "Composed property boundaries must be disjoint within one XML root",
+                    "Composed property boundaries must not overlap and must share one XML root",
                 ));
             }
         }
     }
-    let count = if entry
-        .contributions
-        .iter()
-        .any(|value| value.for_each.is_some())
-    {
-        parts.len()
-    } else {
-        0
-    };
+    let count = container_slots(entry, parts.len());
     let mut count_events = String::new();
     let LinkedType::Record(owner_fields) = &entry.value else {
         unreachable!()
@@ -268,14 +367,29 @@ pub(super) fn generate_at(
         };
         let slot=parts.iter().position(|part|matches!(&part.value,LinkedType::Record(fields) if fields.iter().any(|candidate|candidate.name==owner_fields[field as usize].name))).unwrap();
         if counted.insert(slot) {
-            let parent = &paths[slot][..paths[slot].len().saturating_sub(1).max(1)];
+            let LinkedXml::Record(xml) = attributes::content(&entry.xml).0 else {
+                unreachable!()
+            };
+            let mapping = xml
+                .iter()
+                .find(|mapping| mapping.field == owner_fields[field as usize].name)
+                .expect("declared collection owner field");
+            // Decoder routes may point at an item or at an already placed
+            // wrapper. The declaration supplies the actual container boundary.
+            let parent = if mapping.path.is_empty() {
+                root
+            } else {
+                mapping.path.as_slice()
+            };
             writeln!(count_events,"if matches!(token,core::xml::Token::Start(_)) && core::xml::matches(path,{}) {{containers[{slot}]=containers[{slot}].saturating_add(1);}}",record::path_code(parent)).unwrap();
         }
     }
-    writeln!(out,"fn owner_containers_{id}(source:&[u8])->core::Result<[u8;{count}]> {{#[allow(unused_mut)] let mut containers=[0u8;{count}];core::xml::visit(source,|path,token|{{let _=(path,&token);{count_events}Ok(())}})?;Ok(containers)}}").unwrap();
+    if grouped.is_none() {
+        writeln!(out,"fn owner_containers_{id}(source:&[u8])->core::Result<[u8;{count}]> {{#[allow(unused_mut)] let mut containers=[0u8;{count}];core::xml::visit(source,|path,token|{{let _=(path,&token);{count_events}Ok(())}})?;Ok(containers)}}").unwrap();
+    }
     writeln!(
         out,
-        "struct V{id} {{ root:Option<core::xml::Patch>,#[allow(dead_code)] containers:[u8;{count}],"
+        "struct V{id} {{ root:Option<core::xml::Patch>,#[allow(dead_code)] containers:[u8;{count}],{group_field}"
     )
     .unwrap();
     for slot in 0..parts.len() {
@@ -355,12 +469,8 @@ pub(super) fn generate_at(
             let first = if side == "xml" { primary } else { 0 };
             for (slot, file) in files.iter().enumerate().filter(|(slot, _)| *slot != first) {
                 if side == "xml" && file.is_some() {
-                    writeln!(
-                        out,
-                        "let p{slot}=part_{id}_{slot}::read_xml_document({},inputs)?;",
-                        source_for(slot, "source")
-                    )
-                    .unwrap();
+                    // External readers may need fields from the primary document.
+                    // Decode them after the primary stream has completed below.
                 } else {
                     writeln!(out, "let mut p{slot}=None;").unwrap();
                 }
@@ -419,6 +529,27 @@ pub(super) fn generate_at(
                     out.push_str("}))?);Ok(())\n");
                 }
             }
+            if side == "xml" {
+                let mut ready = files.iter().map(Option::is_none).collect::<Vec<_>>();
+                for &slot in &active {
+                    if slot != first {
+                        writeln!(
+                            out,
+                            "let p{slot}=p{slot}.expect(\"composed reader completed\");"
+                        )
+                        .unwrap();
+                    }
+                }
+                for &slot in input_scope.order(crate::plan::RepresentationSide::Xml) {
+                    if files[slot].is_none() {
+                        continue;
+                    }
+                    let binding = input_scope.bind(id, "", Some(&ready));
+                    let source = source_for(slot, "source");
+                    writeln!(out,"let p{slot}={{{binding}part_{id}_{slot}::read_xml_document({source},inputs)?}};").unwrap();
+                    ready[slot] = true;
+                }
+            }
             write!(
                 out,
                 "{}(V",
@@ -430,8 +561,8 @@ pub(super) fn generate_at(
             )
             .unwrap();
             write!(out, "{id}{{root:None,containers,").unwrap();
-            for (slot, file) in files.iter().enumerate() {
-                if slot == first || (side == "xml" && file.is_some()) {
+            for (slot, _) in files.iter().enumerate() {
+                if slot == first || side == "xml" {
                     write!(out, "p{slot},").unwrap();
                     continue;
                 }
@@ -461,61 +592,174 @@ pub(super) fn generate_at(
             .unwrap();
         }
         if side == "yaml" {
+            // A restored document may carry marks produced before its external
+            // facts became available. Retain all value errors, but do not make
+            // an obsolete internal mark prevent restoring the preserved XML.
+            writeln!(out,"if value.root.is_some() {{result.retain(|issue|issue.code.as_deref()!=Some(\"xml/anomaly-tag-unnecessary\"));}}").unwrap();
             writeln!(out,"if value.root.is_some() && let Err(error)=write_xml_{id}(value,inputs) {{result.push(error);}}").unwrap();
+        } else if !anomalous_keys.is_empty() {
+            writeln!(out,"result.retain(|issue| issue.kind!=core::annotations::IssueKind::Semantic || issue.severity!=Severity::Error || !{:?}.contains(&issue.path.first().map(String::as_str).unwrap_or(\"\")));",anomalous_keys).unwrap();
         }
         out.push_str("result}\n");
     }
     if stateful {
         writeln!(
             out,
-            "struct OwnerXmlRead{id}{{routing:OwnerRouting{id},containers:[u8;{count}],"
+            "struct OwnerXmlRead{id}{{routing:OwnerRouting{id},containers:[u8;{count}],{group_field}"
         )
         .unwrap();
         for slot in 0..parts.len() {
             writeln!(out, "p{slot}:part_{id}_{slot}::XmlReader,").unwrap();
         }
         writeln!(out,"}}impl OwnerXmlRead{id}{{fn new()->Self{{Self{{routing:{routing_init},containers:[0;{count}],").unwrap();
+        if grouped.is_some() {
+            out.push_str("group_order:Vec::new(),");
+        }
         for slot in 0..parts.len() {
             writeln!(out, "p{slot}:part_{id}_{slot}::XmlReader::new(),").unwrap();
         }
         out.push_str("}}\n");
         writeln!(out,"fn consume(&mut self,path:&[core::xml::Name],token:&core::xml::Token<'_>,scope:Option<core::xml::NamespaceScope<'_>>,source:&[u8],inputs:&InputView<'_>)->core::Result<()>{{let Self{{routing,containers,").unwrap();
+        if grouped.is_some() {
+            out.push_str("group_order,");
+        }
         for slot in 0..parts.len() {
             write!(out, "p{slot},").unwrap();
         }
         out.push_str("}=self;routing.consume(path,token,scope,containers,|slot,path,token,scope|match slot{\n");
-        for slot in 0..parts.len() {
+        for (slot, path) in paths.iter().enumerate().take(parts.len()) {
+            let track = if grouped.is_some() {
+                format!(
+                    "if matches!(token,core::xml::Token::Start(_))&&core::xml::matches(path,{})&&!group_order.contains(&{slot}){{group_order.push({slot});}}",
+                    record::path_code(path)
+                )
+            } else {
+                String::new()
+            };
             writeln!(
                 out,
-                "{slot}=>p{slot}.consume_scoped(path,token,scope,source,inputs),"
+                "{slot}=>{{{track}p{slot}.consume_scoped(path,token,scope,source,inputs)}},"
             )
             .unwrap();
         }
         out.push_str("_=>unreachable!(\"declared XML route\")})}\n");
-        writeln!(out,"fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<V{id}>{{{scope_finish_xml}infer_xml_owner_{id}(V{id}{{root:None,containers:self.containers,").unwrap();
+        writeln!(out,"fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<V{id}>{{{scope_finish_xml}{}infer_xml_owner_{id}(V{id}{{root:None,containers:self.containers,{}",if grouped.is_some(){"let value="}else{""},if grouped.is_some(){"group_order:self.group_order,"}else{""}).unwrap();
         for slot in 0..parts.len() {
             writeln!(out, "p{slot},").unwrap();
         }
-        out.push_str("},source,inputs)}}\n");
+        if grouped.is_some() {
+            writeln!(
+                out,
+                "}},source,inputs)?;preserve_group_anomalies_{id}(value,source,inputs)}}}}\n"
+            )
+            .unwrap();
+        } else {
+            out.push_str("},source,inputs)}}\n");
+        }
     }
-    if yaml_stateful {
+    if let Some(groups) = &grouped {
+        out.push_str(&grouped::reader(
+            id,
+            groups,
+            parts.len(),
+            count,
+            &scope_finish_yaml,
+        ));
+    } else if yaml_stateful {
+        // Sibling-derived inputs become ready in dependency order, after the
+        // mapping key and identity have been read. Defer only those partitions;
+        // independent fields retain the direct streaming reader.
+        let deferred: Vec<_> = parts
+            .iter()
+            .map(|part| {
+                crate::plan::input_dependencies::read(
+                    part,
+                    program,
+                    ValidationPhase::YamlValidation,
+                )
+                .iter()
+                .any(|slot| *slot as usize >= original.inputs.len())
+            })
+            .collect();
+        let consume = |slot: usize, node: &str| {
+            if deferred[slot] {
+                format!("{{self.p{slot}.push(({node},position));Ok::<(),RuntimeDiagnostic>(())}}")
+            } else {
+                format!("self.p{slot}.consume({node},position,source,inputs)")
+            }
+        };
+        let mut scope_finish_yaml = scope_finish_yaml.clone();
+        for (slot, defer) in deferred.iter().enumerate() {
+            if *defer {
+                scope_finish_yaml=scope_finish_yaml.replace(
+                    &format!("self.p{slot}.finish(source,inputs)?"),
+                    &format!("{{let mut reader=part_{id}_{slot}::YamlReader::new()?;for (node,position) in self.p{slot}{{reader.consume(node,position,source,inputs)?;}}reader.finish(source,inputs)?}}"));
+            }
+        }
         writeln!(
             out,
             "struct OwnerYamlRead{id}{{routing:core::yaml::PartitionRouter,"
         )
         .unwrap();
-        for slot in 0..parts.len() {
-            writeln!(out, "p{slot}:part_{id}_{slot}::YamlReader,").unwrap();
+        if native_short {
+            out.push_str(
+                "short_first:bool,short_text:Option<(core::yaml::Scalar,core::Position)>,",
+            );
+        }
+        if mapping_alias {
+            out.push_str("projection_scanned:bool,projection_pending:bool,projection_active:bool,projection_index:usize,projection_events:Vec<(core::yaml::Node,core::Position)>,");
+        }
+        for (slot, defer) in deferred.iter().enumerate() {
+            if *defer {
+                writeln!(out, "p{slot}:Vec<(core::yaml::Node,core::Position)>,").unwrap();
+            } else {
+                writeln!(out, "p{slot}:part_{id}_{slot}::YamlReader,").unwrap();
+            }
         }
         writeln!(out,"}}impl OwnerYamlRead{id}{{fn new()->core::Result<Self>{{Ok(Self{{routing:core::yaml::PartitionRouter::default(),").unwrap();
-        for slot in 0..parts.len() {
-            writeln!(out, "p{slot}:part_{id}_{slot}::YamlReader::new()?,").unwrap();
+        if native_short {
+            out.push_str("short_first:true,short_text:None,");
         }
+        if mapping_alias {
+            out.push_str("projection_scanned:false,projection_pending:false,projection_active:false,projection_index:0,projection_events:Vec::new(),");
+        }
+        for (slot, defer) in deferred.iter().enumerate() {
+            if *defer {
+                writeln!(out, "p{slot}:Vec::new(),").unwrap();
+            } else {
+                writeln!(out, "p{slot}:part_{id}_{slot}::YamlReader::new()?,").unwrap();
+            }
+        }
+        let unused = if projected_slot.map_or_else(
+            || deferred.iter().all(|value| *value),
+            |slot| deferred[slot],
+        ) {
+            "_"
+        } else {
+            ""
+        };
         out.push_str("})}\n");
         if let Some(slot) = projected_slot {
-            writeln!(out,"fn consume(&mut self,node:core::yaml::Node,position:core::Position,source:&[u8],inputs:&InputView<'_>)->core::Result<()>{{self.p{slot}.consume(node,position,source,inputs)}}").unwrap();
+            writeln!(out,"fn consume(&mut self,node:core::yaml::Node,position:core::Position,{unused}source:&[u8],{unused}inputs:&InputView<'_>)->core::Result<()>{{{}}}\n",consume(slot,"node")).unwrap();
         } else {
-            writeln!(out,"fn consume(&mut self,node:core::yaml::Node,position:core::Position,source:&[u8],inputs:&InputView<'_>)->core::Result<()>{{let slot=self.routing.route(&node,|key|match key{{").unwrap();
+            let short_read = if native_short {
+                "if self.short_first{self.short_first=false;if let core::yaml::Node::Scalar(value,None)=node{self.short_text=Some((value,position));return Ok(())}}if self.short_text.is_some(){return Err(RuntimeDiagnostic::new(\"yaml.shorthand\",\"A shorthand must be one scalar\"))}"
+            } else {
+                ""
+            };
+            let projection_read = if mapping_alias {
+                let owned = keys
+                    .iter()
+                    .flatten()
+                    .map(|key| format!("{key:?}=>true,"))
+                    .collect::<String>();
+                format!(
+                    "if self.projection_active{{self.projection_events.push((node,position));return Ok(())}}if self.projection_pending{{self.projection_pending=false;let owned=match &node{{core::yaml::Node::Scalar(value,None)=>match value.lexical_text(){{{owned}_=>false}},_=>false}};if owned{{let (start,start_position)=self.projection_events.pop().expect(\"pending mapping start\");self.consume(start,start_position,source,inputs)?;}}else{{self.projection_active=true;self.projection_events.push((node,position));return Ok(())}}}}if !self.projection_scanned{{self.projection_scanned=true;if matches!(&node,core::yaml::Node::MappingStart(None)){{if let Some(index)=mapping_projection_{id}(inputs)?{{self.projection_index=index;self.projection_pending=true;self.projection_events.push((node,position));return Ok(())}}}}}}"
+                )
+            } else {
+                String::new()
+            };
+            writeln!(out,"fn consume(&mut self,node:core::yaml::Node,position:core::Position,{unused}source:&[u8],{unused}inputs:&InputView<'_>)->core::Result<()>{{{projection_read}{short_read}let slot=self.routing.route(&node,|key|match key{{").unwrap();
             for (slot, keys) in keys.iter().enumerate() {
                 for key in keys {
                     writeln!(out, "{key:?}=>Some({slot}),").unwrap();
@@ -523,27 +767,55 @@ pub(super) fn generate_at(
             }
             out.push_str("_=>None})?;match slot{\n");
             for slot in 0..parts.len() {
-                writeln!(
-                    out,
-                    "Some({slot})=>self.p{slot}.consume(node,position,source,inputs),"
-                )
-                .unwrap();
+                writeln!(out, "Some({slot})=>{},", consume(slot, "node")).unwrap();
             }
             out.push_str("None=>{match node{core::yaml::Node::MappingStart(None)=>{\n");
             for slot in 0..parts.len() {
-                writeln!(out,"self.p{slot}.consume(core::yaml::Node::MappingStart(None),position,source,inputs)?;").unwrap();
-            }
-            out.push_str("},core::yaml::Node::MappingEnd=>{\n");
-            for slot in 0..parts.len() {
                 writeln!(
                     out,
-                    "self.p{slot}.consume(core::yaml::Node::MappingEnd,position,source,inputs)?;"
+                    "{}?;",
+                    consume(slot, "core::yaml::Node::MappingStart(None)")
                 )
                 .unwrap();
             }
+            out.push_str("},core::yaml::Node::MappingEnd=>{\n");
+            for slot in 0..parts.len() {
+                writeln!(out, "{}?;", consume(slot, "core::yaml::Node::MappingEnd")).unwrap();
+            }
             out.push_str("},_=>unreachable!(\"mapping boundary\")}Ok(())},_=>unreachable!(\"declared YAML route\")}}\n");
         }
-        writeln!(out,"fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<V{id}>{{{} {scope_finish_yaml}Ok(V{id}{{root:None,containers:[1;{count}],",if projected_slot.is_some(){""}else{"self.routing.finish()?;"}).unwrap();
+        let hidden_boundaries = projected_slot.map_or_else(String::new, |projected| {
+            (0..parts.len())
+                .filter(|slot| *slot != projected)
+                .map(|slot| {
+                    format!(
+                        "let position=core::Position::default();{}?;{}?;",
+                        consume(slot, "core::yaml::Node::MappingStart(None)"),
+                        consume(slot, "core::yaml::Node::MappingEnd")
+                    )
+                })
+                .collect::<String>()
+        });
+        let receiver = if hidden_boundaries.is_empty() {
+            "self"
+        } else {
+            "mut self"
+        };
+        let projection_finish = if mapping_alias {
+            format!(
+                "if self.projection_active{{return read_yaml_projection_{id}(self.projection_index,self.projection_events,source,inputs);}}"
+            )
+        } else {
+            String::new()
+        };
+        let short_finish = if native_short {
+            format!(
+                "if let Some((text,position))=self.short_text{{return read_yaml_shorthand_{id}(&text,position,inputs);}}"
+            )
+        } else {
+            String::new()
+        };
+        writeln!(out,"fn finish({receiver},source:&[u8],inputs:&InputView<'_>)->core::Result<V{id}>{{{projection_finish}{short_finish}{hidden_boundaries}{} {scope_finish_yaml}Ok(V{id}{{root:None,containers:[1;{count}],",if projected_slot.is_some(){""}else{"self.routing.finish()?;"}).unwrap();
         for slot in 0..parts.len() {
             writeln!(out, "p{slot},").unwrap();
         }
@@ -591,29 +863,16 @@ pub(super) fn generate_at(
         )
         .unwrap();
     }
-    let mut headers: Vec<_> = (0..parts.len())
-        .filter(|slot| files[*slot].is_none() && !attributes[*slot].is_empty())
-        .collect();
-    headers.sort_by_key(|slot| paths[*slot].len());
-    if headers
-        .windows(2)
-        .any(|pair| !paths[pair[1]].starts_with(paths[pair[0]]))
-        || headers.last().is_some_and(|header| {
-            (0..parts.len())
-                .filter(|slot| files[*slot].is_none() && !element_routes[*slot].is_empty())
-                .any(|slot| {
-                    element_routes[slot].iter().any(|path| {
-                        !path.starts_with(paths[*header]) || path.len() <= paths[*header].len()
-                    })
-                })
+    let headers: Vec<_> = (0..parts.len())
+        .filter(|slot| {
+            files[*slot].is_none()
+                && !attributes[*slot].is_empty()
+                && !super::choice_value::applies(&parts[*slot], program)
         })
-    {
-        return Err(unsupported(
-            entry,
-            "Owner attribute containers require one ancestor chain above its properties",
-        ));
-    }
-
+        .collect();
+    let mut ordered_headers = headers.clone();
+    ordered_headers.sort_by_key(|slot| paths[*slot].len());
+    let mut written_headers = BTreeSet::new();
     if !root_attributes.is_empty() && !headers.iter().any(|slot| paths[*slot] == root) {
         writeln!(
             out,
@@ -621,36 +880,83 @@ pub(super) fn generate_at(
         )
         .unwrap();
     }
-    for slot in headers {
-        let declared = if paths[slot] == root {
-            root_attributes_code.as_str()
-        } else {
-            "&[]"
-        };
-        writeln!(out,"{{let declared:&[core::xml::WriteAttribute<'_>]={declared};part_{id}_{slot}::header(&value.p{slot},out,declared)?;}}").unwrap();
-    }
-    for slot in
-        (0..parts.len()).filter(|slot| files[*slot].is_none() && !element_routes[*slot].is_empty())
-    {
-        writeln!(
-            out,
-            "part_{id}_{slot}::write_xml(&value.p{slot},&prepared.p{slot},inputs,out)?;"
-        )
-        .unwrap();
+    if grouped.is_some() {
+        out.push_str("for &slot in &value.group_order{match slot{");
+        for slot in 0..parts.len() {
+            writeln!(
+                out,
+                "{slot}=>part_{id}_{slot}::write_xml(&value.p{slot},&prepared.p{slot},inputs,out)?,"
+            )
+            .unwrap();
+        }
+        out.push_str("_=>unreachable!(\"compiled group slot\")}}\n");
+    } else {
+        for slot in crate::plan::records::xml_slots(entry, parts)
+            .into_iter()
+            .filter(|slot| {
+                files[*slot].is_none()
+                    && (headers.contains(slot)
+                        || super::choice_value::applies(&parts[*slot], program)
+                        || !element_routes[*slot].is_empty()
+                        || (!routes[*slot].is_empty() && attributes[*slot].is_empty()))
+            })
+        {
+            for &header in &ordered_headers {
+                if !written_headers.contains(&header)
+                    && (header == slot
+                        || element_routes[slot]
+                            .iter()
+                            .any(|path| path.starts_with(paths[header])))
+                {
+                    let declared = if paths[header] == root {
+                        root_attributes_code.as_str()
+                    } else {
+                        "&[]"
+                    };
+                    writeln!(out,"{{let declared:&[core::xml::WriteAttribute<'_>]={declared};part_{id}_{header}::header(&value.p{header},inputs,out,declared)?;}}").unwrap();
+                    written_headers.insert(header);
+                }
+            }
+            if element_routes[slot].is_empty()
+                && (routes[slot].is_empty() || !attributes[slot].is_empty())
+                && !super::choice_value::applies(&parts[slot], program)
+            {
+                continue;
+            }
+            writeln!(
+                out,
+                "part_{id}_{slot}::write_xml(&value.p{slot},&prepared.p{slot},inputs,out)?;"
+            )
+            .unwrap();
+        }
     }
     writeln!(out, "out.ensure_container_written({root_code});Ok(())}}").unwrap();
     writeln!(out,"fn write_yaml_{id}(value:&V{id},inputs:&InputView<'_>)->core::Result<Vec<u8>> {{{scope_full}let mut out=String::new();").unwrap();
-    for &slot in &yaml_slots {
-        writeln!(
-            out,
-            "part_{id}_{slot}::write_yaml(&value.p{slot},inputs,&mut out)?;"
-        )
-        .unwrap();
+    if native_short {
+        writeln!(out,"if write_yaml_shorthand_{id}(value,inputs,&mut out,\"\")?{{return Ok(out.into_bytes());}}").unwrap();
+    }
+    if let Some(groups) = &grouped {
+        out.push_str(&grouped::write_items(id, groups));
+    } else {
+        for &slot in &yaml_slots {
+            writeln!(
+                out,
+                "part_{id}_{slot}::write_yaml(&value.p{slot},inputs,&mut out)?;"
+            )
+            .unwrap();
+        }
     }
     out.push_str("let bytes=out.into_bytes();");
     out.push_str("if let Some(patch)=&value.root {core::raw::Document::encode(&bytes,patch.to_yaml().as_bytes())}else{Ok(bytes)}}\n");
-    if yaml_stateful {
-        writeln!(out,"#[allow(dead_code)] fn write_yaml_indented_{id}(value:&V{id},inputs:&InputView<'_>,out:&mut String,indent:&str,_lift:bool)->core::Result<()>{{{scope_full}if value.root.is_some(){{let bytes=write_yaml_{id}(value,inputs)?;core::yaml::Indented::new(out,indent).push_str(std::str::from_utf8(&bytes).expect(\"generated YAML\"));return Ok(());}}").unwrap();
+    if grouped.is_some() {
+        writeln!(out,"#[allow(dead_code)] fn write_yaml_indented_{id}(value:&V{id},inputs:&InputView<'_>,out:&mut String,indent:&str,_lift:bool)->core::Result<()>{{let bytes=write_yaml_{id}(value,inputs)?;core::yaml::Indented::new(out,indent).push_str(std::str::from_utf8(&bytes).expect(\"generated YAML\"));Ok(())}}").unwrap();
+    } else if yaml_stateful {
+        let short_write = if native_short {
+            format!("if write_yaml_shorthand_{id}(value,inputs,out,indent)?{{return Ok(());}}")
+        } else {
+            String::new()
+        };
+        writeln!(out,"#[allow(dead_code)] fn write_yaml_indented_{id}(value:&V{id},inputs:&InputView<'_>,out:&mut String,indent:&str,_lift:bool)->core::Result<()>{{{scope_full}{short_write}if value.root.is_some(){{let bytes=write_yaml_{id}(value,inputs)?;core::yaml::Indented::new(out,indent).push_str(std::str::from_utf8(&bytes).expect(\"generated YAML\"));return Ok(());}}").unwrap();
         for &slot in &yaml_slots {
             writeln!(
                 out,
@@ -659,6 +965,15 @@ pub(super) fn generate_at(
             .unwrap();
         }
         out.push_str("Ok(())}\n");
+    }
+    if let Some(slot) = projected_slot
+        && crate::yaml_shape::declared_sequence_projection(
+            entry,
+            program,
+            &mut std::collections::BTreeSet::new(),
+        )
+    {
+        writeln!(out,"#[allow(dead_code)] fn write_yaml_sequence_items_{id}<const ROOT:bool,const MARKED:bool>(value:&V{id},inputs:&InputView<'_>,out:&mut String,indent:&str,mark:&str)->core::Result<()>{{if value.root.is_some(){{return Err(RuntimeDiagnostic::new(\"yaml.group-envelope\",\"Preserved projection requires its XML envelope\"));}}{scope_full}part_{id}_{slot}::write_yaml_sequence_items::<ROOT,MARKED>(&value.p{slot},inputs,out,indent,mark)}}").unwrap();
     }
     let scalar = (0..parts.len())
         .filter(|slot| files[*slot].is_none())
@@ -686,6 +1001,20 @@ pub(super) fn generate_at(
         .collect::<Vec<_>>()
         .join(" || ");
     writeln!(out,"#[allow(dead_code)] fn xml_scalar_at_{id}(value:&V{id},path:&[core::xml::Name],occurrences:&[usize])->bool {{{scoped_scalar}}}").unwrap();
+    let selected_qname = (0..parts.len())
+        .filter(|slot| files[*slot].is_none())
+        .map(|slot| format!("part_{id}_{slot}::qname_text_at(&value.p{slot},path,occurrences)"))
+        .collect::<Vec<_>>()
+        .join(" || ");
+    let selected_qname = format!(
+        "{}{}",
+        super::proof::preserved_qname("&value.root", &root_code),
+        if selected_qname.is_empty() {
+            "false"
+        } else {
+            &selected_qname
+        }
+    );
     out.push_str(&super::proof::generate_scoped(
         id,
         &scalar,
@@ -694,7 +1023,24 @@ pub(super) fn generate_at(
         parts
             .iter()
             .any(|part| super::declared_items::applies(part, program)),
+        Some(if selected_qname.is_empty() {
+            "false"
+        } else {
+            &selected_qname
+        }),
     ));
+    // Canonical omission is an optional proof after the strict comparison.
+    // A nested source may still contain attributes owned by its caller;
+    // failed replay must retain the mismatch, not replace it with a read error.
+    writeln!(out,"fn prove_xml_canonical_{id}(value:&V{id},original:&[u8],restored:&[u8],inputs:&InputView<'_>)->core::Result<()>{{match prove_xml_{id}(value,original,restored){{Err(error) if error.code.as_deref()==Some(core::proof::MISMATCH)=>{{let Ok(original_value)=read_xml_{id}(original,inputs) else{{return Err(error);}};let mut omitted=Vec::new();").unwrap();
+    for slot in (0..parts.len()).filter(|slot| files[*slot].is_none()) {
+        writeln!(
+            out,
+            "part_{id}_{slot}::canonical_omissions(&original_value.p{slot},inputs,&mut omitted)?;"
+        )
+        .unwrap();
+    }
+    writeln!(out,"if omitted.is_empty(){{return Err(error);}}core::proof::verify_with_value_qnames(original,restored,&omitted,|path,occurrences|xml_scalar_at_{id}(&original_value,path,occurrences),xml_qname_attribute_{id},|path,occurrences|xml_qname_text_at_{id}(&original_value,path,occurrences))}},result=>result}}}}\n").unwrap();
     let mut qname_names = String::from("let mut names=Vec::new();");
     for slot in (0..parts.len()).filter(|slot| files[*slot].is_none()) {
         write!(qname_names, "names.extend(part_{id}_{slot}::qnames());").unwrap();
@@ -716,75 +1062,103 @@ pub(super) fn generate_at(
         .map(|keys| format!("&{keys:?}"))
         .collect::<Vec<_>>()
         .join(",");
-    for side in ["xml", "yaml"] {
-        writeln!(out,"fn read_{side}_{id}(source:&[u8],inputs:&InputView<'_>)->core::Result<V{id}> {{match read_{side}_shared_{id}(source,inputs) {{Ok(value)=>Ok(value),Err(error)=>{{if !error.code.as_deref().is_some_and(|code|code.starts_with(\"xml.\")||code.starts_with(\"yaml.\")||code.starts_with(\"value.\")) {{return Err(error);}}").unwrap();
-        if side == "yaml" {
-            writeln!(out,"if let Some(envelope)=core::raw::Document::decode(source)? {{let mut value=read_yaml_{id}(&envelope.meaning,inputs)?;let patch=core::xml::Patch::read(&envelope.payload,&[],&xml_qnames_{id}())?;if patch.is_null() {{return Err(RuntimeDiagnostic::new(\"xml.owner-root\",\"The document root cannot be removed\"));}}value.root=Some(patch);return Ok(value);}}").unwrap();
-        }
-        if side == "yaml" {
-            if let Some(slot) = projected_slot {
-                writeln!(
-                    out,
-                    "let mut pieces=vec![Vec::new();{}];pieces[{slot}]=source.to_vec();",
-                    parts.len()
-                )
-                .unwrap();
-            } else {
-                writeln!(
-                    out,
-                    "let pieces=core::yaml::split_properties(source,&[{groups}])?;"
-                )
-                .unwrap();
+    if grouped.is_some() {
+        writeln!(out,"fn preserved_group_{id}(source:&[u8],inputs:&InputView<'_>)->core::Result<V{id}>{{let tree=core::xml::Tree::capture_with_qnames(source,{root_code},xml_qname_text_{id})?.ok_or_else(||RuntimeDiagnostic::new(\"xml.owner-root\",\"Expected the group root\"))?;let payload=tree.full_patch_yaml(&[],&xml_qnames_{id}())?;let mut value=read_yaml_shared_{id}(b\"[]\",inputs)?;value.root=Some(core::xml::Patch::read(payload.as_bytes(),&[],&xml_qnames_{id}())?);Ok(value)}}").unwrap();
+        let raw = (0..parts.len())
+            .map(|slot| format!("part_{id}_{slot}::has_raw(&value.p{slot})"))
+            .collect::<Vec<_>>()
+            .join("||");
+        writeln!(out,"fn preserve_group_anomalies_{id}(value:V{id},source:&[u8],inputs:&InputView<'_>)->core::Result<V{id}>{{if value.root.is_none() && (({raw}) || check_xml_{id}(&value,source,inputs).iter().any(|issue|issue.kind==core::annotations::IssueKind::Semantic && issue.severity==Severity::Error)){{preserved_group_{id}(source,inputs)}}else{{Ok(value)}}}}").unwrap();
+        writeln!(out,"fn read_xml_{id}(source:&[u8],inputs:&InputView<'_>)->core::Result<V{id}>{{match read_xml_shared_{id}(source,inputs){{Ok(value)=>preserve_group_anomalies_{id}(value,source,inputs),Err(error) if error.code.as_deref().is_some_and(|code|code.starts_with(\"xml.\")||code.starts_with(\"value.\"))=>preserved_group_{id}(source,inputs),Err(error)=>Err(error)}}}}").unwrap();
+        writeln!(out,"fn read_yaml_{id}(source:&[u8],inputs:&InputView<'_>)->core::Result<V{id}>{{match read_yaml_shared_{id}(source,inputs){{Ok(value)=>Ok(value),Err(error)=>{{let Some(envelope)=core::raw::Document::decode(source)? else{{return Err(error)}};let mut value=read_yaml_shared_{id}(&envelope.meaning,inputs)?;let patch=core::xml::Patch::read(&envelope.payload,&[],&xml_qnames_{id}())?;if patch.is_null(){{return Err(RuntimeDiagnostic::new(\"xml.owner-root\",\"The document root cannot be removed\"));}}value.root=Some(patch);Ok(value)}}}}}}").unwrap();
+    } else {
+        for side in ["xml", "yaml"] {
+            writeln!(out,"fn read_{side}_{id}(source:&[u8],inputs:&InputView<'_>)->core::Result<V{id}> {{match read_{side}_shared_{id}(source,inputs) {{Ok(value)=>Ok(value),Err(error)=>{{if !error.code.as_deref().is_some_and(|code|code.starts_with(\"xml.\")||code.starts_with(\"yaml.\")||code.starts_with(\"value.\")) {{return Err(error);}}").unwrap();
+            if side == "yaml" {
+                writeln!(out,"if let Some(envelope)=core::raw::Document::decode(source)? {{let mut value=read_yaml_{id}(&envelope.meaning,inputs)?;let patch=core::xml::Patch::read(&envelope.payload,&[],&xml_qnames_{id}())?;if patch.is_null() {{return Err(RuntimeDiagnostic::new(\"xml.owner-root\",\"The document root cannot be removed\"));}}value.root=Some(patch);return Ok(value);}}").unwrap();
             }
-        }
-        let mut ready = vec![false; parts.len()];
-        for &slot in input_scope.order(if side == "xml" {
-            crate::plan::RepresentationSide::Xml
-        } else {
-            crate::plan::RepresentationSide::Yaml
-        }) {
-            let binding = input_scope.bind(id, "", Some(&ready));
+            if side == "yaml" {
+                if let Some(slot) = projected_slot {
+                    writeln!(
+                        out,
+                        "let mut pieces=vec![Vec::new();{}];pieces[{slot}]=source.to_vec();",
+                        parts.len()
+                    )
+                    .unwrap();
+                } else {
+                    writeln!(
+                        out,
+                        "let pieces=core::yaml::split_properties(source,&[{groups}])?;"
+                    )
+                    .unwrap();
+                }
+            }
+            let mut ready = vec![false; parts.len()];
+            for &slot in input_scope.order(if side == "xml" {
+                crate::plan::RepresentationSide::Xml
+            } else {
+                crate::plan::RepresentationSide::Yaml
+            }) {
+                let binding = input_scope.bind(id, "", Some(&ready));
+                if side == "xml" {
+                    let source = source_for(slot, "source");
+                    writeln!(out,"let p{slot}={{{binding}let piece=core::xml::borrow_or_project({source},part_{id}_{slot}::project)?;part_{id}_{slot}::read_xml_document(&piece,inputs)?}};").unwrap();
+                } else {
+                    writeln!(out,"let p{slot}={{{binding}part_{id}_{slot}::read_yaml_document(&pieces[{slot}],inputs)?}};").unwrap();
+                }
+                ready[slot] = true;
+            }
             if side == "xml" {
-                let source = source_for(slot, "source");
-                writeln!(out,"let p{slot}={{{binding}let piece=part_{id}_{slot}::project({source})?;part_{id}_{slot}::read_xml_document(&piece,inputs)?}};").unwrap();
+                writeln!(out, "let containers=owner_containers_{id}(source)?;").unwrap();
             } else {
-                writeln!(out,"let p{slot}={{{binding}part_{id}_{slot}::read_yaml_document(&pieces[{slot}],inputs)?}};").unwrap();
+                writeln!(out, "let containers=[1u8;{count}];").unwrap();
             }
-            ready[slot] = true;
-        }
-        if side == "xml" {
-            writeln!(out, "let containers=owner_containers_{id}(source)?;").unwrap();
-        } else {
-            writeln!(out, "let containers=[1u8;{count}];").unwrap();
-        }
-        write!(
-            out,
-            "{}(V{id}{{root:None,containers,",
-            if side == "xml" {
-                format!("infer_xml_owner_{id}")
+            write!(
+                out,
+                "{}(V{id}{{root:None,containers,",
+                if side == "xml" {
+                    format!("infer_xml_owner_{id}")
+                } else {
+                    "Ok".into()
+                }
+            )
+            .unwrap();
+            for slot in 0..parts.len() {
+                write!(out, "p{slot},").unwrap();
+            }
+            out.push_str(if side == "xml" {
+                "},source,inputs)}}}\n"
             } else {
-                "Ok".into()
-            }
-        )
-        .unwrap();
-        for slot in 0..parts.len() {
-            write!(out, "p{slot},").unwrap();
+                "})}}}\n"
+            });
         }
-        out.push_str(if side == "xml" {
-            "},source,inputs)}}}\n"
-        } else {
-            "})}}}\n"
-        });
     }
-    writeln!(out,"fn write_xml_{id}(value:&V{id},inputs:&InputView<'_>)->core::Result<Vec<u8>> {{let ordinary=write_xml_plain_{id}(value,inputs)?;let Some(patch)=&value.root else {{return Ok(ordinary);}};let qnames=xml_qnames_{id}();let base=core::xml::Tree::capture_with_qnames(&ordinary,{root_code},xml_qname_text_{id})?;let tree=patch.apply(base,core::xml::Name{{namespace:{:?}.into(),local:{:?}.into()}},&[],&qnames)?;let mut names=Vec::new();tree.collect_namespaces(&mut names);let mut writer=core::xml::Writer::new(&names);tree.write_at(&mut writer,{root_parent},&qnames)?;let restored=writer.finish();",root_name.namespace,root_name.local).unwrap();
-    for slot in (0..parts.len()).filter(|slot| files[*slot].is_none()) {
-        writeln!(
-            out,
-            "part_{id}_{slot}::verify_boundary(&value.p{slot},&ordinary,&restored)?;"
-        )
-        .unwrap();
+    writeln!(out,"fn write_xml_{id}(value:&V{id},inputs:&InputView<'_>)->core::Result<Vec<u8>> {{let ordinary=write_xml_plain_{id}(value,inputs)?;let Some(patch)=&value.root else {{return Ok(ordinary);}};let qnames=xml_qnames_{id}();let base=core::xml::Tree::capture_with_value_qnames(&ordinary,{root_code},|path,occurrences|xml_qname_text_at_{id}(value,path,occurrences))?;let tree=patch.apply(base,core::xml::Name{{namespace:{:?}.into(),local:{:?}.into()}},&[],&qnames)?;let restored=tree.document_at({root_parent},&qnames)?;",root_name.namespace,root_name.local).unwrap();
+    if grouped.is_none() {
+        for slot in (0..parts.len()).filter(|slot| files[*slot].is_none()) {
+            writeln!(
+                out,
+                "part_{id}_{slot}::verify_boundary(&value.p{slot},&ordinary,&restored,inputs)?;"
+            )
+            .unwrap();
+        }
     }
     out.push_str("Ok(restored)}\n");
+    if super::external_text::has_documents(entry, program) {
+        writeln!(out,"fn write_yaml_documents_{id}(value:&V{id},inputs:&InputView<'_>)->core::Result<Vec<(core::resources::RelativePath,Vec<u8>)>> {{{scope_full}let mut documents=Vec::new();").unwrap();
+        for (slot, _part) in parts
+            .iter()
+            .enumerate()
+            .filter(|(_, part)| super::external_text::has_documents(part, program))
+        {
+            writeln!(
+                out,
+                "documents.extend(part_{id}_{slot}::yaml_documents(&value.p{slot},inputs)?);"
+            )
+            .unwrap();
+        }
+        out.push_str("Ok(documents)}\n");
+    }
     let mut verify_documents = String::new();
     if files.iter().any(Option::is_some) {
         writeln!(out,"fn write_xml_documents_{id}(value:&V{id},inputs:&InputView<'_>)->core::Result<Vec<(core::resources::RelativePath,Vec<u8>)>> {{{scope_full}let mut result=Vec::new();").unwrap();
@@ -794,20 +1168,116 @@ pub(super) fn generate_at(
             .filter_map(|(slot, path)| path.as_ref().map(|path| (slot, path)))
         {
             writeln!(out,"let bytes=part_{id}_{slot}::document(&value.p{slot},inputs)?;if !bytes.is_empty() {{result.push((core::resources::RelativePath::new({path:?},65536)?,bytes));}}").unwrap();
-            writeln!(verify_documents,"part_{id}_{slot}::verify_boundary(&value.p{slot},inputs.document(&{path:?}),&part_{id}_{slot}::document(&value.p{slot},inputs)?)?;").unwrap();
+            writeln!(verify_documents,"part_{id}_{slot}::verify_boundary(&value.p{slot},inputs.document(&{path:?}),&part_{id}_{slot}::document(&value.p{slot},inputs)?,inputs)?;").unwrap();
         }
         out.push_str("Ok(result)}\n");
     }
-    writeln!(out,"fn verify_{id}(original:&[u8],candidate:&[u8],inputs:&InputView<'_>)->core::Result<()> {{let value=read_yaml_{id}(candidate,inputs)?;if let Some(error)=check_yaml_{id}(&value,candidate,inputs).into_iter().find(|error|error.severity==Severity::Error) {{return Err(error);}}{verify_documents}prove_xml_{id}(&value,original,&write_xml_{id}(&value,inputs)?)}}\nfn finalize_yaml_{id}(original:&[u8],candidate:Vec<u8>,value:&V{id},inputs:&InputView<'_>)->core::Result<Vec<u8>> {{{scope_full}match verify_{id}(original,&candidate,inputs) {{Ok(())=>return Ok(candidate),Err(error) if error.code.as_deref()==Some(\"xml.round-trip-mismatch\")=>{{}},Err(error)=>return Err(error)}}let mut out=String::new();").unwrap();
-    for &slot in &yaml_slots {
-        let source = source_for(slot, "original");
-        writeln!(out,"let source=part_{id}_{slot}::project({source})?;let yaml=match part_{id}_{slot}::finalize(&source,&value.p{slot},inputs) {{Ok(yaml)=>yaml,Err(error) if error.code.as_deref()==Some(\"xml.round-trip-mismatch\")=>{{let mut yaml=String::new();part_{id}_{slot}::write_yaml(&value.p{slot},inputs,&mut yaml)?;yaml.into_bytes()}},Err(error)=>return Err(error)}};core::yaml::append_encoded_properties(&mut out,&yaml)?;").unwrap();
-    }
-    writeln!(
+    // An inner raw envelope can still violate an outer semantic constraint.
+    // The owner must then preserve its own property boundary once more.
+    let semantic_anomaly = if anomalous_keys.is_empty() {
+        String::new()
+    } else {
+        let keys = anomalous_keys
+            .iter()
+            .map(|key| format!("{key:?}"))
+            .collect::<Vec<_>>()
+            .join(",");
+        format!(
+            "Err(error) if error.kind==core::annotations::IssueKind::Semantic && [{keys}].contains(&error.path.first().map(String::as_str).unwrap_or(\"\"))=>error.path.first().cloned(),"
+        )
+    };
+    let nested_anomaly = if yaml_slots.len() == 1
+        && let Some(key) = anomalous_keys.first()
+    {
+        format!(
+            "Err(error) if error.code.as_deref()==Some(\"yaml.document\") || error.code.as_deref()==Some(\"yaml.unsupported-form\") && candidate.windows(b\"!xml/\".len()).any(|bytes|bytes==b\"!xml/\")=>Some({key:?}.to_owned()),"
+        )
+    } else {
+        String::new()
+    };
+    if grouped.is_some() {
+        writeln!(out,"fn verify_{id}(original:&[u8],candidate:&[u8],inputs:&InputView<'_>)->core::Result<()>{{let value=read_yaml_{id}(candidate,inputs)?;if let Some(error)=check_yaml_{id}(&value,candidate,inputs).into_iter().find(|error|error.severity==Severity::Error) {{return Err(error);}}prove_xml_canonical_{id}(&value,original,&write_xml_{id}(&value,inputs)?,inputs)}} fn finalize_yaml_{id}(original:&[u8],candidate:Vec<u8>,_value:&V{id},inputs:&InputView<'_>)->core::Result<Vec<u8>>{{match verify_{id}(original,&candidate,inputs){{Ok(())=>Ok(candidate),Err(error) if error.code.as_deref()==Some(core::proof::MISMATCH)=>{{let preserved=preserved_group_{id}(original,inputs)?;let candidate=write_yaml_{id}(&preserved,inputs)?;verify_{id}(original,&candidate,inputs)?;Ok(candidate)}},Err(error)=>Err(error)}}}}").unwrap();
+    } else {
+        writeln!(out,"fn verify_{id}(original:&[u8],candidate:&[u8],inputs:&InputView<'_>)->core::Result<()> {{let value=read_yaml_{id}(candidate,inputs)?;if let Some(error)=check_yaml_{id}(&value,candidate,inputs).into_iter().find(|error|error.severity==Severity::Error) {{return Err(error);}}{scope_full}{verify_documents}prove_xml_canonical_{id}(&value,original,&write_xml_{id}(&value,inputs)?,inputs)}}\nfn finalize_yaml_{id}(original:&[u8],candidate:Vec<u8>,value:&V{id},inputs:&InputView<'_>)->core::Result<Vec<u8>> {{{scope_full}let verified=verify_{id}(original,&candidate,inputs);let _spelling_mismatch=matches!(&verified,Err(error) if error.code.as_deref()==Some(core::proof::MISMATCH));let _invalid_property=match verified {{Ok(())=>return Ok(candidate),Err(error) if error.code.as_deref()==Some(core::proof::MISMATCH)=>None,Err(error) if matches!(error.code.as_deref(),Some(\"value.missing\"|\"yaml.choice-form\"|\"yaml.expected-scalar\"|\"yaml.raw-envelope\"|\"yaml.owner-property\"|\"yaml.unknown-field\")) && candidate.windows(b\"!xml/\".len()).any(|bytes|bytes==b\"!xml/\")=>None,Err(error) if error.code.as_deref()==Some(\"xml/anomaly-tag-unnecessary\")=>error.path.first().cloned(),{semantic_anomaly}{nested_anomaly}Err(error)=>return Err(error)}};let owner_tree=core::xml::Tree::capture_with_value_qnames(original,{root_code},|path,occurrences|xml_qname_text_at_{id}(value,path,occurrences))?.ok_or_else(||RuntimeDiagnostic::expected_xml_root())?;let mut out=String::new();").unwrap();
+        // A valid semantic value can have an exceptional XML spelling. Try
+        // preserving only that property's original form before the whole owner.
+        for &slot in &yaml_slots {
+            if let (Some(key), LinkedXml::Record(xml)) = (
+                anomalous_property_key(&parts[slot], program),
+                &parts[slot].xml,
+            ) {
+                let path = record::path_code(&xml[0].path);
+                let source = source_for(slot, "original");
+                let repeated_guard = if files[slot].is_none() && xml[0].path.starts_with(root) {
+                    format!(
+                        "owner_tree.count_at({})<=1",
+                        record::path_code(&xml[0].path[root.len()..])
+                    )
+                } else {
+                    "true".into()
+                };
+                writeln!(out,"if {repeated_guard} && _spelling_mismatch && !candidate.is_empty() {{let source={source};if let Some(tree)=core::xml::Tree::capture_with_qnames(source,{path},xml_qname_text_{id})? {{let payload=tree.full_patch_yaml(&[],&xml_qnames_{id}())?;if let Ok(marked)=core::raw::Property::encode({key:?},{key:?},&candidate,payload.as_bytes()) && verify_{id}(original,&marked,inputs).is_ok() {{return Ok(marked);}}}}}}").unwrap();
+                writeln!(out,"if {repeated_guard} && _invalid_property.as_deref()==Some({key:?}) {{let source={source};let tree=core::xml::Tree::capture_with_qnames(source,{path},xml_qname_text_{id})?.ok_or_else(||RuntimeDiagnostic::expected_xml_property())?;let payload=tree.patch_yaml(None,&[],&xml_qnames_{id}())?;let plain=core::yaml::without_property(&candidate,{key:?})?;let marked=core::raw::Property::encode({key:?},{key:?},&plain,payload.as_bytes())?;if verify_{id}(original,&marked,inputs).is_ok() {{return Ok(marked);}}}}").unwrap();
+            }
+        }
+        for &slot in &yaml_slots {
+            let source = source_for(slot, "original");
+            let (raw_condition, raw_fallback) = match (
+                anomalous_property_key(&parts[slot], program),
+                &parts[slot].xml,
+            ) {
+                (Some(key), LinkedXml::Record(xml)) => {
+                    let path = record::path_code(&xml[0].path);
+                    (
+                        format!("_invalid_property.as_deref()==Some({key:?})"),
+                        format!(
+                            "let tree=core::xml::Tree::capture_with_qnames(&source,{path},xml_qname_text_{id})?.ok_or_else(||RuntimeDiagnostic::expected_xml_property())?;let payload=tree.patch_yaml(None,&[],&xml_qnames_{id}())?;core::raw::Property::encode({key:?},{key:?},b\"\",payload.as_bytes())?"
+                        ),
+                    )
+                }
+                _ => ("false".into(), "Vec::new()".into()),
+            };
+            let can_preserve = anomalous_property_key(&parts[slot], program).is_some();
+            let repeated_scalar = match (&parts[slot].value, &parts[slot].xml) {
+                (LinkedType::Record(fields), LinkedXml::Record(xml))
+                    if fields.len() == 1
+                        && xml.len() == 1
+                        && xml[0].attribute.is_none()
+                        && files[slot].is_none()
+                        && xml[0].path.starts_with(root)
+                        && scalar::Codec::resolve(&fields[0].value, &parts[slot], program)
+                            .is_ok() =>
+                {
+                    format!(
+                        "owner_tree.count_at({})>1",
+                        record::path_code(&xml[0].path[root.len()..])
+                    )
+                }
+                _ => "false".into(),
+            };
+            // Rebase local document envelopes through the complete owner proof.
+            // External XML documents keep their independent preservation boundary.
+            let nested_document = if files[slot].is_none() {
+                r#"let yaml=if yaml.starts_with(b"!xml/raw\n"){match core::raw::Document::decode(&yaml)?{Some(envelope)=>envelope.meaning,None=>yaml}}else{yaml};"#
+            } else {
+                ""
+            };
+            writeln!(out,"let yaml=if {repeated_scalar} {{let mut yaml=String::new();part_{id}_{slot}::write_yaml(&value.p{slot},inputs,&mut yaml)?;yaml.into_bytes()}}else{{let source=part_{id}_{slot}::project({source})?;if {raw_condition} {{{raw_fallback}}}else{{match part_{id}_{slot}::finalize(&source,&value.p{slot},inputs) {{Ok(yaml)=>yaml,Err(error) if error.code.as_deref()==Some(core::proof::MISMATCH)=>{{let mut yaml=String::new();part_{id}_{slot}::write_yaml(&value.p{slot},inputs,&mut yaml)?;yaml.into_bytes()}},Err(error) if {can_preserve} && (error.code.as_deref()==Some(\"yaml.raw-envelope\") || (matches!(error.code.as_deref(),Some(\"yaml.choice-form\"|\"yaml.expected-scalar\"|\"value.missing\"|\"yaml.owner-property\")) && candidate.windows(b\"!xml/\".len()).any(|bytes|bytes==b\"!xml/\")))=>{{{raw_fallback}}},Err(error)=>return Err(error)}}}}}};{nested_document}core::yaml::append_encoded_properties(&mut out,&yaml)?;").unwrap();
+        }
+        // A projected child and its owner share the YAML document boundary.
+        // Rebase a child preservation patch to the complete XML owner below;
+        // never nest two document envelopes or interpret a child patch as root.
+        let projected_meaning = if matches!(entry.yaml, YamlRepresentation::Projection(_)) {
+            "let refined=match core::raw::Document::decode(&refined)?{Some(envelope)=>envelope.meaning,None=>refined};"
+        } else {
+            ""
+        };
+        writeln!(
         out,
-        "let refined=out.into_bytes();match verify_{id}(original,&refined,inputs) {{Ok(())=>return Ok(refined),Err(error) if error.code.as_deref()==Some(\"xml.round-trip-mismatch\")=>{{}},Err(error)=>return Err(error)}}let ordinary=write_xml_{id}(&read_yaml_{id}(&refined,inputs)?,inputs)?;let expected=core::xml::Tree::capture_with_qnames(original,{root_code},xml_qname_text_{id})?.ok_or_else(||RuntimeDiagnostic::new(\"xml.owner-root\",\"Expected the declared document root\"))?;let base=core::xml::Tree::capture_with_qnames(&ordinary,{root_code},xml_qname_text_{id})?;let patch=expected.patch_yaml(base.as_ref(),&[],&xml_qnames_{id}())?;let candidate=core::raw::Document::encode(&refined,patch.as_bytes())?;verify_{id}(original,&candidate,inputs)?;Ok(candidate)}}"
+        "let refined=out.into_bytes();{projected_meaning}match verify_{id}(original,&refined,inputs) {{Ok(())=>return Ok(refined),Err(error) if error.code.as_deref()==Some(core::proof::MISMATCH)=>{{}},Err(error)=>return Err(error)}}let restored_value=read_yaml_{id}(&refined,inputs)?;let ordinary=write_xml_{id}(&restored_value,inputs)?;let base=core::xml::Tree::capture_with_value_qnames(&ordinary,{root_code},|path,occurrences|xml_qname_text_at_{id}(&restored_value,path,occurrences))?;let patch=owner_tree.patch_yaml(base.as_ref(),&[],&xml_qnames_{id}())?;let candidate=core::raw::Document::encode(&refined,patch.as_bytes())?;verify_{id}(original,&candidate,inputs)?;Ok(candidate)}}"
     )
     .unwrap();
+    }
     for (accessor, result, fallback) in [
         (
             "text_field",
@@ -826,6 +1296,14 @@ pub(super) fn generate_at(
                     unreachable!()
                 };
                 if let Some(local) = local.iter().position(|item| item.name == field.name) {
+                    if accessor == "input_field" && super::choice_value::applies(part, program) {
+                        let input = super::choice_value::borrowed_input(
+                            &format!("part_{id}_{slot}"),
+                            &format!("value.p{slot}"),
+                        );
+                        writeln!(out, "{index}=>{input},").unwrap();
+                        continue;
+                    }
                     writeln!(
                         out,
                         "{index}=>part_{id}_{slot}::{accessor}(&value.p{slot},{local}),"
@@ -836,7 +1314,31 @@ pub(super) fn generate_at(
         }
         writeln!(out, "_=>{fallback}}}}}").unwrap();
     }
-    Ok(out)
+    if native_short {
+        if !yaml_stateful || projected_slot.is_some() {
+            return Err(unsupported(
+                entry,
+                "Structural shorthand requires a stateful mapping reader",
+            ));
+        }
+        let raw = std::iter::once("value.root.is_some()".to_owned())
+            .chain(
+                (0..parts.len()).map(|slot| format!("part_{id}_{slot}::has_raw(&value.p{slot})")),
+            )
+            .collect::<Vec<_>>()
+            .join("||");
+        if super::native_shorthand::needs_construction(entry) {
+            out.push_str(
+                &super::record_construction::composed(entry, program)?
+                    .replace("@id@", &id.to_string()),
+            );
+        }
+        out.push_str(&super::native_shorthand::definitions(entry, program, &raw)?);
+    }
+    Ok(GeneratedOwner {
+        source: out,
+        parts: profile_parts,
+    })
 }
 
 /// Validate event-state capability before referring to generated state types.

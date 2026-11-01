@@ -1,0 +1,13 @@
+format: nkdk-declarations/1
+kind: value
+id: common.metadata-target-uuid-head
+value:
+  kind: scalar
+  scalar: text
+  pattern: '[0-9a-fA-F]{8}'
+representations:
+  xml:
+    kind: text
+  yaml:
+    kind: scalar
+    scalar: text

@@ -1,6 +1,8 @@
 format: nkdk-declarations/1
 kind: value
 id: common.color-windows
+namespaces:
+  win: http://v8.1c.ru/8.1/data/ui/colors/windows
 imports:
   color: system.WindowsColors
 value:

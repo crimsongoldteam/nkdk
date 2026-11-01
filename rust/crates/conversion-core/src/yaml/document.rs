@@ -1,5 +1,5 @@
 //! Full YAML storage is reserved for exceptional XML preservation envelopes.
-use super::{Node, Scalar, visit_nodes};
+use super::{DocumentSource, Node, Scalar, Source};
 use crate::{Position, Result, RuntimeDiagnostic};
 pub(crate) enum Kind {
     Scalar(Scalar),
@@ -178,9 +178,12 @@ pub(crate) fn parse(source: &[u8]) -> Result<Value> {
     if source.is_empty() {
         return Ok(Value::mapping(Vec::new()));
     }
+    parse_source(DocumentSource(source))
+}
+pub(crate) fn parse_source(source: impl Source) -> Result<Value> {
     let mut stack = Vec::new();
     let mut root = None;
-    visit_nodes(source, |node, _| {
+    source.visit(|node, _| {
         match node {
             Node::MappingStart(tag) => stack.push(Frame::Mapping(Vec::new(), None, tag)),
             Node::SequenceStart(tag) => stack.push(Frame::Sequence(Vec::new(), tag)),
@@ -222,4 +225,30 @@ pub(crate) fn parse(source: &[u8]) -> Result<Value> {
         Ok(())
     })?;
     root.ok_or_else(|| invalid("Missing YAML document"))
+}
+
+pub(crate) fn parse_at(source: &[u8], target: Position) -> Result<Value> {
+    struct At<'a>(&'a [u8], Position);
+    impl Source for At<'_> {
+        fn visit(self, mut consume: impl FnMut(Node, Position) -> Result<()>) -> Result<()> {
+            let (mut started, mut finished, mut depth) = (false, false, 0);
+            DocumentSource(self.0).visit(|node, position| {
+                if finished || (!started && position != self.1) {
+                    return Ok(());
+                }
+                started = true;
+                node.advance_depth(&mut depth)?;
+                consume(node, position)?;
+                finished = depth == 0;
+                Ok(())
+            })?;
+            if !finished {
+                return Err(invalid(
+                    "Missing or incomplete YAML value at stream position",
+                ));
+            }
+            Ok(())
+        }
+    }
+    parse_source(At(source, target))
 }

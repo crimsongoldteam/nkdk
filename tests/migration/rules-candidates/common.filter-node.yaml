@@ -1,0 +1,64 @@
+format: nkdk-declarations/1
+kind: value
+id: common.filter-node
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  xs: http://www.w3.org/2001/XMLSchema
+  v8: http://v8.1c.ru/8.1/data/core
+  dcsset: http://v8.1c.ru/8.1/data-composition-system/settings
+  dcscor: http://v8.1c.ru/8.1/data-composition-system/core
+  xr: http://v8.1c.ru/8.3/xcf/readable
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+imports:
+  comparison: common.filter-comparison
+  group: common.filter-group
+value:
+  kind: choice
+  variants:
+    - name: comparison
+      type:
+        use: comparison
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+    - name: group
+      type:
+        use: group
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+representations:
+  xml:
+    kind: choice
+    attribute: xsi:type
+    otherwise: comparison
+    variants:
+      - variant: comparison
+        in:
+          - dcsset:FilterItemComparison
+        emit: dcsset:FilterItemComparison
+      - variant: group
+        in:
+          - dcsset:FilterItemGroup
+        emit: dcsset:FilterItemGroup
+  yaml:
+    kind: choice
+    variants:
+      - variant: group
+        form: mapping
+        key: ТипГруппы
+    fallback: comparison

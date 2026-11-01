@@ -1,0 +1,22 @@
+format: nkdk-declarations/1
+kind: value
+id: system.WindowsFonts
+enum:
+  ANSIFixedFont: ANSIШрифтМоноширинный
+  ANSIVariableFont: ANSIШрифтПропорциональный
+  OEMFixedFont: OEMШрифтМоноширинный
+  SystemFont: СистемныйШрифт
+  DefaultGUIFont: ШрифтДиалоговИМеню
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  t: http://v8.1c.ru/8.1/data/enterprise
+projections:
+  - id: system.WindowsFonts.dcs
+    xml:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: t:WindowsFonts
+      content:
+        kind: text

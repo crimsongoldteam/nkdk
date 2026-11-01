@@ -108,6 +108,7 @@ struct QNameXmlRead{id} {{seen:bool,text:String,value:Option<core::xml::Name>}}
 impl QNameXmlRead{id} {{
 fn new()->Self {{Self{{seen:false,text:String::new(),value:None}}}}
 fn consume(&mut self,path:&[core::xml::Name],token:&core::xml::Token<'_>,scope:Option<core::xml::NamespaceScope<'_>>)->core::Result<()> {{
+if path.is_empty() && matches!(token,core::xml::Token::Text(text) if core::xml::is_whitespace(text)) {{return Ok(());}}
 if core::xml::matches(path,{route}) {{match token {{
 core::xml::Token::Start(_)=>{{if self.seen {{return Err(RuntimeDiagnostic::new("xml.duplicate-field","Repeated QName property"));}}self.seen=true;}},
 core::xml::Token::Text(part)=>self.text.push_str(part),

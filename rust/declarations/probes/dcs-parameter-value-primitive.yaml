@@ -1,0 +1,23 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.dcs-parameter-value-primitive
+imports: {item: common.dcs-parameter-value}
+inputs:
+  parameterName: {type: {kind: scalar, scalar: text}}
+  styleTypes: {index: metadata.style-item-types}
+  labels: {index: dcs.enumeration-labels}
+  codes: {index: dcs.enumeration-codes}
+  defaultLanguage: {type: {kind: scalar, scalar: text}}
+  registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+value:
+  kind: record
+  fields:
+  - name: item
+    type: {use: item, with: {settingsXsi: false}, bind: {parameterName: {input: parameterName}, valueProfile: {literal: Primitive}, styleTypes: {input: styleTypes}, labels: {input: labels}, codes: {input: codes}, defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}}}
+representations:
+  xml: {kind: record, fields: [{field: item, path: [Root, Item]}]}
+  yaml: {kind: mapping, fields: [{field: item, key: Параметр}]}
+presence:
+- target: {field: item}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {missing: {denotes: {absent: true}}}

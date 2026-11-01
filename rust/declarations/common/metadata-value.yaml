@@ -84,15 +84,57 @@ declarations:
     - {name: generic, type: {use: generic}}
   representations: {xml: {kind: choice}, yaml: {kind: choice}}
 - kind: value
+  id: common.metadata-target-uuid-head
+  value: {kind: scalar, scalar: text, pattern: '[0-9a-fA-F]{8}'}
+  representations:
+    xml: {kind: text}
+    yaml: {kind: scalar, scalar: text}
+- kind: value
+  id: common.metadata-target-uuid-tail
+  value: {kind: scalar, scalar: text, pattern: '[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}(\.[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})?'}
+  representations:
+    xml: {kind: text}
+    yaml: {kind: scalar, scalar: text}
+- kind: value
+  id: common.metadata-target-uuid-reference
+  imports: {head: common.metadata-target-uuid-head, tail: common.metadata-target-uuid-tail}
+  value:
+    kind: record
+    fields:
+    - {name: head, type: {use: head}}
+    - {name: tail, type: {use: tail}}
+  representations:
+    xml: {kind: text-pattern, parts: [{field: head}, {literal: '-'}, {field: tail}]}
+    yaml: {kind: text-pattern, parts: [{field: head}, {literal: '-'}, {field: tail}]}
+- kind: value
+  id: common.metadata-target-uuid-text
+  value: {kind: scalar, scalar: text, pattern: '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'}
+  representations:
+    xml: {kind: text}
+    yaml: {kind: scalar, scalar: text}
+- kind: value
+  id: common.metadata-prefixed-uuid-reference
+  imports: {uuid: common.metadata-target-uuid-text}
+  value: {kind: record, fields: [{name: uuid, type: {use: uuid}}]}
+  representations:
+    xml: {kind: text-pattern, parts: [{literal: '1:'}, {field: uuid}]}
+    yaml: {kind: text-pattern, parts: [{literal: '1:'}, {field: uuid}]}
+- kind: value
   id: common.metadata-reference
   imports:
+    rootPath: common.metadata-root-path
     path: common.metadata-reference-path
+    uuid: common.metadata-target-uuid-reference
+    prefixedUuid: common.metadata-prefixed-uuid-reference
     empty: common.metadata-empty-reference
     text: common.string
   value:
     kind: choice
     variants:
+    - {name: rootPath, type: {use: rootPath}}
     - {name: path, type: {use: path}}
+    - {name: uuid, type: {use: uuid}}
+    - {name: prefixedUuid, type: {use: prefixedUuid}}
     - {name: empty, type: {use: empty}}
     - {name: text, type: {use: text}}
   representations: {xml: {kind: choice}, yaml: {kind: choice}}
@@ -315,6 +357,7 @@ declarations:
     fixedArray: common.metadata-fixed-array
     formChoice: common.metadata-form-choice-list-value
     period: common.standard-period
+    beginningDate: common.standard-beginning-date
   parameters:
     fixedArrayItem: {type: {kind: scalar, scalar: boolean}, default: false}
     exportNilValue: {type: {kind: scalar, scalar: boolean}, default: false}
@@ -333,6 +376,7 @@ declarations:
     - {name: fixedArray, type: {use: fixedArray, bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}}}}
     - {name: formChoice, type: {use: formChoice, with: {fixedArrayItem: {parameter: fixedArrayItem}}, bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}}}}
     - {name: period, type: {use: period}}
+    - {name: beginningDate, type: {use: beginningDate}}
     - {name: boolean, type: {use: boolean}}
     - {name: decimal, type: {use: decimal}}
     - {name: calendar, type: {use: calendar}}
@@ -350,6 +394,7 @@ declarations:
       - {variant: fixedArray, in: [v8:FixedArray], emit: v8:FixedArray}
       - {variant: formChoice, in: [FormChoiceListDesTimeValue], emit: FormChoiceListDesTimeValue}
       - {variant: period, in: [v8:StandardPeriod], emit: v8:StandardPeriod}
+      - {variant: beginningDate, in: [v8:StandardBeginningDate], emit: v8:StandardBeginningDate}
       - {variant: boolean, in: [xs:boolean], emit: xs:boolean}
       - {variant: decimal, in: [xs:decimal, xs:integer, xs:double, xs:float], emit: xs:decimal}
       - {variant: calendar, in: [xs:dateTime], emit: xs:dateTime}
@@ -366,6 +411,7 @@ declarations:
       - {variant: account, form: mapping, key: Тип, value: ВидСчета}
       - {variant: dcsComparison, form: mapping, key: Тип, value: ВидСравненияКомпоновкиДанных}
       - {variant: period, form: mapping, key: Вариант}
+      - {variant: beginningDate, form: mapping, key: Вариант}
   presence:
   - target: self
     xml:
@@ -376,5 +422,5 @@ declarations:
       canonical:
       - {when: {input: onlyStringType}, form: empty-element, type: xs:string}
       - {when: {parameter: exportNilValue}, form: nil}
-      - {form: missing}
+      - {when: {not: {present: {self: true}}}, form: missing}
     yaml: {missing: {denotes: {absent: true}}}

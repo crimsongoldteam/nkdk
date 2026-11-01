@@ -1,0 +1,111 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.StyleElementType
+  value1: common.style-item-value
+value:
+  kind: record
+  fields:
+    - name: type
+      type:
+        use: value0
+    - name: value
+      type:
+        use: value1
+        bind:
+          styleTypes:
+            input: styleTypes
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: type
+        path:
+          - Properties
+          - Type
+      - field: value
+        path:
+          - Properties
+          - Value
+  yaml:
+    kind: mapping
+    fields:
+      - field: type
+        key: Тип
+      - field: value
+        key: Значение
+presence:
+  - target:
+      field: type
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            and:
+              - input: adopted
+              - not:
+                  present:
+                    field: type
+              - not:
+                  or:
+                    - present:
+                        field: value
+          form: missing
+        - when:
+            input: adopted
+          form: ordinary
+        - form: ordinary
+    yaml:
+      missing:
+        denotes:
+          if:
+            input: adopted
+          then:
+            if:
+              or:
+                - present:
+                    field: value
+            then:
+              literal: Font
+            else:
+              absent: true
+          else:
+            literal: Font
+      omitWhen:
+        and:
+          - not:
+              input: adopted
+          - eq:
+              - field: type
+              - literal: Font
+  - target:
+      field: value
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+inputs:
+  adopted:
+    type:
+      kind: scalar
+      scalar: boolean
+  styleTypes:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: scalar
+        scalar: text
+id: candidate.fragment.bf0dfb2fc18ddfc018d7

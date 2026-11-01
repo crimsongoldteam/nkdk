@@ -1,0 +1,2296 @@
+# Generated complete file declarations from rules.ts
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+  - format: nkdk-declarations/1
+    kind: fragment
+    id: metadata.websocket-client.base-state
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      stateRows: common.property-states
+      compatibility: system.CompatibilityMode
+      section_extend_values: metadata.websocket-client.history.section-extend
+      state: common.base-reference-state
+    inputs:
+      adopted:
+        type:
+          kind: scalar
+          scalar: boolean
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+      states:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: property
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: mode
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+      compatibilityMode:
+        type:
+          use: compatibility
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      baseIds:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: component
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: identity
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+    value:
+      kind: record
+      fields:
+        - name: history
+          type:
+            use: stateRows
+        - name: section_extend
+          type:
+            use: section_extend_values
+        - name: state
+          type:
+            use: state
+        - name: base
+          type:
+            kind: scalar
+            scalar: text
+        - name: notice
+          type:
+            kind: scalar
+            scalar: text
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: history
+            path:
+              - md:MetaDataObject
+              - md:WebSocketClient
+              - md:InternalInfo
+          - field: base
+            path:
+              - md:MetaDataObject
+              - md:WebSocketClient
+              - md:Properties
+              - md:ExtendedConfigurationObject
+      yaml:
+        kind: mapping
+        fields:
+          - field: history
+            key: Состояния
+          - field: section_extend
+            key: Изменять
+          - field: state
+            key: ОбъектРасширяемойКонфигурации
+    presence:
+      - target:
+          field: history
+        xml:
+          missing:
+            denotes:
+              sequence: []
+          canonical:
+            - when:
+                and:
+                  - input: adopted
+                  - not:
+                      exists:
+                        in:
+                          field: history
+                        as: row
+                        where:
+                          literal: true
+              form: empty-element
+            - when:
+                not:
+                  exists:
+                    in:
+                      field: history
+                    as: row
+                    where:
+                      literal: true
+              form: missing
+            - form: ordinary
+        yaml:
+          default:
+            concat:
+              - if:
+                  and:
+                    - exists:
+                        in:
+                          field: section_extend
+                        as: sectionName
+                        where:
+                          eq:
+                            - get:
+                                of:
+                                  var: sectionName
+                                field: name
+                            - literal: Модуль
+                    - and:
+                        - input: adopted
+                        - or:
+                            - eq:
+                                - input: compatibilityMode
+                                - literal: Version8_3_10
+                            - eq:
+                                - input: compatibilityMode
+                                - literal: Version8_3_11
+                            - eq:
+                                - input: compatibilityMode
+                                - literal: Version8_3_12
+                            - eq:
+                                - input: compatibilityMode
+                                - literal: Version8_3_13
+                            - eq:
+                                - input: compatibilityMode
+                                - literal: Version8_3_14
+                            - eq:
+                                - input: compatibilityMode
+                                - literal: Version8_3_15
+                            - eq:
+                                - input: compatibilityMode
+                                - literal: Version8_3_16
+                            - eq:
+                                - input: compatibilityMode
+                                - literal: Version8_3_17
+                            - eq:
+                                - input: compatibilityMode
+                                - literal: Version8_3_18
+                            - eq:
+                                - input: compatibilityMode
+                                - literal: Version8_3_19
+                            - eq:
+                                - input: compatibilityMode
+                                - literal: Version8_3_20
+                            - eq:
+                                - input: compatibilityMode
+                                - literal: Version8_3_21
+                            - eq:
+                                - input: compatibilityMode
+                                - literal: Version8_3_22
+                            - eq:
+                                - input: compatibilityMode
+                                - literal: Version8_3_23
+                            - eq:
+                                - input: compatibilityMode
+                                - literal: Version8_3_24
+                            - eq:
+                                - input: compatibilityMode
+                                - literal: Version8_3_25
+                            - eq:
+                                - input: compatibilityMode
+                                - literal: Version8_3_26
+                            - eq:
+                                - input: compatibilityMode
+                                - literal: Version8_3_27
+                            - eq:
+                                - input: compatibilityMode
+                                - literal: Version8_3_8
+                            - eq:
+                                - input: compatibilityMode
+                                - literal: Version8_3_9
+                            - eq:
+                                - input: compatibilityMode
+                                - literal: DontUse
+                then:
+                  sequence:
+                    - record:
+                        name:
+                          literal: Module
+                        mode:
+                          literal: Extended
+                else:
+                  sequence: []
+              - if:
+                  present:
+                    field: notice
+                then:
+                  sequence:
+                    - record:
+                        name:
+                          literal: ExtendedConfigurationObject
+                        mode:
+                          field: notice
+                else:
+                  sequence: []
+      - target:
+          field: section_extend
+        xml:
+          missing:
+            denotes:
+              concat:
+                - if:
+                    exists:
+                      in:
+                        field: history
+                      as: sectionRow
+                      where:
+                        and:
+                          - eq:
+                              - get:
+                                  of:
+                                    var: sectionRow
+                                  field: name
+                              - literal: Module
+                          - eq:
+                              - get:
+                                  of:
+                                    var: sectionRow
+                                  field: mode
+                              - literal: Extended
+                  then:
+                    sequence:
+                      - record:
+                          name:
+                            literal: Модуль
+                  else:
+                    sequence: []
+        yaml:
+          default:
+            sequence: []
+      - target:
+          field: state
+        yaml:
+          omitWhen:
+            not:
+              input: adopted
+    constraints:
+      - id: section_extend-names
+        appliesTo:
+          - yaml-validation
+        assert:
+          each:
+            in:
+              field: section_extend
+            as: sectionName
+            where:
+              and:
+                - or:
+                    - eq:
+                        - get:
+                            of:
+                              var: sectionName
+                            field: name
+                        - literal: Модуль
+                - one:
+                    in:
+                      field: section_extend
+                    as: otherName
+                    where:
+                      eq:
+                        - get:
+                            of:
+                              var: otherName
+                            field: name
+                        - get:
+                            of:
+                              var: sectionName
+                            field: name
+        diagnostic:
+          code: state.section.invalid
+          severity: error
+          at:
+            field: section_extend
+          message: Недопустимое имя или повтор в секции состояния
+      - id: section_extend-module
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        when:
+          exists:
+            in:
+              field: section_extend
+            as: sectionName
+            where:
+              eq:
+                - get:
+                    of:
+                      var: sectionName
+                    field: name
+                - literal: Модуль
+        assert:
+          and:
+            - input: adopted
+            - or:
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_10
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_11
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_12
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_13
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_14
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_15
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_16
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_17
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_18
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_19
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_20
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_21
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_22
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_23
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_24
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_25
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_26
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_27
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_8
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_9
+                - eq:
+                    - input: compatibilityMode
+                    - literal: DontUse
+        diagnostic:
+          code: state.mode.unavailable
+          severity: error
+          at:
+            field: section_extend
+          message: Секция недоступна для этого объекта или версии
+      - id: section_extend-module-history
+        appliesTo:
+          - yaml-validation
+        assert:
+          eq:
+            - exists:
+                in:
+                  field: section_extend
+                as: sectionName
+                where:
+                  eq:
+                    - get:
+                        of:
+                          var: sectionName
+                        field: name
+                    - literal: Модуль
+            - exists:
+                in:
+                  field: history
+                as: sectionRow
+                where:
+                  and:
+                    - eq:
+                        - get:
+                            of:
+                              var: sectionRow
+                            field: name
+                        - literal: Module
+                    - eq:
+                        - get:
+                            of:
+                              var: sectionRow
+                            field: mode
+                        - literal: Extended
+        diagnostic:
+          code: state.expected
+          severity: error
+          at:
+            field: section_extend
+          message: Секция не соответствует явно заданной истории
+      - id: borrowed-compatibility
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        assert:
+          or:
+            - not:
+                input: adopted
+            - or:
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_10
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_11
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_12
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_13
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_14
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_15
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_16
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_17
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_18
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_19
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_20
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_21
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_22
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_23
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_24
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_25
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_26
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_27
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_8
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_9
+                - eq:
+                    - input: compatibilityMode
+                    - literal: DontUse
+        diagnostic:
+          code: metadata.borrowed-compatibility
+          severity: error
+          at:
+            field: state
+          message: Borrowing is unavailable in this compatibility mode
+      - id: notify-compatibility
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        assert:
+          or:
+            - not:
+                present:
+                  field: notice
+            - or:
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_15
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_16
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_17
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_18
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_19
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_20
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_21
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_22
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_23
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_24
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_25
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_26
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_27
+                - eq:
+                    - input: compatibilityMode
+                    - literal: DontUse
+        diagnostic:
+          code: metadata.notify-compatibility
+          severity: error
+          at:
+            field: state
+          message: Notification is unavailable in this compatibility mode
+    state-relations:
+      - field: state
+        sources:
+          base:
+            present:
+              if:
+                input: adopted
+              then:
+                require:
+                  lookup:
+                    in:
+                      input: baseIds
+                    key:
+                      record:
+                        component:
+                          input: component
+                        identity:
+                          input: owner
+              else:
+                absent: true
+          notice:
+            equals:
+              literal: Notify
+            from:
+              if:
+                present:
+                  field: history
+              then:
+                match:
+                  value:
+                    select:
+                      in:
+                        field: history
+                      as: item
+                      where:
+                        and:
+                          - present:
+                              get:
+                                of:
+                                  var: item
+                                field: name
+                          - eq:
+                              - get:
+                                  of:
+                                    var: item
+                                  field: name
+                              - literal: ExtendedConfigurationObject
+                  present:
+                    as: selected
+                    then:
+                      get:
+                        of:
+                          var: selected
+                        field: mode
+                  absent:
+                    absent: true
+              else:
+                absent: true
+        states:
+          default:
+            - base
+          empty: []
+          tagged:
+            - base
+            - notice
+          text:
+            - notice
+    xmlOrder:
+      - history
+      - base
+  - format: nkdk-declarations/1
+    kind: fragment
+    imports:
+      value0: system.ObjectBelonging
+    value:
+      kind: record
+      fields:
+        - name: objectBelonging
+          type:
+            use: value0
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: objectBelonging
+            path:
+              - md:MetaDataObject
+              - md:WebSocketClient
+              - md:Properties
+              - md:ObjectBelonging
+      yaml:
+        kind: mapping
+        fields: []
+    presence:
+      - target:
+          field: objectBelonging
+        xml:
+          missing:
+            denotes:
+              literal: Native
+          canonical:
+            - when:
+                eq:
+                  - field: objectBelonging
+                  - literal: Native
+              form: missing
+        yaml:
+          default:
+            if:
+              input: adopted
+            then:
+              literal: Adopted
+            else:
+              literal: Native
+    id: metadata.websocket-client.ordinary.1
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    inputs:
+      adopted:
+        type:
+          kind: scalar
+          scalar: boolean
+      component:
+        type:
+          kind: scalar
+          scalar: text
+  - format: nkdk-declarations/1
+    kind: fragment
+    imports:
+      value0: common.string
+      value1: common.i8n-text
+    value:
+      kind: record
+      fields:
+        - name: name
+          type:
+            use: value0
+        - name: synonym
+          type:
+            use: value1
+            with:
+              excludeIfEqualNameYAML: true
+              preserveEmptyXML: true
+            bind:
+              defaultLanguage:
+                input: defaultLanguage
+              registeredLanguages:
+                input: registeredLanguages
+              ownerName:
+                input: ownerName
+        - name: comment
+          type:
+            use: value0
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: name
+            path:
+              - md:MetaDataObject
+              - md:WebSocketClient
+              - md:Properties
+              - md:Name
+          - field: synonym
+            path:
+              - md:MetaDataObject
+              - md:WebSocketClient
+              - md:Properties
+              - md:Synonym
+          - field: comment
+            path:
+              - md:MetaDataObject
+              - md:WebSocketClient
+              - md:Properties
+              - md:Comment
+      yaml:
+        kind: mapping
+        fields:
+          - field: synonym
+            key: Синоним
+          - field: comment
+            key: Комментарий
+    presence:
+      - target:
+          field: name
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              input: ownerName
+      - target:
+          field: synonym
+        xml:
+          missing:
+            denotes:
+              absent: true
+          canonical:
+            - when:
+                and:
+                  - input: adopted
+                  - not:
+                      present:
+                        field: synonym
+              form: missing
+            - when:
+                and:
+                  - not:
+                      input: adopted
+                  - not:
+                      present:
+                        field: synonym
+              form: empty-element
+        yaml:
+          missing:
+            denotes:
+              if:
+                input: adopted
+              then:
+                absent: true
+              else:
+                if:
+                  input: adopted
+                then:
+                  absent: true
+                else:
+                  match:
+                    value:
+                      transform:
+                        local: name-words
+                        value:
+                          input: ownerName
+                    present:
+                      as: words
+                      then:
+                        sequence:
+                          - record:
+                              language:
+                                input: defaultLanguage
+                              content:
+                                var: words
+                    absent:
+                      absent: true
+      - target:
+          field: comment
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          default:
+            literal: ''
+    inputs:
+      ownerName:
+        type:
+          kind: scalar
+          scalar: text
+      defaultLanguage:
+        type:
+          kind: scalar
+          scalar: text
+      registeredLanguages:
+        type:
+          kind: sequence
+          item:
+            kind: scalar
+            scalar: text
+      adopted:
+        type:
+          kind: scalar
+          scalar: boolean
+      component:
+        type:
+          kind: scalar
+          scalar: text
+    id: metadata.websocket-client.ordinary.2
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    types:
+      name-words:
+        kind: text-transform
+        units: utf16
+        classes:
+          upper:
+            - - 65
+              - 90
+            - - 1040
+              - 1071
+            - - 1025
+              - 1025
+          lower:
+            - - 97
+              - 122
+            - - 1072
+              - 1103
+            - - 1105
+              - 1105
+          digit:
+            - - 48
+              - 57
+        state:
+          abbreviation: true
+          hasDigit: false
+        transitions:
+          - when:
+              and:
+                - class: upper
+                - tokenEmpty: true
+            emit: append
+            set:
+              abbreviation: true
+              hasDigit: false
+          - when:
+              and:
+                - class: upper
+                - flag: abbreviation
+            emit: append
+            set: {}
+          - when:
+              class: upper
+            emit: start-token
+            set:
+              abbreviation: true
+              hasDigit: false
+          - when:
+              class: lower
+            emit: append
+            set:
+              abbreviation: false
+          - when:
+              and:
+                - class: digit
+                - not:
+                    tokenEmpty: true
+                - not:
+                    flag: hasDigit
+                - or:
+                    - nextAfterRun:
+                        class: digit
+                        is: upper
+                    - nextAfterRun:
+                        class: digit
+                        end: true
+            emit: start-token
+            set:
+              abbreviation: false
+              hasDigit: true
+          - when:
+              class: digit
+            emit: append
+            set:
+              abbreviation: false
+              hasDigit: true
+          - emit: discard
+            set: {}
+        result:
+          separator: ' '
+          first:
+            kind: identity
+          rest:
+            kind: lower-first-unless-all-in-class
+            class: upper
+          lowercase:
+            - from:
+                - 65
+                - 90
+              offset: 32
+            - from:
+                - 1040
+                - 1071
+              offset: 32
+            - from:
+                - 1025
+                - 1025
+              offset: 80
+          emptyInput: empty-text
+          noTokens: absent
+  - format: nkdk-declarations/1
+    kind: fragment
+    imports:
+      value0: common.boolean
+      value1: common.string
+      value2: common.web-socket-client-headers
+      value3: common.exact-decimal
+    value:
+      kind: record
+      fields:
+        - name: predefined
+          type:
+            use: value0
+        - name: autoConnect
+          type:
+            use: value0
+        - name: serverURL
+          type:
+            use: value1
+        - name: user
+          type:
+            use: value1
+        - name: password
+          type:
+            use: value1
+        - name: headers
+          type:
+            use: value2
+        - name: useOSProxy
+          type:
+            use: value0
+        - name: useOSAuthentication
+          type:
+            use: value0
+        - name: timeout
+          type:
+            use: value3
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: predefined
+            path:
+              - md:MetaDataObject
+              - md:WebSocketClient
+              - md:Properties
+              - md:Predefined
+          - field: autoConnect
+            path:
+              - md:MetaDataObject
+              - md:WebSocketClient
+              - md:Properties
+              - md:AutoConnect
+          - field: serverURL
+            path:
+              - md:MetaDataObject
+              - md:WebSocketClient
+              - md:Properties
+              - md:ServerURL
+          - field: user
+            path:
+              - md:MetaDataObject
+              - md:WebSocketClient
+              - md:Properties
+              - md:User
+          - field: password
+            path:
+              - md:MetaDataObject
+              - md:WebSocketClient
+              - md:Properties
+              - md:Password
+          - field: headers
+            path:
+              - md:MetaDataObject
+              - md:WebSocketClient
+              - md:Properties
+              - md:Headers
+          - field: useOSProxy
+            path:
+              - md:MetaDataObject
+              - md:WebSocketClient
+              - md:Properties
+              - md:UseOSProxy
+          - field: useOSAuthentication
+            path:
+              - md:MetaDataObject
+              - md:WebSocketClient
+              - md:Properties
+              - md:UseOSAuthentication
+          - field: timeout
+            path:
+              - md:MetaDataObject
+              - md:WebSocketClient
+              - md:Properties
+              - md:Timeout
+      yaml:
+        kind: mapping
+        fields:
+          - field: predefined
+            key: Предопределенный
+          - field: autoConnect
+            key: АвтоПодключение
+          - field: serverURL
+            key: АдресСервера
+          - field: user
+            key: Пользователь
+          - field: password
+            key: Пароль
+          - field: headers
+            key: Заголовки
+          - field: useOSProxy
+            key: ИспользоватьПроксиОС
+          - field: useOSAuthentication
+            key: ИспользоватьАутентификациюОС
+          - field: timeout
+            key: Таймаут
+    presence:
+      - target:
+          field: predefined
+        xml:
+          missing:
+            denotes:
+              absent: true
+          canonical:
+            - when:
+                and:
+                  - input: adopted
+                  - not:
+                      present:
+                        field: predefined
+              form: missing
+            - form: ordinary
+        yaml:
+          missing:
+            denotes:
+              if:
+                input: adopted
+              then:
+                absent: true
+              else:
+                literal: false
+          omitWhen:
+            if:
+              input: adopted
+            then:
+              literal: false
+            else:
+              eq:
+                - field: predefined
+                - literal: false
+      - target:
+          field: autoConnect
+        xml:
+          missing:
+            denotes:
+              absent: true
+          canonical:
+            - when:
+                and:
+                  - input: adopted
+                  - not:
+                      present:
+                        field: autoConnect
+              form: missing
+            - form: ordinary
+        yaml:
+          missing:
+            denotes:
+              if:
+                input: adopted
+              then:
+                absent: true
+              else:
+                literal: false
+          omitWhen:
+            if:
+              input: adopted
+            then:
+              literal: false
+            else:
+              eq:
+                - field: autoConnect
+                - literal: false
+      - target:
+          field: serverURL
+        xml:
+          missing:
+            denotes:
+              absent: true
+          canonical:
+            - when:
+                and:
+                  - input: adopted
+                  - not:
+                      present:
+                        field: serverURL
+              form: missing
+            - when:
+                and:
+                  - input: adopted
+                  - eq:
+                      - field: serverURL
+                      - literal: ''
+              form: missing
+            - form: ordinary
+        yaml:
+          default:
+            literal: ''
+      - target:
+          field: user
+        xml:
+          missing:
+            denotes:
+              absent: true
+          canonical:
+            - when:
+                and:
+                  - input: adopted
+                  - not:
+                      present:
+                        field: user
+              form: missing
+            - when:
+                and:
+                  - input: adopted
+                  - eq:
+                      - field: user
+                      - literal: ''
+              form: missing
+            - form: ordinary
+        yaml:
+          default:
+            literal: ''
+      - target:
+          field: password
+        xml:
+          missing:
+            denotes:
+              absent: true
+          canonical:
+            - when:
+                and:
+                  - input: adopted
+                  - not:
+                      present:
+                        field: password
+              form: missing
+            - when:
+                and:
+                  - input: adopted
+                  - eq:
+                      - field: password
+                      - literal: ''
+              form: missing
+            - form: ordinary
+        yaml:
+          default:
+            literal: ''
+      - target:
+          field: headers
+        xml:
+          missing:
+            denotes:
+              if:
+                input: adopted
+              then:
+                absent: true
+              else:
+                sequence: []
+          empty:
+            - form: empty-element
+              denotes:
+                sequence: []
+          canonical:
+            - when:
+                and:
+                  - input: adopted
+                  - not:
+                      present:
+                        field: headers
+              form: missing
+            - form: ordinary
+        yaml:
+          missing:
+            denotes:
+              if:
+                input: adopted
+              then:
+                absent: true
+              else:
+                sequence: []
+          omitWhen:
+            if:
+              input: adopted
+            then:
+              literal: false
+            else:
+              not:
+                exists:
+                  in:
+                    field: headers
+                  as: row
+                  where:
+                    literal: true
+      - target:
+          field: useOSProxy
+        xml:
+          missing:
+            denotes:
+              absent: true
+          canonical:
+            - when:
+                and:
+                  - input: adopted
+                  - not:
+                      present:
+                        field: useOSProxy
+              form: missing
+            - form: ordinary
+        yaml:
+          missing:
+            denotes:
+              if:
+                input: adopted
+              then:
+                absent: true
+              else:
+                literal: false
+          omitWhen:
+            if:
+              input: adopted
+            then:
+              literal: false
+            else:
+              eq:
+                - field: useOSProxy
+                - literal: false
+      - target:
+          field: useOSAuthentication
+        xml:
+          missing:
+            denotes:
+              absent: true
+          canonical:
+            - when:
+                and:
+                  - input: adopted
+                  - not:
+                      present:
+                        field: useOSAuthentication
+              form: missing
+            - form: ordinary
+        yaml:
+          missing:
+            denotes:
+              if:
+                input: adopted
+              then:
+                absent: true
+              else:
+                literal: false
+          omitWhen:
+            if:
+              input: adopted
+            then:
+              literal: false
+            else:
+              eq:
+                - field: useOSAuthentication
+                - literal: false
+      - target:
+          field: timeout
+        xml:
+          missing:
+            denotes:
+              absent: true
+          canonical:
+            - when:
+                and:
+                  - input: adopted
+                  - not:
+                      present:
+                        field: timeout
+              form: missing
+            - form: ordinary
+        yaml:
+          missing:
+            denotes:
+              if:
+                input: adopted
+              then:
+                absent: true
+              else:
+                literal: 30
+          omitWhen:
+            if:
+              input: adopted
+            then:
+              literal: false
+            else:
+              eq:
+                - field: timeout
+                - literal: 30
+    id: metadata.websocket-client.ordinary.3
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    inputs:
+      adopted:
+        type:
+          kind: scalar
+          scalar: boolean
+      component:
+        type:
+          kind: scalar
+          scalar: text
+  - format: nkdk-declarations/1
+    kind: fragment
+    id: metadata.websocket-client.ordinary.0
+    description: 'Кандидат проекции: относительный XML-корень Properties; не полный владелец'
+    imports:
+      part0: metadata.websocket-client.ordinary.1
+      part1: metadata.websocket-client.ordinary.2
+      part2: metadata.websocket-client.ordinary.3
+    compose:
+      - use: part0
+        bind:
+          adopted:
+            input: adopted
+          component:
+            input: component
+      - use: part1
+        bind:
+          ownerName:
+            input: ownerName
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          adopted:
+            input: adopted
+          component:
+            input: component
+      - use: part2
+        bind:
+          adopted:
+            input: adopted
+          component:
+            input: component
+    value:
+      kind: record
+      fields: []
+    representations:
+      xml:
+        kind: record
+        fields: []
+      yaml:
+        kind: mapping
+        fields: []
+    inputs:
+      ownerName:
+        type:
+          kind: scalar
+          scalar: text
+      defaultLanguage:
+        type:
+          kind: scalar
+          scalar: text
+      registeredLanguages:
+        type:
+          kind: sequence
+          item:
+            kind: scalar
+            scalar: text
+      adopted:
+        type:
+          kind: scalar
+          scalar: boolean
+      component:
+        type:
+          kind: scalar
+          scalar: text
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+  - format: nkdk-declarations/1
+    kind: fragment
+    imports:
+      value0: common.uuid
+    value:
+      kind: record
+      fields:
+        - name: uuid
+          type:
+            use: value0
+            bind:
+              identities:
+                input: identities
+              component:
+                input: component
+              owner:
+                input: owner
+              kind:
+                input: kind
+              name:
+                input: name
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: uuid
+            path:
+              - md:MetaDataObject
+              - md:WebSocketClient
+            attribute: uuid
+      yaml:
+        kind: mapping
+        fields: []
+    presence: []
+    inputs:
+      identities:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: component
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: kind
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: name
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+      kind:
+        type:
+          kind: scalar
+          scalar: text
+      name:
+        type:
+          kind: scalar
+          scalar: text
+      adopted:
+        type:
+          kind: scalar
+          scalar: boolean
+    id: metadata.websocket-client.ordinary.5
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+  - format: nkdk-declarations/1
+    kind: fragment
+    id: metadata.websocket-client.ordinary.4
+    description: 'Кандидат проекции: корень владельца; не полный владелец'
+    imports:
+      part0: metadata.websocket-client.ordinary.5
+    compose:
+      - use: part0
+        bind:
+          identities:
+            input: identities
+          component:
+            input: component
+          owner:
+            input: owner
+          kind:
+            input: kind
+          name:
+            input: name
+          adopted:
+            input: adopted
+    value:
+      kind: record
+      fields: []
+    representations:
+      xml:
+        kind: record
+        fields: []
+      yaml:
+        kind: mapping
+        fields: []
+    inputs:
+      identities:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: component
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: kind
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: name
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+      kind:
+        type:
+          kind: scalar
+          scalar: text
+      name:
+        type:
+          kind: scalar
+          scalar: text
+      adopted:
+        type:
+          kind: scalar
+          scalar: boolean
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+  - format: nkdk-declarations/1
+    kind: object
+    id: metadata.websocket-client
+    imports:
+      state: metadata.websocket-client.base-state
+      state_compatibility: system.CompatibilityMode
+      module: fragment.module-resource
+      ordinary0: metadata.websocket-client.ordinary.0
+      ordinary1: metadata.websocket-client.ordinary.4
+      resourceState_module: fragment.resource-state-policy
+    inputs:
+      state_adopted:
+        type:
+          kind: scalar
+          scalar: boolean
+      state_owner:
+        type:
+          kind: scalar
+          scalar: text
+      state_states:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: property
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: mode
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+        index: metadata.property-state-membership
+      state_compatibilityMode:
+        type:
+          use: state_compatibility
+      state_component:
+        type:
+          kind: scalar
+          scalar: text
+      state_baseIds:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: component
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: identity
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+        index: metadata.base-identities
+      ordinary0_ownerName:
+        type:
+          kind: scalar
+          scalar: text
+      ordinary0_defaultLanguage:
+        type:
+          kind: scalar
+          scalar: text
+      ordinary0_registeredLanguages:
+        type:
+          kind: sequence
+          item:
+            kind: scalar
+            scalar: text
+      ordinary1_identities:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: component
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: kind
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: name
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+        index: metadata.own-identities
+      ordinary1_owner:
+        type:
+          kind: scalar
+          scalar: text
+      ordinary1_kind:
+        type:
+          kind: scalar
+          scalar: text
+      ordinary1_name:
+        type:
+          kind: scalar
+          scalar: text
+      resource_baseComponent:
+        type:
+          kind: scalar
+          scalar: text
+      resource_fingerprints:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: component
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: property
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+        index: metadata.resource-fingerprints
+      resource_registrations:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: component
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: property
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+        index: metadata.resource-registrations
+    compose:
+      - use: state
+        bind:
+          adopted:
+            input: state_adopted
+          owner:
+            input: state_owner
+          states:
+            input: state_states
+          compatibilityMode:
+            input: state_compatibilityMode
+          component:
+            input: state_component
+          baseIds:
+            input: state_baseIds
+      - use: module
+        bind: {}
+      - use: ordinary0
+        bind:
+          ownerName:
+            input: ordinary0_ownerName
+          defaultLanguage:
+            input: ordinary0_defaultLanguage
+          registeredLanguages:
+            input: ordinary0_registeredLanguages
+          adopted:
+            input: state_adopted
+          component:
+            input: state_component
+      - use: ordinary1
+        bind:
+          identities:
+            input: ordinary1_identities
+          component:
+            input: state_component
+          owner:
+            input: ordinary1_owner
+          kind:
+            input: ordinary1_kind
+          name:
+            input: ordinary1_name
+          adopted:
+            input: state_adopted
+      - use: resourceState_module
+        bind:
+          component:
+            input: state_component
+          owner:
+            input: state_owner
+          baseComponent:
+            input: resource_baseComponent
+          baseOwner:
+            if:
+              present:
+                lookup:
+                  in:
+                    input: state_baseIds
+                  key:
+                    record:
+                      component:
+                        input: state_component
+                      identity:
+                        input: state_owner
+            then:
+              require:
+                lookup:
+                  in:
+                    input: state_baseIds
+                  key:
+                    record:
+                      component:
+                        input: state_component
+                      identity:
+                        input: state_owner
+            else:
+              literal: ''
+          active:
+            or:
+              - exists:
+                  in:
+                    field: section_extend
+                  as: resourceSection
+                  where:
+                    eq:
+                      - get:
+                          of:
+                            var: resourceSection
+                          field: name
+                      - literal: Модуль
+              - literal: false
+              - exists:
+                  in:
+                    field: history
+                  as: resourceHistory
+                  where:
+                    and:
+                      - eq:
+                          - get:
+                              of:
+                                var: resourceHistory
+                              field: name
+                          - literal: Module
+                      - eq:
+                          - get:
+                              of:
+                                var: resourceHistory
+                              field: mode
+                          - literal: Control
+              - and:
+                  - input: state_adopted
+                  - present:
+                      lookup:
+                        in:
+                          input: resource_fingerprints
+                        key:
+                          record:
+                            component:
+                              input: state_component
+                            owner:
+                              input: state_owner
+                            property:
+                              literal: module
+          basePropertyExists:
+            present:
+              lookup:
+                in:
+                  input: resource_registrations
+                key:
+                  record:
+                    component:
+                      input: resource_baseComponent
+                    owner:
+                      if:
+                        present:
+                          lookup:
+                            in:
+                              input: state_baseIds
+                            key:
+                              record:
+                                component:
+                                  input: state_component
+                                identity:
+                                  input: state_owner
+                      then:
+                        require:
+                          lookup:
+                            in:
+                              input: state_baseIds
+                            key:
+                              record:
+                                component:
+                                  input: state_component
+                                identity:
+                                  input: state_owner
+                      else:
+                        literal: ''
+                    property:
+                      literal: module
+          fingerprints:
+            input: resource_fingerprints
+          property:
+            literal: module
+          mode:
+            if:
+              exists:
+                in:
+                  field: section_extend
+                as: resourceSection
+                where:
+                  eq:
+                    - get:
+                        of:
+                          var: resourceSection
+                        field: name
+                    - literal: Модуль
+            then:
+              literal: extend
+            else:
+              if:
+                literal: false
+              then:
+                literal: notify
+              else:
+                literal: control
+    value:
+      kind: record
+      fields: []
+    representations:
+      xml:
+        kind: with-attributes
+        attributes:
+          - name: version
+            value:
+              text: '2.20'
+        content:
+          kind: record
+          fields: []
+      yaml:
+        kind: mapping
+        fields: []
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    xmlOrder:
+      - history
+      - objectBelonging
+      - name
+      - base
+      - synonym
+      - comment
+      - predefined
+      - autoConnect
+      - serverURL
+      - user
+      - password
+      - headers
+      - useOSProxy
+      - useOSAuthentication
+      - timeout
+      - uuid
+    yamlOrder:
+      - synonym
+      - autoConnect
+      - serverURL
+      - headers
+      - section_extend
+      - useOSAuthentication
+      - useOSProxy
+      - comment
+      - state
+      - password
+      - user
+      - predefined
+      - history
+      - timeout
+  - format: nkdk-declarations/1
+    kind: value
+    id: metadata.websocket-client.history.section-extend.item
+    value:
+      kind: record
+      fields:
+        - name: name
+          type:
+            kind: scalar
+            scalar: text
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: name
+            path:
+              - Name
+      yaml:
+        kind: projection
+        field: name
+  - format: nkdk-declarations/1
+    kind: value
+    id: metadata.websocket-client.history.section-extend
+    imports:
+      item: metadata.websocket-client.history.section-extend.item
+    value:
+      kind: sequence
+      item:
+        use: item
+    representations:
+      xml:
+        kind: element-sequence
+        path:
+          - Item
+      yaml:
+        kind: sequence
+  - format: nkdk-declarations/1
+    kind: object
+    id: metadata.websocket-client.own-identity
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+      ownerName:
+        type:
+          kind: scalar
+          scalar: text
+      identitySeed:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: name
+          type:
+            kind: scalar
+            scalar: text
+        - name: uuid
+          type:
+            kind: scalar
+            scalar: text
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: name
+            path:
+              - md:MetaDataObject
+              - md:WebSocketClient
+              - md:Properties
+              - md:Name
+          - field: uuid
+            path:
+              - md:MetaDataObject
+              - md:WebSocketClient
+            attribute: uuid
+      yaml:
+        kind: mapping
+        fields:
+          - field: name
+            key: name
+          - field: uuid
+            key: uuid
+    presence:
+      - target:
+          field: name
+        yaml:
+          missing:
+            denotes:
+              input: ownerName
+      - target:
+          field: uuid
+        yaml:
+          missing:
+            denotes:
+              identity:
+                seed:
+                  input: identitySeed
+                domain: uuid
+                format: uuid
+                address:
+                  - input: component
+                  - concat:
+                      - literal: 'owner:'
+                      - input: owner
+                  - literal: WebSocketClient
+                  - field: name
+    contributions:
+      - index: metadata.own-identities
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: owner
+            kind:
+              literal: WebSocketClient
+            name:
+              field: name
+        value:
+          field: uuid
+  - format: nkdk-declarations/1
+    kind: object
+    id: metadata.websocket-client.states
+    imports:
+      rows: common.property-states
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    inputs:
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: states
+          type:
+            use: rows
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: states
+            path:
+              - md:MetaDataObject
+              - md:WebSocketClient
+              - md:InternalInfo
+      yaml:
+        kind: mapping
+        fields:
+          - field: states
+            key: Состояния
+    presence:
+      - target:
+          field: states
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+    contributions:
+      - index: metadata.property-state-membership
+        duplicates: coalesce-equal
+        forEach:
+          in:
+            field: states
+          as: row
+        key:
+          record:
+            owner:
+              input: owner
+            property:
+              get:
+                of:
+                  var: row
+                field: name
+            mode:
+              get:
+                of:
+                  var: row
+                field: mode
+        value:
+          literal: present
+  - format: nkdk-declarations/1
+    kind: object
+    id: metadata.websocket-client.base-identity
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: base
+          type:
+            kind: scalar
+            scalar: text
+        - name: objectBelonging
+          type:
+            use: belonging
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: base
+            path:
+              - md:MetaDataObject
+              - md:WebSocketClient
+              - md:Properties
+              - md:ExtendedConfigurationObject
+          - field: objectBelonging
+            path:
+              - md:MetaDataObject
+              - md:WebSocketClient
+              - md:Properties
+              - md:ObjectBelonging
+      yaml:
+        kind: mapping
+        fields:
+          - field: base
+            key: base
+          - field: objectBelonging
+            key: objectBelonging
+    presence:
+      - target:
+          field: base
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+      - target:
+          field: objectBelonging
+        xml:
+          missing:
+            denotes:
+              literal: Native
+        yaml:
+          missing:
+            denotes:
+              if:
+                present:
+                  field: base
+              then:
+                literal: Adopted
+              else:
+                literal: Native
+    contributions:
+      - index: metadata.base-identities
+        when:
+          present:
+            field: base
+        key:
+          record:
+            component:
+              input: component
+            identity:
+              input: owner
+        value:
+          field: base
+    imports:
+      belonging: system.ObjectBelonging

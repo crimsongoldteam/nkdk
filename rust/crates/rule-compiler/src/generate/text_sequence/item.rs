@@ -12,6 +12,43 @@ pub(super) struct Layout<'a> {
 }
 
 impl<'a> Item<'a> {
+    pub(super) fn semantic_default(
+        &self,
+        expression: &LinkedExpression,
+        name: &str,
+        owner: &LinkedEntry,
+        program: &Program,
+    ) -> Result<String, Diagnostic> {
+        match self {
+            Self::Record(codec) => codec.record_default(expression, name, owner, program),
+            Self::Choice(codec, _) => match &expression.kind {
+                LinkedExpressionKind::Operation {
+                    operator: LinkedOperator::ConstructVariant(index),
+                    arguments,
+                } if arguments.len() == 1 => {
+                    codec.scalar_default(*index, &arguments[0], name, owner, program)
+                }
+                _ => Err(unsupported(
+                    owner,
+                    "Text sequence choice default requires a selected variant",
+                )),
+            },
+        }
+    }
+    pub(super) fn constructible(&self) -> bool {
+        match self {
+            Self::Record(codec) => codec.constructible(),
+            Self::Choice(codec, _) => codec.constructible(),
+        }
+    }
+    pub(super) fn construct(&self, name: &str) -> String {
+        match self {
+            Self::Record(_) => format!("{name}Item::from_record(row.as_record(),&context)?"),
+            Self::Choice(..) => format!(
+                "{{let slots=[Some(row.as_input())];let view=context.rebind(&slots);{name}Item::from_input(&view,0,&context)?}}"
+            ),
+        }
+    }
     pub(super) fn resolve(
         entry: &'a LinkedEntry,
         program: &'a Program<'a>,
@@ -37,13 +74,11 @@ impl<'a> Item<'a> {
                     variant, xml, yaml, false,
                 )?);
             }
-            let width = orders[0].0.len();
-            if orders.iter().any(|order| order.0.len() != width) {
-                return Err(unsupported(
-                    entry,
-                    "Compact variants must have equal widths",
-                ));
-            }
+            let width = orders
+                .iter()
+                .map(|order| order.0.len())
+                .max()
+                .expect("choice variants");
             Ok(Layout {
                 item: Self::Choice(Box::new(codec), orders),
                 xml: (0..width).collect(),
@@ -56,6 +91,25 @@ impl<'a> Item<'a> {
                 xml,
                 yaml,
             })
+        }
+    }
+
+    pub(super) fn variable_width(&self) -> bool {
+        matches!(self, Self::Choice(_, orders) if orders.iter().any(|order| order.0.len()!=orders[0].0.len()))
+    }
+
+    pub(super) fn width_selector(
+        &self,
+        name: &str,
+        xml: &str,
+        yaml: &str,
+    ) -> Result<String, Diagnostic> {
+        if let Self::Choice(codec, orders) = self
+            && self.variable_width()
+        {
+            codec.width_selector(name, orders, xml, yaml)
+        } else {
+            Ok(String::new())
         }
     }
 

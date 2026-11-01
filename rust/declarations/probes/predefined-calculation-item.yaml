@@ -1,0 +1,163 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+  - kind: fragment
+    id: fragment.predefined-calculation-item
+    namespaces:
+      p: http://v8.1c.ru/8.3/xcf/predef
+    imports:
+      code: common.predefined-code
+      boolean: common.boolean
+      links: probe.predefined-calculation-links
+    inputs:
+      parent:
+        type:
+          kind: scalar
+          scalar: text
+      identities:
+        type:
+          kind: index
+          key:
+            kind: scalar
+            scalar: text
+          value:
+            kind: scalar
+            scalar: text
+    value:
+      kind: record
+      fields:
+        - name: name
+          type:
+            kind: scalar
+            scalar: text
+        - name: code
+          type:
+            use: code
+        - name: description
+          type:
+            kind: scalar
+            scalar: text
+        - name: actionPeriodIsBase
+          type:
+            use: boolean
+        - name: base
+          type:
+            use: links
+        - name: leading
+          type:
+            use: links
+        - name: displaced
+          type:
+            use: links
+        - name: id
+          type:
+            kind: scalar
+            scalar: text
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: name
+            path:
+              - p:Name
+          - field: code
+            path:
+              - p:Code
+          - field: description
+            path:
+              - p:Description
+          - field: actionPeriodIsBase
+            path:
+              - p:ActionPeriodIsBase
+          - field: base
+            path:
+              - p:Base
+          - field: leading
+            path:
+              - p:Leading
+          - field: displaced
+            path:
+              - p:Displaced
+          - field: id
+            path: []
+            attribute: id
+      yaml:
+        kind: mapping
+        fields:
+          - field: name
+            key: Имя
+          - field: code
+            key: Код
+          - field: description
+            key: Наименование
+          - field: actionPeriodIsBase
+            key: ПериодДействияБазовый
+          - field: base
+            key: Базовые
+          - field: leading
+            key: Ведущие
+          - field: displaced
+            key: Вытесняющие
+          - field: id
+            key: Идентификатор
+    presence:
+      - target:
+          field: description
+        yaml:
+          default:
+            literal: ''
+      - target:
+          field: id
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              lookup:
+                in:
+                  input: identities
+                key:
+                  concat:
+                    - input: parent
+                    - literal: .Предопределенный.
+                    - field: name
+          omitWhen:
+            match:
+              value:
+                lookup:
+                  in:
+                    input: identities
+                  key:
+                    concat:
+                      - input: parent
+                      - literal: .Предопределенный.
+                      - field: name
+              present:
+                as: uuid
+                then:
+                  eq:
+                    - field: id
+                    - var: uuid
+              absent:
+                literal: false
+      - target: {field: actionPeriodIsBase}
+        xml: {missing: {denotes: {literal: false}}}
+        yaml: {missing: {denotes: {literal: false}}}
+    contributions:
+    - index: metadata.predefined-identities
+      key: {concat: [{input: parent}, {literal: .Предопределенный.}, {field: name}]}
+      value: {field: id}
+      when: {present: {field: id}}
+  - kind: value
+    id: probe.predefined-calculation-item
+    imports: {fields: fragment.predefined-calculation-item}
+    inputs:
+      parent: {type: {kind: scalar, scalar: text}}
+      identities: {type: {kind: index, key: {kind: scalar, scalar: text}, value: {kind: scalar, scalar: text}}}
+    compose: [{use: fields, bind: {parent: {input: parent}, identities: {input: identities}}}]
+    value: {kind: record, fields: []}
+    representations:
+      xml: {kind: record, fields: []}
+      yaml: {kind: mapping, fields: []}

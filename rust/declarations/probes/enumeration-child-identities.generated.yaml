@@ -1,0 +1,461 @@
+# Generated from packages/rules/metadata/appliedObjects/metadataEnumeration/rules.ts by tools/rules-migration/src/enumeration-identity-operation.mjs
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+  - format: nkdk-declarations/1
+    kind: value
+    id: migration.enumeration-child-identity-row
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    value:
+      kind: record
+      fields:
+        - name: name
+          type:
+            kind: scalar
+            scalar: text
+        - name: uuid
+          type:
+            kind: scalar
+            scalar: text
+        - name: base
+          type:
+            kind: scalar
+            scalar: text
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: name
+            path:
+              - md:Properties
+              - md:Name
+          - field: uuid
+            path: []
+            attribute: uuid
+          - field: base
+            path:
+              - md:Properties
+              - md:ExtendedConfigurationObject
+      yaml:
+        kind: mapping
+        fields:
+          - field: name
+            key: name
+          - field: uuid
+            key: uuid
+          - field: base
+            key: base
+    presence:
+      - target:
+          field: base
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+  - format: nkdk-declarations/1
+    kind: value
+    id: migration.enumeration-values-identities
+    imports:
+      row: migration.enumeration-child-identity-row
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    value:
+      kind: sequence
+      item:
+        use: row
+    representations:
+      xml:
+        kind: element-sequence
+        path:
+          - md:EnumValue
+        item:
+          kind: declared
+      yaml:
+        kind: sequence
+        item:
+          kind: declared
+    presence:
+      - target: self
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+  - format: nkdk-declarations/1
+    kind: value
+    id: migration.enumeration-commands-identities
+    imports:
+      row: migration.enumeration-child-identity-row
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    value:
+      kind: sequence
+      item:
+        use: row
+    representations:
+      xml:
+        kind: element-sequence
+        path:
+          - md:Command
+        item:
+          kind: declared
+      yaml:
+        kind: sequence
+        item:
+          kind: declared
+    presence:
+      - target: self
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+  - format: nkdk-declarations/1
+    kind: object
+    id: migration.enumeration-values-identity-source
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      values: migration.enumeration-values-identities
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      ownerIdentity:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: values
+          type:
+            use: values
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: values
+            path:
+              - md:MetaDataObject
+              - md:Enum
+              - md:ChildObjects
+      yaml:
+        kind: mapping
+        fields:
+          - field: values
+            key: values
+    presence:
+      - target:
+          field: values
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+    contributions:
+      - index: metadata.own-identities
+        forEach:
+          in:
+            field: values
+          as: row
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: ownerIdentity
+            kind:
+              literal: EnumValue
+            name:
+              get:
+                of:
+                  var: row
+                field: name
+        value:
+          get:
+            of:
+              var: row
+            field: uuid
+      - index: metadata.base-identities
+        forEach:
+          in:
+            field: values
+          as: row
+        when:
+          present:
+            get:
+              of:
+                var: row
+              field: base
+        key:
+          record:
+            component:
+              input: component
+            identity:
+              get:
+                of:
+                  var: row
+                field: uuid
+        value:
+          get:
+            of:
+              var: row
+            field: base
+  - format: nkdk-declarations/1
+    kind: object
+    id: migration.enumeration-commands-identity-source
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      commands: migration.enumeration-commands-identities
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      ownerIdentity:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: commands
+          type:
+            use: commands
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: commands
+            path:
+              - md:MetaDataObject
+              - md:Enum
+              - md:ChildObjects
+      yaml:
+        kind: mapping
+        fields:
+          - field: commands
+            key: commands
+    presence:
+      - target:
+          field: commands
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+    contributions:
+      - index: metadata.own-identities
+        forEach:
+          in:
+            field: commands
+          as: row
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: ownerIdentity
+            kind:
+              literal: Command
+            name:
+              get:
+                of:
+                  var: row
+                field: name
+        value:
+          get:
+            of:
+              var: row
+            field: uuid
+      - index: metadata.base-identities
+        forEach:
+          in:
+            field: commands
+          as: row
+        when:
+          present:
+            get:
+              of:
+                var: row
+              field: base
+        key:
+          record:
+            component:
+              input: component
+            identity:
+              get:
+                of:
+                  var: row
+                field: uuid
+        value:
+          get:
+            of:
+              var: row
+            field: base
+  - format: nkdk-declarations/1
+    kind: object
+    id: migration.enumeration-values-base-source
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      values: migration.enumeration-values-identities
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      ownerIdentity:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: values
+          type:
+            use: values
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: values
+            path:
+              - md:MetaDataObject
+              - md:Enum
+              - md:ChildObjects
+      yaml:
+        kind: mapping
+        fields:
+          - field: values
+            key: values
+    presence:
+      - target:
+          field: values
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+    contributions:
+      - index: metadata.base-identities
+        forEach:
+          in:
+            field: values
+          as: row
+        when:
+          present:
+            get:
+              of:
+                var: row
+              field: base
+        key:
+          record:
+            component:
+              input: component
+            identity:
+              get:
+                of:
+                  var: row
+                field: uuid
+        value:
+          get:
+            of:
+              var: row
+            field: base
+  - format: nkdk-declarations/1
+    kind: object
+    id: migration.enumeration-commands-base-source
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      commands: migration.enumeration-commands-identities
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      ownerIdentity:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: commands
+          type:
+            use: commands
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: commands
+            path:
+              - md:MetaDataObject
+              - md:Enum
+              - md:ChildObjects
+      yaml:
+        kind: mapping
+        fields:
+          - field: commands
+            key: commands
+    presence:
+      - target:
+          field: commands
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+    contributions:
+      - index: metadata.base-identities
+        forEach:
+          in:
+            field: commands
+          as: row
+        when:
+          present:
+            get:
+              of:
+                var: row
+              field: base
+        key:
+          record:
+            component:
+              input: component
+            identity:
+              get:
+                of:
+                  var: row
+                field: uuid
+        value:
+          get:
+            of:
+              var: row
+            field: base

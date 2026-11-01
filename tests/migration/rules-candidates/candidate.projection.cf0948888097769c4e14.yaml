@@ -1,0 +1,58 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.cf0948888097769c4e14
+description: 'Кандидат проекции: относительный XML-корень xr:ChoiceForm; не полный владелец'
+imports:
+  inputType1f8ea46361ff: common.path-root
+  part0: candidate.fragment.397296307b632222a638
+compose:
+  - use: part0
+    bind:
+      roots:
+        input: roots
+      forms:
+        input: forms
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []
+inputs:
+  roots:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: kind
+            type:
+              use: inputType1f8ea46361ff
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  forms:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: parent
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text

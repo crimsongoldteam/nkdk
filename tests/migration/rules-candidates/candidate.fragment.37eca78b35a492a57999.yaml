@@ -1,0 +1,67 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+  value1: common.picture
+value:
+  kind: record
+  fields:
+    - name: predefined
+      type:
+        use: value0
+    - name: picture
+      type:
+        use: value1
+        bind: {}
+        with:
+          allowEmpty: true
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: predefined
+        path:
+          - Properties
+          - Predefined
+      - field: picture
+        path:
+          - Properties
+          - Picture
+  yaml:
+    kind: mapping
+    fields:
+      - field: predefined
+        key: Предопределенный
+      - field: picture
+        key: Картинка
+presence:
+  - target:
+      field: predefined
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: true
+  - target:
+      field: picture
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: picture
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+id: candidate.fragment.37eca78b35a492a57999

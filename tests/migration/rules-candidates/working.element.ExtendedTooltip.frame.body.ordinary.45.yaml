@@ -1,0 +1,53 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.border
+value:
+  kind: record
+  fields:
+    - name: border
+      type:
+        use: value0
+        bind:
+          styleTypes:
+            input: styleTypes
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: border
+        path:
+          - md:Border
+  yaml:
+    kind: mapping
+    fields:
+      - field: border
+        key: Рамка
+presence:
+  - target:
+      field: border
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+inputs:
+  styleTypes:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: scalar
+        scalar: text
+id: working.element.ExtendedTooltip.frame.body.ordinary.45
+namespaces:
+  md: http://v8.1c.ru/8.3/xcf/logform

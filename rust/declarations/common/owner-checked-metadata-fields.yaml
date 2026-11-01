@@ -1,0 +1,178 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: common.owner-checked-standard-field-path
+  imports: {root: common.path-root, name: common.standard-attribute-name, kind: common.path-standard-member-kind}
+  inputs:
+    ownerRoot: {type: {use: root}}
+    ownerName: {type: {kind: scalar, scalar: text}}
+    standardNames: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  value:
+    kind: record
+    fields:
+    - {name: root, type: {use: root}}
+    - {name: owner, type: {use: name}}
+    - {name: kind, type: {use: kind}}
+    - {name: name, type: {use: name}}
+  representations:
+    xml: {kind: text-pattern, separator: '.', parts: [{field: root}, {field: owner}, {field: kind}, {field: name}]}
+    yaml: {kind: text-pattern, separator: '.', parts: [{field: kind}, {field: name}]}
+  presence:
+  - {target: {field: root}, yaml: {default: {input: ownerRoot}}}
+  - {target: {field: owner}, yaml: {default: {input: ownerName}}}
+  constraints:
+  - id: containing-owner
+    appliesTo: [xml-import, yaml-validation]
+    assert:
+      and:
+      - {eq: [{get: {of: {self: true}, field: root}}, {input: ownerRoot}]}
+      - {eq: [{get: {of: {self: true}, field: owner}}, {input: ownerName}]}
+    diagnostic: {code: metadata.target-missing, severity: error, at: {self: true}, message: Expected a field of the containing object}
+  - id: allowed-standard-name
+    appliesTo: [xml-import, yaml-validation]
+    assert: {exists: {in: {input: standardNames}, as: allowed, where: {eq: [{var: allowed}, {get: {of: {self: true}, field: name}}]}}}
+    diagnostic: {code: metadata.target-missing, severity: error, at: {self: true}, message: Standard attribute is not allowed here}
+- kind: value
+  id: common.owner-checked-ordinary-field-path
+  imports: {root: common.path-root, name: common.metadata-name, kind: common.path-ordinary-member-kind}
+  inputs:
+    ownerRoot: {type: {use: root}}
+    ownerName: {type: {kind: scalar, scalar: text}}
+    component: {type: {kind: scalar, scalar: text}}
+    owner: {type: {kind: scalar, scalar: text}}
+    memberRole: {type: {kind: scalar, scalar: text}}
+    memberKind: {type: {use: kind}}
+    members:
+      type:
+        kind: index
+        key:
+          kind: record
+          fields:
+          - {name: component, type: {kind: scalar, scalar: text}}
+          - {name: owner, type: {kind: scalar, scalar: text}}
+          - {name: role, type: {kind: scalar, scalar: text}}
+          - {name: name, type: {kind: scalar, scalar: text}}
+        value: {kind: scalar, scalar: text}
+  value:
+    kind: record
+    fields:
+    - {name: root, type: {use: root}}
+    - {name: owner, type: {use: name}}
+    - {name: kind, type: {use: kind}}
+    - {name: name, type: {use: name}}
+  representations:
+    xml: {kind: text-pattern, separator: '.', parts: [{field: root}, {field: owner}, {field: kind}, {field: name}]}
+    yaml: {kind: text-pattern, separator: '.', parts: [{field: kind}, {field: name}]}
+  presence:
+  - {target: {field: root}, yaml: {default: {input: ownerRoot}}}
+  - {target: {field: owner}, yaml: {default: {input: ownerName}}}
+  constraints:
+  - id: containing-owner
+    appliesTo: [xml-import, yaml-validation]
+    assert:
+      and:
+      - {eq: [{get: {of: {self: true}, field: root}}, {input: ownerRoot}]}
+      - {eq: [{get: {of: {self: true}, field: owner}}, {input: ownerName}]}
+    diagnostic: {code: metadata.target-missing, severity: error, at: {self: true}, message: Expected a field of the containing object}
+  - id: ordinary-member-exists
+    appliesTo: [xml-import, yaml-validation]
+    assert:
+      and:
+      - {eq: [{get: {of: {self: true}, field: kind}}, {input: memberKind}]}
+      - match:
+          value:
+            lookup:
+              in:
+                input: members
+              key:
+                record:
+                  component:
+                    input: component
+                  owner:
+                    input: owner
+                  role:
+                    input: memberRole
+                  name:
+                    get:
+                      of:
+                        self: true
+                      field: name
+          present:
+            as: member
+            then:
+              eq:
+              - var: member
+              - get:
+                  of:
+                    self: true
+                  field: name
+          absent:
+            literal: false
+    diagnostic: {code: metadata.target-missing, severity: error, at: {self: true}, message: Attribute is missing from its owner}
+- kind: value
+  id: common.owner-checked-metadata-field-path
+  imports: {standard: common.owner-checked-standard-field-path, ordinary: common.owner-checked-ordinary-field-path, root: common.path-root, kind: common.path-ordinary-member-kind}
+  inputs:
+    ownerRoot: {type: {use: root}}
+    ownerName: {type: {kind: scalar, scalar: text}}
+    component: {type: {kind: scalar, scalar: text}}
+    owner: {type: {kind: scalar, scalar: text}}
+    memberRole: {type: {kind: scalar, scalar: text}}
+    memberKind: {type: {use: kind}}
+    members:
+      type:
+        kind: index
+        key:
+          kind: record
+          fields:
+          - {name: component, type: {kind: scalar, scalar: text}}
+          - {name: owner, type: {kind: scalar, scalar: text}}
+          - {name: role, type: {kind: scalar, scalar: text}}
+          - {name: name, type: {kind: scalar, scalar: text}}
+        value: {kind: scalar, scalar: text}
+    standardNames: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  value:
+    kind: choice
+    variants:
+    - {name: standard, type: {use: standard, bind: {ownerRoot: {input: ownerRoot}, ownerName: {input: ownerName}, standardNames: {input: standardNames}}}}
+    - {name: ordinary, type: {use: ordinary, bind: {ownerRoot: {input: ownerRoot}, ownerName: {input: ownerName}, component: {input: component}, owner: {input: owner}, memberRole: {input: memberRole}, memberKind: {input: memberKind}, members: {input: members}}}}
+  representations:
+    xml: {kind: choice}
+    yaml: {kind: choice}
+- kind: value
+  id: common.owner-checked-metadata-fields
+  namespaces: {xr: http://v8.1c.ru/8.3/xcf/readable}
+  imports: {field: common.owner-checked-metadata-field-path, root: common.path-root, kind: common.path-ordinary-member-kind}
+  inputs:
+    ownerRoot: {type: {use: root}}
+    ownerName: {type: {kind: scalar, scalar: text}}
+    component: {type: {kind: scalar, scalar: text}}
+    owner: {type: {kind: scalar, scalar: text}}
+    memberRole: {type: {kind: scalar, scalar: text}}
+    memberKind: {type: {use: kind}}
+    members:
+      type:
+        kind: index
+        key:
+          kind: record
+          fields:
+          - {name: component, type: {kind: scalar, scalar: text}}
+          - {name: owner, type: {kind: scalar, scalar: text}}
+          - {name: role, type: {kind: scalar, scalar: text}}
+          - {name: name, type: {kind: scalar, scalar: text}}
+        value: {kind: scalar, scalar: text}
+    standardNames: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  value: {kind: sequence, item: {use: field, bind: {ownerRoot: {input: ownerRoot}, ownerName: {input: ownerName}, component: {input: component}, owner: {input: owner}, memberRole: {input: memberRole}, memberKind: {input: memberKind}, members: {input: members}, standardNames: {input: standardNames}}}}
+  representations:
+    xml: {kind: element-sequence, path: [xr:Field], item: {kind: with-attributes, attributes: [], content: {kind: text}}}
+    yaml: {kind: sequence, item: {kind: scalar, scalar: text}}
+  presence:
+  - target: self
+    xml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: empty-element, denotes: {absent: true}}]
+    yaml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: empty-sequence, denotes: {absent: true}}]
+      omitWhen: {not: {present: {self: true}}}

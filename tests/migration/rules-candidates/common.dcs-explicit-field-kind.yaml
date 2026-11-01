@@ -1,0 +1,5 @@
+format: nkdk-declarations/1
+kind: value
+id: common.dcs-explicit-field-kind
+enum:
+  Поле: Поле

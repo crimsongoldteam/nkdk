@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.6d44ba0eb58406306c9a
+description: 'Кандидат проекции: относительный XML-корень ValuesPicture; не полный владелец'
+imports:
+  part0: candidate.fragment.e4a80ab07f26c2ab11e5
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

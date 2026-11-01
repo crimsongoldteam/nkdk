@@ -1,0 +1,52 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.dcs-local-string-type
+value:
+  kind: record
+  fields:
+    - name: title
+      type:
+        use: value0
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: title
+        path:
+          - dcssch:title
+  yaml:
+    kind: mapping
+    fields:
+      - field: title
+        key: Заголовок
+presence:
+  - target:
+      field: title
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+namespaces:
+  dcssch: http://v8.1c.ru/8.1/data-composition-system/schema
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+id: candidate.fragment.bee137920bf82d912db3

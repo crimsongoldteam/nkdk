@@ -1,0 +1,41 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.boolean
+value:
+  kind: record
+  fields:
+    - name: hyperlink
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: hyperlink
+        path:
+          - md:Hyperlink
+  yaml:
+    kind: mapping
+    fields:
+      - field: hyperlink
+        key: Гиперссылка
+presence:
+  - target:
+      field: hyperlink
+    xml:
+      missing:
+        denotes:
+          literal: false
+      canonical:
+        - when:
+            eq:
+              - field: hyperlink
+              - literal: false
+          form: missing
+    yaml:
+      default:
+        literal: false
+id: working.element.ExtendedTooltip.frame.body.ordinary.33
+namespaces:
+  md: http://v8.1c.ru/8.3/xcf/logform

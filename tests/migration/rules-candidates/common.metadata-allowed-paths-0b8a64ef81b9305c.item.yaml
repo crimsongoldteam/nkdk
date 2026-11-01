@@ -1,0 +1,837 @@
+format: nkdk-declarations/1
+kind: value
+id: common.metadata-allowed-paths-0b8a64ef81b9305c.item
+imports:
+  path0: common.metadata-allowed-paths-0b8a64ef81b9305c.path0
+  path1: common.metadata-allowed-paths-0b8a64ef81b9305c.path1
+  path2: common.metadata-allowed-paths-0b8a64ef81b9305c.path2
+  path3: common.metadata-allowed-paths-0b8a64ef81b9305c.path3
+  path4: common.metadata-allowed-paths-0b8a64ef81b9305c.path4
+  path5: common.metadata-allowed-paths-0b8a64ef81b9305c.path5
+  path6: common.metadata-allowed-paths-0b8a64ef81b9305c.path6
+  path7: common.metadata-allowed-paths-0b8a64ef81b9305c.path7
+  path8: common.metadata-allowed-paths-0b8a64ef81b9305c.path8
+  path9: common.metadata-allowed-paths-0b8a64ef81b9305c.path9
+  path10: common.metadata-allowed-paths-0b8a64ef81b9305c.path10
+  path11: common.metadata-allowed-paths-0b8a64ef81b9305c.path11
+  path12: common.metadata-allowed-paths-0b8a64ef81b9305c.path12
+  path13: common.metadata-allowed-paths-0b8a64ef81b9305c.path13
+  path14: common.metadata-allowed-paths-0b8a64ef81b9305c.path14
+  path15: common.metadata-allowed-paths-0b8a64ef81b9305c.path15
+  path16: common.metadata-allowed-paths-0b8a64ef81b9305c.path16
+  path17: common.metadata-allowed-paths-0b8a64ef81b9305c.path17
+  path18: common.metadata-allowed-paths-0b8a64ef81b9305c.path18
+  path19: common.metadata-allowed-paths-0b8a64ef81b9305c.path19
+  path20: common.metadata-allowed-paths-0b8a64ef81b9305c.path20
+  path21: common.metadata-allowed-paths-0b8a64ef81b9305c.path21
+  path22: common.metadata-allowed-paths-0b8a64ef81b9305c.path22
+  path23: common.metadata-allowed-paths-0b8a64ef81b9305c.path23
+  path24: common.metadata-allowed-paths-0b8a64ef81b9305c.path24
+  path25: common.metadata-allowed-paths-0b8a64ef81b9305c.path25
+  path26: common.metadata-allowed-paths-0b8a64ef81b9305c.path26
+  path27: common.metadata-allowed-paths-0b8a64ef81b9305c.path27
+  path28: common.metadata-allowed-paths-0b8a64ef81b9305c.path28
+  path29: common.metadata-allowed-paths-0b8a64ef81b9305c.path29
+  path30: common.metadata-allowed-paths-0b8a64ef81b9305c.path30
+  path31: common.metadata-allowed-paths-0b8a64ef81b9305c.path31
+  path32: common.metadata-allowed-paths-0b8a64ef81b9305c.path32
+  path33: common.metadata-allowed-paths-0b8a64ef81b9305c.path33
+  path34: common.metadata-allowed-paths-0b8a64ef81b9305c.path34
+  path35: common.metadata-allowed-paths-0b8a64ef81b9305c.path35
+  path36: common.metadata-allowed-paths-0b8a64ef81b9305c.path36
+  path37: common.metadata-allowed-paths-0b8a64ef81b9305c.path37
+  path38: common.metadata-allowed-paths-0b8a64ef81b9305c.path38
+  path39: common.metadata-allowed-paths-0b8a64ef81b9305c.path39
+  path40: common.metadata-allowed-paths-0b8a64ef81b9305c.path40
+  path41: common.metadata-allowed-paths-0b8a64ef81b9305c.path41
+  path42: common.metadata-allowed-paths-0b8a64ef81b9305c.path42
+  path43: common.metadata-allowed-paths-0b8a64ef81b9305c.path43
+  path44: common.metadata-allowed-paths-0b8a64ef81b9305c.path44
+  path45: common.metadata-allowed-paths-0b8a64ef81b9305c.path45
+  path46: common.metadata-allowed-paths-0b8a64ef81b9305c.path46
+  path47: common.metadata-allowed-paths-0b8a64ef81b9305c.path47
+  path48: common.metadata-allowed-paths-0b8a64ef81b9305c.path48
+  path49: common.metadata-allowed-paths-0b8a64ef81b9305c.path49
+  path50: common.metadata-allowed-paths-0b8a64ef81b9305c.path50
+  path51: common.metadata-allowed-paths-0b8a64ef81b9305c.path51
+  path52: common.metadata-allowed-paths-0b8a64ef81b9305c.path52
+  path53: common.metadata-allowed-paths-0b8a64ef81b9305c.path53
+  path54: common.metadata-allowed-paths-0b8a64ef81b9305c.path54
+  path55: common.metadata-allowed-paths-0b8a64ef81b9305c.path55
+  path56: common.metadata-allowed-paths-0b8a64ef81b9305c.path56
+  path57: common.metadata-allowed-paths-0b8a64ef81b9305c.path57
+  path58: common.metadata-allowed-paths-0b8a64ef81b9305c.path58
+  path59: common.metadata-allowed-paths-0b8a64ef81b9305c.path59
+  path60: common.metadata-allowed-paths-0b8a64ef81b9305c.path60
+  path61: common.metadata-allowed-paths-0b8a64ef81b9305c.path61
+  path62: common.metadata-allowed-paths-0b8a64ef81b9305c.path62
+  path63: common.metadata-allowed-paths-0b8a64ef81b9305c.path63
+  path64: common.metadata-allowed-paths-0b8a64ef81b9305c.path64
+  path65: common.metadata-allowed-paths-0b8a64ef81b9305c.path65
+  path66: common.metadata-allowed-paths-0b8a64ef81b9305c.path66
+  path67: common.metadata-allowed-paths-0b8a64ef81b9305c.path67
+  path68: common.metadata-allowed-paths-0b8a64ef81b9305c.path68
+  path69: common.metadata-allowed-paths-0b8a64ef81b9305c.path69
+  path70: common.metadata-allowed-paths-0b8a64ef81b9305c.path70
+  path71: common.metadata-allowed-paths-0b8a64ef81b9305c.path71
+  path72: common.metadata-allowed-paths-0b8a64ef81b9305c.path72
+  path73: common.metadata-allowed-paths-0b8a64ef81b9305c.path73
+  path74: common.metadata-allowed-paths-0b8a64ef81b9305c.path74
+  path75: common.metadata-allowed-paths-0b8a64ef81b9305c.path75
+  path76: common.metadata-allowed-paths-0b8a64ef81b9305c.path76
+  path77: common.metadata-allowed-paths-0b8a64ef81b9305c.path77
+  path78: common.metadata-allowed-paths-0b8a64ef81b9305c.path78
+  path79: common.metadata-allowed-paths-0b8a64ef81b9305c.path79
+  path80: common.metadata-allowed-paths-0b8a64ef81b9305c.path80
+  path81: common.metadata-allowed-paths-0b8a64ef81b9305c.path81
+  path82: common.metadata-allowed-paths-0b8a64ef81b9305c.path82
+  path83: common.metadata-allowed-paths-0b8a64ef81b9305c.path83
+  path84: common.metadata-allowed-paths-0b8a64ef81b9305c.path84
+  path85: common.metadata-allowed-paths-0b8a64ef81b9305c.path85
+  path86: common.metadata-allowed-paths-0b8a64ef81b9305c.path86
+  path87: common.metadata-allowed-paths-0b8a64ef81b9305c.path87
+  path88: common.metadata-allowed-paths-0b8a64ef81b9305c.path88
+  path89: common.metadata-allowed-paths-0b8a64ef81b9305c.path89
+  path90: common.metadata-allowed-paths-0b8a64ef81b9305c.path90
+  path91: common.metadata-allowed-paths-0b8a64ef81b9305c.nested0
+  rootKind: common.path-root
+inputs:
+  roots:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: kind
+            type:
+              use: rootKind
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  pathChildren:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: parent
+            type:
+              kind: scalar
+              scalar: text
+          - name: kind
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+value:
+  kind: choice
+  variants:
+    - name: path0
+      type:
+        use: path0
+        bind:
+          roots:
+            input: roots
+    - name: path1
+      type:
+        use: path1
+        bind:
+          roots:
+            input: roots
+    - name: path2
+      type:
+        use: path2
+        bind:
+          roots:
+            input: roots
+    - name: path3
+      type:
+        use: path3
+        bind:
+          roots:
+            input: roots
+    - name: path4
+      type:
+        use: path4
+        bind:
+          roots:
+            input: roots
+    - name: path5
+      type:
+        use: path5
+        bind:
+          roots:
+            input: roots
+    - name: path6
+      type:
+        use: path6
+        bind:
+          roots:
+            input: roots
+    - name: path7
+      type:
+        use: path7
+        bind:
+          roots:
+            input: roots
+    - name: path8
+      type:
+        use: path8
+        bind:
+          roots:
+            input: roots
+    - name: path9
+      type:
+        use: path9
+        bind:
+          roots:
+            input: roots
+    - name: path10
+      type:
+        use: path10
+        bind:
+          roots:
+            input: roots
+    - name: path11
+      type:
+        use: path11
+        bind:
+          roots:
+            input: roots
+    - name: path12
+      type:
+        use: path12
+        bind:
+          roots:
+            input: roots
+    - name: path13
+      type:
+        use: path13
+        bind:
+          roots:
+            input: roots
+    - name: path14
+      type:
+        use: path14
+        bind:
+          roots:
+            input: roots
+    - name: path15
+      type:
+        use: path15
+        bind:
+          roots:
+            input: roots
+    - name: path16
+      type:
+        use: path16
+        bind:
+          roots:
+            input: roots
+    - name: path17
+      type:
+        use: path17
+        bind:
+          roots:
+            input: roots
+    - name: path18
+      type:
+        use: path18
+        bind:
+          roots:
+            input: roots
+    - name: path19
+      type:
+        use: path19
+        bind:
+          roots:
+            input: roots
+    - name: path20
+      type:
+        use: path20
+        bind:
+          roots:
+            input: roots
+    - name: path21
+      type:
+        use: path21
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path22
+      type:
+        use: path22
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path23
+      type:
+        use: path23
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path24
+      type:
+        use: path24
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path25
+      type:
+        use: path25
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path26
+      type:
+        use: path26
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path27
+      type:
+        use: path27
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path28
+      type:
+        use: path28
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path29
+      type:
+        use: path29
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path30
+      type:
+        use: path30
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path31
+      type:
+        use: path31
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path32
+      type:
+        use: path32
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path33
+      type:
+        use: path33
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path34
+      type:
+        use: path34
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path35
+      type:
+        use: path35
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path36
+      type:
+        use: path36
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path37
+      type:
+        use: path37
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path38
+      type:
+        use: path38
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path39
+      type:
+        use: path39
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path40
+      type:
+        use: path40
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path41
+      type:
+        use: path41
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path42
+      type:
+        use: path42
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path43
+      type:
+        use: path43
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path44
+      type:
+        use: path44
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path45
+      type:
+        use: path45
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path46
+      type:
+        use: path46
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path47
+      type:
+        use: path47
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path48
+      type:
+        use: path48
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path49
+      type:
+        use: path49
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path50
+      type:
+        use: path50
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path51
+      type:
+        use: path51
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path52
+      type:
+        use: path52
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path53
+      type:
+        use: path53
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path54
+      type:
+        use: path54
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path55
+      type:
+        use: path55
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path56
+      type:
+        use: path56
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path57
+      type:
+        use: path57
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path58
+      type:
+        use: path58
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path59
+      type:
+        use: path59
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path60
+      type:
+        use: path60
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path61
+      type:
+        use: path61
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path62
+      type:
+        use: path62
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path63
+      type:
+        use: path63
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path64
+      type:
+        use: path64
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path65
+      type:
+        use: path65
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path66
+      type:
+        use: path66
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path67
+      type:
+        use: path67
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path68
+      type:
+        use: path68
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path69
+      type:
+        use: path69
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path70
+      type:
+        use: path70
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path71
+      type:
+        use: path71
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path72
+      type:
+        use: path72
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path73
+      type:
+        use: path73
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path74
+      type:
+        use: path74
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path75
+      type:
+        use: path75
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path76
+      type:
+        use: path76
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path77
+      type:
+        use: path77
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path78
+      type:
+        use: path78
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path79
+      type:
+        use: path79
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path80
+      type:
+        use: path80
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path81
+      type:
+        use: path81
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path82
+      type:
+        use: path82
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path83
+      type:
+        use: path83
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path84
+      type:
+        use: path84
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path85
+      type:
+        use: path85
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path86
+      type:
+        use: path86
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path87
+      type:
+        use: path87
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path88
+      type:
+        use: path88
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path89
+      type:
+        use: path89
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path90
+      type:
+        use: path90
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+    - name: path91
+      type:
+        use: path91
+        bind:
+          roots:
+            input: roots
+          pathChildren:
+            input: pathChildren
+representations:
+  xml:
+    kind: choice
+  yaml:
+    kind: choice

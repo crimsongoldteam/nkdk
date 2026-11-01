@@ -1,0 +1,15 @@
+format: nkdk-declarations/1
+kind: resources
+id: resources.common-picture-external-picture
+imports: {picture: fragment.external-picture-resource}
+compose:
+- use: picture
+  bind:
+    descriptorXml: {sequence: [{literal: Ext}, {literal: Picture.xml}]}
+    descriptorYaml: {sequence: [{literal: Картинка}, {literal: Picture.xml}]}
+    payloadXml: {sequence: [{literal: Ext}, {literal: Picture}]}
+    payloadYaml: {sequence: [{literal: Картинка}]}
+value: {kind: record, fields: []}
+representations:
+  xml: {kind: record, fields: []}
+  yaml: {kind: mapping, fields: []}

@@ -1,0 +1,38 @@
+format: nkdk-declarations/1
+kind: value
+id: common.dcs-order-item
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  dcsset: http://v8.1c.ru/8.1/data-composition-system/settings
+imports:
+  field: common.dcs-order-item-field
+  auto: common.dcs-order-item-auto
+value:
+  kind: choice
+  variants:
+    - name: field
+      type:
+        use: field
+    - name: auto
+      type:
+        use: auto
+representations:
+  xml:
+    kind: choice
+    attribute: xsi:type
+    variants:
+      - variant: field
+        in:
+          - dcsset:OrderItemField
+        emit: dcsset:OrderItemField
+      - variant: auto
+        in:
+          - dcsset:OrderItemAuto
+        emit: dcsset:OrderItemAuto
+    otherwise: field
+  yaml:
+    kind: choice
+    variants:
+      - variant: field
+        form: mapping
+        key: Поле

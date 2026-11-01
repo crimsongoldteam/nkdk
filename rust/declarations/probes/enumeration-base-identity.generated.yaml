@@ -1,0 +1,84 @@
+# Generated from packages/rules/metadata/appliedObjects/metadataEnumeration/rules.ts by tools/rules-migration/src/enumeration-identity-operation.mjs
+format: nkdk-declarations/1
+kind: object
+id: migration.enumeration-base-identity
+namespaces:
+  md: http://v8.1c.ru/8.3/MDClasses
+imports:
+  bases: migration.defined-type-base-values
+inputs:
+  component:
+    type:
+      kind: scalar
+      scalar: text
+  parent:
+    type:
+      kind: scalar
+      scalar: text
+  ownerName:
+    type:
+      kind: scalar
+      scalar: text
+  identities:
+    index: metadata.own-identities
+value:
+  kind: record
+  fields:
+    - name: base
+      type:
+        use: bases
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: base
+        path:
+          - md:MetaDataObject
+          - md:Enum
+          - md:Properties
+  yaml:
+    kind: mapping
+    fields:
+      - field: base
+        key: base
+presence:
+  - target:
+      field: base
+    xml:
+      missing:
+        denotes:
+          sequence: []
+    yaml:
+      missing:
+        denotes:
+          sequence: []
+contributions:
+  - index: metadata.base-identities
+    forEach:
+      in:
+        field: base
+      as: item
+    key:
+      record:
+        component:
+          input: component
+        identity:
+          require:
+            lookup:
+              in:
+                input: identities
+              key:
+                record:
+                  component:
+                    input: component
+                  owner:
+                    input: parent
+                  kind:
+                    literal: Enum
+                  name:
+                    input: ownerName
+    value:
+      get:
+        of:
+          var: item
+        field: base

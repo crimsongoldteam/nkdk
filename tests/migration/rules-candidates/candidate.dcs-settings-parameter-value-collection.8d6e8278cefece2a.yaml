@@ -1,0 +1,102 @@
+format: nkdk-declarations/1
+kind: value
+id: candidate.dcs-settings-parameter-value-collection.8d6e8278cefece2a
+namespaces:
+  dcscor: http://v8.1c.ru/8.1/data-composition-system/core
+imports:
+  item: common.dcs-parameter-value
+parameters:
+  settingsXsi:
+    type:
+      kind: scalar
+      scalar: boolean
+    default: true
+inputs:
+  styleTypes:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  labels:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: code
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  codes:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: label
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+value:
+  kind: sequence
+  item:
+    use: item
+    with:
+      settingsXsi:
+        parameter: settingsXsi
+    bind:
+      styleTypes:
+        input: styleTypes
+      defaultLanguage:
+        input: defaultLanguage
+      registeredLanguages:
+        input: registeredLanguages
+      labels:
+        input: labels
+      codes:
+        input: codes
+representations:
+  xml:
+    kind: element-sequence
+    path:
+      - dcscor:item
+  yaml:
+    kind: record-mapping
+    key: parameter
+    itemInputs:
+      parameterName:
+        rowKey: true
+      valueProfile:
+        table:
+          key:
+            rowKey: true
+          values: {}
+          default: Field

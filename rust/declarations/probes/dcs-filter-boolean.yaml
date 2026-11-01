@@ -1,0 +1,10 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.dcs-filter-boolean
+imports: {value: common.dcs-filter-boolean, text: common.string}
+value:
+  kind: record
+  fields: [{name: value, type: {use: value}}, {name: other, type: {use: text}}]
+representations:
+  xml: {kind: record, fields: [{field: value, path: [Root, Value]}, {field: other, path: [Root, Other]}]}
+  yaml: {kind: mapping, fields: [{field: value, key: Значение}, {field: other, key: Сосед}]}

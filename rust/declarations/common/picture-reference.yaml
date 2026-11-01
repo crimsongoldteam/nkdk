@@ -1,0 +1,53 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: common.picture-standard-reference
+  imports: {picture: system.PictureLib}
+  value: {kind: record, fields: [{name: picture, type: {use: picture}}]}
+  representations:
+    xml: {kind: text-pattern, parts: [{literal: 'StdPicture.'}, {field: picture}]}
+    yaml: {kind: text-pattern, parts: [{field: picture}]}
+- kind: value
+  id: common.picture-common-reference
+  imports: {name: common.metadata-name}
+  value: {kind: record, fields: [{name: name, type: {use: name}}]}
+  representations:
+    xml: {kind: text-pattern, parts: [{literal: 'CommonPicture.'}, {field: name}]}
+    yaml: {kind: text-pattern, parts: [{literal: 'ОбщаяКартинка.'}, {field: name}]}
+- kind: value
+  id: common.picture-zero-reference
+  value: {kind: record, fields: []}
+  representations:
+    xml: {kind: text-pattern, parts: [{literal: '0'}]}
+    yaml: {kind: text-pattern, parts: [{literal: '0'}]}
+- kind: value
+  id: common.picture-uuid
+  value: {kind: scalar, scalar: text, pattern: '[0-9A-Fa-f-]+'}
+  representations:
+    xml: {kind: text}
+    yaml: {kind: scalar, scalar: text}
+- kind: value
+  id: common.picture-uuid-reference
+  imports: {uuid: common.picture-uuid}
+  value: {kind: record, fields: [{name: uuid, type: {use: uuid}}]}
+  representations:
+    xml: {kind: text-pattern, parts: [{literal: '0:'}, {field: uuid}]}
+    yaml: {kind: text-pattern, parts: [{literal: '0:'}, {field: uuid}]}
+- kind: value
+  id: common.picture-reference
+  imports:
+    standard: common.picture-standard-reference
+    common: common.picture-common-reference
+    zero: common.picture-zero-reference
+    uuid: common.picture-uuid-reference
+  value:
+    kind: choice
+    variants:
+    - {name: СтандартнаяКартинка, type: {use: standard}}
+    - {name: ОбщаяКартинка, type: {use: common}}
+    - {name: НулеваяСсылка, type: {use: zero}}
+    - {name: СсылкаПоUUID, type: {use: uuid}}
+  representations:
+    xml: {kind: choice}
+    yaml: {kind: choice}

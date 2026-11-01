@@ -31,6 +31,39 @@ pub(super) fn yaml_record(path: &str, node: &Node) -> Result<YamlRepresentation,
             node.field(path, fields, "field")?.text(path)?.into(),
         ));
     }
+    if matches!(&node.shape, Shape::Mapping(fields) if optional_field(fields,"kind").is_some_and(|kind|kind.text(path).is_ok_and(|text|text=="grouped-sequence")))
+    {
+        let fields = node.mapping(path, &["kind", "groups"])?;
+        let groups = node.field(path, fields, "groups")?;
+        let Shape::Sequence(rows) = &groups.shape else {
+            return Err(error(
+                path,
+                groups.mark,
+                "expected_sequence",
+                "Expected groups",
+            ));
+        };
+        let mut result = Vec::new();
+        for row in rows {
+            let fields = row.mapping(path, &["field", "itemTag"])?;
+            result.push(nkdk_rule_model::YamlGroup {
+                field: row.field(path, fields, "field")?.text(path)?.into(),
+                item_tag: optional_field(fields, "itemTag")
+                    .map(|value| super::semantic_item_tag(path, value))
+                    .transpose()?,
+                source: location(path, row),
+            });
+        }
+        if result.is_empty() {
+            return Err(error(
+                path,
+                groups.mark,
+                "empty_yaml_groups",
+                "Expected at least one group",
+            ));
+        }
+        return Ok(YamlRepresentation::GroupedSequence(result));
+    }
     if applies(path, node) {
         Ok(YamlRepresentation::TextPattern(parse(path, node)?))
     } else {

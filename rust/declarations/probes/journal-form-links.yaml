@@ -5,7 +5,8 @@ imports: {part: fragment.journal-form-links}
 inputs:
   ownerPath: {type: {kind: scalar, scalar: text}}
   forms: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
-compose: [{use: part, bind: {ownerPath: {input: ownerPath}, forms: {input: forms}}}]
+  adopted: {type: {kind: scalar, scalar: boolean}}
+compose: [{use: part, bind: {ownerPath: {input: ownerPath}, forms: {input: forms}, adopted: {input: adopted}, extension: {literal: false}}}]
 value: {kind: record, fields: []}
 representations:
   xml: {kind: record, fields: []}

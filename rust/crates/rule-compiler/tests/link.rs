@@ -1,5 +1,149 @@
 use nkdk_rule_compiler::{SourceFile, generate, link, parse, parse_many};
 
+#[test]
+fn allocation_phase_is_optional_bounded_and_emitted_as_a_number_request() {
+    let source = include_str!("fixtures/numbered-facts.yaml");
+    for (phase, expected) in [
+        ("0", "request_number("),
+        ("7", "request_number_in_phase("),
+        ("4294967295", "request_number_in_phase("),
+    ] {
+        let changed = source.replace("first: 1}", &format!("first: 1, phase: {phase}}}"));
+        let linked = link(&[parse_source("phased.yaml", &changed)]).unwrap();
+        let generated = generate(&linked).unwrap();
+        let rust = std::str::from_utf8(
+            &generated
+                .files
+                .iter()
+                .find(|file| file.path == "generated.rs")
+                .unwrap()
+                .contents,
+        )
+        .unwrap();
+        assert!(rust.contains(expected));
+    }
+    for phase in ["-1", "1.5", "4294967296", "true", "later"] {
+        let changed = source.replace("first: 1}", &format!("first: 1, phase: {phase}}}"));
+        assert!(
+            parse(SourceFile {
+                path: "invalid-phase.yaml",
+                bytes: changed.as_bytes()
+            })
+            .is_err(),
+            "accepted phase {phase}"
+        );
+    }
+}
+
+#[test]
+fn number_requests_require_declared_scope_and_exclude_values_and_unions() {
+    let source = include_str!("fixtures/numbered-facts.yaml");
+    let module = parse_source("numbered.yaml", source);
+    let linked = link(&[module]).unwrap();
+    let generated = generate(&linked).unwrap();
+    let rust = std::str::from_utf8(
+        &generated
+            .files
+            .iter()
+            .find(|f| f.path == "generated.rs")
+            .unwrap()
+            .contents,
+    )
+    .unwrap();
+    assert!(rust.contains("request_number("));
+    assert!(rust.contains("text_number_index("));
+    for (from, to) in [
+        ("scope: [owner]", "scope: [unknown]"),
+        ("scope: [owner]", "scope: [owner, owner]"),
+        ("first: 1", "first: 0"),
+        (
+            "    allocate:",
+            "    value: {literal: conflicting}\n    allocate:",
+        ),
+        (
+            "    allocate:",
+            "    union: {referencePrefix: 'x:'}\n    allocate:",
+        ),
+    ] {
+        let changed = source.replace(from, to);
+        let result = parse(SourceFile {
+            path: "bad.yaml",
+            bytes: changed.as_bytes(),
+        })
+        .map_err(|e| format!("{e:?}"))
+        .and_then(|module| link(&[module]).map_err(|e| format!("{e:?}")));
+        assert!(result.is_err(), "accepted invalid numbering: {changed}");
+    }
+}
+
+#[test]
+fn number_reservations_use_only_allocator_scope_and_do_not_define_identity_shape() {
+    let allocator = include_str!("fixtures/numbered-facts.yaml");
+    let reservation = allocator
+        .split("contributions:")
+        .next()
+        .unwrap()
+        .replace("test.numbering", "test.number-reservations")
+        + "contributions:\n  - index: test.numbers\n    key: {record: {owner: {input: owner}}}\n    reserve: {field: id}\n";
+    let modules =
+        parse_named_sources([("request.yaml", allocator), ("reserved.yaml", &reservation)]);
+    let linked = link(&modules).unwrap();
+    let generated = generate(&linked).unwrap();
+    let file = generated
+        .files
+        .iter()
+        .find(|file| file.path == "generated.rs")
+        .unwrap();
+    assert!(
+        std::str::from_utf8(&file.contents)
+            .unwrap()
+            .contains("reserve_number(")
+    );
+    let global_allocator = allocator.replace("scope: [owner]", "scope: []");
+    let global_reservation = reservation.replace("record: {owner: {input: owner}}", "record: {}");
+    let modules = parse_named_sources([
+        ("request.yaml", &global_allocator),
+        ("reserved.yaml", &global_reservation),
+    ]);
+    generate(&link(&modules).unwrap()).unwrap();
+    for invalid in [
+        reservation.replace(
+            "record: {owner: {input: owner}}",
+            "record: {name: {input: owner}}",
+        ),
+        reservation.replace("index: test.numbers", "index: test.unknown"),
+        reservation.replace("record: {owner: {input: owner}}", "input: owner"),
+    ] {
+        let modules =
+            parse_named_sources([("request.yaml", allocator), ("reserved.yaml", &invalid)]);
+        assert!(
+            link(&modules).is_err(),
+            "accepted invalid reserve: {invalid}"
+        );
+    }
+    let retained_only = allocator
+        .split("  - index: test.numbers")
+        .take(2)
+        .collect::<Vec<_>>()
+        .join("  - index: test.numbers");
+    let modules = parse_named_sources([
+        ("request.yaml", &retained_only),
+        ("reserved.yaml", &reservation),
+    ]);
+    assert!(
+        link(&modules).is_err(),
+        "reservation without a number allocator"
+    );
+}
+
+fn parse_source(path: &str, source: &str) -> nkdk_rule_model::Module {
+    parse(SourceFile {
+        path,
+        bytes: source.as_bytes(),
+    })
+    .unwrap()
+}
+
 fn parse_catalog(source: &str) -> Vec<nkdk_rule_model::Module> {
     parse_many(SourceFile {
         path: "choice.yaml",
@@ -8,10 +152,60 @@ fn parse_catalog(source: &str) -> Vec<nkdk_rule_model::Module> {
     .unwrap()
 }
 
+#[test]
+fn enum_projection_can_use_its_yaml_spellings_in_xml() {
+    let modules = parse_catalog(
+        "format: nkdk-declarations/1\nkind: catalog\ndeclarations:\n- kind: value\n  id: test.root\n  enum: {Catalog: Справочник, Document: Документ}\n  projections:\n  - id: test.root-russian-xml\n    xml: {kind: yaml-text}\n    yaml: {overrides: {Catalog: Каталог}}\n",
+    );
+    link(&modules).unwrap();
+    let projected = modules
+        .iter()
+        .find(|module| module.id == "test.root-russian-xml")
+        .unwrap();
+    let nkdk_rule_model::XmlRepresentation::EnumTable(rows) = &projected.representations.xml else {
+        panic!("expected an XML enum table");
+    };
+    assert_eq!(rows[0].value, "Catalog");
+    assert_eq!(rows[0].text, "Каталог");
+    assert_eq!(rows[1].text, "Документ");
+}
+
 fn assert_catalog_error(source: &str, code: &str) {
     let modules = parse_catalog(source);
     let errors = link(&modules).unwrap_err();
     assert!(errors.iter().any(|error| error.code == code), "{errors:?}");
+}
+
+#[test]
+fn linear_sequence_requires_distinct_item_wrapper_and_next_node() {
+    let source = "format: nkdk-declarations/1\nkind: value\nid: test.chain\nnamespaces: {x: urn:test}\nvalue: {kind: sequence, item: {kind: scalar, scalar: text}}\nrepresentations:\n  xml: {kind: element-sequence, path: [x:items, x:item], next: [x:next], item: {kind: text}}\n  yaml: {kind: sequence, item: {kind: scalar, scalar: text}}\n";
+    let valid = parse_source("chain.yaml", source);
+    link(&[valid]).unwrap();
+    let ambiguous = source.replace("next: [x:next]", "next: [x:items]");
+    let errors = link(&[parse_source("ambiguous.yaml", &ambiguous)]).unwrap_err();
+    assert!(
+        errors
+            .iter()
+            .any(|error| error.code == "ambiguous_sequence_chain"),
+        "{errors:?}"
+    );
+}
+
+fn assert_link_outcome(
+    result: Result<nkdk_rule_model::Program, Vec<nkdk_rule_model::Diagnostic>>,
+    expected_error: Option<&str>,
+    context: &str,
+) {
+    match expected_error {
+        Some(code) => {
+            let errors = result.unwrap_err();
+            assert!(
+                errors.iter().any(|error| error.code == code),
+                "{context}: {errors:?}"
+            );
+        }
+        None => assert!(result.is_ok(), "{context}: {result:?}"),
+    }
 }
 
 #[test]
@@ -41,6 +235,75 @@ declarations:
     }
 }
 
+#[test]
+fn tagged_scalar_choice_is_a_declarative_selector() {
+    let source = r#"format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: test.plain
+  value: {kind: scalar, scalar: text}
+  representations: {xml: {kind: text}, yaml: {kind: scalar, scalar: text}}
+- kind: value
+  id: test.tagged
+  value: {kind: scalar, scalar: text}
+  representations: {xml: {kind: text}, yaml: {kind: scalar, scalar: text}}
+- kind: value
+  id: test.choice
+  imports: {plain: test.plain, tagged: test.tagged}
+  value: {kind: choice, variants: [{name: plain, type: {use: plain}}, {name: tagged, type: {use: tagged}}]}
+  representations:
+    xml: {kind: choice, fallback: plain}
+    yaml: {kind: choice, variants: [{variant: tagged, form: scalar, tag: xml/string}]}
+- kind: object
+  id: test.owner
+  imports: {value: test.choice}
+  value: {kind: record, fields: [{name: value, type: {use: value}}]}
+  representations: {xml: {kind: record, fields: [{field: value, path: [Root, Value]}]}, yaml: {kind: mapping, fields: [{field: value, key: Значение}]}}
+"#;
+    let modules = parse_catalog(source);
+    let program = link(&modules).expect("a tagged scalar disambiguates text variants");
+    generate(&program).expect("tagged choice generates without special object code");
+
+    let duplicate = source.replace("variants: [{variant: tagged, form: scalar, tag: xml/string}]", "variants: [{variant: tagged, form: scalar, tag: xml/string}, {variant: plain, form: scalar, tag: xml/string}]");
+    assert_catalog_error(&duplicate, "choice_selector_collision");
+    let invalid = source.replace("tag: xml/string", "tag: 'xml/ string'");
+    assert_catalog_error(&invalid, "invalid_choice_selector");
+}
+
+#[test]
+fn scalar_choice_input_has_one_text_source_and_distinct_values() {
+    let source = r#"format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: test.first
+  value: {kind: scalar, scalar: text}
+  representations: {xml: {kind: text}, yaml: {kind: scalar, scalar: text}}
+- kind: value
+  id: test.second
+  value: {kind: scalar, scalar: text}
+  representations: {xml: {kind: text}, yaml: {kind: scalar, scalar: text}}
+- kind: value
+  id: test.choice
+  imports: {first: test.first, second: test.second}
+  inputs: {profile: {type: {kind: scalar, scalar: text}}}
+  value: {kind: choice, variants: [{name: first, type: {use: first}}, {name: second, type: {use: second}}]}
+  representations:
+    xml: {kind: choice, fallback: first}
+    yaml: {kind: choice, variants: [{variant: first, form: scalar-input, input: profile, equals: First}, {variant: second, form: scalar-input, input: profile, equals: Second}]}
+"#;
+    link(&parse_catalog(source)).expect("input-selected scalar variants are distinct");
+    assert_catalog_error(
+        &source.replace("equals: Second", "equals: First"),
+        "choice_selector_collision",
+    );
+    assert_catalog_error(
+        &source.replace("input: profile", "input: absent"),
+        "invalid_choice_selector",
+    );
+}
+
 fn modules() -> Vec<nkdk_rule_model::Module> {
     [
         (
@@ -55,6 +318,53 @@ fn modules() -> Vec<nkdk_rule_model::Module> {
     .into_iter()
     .map(|(path, bytes)| parse(SourceFile { path, bytes }).unwrap())
     .collect()
+}
+
+fn fragment_source(id: &str) -> String {
+    include_str!("fixtures/owner.yaml")
+        .replace("kind: object", "kind: fragment")
+        .replace("applied.common-module", id)
+}
+
+fn client_fragment() -> String {
+    fragment_source("common.fragment")
+        .replace("server", "client")
+        .replace("Server", "Client")
+        .replace("Сервер", "Клиент")
+}
+
+fn owner_with_fragment() -> String {
+    include_str!("fixtures/owner.yaml").replace(
+        "  boolean: common.boolean",
+        "  boolean: common.boolean\n  fragment: common.fragment",
+    ) + "\ncompose: [{use: fragment}]\n"
+}
+
+fn composition_modules(fragment: &str, owner: &str) -> Vec<nkdk_rule_model::Module> {
+    let mut source = modules();
+    source[1] = parse_source("owner.yaml", owner);
+    source.push(parse_source("fragment.yaml", fragment));
+    source
+}
+
+fn modules_with_common(common: &str) -> Vec<nkdk_rule_model::Module> {
+    let mut source = modules();
+    source[0] = parse_source("common.yaml", common);
+    source
+}
+
+fn parse_named_sources<const N: usize>(sources: [(&str, &str); N]) -> Vec<nkdk_rule_model::Module> {
+    sources
+        .into_iter()
+        .map(|(path, text)| parse_source(path, text))
+        .collect()
+}
+
+fn record_names(entry: &nkdk_rule_model::LinkedEntry) -> Vec<&str> {
+    let nkdk_rule_model::LinkedType::Record(fields) = &entry.value else {
+        panic!("record expected")
+    };
+    fields.iter().map(|field| field.name.as_str()).collect()
 }
 
 #[test]
@@ -79,11 +389,7 @@ fn imports_and_namespaces_are_resolved_before_generation() {
     ] {
         let mut source = modules();
         let text = original.replace(from, to);
-        source[1] = parse(SourceFile {
-            path: "owner.yaml",
-            bytes: text.as_bytes(),
-        })
-        .unwrap();
+        source[1] = parse_source("owner.yaml", &text);
         let errors = link(&source).unwrap_err();
         assert!(errors.iter().any(|error| error.code == code), "{errors:?}");
     }
@@ -115,11 +421,7 @@ fn duplicate_ids_report_both_source_locations() {
 fn representation_cannot_reference_an_unknown_field() {
     let mut source = modules();
     let owner = include_str!("fixtures/owner.yaml").replace("field: server", "field: missing");
-    source[1] = parse(SourceFile {
-        path: "owner.yaml",
-        bytes: owner.as_bytes(),
-    })
-    .unwrap();
+    source[1] = parse_source("owner.yaml", &owner);
     let errors = link(&source).unwrap_err();
     assert_eq!(errors[0].code, "unknown_representation_field");
 }
@@ -127,28 +429,18 @@ fn representation_cannot_reference_an_unknown_field() {
 #[test]
 fn boolean_tables_must_have_an_unambiguous_reverse() {
     let text = include_str!("fixtures/common.yaml").replace("text: \"false\"", "text: \"true\"");
-    let module = parse(SourceFile {
-        path: "boolean.yaml",
-        bytes: text.as_bytes(),
-    })
-    .unwrap();
+    let module = parse_source("boolean.yaml", &text);
     let errors = link(&[module]).unwrap_err();
     assert_eq!(errors[0].code, "ambiguous_boolean_table");
 }
 
 #[test]
 fn common_cannot_import_an_applied_owner() {
-    let mut source = modules();
     let text = format!(
         "{}\nimports:\n  forbidden: applied.common-module\n",
         include_str!("fixtures/common.yaml")
     );
-    source[0] = parse(SourceFile {
-        path: "common.yaml",
-        bytes: text.as_bytes(),
-    })
-    .unwrap();
-    let errors = link(&source).unwrap_err();
+    let errors = link(&modules_with_common(&text)).unwrap_err();
     assert!(
         errors
             .iter()
@@ -158,27 +450,12 @@ fn common_cannot_import_an_applied_owner() {
 
 #[test]
 fn composed_field_collision_reports_both_declarations() {
-    let mut source = modules();
-    let fragment = include_str!("fixtures/owner.yaml")
-        .replace("kind: object", "kind: fragment")
-        .replace("applied.common-module", "common.fragment");
+    let fragment = fragment_source("common.fragment");
     let owner = include_str!("fixtures/owner.yaml").replace(
         "  boolean: common.boolean",
         "  boolean: common.boolean\n  fragment: common.fragment",
     ) + "\ncompose:\n  - use: fragment\n";
-    source[1] = parse(SourceFile {
-        path: "owner.yaml",
-        bytes: owner.as_bytes(),
-    })
-    .unwrap();
-    source.push(
-        parse(SourceFile {
-            path: "fragment.yaml",
-            bytes: fragment.as_bytes(),
-        })
-        .unwrap(),
-    );
-    let errors = link(&source).unwrap_err();
+    let errors = link(&composition_modules(&fragment, &owner)).unwrap_err();
     let error = errors
         .iter()
         .find(|error| error.code == "duplicate_field")
@@ -190,9 +467,7 @@ fn composed_field_collision_reports_both_declarations() {
 #[test]
 fn fragment_only_composition_preserves_the_declared_sequence() {
     let common = modules().remove(0);
-    let first_text = include_str!("fixtures/owner.yaml")
-        .replace("kind: object", "kind: fragment")
-        .replace("applied.common-module", "common.first");
+    let first_text = fragment_source("common.first");
     let second_text = first_text
         .replace("common.first", "common.second")
         .replace("server", "client")
@@ -201,61 +476,28 @@ fn fragment_only_composition_preserves_the_declared_sequence() {
     let owner_text = "format: nkdk-declarations/1\nkind: object\nid: applied.owner\nimports: {a: common.first, b: common.second}\nvalue: {kind: record, fields: []}\nrepresentations:\n  xml: {kind: record, fields: []}\n  yaml: {kind: mapping, fields: []}\ncompose: [{use: b}, {use: a}]\n";
     let source = vec![
         common,
-        parse(SourceFile {
-            path: "a.yaml",
-            bytes: first_text.as_bytes(),
-        })
-        .unwrap(),
-        parse(SourceFile {
-            path: "b.yaml",
-            bytes: second_text.as_bytes(),
-        })
-        .unwrap(),
-        parse(SourceFile {
-            path: "owner.yaml",
-            bytes: owner_text.as_bytes(),
-        })
-        .unwrap(),
+        parse_source("a.yaml", &first_text),
+        parse_source("b.yaml", &second_text),
+        parse_source("owner.yaml", owner_text),
     ];
     let program = link(&source).unwrap();
-    let nkdk_rule_model::LinkedType::Record(fields) = &program.entries[0].value else {
-        panic!("record expected")
-    };
-    assert_eq!(
-        fields
-            .iter()
-            .map(|field| field.name.as_str())
-            .collect::<Vec<_>>(),
-        ["client", "server"]
-    );
+    assert_eq!(record_names(&program.entries[0]), ["client", "server"]);
 }
 
 #[test]
 fn fragment_composition_cycles_are_rejected() {
     let common = modules().remove(0);
-    let a = include_str!("fixtures/owner.yaml")
-        .replace("kind: object", "kind: fragment")
-        .replace("applied.common-module", "common.a")
-        .replace(
-            "  boolean: common.boolean",
-            "  boolean: common.boolean\n  next: common.b",
-        )
-        + "\ncompose: [{use: next}]\n";
+    let a = fragment_source("common.a").replace(
+        "  boolean: common.boolean",
+        "  boolean: common.boolean\n  next: common.b",
+    ) + "\ncompose: [{use: next}]\n";
     let b = a
         .replace("id: common.a", "id: common.b")
         .replace("next: common.b", "next: common.a");
     let errors = link(&[
         common,
-        parse(SourceFile {
-            path: "a.yaml",
-            bytes: a.as_bytes(),
-        })
-        .unwrap(),
-        parse(SourceFile {
-            path: "b.yaml",
-            bytes: b.as_bytes(),
-        })
-        .unwrap(),
+        parse_source("a.yaml", &a),
+        parse_source("b.yaml", &b),
     ])
     .unwrap_err();
     assert!(errors.iter().any(|error| error.code == "composition_cycle"));
@@ -267,13 +509,7 @@ fn unsupported_behavior_is_not_silently_erased() {
         "{}\nconstraints:\n  - id: numeric\n    appliesTo: [yaml-validation]\n    assert: {{eq: [{{literal: null}}, {{literal: null}}]}}\n    diagnostic:\n      severity: error\n      at: {{self: true}}\n      message: Invalid\n",
         include_str!("fixtures/common.yaml")
     );
-    let source = vec![
-        parse(SourceFile {
-            path: "common.yaml",
-            bytes: text.as_bytes(),
-        })
-        .unwrap(),
-    ];
+    let source = vec![parse_source("common.yaml", &text)];
     let errors = link(&source).unwrap_err();
     assert!(
         errors
@@ -284,41 +520,11 @@ fn unsupported_behavior_is_not_silently_erased() {
 
 #[test]
 fn mixed_composition_places_fragments_before_own_fields() {
-    let mut source = modules();
-    let fragment = include_str!("fixtures/owner.yaml")
-        .replace("kind: object", "kind: fragment")
-        .replace("applied.common-module", "common.fragment")
-        .replace("server", "client")
-        .replace("Server", "Client")
-        .replace("Сервер", "Клиент");
-    let owner = include_str!("fixtures/owner.yaml").replace(
-        "  boolean: common.boolean",
-        "  boolean: common.boolean\n  fragment: common.fragment",
-    ) + "\ncompose: [{use: fragment}]\n";
-    source[1] = parse(SourceFile {
-        path: "owner.yaml",
-        bytes: owner.as_bytes(),
-    })
-    .unwrap();
-    source.push(
-        parse(SourceFile {
-            path: "fragment.yaml",
-            bytes: fragment.as_bytes(),
-        })
-        .unwrap(),
-    );
-    let program = link(&source).unwrap();
+    let fragment = client_fragment();
+    let owner = owner_with_fragment();
+    let program = link(&composition_modules(&fragment, &owner)).unwrap();
     let entry = &program.entries[0];
-    let nkdk_rule_model::LinkedType::Record(fields) = &entry.value else {
-        panic!("record expected")
-    };
-    assert_eq!(
-        fields
-            .iter()
-            .map(|field| field.name.as_str())
-            .collect::<Vec<_>>(),
-        ["client", "server"]
-    );
+    assert_eq!(record_names(entry), ["client", "server"]);
     let nkdk_rule_model::LinkedXml::Record(fields) = &entry.xml else {
         panic!("XML record expected")
     };
@@ -343,31 +549,9 @@ fn mixed_composition_places_fragments_before_own_fields() {
 
 #[test]
 fn composed_xml_routes_cannot_own_an_ancestor_of_another_field() {
-    let mut source = modules();
-    let fragment = include_str!("fixtures/owner.yaml")
-        .replace("kind: object", "kind: fragment")
-        .replace("applied.common-module", "common.fragment")
-        .replace("server", "client")
-        .replace("Server", "Client")
-        .replace("Сервер", "Клиент")
-        .replace("[md:Properties, md:Client]", "[md:Properties]");
-    let owner = include_str!("fixtures/owner.yaml").replace(
-        "  boolean: common.boolean",
-        "  boolean: common.boolean\n  fragment: common.fragment",
-    ) + "\ncompose: [{use: fragment}]\n";
-    source[1] = parse(SourceFile {
-        path: "owner.yaml",
-        bytes: owner.as_bytes(),
-    })
-    .unwrap();
-    source.push(
-        parse(SourceFile {
-            path: "fragment.yaml",
-            bytes: fragment.as_bytes(),
-        })
-        .unwrap(),
-    );
-    let errors = link(&source).unwrap_err();
+    let fragment = client_fragment().replace("[md:Properties, md:Client]", "[md:Properties]");
+    let owner = owner_with_fragment();
+    let errors = link(&composition_modules(&fragment, &owner)).unwrap_err();
     let error = errors
         .iter()
         .find(|error| error.code == "xml_path_collision")
@@ -382,11 +566,7 @@ fn declared_inputs_are_typed_slots_without_runtime_values() {
         "{}\ninputs:\n  language: {{type: {{kind: scalar, scalar: text}}}}\n  enabled: {{type: {{kind: scalar, scalar: boolean}}}}\n",
         include_str!("fixtures/common.yaml")
     );
-    let module = parse(SourceFile {
-        path: "inputs.yaml",
-        bytes: text.as_bytes(),
-    })
-    .unwrap();
+    let module = parse_source("inputs.yaml", &text);
     let result = link(&[module]);
     let program = result.expect("runtime input values are not needed during compilation");
     let inputs = &program.entries[0].inputs;
@@ -404,17 +584,11 @@ fn declared_inputs_are_typed_slots_without_runtime_values() {
 
 #[test]
 fn using_a_declaration_requires_all_its_input_bindings() {
-    let mut source = modules();
     let text = format!(
         "{}\ninputs:\n  enabled: {{type: {{kind: scalar, scalar: boolean}}}}\n",
         include_str!("fixtures/common.yaml")
     );
-    source[0] = parse(SourceFile {
-        path: "common.yaml",
-        bytes: text.as_bytes(),
-    })
-    .unwrap();
-    let errors = link(&source).unwrap_err();
+    let errors = link(&modules_with_common(&text)).unwrap_err();
     assert!(
         errors
             .iter()
@@ -441,27 +615,42 @@ fn input_bindings_are_checked_for_names_and_types() {
             &format!("{{use: boolean, bind: {{{binding}}}}}"),
         ) + "\ninputs:\n  active: {type: {kind: scalar, scalar: boolean}}\n";
         let source = [
-            parse(SourceFile {
-                path: "common.yaml",
-                bytes: common.as_bytes(),
-            })
-            .unwrap(),
-            parse(SourceFile {
-                path: "owner.yaml",
-                bytes: owner.as_bytes(),
-            })
-            .unwrap(),
+            parse_source("common.yaml", &common),
+            parse_source("owner.yaml", &owner),
         ];
         let result = link(&source);
-        if let Some(code) = expected {
-            let errors = result.unwrap_err();
-            assert!(
-                errors.iter().any(|error| error.code == code),
-                "{binding}: {errors:?}"
-            );
-        } else {
-            assert!(result.is_ok(), "{binding}: {result:?}");
-        }
+        assert_link_outcome(result, expected, binding);
+    }
+}
+
+#[test]
+fn enum_sequence_bindings_type_each_literal_against_the_declared_input() {
+    let roots = parse_source(
+        "roots.yaml",
+        "format: nkdk-declarations/1\nkind: value\nid: test.roots\nenum: {Catalog: Справочник, Document: Документ}\n",
+    );
+    let common = parse_source(
+        "common.yaml",
+        &format!(
+            "{}\nimports: {{root: test.roots}}\ninputs:\n  allowedRoots: {{type: {{kind: sequence, item: {{use: root}}}}}}\n",
+            include_str!("fixtures/common.yaml")
+        ),
+    );
+    for (binding, accepted) in [
+        ("[{literal: Catalog}, {literal: Document}]", true),
+        ("[{literal: Unknown}]", false),
+        ("[{literal: true}]", false),
+    ] {
+        let owner = include_str!("fixtures/owner.yaml").replace(
+            "{use: boolean}",
+            &format!("{{use: boolean, bind: {{allowedRoots: {{sequence: {binding}}}}}}}"),
+        );
+        let result = link(&[
+            roots.clone(),
+            common.clone(),
+            parse_source("owner.yaml", &owner),
+        ]);
+        assert_eq!(result.is_ok(), accepted, "{result:?}");
     }
 }
 
@@ -479,16 +668,8 @@ fn binding_record_types_ignore_source_positions_but_preserve_structure() {
             "\ninputs:\n  options:\n    type: {{kind: record, fields: [{{name: flag, type: {{kind: scalar, scalar: {scalar}}}}}]}}\n"
         );
         let result = link(&[
-            parse(SourceFile {
-                path: "common.yaml",
-                bytes: common.as_bytes(),
-            })
-            .unwrap(),
-            parse(SourceFile {
-                path: "owner.yaml",
-                bytes: owner.as_bytes(),
-            })
-            .unwrap(),
+            parse_source("common.yaml", &common),
+            parse_source("owner.yaml", &owner),
         ]);
         assert_eq!(result.is_ok(), accepted, "{result:?}");
     }
@@ -497,13 +678,7 @@ fn binding_record_types_ignore_source_positions_but_preserve_structure() {
 #[test]
 fn field_bindings_reject_cycles_independently_of_field_order() {
     let directional = include_str!("fixtures/directional-fields.yaml");
-    let parse_directional = |source: &str| {
-        parse(SourceFile {
-            path: "directional.yaml",
-            bytes: source.as_bytes(),
-        })
-        .unwrap()
-    };
+    let parse_directional = |source: &str| parse_source("directional.yaml", source);
     assert!(link(&[parse_directional(directional)]).is_ok());
     let cycle = directional.replace(
         "xml: {missing: {denotes: {absent: true}}}",
@@ -542,16 +717,8 @@ fn field_bindings_reject_cycles_independently_of_field_order() {
                 fields.concat()
             );
             let result = link(&[
-                parse(SourceFile {
-                    path: "common.yaml",
-                    bytes: common.as_bytes(),
-                })
-                .unwrap(),
-                parse(SourceFile {
-                    path: "owner.yaml",
-                    bytes: owner.as_bytes(),
-                })
-                .unwrap(),
+                parse_source("common.yaml", &common),
+                parse_source("owner.yaml", &owner),
             ]);
             if accepted {
                 assert!(result.is_ok(), "{result:?}");
@@ -573,9 +740,7 @@ fn fragment_field_dependencies_follow_fields_after_composition() {
         "{}\ninputs:\n  enabled: {{type: {{kind: scalar, scalar: boolean}}}}\n",
         include_str!("fixtures/common.yaml")
     );
-    let fragment = include_str!("fixtures/owner.yaml")
-        .replace("kind: object", "kind: fragment")
-        .replace("applied.common-module", "common.fragment")
+    let fragment = fragment_source("common.fragment")
         .replace(
             "{use: boolean}",
             "{use: boolean, bind: {enabled: {not: {field: flag}}}}",
@@ -592,29 +757,18 @@ fn fragment_field_dependencies_follow_fields_after_composition() {
             "      - field: server\n        key:",
             "      - field: flag\n        key: Flag\n      - field: server\n        key:",
         );
-    let prefix = include_str!("fixtures/owner.yaml")
-        .replace("kind: object", "kind: fragment")
-        .replace("applied.common-module", "common.prefix")
+    let prefix = fragment_source("common.prefix")
         .replace("{use: boolean}", "{kind: scalar, scalar: boolean}")
         .replace("server", "prefix")
         .replace("Server", "Prefix")
         .replace("Сервер", "Prefix");
     let owner = "format: nkdk-declarations/1\nkind: object\nid: applied.owner\nimports: {prefix: common.prefix, body: common.fragment}\ncompose: [{use: prefix}, {use: body}]\nvalue: {kind: record, fields: []}\nrepresentations:\n  xml: {kind: record, fields: []}\n  yaml: {kind: mapping, fields: []}\n";
-    let source = [
+    let source = parse_named_sources([
         ("common.yaml", common.as_str()),
         ("fragment.yaml", fragment.as_str()),
         ("prefix.yaml", prefix.as_str()),
         ("owner.yaml", owner),
-    ]
-    .into_iter()
-    .map(|(path, text)| {
-        parse(SourceFile {
-            path,
-            bytes: text.as_bytes(),
-        })
-        .unwrap()
-    })
-    .collect::<Vec<_>>();
+    ]);
     let program = link(&source).unwrap();
     assert_eq!(
         program.entries[0].field_dependencies,
@@ -636,11 +790,7 @@ fn static_parameters_require_matching_arguments_or_defaults() {
             "{}\nparameters:\n  maximum:\n    type: {{kind: scalar, scalar: number, profile: decimal}}\n    default: {literal}\n",
             include_str!("fixtures/common.yaml")
         );
-        let source = parse(SourceFile {
-            path: "common.yaml",
-            bytes: common.as_bytes(),
-        })
-        .unwrap();
+        let source = parse_source("common.yaml", &common);
         let result = link(&[source]);
         assert_eq!(result.is_ok(), accepted, "{literal}: {result:?}");
         if accepted {
@@ -669,47 +819,20 @@ fn static_parameters_require_matching_arguments_or_defaults() {
         let owner = include_str!("fixtures/owner.yaml")
             .replace("{use: boolean}", &format!("{{use: boolean{arguments}}}"));
         let result = link(&[
-            parse(SourceFile {
-                path: "common.yaml",
-                bytes: common.as_bytes(),
-            })
-            .unwrap(),
-            parse(SourceFile {
-                path: "owner.yaml",
-                bytes: owner.as_bytes(),
-            })
-            .unwrap(),
+            parse_source("common.yaml", &common),
+            parse_source("owner.yaml", &owner),
         ]);
-        if let Some(code) = expected {
-            assert!(
-                result.unwrap_err().iter().any(|error| error.code == code),
-                "{default} {arguments}"
-            );
-        } else {
-            assert!(result.is_ok(), "{result:?}");
-        }
+        assert_link_outcome(result, expected, &format!("{default} {arguments}"));
     }
 }
 
 #[test]
 fn field_types_cannot_reference_fragments_or_implicit_recursive_values() {
-    let fragment = include_str!("fixtures/owner.yaml")
-        .replace("kind: object", "kind: fragment")
-        .replace("applied.common-module", "common.fragment");
+    let fragment = fragment_source("common.fragment");
     let owner = include_str!("fixtures/owner.yaml").replace("common.boolean", "common.fragment");
     let mut source = modules();
-    source[1] = parse(SourceFile {
-        path: "owner.yaml",
-        bytes: owner.as_bytes(),
-    })
-    .unwrap();
-    source.push(
-        parse(SourceFile {
-            path: "fragment.yaml",
-            bytes: fragment.as_bytes(),
-        })
-        .unwrap(),
-    );
+    source[1] = parse_source("owner.yaml", &owner);
+    source.push(parse_source("fragment.yaml", &fragment));
     let errors = link(&source).unwrap_err();
     assert!(errors.iter().any(|error| error.code == "expected_value"));
 
@@ -717,11 +840,7 @@ fn field_types_cannot_reference_fragments_or_implicit_recursive_values() {
         .replace("kind: object", "kind: value")
         .replace("applied.common-module", "common.recursive")
         .replace("common.boolean", "common.recursive");
-    let module = parse(SourceFile {
-        path: "recursive.yaml",
-        bytes: recursive.as_bytes(),
-    })
-    .unwrap();
+    let module = parse_source("recursive.yaml", &recursive);
     let errors = link(&[module]).unwrap_err();
     assert!(
         errors
@@ -761,11 +880,7 @@ fn value_recursion_requires_a_collection_boundary() {
         .replace("kind: object", "kind: value")
         .replace("applied.common-module", "common.direct")
         .replace("common.boolean", "common.direct");
-    let direct = parse(SourceFile {
-        path: "direct.yaml",
-        bytes: direct.as_bytes(),
-    })
-    .unwrap();
+    let direct = parse_source("direct.yaml", &direct);
     let errors = link(&[direct]).unwrap_err();
     assert!(
         errors
@@ -791,11 +906,7 @@ presence:
   xml: {missing: {denotes: {absent: true}}}
   yaml: {missing: {denotes: {absent: true}}}
 "#;
-    let module = parse(SourceFile {
-        path: "optional-node.yaml",
-        bytes: source.as_bytes(),
-    })
-    .unwrap();
+    let module = parse_source("optional-node.yaml", source);
 
     link(&[module]).expect("presence-bounded recursion");
 }
@@ -831,25 +942,10 @@ fn boolean_binding_expressions_are_typed_before_generation() {
             &format!("{{use: boolean, bind: {{enabled: {expression}}}}}"),
         ) + "\ninputs:\n  active: {type: {kind: scalar, scalar: boolean}}\nparameters:\n  flag: {type: {kind: scalar, scalar: boolean}, default: true}\n";
         let result = link(&[
-            parse(SourceFile {
-                path: "common.yaml",
-                bytes: common.as_bytes(),
-            })
-            .unwrap(),
-            parse(SourceFile {
-                path: "owner.yaml",
-                bytes: owner.as_bytes(),
-            })
-            .unwrap(),
+            parse_source("common.yaml", &common),
+            parse_source("owner.yaml", &owner),
         ]);
-        if let Some(code) = expected {
-            assert!(
-                result.unwrap_err().iter().any(|error| error.code == code),
-                "{expression}"
-            );
-        } else {
-            assert!(result.is_ok(), "{expression}: {result:?}");
-        }
+        assert_link_outcome(result, expected, expression);
     }
 }
 
@@ -870,20 +966,9 @@ fn constraints_are_linked_with_typed_conditions_and_diagnostic_targets() {
             "{}\nconstraints:\n  - id: enabled\n    appliesTo: [yaml-validation]\n    assert: {assertion}\n    diagnostic:\n      severity: error\n      at: {target}\n      message: Invalid value\n",
             include_str!("fixtures/owner.yaml")
         );
-        source[1] = parse(SourceFile {
-            path: "owner.yaml",
-            bytes: text.as_bytes(),
-        })
-        .unwrap();
+        source[1] = parse_source("owner.yaml", &text);
         let result = link(&source);
-        if let Some(code) = expected {
-            assert!(
-                result.unwrap_err().iter().any(|error| error.code == code),
-                "{assertion} {target}"
-            );
-        } else {
-            assert!(result.is_ok(), "{result:?}");
-        }
+        assert_link_outcome(result, expected, &format!("{assertion} {target}"));
     }
 }
 
@@ -898,11 +983,7 @@ fn constraints_can_read_self_and_record_members() {
             "{}\nconstraints:\n  - id: self-check\n    appliesTo: [yaml-validation]\n    assert: {expression}\n    diagnostic:\n      severity: error\n      at: {{self: true}}\n      message: Invalid value\n",
             include_str!("fixtures/owner.yaml")
         );
-        source[1] = parse(SourceFile {
-            path: "owner.yaml",
-            bytes: owner.as_bytes(),
-        })
-        .unwrap();
+        source[1] = parse_source("owner.yaml", &owner);
         let result = link(&source);
         assert_eq!(result.is_ok(), accepted, "{result:?}");
     }
@@ -950,25 +1031,10 @@ fn collection_variables_are_typed_and_lexically_scoped() {
             &format!("{{use: boolean, bind: {{enabled: {expression}}}}}"),
         ) + "\ninputs:\n  flags: {type: {kind: sequence, item: {kind: scalar, scalar: boolean}}}\n";
         let result = link(&[
-            parse(SourceFile {
-                path: "common.yaml",
-                bytes: common.as_bytes(),
-            })
-            .unwrap(),
-            parse(SourceFile {
-                path: "owner.yaml",
-                bytes: owner.as_bytes(),
-            })
-            .unwrap(),
+            parse_source("common.yaml", &common),
+            parse_source("owner.yaml", &owner),
         ]);
-        if let Some(code) = expected {
-            assert!(
-                result.unwrap_err().iter().any(|error| error.code == code),
-                "{expression}"
-            );
-        } else {
-            assert!(result.is_ok(), "{expression}: {result:?}");
-        }
+        assert_link_outcome(result, expected, expression);
     }
 }
 
@@ -979,11 +1045,7 @@ fn occurrence_constraints_preserve_scope_and_message_parts() {
         "{}\ninputs:\n  translations:\n    type:\n      kind: sequence\n      item:\n        kind: record\n        fields:\n          - name: language\n            type: {{kind: scalar, scalar: text}}\nconstraints:\n  - id: language-check\n    appliesTo: [yaml-validation]\n    forEach: {{in: {{input: translations}}, as: translation}}\n    assert: {{eq: [{{get: {{of: {{var: translation}}, field: language}}}}, {{literal: ru}}]}}\n    diagnostic:\n      severity: error\n      at: {{occurrence: translation, field: language}}\n      message:\n        parts: [Invalid, {{get: {{of: {{var: translation}}, field: language}}}}]\n",
         include_str!("fixtures/owner.yaml")
     );
-    source[1] = parse(SourceFile {
-        path: "owner.yaml",
-        bytes: owner.as_bytes(),
-    })
-    .unwrap();
+    source[1] = parse_source("owner.yaml", &owner);
     let result = link(&source);
     assert!(result.is_ok(), "{result:?}");
 }
@@ -991,19 +1053,11 @@ fn occurrence_constraints_preserve_scope_and_message_parts() {
 #[test]
 fn localized_text_declaration_links_collection_constraints_and_shorthand() {
     let text = include_str!("../../../../tests/declaration-corpus/valid/i8n-validation-core.yaml");
-    let module = parse(SourceFile {
-        path: "i8n.yaml",
-        bytes: text.as_bytes(),
-    })
-    .unwrap();
+    let module = parse_source("i8n.yaml", text);
     let result = link(&[module]);
     assert!(result.is_ok(), "{result:?}");
     let invalid = text.replace("{capture: text}", "{capture: absent}");
-    let module = parse(SourceFile {
-        path: "i8n.yaml",
-        bytes: invalid.as_bytes(),
-    })
-    .unwrap();
+    let module = parse_source("i8n.yaml", &invalid);
     assert!(
         link(&[module])
             .unwrap_err()
@@ -1031,19 +1085,11 @@ fn presence_denotations_use_the_target_type_for_empty_sequences() {
         "{}\nparameters:\n  exclude: {{type: {{kind: scalar, scalar: boolean}}, default: false}}\npresence:\n  - target: self\n    xml:\n      missing: {{denotes: {{absent: true}}}}\n    yaml:\n      missing: {{denotes: {{sequence: []}}}}\n      empty:\n        - form: empty-string\n          denotes:\n            if: {{parameter: exclude}}\n            then: {{sequence: []}}\n            else:\n              sequence:\n                - record:\n                    language: {{input: defaultLanguage}}\n                    content: {{literal: \"\"}}\n      omitWhen: {{parameter: exclude}}\n",
         include_str!("../../../../tests/declaration-corpus/valid/i8n-text-core.yaml")
     );
-    let module = parse(SourceFile {
-        path: "i8n.yaml",
-        bytes: text.as_bytes(),
-    })
-    .unwrap();
+    let module = parse_source("i8n.yaml", &text);
     let result = link(&[module]);
     assert!(result.is_ok(), "{result:?}");
     let invalid = text.replace("then: {sequence: []}", "then: {literal: false}");
-    let module = parse(SourceFile {
-        path: "invalid.yaml",
-        bytes: invalid.as_bytes(),
-    })
-    .unwrap();
+    let module = parse_source("invalid.yaml", &invalid);
     assert!(
         link(&[module])
             .unwrap_err()
@@ -1079,17 +1125,9 @@ fn normalization_requires_static_selection_and_a_nonempty_result() {
         let text = format!(
             "{original}\nparameters:\n  normalize: {{type: {{kind: scalar, scalar: boolean}}, default: true}}\nnormalization:\n  when: {condition}\n  from: empty-sequence\n  denotes: {value}\n"
         );
-        let module = parse(SourceFile {
-            path: "i8n.yaml",
-            bytes: text.as_bytes(),
-        })
-        .unwrap();
+        let module = parse_source("i8n.yaml", &text);
         let result = link(&[module]);
-        if let Some(code) = expected {
-            assert!(result.unwrap_err().iter().any(|error| error.code == code));
-        } else {
-            assert!(result.is_ok(), "{result:?}");
-        }
+        assert_link_outcome(result, expected, condition);
     }
 }
 
@@ -1125,16 +1163,8 @@ fn collection_selection_order_and_state_operators_preserve_types() {
             &format!("{{use: boolean, bind: {{enabled: {expression}}}}}"),
         ) + "\ninputs:\n  languages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}\n";
         let result = link(&[
-            parse(SourceFile {
-                path: "common.yaml",
-                bytes: common.as_bytes(),
-            })
-            .unwrap(),
-            parse(SourceFile {
-                path: "owner.yaml",
-                bytes: owner.as_bytes(),
-            })
-            .unwrap(),
+            parse_source("common.yaml", &common),
+            parse_source("owner.yaml", &owner),
         ]);
         assert_eq!(result.is_ok(), accepted, "{expression}: {result:?}");
     }
@@ -1214,11 +1244,7 @@ fn text_transform_calls_resolve_local_tables_and_keep_optional_results() {
         let text = format!(
             "{original}\nconstraints:\n  - id: name-check\n    appliesTo: [yaml-validation]\n    assert: {{present: {{transform: {{local: {name}, value: {{literal: {value}}}}}}}}}\n    diagnostic:\n      severity: error\n      at: {{self: true}}\n      message: Invalid name\n"
         );
-        let module = parse(SourceFile {
-            path: "text.yaml",
-            bytes: text.as_bytes(),
-        })
-        .unwrap();
+        let module = parse_source("text.yaml", &text);
         let result = link(&[module]);
         assert_eq!(result.is_ok(), accepted, "{result:?}");
     }
@@ -1238,11 +1264,7 @@ fn constraint_forms_must_exist_in_the_selected_representation_phase() {
             "appliesTo: [xml-import]",
             &format!("appliesTo: [{phase}]\n    forms: [{form}]"),
         );
-        let module = parse(SourceFile {
-            path: "i8n.yaml",
-            bytes: text.as_bytes(),
-        })
-        .unwrap();
+        let module = parse_source("i8n.yaml", &text);
         let result = link(&[module]);
         assert_eq!(result.is_ok(), accepted, "{phase} {form}: {result:?}");
     }
@@ -1254,14 +1276,10 @@ fn composition_substitutes_inputs_parameters_and_constraint_addresses() {
         "{}\ninputs:\n  enabled: {{type: {{kind: scalar, scalar: boolean}}}}\n",
         include_str!("fixtures/common.yaml")
     );
-    let fragment = include_str!("fixtures/owner.yaml")
-        .replace("kind: object", "kind: fragment")
-        .replace("applied.common-module", "common.fragment")
-        .replace(
-            "{use: boolean}",
-            "{use: boolean, bind: {enabled: {and: [{parameter: permit}, {input: ready}]}}}",
-        )
-        + "\ninputs:\n  ready: {type: {kind: scalar, scalar: boolean}}\nparameters:\n  permit: {type: {kind: scalar, scalar: boolean}, default: true}\nconstraints:\n  - id: enabled\n    appliesTo: [yaml-validation]\n    assert: {field: server}\n    diagnostic:\n      severity: error\n      at: {field: server}\n      message: Disabled\npresence:\n  - target: {field: server}\n    xml:\n      missing: {denotes: {parameter: permit}}\n";
+    let fragment = fragment_source("common.fragment").replace(
+        "{use: boolean}",
+        "{use: boolean, bind: {enabled: {and: [{parameter: permit}, {input: ready}]}}}",
+    ) + "\ninputs:\n  ready: {type: {kind: scalar, scalar: boolean}}\nparameters:\n  permit: {type: {kind: scalar, scalar: boolean}, default: true}\nconstraints:\n  - id: enabled\n    appliesTo: [yaml-validation]\n    assert: {field: server}\n    diagnostic:\n      severity: error\n      at: {field: server}\n      message: Disabled\npresence:\n  - target: {field: server}\n    xml:\n      missing: {denotes: {parameter: permit}}\n";
     let fragment = fragment
         .replace(
             "inputs:\n",
@@ -1271,10 +1289,8 @@ fn composition_substitutes_inputs_parameters_and_constraint_addresses() {
             "parameters:\n",
             "parameters:\n  bucket: {type: {kind: scalar, scalar: text}, default: original}\n",
         )
-        + "contributions:\n- index: test.bound-fragment\n  key: {parameter: bucket}\n  value: {input: label}\n";
-    let prefix = include_str!("fixtures/owner.yaml")
-        .replace("kind: object", "kind: fragment")
-        .replace("applied.common-module", "common.prefix")
+        + "contributions:\n- index: test.bound-fragment\n  key: {parameter: bucket}\n  value: {input: label}\n  when: {and: [{input: ready}, {field: server}]}\n";
+    let prefix = fragment_source("common.prefix")
         .replace("{use: boolean}", "{kind: scalar, scalar: boolean}")
         .replace("server", "prefix")
         .replace("Server", "Prefix")
@@ -1289,27 +1305,31 @@ fn composition_substitutes_inputs_parameters_and_constraint_addresses() {
             "bind: {ready: {input: active}}",
             "bind: {ready: {input: active}, label: {literal: bound}}",
         );
-    let source = [
+    let source = parse_named_sources([
         ("common.yaml", common.as_str()),
         ("fragment.yaml", fragment.as_str()),
         ("prefix.yaml", prefix.as_str()),
         ("owner.yaml", owner.as_str()),
-    ]
-    .into_iter()
-    .map(|(path, text)| {
-        parse(SourceFile {
-            path,
-            bytes: text.as_bytes(),
-        })
-        .unwrap()
-    })
-    .collect::<Vec<_>>();
+    ]);
     let program = link(&source).unwrap();
     let entry = &program.entries[0];
     assert_eq!(entry.contributions.len(), 1);
+    let nkdk_rule_model::LinkedExpressionKind::Operation { arguments, .. } =
+        &entry.contributions[0].when.as_ref().unwrap().kind
+    else {
+        panic!("expected a bound condition");
+    };
+    assert_eq!(
+        arguments[0].kind,
+        nkdk_rule_model::LinkedExpressionKind::Input(0)
+    );
+    assert_eq!(
+        arguments[1].kind,
+        nkdk_rule_model::LinkedExpressionKind::Field(1)
+    );
     for (expression, expected) in [
         (&entry.contributions[0].key, "substituted"),
-        (&entry.contributions[0].value, "bound"),
+        (entry.contributions[0].write.value().unwrap(), "bound"),
     ] {
         assert_eq!(
             expression.kind,
@@ -1353,9 +1373,7 @@ fn owner_fields_can_depend_on_composed_fields() {
         "{}\ninputs:\n  enabled: {{type: {{kind: scalar, scalar: boolean}}}}\n",
         include_str!("fixtures/common.yaml")
     );
-    let fragment = include_str!("fixtures/owner.yaml")
-        .replace("kind: object", "kind: fragment")
-        .replace("applied.common-module", "common.fragment")
+    let fragment = fragment_source("common.fragment")
         .replace("{use: boolean}", "{kind: scalar, scalar: boolean}")
         .replace("server", "flag")
         .replace("Server", "Flag")
@@ -1370,20 +1388,11 @@ fn owner_fields_can_depend_on_composed_fields() {
             "{use: boolean, bind: {enabled: {field: flag}}}",
         )
         + "\ncompose: [{use: body}]\nconstraints:\n  - id: field-check\n    appliesTo: [yaml-validation]\n    assert: {get: {of: {self: true}, field: flag}}\n    diagnostic:\n      severity: error\n      at: {field: server}\n      message: Disabled\n";
-    let source = [
+    let source = parse_named_sources([
         ("common.yaml", common.as_str()),
         ("fragment.yaml", fragment.as_str()),
         ("owner.yaml", owner.as_str()),
-    ]
-    .into_iter()
-    .map(|(path, text)| {
-        parse(SourceFile {
-            path,
-            bytes: text.as_bytes(),
-        })
-        .unwrap()
-    })
-    .collect::<Vec<_>>();
+    ]);
     let program = link(&source).unwrap();
     let entry = &program.entries[0];
     assert_eq!(entry.field_dependencies, vec![vec![], vec![0]]);
@@ -1395,9 +1404,7 @@ fn owner_fields_can_depend_on_composed_fields() {
 
 #[test]
 fn composed_constraints_cannot_silently_override_each_other() {
-    let first = include_str!("fixtures/owner.yaml")
-        .replace("kind: object", "kind: fragment")
-        .replace("applied.common-module", "common.first")
+    let first = fragment_source("common.first")
         + "\nconstraints:\n  - id: shared\n    appliesTo: [yaml-validation]\n    assert: {literal: true}\n    diagnostic:\n      severity: error\n      at: {self: true}\n      message: Invalid\n";
     let second = first
         .replace("common.first", "common.second")
@@ -1405,21 +1412,12 @@ fn composed_constraints_cannot_silently_override_each_other() {
         .replace("Server", "Client")
         .replace("Сервер", "Client");
     let owner = "format: nkdk-declarations/1\nkind: object\nid: applied.owner\nimports: {a: common.first, b: common.second}\ncompose: [{use: a}, {use: b}]\nvalue: {kind: record, fields: []}\nrepresentations:\n  xml: {kind: record, fields: []}\n  yaml: {kind: mapping, fields: []}\n";
-    let source = [
+    let source = parse_named_sources([
         ("common.yaml", include_str!("fixtures/common.yaml")),
         ("a.yaml", first.as_str()),
         ("b.yaml", second.as_str()),
         ("owner.yaml", owner),
-    ]
-    .into_iter()
-    .map(|(path, text)| {
-        parse(SourceFile {
-            path,
-            bytes: text.as_bytes(),
-        })
-        .unwrap()
-    })
-    .collect::<Vec<_>>();
+    ]);
     let errors = link(&source).unwrap_err();
     let error = errors
         .iter()
@@ -1441,17 +1439,9 @@ fn field_presence_defaults_are_typed_and_participate_in_dependency_checks() {
             "{}\npresence:\n  - target: {{field: server}}\n    xml:\n      missing: {{denotes: {denotes}}}\n    yaml:\n      missing: {{denotes: {denotes}}}\n",
             include_str!("fixtures/owner.yaml")
         );
-        source[1] = parse(SourceFile {
-            path: "owner.yaml",
-            bytes: text.as_bytes(),
-        })
-        .unwrap();
+        source[1] = parse_source("owner.yaml", &text);
         let result = link(&source);
-        if let Some(code) = expected {
-            assert!(result.unwrap_err().iter().any(|error| error.code == code));
-        } else {
-            assert!(result.is_ok(), "{result:?}");
-        }
+        assert_link_outcome(result, expected, denotes);
     }
 }
 
@@ -1469,11 +1459,7 @@ fn omitted_representation_requires_an_explicit_restoration() {
         } else {
             owner
         };
-        source[1] = parse(SourceFile {
-            path: "owner.yaml",
-            bytes: owner.as_bytes(),
-        })
-        .unwrap();
+        source[1] = parse_source("owner.yaml", &owner);
         let result = link(&source);
         assert_eq!(result.is_ok(), accepted, "{result:?}");
     }
@@ -1503,11 +1489,7 @@ representations:
       - {field: flag, key: Flag}
       - {field: child, key: Child}
 "#;
-    let module = parse(SourceFile {
-        path: "attributes.yaml",
-        bytes: source.as_bytes(),
-    })
-    .unwrap();
+    let module = parse_source("attributes.yaml", source);
     assert!(link(&[module]).is_ok());
     let default_namespace = source
         .replace(
@@ -1515,32 +1497,20 @@ representations:
             "namespaces: {a: urn:test, b: urn:test, \"\": urn:default}",
         )
         .replace("attribute: a:flag", "attribute: flag");
-    let module = parse(SourceFile {
-        path: "attributes.yaml",
-        bytes: default_namespace.as_bytes(),
-    })
-    .unwrap();
+    let module = parse_source("attributes.yaml", &default_namespace);
     let program = link(&[module]).unwrap();
     let nkdk_rule_model::LinkedXml::Record(fields) = &program.entries[0].xml else {
         panic!("record")
     };
     assert_eq!(fields[0].attribute.as_ref().unwrap().namespace, "");
     let namespace_attribute = source.replace("attribute: a:flag", "attribute: xmlns");
-    let module = parse(SourceFile {
-        path: "attributes.yaml",
-        bytes: namespace_attribute.as_bytes(),
-    })
-    .unwrap();
+    let module = parse_source("attributes.yaml", &namespace_attribute);
     assert_eq!(
         link(&[module]).unwrap_err()[0].code,
         "invalid_attribute_name"
     );
     let collision = source.replace("path: [a:flag]", "path: [], attribute: b:flag");
-    let module = parse(SourceFile {
-        path: "attributes.yaml",
-        bytes: collision.as_bytes(),
-    })
-    .unwrap();
+    let module = parse_source("attributes.yaml", &collision);
     let errors = link(&[module]).unwrap_err();
     assert_eq!(errors[0].code, "xml_path_collision");
     assert_eq!(errors[0].related.len(), 1);
@@ -1561,11 +1531,7 @@ fn unused_local_types_are_still_checked() {
             include_str!("fixtures/common.yaml"),
             definition
         );
-        let module = parse(SourceFile {
-            path: "unused.yaml",
-            bytes: source.as_bytes(),
-        })
-        .unwrap();
+        let module = parse_source("unused.yaml", &source);
         let errors = link(&[module]).expect_err("unused declarations must not bypass validation");
         assert_eq!(errors[0].code, code);
     }
@@ -1627,11 +1593,7 @@ fn xml_qualified_names_follow_ncname_character_rules() {
     ] {
         let source = include_str!("fixtures/owner.yaml").replace("md:Properties", name);
         let mut loaded = modules();
-        loaded[1] = parse(SourceFile {
-            path: "owner.yaml",
-            bytes: source.as_bytes(),
-        })
-        .unwrap();
+        loaded[1] = parse_source("owner.yaml", &source);
         let result = link(&loaded);
         if accepted {
             assert!(result.is_ok(), "{name}: {result:?}");
@@ -1658,11 +1620,7 @@ fn namespace_bindings_respect_reserved_names_even_when_unused() {
             "{}\nnamespaces: {{\"{prefix}\": \"{uri}\"}}\n",
             include_str!("fixtures/common.yaml")
         );
-        let module = parse(SourceFile {
-            path: "namespace.yaml",
-            bytes: source.as_bytes(),
-        })
-        .unwrap();
+        let module = parse_source("namespace.yaml", &source);
         let result = link(&[module]);
         assert_eq!(result.is_ok(), accepted, "{prefix}={uri}: {result:?}");
         if !accepted {
@@ -1675,21 +1633,13 @@ fn namespace_bindings_respect_reserved_names_even_when_unused() {
 fn collection_patterns_link_only_with_unique_rest_and_disjoint_forms() {
     let source =
         include_str!("../../../../tests/declaration-corpus/valid/i8n-collection-patterns.yaml");
-    let module = parse(SourceFile {
-        path: "patterns.yaml",
-        bytes: source.as_bytes(),
-    })
-    .unwrap();
+    let module = parse_source("patterns.yaml", source);
     let program = link(&[module]).expect("disjoint name and marker forms");
     let overlapping = source.replace(
         "language: {input: defaultLanguage}\n                content: {literal: \"\"}",
         "content: {input: defaultLanguage}\n                language: {literal: en}",
     );
-    let module = parse(SourceFile {
-        path: "reordered.yaml",
-        bytes: overlapping.as_bytes(),
-    })
-    .unwrap();
+    let module = parse_source("reordered.yaml", &overlapping);
     assert_eq!(link(&[module]).unwrap_err()[0].code, "ambiguous_shorthand");
 
     assert_eq!(program.entries[0].shorthands.len(), 2);
@@ -1721,11 +1671,7 @@ fn collection_patterns_link_only_with_unique_rest_and_disjoint_forms() {
         ),
     ] {
         let text = source.replace(from, to);
-        let module = parse(SourceFile {
-            path: "patterns.yaml",
-            bytes: text.as_bytes(),
-        })
-        .unwrap();
+        let module = parse_source("patterns.yaml", &text);
         assert_eq!(link(&[module]).unwrap_err()[0].code, code, "{to}");
     }
 }
@@ -1749,11 +1695,7 @@ fn pattern_fixed_parts_retain_optional_text_results() {
             "content: {input: nameText}",
             "content: {transform: {local: name-words, value: {input: nameText}}}",
         );
-    let module = parse(SourceFile {
-        path: "optional-pattern.yaml",
-        bytes: source.as_bytes(),
-    })
-    .unwrap();
+    let module = parse_source("optional-pattern.yaml", &source);
     let program = link(&[module]).expect("an unavailable fixed text disables the pattern");
     let matched = source.replace("{transform: {local: name-words, value: {input: nameText}}}", "{match: {value: {transform: {local: name-words, value: {input: nameText}}}, present: {as: found, then: {var: found}}, absent: {absent: true}}}");
     let module = parse(SourceFile {
@@ -1766,19 +1708,11 @@ fn pattern_fixed_parts_retain_optional_text_results() {
         "present branch unwraps its local value"
     );
     let escaped = matched.replace("absent: {absent: true}", "absent: {var: found}");
-    let module = parse(SourceFile {
-        path: "escaped.yaml",
-        bytes: escaped.as_bytes(),
-    })
-    .unwrap();
+    let module = parse_source("escaped.yaml", &escaped);
     assert_eq!(link(&[module]).unwrap_err()[0].code, "unknown_variable");
 
     let guarded = source.replace("{transform: {local: name-words, value: {input: nameText}}}", "{if: {isReady: {input: nameText}}, then: {transform: {local: name-words, value: {input: nameText}}}, else: {absent: true}}");
-    let module = parse(SourceFile {
-        path: "guarded.yaml",
-        bytes: guarded.as_bytes(),
-    })
-    .unwrap();
+    let module = parse_source("guarded.yaml", &guarded);
     assert!(
         link(&[module]).is_ok(),
         "explicit readiness guard must retain absence"
@@ -1788,11 +1722,7 @@ fn pattern_fixed_parts_retain_optional_text_results() {
         "else: {absent: true}",
         "else: {transform: {local: name-words, value: {literal: fallback}}}",
     );
-    let module = parse(SourceFile {
-        path: "both-optional.yaml",
-        bytes: both_optional.as_bytes(),
-    })
-    .unwrap();
+    let module = parse_source("both-optional.yaml", &both_optional);
     assert!(
         link(&[module]).is_ok(),
         "both optional branches have the same semantic type"
@@ -1859,11 +1789,7 @@ fn canonical_xml_attributes_preserve_value_shape_and_expand_qnames() {
         "{parameter: typedXML}",
         "{eq: [{input: defaultLanguage}, {literal: ru}]}",
     );
-    let dynamic = parse(SourceFile {
-        path: "dynamic.yaml",
-        bytes: dynamic.as_bytes(),
-    })
-    .unwrap();
+    let dynamic = parse_source("dynamic.yaml", &dynamic);
     assert!(link(&[dynamic]).is_ok());
 
     for (from, to, code) in [
@@ -1884,11 +1810,7 @@ fn canonical_xml_attributes_preserve_value_shape_and_expand_qnames() {
         ),
     ] {
         let changed = source.replace(from, to);
-        let module = parse(SourceFile {
-            path: "typed.yaml",
-            bytes: changed.as_bytes(),
-        })
-        .unwrap();
+        let module = parse_source("typed.yaml", &changed);
         assert_eq!(link(&[module]).unwrap_err()[0].code, code);
     }
 }
@@ -1921,11 +1843,7 @@ presence:
     let start = source.find("inputs:\n").unwrap();
     let end = source.find("types:\n").unwrap();
     let source = format!("{}{}", &source[..start], &source[end..]);
-    let module = parse(SourceFile {
-        path: "missing-name.yaml",
-        bytes: source.as_bytes(),
-    })
-    .unwrap();
+    let module = parse_source("missing-name.yaml", &source);
     let program = link(&[module]).expect("known absence remains an optional collection");
     assert!(matches!(
         program.entries[0].presence[0]
@@ -1959,11 +1877,7 @@ constraints:
       at: {self: true}
       message: scope
 "#;
-    let module = parse(SourceFile {
-        path: "shadow.yaml",
-        bytes: source.as_bytes(),
-    })
-    .unwrap();
+    let module = parse_source("shadow.yaml", &source);
     assert_eq!(link(&[module]).unwrap_err()[0].code, "duplicate_variable");
 }
 
@@ -2008,16 +1922,70 @@ fn scalar_shorthand_requires_a_recoverable_structural_capture() {
         "{if: {literal: true}, then: {capture: text}, else: {literal: fallback}}",
     ] {
         let changed = source.replace("{capture: text}", replacement);
-        let module = parse(SourceFile {
-            path: "reverse.yaml",
-            bytes: changed.as_bytes(),
-        })
-        .unwrap();
+        let module = parse_source("reverse.yaml", &changed);
         assert_eq!(
             link(&[module]).unwrap_err()[0].code,
             "noninvertible_shorthand"
         );
     }
+    let literal = r#"format: nkdk-declarations/1
+kind: value
+id: test.literal-alias
+inputs: {mode: {type: {kind: scalar, scalar: text}}}
+value: {kind: record, fields: [{name: text, type: {kind: scalar, scalar: text}}]}
+representations:
+  xml: {kind: record, fields: [{field: text, path: [Text]}]}
+  yaml:
+    kind: mapping
+    fields: [{field: text, key: Text}]
+    shorthand:
+    - id: alias
+      representation: {kind: scalar, literal: Alias}
+      canonical: false
+      when: {eq: [{input: mode}, {literal: enabled}]}
+      denotes: {record: {text: {literal: complete}}}
+"#;
+    let linked = link(&[parse_source("alias.yaml", literal)]).unwrap();
+    assert!(!linked.entries[0].shorthands[0].canonical);
+    assert!(
+        matches!(&linked.entries[0].shorthands[0].representation, nkdk_rule_model::LinkedShorthandRepresentation::ScalarLiteral(text) if text=="Alias")
+    );
+    let projection = literal
+        .replace(
+            "{kind: scalar, literal: Alias}",
+            "{kind: scalar, scalar: text, field: text}",
+        )
+        .replace("      denotes: {record: {text: {literal: complete}}}\n", "");
+    let projected = link(&[parse_source("projection.yaml", &projection)]).unwrap();
+    assert!(matches!(
+        &projected.entries[0].shorthands[0].representation,
+        nkdk_rule_model::LinkedShorthandRepresentation::ScalarField(0)
+    ));
+    assert_catalog_error(
+        &projection.replace("field: text}", "field: missing}"),
+        "unknown_field",
+    );
+    let mapping = projection.replace(
+        "{kind: scalar, scalar: text, field: text}",
+        "{kind: mapping, field: text}",
+    );
+    let projected = link(&[parse_source("mapping-projection.yaml", &mapping)]).unwrap();
+    assert!(matches!(
+        &projected.entries[0].shorthands[0].representation,
+        nkdk_rule_model::LinkedShorthandRepresentation::MappingField(0)
+    ));
+    assert_catalog_error(
+        &literal.replace("{literal: complete}", "{capture: unused}"),
+        "unknown_capture",
+    );
+    let invalid = literal.replace("canonical: false", "canonical: later");
+    assert!(
+        parse(SourceFile {
+            path: "invalid.yaml",
+            bytes: invalid.as_bytes()
+        })
+        .is_err()
+    );
 }
 
 #[test]
@@ -2096,6 +2064,59 @@ representations:
 
 #[test]
 fn imported_collection_and_sibling_attribute_share_xml_wrapper_without_overlapping_ownership() {
+    // Public mappings may be siblings even when their XML collections share
+    // a wrapper. Ownership belongs to the distinct repeated child routes.
+    let shared = r#"
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: test.shared-row
+  value: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}]}
+  representations:
+    xml: {kind: record, fields: [{field: name, path: [], attribute: name}]}
+    yaml: {kind: mapping, fields: [{field: name, key: Имя}]}
+- kind: value
+  id: test.shared-first
+  imports: {row: test.shared-row}
+  value: {kind: sequence, item: {use: row}}
+  representations:
+    xml: {kind: element-sequence, path: [First], item: {kind: declared}}
+    yaml: {kind: record-mapping, key: name}
+- kind: value
+  id: test.shared-second
+  imports: {row: test.shared-row}
+  value: {kind: sequence, item: {use: row}}
+  representations:
+    xml: {kind: element-sequence, path: [Second], item: {kind: declared}}
+    yaml: {kind: record-mapping, key: name}
+- kind: object
+  id: test.shared-owner
+  imports: {first: test.shared-first, second: test.shared-second}
+  value: {kind: record, fields: [{name: first, type: {use: first}}, {name: second, type: {use: second}}]}
+  representations:
+    xml: {kind: record, fields: [{field: first, path: [Entries]}, {field: second, path: [Entries]}]}
+    yaml: {kind: mapping, fields: [{field: first, key: Первые}, {field: second, key: Вторые}]}
+"#;
+    let modules = parse_many(SourceFile {
+        path: "shared-wrapper.yaml",
+        bytes: shared.as_bytes(),
+    })
+    .unwrap();
+    let program = link(&modules).expect("distinct repeated children share only the wrapper");
+    generate(&program).expect("shared wrapper is supported by the AOT backend");
+    let collision = shared.replace("path: [Second]", "path: [First]");
+    let modules = parse_many(SourceFile {
+        path: "shared-collision.yaml",
+        bytes: collision.as_bytes(),
+    })
+    .unwrap();
+    assert!(
+        link(&modules)
+            .expect_err("the same repeated child cannot have two owners")
+            .iter()
+            .any(|error| error.code == "xml_path_collision")
+    );
     let formatted =
         include_str!("../../../../tests/declaration-corpus/valid/formatted-i8n-text-core.yaml");
     let text = include_str!("../../../../tests/declaration-corpus/valid/i8n-text-core.yaml");
@@ -2157,11 +2178,7 @@ fn imported_collection_and_sibling_attribute_share_xml_wrapper_without_overlappi
 fn boolean_value_can_be_represented_by_reversible_absence_instead_of_a_literal() {
     let source = include_str!("../../../declarations/common/boolean-flag.yaml");
     let check = |source: &str| {
-        let module = parse(SourceFile {
-            path: "flag.yaml",
-            bytes: source.as_bytes(),
-        })
-        .unwrap();
+        let module = parse_source("flag.yaml", source);
         link(&[module])
     };
     assert!(
@@ -2211,6 +2228,19 @@ fn enum_tables_are_total_and_unambiguous() {
         "{if: {literal: true}, then: {literal: tagged}, else: {literal: default}}",
     );
     nkdk_rule_compiler::link(&[parse(states), parse(&projections)]).unwrap();
+    let fragment = projections.replace("kind: object", "kind: fragment");
+    let composed = r#"format: nkdk-declarations/1
+kind: object
+id: test.composed-state
+imports: {part: test.finite-states}
+compose: [{use: part}]
+value: {kind: record, fields: []}
+representations:
+  xml: {kind: record, fields: []}
+  yaml: {kind: mapping, fields: []}
+"#;
+    nkdk_rule_compiler::link(&[parse(states), parse(&fragment), parse(composed)])
+        .expect("state presence must survive composition without being inherited twice");
     for (from, to, code) in [
         (
             "then: {literal: tagged}",
@@ -2470,6 +2500,58 @@ declarations:
 }
 
 #[test]
+fn qname_overlap_is_allowed_only_for_distinct_declared_input_profiles() {
+    let source = r#"format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: test.text-a
+  value: {kind: scalar, scalar: text}
+  representations: {xml: {kind: text}, yaml: {kind: scalar, scalar: text}}
+- kind: value
+  id: test.text-b
+  value: {kind: scalar, scalar: text}
+  representations: {xml: {kind: text}, yaml: {kind: scalar, scalar: text}}
+- kind: value
+  id: test.profiled-choice
+  namespaces: {xsi: 'http://www.w3.org/2001/XMLSchema-instance', xs: 'http://www.w3.org/2001/XMLSchema'}
+  imports: {a: test.text-a, b: test.text-b}
+  inputs: {profile: {type: {kind: scalar, scalar: text}}}
+  value: {kind: choice, variants: [{name: a, type: {use: a}}, {name: b, type: {use: b}}]}
+  representations:
+    xml:
+      kind: choice
+      attribute: xsi:type
+      variants:
+      - {variant: a, in: [xs:string], emit: xs:string}
+      - {variant: b, in: [xs:string], emit: xs:string}
+      otherwise: a
+    yaml:
+      kind: choice
+      variants:
+      - {variant: a, form: scalar-input, input: profile, equals: A}
+      - {variant: b, form: scalar-input, input: profile, equals: B}
+"#;
+    let modules = parse_many(SourceFile {
+        path: "profiled-choice.yaml",
+        bytes: source.as_bytes(),
+    })
+    .unwrap();
+    link(&modules).unwrap();
+    assert_catalog_error(
+        &source.replace("equals: B", "equals: A"),
+        "choice_selector_collision",
+    );
+    assert_catalog_error(
+        &source.replace(
+            "- {variant: b, form: scalar-input, input: profile, equals: B}",
+            "",
+        ),
+        "ambiguous_choice_selector",
+    );
+}
+
+#[test]
 fn choice_variant_predicate_is_checked_against_the_declaration() {
     let source = r#"format: nkdk-declarations/1
 kind: catalog
@@ -2599,10 +2681,7 @@ declarations:
   representations:
     xml: {kind: record, fields: [{field: name, path: [OtherName]}]}
     yaml: {kind: mapping, fields: [{field: name, key: Имя}]}
-- kind: value
-  id: test.text
-  value: {kind: scalar, scalar: text}
-  representations: {xml: {kind: text}, yaml: {kind: scalar, scalar: text}}
+@TEXT_VALUE@
 - kind: value
   id: test.choice
   imports: {mapped: test.mapped, text: test.text}
@@ -2616,8 +2695,12 @@ declarations:
     yaml:
       kind: choice
       variants: [{variant: mapped, form: mapping, key: Имя}]
-"#;
-    let modules = parse_catalog(source);
+"#
+    .replace(
+        "@TEXT_VALUE@",
+        include_str!("support/plain-text-declaration.yaml.in"),
+    );
+    let modules = parse_catalog(&source);
     link(&modules).unwrap();
 
     let alternative_selectors = source.replace(
@@ -2632,6 +2715,46 @@ declarations:
         "{variant: mapped, form: sequence}",
     );
     assert_catalog_error(&invalid_shape, "choice_selector_shape");
+    let projected_sequence = source
+        .replace(
+            "variants: [{variant: mapped, form: mapping, key: Имя}]",
+            "variants: [{variant: mapped, form: sequence}]",
+        )
+        .replace(
+            "imports: {mapped: test.mapped, text: test.text}",
+            "imports: {mapped: test.projected-sequence, text: test.text}",
+        );
+    let projected_sequence = format!(
+        "{projected_sequence}{}",
+        r#"
+- kind: value
+  id: test.items
+  imports: {item: test.text}
+  value: {kind: sequence, item: {use: item}}
+  representations:
+    xml: {kind: element-sequence, path: [Item]}
+    yaml: {kind: sequence}
+- kind: value
+  id: test.projected-sequence
+  imports: {items: test.items}
+  value: {kind: record, fields: [{name: items, type: {use: items}}]}
+  representations:
+    xml: {kind: record, fields: [{field: items, path: []}]}
+    yaml: {kind: projection, field: items}
+"#
+    );
+    link(&parse_catalog(&projected_sequence))
+        .expect("Sequence selector follows a record projection");
+    let singleton = projected_sequence
+        .replace("yaml: {kind: sequence}", "yaml: {kind: sequence, singleton: scalar}")
+        .replace(
+            "variants: [{variant: mapped, form: sequence}]",
+            "variants: [{variant: mapped, form: sequence}, {variant: mapped, form: scalar, tag: short}]",
+        );
+    link(&parse_catalog(&singleton))
+        .expect("A projected singleton sequence also admits its scalar item form");
+    let scalar_without_shorthand = singleton.replace(", singleton: scalar", "");
+    assert_catalog_error(&scalar_without_shorthand, "choice_selector_shape");
 
     let missing = source.replace(
         "\n      variants: [{variant: mapped, form: mapping, key: Имя}]",
@@ -2653,6 +2776,83 @@ declarations:
             "variants: [{variant: mapped, form: mapping, key: Имя}, {variant: other, form: mapping, key: Имя}]",
         );
     assert_catalog_error(&collision, "choice_selector_collision");
+}
+
+#[test]
+fn mapping_choice_uses_disjoint_enum_labels_and_rejects_collisions() {
+    let header = r#"format: nkdk-declarations/1
+kind: catalog
+declarations:
+- {kind: value, id: test.first-enum, enum: {One: Первый}}
+- {kind: value, id: test.second-enum, enum: {Two: Второй}}
+"#;
+    let record = r#"- kind: value
+  id: test.first
+  imports: {variant: test.first-enum}
+  value: {kind: record, fields: [{name: variant, type: {use: variant}}]}
+  representations:
+    xml: {kind: record, fields: [{field: variant, path: [Variant]}]}
+    yaml: {kind: mapping, fields: [{field: variant, key: Вариант}]}
+"#;
+    let choice = r#"- kind: value
+  id: test.choice
+  imports: {first: test.first, second: test.second}
+  value: {kind: choice, variants: [{name: first, type: {use: first}}, {name: second, type: {use: second}}]}
+  representations:
+    xml: {kind: choice}
+    yaml:
+      kind: choice
+      variants: [{variant: first, form: mapping, key: Вариант}, {variant: second, form: mapping, key: Вариант}]
+"#;
+    let source = format!(
+        "{header}{record}{}{choice}",
+        record.replace("first", "second")
+    );
+    link(&parse_catalog(&source)).expect("distinct enum labels select distinct records");
+    assert_catalog_error(
+        &source.replace("Второй", "Первый"),
+        "choice_selector_collision",
+    );
+}
+
+#[test]
+fn data_path_profile_checks_members_and_views_against_the_record() {
+    let source = r#"format: nkdk-declarations/1
+kind: value
+id: test.structured
+value: {kind: record, fields: [{name: date, type: {kind: scalar, scalar: text}}]}
+representations:
+  xml: {kind: record, fields: [{field: date, path: [Date]}]}
+  yaml: {kind: mapping, fields: [{field: date, key: Дата}]}
+dataPath:
+  type: Structured
+  aliases: [Структура]
+  members: [{field: date, internal: Date, terminalTypes: [dateTime]}]
+  views: {formConditionalFilter: [date]}
+"#;
+    let module = parse_source("data-path.yaml", source);
+    link(&[module]).expect("mapped member and view are well-defined");
+    for (before, after, code) in [
+        (
+            "field: date, internal",
+            "field: missing, internal",
+            "data_path_unknown_field",
+        ),
+        (
+            "formConditionalFilter: [date]",
+            "formConditionalFilter: [missing]",
+            "data_path_view_member",
+        ),
+        (
+            "aliases: [Структура]",
+            "aliases: [Structured]",
+            "data_path_type_collision",
+        ),
+    ] {
+        let modified = source.replace(before, after);
+        let errors = link(&[parse_source("data-path.yaml", &modified)]).unwrap_err();
+        assert!(errors.iter().any(|error| error.code == code), "{errors:?}");
+    }
 }
 
 fn assert_link_error(path: &str, text: &str, code: &str) {
@@ -2694,11 +2894,7 @@ fn identical_scalar_arguments_share_a_deterministic_specialization() {
 #[test]
 fn state_relations_generate_a_total_bidirectional_contract() {
     let source = include_str!("fixtures/state-projections.yaml");
-    let owner = parse(SourceFile {
-        path: "relation.yaml",
-        bytes: source.as_bytes(),
-    })
-    .unwrap();
+    let owner = parse_source("relation.yaml", source);
     let states = parse(SourceFile {
         path: "states.yaml",
         bytes: include_bytes!("fixtures/finite-states.yaml"),
@@ -2795,16 +2991,8 @@ fn state_relations_generate_a_total_bidirectional_contract() {
             "    - {value: text, literal: '', tag: проверять}",
             "    - {value: text, literal: '', tag: проверять}\n    - {value: extra, literal: extra}",
         );
-    let states = parse(SourceFile {
-        path: "states.yaml",
-        bytes: expanded.as_bytes(),
-    })
-    .unwrap();
-    let owner = parse(SourceFile {
-        path: "relation.yaml",
-        bytes: source.as_bytes(),
-    })
-    .unwrap();
+    let states = parse_source("states.yaml", &expanded);
+    let owner = parse_source("relation.yaml", source);
     let errors = link(&[owner, states]).unwrap_err();
     assert!(
         errors
@@ -2903,7 +3091,7 @@ fn computed_state_sources_keep_directional_ownership() {
         } else {
             assert!(
                 result
-                    .unwrap_err()
+                    .expect_err(replacement)
                     .iter()
                     .any(|error| error.code == "expression_type_mismatch")
             );
@@ -2964,12 +3152,93 @@ fn property_state_modules(source: &str) -> Vec<nkdk_rule_model::Module> {
 #[test]
 fn singleton_sequence_spelling_requires_an_unambiguous_scalar_item() {
     let source = include_str!("../../../../tests/declaration-corpus/valid/sequence-singleton.yaml");
-    link(&[parse(SourceFile {
-        path: "singleton.yaml",
-        bytes: source.as_bytes(),
-    })
-    .unwrap()])
-    .unwrap();
+    link(&[parse_source("singleton.yaml", source)]).unwrap();
+    let marked = include_str!("../../../../tests/declaration-corpus/valid/sequence-item-tags.yaml");
+    let outer = r#"
+  - kind: value
+    id: test.outer-marks
+    imports: {lines: common.marked-lines}
+    value: {kind: sequence, item: {use: lines}}
+    representations:
+      xml: {kind: element-sequence, path: [Group]}
+      yaml: {kind: sequence, itemTag: outer}
+"#;
+    for (singleton, error) in [(false, None), (true, Some("sequence_item_tag_collision"))] {
+        let inner = if singleton {
+            marked.replace(
+                "itemTag: изменять}",
+                "itemTag: изменять, singleton: scalar, item: {kind: declared}}",
+            )
+        } else {
+            marked.to_owned()
+        };
+        let catalog = format!("{inner}{outer}");
+        assert_link_outcome(
+            link(&parse_catalog(&catalog)),
+            error,
+            "nested marked sequence",
+        );
+    }
+
+    let ambiguous = format!(
+        "{marked}{}",
+        outer.replace(
+            "kind: sequence, itemTag: outer",
+            "kind: sequence, singleton: value"
+        )
+    );
+    assert_link_outcome(
+        link(&parse_catalog(&ambiguous)),
+        Some("ambiguous_singleton"),
+        "nested singleton sequences",
+    );
+
+    let profiled = r#"format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: common.single
+  value: {kind: scalar, scalar: text}
+  representations: {xml: {kind: text}, yaml: {kind: scalar, scalar: text}}
+- kind: value
+  id: common.multiple
+  value: {kind: sequence, item: {kind: scalar, scalar: text}}
+  representations:
+    xml: {kind: element-sequence, path: [Part], item: {kind: text}}
+    yaml: {kind: sequence, item: {kind: scalar, scalar: text}}
+- kind: value
+  id: common.selected
+  namespaces: {xsi: http://www.w3.org/2001/XMLSchema-instance}
+  imports: {single: common.single, multiple: common.multiple}
+  inputs: {mode: {type: {kind: scalar, scalar: text}}}
+  value: {kind: choice, variants: [{name: single, type: {use: single}}, {name: multiple, type: {use: multiple}}]}
+  representations:
+    xml: {kind: choice, attribute: xsi:type, variants: [{variant: single, in: [Single], emit: Single}, {variant: multiple, in: [Multiple], emit: Multiple}], otherwise: single}
+    yaml: {kind: choice, variants: [{variant: single, form: scalar-input, input: mode, equals: Single}, {variant: multiple, form: input-profile, input: mode, equals: Multiple}]}
+- kind: value
+  id: common.outer
+  imports: {selected: common.selected}
+  inputs: {mode: {type: {kind: scalar, scalar: text}}}
+  value: {kind: sequence, item: {use: selected, bind: {mode: {input: mode}}}}
+  representations:
+    xml: {kind: element-sequence, path: [Item]}
+    yaml: {kind: sequence, singleton: value}
+"#;
+    assert_link_outcome(
+        link(&parse_catalog(profiled)),
+        None,
+        "profile disambiguates an item sequence",
+    );
+    let unprofiled = profiled.replace(
+        "form: input-profile, input: mode, equals: Multiple",
+        "form: sequence",
+    );
+    assert_link_outcome(
+        link(&parse_catalog(&unprofiled)),
+        Some("ambiguous_singleton"),
+        "no contextual sequence selector",
+    );
+
     for invalid in [
         source.replace("singleton: scalar", "singleton: scalar, shorthand: [{id: pair, representation: {kind: literal, value: pair}, denotes: {sequence: [{literal: a}, {literal: b}]}}]"),
         source.replace("singleton: scalar, item: {kind: scalar, scalar: text}", "singleton: scalar, item: {kind: mapping, fields: []}"),
@@ -3008,16 +3277,202 @@ presence:
     let incomplete = std::str::from_utf8(source)
         .unwrap()
         .replace("  yaml: {missing: {denotes: {field: visible}}}\n", "");
-    let errors = link(&[parse(SourceFile {
-        path: "projection.yaml",
-        bytes: incomplete.as_bytes(),
-    })
-    .unwrap()])
-    .unwrap_err();
+    let errors = link(&[parse_source("projection.yaml", &incomplete)]).unwrap_err();
     assert!(
         errors
             .iter()
             .any(|error| error.code == "unrepresented_field"),
         "{errors:?}"
     );
+}
+
+#[test]
+fn grouped_sequence_requires_distinct_fields_and_marks() {
+    let source = "format: nkdk-declarations/1\nkind: object\nid: test.grouped\nvalue: {kind: record, fields: [{name: first, type: {kind: scalar, scalar: text}}, {name: second, type: {kind: scalar, scalar: text}}]}\nrepresentations:\n  xml: {kind: record, fields: [{field: first, path: [Root, First]}, {field: second, path: [Root, Second]}]}\n  yaml: {kind: grouped-sequence, groups: [{field: first}, {field: second, itemTag: дополнительный}]}\n";
+    link(&[parse_source("grouped.yaml", source)]).unwrap();
+    let selected = "format: nkdk-declarations/1\nkind: value\nid: test.grouped-choice\nimports: {groups: test.grouped}\nvalue: {kind: choice, variants: [{name: first, type: {use: groups}}, {name: second, type: {use: groups}}]}\nrepresentations:\n  xml: {kind: choice, fallback: first}\n  yaml: {kind: choice, variants: [{variant: first, form: sequence}]}\n";
+    let grouped = parse_source(
+        "grouped.yaml",
+        &source.replace("kind: object", "kind: value"),
+    );
+    link(&[grouped.clone(), parse_source("selector.yaml", selected)]).unwrap();
+    let collision = selected.replace(
+        "{variant: first, form: sequence}",
+        "{variant: first, form: sequence}, {variant: second, form: sequence}",
+    );
+    assert!(
+        link(&[grouped, parse_source("collision.yaml", &collision)])
+            .unwrap_err()
+            .iter()
+            .any(|error| error.code == "choice_selector_collision")
+    );
+    for (from, to, code) in [
+        (
+            "{field: second, itemTag: дополнительный}",
+            "{field: second}",
+            "yaml_group_tag_collision",
+        ),
+        (
+            "{field: second, itemTag: дополнительный}",
+            "{field: first, itemTag: дополнительный}",
+            "duplicate_representation_field",
+        ),
+        (
+            "{field: second, itemTag: дополнительный}",
+            "{field: unknown, itemTag: дополнительный}",
+            "unknown_representation_field",
+        ),
+    ] {
+        let modules = [parse_source("grouped.yaml", &source.replace(from, to))];
+        let errors = link(&modules).unwrap_err();
+        assert!(errors.iter().any(|error| error.code == code), "{errors:?}");
+    }
+    for tag in ["xml", "xml/raw", "!extra", "bad tag"] {
+        assert!(
+            parse(SourceFile {
+                path: "grouped.yaml",
+                bytes: source.replace("дополнительный", tag).as_bytes()
+            })
+            .is_err()
+        );
+    }
+}
+
+#[test]
+fn record_denotations_distinguish_absence_from_wrong_scalar_types() {
+    let declaration = include_str!("fixtures/denoted-record-contract.yaml.in")
+        .replace("@FLAG_TYPE@", "boolean")
+        .replace("@ROW_PRESENCE@", "presence: []")
+        .replace("@DENOTATION@", "{record: {label: @LABEL@, flag: @FLAG@}}");
+    for (label, flag, valid) in [
+        ("{absent: true}", "{literal: false}", true),
+        ("{literal: 42}", "{literal: false}", false),
+        ("{absent: true}", "{literal: wrong}", false),
+    ] {
+        let source = declaration
+            .replace("@LABEL@", label)
+            .replace("@FLAG@", flag);
+        let modules = nkdk_rule_compiler::parse_many(SourceFile {
+            path: "record-denotations.yaml",
+            bytes: source.as_bytes(),
+        })
+        .unwrap();
+        assert_eq!(link(&modules).is_ok(), valid, "label={label}, flag={flag}");
+    }
+}
+
+#[test]
+fn variant_projection_accepts_a_borrowed_record_sequence() {
+    let source = r#"format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: test.row
+  value: {kind: record, fields: [{name: label, type: {kind: scalar, scalar: text}}]}
+  representations:
+    xml: {kind: record, fields: [{field: label, path: [Label]}]}
+    yaml: {kind: mapping, fields: [{field: label, key: Label}]}
+- kind: value
+  id: test.rows
+  imports: {row: test.row}
+  value: {kind: sequence, item: {use: row}}
+  representations:
+    xml: {kind: element-sequence, path: [Row]}
+    yaml: {kind: sequence, item: {kind: declared}}
+- kind: value
+  id: test.choice
+  imports: {rows: test.rows}
+  value: {kind: choice, variants: [{name: rows, type: {use: rows}}]}
+  representations:
+    xml: {kind: choice, fallback: rows}
+    yaml: {kind: choice, variants: [{variant: rows, form: sequence}]}
+- kind: object
+  id: test.owner
+  imports: {choice: test.choice}
+  value: {kind: record, fields: [{name: source, type: {use: choice}}]}
+  representations:
+    xml: {kind: record, fields: [{field: source, path: [Rows]}]}
+    yaml: {kind: mapping, fields: [{field: source, key: Rows}]}
+  constraints:
+  - id: rows
+    appliesTo: [xml-import, yaml-validation]
+    assert: {exists: {in: {variantValue: {value: {field: source}, variant: rows}}, as: row, where: {literal: true}}}
+    diagnostic: {code: test.count, severity: error, at: {field: source}, message: Expected two rows}
+"#;
+    let modules = nkdk_rule_compiler::parse_many(SourceFile {
+        path: "sequence-choice.yaml",
+        bytes: source.as_bytes(),
+    })
+    .unwrap();
+    link(&modules).unwrap();
+}
+
+#[test]
+fn shorthand_profile_guards_prove_boolean_combinations_conservatively() {
+    let shorthands = r#"    shorthand:
+    - id: field
+      canonical: false
+      representation: {kind: scalar, field: pair}
+      when: CONDITION
+    - id: literal
+      representation: {kind: scalar, literal: fixed}
+      denotes: {record: {pair: {literal: fixed}}}
+      when: {eq: [{input: mode}, {literal: C}]}
+"#;
+    let source = include_str!("fixtures/text-pattern-owner.yaml")
+        .replace("id: test.text-pattern", "id: test.profile-shorthands")
+        .replace("imports: {pair: common.text-pair}", "inputs:\n  mode: {type: {kind: scalar, scalar: text}}\n  other: {type: {kind: scalar, scalar: text}}")
+        .replace("type: {use: pair}", "type: {kind: scalar, scalar: text}")
+        .replace("  yaml: {kind: mapping, fields: [{field: pair, key: Pair}]}", &format!("  yaml:\n    kind: mapping\n    fields: [{{field: pair, key: Pair}}]\n{shorthands}"));
+    for (condition, accepted) in [
+        (
+            "{or: [{eq: [{input: mode}, {literal: A}]}, {eq: [{input: mode}, {literal: B}]}]}",
+            true,
+        ),
+        (
+            "{or: [{eq: [{input: mode}, {literal: A}]}, {eq: [{input: mode}, {literal: C}]}]}",
+            false,
+        ),
+        (
+            "{and: [{eq: [{input: mode}, {literal: A}]}, {eq: [{input: other}, {literal: C}]}]}",
+            true,
+        ),
+        ("{eq: [{input: other}, {literal: A}]}", false),
+    ] {
+        let module = parse_source("guards.yaml", &source.replace("CONDITION", condition));
+        let result = link(&[module]);
+        assert_eq!(result.is_ok(), accepted, "{condition}: {result:?}");
+        if !accepted {
+            assert_eq!(result.unwrap_err()[0].code, "ambiguous_shorthand");
+        }
+    }
+    for (literal, accepted) in [("1.0", false), ("2", true)] {
+        let numeric = source
+            .replace(
+                "mode: {type: {kind: scalar, scalar: text}}",
+                "mode: {type: {kind: scalar, scalar: number, profile: decimal}}",
+            )
+            .replace("CONDITION", "{eq: [{input: mode}, {literal: 1}]}")
+            .replace("{literal: C}", &format!("{{literal: {literal}}}"));
+        let result = link(&[parse_source("numeric-guards.yaml", &numeric)]);
+        assert_eq!(result.is_ok(), accepted, "{literal}: {result:?}");
+        if !accepted {
+            assert_eq!(result.unwrap_err()[0].code, "ambiguous_shorthand");
+        }
+    }
+}
+
+#[test]
+fn composed_records_allow_value_recursion_through_collections() {
+    let fields = include_str!("fixtures/recursive-node.yaml")
+        .replace("kind: value", "kind: fragment")
+        .replace("id: common.node", "id: common.node-fields")
+        + "\nconstraints:\n- id: nonempty\n  appliesTo: [xml-import]\n  assert: {present: {field: name}}\n  diagnostic: {code: generic.name, severity: error, at: {field: name}, message: Required}\n";
+    let owner = "format: nkdk-declarations/1\nkind: value\nid: common.node\nimports: {fields: common.node-fields}\ncompose: [{use: fields}]\nvalue: {kind: record, fields: []}\nrepresentations: {xml: {kind: record, fields: []}, yaml: {kind: mapping, fields: []}}\n";
+    let modules = [
+        parse_source("fields.yaml", &fields),
+        parse_source("node.yaml", owner),
+        parse_source("nodes.yaml", include_str!("fixtures/recursive-nodes.yaml")),
+    ];
+    link(&modules).expect("composition itself is acyclic; values recurse through a sequence");
 }

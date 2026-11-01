@@ -1,0 +1,41 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.filter-item
+value:
+  kind: record
+  fields:
+    - name: items
+      type:
+        use: value0
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: items
+        path: []
+  yaml:
+    kind: mapping
+    fields:
+      - field: items
+        key: Элементы
+presence: []
+namespaces:
+  dcsset: http://v8.1c.ru/8.1/data-composition-system/settings
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+id: candidate.fragment.ad33a815f57afeb6b502

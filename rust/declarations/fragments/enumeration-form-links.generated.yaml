@@ -1,0 +1,256 @@
+# Generated from rules.ts by tools/rules-migration/src/owner-form-links-operation.mjs
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+  - format: nkdk-declarations/1
+    kind: fragment
+    id: fragment.enumeration-form-links
+    imports:
+      link: common.owner-or-common-form-link
+      rootKind: common.path-root
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    inputs:
+      ownerPath:
+        type:
+          kind: scalar
+          scalar: text
+      forms:
+        type:
+          kind: sequence
+          item:
+            kind: scalar
+            scalar: text
+      roots:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: kind
+                type:
+                  use: rootKind
+              - name: name
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+    value:
+      kind: record
+      fields:
+        - name: defaultListForm
+          type:
+            use: link
+            bind:
+              owner:
+                input: ownerPath
+              forms:
+                input: forms
+              roots:
+                input: roots
+        - name: defaultChoiceForm
+          type:
+            use: link
+            bind:
+              owner:
+                input: ownerPath
+              forms:
+                input: forms
+              roots:
+                input: roots
+        - name: auxiliaryListForm
+          type:
+            use: link
+            bind:
+              owner:
+                input: ownerPath
+              forms:
+                input: forms
+              roots:
+                input: roots
+        - name: auxiliaryChoiceForm
+          type:
+            use: link
+            bind:
+              owner:
+                input: ownerPath
+              forms:
+                input: forms
+              roots:
+                input: roots
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: defaultListForm
+            path:
+              - md:MetaDataObject
+              - md:Enum
+              - md:Properties
+              - md:DefaultListForm
+          - field: defaultChoiceForm
+            path:
+              - md:MetaDataObject
+              - md:Enum
+              - md:Properties
+              - md:DefaultChoiceForm
+          - field: auxiliaryListForm
+            path:
+              - md:MetaDataObject
+              - md:Enum
+              - md:Properties
+              - md:AuxiliaryListForm
+          - field: auxiliaryChoiceForm
+            path:
+              - md:MetaDataObject
+              - md:Enum
+              - md:Properties
+              - md:AuxiliaryChoiceForm
+      yaml:
+        kind: mapping
+        fields:
+          - field: defaultListForm
+            key: ОсновнаяФормаСписка
+          - field: defaultChoiceForm
+            key: ОсновнаяФормаДляВыбора
+          - field: auxiliaryListForm
+            key: ДополнительнаяФормаСписка
+          - field: auxiliaryChoiceForm
+            key: ДополнительнаяФормаДляВыбора
+    presence:
+      - target:
+          field: defaultListForm
+        xml:
+          missing:
+            denotes:
+              absent: true
+          empty:
+            - form: empty-element
+              denotes:
+                absent: true
+          canonical:
+            - when:
+                not:
+                  present:
+                    field: defaultListForm
+              form: empty-element
+        yaml:
+          missing:
+            denotes:
+              absent: true
+      - target:
+          field: defaultChoiceForm
+        xml:
+          missing:
+            denotes:
+              absent: true
+          empty:
+            - form: empty-element
+              denotes:
+                absent: true
+          canonical:
+            - when:
+                not:
+                  present:
+                    field: defaultChoiceForm
+              form: empty-element
+        yaml:
+          missing:
+            denotes:
+              absent: true
+      - target:
+          field: auxiliaryListForm
+        xml:
+          missing:
+            denotes:
+              absent: true
+          empty:
+            - form: empty-element
+              denotes:
+                absent: true
+          canonical:
+            - when:
+                not:
+                  present:
+                    field: auxiliaryListForm
+              form: empty-element
+        yaml:
+          missing:
+            denotes:
+              absent: true
+      - target:
+          field: auxiliaryChoiceForm
+        xml:
+          missing:
+            denotes:
+              absent: true
+          empty:
+            - form: empty-element
+              denotes:
+                absent: true
+          canonical:
+            - when:
+                not:
+                  present:
+                    field: auxiliaryChoiceForm
+              form: empty-element
+        yaml:
+          missing:
+            denotes:
+              absent: true
+  - format: nkdk-declarations/1
+    kind: object
+    id: migration.enumeration-form-links
+    imports:
+      part: fragment.enumeration-form-links
+      part_rootKind: common.path-root
+    inputs:
+      ownerPath:
+        type:
+          kind: scalar
+          scalar: text
+      forms:
+        type:
+          kind: sequence
+          item:
+            kind: scalar
+            scalar: text
+      roots:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: kind
+                type:
+                  use: part_rootKind
+              - name: name
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+    compose:
+      - use: part
+        bind:
+          ownerPath:
+            input: ownerPath
+          forms:
+            input: forms
+          roots:
+            input: roots
+    value:
+      kind: record
+      fields: []
+    representations:
+      xml:
+        kind: record
+        fields: []
+      yaml:
+        kind: mapping
+        fields: []
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses

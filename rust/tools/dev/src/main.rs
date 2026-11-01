@@ -1,10 +1,13 @@
 mod corpus;
 mod declarations;
 use std::{collections::BTreeMap, path::PathBuf};
-fn main() {
-    if let Err(error) = run() {
-        eprintln!("{error}");
-        std::process::exit(1);
+fn main() -> std::process::ExitCode {
+    match run() {
+        Ok(()) => std::process::ExitCode::SUCCESS,
+        Err(error) => {
+            eprintln!("{error}");
+            std::process::ExitCode::FAILURE
+        }
     }
 }
 fn run() -> Result<(), String> {

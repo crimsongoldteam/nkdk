@@ -1,0 +1,73 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  inputType1f8ea46361ff: common.path-root
+  value1: common.metadata-object-link
+value:
+  kind: record
+  fields:
+    - name: metadata
+      type:
+        use: value1
+        bind:
+          roots:
+            input: roots
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: metadata
+        path:
+          - Metadata
+  yaml:
+    kind: mapping
+    fields:
+      - field: metadata
+        key: metadata
+presence:
+  - target:
+      field: metadata
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+constraints:
+  - id: metadata-required
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    assert:
+      present:
+        field: metadata
+    diagnostic:
+      code: value.required
+      severity: warning
+      at:
+        field: metadata
+      message: Обязательное значение отсутствует
+inputs:
+  roots:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: kind
+            type:
+              use: inputType1f8ea46361ff
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+id: candidate.fragment.ce48ce06150cf222f872

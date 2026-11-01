@@ -1,0 +1,233 @@
+format: nkdk-declarations/1
+kind: value
+id: common.font-normal
+imports:
+  reference: common.font-reference
+  kind: common.string
+  text: common.string
+  number: common.exact-decimal
+  boolean: common.boolean
+inputs:
+  styleTypes:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: scalar
+        scalar: text
+value:
+  kind: record
+  fields:
+    - name: reference
+      type:
+        use: reference
+        bind:
+          styleTypes:
+            input: styleTypes
+    - name: kind
+      type:
+        use: kind
+    - name: faceName
+      type:
+        use: text
+    - name: height
+      type:
+        use: number
+    - name: scale
+      type:
+        use: number
+    - name: bold
+      type:
+        use: boolean
+    - name: italic
+      type:
+        use: boolean
+    - name: underline
+      type:
+        use: boolean
+    - name: strikeout
+      type:
+        use: boolean
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: reference
+        path: []
+        attribute: ref
+      - field: faceName
+        path: []
+        attribute: faceName
+      - field: height
+        path: []
+        attribute: height
+      - field: bold
+        path: []
+        attribute: bold
+      - field: italic
+        path: []
+        attribute: italic
+      - field: underline
+        path: []
+        attribute: underline
+      - field: strikeout
+        path: []
+        attribute: strikeout
+      - field: kind
+        path: []
+        attribute: kind
+      - field: scale
+        path: []
+        attribute: scale
+  yaml:
+    kind: mapping
+    fields:
+      - field: reference
+        key: Вид
+      - field: kind
+        key: ВидXML
+      - field: faceName
+        key: Имя
+      - field: height
+        key: Размер
+      - field: scale
+        key: Масштаб
+      - field: bold
+        key: Полужирный
+      - field: italic
+        key: Наклонный
+      - field: underline
+        key: Подчеркивание
+      - field: strikeout
+        key: Зачеркивание
+presence:
+  - target:
+      field: reference
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: kind
+    yaml:
+      missing:
+        denotes:
+          if:
+            isVariant:
+              value:
+                field: reference
+              variant: ШрифтWindows
+          then:
+            literal: WindowsFont
+          else:
+            if:
+              present:
+                field: reference
+            then:
+              literal: StyleItem
+            else:
+              literal: Absolute
+      omitWhen:
+        present:
+          field: reference
+  - target:
+      field: faceName
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: height
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: scale
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: bold
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: italic
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: underline
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: strikeout
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+constraints:
+  - id: known-font-kind
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    assert:
+      or:
+        - eq:
+            - field: kind
+            - literal: Absolute
+        - eq:
+            - field: kind
+            - literal: StyleItem
+        - eq:
+            - field: kind
+            - literal: WindowsFont
+        - eq:
+            - field: kind
+            - literal: AutoFont
+    diagnostic:
+      code: font.kind
+      severity: error
+      at:
+        self: true
+      message: Неизвестный вид шрифта

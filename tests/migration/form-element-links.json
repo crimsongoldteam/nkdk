@@ -1,0 +1,2162 @@
+{
+  "version": 1,
+  "sourceSnapshotHash": "217ca6d499df5c258d656d2a9b0fc9489fd42d29982c285708a60b673cb686c9",
+  "scope": "Structural singleton element links only; not executable declaration or object acceptance",
+  "registrations": [
+    {
+      "source": {
+        "path": "packages/rules/metadata/forms/elements/autoCommandBar/rules.ts",
+        "line": 51,
+        "column": 37
+      },
+      "type": "AutoCommandBar",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/autoCommandBar/rules.ts",
+        "symbol": "AutoCommandBarRules"
+      },
+      "parameters": {
+        "propertyType": "AutoCommandBar",
+        "nameStyle": {
+          "canonicalSuffix": "ФормаКоманднаяПанель",
+          "referenceSuffixes": [
+            "ФормаКоманднаяПанель",
+            "FormCommandBar"
+          ],
+          "canonicalNameMode": "fixed",
+          "explicitXMLName": true
+        },
+        "directId": "-1"
+      },
+      "callbacks": {
+        "toXML": {
+          "$unresolved": {
+            "kind": "expression",
+            "source": {
+              "path": "packages/rules/metadata/forms/elements/autoCommandBar/rules.ts",
+              "line": 60,
+              "column": 10
+            },
+            "sourceHash": "37dfca1d554f89f648b731e3ad763e82fd705dfe7ba0d8cab484a203e37ffae2",
+            "expression": "() => ({\n    id: \"-1\",\n    name: \"ФормаКоманднаяПанель\",\n  })"
+          }
+        }
+      },
+      "constantOutput": {
+        "id": "-1",
+        "name": "ФормаКоманднаяПанель"
+      },
+      "issues": [],
+      "blockers": []
+    },
+    {
+      "source": {
+        "path": "packages/rules/metadata/forms/elements/autoCommandBar/rules.ts",
+        "line": 65,
+        "column": 37
+      },
+      "type": "TableAutoCommandBar",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/autoCommandBar/rules.ts",
+        "symbol": "AutoCommandBarRules"
+      },
+      "parameters": {
+        "propertyType": "TableAutoCommandBar",
+        "nameStyle": {
+          "canonicalSuffix": "КоманднаяПанель",
+          "referenceSuffixes": [
+            "КоманднаяПанель",
+            "CommandBar"
+          ],
+          "canonicalNameMode": "ownerSuffix",
+          "explicitXMLName": true
+        }
+      },
+      "callbacks": {
+        "toXML": {
+          "$unresolved": {
+            "kind": "expression",
+            "source": {
+              "path": "packages/rules/metadata/forms/elements/autoCommandBar/rules.ts",
+              "line": 73,
+              "column": 10
+            },
+            "sourceHash": "37dfca1d554f89f648b731e3ad763e82fd705dfe7ba0d8cab484a203e37ffae2",
+            "expression": "(params: { context: ConfigurationContextWithExportToXML }) => {\n    const { context } = params\n    const parentTable = getParentFromContext(context, [\"Table\"])\n    const elementName = getAutoCommandBarName(parentTable)\n    return { name: elementName }\n  }"
+          }
+        }
+      },
+      "issues": [],
+      "blockers": []
+    },
+    {
+      "source": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "line": 40,
+        "column": 37
+      },
+      "type": "ContextMenu",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "symbol": "ContextMenuRules"
+      },
+      "parameters": {
+        "propertyType": "ContextMenu",
+        "nameStyle": {
+          "canonicalSuffix": "КонтекстноеМеню",
+          "referenceSuffixes": [
+            "КонтекстноеМеню",
+            "ContextMenu"
+          ],
+          "canonicalNameMode": "ownerSuffix",
+          "explicitXMLName": true
+        }
+      },
+      "callbacks": {
+        "toXML": {
+          "$unresolved": {
+            "kind": "expression",
+            "source": {
+              "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+              "line": 48,
+              "column": 10
+            },
+            "sourceHash": "4921920bb842094b9818d9cbc13ba84e6cf0c29ee7e7abf86a6b286b8d109932",
+            "expression": "(params: { context: ConfigurationContextWithExportToXML }) => {\n    const { context } = params\n    const parent = getParentFromContext(context)\n    const name = getContextMenuName(parent)\n    return { name }\n  }"
+          }
+        }
+      },
+      "issues": [],
+      "blockers": []
+    },
+    {
+      "source": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "line": 131,
+        "column": 37
+      },
+      "type": "ExtendedTooltip",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "parameters": {
+        "propertyType": "ExtendedTooltip",
+        "nameStyle": {
+          "canonicalSuffix": "РасширеннаяПодсказка",
+          "referenceSuffixes": [
+            "РасширеннаяПодсказка",
+            "ExtendedTooltip"
+          ],
+          "canonicalNameMode": "ownerSuffix",
+          "explicitXMLName": true
+        }
+      },
+      "callbacks": {
+        "toXML": {
+          "$unresolved": {
+            "kind": "expression",
+            "source": {
+              "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+              "line": 139,
+              "column": 10
+            },
+            "sourceHash": "e905a9dcffd2a094f17e4514555f9293b8560ca21f281d950d25d7575ac31324",
+            "expression": "(params: { context: ConfigurationContextWithExportToXML }) => {\n    const { context } = params\n    const parent = getParentFromContext(context)\n    const name = getExtendedTooltipName(parent)\n    return { name }\n  }"
+          }
+        }
+      },
+      "issues": [],
+      "blockers": []
+    },
+    {
+      "source": {
+        "path": "packages/rules/metadata/forms/elements/searchControlAddition/rules.ts",
+        "line": 138,
+        "column": 37
+      },
+      "type": "SingleSearchControlAddition",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/searchControlAddition/rules.ts",
+        "symbol": "SingleSearchControlAdditionRules"
+      },
+      "parameters": {
+        "propertyType": "SingleSearchControlAddition",
+        "nameStyle": {
+          "canonicalSuffix": "УправлениеПоиском",
+          "referenceSuffixes": [
+            "УправлениеПоиском",
+            "SearchControl"
+          ],
+          "canonicalNameMode": "ownerSuffix",
+          "explicitXMLName": true
+        }
+      },
+      "callbacks": {
+        "toXML": {
+          "$unresolved": {
+            "kind": "expression",
+            "source": {
+              "path": "packages/rules/metadata/forms/elements/searchControlAddition/rules.ts",
+              "line": 146,
+              "column": 10
+            },
+            "sourceHash": "3b743dcfd45a35a64d40dd0fe4bcf30d8e11e7369371a2a51e483161abfacb0a",
+            "expression": "(params: { context: ConfigurationContextWithExportToXML }) => {\n    const { context } = params\n    if (!context.exportToXML.itemsTree) throw new Error(\"elementContext is not defined\")\n    const parent = getParentFromContext(context, [\"Table\"])\n    const name = getSearchControlAdditionName(parent)\n    return { name }\n  }"
+          }
+        }
+      },
+      "issues": [],
+      "blockers": []
+    },
+    {
+      "source": {
+        "path": "packages/rules/metadata/forms/elements/searchStringAddition/rules.ts",
+        "line": 142,
+        "column": 37
+      },
+      "type": "SingleSearchStringAddition",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/searchStringAddition/rules.ts",
+        "symbol": "SingleSearchStringAdditionRules"
+      },
+      "parameters": {
+        "propertyType": "SingleSearchStringAddition",
+        "nameStyle": {
+          "canonicalSuffix": "СтрокаПоиска",
+          "referenceSuffixes": [
+            "СтрокаПоиска",
+            "SearchString"
+          ],
+          "canonicalNameMode": "ownerSuffix",
+          "explicitXMLName": true
+        }
+      },
+      "callbacks": {
+        "toXML": {
+          "$unresolved": {
+            "kind": "expression",
+            "source": {
+              "path": "packages/rules/metadata/forms/elements/searchStringAddition/rules.ts",
+              "line": 150,
+              "column": 10
+            },
+            "sourceHash": "2840097398131d6cef96e9c68881d29cde9b5f4199f11764d7ad68eaaba18648",
+            "expression": "(params: { context: ConfigurationContextWithExportToXML }) => {\n    const { context } = params\n    if (!context.exportToXML.itemsTree) throw new Error(\"elementContext is not defined\")\n    const parent = getParentFromContext(context, [\"Table\"])\n    const name = getSearchStringAdditionName(parent)\n    return { name }\n  }"
+          }
+        }
+      },
+      "issues": [],
+      "blockers": []
+    },
+    {
+      "source": {
+        "path": "packages/rules/metadata/forms/elements/viewStatusAddition/rules.ts",
+        "line": 153,
+        "column": 37
+      },
+      "type": "SingleViewStatusAddition",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/viewStatusAddition/rules.ts",
+        "symbol": "SingleViewStatusAdditionRules"
+      },
+      "parameters": {
+        "propertyType": "SingleViewStatusAddition",
+        "nameStyle": {
+          "canonicalSuffix": "СостояниеПросмотра",
+          "referenceSuffixes": [
+            "СостояниеПросмотра",
+            "ViewStatus"
+          ],
+          "canonicalNameMode": "ownerSuffix",
+          "explicitXMLName": true
+        }
+      },
+      "callbacks": {
+        "toXML": {
+          "$unresolved": {
+            "kind": "expression",
+            "source": {
+              "path": "packages/rules/metadata/forms/elements/viewStatusAddition/rules.ts",
+              "line": 161,
+              "column": 10
+            },
+            "sourceHash": "5789f7c30d1542da151fe4bf46ae2f31aa1876e4b81f891640e8ba0203221b01",
+            "expression": "(params: { context: ConfigurationContextWithExportToXML }) => {\n    const { context } = params\n    const parent = getParentFromContext(context, [\"Table\", \"PDFDocumentField\"])\n    const name = getViewStatusAdditionName(parent)\n    return { name }\n  }"
+          }
+        }
+      },
+      "issues": [],
+      "blockers": []
+    }
+  ],
+  "unresolved": [],
+  "edges": [
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/clientApplicationForm/rules.ts",
+        "symbol": "ClientApplicationFormRules"
+      },
+      "property": "autoCommandBar",
+      "type": "AutoCommandBar",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/autoCommandBar/rules.ts",
+        "symbol": "AutoCommandBarRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/autoCommandBar/rules.ts",
+        "line": 51,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "КоманднаяПанель"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/clientApplicationForm/rules.ts",
+        "symbol": "ClientApplicationFormWithExtendedPresentationRules"
+      },
+      "property": "autoCommandBar",
+      "type": "AutoCommandBar",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/autoCommandBar/rules.ts",
+        "symbol": "AutoCommandBarRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/autoCommandBar/rules.ts",
+        "line": 51,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "КоманднаяПанель"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/button/rules.ts",
+        "symbol": "ButtonRules"
+      },
+      "property": "extendedTooltip",
+      "type": "ExtendedTooltip",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "line": 131,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "РасширеннаяПодсказка"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/button/rules.ts",
+        "symbol": "CommandBarButtonRules"
+      },
+      "property": "extendedTooltip",
+      "type": "ExtendedTooltip",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "line": 131,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "РасширеннаяПодсказка"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/buttonGroup/rules.ts",
+        "symbol": "ButtonGroupRules"
+      },
+      "property": "extendedTooltip",
+      "type": "ExtendedTooltip",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "line": 131,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "РасширеннаяПодсказка"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/calendarField/rules.ts",
+        "symbol": "CalendarFieldRules"
+      },
+      "property": "contextMenu",
+      "type": "ContextMenu",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "symbol": "ContextMenuRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "line": 40,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "КонтекстноеМеню"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/calendarField/rules.ts",
+        "symbol": "CalendarFieldRules"
+      },
+      "property": "extendedTooltip",
+      "type": "ExtendedTooltip",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "line": 131,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "РасширеннаяПодсказка"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/chartField/rules.ts",
+        "symbol": "ChartFieldRules"
+      },
+      "property": "contextMenu",
+      "type": "ContextMenu",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "symbol": "ContextMenuRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "line": 40,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "КонтекстноеМеню"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/chartField/rules.ts",
+        "symbol": "ChartFieldRules"
+      },
+      "property": "extendedTooltip",
+      "type": "ExtendedTooltip",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "line": 131,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "РасширеннаяПодсказка"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/checkBoxField/rules.ts",
+        "symbol": "CheckBoxFieldRules"
+      },
+      "property": "contextMenu",
+      "type": "ContextMenu",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "symbol": "ContextMenuRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "line": 40,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "КонтекстноеМеню"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/checkBoxField/rules.ts",
+        "symbol": "CheckBoxFieldRules"
+      },
+      "property": "extendedTooltip",
+      "type": "ExtendedTooltip",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "line": 131,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "РасширеннаяПодсказка"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/checkBoxField/rules.ts",
+        "symbol": "TableCheckBoxFieldRules"
+      },
+      "property": "contextMenu",
+      "type": "ContextMenu",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "symbol": "ContextMenuRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "line": 40,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "КонтекстноеМеню"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/checkBoxField/rules.ts",
+        "symbol": "TableCheckBoxFieldRules"
+      },
+      "property": "extendedTooltip",
+      "type": "ExtendedTooltip",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "line": 131,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "РасширеннаяПодсказка"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/columnGroup/rules.ts",
+        "symbol": "ColumnGroupRules"
+      },
+      "property": "extendedTooltip",
+      "type": "ExtendedTooltip",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "line": 131,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "РасширеннаяПодсказка"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/commandBar/rules.ts",
+        "symbol": "CommandBarRules"
+      },
+      "property": "extendedTooltip",
+      "type": "ExtendedTooltip",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "line": 131,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "РасширеннаяПодсказка"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/dendrogramField/rules.ts",
+        "symbol": "DendrogramFieldRules"
+      },
+      "property": "contextMenu",
+      "type": "ContextMenu",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "symbol": "ContextMenuRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "line": 40,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "КонтекстноеМеню"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/dendrogramField/rules.ts",
+        "symbol": "DendrogramFieldRules"
+      },
+      "property": "extendedTooltip",
+      "type": "ExtendedTooltip",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "line": 131,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "РасширеннаяПодсказка"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/formattedDocumentField/rules.ts",
+        "symbol": "FormattedDocumentFieldRules"
+      },
+      "property": "contextMenu",
+      "type": "ContextMenu",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "symbol": "ContextMenuRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "line": 40,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "КонтекстноеМеню"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/formattedDocumentField/rules.ts",
+        "symbol": "FormattedDocumentFieldRules"
+      },
+      "property": "extendedTooltip",
+      "type": "ExtendedTooltip",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "line": 131,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "РасширеннаяПодсказка"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/ganttChartField/rules.ts",
+        "symbol": "GanttChartFieldRules"
+      },
+      "property": "contextMenu",
+      "type": "ContextMenu",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "symbol": "ContextMenuRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "line": 40,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "КонтекстноеМеню"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/ganttChartField/rules.ts",
+        "symbol": "GanttChartFieldRules"
+      },
+      "property": "extendedTooltip",
+      "type": "ExtendedTooltip",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "line": 131,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "РасширеннаяПодсказка"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/geographicalSchemaField/rules.ts",
+        "symbol": "GeographicalSchemaFieldRules"
+      },
+      "property": "contextMenu",
+      "type": "ContextMenu",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "symbol": "ContextMenuRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "line": 40,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "КонтекстноеМеню"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/geographicalSchemaField/rules.ts",
+        "symbol": "GeographicalSchemaFieldRules"
+      },
+      "property": "extendedTooltip",
+      "type": "ExtendedTooltip",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "line": 131,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "РасширеннаяПодсказка"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/graphicalSchemaField/rules.ts",
+        "symbol": "GraphicalSchemaFieldRules"
+      },
+      "property": "contextMenu",
+      "type": "ContextMenu",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "symbol": "ContextMenuRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "line": 40,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "КонтекстноеМеню"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/graphicalSchemaField/rules.ts",
+        "symbol": "GraphicalSchemaFieldRules"
+      },
+      "property": "extendedTooltip",
+      "type": "ExtendedTooltip",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "line": 131,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "РасширеннаяПодсказка"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/htmlDocumentField/rules.ts",
+        "symbol": "HTMLDocumentFieldRules"
+      },
+      "property": "contextMenu",
+      "type": "ContextMenu",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "symbol": "ContextMenuRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "line": 40,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "КонтекстноеМеню"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/htmlDocumentField/rules.ts",
+        "symbol": "HTMLDocumentFieldRules"
+      },
+      "property": "extendedTooltip",
+      "type": "ExtendedTooltip",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "line": 131,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "РасширеннаяПодсказка"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/inputField/rules.ts",
+        "symbol": "InputFieldRules"
+      },
+      "property": "contextMenu",
+      "type": "ContextMenu",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "symbol": "ContextMenuRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "line": 40,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "КонтекстноеМеню"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/inputField/rules.ts",
+        "symbol": "InputFieldRules"
+      },
+      "property": "extendedTooltip",
+      "type": "ExtendedTooltip",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "line": 131,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "РасширеннаяПодсказка"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/inputField/rules.ts",
+        "symbol": "TableInputFieldRules"
+      },
+      "property": "contextMenu",
+      "type": "ContextMenu",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "symbol": "ContextMenuRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "line": 40,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "КонтекстноеМеню"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/inputField/rules.ts",
+        "symbol": "TableInputFieldRules"
+      },
+      "property": "extendedTooltip",
+      "type": "ExtendedTooltip",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "line": 131,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "РасширеннаяПодсказка"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/labelDecoration/rules.ts",
+        "symbol": "LabelDecorationRules"
+      },
+      "property": "contextMenu",
+      "type": "ContextMenu",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "symbol": "ContextMenuRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "line": 40,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "КонтекстноеМеню"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/labelDecoration/rules.ts",
+        "symbol": "LabelDecorationRules"
+      },
+      "property": "extendedTooltip",
+      "type": "ExtendedTooltip",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "line": 131,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "РасширеннаяПодсказка"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/labelField/rules.ts",
+        "symbol": "LabelFieldRules"
+      },
+      "property": "contextMenu",
+      "type": "ContextMenu",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "symbol": "ContextMenuRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "line": 40,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "КонтекстноеМеню"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/labelField/rules.ts",
+        "symbol": "LabelFieldRules"
+      },
+      "property": "extendedTooltip",
+      "type": "ExtendedTooltip",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "line": 131,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "РасширеннаяПодсказка"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/labelField/rules.ts",
+        "symbol": "TableLabelFieldRules"
+      },
+      "property": "contextMenu",
+      "type": "ContextMenu",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "symbol": "ContextMenuRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "line": 40,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "КонтекстноеМеню"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/labelField/rules.ts",
+        "symbol": "TableLabelFieldRules"
+      },
+      "property": "extendedTooltip",
+      "type": "ExtendedTooltip",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "line": 131,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "РасширеннаяПодсказка"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/page/rules.ts",
+        "symbol": "PageRules"
+      },
+      "property": "extendedTooltip",
+      "type": "ExtendedTooltip",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "line": 131,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "РасширеннаяПодсказка"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/pages/rules.ts",
+        "symbol": "PagesRules"
+      },
+      "property": "extendedTooltip",
+      "type": "ExtendedTooltip",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "line": 131,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "РасширеннаяПодсказка"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/pdfDocumentField/rules.ts",
+        "symbol": "PDFDocumentFieldRules"
+      },
+      "property": "viewStatusRepresentation",
+      "type": "SingleViewStatusAddition",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/viewStatusAddition/rules.ts",
+        "symbol": "SingleViewStatusAdditionRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/viewStatusAddition/rules.ts",
+        "line": 153,
+        "column": 37
+      },
+      "mapping": {
+        "xml": "ViewStatusAddition",
+        "xmlParents": [],
+        "yaml": "ОтображениеСостоянияПросмотра"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/pdfDocumentField/rules.ts",
+        "symbol": "PDFDocumentFieldRules"
+      },
+      "property": "contextMenu",
+      "type": "ContextMenu",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "symbol": "ContextMenuRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "line": 40,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "КонтекстноеМеню"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/pdfDocumentField/rules.ts",
+        "symbol": "PDFDocumentFieldRules"
+      },
+      "property": "extendedTooltip",
+      "type": "ExtendedTooltip",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "line": 131,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "РасширеннаяПодсказка"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/periodField/rules.ts",
+        "symbol": "PeriodFieldRules"
+      },
+      "property": "contextMenu",
+      "type": "ContextMenu",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "symbol": "ContextMenuRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "line": 40,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "КонтекстноеМеню"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/periodField/rules.ts",
+        "symbol": "PeriodFieldRules"
+      },
+      "property": "extendedTooltip",
+      "type": "ExtendedTooltip",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "line": 131,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "РасширеннаяПодсказка"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/pictureDecoration/rules.ts",
+        "symbol": "PictureDecorationRules"
+      },
+      "property": "contextMenu",
+      "type": "ContextMenu",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "symbol": "ContextMenuRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "line": 40,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "КонтекстноеМеню"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/pictureDecoration/rules.ts",
+        "symbol": "PictureDecorationRules"
+      },
+      "property": "extendedTooltip",
+      "type": "ExtendedTooltip",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "line": 131,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "РасширеннаяПодсказка"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/pictureField/rules.ts",
+        "symbol": "PictureFieldRules"
+      },
+      "property": "contextMenu",
+      "type": "ContextMenu",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "symbol": "ContextMenuRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "line": 40,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "КонтекстноеМеню"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/pictureField/rules.ts",
+        "symbol": "PictureFieldRules"
+      },
+      "property": "extendedTooltip",
+      "type": "ExtendedTooltip",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "line": 131,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "РасширеннаяПодсказка"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/pictureField/rules.ts",
+        "symbol": "TablePictureFieldRules"
+      },
+      "property": "contextMenu",
+      "type": "ContextMenu",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "symbol": "ContextMenuRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "line": 40,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "КонтекстноеМеню"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/pictureField/rules.ts",
+        "symbol": "TablePictureFieldRules"
+      },
+      "property": "extendedTooltip",
+      "type": "ExtendedTooltip",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "line": 131,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "РасширеннаяПодсказка"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/plannerField/rules.ts",
+        "symbol": "PlannerFieldRules"
+      },
+      "property": "contextMenu",
+      "type": "ContextMenu",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "symbol": "ContextMenuRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "line": 40,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "КонтекстноеМеню"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/plannerField/rules.ts",
+        "symbol": "PlannerFieldRules"
+      },
+      "property": "extendedTooltip",
+      "type": "ExtendedTooltip",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "line": 131,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "РасширеннаяПодсказка"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/progressBarField/rules.ts",
+        "symbol": "ProgressBarFieldRules"
+      },
+      "property": "contextMenu",
+      "type": "ContextMenu",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "symbol": "ContextMenuRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "line": 40,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "КонтекстноеМеню"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/progressBarField/rules.ts",
+        "symbol": "ProgressBarFieldRules"
+      },
+      "property": "extendedTooltip",
+      "type": "ExtendedTooltip",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "line": 131,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "РасширеннаяПодсказка"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/radioButtonField/rules.ts",
+        "symbol": "RadioButtonFieldRules"
+      },
+      "property": "contextMenu",
+      "type": "ContextMenu",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "symbol": "ContextMenuRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "line": 40,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "КонтекстноеМеню"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/radioButtonField/rules.ts",
+        "symbol": "RadioButtonFieldRules"
+      },
+      "property": "extendedTooltip",
+      "type": "ExtendedTooltip",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "line": 131,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "РасширеннаяПодсказка"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/searchControlAddition/rules.ts",
+        "symbol": "SingleSearchControlAdditionRules"
+      },
+      "property": "contextMenu",
+      "type": "ContextMenu",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "symbol": "ContextMenuRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "line": 40,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "КонтекстноеМеню"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/searchControlAddition/rules.ts",
+        "symbol": "SingleSearchControlAdditionRules"
+      },
+      "property": "extendedTooltip",
+      "type": "ExtendedTooltip",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "line": 131,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "РасширеннаяПодсказка"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/searchControlAddition/rules.ts",
+        "symbol": "SearchControlAdditionRules"
+      },
+      "property": "contextMenu",
+      "type": "ContextMenu",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "symbol": "ContextMenuRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "line": 40,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "КонтекстноеМеню"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/searchControlAddition/rules.ts",
+        "symbol": "SearchControlAdditionRules"
+      },
+      "property": "extendedTooltip",
+      "type": "ExtendedTooltip",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "line": 131,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "РасширеннаяПодсказка"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/searchStringAddition/rules.ts",
+        "symbol": "SingleSearchStringAdditionRules"
+      },
+      "property": "contextMenu",
+      "type": "ContextMenu",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "symbol": "ContextMenuRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "line": 40,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "КонтекстноеМеню"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/searchStringAddition/rules.ts",
+        "symbol": "SingleSearchStringAdditionRules"
+      },
+      "property": "extendedTooltip",
+      "type": "ExtendedTooltip",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "line": 131,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "РасширеннаяПодсказка"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/searchStringAddition/rules.ts",
+        "symbol": "SearchStringAdditionRules"
+      },
+      "property": "contextMenu",
+      "type": "ContextMenu",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "symbol": "ContextMenuRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "line": 40,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "КонтекстноеМеню"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/searchStringAddition/rules.ts",
+        "symbol": "SearchStringAdditionRules"
+      },
+      "property": "extendedTooltip",
+      "type": "ExtendedTooltip",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "line": 131,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "РасширеннаяПодсказка"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/spreadSheetDocumentField/rules.ts",
+        "symbol": "SpreadSheetDocumentFieldRules"
+      },
+      "property": "contextMenu",
+      "type": "ContextMenu",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "symbol": "ContextMenuRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "line": 40,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "КонтекстноеМеню"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/spreadSheetDocumentField/rules.ts",
+        "symbol": "SpreadSheetDocumentFieldRules"
+      },
+      "property": "extendedTooltip",
+      "type": "ExtendedTooltip",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "line": 131,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "РасширеннаяПодсказка"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/table/rules.ts",
+        "symbol": "TableRules"
+      },
+      "property": "autoCommandBar",
+      "type": "TableAutoCommandBar",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/autoCommandBar/rules.ts",
+        "symbol": "AutoCommandBarRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/autoCommandBar/rules.ts",
+        "line": 65,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "КоманднаяПанель"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/table/rules.ts",
+        "symbol": "TableRules"
+      },
+      "property": "contextMenu",
+      "type": "ContextMenu",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "symbol": "ContextMenuRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "line": 40,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "КонтекстноеМеню"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/table/rules.ts",
+        "symbol": "TableRules"
+      },
+      "property": "extendedTooltip",
+      "type": "ExtendedTooltip",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "line": 131,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "РасширеннаяПодсказка"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/table/rules.ts",
+        "symbol": "TableRules"
+      },
+      "property": "searchControl",
+      "type": "SingleSearchControlAddition",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/searchControlAddition/rules.ts",
+        "symbol": "SingleSearchControlAdditionRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/searchControlAddition/rules.ts",
+        "line": 138,
+        "column": 37
+      },
+      "mapping": {
+        "xml": "SearchControlAddition",
+        "xmlParents": [],
+        "yaml": "УправлениеПоиском"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/table/rules.ts",
+        "symbol": "TableRules"
+      },
+      "property": "searchStringRepresentation",
+      "type": "SingleSearchStringAddition",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/searchStringAddition/rules.ts",
+        "symbol": "SingleSearchStringAdditionRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/searchStringAddition/rules.ts",
+        "line": 142,
+        "column": 37
+      },
+      "mapping": {
+        "xml": "SearchStringAddition",
+        "xmlParents": [],
+        "yaml": "ОтображениеСтрокиПоиска"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/table/rules.ts",
+        "symbol": "TableRules"
+      },
+      "property": "viewStatusRepresentation",
+      "type": "SingleViewStatusAddition",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/viewStatusAddition/rules.ts",
+        "symbol": "SingleViewStatusAdditionRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/viewStatusAddition/rules.ts",
+        "line": 153,
+        "column": 37
+      },
+      "mapping": {
+        "xml": "ViewStatusAddition",
+        "xmlParents": [],
+        "yaml": "ОтображениеСостоянияПросмотра"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/textDocumentField/rules.ts",
+        "symbol": "TextDocumentFieldRules"
+      },
+      "property": "contextMenu",
+      "type": "ContextMenu",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "symbol": "ContextMenuRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "line": 40,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "КонтекстноеМеню"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/textDocumentField/rules.ts",
+        "symbol": "TextDocumentFieldRules"
+      },
+      "property": "extendedTooltip",
+      "type": "ExtendedTooltip",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "line": 131,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "РасширеннаяПодсказка"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/trackBarField/rules.ts",
+        "symbol": "TrackBarFieldRules"
+      },
+      "property": "contextMenu",
+      "type": "ContextMenu",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "symbol": "ContextMenuRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "line": 40,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "КонтекстноеМеню"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/trackBarField/rules.ts",
+        "symbol": "TrackBarFieldRules"
+      },
+      "property": "extendedTooltip",
+      "type": "ExtendedTooltip",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "line": 131,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "РасширеннаяПодсказка"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/usualGroup/rules.ts",
+        "symbol": "UsualGroupRules"
+      },
+      "property": "extendedTooltip",
+      "type": "ExtendedTooltip",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "line": 131,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "РасширеннаяПодсказка"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/viewStatusAddition/rules.ts",
+        "symbol": "SingleViewStatusAdditionRules"
+      },
+      "property": "contextMenu",
+      "type": "ContextMenu",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "symbol": "ContextMenuRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "line": 40,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "КонтекстноеМеню"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/viewStatusAddition/rules.ts",
+        "symbol": "SingleViewStatusAdditionRules"
+      },
+      "property": "extendedTooltip",
+      "type": "ExtendedTooltip",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "line": 131,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "РасширеннаяПодсказка"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/viewStatusAddition/rules.ts",
+        "symbol": "ViewStatusAdditionRules"
+      },
+      "property": "contextMenu",
+      "type": "ContextMenu",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "symbol": "ContextMenuRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "line": 40,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "КонтекстноеМеню"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    },
+    {
+      "owner": {
+        "path": "packages/rules/metadata/forms/elements/viewStatusAddition/rules.ts",
+        "symbol": "ViewStatusAdditionRules"
+      },
+      "property": "extendedTooltip",
+      "type": "ExtendedTooltip",
+      "item": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "registration": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "line": 131,
+        "column": 37
+      },
+      "mapping": {
+        "xmlParents": [],
+        "yaml": "РасширеннаяПодсказка"
+      },
+      "status": "linked-structure",
+      "blockers": []
+    }
+  ]
+}

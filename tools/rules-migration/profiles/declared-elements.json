@@ -1,0 +1,23 @@
+{
+  "ExtendedTooltip": {
+    "declaration": "working.element.ExtendedTooltip.frame.body",
+    "itemType": "ExtendedTooltip",
+    "inputs": {
+      "identity_component": "component",
+      "identity_owner": "owner",
+      "identity_ownerName": "ownerName",
+      "identity_names": "names",
+      "identity_identities": "identities",
+      "ordinary10_styleTypes": "styleTypes",
+      "ordinary11_styleTypes": "styleTypes",
+      "ordinary12_defaultLanguage": "defaultLanguage",
+      "ordinary12_registeredLanguages": "registeredLanguages",
+      "ordinary20_styleTypes": "styleTypes",
+      "ordinary21_styleTypes": "styleTypes",
+      "ordinary22_styleTypes": "styleTypes",
+      "ordinary27_defaultLanguage": "defaultLanguage",
+      "ordinary27_registeredLanguages": "registeredLanguages",
+      "ordinary29_roles": "roles"
+    }
+  }
+}

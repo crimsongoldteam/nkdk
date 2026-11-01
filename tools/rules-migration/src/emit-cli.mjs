@@ -1,3 +1,5 @@
+import {reconstructionProfiles} from './reconstruction-profiles.mjs';
+import {createHash} from 'node:crypto';
 import {collectionReport} from './collection-report.mjs';
 import {emitCollections} from './collection-emission.mjs';
 import {collectionLinks} from './collection-links.mjs';
@@ -28,7 +30,11 @@ const namespaceSource=literalFixture(namespacePath,sources.get(namespacePath),'F
 const namespaces=Object.fromEntries(Object.entries(namespaceSource.data).filter(([name])=>name.startsWith('_xmlns:')).map(([name,uri])=>[name.slice(7),uri]));
 const emitted = emitCandidates(extraction.entries,catalog,origin,namespaces);
 const collectionGraph=collectionLinks(Object.fromEntries(sources),extraction.entries);
-const collections=emitCollections(collectionGraph,extraction.entries,catalog,namespaces);
+const reconstructionPaths=['tools/rules-migration/profiles/form-column-identity.yaml','tools/rules-migration/profiles/form-attribute-identity.yaml'];
+const reconstructionSources=reconstructionPaths.map(path=>({path,text:readFileSync(path,'utf8')}));
+const reconstruction=reconstructionProfiles(reconstructionSources.map(source=>yaml.load(source.text)),collectionGraph,extraction.entries);
+const collections=emitCollections(collectionGraph,extraction.entries,catalog,namespaces,{reconstructedFields:reconstruction.fields,
+  itemXmlNamespaces:reconstruction.xmlNamespaces,emitReadyItems:true});
 emitted.modules.push(...collections.modules);
 const dependencies = dependencyFiles(emitted.modules,catalog);
 const files = Object.fromEntries([...emitted.modules,...dependencies].map(module =>
@@ -40,7 +46,8 @@ for (const entry of emitted.entries) for (const property of entry.properties) {
   else blocked.set(property.reason,(blocked.get(property.reason) ?? 0)+1);
 }
 const manifest = {version:1,status:'candidates-only',sourceRevision:extraction.sourceRevision,
-  sourceHashes:extraction.sourceHashes,declarationHashes:sourceHashes,
+  sourceHashes:extraction.sourceHashes,declarationHashes:[...sourceHashes,...reconstructionSources.map(({path,text})=>({path,sha256:createHash('sha256').update(text).digest('hex')}))],
+  reconstructionProfiles:reconstruction.applied,
   collectionGraph,collectionEmission:{scope:collections.scope,results:collections.results},
   xmlNamespaces:{source:namespaceSource.source,bindings:namespaces},
   existingComparison:candidateDiff(emitted.modules,catalog),

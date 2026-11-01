@@ -1,0 +1,9 @@
+{
+  "Order": "common.dcs-order",
+  "CalculatedFieldOrderExpression": "common.calculated-field-order-expressions",
+  "DcsMetadataTypedValue": "common.dcs-typed-values",
+  "AvailableFields": "common.dcs-available-fields",
+  "OrderItemFields": "common.dcs-order-item-fields",
+  "StructureItemGroupCollection": "common.group-item-collection",
+  "DCSParameter": "common.dcs-parameter"
+}

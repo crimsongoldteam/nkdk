@@ -1,0 +1,54 @@
+format: nkdk-declarations/1
+kind: value
+id: common.picture-absolute-expanded
+namespaces:
+  xr: http://v8.1c.ru/8.3/xcf/readable
+imports:
+  reference: common.string
+  transparent: common.boolean
+  pixel: common.picture-pixel
+value:
+  kind: record
+  fields:
+    - name: reference
+      type:
+        use: reference
+    - name: transparent
+      type:
+        use: transparent
+    - name: pixel
+      type:
+        use: pixel
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: reference
+        path:
+          - xr:Abs
+      - field: transparent
+        path:
+          - xr:LoadTransparent
+      - field: pixel
+        path:
+          - xr:TransparentPixel
+  yaml:
+    kind: mapping
+    fields:
+      - field: reference
+        key: Ссылка
+      - field: transparent
+        key: ПрозрачныйФон
+      - field: pixel
+        key: ПрозрачныйПиксель
+presence:
+  - target:
+      field: pixel
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true

@@ -1,0 +1,430 @@
+# Existing column identities and reservations; fresh column allocation is separate.
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: fragment
+  id: source.form-current-column-identities
+  imports: {data: source.form-column-row-data}
+  inputs:
+    component: {type: {kind: scalar, scalar: text}}
+    owner: {type: {kind: scalar, scalar: text}}
+    parent: {type: {kind: scalar, scalar: text}}
+  value:
+    kind: record
+    fields: []
+  representations:
+    xml:
+      kind: record
+      fields: []
+    yaml:
+      kind: mapping
+      fields: []
+  compose:
+  - {use: data}
+  contributions:
+  - index: metadata.current-form-column-candidates
+    forEach: {in: {field: rows}, as: row, index: position}
+    key:
+      record:
+        component: {input: component}
+        owner: {input: owner}
+        name:
+          if:
+            and:
+            - not:
+                eq:
+                - get:
+                    of: {var: row}
+                    field: name
+                - {literal: ''}
+            - one:
+                in: {field: rows}
+                as: candidate
+                where:
+                  eq:
+                  - get:
+                      of: {var: candidate}
+                      field: name
+                  - get:
+                      of: {var: row}
+                      field: name
+          then:
+            logicalAddress:
+              parent: {input: parent}
+              parts:
+              - {literal: Колонка}
+              - get:
+                  of: {var: row}
+                  field: name
+          else:
+            logicalAddress:
+              parent: {input: parent}
+              parts:
+              - {literal: Колонка}
+              - {var: position}
+    value: {literal: present}
+  - index: metadata.form-attribute-identities
+    forEach: {in: {field: rows}, as: row, index: position}
+    key:
+      record:
+        component: {input: component}
+        owner: {input: owner}
+        name:
+          if:
+            and:
+            - not:
+                eq:
+                - get:
+                    of: {var: row}
+                    field: name
+                - {literal: ''}
+            - one:
+                in: {field: rows}
+                as: candidate
+                where:
+                  eq:
+                  - get:
+                      of: {var: candidate}
+                      field: name
+                  - get:
+                      of: {var: row}
+                      field: name
+          then:
+            logicalAddress:
+              parent: {input: parent}
+              parts:
+              - {literal: Колонка}
+              - get:
+                  of: {var: row}
+                  field: name
+          else:
+            logicalAddress:
+              parent: {input: parent}
+              parts:
+              - {literal: Колонка}
+              - {var: position}
+    value:
+      get:
+        of: {var: row}
+        field: id
+- kind: value
+  id: source.form-current-additional-column-group
+  imports: {columns: source.form-current-column-identities}
+  inputs:
+    component: {type: {kind: scalar, scalar: text}}
+    owner: {type: {kind: scalar, scalar: text}}
+    parent: {type: {kind: scalar, scalar: text}}
+  compose:
+  - use: columns
+    bind:
+      component: {input: component}
+      owner: {input: owner}
+      parent:
+        logicalAddress:
+          parent: {input: parent}
+          parts:
+          - {literal: ДополнительныеКолонки}
+          - {field: table}
+  value:
+    kind: record
+    fields:
+    - {name: table, type: {kind: scalar, scalar: text}}
+  representations:
+    xml:
+      kind: record
+      fields:
+      - {field: table, path: [], attribute: table}
+    yaml:
+      kind: mapping
+      fields:
+      - {field: table, key: Таблица}
+- kind: value
+  id: source.form-current-additional-column-groups
+  namespaces: {f: 'http://v8.1c.ru/8.3/xcf/logform'}
+  imports: {group: source.form-current-additional-column-group}
+  inputs:
+    component: {type: {kind: scalar, scalar: text}}
+    owner: {type: {kind: scalar, scalar: text}}
+    parent: {type: {kind: scalar, scalar: text}}
+  value:
+    kind: sequence
+    item: {use: group, bind: {component: {input: component}, owner: {input: owner}, parent: {input: parent}}}
+  representations:
+    xml:
+      kind: element-sequence
+      path:
+      - f:AdditionalColumns
+      item: {kind: declared}
+    yaml:
+      kind: sequence
+      item: {kind: declared}
+- kind: value
+  id: source.form-current-column-container
+  imports: {ordinary: source.form-current-column-identities, additional: source.form-current-additional-column-groups}
+  inputs:
+    component: {type: {kind: scalar, scalar: text}}
+    owner: {type: {kind: scalar, scalar: text}}
+    parent: {type: {kind: scalar, scalar: text}}
+  compose:
+  - {use: ordinary, bind: {component: {input: component}, owner: {input: owner}, parent: {input: parent}}}
+  value:
+    kind: record
+    fields:
+    - {name: groups, type: {use: additional, bind: {component: {input: component}, owner: {input: owner}, parent: {input: parent}}}}
+  representations:
+    xml:
+      kind: record
+      fields:
+      - {field: groups, path: []}
+    yaml:
+      kind: mapping
+      fields:
+      - {field: groups, key: Дополнительные}
+  presence:
+  - target: {field: groups}
+    xml:
+      missing:
+        denotes: {absent: true}
+    yaml:
+      missing:
+        denotes: {absent: true}
+- kind: fragment
+  id: source.form-base-column-identities
+  imports: {data: source.form-column-row-data}
+  inputs:
+    component: {type: {kind: scalar, scalar: text}}
+    owner: {type: {kind: scalar, scalar: text}}
+    parent: {type: {kind: scalar, scalar: text}}
+    current:
+      type:
+        kind: index
+        key:
+          kind: record
+          fields:
+          - {name: component, type: {kind: scalar, scalar: text}}
+          - {name: name, type: {kind: scalar, scalar: text}}
+          - {name: owner, type: {kind: scalar, scalar: text}}
+        value: {kind: scalar, scalar: text}
+  value:
+    kind: record
+    fields: []
+  representations:
+    xml:
+      kind: record
+      fields: []
+    yaml:
+      kind: mapping
+      fields: []
+  compose:
+  - {use: data}
+  contributions:
+  - index: metadata.form-attribute-identities
+    forEach: {in: {field: rows}, as: row, index: position}
+    key:
+      record:
+        component: {input: component}
+        owner: {input: owner}
+    reserve:
+      get:
+        of: {var: row}
+        field: id
+  - index: metadata.form-attribute-identities
+    forEach: {in: {field: rows}, as: row, index: position}
+    key:
+      record:
+        component: {input: component}
+        owner: {input: owner}
+        name:
+          if:
+            and:
+            - not:
+                eq:
+                - get:
+                    of: {var: row}
+                    field: name
+                - {literal: ''}
+            - one:
+                in: {field: rows}
+                as: candidate
+                where:
+                  eq:
+                  - get:
+                      of: {var: candidate}
+                      field: name
+                  - get:
+                      of: {var: row}
+                      field: name
+          then:
+            logicalAddress:
+              parent: {input: parent}
+              parts:
+              - {literal: Колонка}
+              - get:
+                  of: {var: row}
+                  field: name
+          else:
+            logicalAddress:
+              parent: {input: parent}
+              parts:
+              - {literal: Колонка}
+              - {var: position}
+    value:
+      get:
+        of: {var: row}
+        field: id
+    when:
+      not:
+        present:
+          lookup:
+            in: {input: current}
+            key:
+              record:
+                component: {input: component}
+                owner: {input: owner}
+                name:
+                  if:
+                    and:
+                    - not:
+                        eq:
+                        - get:
+                            of: {var: row}
+                            field: name
+                        - {literal: ''}
+                    - one:
+                        in: {field: rows}
+                        as: candidate
+                        where:
+                          eq:
+                          - get:
+                              of: {var: candidate}
+                              field: name
+                          - get:
+                              of: {var: row}
+                              field: name
+                  then:
+                    logicalAddress:
+                      parent: {input: parent}
+                      parts:
+                      - {literal: Колонка}
+                      - get:
+                          of: {var: row}
+                          field: name
+                  else:
+                    logicalAddress:
+                      parent: {input: parent}
+                      parts:
+                      - {literal: Колонка}
+                      - {var: position}
+- kind: value
+  id: source.form-base-additional-column-group
+  imports: {columns: source.form-base-column-identities}
+  inputs:
+    component: {type: {kind: scalar, scalar: text}}
+    owner: {type: {kind: scalar, scalar: text}}
+    parent: {type: {kind: scalar, scalar: text}}
+    current:
+      type:
+        kind: index
+        key:
+          kind: record
+          fields:
+          - {name: component, type: {kind: scalar, scalar: text}}
+          - {name: name, type: {kind: scalar, scalar: text}}
+          - {name: owner, type: {kind: scalar, scalar: text}}
+        value: {kind: scalar, scalar: text}
+  compose:
+  - use: columns
+    bind:
+      component: {input: component}
+      owner: {input: owner}
+      parent:
+        logicalAddress:
+          parent: {input: parent}
+          parts:
+          - {literal: ДополнительныеКолонки}
+          - {field: table}
+      current: {input: current}
+  value:
+    kind: record
+    fields:
+    - {name: table, type: {kind: scalar, scalar: text}}
+  representations:
+    xml:
+      kind: record
+      fields:
+      - {field: table, path: [], attribute: table}
+    yaml:
+      kind: mapping
+      fields:
+      - {field: table, key: Таблица}
+- kind: value
+  id: source.form-base-additional-column-groups
+  namespaces: {f: 'http://v8.1c.ru/8.3/xcf/logform'}
+  imports: {group: source.form-base-additional-column-group}
+  inputs:
+    component: {type: {kind: scalar, scalar: text}}
+    owner: {type: {kind: scalar, scalar: text}}
+    parent: {type: {kind: scalar, scalar: text}}
+    current:
+      type:
+        kind: index
+        key:
+          kind: record
+          fields:
+          - {name: component, type: {kind: scalar, scalar: text}}
+          - {name: name, type: {kind: scalar, scalar: text}}
+          - {name: owner, type: {kind: scalar, scalar: text}}
+        value: {kind: scalar, scalar: text}
+  value:
+    kind: sequence
+    item: {use: group, bind: {component: {input: component}, owner: {input: owner}, parent: {input: parent}, current: {input: current}}}
+  representations:
+    xml:
+      kind: element-sequence
+      path:
+      - f:AdditionalColumns
+      item: {kind: declared}
+    yaml:
+      kind: sequence
+      item: {kind: declared}
+- kind: value
+  id: source.form-base-column-container
+  imports: {ordinary: source.form-base-column-identities, additional: source.form-base-additional-column-groups}
+  inputs:
+    component: {type: {kind: scalar, scalar: text}}
+    owner: {type: {kind: scalar, scalar: text}}
+    parent: {type: {kind: scalar, scalar: text}}
+    current:
+      type:
+        kind: index
+        key:
+          kind: record
+          fields:
+          - {name: component, type: {kind: scalar, scalar: text}}
+          - {name: name, type: {kind: scalar, scalar: text}}
+          - {name: owner, type: {kind: scalar, scalar: text}}
+        value: {kind: scalar, scalar: text}
+  compose:
+  - {use: ordinary, bind: {component: {input: component}, owner: {input: owner}, parent: {input: parent}, current: {input: current}}}
+  value:
+    kind: record
+    fields:
+    - {name: groups, type: {use: additional, bind: {component: {input: component}, owner: {input: owner}, parent: {input: parent}, current: {
+            input: current}}}}
+  representations:
+    xml:
+      kind: record
+      fields:
+      - {field: groups, path: []}
+    yaml:
+      kind: mapping
+      fields:
+      - {field: groups, key: Дополнительные}
+  presence:
+  - target: {field: groups}
+    xml:
+      missing:
+        denotes: {absent: true}
+    yaml:
+      missing:
+        denotes: {absent: true}

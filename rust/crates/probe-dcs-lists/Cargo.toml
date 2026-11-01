@@ -1,0 +1,24 @@
+[package]
+name = "nkdk-probe-dcs-lists"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+autotests = false
+
+[lib]
+name = "nkdk_compiled_rules_probes"
+test = false
+
+[lints]
+workspace = true
+
+[dependencies]
+nkdk-conversion-core = { path = "../conversion-core" }
+
+[build-dependencies]
+nkdk-rule-compiler = { path = "../rule-compiler" }
+
+[[test]]
+name = "dcs_lists"
+path = "../compiled-rules/tests/dcs_lists.rs"

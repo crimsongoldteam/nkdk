@@ -52,6 +52,7 @@ representations:
 presence:
   - target: self
     xml:
+      missing: {denotes: {absent: true}}
       canonical:
         - when:
             and:
@@ -66,6 +67,8 @@ presence:
                       - eq: [{get: {of: {var: translation}, field: content}}, {literal: ""}]
           form: missing
         - {form: ordinary}
+    yaml:
+      missing: {denotes: {absent: true}}
   - target: {field: text}
     yaml:
       missing: {denotes: {sequence: []}}
@@ -77,7 +80,9 @@ constraints:
   - id: text-or-flag
     appliesTo: [yaml-validation]
     assert:
-      or: [{field: formatted}, {present: {field: text}}]
+      or:
+        - {field: formatted}
+        - exists: {in: {field: text}, as: translation, where: {literal: true}}
     diagnostic:
       severity: error
       at: {self: true}

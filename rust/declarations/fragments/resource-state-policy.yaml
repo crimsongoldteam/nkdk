@@ -1,0 +1,330 @@
+format: nkdk-declarations/1
+kind: fragment
+id: fragment.resource-state-policy
+inputs:
+  component:
+    type:
+      kind: scalar
+      scalar: text
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  baseComponent:
+    type:
+      kind: scalar
+      scalar: text
+  baseOwner:
+    type:
+      kind: scalar
+      scalar: text
+  property:
+    type:
+      kind: scalar
+      scalar: text
+  mode:
+    type:
+      kind: scalar
+      scalar: text
+  active:
+    type:
+      kind: scalar
+      scalar: boolean
+  basePropertyExists:
+    type:
+      kind: scalar
+      scalar: boolean
+  fingerprints:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: component
+            type:
+              kind: scalar
+              scalar: text
+          - name: owner
+            type:
+              kind: scalar
+              scalar: text
+          - name: property
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []
+constraints:
+  - id: mode
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      input: active
+    assert:
+      or:
+        - eq:
+            - input: mode
+            - literal: control
+        - eq:
+            - input: mode
+            - literal: notify
+        - eq:
+            - input: mode
+            - literal: extend
+        - eq:
+            - input: mode
+            - literal: xml
+    diagnostic:
+      code: state.resource.mode
+      severity: error
+      at:
+        self: true
+      message: Неизвестный режим внешнего файла
+  - id: base-property
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      input: active
+    assert:
+      input: basePropertyExists
+    diagnostic:
+      code: state.property.absent-base
+      severity: error
+      at:
+        self: true
+      message: Свойство отсутствует в основной конфигурации
+  - id: own-file
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      and:
+        - input: active
+        - input: basePropertyExists
+    assert:
+      present:
+        lookup:
+          in:
+            input: fingerprints
+          key:
+            record:
+              component:
+                input: component
+              owner:
+                input: owner
+              property:
+                input: property
+    diagnostic:
+      code: state.resource.missing
+      severity: error
+      at:
+        self: true
+      message: Отсутствует внешний файл расширения
+  - id: base-file
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      and:
+        - and:
+            - input: active
+            - input: basePropertyExists
+        - present:
+            lookup:
+              in:
+                input: fingerprints
+              key:
+                record:
+                  component:
+                    input: component
+                  owner:
+                    input: owner
+                  property:
+                    input: property
+        - or:
+            - eq:
+                - input: mode
+                - literal: control
+            - eq:
+                - input: mode
+                - literal: notify
+    assert:
+      present:
+        lookup:
+          in:
+            input: fingerprints
+          key:
+            record:
+              component:
+                input: baseComponent
+              owner:
+                input: baseOwner
+              property:
+                input: property
+    diagnostic:
+      code: state.resource.absent-base
+      severity: error
+      at:
+        self: true
+      message: Отсутствует соответствующий внешний файл основной конфигурации
+  - id: controlled-file
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      and:
+        - and:
+            - and:
+                - input: active
+                - input: basePropertyExists
+            - present:
+                lookup:
+                  in:
+                    input: fingerprints
+                  key:
+                    record:
+                      component:
+                        input: component
+                      owner:
+                        input: owner
+                      property:
+                        input: property
+            - or:
+                - eq:
+                    - input: mode
+                    - literal: control
+                - eq:
+                    - input: mode
+                    - literal: notify
+        - present:
+            lookup:
+              in:
+                input: fingerprints
+              key:
+                record:
+                  component:
+                    input: baseComponent
+                  owner:
+                    input: baseOwner
+                  property:
+                    input: property
+        - eq:
+            - input: mode
+            - literal: control
+    assert:
+      eq:
+        - lookup:
+            in:
+              input: fingerprints
+            key:
+              record:
+                component:
+                  input: component
+                owner:
+                  input: owner
+                property:
+                  input: property
+        - lookup:
+            in:
+              input: fingerprints
+            key:
+              record:
+                component:
+                  input: baseComponent
+                owner:
+                  input: baseOwner
+                property:
+                  input: property
+    diagnostic:
+      code: state.resource.changed
+      severity: error
+      at:
+        self: true
+      message: Контролируемый внешний файл отличается от основной конфигурации
+  - id: notified-file
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      and:
+        - and:
+            - and:
+                - input: active
+                - input: basePropertyExists
+            - present:
+                lookup:
+                  in:
+                    input: fingerprints
+                  key:
+                    record:
+                      component:
+                        input: component
+                      owner:
+                        input: owner
+                      property:
+                        input: property
+            - or:
+                - eq:
+                    - input: mode
+                    - literal: control
+                - eq:
+                    - input: mode
+                    - literal: notify
+        - present:
+            lookup:
+              in:
+                input: fingerprints
+              key:
+                record:
+                  component:
+                    input: baseComponent
+                  owner:
+                    input: baseOwner
+                  property:
+                    input: property
+        - eq:
+            - input: mode
+            - literal: notify
+    assert:
+      eq:
+        - lookup:
+            in:
+              input: fingerprints
+            key:
+              record:
+                component:
+                  input: component
+                owner:
+                  input: owner
+                property:
+                  input: property
+        - lookup:
+            in:
+              input: fingerprints
+            key:
+              record:
+                component:
+                  input: baseComponent
+                owner:
+                  input: baseOwner
+                property:
+                  input: property
+    diagnostic:
+      code: state.resource.changed
+      severity: warning
+      at:
+        self: true
+      message: Проверяемый внешний файл отличается от основной конфигурации

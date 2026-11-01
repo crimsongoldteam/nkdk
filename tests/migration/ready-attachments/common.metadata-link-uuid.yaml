@@ -1,0 +1,20 @@
+format: nkdk-declarations/1
+kind: value
+id: common.metadata-link-uuid
+imports:
+  text: common.metadata-link-uuid-text
+value:
+  kind: record
+  fields:
+    - name: uuid
+      type:
+        use: text
+representations:
+  xml:
+    kind: text-pattern
+    parts:
+      - field: uuid
+  yaml:
+    kind: text-pattern
+    parts:
+      - field: uuid

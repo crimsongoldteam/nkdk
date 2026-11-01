@@ -1,0 +1,161 @@
+# Generated from rules.ts by tools/rules-migration/src/enumeration-properties-operation.mjs
+format: nkdk-operation-routes/1
+routes:
+  - xmlDir: Enums
+    yamlDir: Перечисление
+    yamlFile: Свойства.yaml
+    owners:
+      cf: metadata.enumeration
+      cfe: metadata.enumeration
+    inputs:
+      ownerName: name
+      ownerIdentity:
+        snapshot:
+          entry: migration.enumeration-own-identity
+          field: uuid
+      owner:
+        concat:
+          - literal: Enum.
+          - name
+      forms:
+        snapshot:
+          entry: migration.enumeration-child-names
+          field: Формы
+          default: []
+      templates:
+        snapshot:
+          entry: migration.enumeration-child-names
+          field: Шаблоны
+          default: []
+      commandNames:
+        snapshot:
+          entry: migration.enumeration-commands-identity-source
+          field: commands
+          each: name
+          default: []
+      defaultLanguage: defaultLanguage
+      registeredLanguages: registeredLanguages
+      component: component
+      compatibilityMode: compatibilityMode
+      owners:
+        literal: []
+      componentKind:
+        byComponent:
+          cf:
+            literal: configuration
+          cfe:
+            literal: extension
+      profiles:
+        literal:
+          - name: Order
+            yamlName: Порядок
+            pathName: Порядок
+            emptyForm: mapping
+            policy: notSpecified
+            expectedKind: ''
+            maxTextLength: ''
+            maxNumberDigits: ''
+            allowedTextLength: ''
+            owners: []
+          - name: Ref
+            yamlName: Ссылка
+            pathName: Ссылка
+            emptyForm: mapping
+            policy: notSpecified
+            expectedKind: ''
+            maxTextLength: ''
+            maxNumberDigits: ''
+            allowedTextLength: ''
+            owners: []
+      canonicalNames:
+        literal:
+          - Order
+          - Ref
+      elidableNames:
+        byComponent:
+          cf:
+            literal:
+              - Order
+              - Ref
+          cfe:
+            literal: []
+    sources:
+      - entry: migration.enumeration-own-identity
+        inputs:
+          component: component
+          parent: parent
+          ownerName: name
+      - entry: migration.enumeration-base-identity
+        only:
+          - cfe
+        newOwner:
+          template:
+            base:
+              - base:
+                  externalSnapshot:
+                    component: cf
+                    entry: migration.enumeration-own-identity
+                    field: uuid
+        inputs:
+          component: component
+          parent: parent
+          ownerName: name
+      - entry: migration.enumeration-values-identity-source
+        factDirections:
+          - yaml-to-xml
+        newOwner:
+          template:
+            values: []
+        inputs:
+          component: component
+          ownerIdentity:
+            snapshot:
+              entry: migration.enumeration-own-identity
+              field: uuid
+      - entry: migration.enumeration-commands-identity-source
+        factDirections:
+          - yaml-to-xml
+        newOwner:
+          template:
+            commands: []
+        inputs:
+          component: component
+          ownerIdentity:
+            snapshot:
+              entry: migration.enumeration-own-identity
+              field: uuid
+      - entry: migration.enumeration-values-base-source
+        factDirections:
+          - xml-to-yaml
+        newOwner:
+          template:
+            values: []
+        inputs:
+          component: component
+          ownerIdentity:
+            snapshot:
+              entry: migration.enumeration-own-identity
+              field: uuid
+      - entry: migration.enumeration-commands-base-source
+        factDirections:
+          - xml-to-yaml
+        newOwner:
+          template:
+            commands: []
+        inputs:
+          component: component
+          ownerIdentity:
+            snapshot:
+              entry: migration.enumeration-own-identity
+              field: uuid
+      - entry: migration.enumeration-internal-types
+        inputs:
+          component: component
+          parent: parent
+          ownerName: name
+      - entry: migration.enumeration-child-names
+        inputs:
+          forms:
+            literal: []
+          templates:
+            literal: []

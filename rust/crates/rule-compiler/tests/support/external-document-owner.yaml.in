@@ -1,0 +1,8 @@
+format: nkdk-declarations/1
+kind: object
+id: test.external-payload
+@IMPORTS@
+value: {kind: record, fields: [{name: payload, type: @PAYLOAD_TYPE@}, {name: name, type: {kind: scalar, scalar: text}}]}
+representations:
+  xml: {kind: record, fields: [{field: payload, path: [Data], file: [Aux, Payload.xml]}, {field: name, path: [Primary, Name]}]}
+  yaml: {kind: mapping, fields: [{field: payload, key: Payload}, {field: name, key: Name}]}

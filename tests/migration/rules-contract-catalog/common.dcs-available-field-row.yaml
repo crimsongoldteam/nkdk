@@ -1,0 +1,36 @@
+format: nkdk-declarations/1
+kind: value
+id: common.dcs-available-field-row
+imports:
+  item: common.dcs-available-field
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+value:
+  kind: record
+  fields:
+    - name: item
+      type:
+        use: item
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: item
+        path: []
+  yaml:
+    kind: projection
+    field: item

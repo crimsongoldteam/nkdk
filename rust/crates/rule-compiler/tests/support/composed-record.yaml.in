@@ -1,0 +1,8 @@
+- kind: value
+  id: @ID@
+  imports: {fields: @FRAGMENT@}
+  compose: [{use: fields}]
+  value: {kind: record, fields: []}
+  representations:
+    xml: {kind: record, fields: []}
+    yaml: {kind: mapping, fields: []}

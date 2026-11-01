@@ -3,11 +3,15 @@ kind: object
 id: candidate.joined.MetadataConfigurationRules
 description: 'Кандидат проекции: относительный XML-корень Properties; не полный владелец'
 imports:
-  part0: candidate.fragment.13e28fe11f7bc914cd0b
+  inputType1f8ea46361ff: common.path-root
+  part0: candidate.fragment.4631ad2fe563131c6b8d
   ready: fragment.help
   attachment: fragment.help
 compose:
   - use: part0
+    bind:
+      roots:
+        input: roots
   - use: attachment
     bind:
       pages:
@@ -23,6 +27,23 @@ representations:
     kind: mapping
     fields: []
 inputs:
+  roots:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: kind
+            type:
+              use: inputType1f8ea46361ff
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+    index: metadata.roots
   attachment_pages:
     type:
       kind: sequence

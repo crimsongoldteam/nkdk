@@ -8,8 +8,11 @@ pub(crate) struct RecordUsage {
     pub xml_missing: bool,
     pub yaml_missing: bool,
     pub xml_empty: bool,
+    pub xml_nil: bool,
+    pub yaml_null: bool,
     pub xml_absent_empty: bool,
     pub canonical: Vec<LinkedCanonical>,
+    pub canonical_value_scope: bool,
     pub yaml_default: Option<LinkedExpression>,
     pub required_constraints: Vec<LinkedConstraint>,
 }
@@ -73,12 +76,11 @@ pub(crate) fn record_usage(
             YamlRepresentation::Mapping(_)
                 | YamlRepresentation::TextPattern(_)
                 | YamlRepresentation::Projection(_)
+                | YamlRepresentation::GroupedSequence(_)
         )
     ) || super::values::xml_fields(&common.xml).is_none()
-        || !common.shorthands.is_empty()
         || common.normalization.is_some()
         || !common.resources.is_empty()
-        || !common.contributions.is_empty()
     {
         return Ok(None);
     }
@@ -95,6 +97,9 @@ pub(crate) fn record_usage(
             .iter()
             .find(|field| field.name == mapping.field)
             .expect("linked mapping");
+        if matches!(field.value, LinkedType::Scalar(_) | LinkedType::Enum(_)) {
+            continue;
+        }
         let Some((id, _, _)) = field.value.as_reference() else {
             return Ok(None);
         };
@@ -103,8 +108,39 @@ pub(crate) fn record_usage(
             .iter()
             .find(|entry| entry.id == id)
             .expect("linked value");
+        if matches!(value.value, LinkedType::Scalar(_) | LinkedType::Enum(_)) {
+            continue;
+        }
+        // A nested record keeps its own projection and wrapper attributes.
+        // The shared record body places and composes those at this boundary.
+        if matches!(value.value, LinkedType::Record(_))
+            && matches!(
+                value.yaml,
+                YamlRepresentation::Mapping(_)
+                    | YamlRepresentation::Projection(_)
+                    | YamlRepresentation::GroupedSequence(_)
+                    | YamlRepresentation::TextPattern(_)
+            )
+            && super::values::xml_fields(&value.xml).is_some()
+        {
+            continue;
+        }
+        if matches!(
+            (&value.value, &value.yaml),
+            (
+                LinkedType::Sequence(_),
+                YamlRepresentation::KeyedMapping { .. }
+            )
+        ) {
+            continue;
+        }
         if !matches!(&value.yaml, YamlRepresentation::Sequence { item, .. } if **item == YamlRepresentation::Declared)
             && !matches!(value.yaml, YamlRepresentation::RecordMapping { .. })
+            && !matches!(value.value, LinkedType::Choice(_))
+            && !matches!(
+                (&value.value, &value.yaml),
+                (LinkedType::Record(_), YamlRepresentation::Mapping(_))
+            )
         {
             return Ok(None);
         }
@@ -144,37 +180,69 @@ pub(crate) fn record_usage(
         ),
         _ => return Ok(None),
     };
-    let rules: Vec<_> = common
+    // Wrapper presence belongs to the same instantiated contract as its body.
+    // Extracting it from the generic definition leaks parameter/input slots
+    // into the caller when that definition was not scalar-specialized.
+    let mut entry = common.clone();
+    crate::link::sequence_item::instantiate(&mut entry, bindings, arguments)?;
+    let rules: Vec<_> = entry
         .presence
         .iter()
         .filter(|rule| rule.target == LinkedPresenceTarget::SelfValue)
-        .chain(owner.presence.iter())
+        .map(|rule| (rule, true))
+        .chain(owner.presence.iter().map(|rule| (rule, false)))
         .collect();
     let (mut xml_missing, mut yaml_missing) = (false, false);
     let (mut xml_empty, mut xml_absent_empty) = (false, false);
+    let (mut xml_nil, mut yaml_null) = (false, false);
     let mut canonical = Vec::new();
+    let mut canonical_value_scope = false;
     let mut yaml_default = None;
-    for rule in rules {
+    for (rule, value_scope) in rules {
+        let mut rule = rule.clone();
+        rule.canonical.retain(|form| {
+            !form.when.as_ref().is_some_and(|when| {
+                matches!(
+                    when.kind,
+                    LinkedExpressionKind::Literal(ScalarLiteral::Boolean(false))
+                )
+            })
+        });
         if rule.xml_empty.iter().any(|empty| {
-            empty.form != EmptyKind::Element
+            !matches!(empty.form, EmptyKind::Element | EmptyKind::Nil)
                 || !matches!(empty.denotes.kind, LinkedExpressionKind::Absent)
-        }) || !rule.yaml_empty.is_empty()
-            || rule.yaml_omit_when.is_some()
+        }) || rule.yaml_empty.iter().any(|empty| {
+            empty.form != EmptyKind::Null
+                || !matches!(empty.denotes.kind, LinkedExpressionKind::Absent)
+        }) || rule.yaml_omit_when.is_some()
         {
             return Ok(None);
         }
-        xml_empty |= !rule.xml_empty.is_empty();
+        xml_empty |= rule
+            .xml_empty
+            .iter()
+            .any(|form| form.form == EmptyKind::Element);
+        xml_nil |= rule
+            .xml_empty
+            .iter()
+            .any(|form| form.form == EmptyKind::Nil);
+        yaml_null |= !rule.yaml_empty.is_empty();
         if !rule.canonical.is_empty() {
-            if crate::presence::supported_canonical(rule)
+            if crate::presence::supported_canonical(&rule)
+                && rule.canonical.len() == 1
                 && rule.canonical[0].form == XmlForm::EmptyElement
             {
                 xml_absent_empty = true;
             } else if canonical.is_empty()
                 && rule.canonical.iter().all(|form| {
-                    matches!(
-                        form.form,
-                        XmlForm::Missing | XmlForm::EmptyElement | XmlForm::Ordinary
-                    )
+                    form.xml_type.is_none()
+                        && matches!(
+                            form.form,
+                            XmlForm::Missing
+                                | XmlForm::EmptyElement
+                                | XmlForm::Ordinary
+                                | XmlForm::Nil
+                        )
                 })
                 && (rule
                     .canonical
@@ -183,6 +251,7 @@ pub(crate) fn record_usage(
                     || rule.canonical.iter().all(|form| form.when.is_some()))
             {
                 canonical = rule.canonical.clone();
+                canonical_value_scope = value_scope;
             } else {
                 return Ok(None);
             }
@@ -203,8 +272,6 @@ pub(crate) fn record_usage(
             yaml_missing = true;
         }
     }
-    let mut entry = common.clone();
-    crate::link::sequence_item::instantiate(&mut entry, bindings, arguments)?;
     entry.id = owner.id;
     entry.kind = ModuleKind::Object;
     entry.inputs = owner.inputs.clone();
@@ -221,8 +288,11 @@ pub(crate) fn record_usage(
         xml_missing,
         yaml_missing,
         xml_empty,
+        xml_nil,
+        yaml_null,
         xml_absent_empty,
         canonical,
+        canonical_value_scope,
         yaml_default,
         required_constraints: owner.constraints.clone(),
     }))

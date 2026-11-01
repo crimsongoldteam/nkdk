@@ -1,0 +1,81 @@
+format: nkdk-declarations/1
+kind: value
+id: common.dcs-primitive-text
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+imports:
+  kind: common.dcs-primitive-text-kind
+  text: common.string
+value:
+  kind: record
+  fields:
+    - name: kind
+      type:
+        use: kind
+    - name: source
+      type:
+        use: text
+    - name: value
+      type:
+        use: text
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: kind
+        path: []
+        attribute: xsi:type
+      - field: source
+        path: []
+  yaml:
+    kind: projection
+    field: value
+presence:
+  - target:
+      field: kind
+    xml:
+      missing:
+        denotes:
+          literal: string
+    yaml:
+      missing:
+        denotes:
+          literal: string
+  - target:
+      field: source
+    yaml:
+      missing:
+        denotes:
+          if:
+            present:
+              field: value
+          then:
+            field: value
+          else:
+            literal: ''
+  - target:
+      field: value
+    xml:
+      missing:
+        denotes:
+          if:
+            and:
+              - eq:
+                  - field: kind
+                  - literal: type
+              - matches:
+                  value:
+                    field: source
+                  pattern: '[^:]+:Undefined'
+          then:
+            absent: true
+          else:
+            field: source
+    yaml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: null
+          denotes:
+            absent: true

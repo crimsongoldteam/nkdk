@@ -1,0 +1,20 @@
+format: nkdk-declarations/1
+kind: value
+id: common.metadata-member-path-choice
+imports:
+  direct: common.metadata-member-path
+  nested: common.metadata-nested-member-path
+value:
+  kind: choice
+  variants:
+    - name: direct
+      type:
+        use: direct
+    - name: nested
+      type:
+        use: nested
+representations:
+  xml:
+    kind: choice
+  yaml:
+    kind: choice

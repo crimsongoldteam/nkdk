@@ -1,0 +1,1551 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.ObjectBelonging
+  value1: common.string
+  value2: common.i8n-text
+  value3: common.boolean
+  value4: system.HierarchyType
+  value5: common.exact-decimal
+  inputType1f8ea46361ff: common.path-root
+  value7: common.metadata-item-links-allowed-roots
+  value8: system.SubordinationUse
+  value9: system.CatalogCodeType
+  value10: system.AllowedLength
+  value11: system.CatalogCodesSeries
+  value12: system.CatalogMainPresentation
+  value13: common.characteristics-descriptions
+  value14: system.PredefinedDataUpdate
+  value15: system.EditType
+  value16: system.ChoiceMode
+  value17: system.SearchStringModeOnInputByString
+  value18: system.FullTextSearchOnInputByString
+  value19: system.ChoiceDataGetModeOnInputByString
+  value20: common.owner-or-common-form-link
+  inputType00917033b468: common.path-object-kind
+  value22: common.based-on-links
+  value23: common.owner-metadata-fields
+  value24: system.DefaultDataLockControlMode
+  value25: system.UseFullTextSearch
+  value26: system.CreateOnInput
+  value27: system.ChoiceHistoryOnInput
+  value28: system.DataHistoryUse
+value:
+  kind: record
+  fields:
+    - name: objectBelonging
+      type:
+        use: value0
+    - name: name
+      type:
+        use: value1
+    - name: synonym
+      type:
+        use: value2
+        with:
+          excludeIfEqualNameYAML: true
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            input: ownerName
+    - name: comment
+      type:
+        use: value1
+    - name: hierarchical
+      type:
+        use: value3
+    - name: hierarchyType
+      type:
+        use: value4
+    - name: limitLevelCount
+      type:
+        use: value3
+    - name: levelCount
+      type:
+        use: value5
+    - name: foldersOnTop
+      type:
+        use: value3
+    - name: useStandardCommands
+      type:
+        use: value3
+    - name: owners
+      type:
+        use: value7
+        bind:
+          allowedRoots:
+            sequence:
+              - literal: Catalog
+              - literal: Document
+              - literal: ChartOfCharacteristicTypes
+              - literal: ExchangePlan
+          roots:
+            input: roots
+    - name: subordinationUse
+      type:
+        use: value8
+    - name: codeLength
+      type:
+        use: value5
+    - name: descriptionLength
+      type:
+        use: value5
+    - name: codeType
+      type:
+        use: value9
+    - name: codeAllowedLength
+      type:
+        use: value10
+    - name: codeSeries
+      type:
+        use: value11
+    - name: checkUnique
+      type:
+        use: value3
+    - name: autonumbering
+      type:
+        use: value3
+    - name: defaultPresentation
+      type:
+        use: value12
+    - name: characteristics
+      type:
+        use: value13
+        bind: {}
+    - name: predefinedDataUpdate
+      type:
+        use: value14
+    - name: editType
+      type:
+        use: value15
+    - name: quickChoice
+      type:
+        use: value3
+    - name: choiceMode
+      type:
+        use: value16
+    - name: searchStringModeOnInputByString
+      type:
+        use: value17
+    - name: fullTextSearchOnInputByString
+      type:
+        use: value18
+    - name: choiceDataGetModeOnInputByString
+      type:
+        use: value19
+    - name: defaultObjectForm
+      type:
+        use: value20
+        bind:
+          owner:
+            input: owner
+          forms:
+            input: forms
+          roots:
+            input: roots
+    - name: defaultFolderForm
+      type:
+        use: value20
+        bind:
+          owner:
+            input: owner
+          forms:
+            input: forms
+          roots:
+            input: roots
+    - name: defaultListForm
+      type:
+        use: value20
+        bind:
+          owner:
+            input: owner
+          forms:
+            input: forms
+          roots:
+            input: roots
+    - name: defaultChoiceForm
+      type:
+        use: value20
+        bind:
+          owner:
+            input: owner
+          forms:
+            input: forms
+          roots:
+            input: roots
+    - name: defaultFolderChoiceForm
+      type:
+        use: value20
+        bind:
+          owner:
+            input: owner
+          forms:
+            input: forms
+          roots:
+            input: roots
+    - name: auxiliaryObjectForm
+      type:
+        use: value20
+        bind:
+          owner:
+            input: owner
+          forms:
+            input: forms
+          roots:
+            input: roots
+    - name: auxiliaryFolderForm
+      type:
+        use: value20
+        bind:
+          owner:
+            input: owner
+          forms:
+            input: forms
+          roots:
+            input: roots
+    - name: auxiliaryListForm
+      type:
+        use: value20
+        bind:
+          owner:
+            input: owner
+          forms:
+            input: forms
+          roots:
+            input: roots
+    - name: auxiliaryChoiceForm
+      type:
+        use: value20
+        bind:
+          owner:
+            input: owner
+          forms:
+            input: forms
+          roots:
+            input: roots
+    - name: auxiliaryFolderChoiceForm
+      type:
+        use: value20
+        bind:
+          owner:
+            input: owner
+          forms:
+            input: forms
+          roots:
+            input: roots
+    - name: includeHelpInContents
+      type:
+        use: value3
+    - name: basedOn
+      type:
+        use: value22
+        bind:
+          roots:
+            input: roots
+          children:
+            input: children
+    - name: dataLockFields
+      type:
+        use: value23
+        bind:
+          ownerRoot:
+            input: ownerRoot
+          ownerName:
+            input: containingOwnerName
+    - name: dataLockControlMode
+      type:
+        use: value24
+    - name: fullTextSearch
+      type:
+        use: value25
+    - name: objectPresentation
+      type:
+        use: value2
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            input: ownerName
+    - name: extendedObjectPresentation
+      type:
+        use: value2
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            input: ownerName
+    - name: listPresentation
+      type:
+        use: value2
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            input: ownerName
+    - name: extendedListPresentation
+      type:
+        use: value2
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            input: ownerName
+    - name: explanation
+      type:
+        use: value2
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            input: ownerName
+    - name: createOnInput
+      type:
+        use: value26
+    - name: choiceHistoryOnInput
+      type:
+        use: value27
+    - name: dataHistory
+      type:
+        use: value28
+    - name: updateDataHistoryImmediatelyAfterWrite
+      type:
+        use: value3
+    - name: executeAfterWriteDataHistoryVersionProcessing
+      type:
+        use: value3
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: objectBelonging
+        path:
+          - Properties
+          - ObjectBelonging
+      - field: name
+        path:
+          - Properties
+          - Name
+      - field: synonym
+        path:
+          - Properties
+          - Synonym
+      - field: comment
+        path:
+          - Properties
+          - Comment
+      - field: hierarchical
+        path:
+          - Properties
+          - Hierarchical
+      - field: hierarchyType
+        path:
+          - Properties
+          - HierarchyType
+      - field: limitLevelCount
+        path:
+          - Properties
+          - LimitLevelCount
+      - field: levelCount
+        path:
+          - Properties
+          - LevelCount
+      - field: foldersOnTop
+        path:
+          - Properties
+          - FoldersOnTop
+      - field: useStandardCommands
+        path:
+          - Properties
+          - UseStandardCommands
+      - field: owners
+        path:
+          - Properties
+          - Owners
+      - field: subordinationUse
+        path:
+          - Properties
+          - SubordinationUse
+      - field: codeLength
+        path:
+          - Properties
+          - CodeLength
+      - field: descriptionLength
+        path:
+          - Properties
+          - DescriptionLength
+      - field: codeType
+        path:
+          - Properties
+          - CodeType
+      - field: codeAllowedLength
+        path:
+          - Properties
+          - CodeAllowedLength
+      - field: codeSeries
+        path:
+          - Properties
+          - CodeSeries
+      - field: checkUnique
+        path:
+          - Properties
+          - CheckUnique
+      - field: autonumbering
+        path:
+          - Properties
+          - Autonumbering
+      - field: defaultPresentation
+        path:
+          - Properties
+          - DefaultPresentation
+      - field: characteristics
+        path:
+          - Properties
+          - Characteristics
+      - field: predefinedDataUpdate
+        path:
+          - Properties
+          - PredefinedDataUpdate
+      - field: editType
+        path:
+          - Properties
+          - EditType
+      - field: quickChoice
+        path:
+          - Properties
+          - QuickChoice
+      - field: choiceMode
+        path:
+          - Properties
+          - ChoiceMode
+      - field: searchStringModeOnInputByString
+        path:
+          - Properties
+          - SearchStringModeOnInputByString
+      - field: fullTextSearchOnInputByString
+        path:
+          - Properties
+          - FullTextSearchOnInputByString
+      - field: choiceDataGetModeOnInputByString
+        path:
+          - Properties
+          - ChoiceDataGetModeOnInputByString
+      - field: defaultObjectForm
+        path:
+          - Properties
+          - DefaultObjectForm
+      - field: defaultFolderForm
+        path:
+          - Properties
+          - DefaultFolderForm
+      - field: defaultListForm
+        path:
+          - Properties
+          - DefaultListForm
+      - field: defaultChoiceForm
+        path:
+          - Properties
+          - DefaultChoiceForm
+      - field: defaultFolderChoiceForm
+        path:
+          - Properties
+          - DefaultFolderChoiceForm
+      - field: auxiliaryObjectForm
+        path:
+          - Properties
+          - AuxiliaryObjectForm
+      - field: auxiliaryFolderForm
+        path:
+          - Properties
+          - AuxiliaryFolderForm
+      - field: auxiliaryListForm
+        path:
+          - Properties
+          - AuxiliaryListForm
+      - field: auxiliaryChoiceForm
+        path:
+          - Properties
+          - AuxiliaryChoiceForm
+      - field: auxiliaryFolderChoiceForm
+        path:
+          - Properties
+          - AuxiliaryFolderChoiceForm
+      - field: includeHelpInContents
+        path:
+          - Properties
+          - IncludeHelpInContents
+      - field: basedOn
+        path:
+          - Properties
+          - BasedOn
+      - field: dataLockFields
+        path:
+          - Properties
+          - DataLockFields
+      - field: dataLockControlMode
+        path:
+          - Properties
+          - DataLockControlMode
+      - field: fullTextSearch
+        path:
+          - Properties
+          - FullTextSearch
+      - field: objectPresentation
+        path:
+          - Properties
+          - ObjectPresentation
+      - field: extendedObjectPresentation
+        path:
+          - Properties
+          - ExtendedObjectPresentation
+      - field: listPresentation
+        path:
+          - Properties
+          - ListPresentation
+      - field: extendedListPresentation
+        path:
+          - Properties
+          - ExtendedListPresentation
+      - field: explanation
+        path:
+          - Properties
+          - Explanation
+      - field: createOnInput
+        path:
+          - Properties
+          - CreateOnInput
+      - field: choiceHistoryOnInput
+        path:
+          - Properties
+          - ChoiceHistoryOnInput
+      - field: dataHistory
+        path:
+          - Properties
+          - DataHistory
+      - field: updateDataHistoryImmediatelyAfterWrite
+        path:
+          - Properties
+          - UpdateDataHistoryImmediatelyAfterWrite
+      - field: executeAfterWriteDataHistoryVersionProcessing
+        path:
+          - Properties
+          - ExecuteAfterWriteDataHistoryVersionProcessing
+  yaml:
+    kind: mapping
+    fields:
+      - field: synonym
+        key: Синоним
+      - field: comment
+        key: Комментарий
+      - field: hierarchical
+        key: Иерархический
+      - field: hierarchyType
+        key: ВидИерархии
+      - field: limitLevelCount
+        key: ОграничиватьКоличествоУровней
+      - field: levelCount
+        key: КоличествоУровней
+      - field: foldersOnTop
+        key: ГруппыСверху
+      - field: useStandardCommands
+        key: ИспользоватьСтандартныеКоманды
+      - field: owners
+        key: Владельцы
+      - field: subordinationUse
+        key: ИспользованиеПодчинения
+      - field: codeLength
+        key: ДлинаКода
+      - field: descriptionLength
+        key: ДлинаНаименования
+      - field: codeType
+        key: ТипКода
+      - field: codeAllowedLength
+        key: ДопустимаяДлинаКода
+      - field: codeSeries
+        key: СерииКодов
+      - field: checkUnique
+        key: КонтрольУникальности
+      - field: autonumbering
+        key: Автонумерация
+      - field: defaultPresentation
+        key: ОсновноеПредставление
+      - field: characteristics
+        key: Характеристики
+      - field: predefinedDataUpdate
+        key: ОбновлениеПредопределенныхДанных
+      - field: editType
+        key: СпособРедактирования
+      - field: quickChoice
+        key: БыстрыйВыбор
+      - field: choiceMode
+        key: СпособВыбора
+      - field: searchStringModeOnInputByString
+        key: СпособПоискаСтрокиПриВводеПоСтроке
+      - field: fullTextSearchOnInputByString
+        key: ПолнотекстовыйПоискПриВводеПоСтроке
+      - field: choiceDataGetModeOnInputByString
+        key: РежимПолученияДанныхВыбораПриВводеПоСтроке
+      - field: defaultObjectForm
+        key: ОсновнаяФормаОбъекта
+      - field: defaultFolderForm
+        key: ОсновнаяФормаГруппы
+      - field: defaultListForm
+        key: ОсновнаяФормаСписка
+      - field: defaultChoiceForm
+        key: ОсновнаяФормаДляВыбора
+      - field: defaultFolderChoiceForm
+        key: ОсновнаяФормаДляВыбораГруппы
+      - field: auxiliaryObjectForm
+        key: ДополнительнаяФормаОбъекта
+      - field: auxiliaryFolderForm
+        key: ДополнительнаяФормаГруппы
+      - field: auxiliaryListForm
+        key: ДополнительнаяФормаСписка
+      - field: auxiliaryChoiceForm
+        key: ДополнительнаяФормаДляВыбора
+      - field: auxiliaryFolderChoiceForm
+        key: ДополнительнаяФормаДляВыбораГруппы
+      - field: includeHelpInContents
+        key: ВключатьСправкуВСодержание
+      - field: basedOn
+        key: ВводитсяНаОсновании
+      - field: dataLockFields
+        key: ПоляБлокировкиДанных
+      - field: dataLockControlMode
+        key: РежимУправленияБлокировкойДанных
+      - field: fullTextSearch
+        key: ПолнотекстовыйПоиск
+      - field: objectPresentation
+        key: ПредставлениеОбъекта
+      - field: extendedObjectPresentation
+        key: РасширенноеПредставлениеОбъекта
+      - field: listPresentation
+        key: ПредставлениеСписка
+      - field: extendedListPresentation
+        key: РасширенноеПредставлениеСписка
+      - field: explanation
+        key: Пояснение
+      - field: createOnInput
+        key: СозданиеПриВводе
+      - field: choiceHistoryOnInput
+        key: ИсторияВыбораПриВводе
+      - field: dataHistory
+        key: ИсторияДанных
+      - field: updateDataHistoryImmediatelyAfterWrite
+        key: ОбновлятьИсториюДанныхСразуПослеЗаписи
+      - field: executeAfterWriteDataHistoryVersionProcessing
+        key: ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных
+presence:
+  - target:
+      field: objectBelonging
+    xml:
+      missing:
+        denotes:
+          literal: Native
+      canonical:
+        - when:
+            eq:
+              - field: objectBelonging
+              - literal: Native
+          form: missing
+    yaml:
+      default:
+        literal: Native
+  - target:
+      field: name
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          input: ownerName
+  - target:
+      field: synonym
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: synonym
+          form: empty-element
+  - target:
+      field: comment
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: ''
+  - target:
+      field: hierarchical
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            and:
+              - input: adopted
+              - not:
+                  present:
+                    field: hierarchical
+              - not:
+                  or:
+                    - and:
+                        - present:
+                            field: codeType
+                        - eq:
+                            - field: codeType
+                            - literal: String
+          form: missing
+        - when:
+            input: adopted
+          form: ordinary
+        - form: ordinary
+    yaml:
+      missing:
+        denotes:
+          if:
+            input: adopted
+          then:
+            if:
+              or:
+                - and:
+                    - present:
+                        field: codeType
+                    - eq:
+                        - field: codeType
+                        - literal: String
+            then:
+              literal: false
+            else:
+              absent: true
+          else:
+            literal: false
+      omitWhen:
+        and:
+          - not:
+              input: adopted
+          - eq:
+              - field: hierarchical
+              - literal: false
+  - target:
+      field: hierarchyType
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            and:
+              - input: adopted
+              - not:
+                  present:
+                    field: hierarchyType
+              - not:
+                  or:
+                    - and:
+                        - present:
+                            field: codeType
+                        - eq:
+                            - field: codeType
+                            - literal: String
+          form: missing
+        - when:
+            input: adopted
+          form: ordinary
+        - form: ordinary
+    yaml:
+      missing:
+        denotes:
+          if:
+            input: adopted
+          then:
+            if:
+              or:
+                - and:
+                    - present:
+                        field: codeType
+                    - eq:
+                        - field: codeType
+                        - literal: String
+            then:
+              literal: HierarchyFoldersAndItems
+            else:
+              absent: true
+          else:
+            literal: HierarchyFoldersAndItems
+      omitWhen:
+        and:
+          - not:
+              input: adopted
+          - eq:
+              - field: hierarchyType
+              - literal: HierarchyFoldersAndItems
+  - target:
+      field: limitLevelCount
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+  - target:
+      field: levelCount
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: 2
+  - target:
+      field: foldersOnTop
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: true
+  - target:
+      field: useStandardCommands
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: true
+  - target:
+      field: subordinationUse
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: ToItems
+  - target:
+      field: codeLength
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: 9
+  - target:
+      field: descriptionLength
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: 25
+  - target:
+      field: codeType
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: String
+  - target:
+      field: codeAllowedLength
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            and:
+              - input: adopted
+              - not:
+                  present:
+                    field: codeAllowedLength
+              - not:
+                  or:
+                    - present:
+                        field: codeLength
+                    - present:
+                        field: codeType
+          form: missing
+        - when:
+            input: adopted
+          form: ordinary
+        - form: ordinary
+    yaml:
+      missing:
+        denotes:
+          if:
+            input: adopted
+          then:
+            if:
+              or:
+                - present:
+                    field: codeLength
+                - present:
+                    field: codeType
+            then:
+              literal: Variable
+            else:
+              absent: true
+          else:
+            literal: Variable
+      omitWhen:
+        and:
+          - not:
+              input: adopted
+          - eq:
+              - field: codeAllowedLength
+              - literal: Variable
+  - target:
+      field: codeSeries
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: WholeCatalog
+  - target:
+      field: checkUnique
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: true
+  - target:
+      field: autonumbering
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: true
+  - target:
+      field: defaultPresentation
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: AsDescription
+  - target:
+      field: characteristics
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: predefinedDataUpdate
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Auto
+  - target:
+      field: editType
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: InDialog
+  - target:
+      field: quickChoice
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+  - target:
+      field: choiceMode
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: BothWays
+  - target:
+      field: searchStringModeOnInputByString
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Begin
+  - target:
+      field: fullTextSearchOnInputByString
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: DontUse
+  - target:
+      field: choiceDataGetModeOnInputByString
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Directly
+  - target:
+      field: defaultObjectForm
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: defaultObjectForm
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: defaultFolderForm
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: defaultFolderForm
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: defaultListForm
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: defaultListForm
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: defaultChoiceForm
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: defaultChoiceForm
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: defaultFolderChoiceForm
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: defaultFolderChoiceForm
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: auxiliaryObjectForm
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: auxiliaryObjectForm
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: auxiliaryFolderForm
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: auxiliaryFolderForm
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: auxiliaryListForm
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: auxiliaryListForm
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: auxiliaryChoiceForm
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: auxiliaryChoiceForm
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: auxiliaryFolderChoiceForm
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: auxiliaryFolderChoiceForm
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: includeHelpInContents
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+  - target:
+      field: dataLockFields
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: dataLockFields
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: dataLockControlMode
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Managed
+  - target:
+      field: fullTextSearch
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Use
+  - target:
+      field: objectPresentation
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: objectPresentation
+          form: empty-element
+  - target:
+      field: extendedObjectPresentation
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: extendedObjectPresentation
+          form: empty-element
+  - target:
+      field: listPresentation
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: listPresentation
+          form: empty-element
+  - target:
+      field: extendedListPresentation
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: extendedListPresentation
+          form: empty-element
+  - target:
+      field: explanation
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: explanation
+          form: empty-element
+  - target:
+      field: createOnInput
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Use
+  - target:
+      field: choiceHistoryOnInput
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Auto
+  - target:
+      field: dataHistory
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: DontUse
+  - target:
+      field: updateDataHistoryImmediatelyAfterWrite
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+  - target:
+      field: executeAfterWriteDataHistoryVersionProcessing
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+constraints:
+  - id: codeLength-minimum
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      present:
+        field: codeLength
+    assert:
+      lte:
+        - literal: 0
+        - field: codeLength
+    diagnostic:
+      code: number.minimum
+      severity: error
+      at:
+        field: codeLength
+      message: Значение не меньше 0
+  - id: codeLength-maximum
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      present:
+        field: codeLength
+    assert:
+      lte:
+        - field: codeLength
+        - literal: 50
+    diagnostic:
+      code: number.maximum
+      severity: error
+      at:
+        field: codeLength
+      message: Значение не больше 50
+  - id: codeLength-conditional-maximum
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      and:
+        - present:
+            field: codeLength
+        - eq:
+            - field: codeType
+            - literal: Number
+    assert:
+      lte:
+        - field: codeLength
+        - literal: 38
+    diagnostic:
+      code: number.maximum
+      severity: error
+      at:
+        field: codeLength
+      message: Значение не больше 38
+  - id: descriptionLength-minimum
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      present:
+        field: descriptionLength
+    assert:
+      lte:
+        - literal: 0
+        - field: descriptionLength
+    diagnostic:
+      code: number.minimum
+      severity: error
+      at:
+        field: descriptionLength
+      message: Значение не меньше 0
+  - id: descriptionLength-maximum
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      present:
+        field: descriptionLength
+    assert:
+      lte:
+        - field: descriptionLength
+        - literal: 150
+    diagnostic:
+      code: number.maximum
+      severity: error
+      at:
+        field: descriptionLength
+      message: Значение не больше 150
+inputs:
+  ownerName:
+    type:
+      kind: scalar
+      scalar: text
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  adopted:
+    type:
+      kind: scalar
+      scalar: boolean
+  roots:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: kind
+            type:
+              use: inputType1f8ea46361ff
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  forms:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  children:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: kind
+            type:
+              use: inputType00917033b468
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: parent
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  ownerRoot:
+    type:
+      use: inputType1f8ea46361ff
+  containingOwnerName:
+    type:
+      kind: scalar
+      scalar: text
+id: candidate.fragment.141dac7761041a30507d

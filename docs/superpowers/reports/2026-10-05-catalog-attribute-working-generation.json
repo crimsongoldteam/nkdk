@@ -1,0 +1,780 @@
+{
+  "package": "nkdk-compiled-rules-bodies-3",
+  "mode": "shared-production",
+  "rust_budget_bytes": 16777216,
+  "generated_rust_bytes": 16749508,
+  "generated_files_bytes": 26091116,
+  "files": [
+    {
+      "name": "automaton-0-big.bin",
+      "bytes": 126468
+    },
+    {
+      "name": "automaton-0-little.bin",
+      "bytes": 126468
+    },
+    {
+      "name": "automaton-1-big.bin",
+      "bytes": 514820
+    },
+    {
+      "name": "automaton-1-little.bin",
+      "bytes": 514820
+    },
+    {
+      "name": "automaton-10-big.bin",
+      "bytes": 1560
+    },
+    {
+      "name": "automaton-10-little.bin",
+      "bytes": 1560
+    },
+    {
+      "name": "automaton-11-big.bin",
+      "bytes": 1688
+    },
+    {
+      "name": "automaton-11-little.bin",
+      "bytes": 1688
+    },
+    {
+      "name": "automaton-12-big.bin",
+      "bytes": 3672
+    },
+    {
+      "name": "automaton-12-little.bin",
+      "bytes": 3672
+    },
+    {
+      "name": "automaton-13-big.bin",
+      "bytes": 2904
+    },
+    {
+      "name": "automaton-13-little.bin",
+      "bytes": 2904
+    },
+    {
+      "name": "automaton-14-big.bin",
+      "bytes": 5720
+    },
+    {
+      "name": "automaton-14-little.bin",
+      "bytes": 5720
+    },
+    {
+      "name": "automaton-15-big.bin",
+      "bytes": 7256
+    },
+    {
+      "name": "automaton-15-little.bin",
+      "bytes": 7256
+    },
+    {
+      "name": "automaton-16-big.bin",
+      "bytes": 3928
+    },
+    {
+      "name": "automaton-16-little.bin",
+      "bytes": 3928
+    },
+    {
+      "name": "automaton-17-big.bin",
+      "bytes": 8664
+    },
+    {
+      "name": "automaton-17-little.bin",
+      "bytes": 8664
+    },
+    {
+      "name": "automaton-18-big.bin",
+      "bytes": 3416
+    },
+    {
+      "name": "automaton-18-little.bin",
+      "bytes": 3416
+    },
+    {
+      "name": "automaton-19-big.bin",
+      "bytes": 7640
+    },
+    {
+      "name": "automaton-19-little.bin",
+      "bytes": 7640
+    },
+    {
+      "name": "automaton-2-big.bin",
+      "bytes": 130612
+    },
+    {
+      "name": "automaton-2-little.bin",
+      "bytes": 130612
+    },
+    {
+      "name": "automaton-20-big.bin",
+      "bytes": 4440
+    },
+    {
+      "name": "automaton-20-little.bin",
+      "bytes": 4440
+    },
+    {
+      "name": "automaton-21-big.bin",
+      "bytes": 9688
+    },
+    {
+      "name": "automaton-21-little.bin",
+      "bytes": 9688
+    },
+    {
+      "name": "automaton-22-big.bin",
+      "bytes": 7000
+    },
+    {
+      "name": "automaton-22-little.bin",
+      "bytes": 7000
+    },
+    {
+      "name": "automaton-23-big.bin",
+      "bytes": 14808
+    },
+    {
+      "name": "automaton-23-little.bin",
+      "bytes": 14808
+    },
+    {
+      "name": "automaton-24-big.bin",
+      "bytes": 3928
+    },
+    {
+      "name": "automaton-24-little.bin",
+      "bytes": 3928
+    },
+    {
+      "name": "automaton-25-big.bin",
+      "bytes": 8664
+    },
+    {
+      "name": "automaton-25-little.bin",
+      "bytes": 8664
+    },
+    {
+      "name": "automaton-26-big.bin",
+      "bytes": 5464
+    },
+    {
+      "name": "automaton-26-little.bin",
+      "bytes": 5464
+    },
+    {
+      "name": "automaton-27-big.bin",
+      "bytes": 11736
+    },
+    {
+      "name": "automaton-27-little.bin",
+      "bytes": 11736
+    },
+    {
+      "name": "automaton-28-big.bin",
+      "bytes": 4696
+    },
+    {
+      "name": "automaton-28-little.bin",
+      "bytes": 4696
+    },
+    {
+      "name": "automaton-29-big.bin",
+      "bytes": 10200
+    },
+    {
+      "name": "automaton-29-little.bin",
+      "bytes": 10200
+    },
+    {
+      "name": "automaton-3-big.bin",
+      "bytes": 524084
+    },
+    {
+      "name": "automaton-3-little.bin",
+      "bytes": 524084
+    },
+    {
+      "name": "automaton-30-big.bin",
+      "bytes": 15832
+    },
+    {
+      "name": "automaton-30-little.bin",
+      "bytes": 15832
+    },
+    {
+      "name": "automaton-31-big.bin",
+      "bytes": 17368
+    },
+    {
+      "name": "automaton-31-little.bin",
+      "bytes": 17368
+    },
+    {
+      "name": "automaton-32-big.bin",
+      "bytes": 1816
+    },
+    {
+      "name": "automaton-32-little.bin",
+      "bytes": 1816
+    },
+    {
+      "name": "automaton-33-big.bin",
+      "bytes": 3672
+    },
+    {
+      "name": "automaton-33-little.bin",
+      "bytes": 3672
+    },
+    {
+      "name": "automaton-34-big.bin",
+      "bytes": 2328
+    },
+    {
+      "name": "automaton-34-little.bin",
+      "bytes": 2328
+    },
+    {
+      "name": "automaton-35-big.bin",
+      "bytes": 8664
+    },
+    {
+      "name": "automaton-35-little.bin",
+      "bytes": 8664
+    },
+    {
+      "name": "automaton-36-big.bin",
+      "bytes": 4184
+    },
+    {
+      "name": "automaton-36-little.bin",
+      "bytes": 4184
+    },
+    {
+      "name": "automaton-37-big.bin",
+      "bytes": 11224
+    },
+    {
+      "name": "automaton-37-little.bin",
+      "bytes": 11224
+    },
+    {
+      "name": "automaton-38-big.bin",
+      "bytes": 10712
+    },
+    {
+      "name": "automaton-38-little.bin",
+      "bytes": 10712
+    },
+    {
+      "name": "automaton-39-big.bin",
+      "bytes": 19160
+    },
+    {
+      "name": "automaton-39-little.bin",
+      "bytes": 19160
+    },
+    {
+      "name": "automaton-4-big.bin",
+      "bytes": 301284
+    },
+    {
+      "name": "automaton-4-little.bin",
+      "bytes": 301284
+    },
+    {
+      "name": "automaton-40-big.bin",
+      "bytes": 26840
+    },
+    {
+      "name": "automaton-40-little.bin",
+      "bytes": 26840
+    },
+    {
+      "name": "automaton-41-big.bin",
+      "bytes": 3672
+    },
+    {
+      "name": "automaton-41-little.bin",
+      "bytes": 3672
+    },
+    {
+      "name": "automaton-42-big.bin",
+      "bytes": 3352
+    },
+    {
+      "name": "automaton-42-little.bin",
+      "bytes": 3352
+    },
+    {
+      "name": "automaton-43-big.bin",
+      "bytes": 390360
+    },
+    {
+      "name": "automaton-43-little.bin",
+      "bytes": 390360
+    },
+    {
+      "name": "automaton-44-big.bin",
+      "bytes": 4696
+    },
+    {
+      "name": "automaton-44-little.bin",
+      "bytes": 4696
+    },
+    {
+      "name": "automaton-45-big.bin",
+      "bytes": 164568
+    },
+    {
+      "name": "automaton-45-little.bin",
+      "bytes": 164568
+    },
+    {
+      "name": "automaton-46-big.bin",
+      "bytes": 45784
+    },
+    {
+      "name": "automaton-46-little.bin",
+      "bytes": 45784
+    },
+    {
+      "name": "automaton-47-big.bin",
+      "bytes": 11992
+    },
+    {
+      "name": "automaton-47-little.bin",
+      "bytes": 11992
+    },
+    {
+      "name": "automaton-48-big.bin",
+      "bytes": 824
+    },
+    {
+      "name": "automaton-48-little.bin",
+      "bytes": 824
+    },
+    {
+      "name": "automaton-49-big.bin",
+      "bytes": 2008
+    },
+    {
+      "name": "automaton-49-little.bin",
+      "bytes": 2008
+    },
+    {
+      "name": "automaton-5-big.bin",
+      "bytes": 558936
+    },
+    {
+      "name": "automaton-5-little.bin",
+      "bytes": 558936
+    },
+    {
+      "name": "automaton-50-big.bin",
+      "bytes": 42760
+    },
+    {
+      "name": "automaton-50-little.bin",
+      "bytes": 42760
+    },
+    {
+      "name": "automaton-51-big.bin",
+      "bytes": 66056
+    },
+    {
+      "name": "automaton-51-little.bin",
+      "bytes": 66056
+    },
+    {
+      "name": "automaton-52-big.bin",
+      "bytes": 122340
+    },
+    {
+      "name": "automaton-52-little.bin",
+      "bytes": 122340
+    },
+    {
+      "name": "automaton-53-big.bin",
+      "bytes": 511716
+    },
+    {
+      "name": "automaton-53-little.bin",
+      "bytes": 511716
+    },
+    {
+      "name": "automaton-54-big.bin",
+      "bytes": 2392
+    },
+    {
+      "name": "automaton-54-little.bin",
+      "bytes": 2392
+    },
+    {
+      "name": "automaton-55-big.bin",
+      "bytes": 4440
+    },
+    {
+      "name": "automaton-55-little.bin",
+      "bytes": 4440
+    },
+    {
+      "name": "automaton-56-big.bin",
+      "bytes": 9688
+    },
+    {
+      "name": "automaton-56-little.bin",
+      "bytes": 9688
+    },
+    {
+      "name": "automaton-57-big.bin",
+      "bytes": 3160
+    },
+    {
+      "name": "automaton-57-little.bin",
+      "bytes": 3160
+    },
+    {
+      "name": "automaton-58-big.bin",
+      "bytes": 11224
+    },
+    {
+      "name": "automaton-58-little.bin",
+      "bytes": 11224
+    },
+    {
+      "name": "automaton-59-big.bin",
+      "bytes": 12248
+    },
+    {
+      "name": "automaton-59-little.bin",
+      "bytes": 12248
+    },
+    {
+      "name": "automaton-6-big.bin",
+      "bytes": 7512
+    },
+    {
+      "name": "automaton-6-little.bin",
+      "bytes": 7512
+    },
+    {
+      "name": "automaton-60-big.bin",
+      "bytes": 12760
+    },
+    {
+      "name": "automaton-60-little.bin",
+      "bytes": 12760
+    },
+    {
+      "name": "automaton-61-big.bin",
+      "bytes": 10712
+    },
+    {
+      "name": "automaton-61-little.bin",
+      "bytes": 10712
+    },
+    {
+      "name": "automaton-62-big.bin",
+      "bytes": 4440
+    },
+    {
+      "name": "automaton-62-little.bin",
+      "bytes": 4440
+    },
+    {
+      "name": "automaton-63-big.bin",
+      "bytes": 3416
+    },
+    {
+      "name": "automaton-63-little.bin",
+      "bytes": 3416
+    },
+    {
+      "name": "automaton-64-big.bin",
+      "bytes": 13272
+    },
+    {
+      "name": "automaton-64-little.bin",
+      "bytes": 13272
+    },
+    {
+      "name": "automaton-65-big.bin",
+      "bytes": 9688
+    },
+    {
+      "name": "automaton-65-little.bin",
+      "bytes": 9688
+    },
+    {
+      "name": "automaton-66-big.bin",
+      "bytes": 10200
+    },
+    {
+      "name": "automaton-66-little.bin",
+      "bytes": 10200
+    },
+    {
+      "name": "automaton-67-big.bin",
+      "bytes": 8664
+    },
+    {
+      "name": "automaton-67-little.bin",
+      "bytes": 8664
+    },
+    {
+      "name": "automaton-68-big.bin",
+      "bytes": 9176
+    },
+    {
+      "name": "automaton-68-little.bin",
+      "bytes": 9176
+    },
+    {
+      "name": "automaton-69-big.bin",
+      "bytes": 10200
+    },
+    {
+      "name": "automaton-69-little.bin",
+      "bytes": 10200
+    },
+    {
+      "name": "automaton-7-big.bin",
+      "bytes": 824
+    },
+    {
+      "name": "automaton-7-little.bin",
+      "bytes": 824
+    },
+    {
+      "name": "automaton-70-big.bin",
+      "bytes": 8664
+    },
+    {
+      "name": "automaton-70-little.bin",
+      "bytes": 8664
+    },
+    {
+      "name": "automaton-71-big.bin",
+      "bytes": 10712
+    },
+    {
+      "name": "automaton-71-little.bin",
+      "bytes": 10712
+    },
+    {
+      "name": "automaton-72-big.bin",
+      "bytes": 13272
+    },
+    {
+      "name": "automaton-72-little.bin",
+      "bytes": 13272
+    },
+    {
+      "name": "automaton-73-big.bin",
+      "bytes": 11736
+    },
+    {
+      "name": "automaton-73-little.bin",
+      "bytes": 11736
+    },
+    {
+      "name": "automaton-74-big.bin",
+      "bytes": 3160
+    },
+    {
+      "name": "automaton-74-little.bin",
+      "bytes": 3160
+    },
+    {
+      "name": "automaton-75-big.bin",
+      "bytes": 3416
+    },
+    {
+      "name": "automaton-75-little.bin",
+      "bytes": 3416
+    },
+    {
+      "name": "automaton-76-big.bin",
+      "bytes": 8152
+    },
+    {
+      "name": "automaton-76-little.bin",
+      "bytes": 8152
+    },
+    {
+      "name": "automaton-77-big.bin",
+      "bytes": 9688
+    },
+    {
+      "name": "automaton-77-little.bin",
+      "bytes": 9688
+    },
+    {
+      "name": "automaton-78-big.bin",
+      "bytes": 13272
+    },
+    {
+      "name": "automaton-78-little.bin",
+      "bytes": 13272
+    },
+    {
+      "name": "automaton-79-big.bin",
+      "bytes": 17368
+    },
+    {
+      "name": "automaton-79-little.bin",
+      "bytes": 17368
+    },
+    {
+      "name": "automaton-8-big.bin",
+      "bytes": 7000
+    },
+    {
+      "name": "automaton-8-little.bin",
+      "bytes": 7000
+    },
+    {
+      "name": "automaton-80-big.bin",
+      "bytes": 11736
+    },
+    {
+      "name": "automaton-80-little.bin",
+      "bytes": 11736
+    },
+    {
+      "name": "automaton-81-big.bin",
+      "bytes": 7640
+    },
+    {
+      "name": "automaton-81-little.bin",
+      "bytes": 7640
+    },
+    {
+      "name": "automaton-82-big.bin",
+      "bytes": 8920
+    },
+    {
+      "name": "automaton-82-little.bin",
+      "bytes": 8920
+    },
+    {
+      "name": "automaton-83-big.bin",
+      "bytes": 7384
+    },
+    {
+      "name": "automaton-83-little.bin",
+      "bytes": 7384
+    },
+    {
+      "name": "automaton-84-big.bin",
+      "bytes": 2904
+    },
+    {
+      "name": "automaton-84-little.bin",
+      "bytes": 2904
+    },
+    {
+      "name": "automaton-85-big.bin",
+      "bytes": 14296
+    },
+    {
+      "name": "automaton-85-little.bin",
+      "bytes": 14296
+    },
+    {
+      "name": "automaton-86-big.bin",
+      "bytes": 12248
+    },
+    {
+      "name": "automaton-86-little.bin",
+      "bytes": 12248
+    },
+    {
+      "name": "automaton-87-big.bin",
+      "bytes": 7128
+    },
+    {
+      "name": "automaton-87-little.bin",
+      "bytes": 7128
+    },
+    {
+      "name": "automaton-88-big.bin",
+      "bytes": 7128
+    },
+    {
+      "name": "automaton-88-little.bin",
+      "bytes": 7128
+    },
+    {
+      "name": "automaton-89-big.bin",
+      "bytes": 10712
+    },
+    {
+      "name": "automaton-89-little.bin",
+      "bytes": 10712
+    },
+    {
+      "name": "automaton-9-big.bin",
+      "bytes": 920
+    },
+    {
+      "name": "automaton-9-little.bin",
+      "bytes": 920
+    },
+    {
+      "name": "automaton-90-big.bin",
+      "bytes": 12248
+    },
+    {
+      "name": "automaton-90-little.bin",
+      "bytes": 12248
+    },
+    {
+      "name": "automaton-91-big.bin",
+      "bytes": 8664
+    },
+    {
+      "name": "automaton-91-little.bin",
+      "bytes": 8664
+    },
+    {
+      "name": "automaton-92-big.bin",
+      "bytes": 12760
+    },
+    {
+      "name": "automaton-92-little.bin",
+      "bytes": 12760
+    },
+    {
+      "name": "automaton-93-big.bin",
+      "bytes": 520456
+    },
+    {
+      "name": "automaton-93-little.bin",
+      "bytes": 520456
+    },
+    {
+      "name": "generated.rs",
+      "bytes": 16749508
+    }
+  ],
+  "partitions": [
+    {
+      "package": "nkdk-compiled-rules-bodies-3",
+      "rust_budget_bytes": 16777216,
+      "generated_rust_bytes": 16749508,
+      "generated_files_bytes": 26091116
+    },
+    {
+      "package": "nkdk-compiled-rules-members-2",
+      "rust_budget_bytes": 8388608,
+      "generated_rust_bytes": 6299149,
+      "generated_files_bytes": 6955277
+    }
+  ],
+  "measurement": "generated.rs and its referenced assets only; stale build-directory files excluded"
+}

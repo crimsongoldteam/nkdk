@@ -1,0 +1,50 @@
+format: nkdk-declarations/1
+kind: value
+id: common.metadata-root-path-roots
+imports:
+  root: common.path-root
+  name: common.metadata-name
+inputs:
+  allowedRoot:
+    type:
+      use: root
+value:
+  kind: record
+  fields:
+    - name: root
+      type:
+        use: root
+    - name: name
+      type:
+        use: name
+representations:
+  xml:
+    kind: text-pattern
+    separator: .
+    parts:
+      - field: root
+      - field: name
+  yaml:
+    kind: text-pattern
+    separator: .
+    parts:
+      - field: root
+      - field: name
+constraints:
+  - id: allowed-root
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    assert:
+      eq:
+        - input: allowedRoot
+        - get:
+            of:
+              self: true
+            field: root
+    diagnostic:
+      code: metadata.target-root
+      severity: error
+      at:
+        self: true
+      message: Ссылка ведёт к недопустимому виду объекта

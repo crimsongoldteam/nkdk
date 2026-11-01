@@ -1,0 +1,8 @@
+format: nkdk-declarations/1
+kind: object
+id: probe.picture-reference-owner
+imports: {picture: common.picture-reference}
+value: {kind: record, fields: [{name: picture, type: {use: picture}}]}
+representations:
+  xml: {kind: record, fields: [{field: picture, path: [Root, Reference]}]}
+  yaml: {kind: mapping, fields: [{field: picture, key: Картинка}]}

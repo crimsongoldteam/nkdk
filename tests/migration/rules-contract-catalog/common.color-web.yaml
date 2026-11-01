@@ -1,0 +1,23 @@
+format: nkdk-declarations/1
+kind: value
+id: common.color-web
+namespaces:
+  web: http://v8.1c.ru/8.1/data/ui/colors/web
+imports:
+  color: system.WebColors
+value:
+  kind: record
+  fields:
+    - name: color
+      type:
+        use: color
+representations:
+  xml:
+    kind: text-pattern
+    parts:
+      - literal: 'web:'
+      - field: color
+  yaml:
+    kind: text-pattern
+    parts:
+      - field: color

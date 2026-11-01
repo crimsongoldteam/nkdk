@@ -1,0 +1,117 @@
+format: nkdk-declarations/1
+kind: value
+id: common.dcs-parameter-atom
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  v8ui: http://v8.1c.ru/8.1/data/ui
+  v8: http://v8.1c.ru/8.1/data/core
+  xs: http://www.w3.org/2001/XMLSchema
+  dcscor: http://v8.1c.ru/8.1/data-composition-system/core
+  ent: http://v8.1c.ru/8.1/data/enterprise
+imports:
+  value: common.dcs-parameter-value-choice
+inputs:
+  valueProfile:
+    type:
+      kind: scalar
+      scalar: text
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  labels:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: code
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  codes:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: label
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  styleTypes:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: scalar
+        scalar: text
+value:
+  kind: record
+  fields:
+    - name: value
+      type:
+        use: value
+        bind:
+          valueProfile:
+            input: valueProfile
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          labels:
+            input: labels
+          codes:
+            input: codes
+          styleTypes:
+            input: styleTypes
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: value
+        path: []
+  yaml:
+    kind: projection
+    field: value
+presence:
+  - target:
+      field: value
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: nil
+          denotes:
+            absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: 'null'
+          denotes:
+            absent: true

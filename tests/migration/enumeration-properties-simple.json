@@ -1,0 +1,136 @@
+{
+  "entry": "metadata.enumeration",
+  "coverage": {
+    "assembled": [
+      "xmlRoot",
+      "internalInfo",
+      "uuid",
+      "name",
+      "synonym",
+      "comment",
+      "objectBelonging",
+      "extendedConfigurationObject",
+      "useStandardCommands",
+      "standardAttributes",
+      "characteristics",
+      "quickChoice",
+      "choiceMode",
+      "defaultListForm",
+      "defaultChoiceForm",
+      "auxiliaryListForm",
+      "auxiliaryChoiceForm",
+      "managerModule",
+      "listPresentation",
+      "extendedListPresentation",
+      "explanation",
+      "choiceHistoryOnInput",
+      "enumValues",
+      "commands",
+      "forms",
+      "templates"
+    ],
+    "pending": []
+  },
+  "xml": "<ns0:MetaDataObject xmlns:ns0=\"http://v8.1c.ru/8.3/MDClasses\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" version=\"2.20\"><ns0:Enum uuid=\"9c860460-72d9-491d-b622-4916f7ff3323\"><ns0:InternalInfo>\n\t\t\t<xr:GeneratedType name=\"EnumRef.Перечисление1\" category=\"Ref\">\n\t\t\t\t<xr:TypeId>db37da37-1f75-40ad-9b75-b9f1f7cafcb9</xr:TypeId>\n\t\t\t\t<xr:ValueId>99890920-10e6-446d-a0d1-107d0d51e0b3</xr:ValueId>\n\t\t\t</xr:GeneratedType>\n\t\t\t<xr:GeneratedType name=\"EnumManager.Перечисление1\" category=\"Manager\">\n\t\t\t\t<xr:TypeId>1f339323-fb28-4fca-9e5b-f69357dc10f8</xr:TypeId>\n\t\t\t\t<xr:ValueId>a0269d5f-8f36-4272-889b-1880235573a3</xr:ValueId>\n\t\t\t</xr:GeneratedType>\n\t\t\t<xr:GeneratedType name=\"EnumList.Перечисление1\" category=\"List\">\n\t\t\t\t<xr:TypeId>22d3d09d-2040-46ec-8a9b-35a774fdae68</xr:TypeId>\n\t\t\t\t<xr:ValueId>de9dd146-1730-4ed6-b153-ccabf7d67eeb</xr:ValueId>\n\t\t\t</xr:GeneratedType>\n\t\t</ns0:InternalInfo>\n\t\t<ns0:Properties><ns0:Name>Перечисление1</ns0:Name>\n\t\t\t<ns0:Synonym />\n\t\t\t<ns0:Comment />\n\t\t\t<ns0:UseStandardCommands>false</ns0:UseStandardCommands>\n\t\t\t<ns0:Characteristics />\n\t\t\t<ns0:QuickChoice>true</ns0:QuickChoice>\n\t\t\t<ns0:ChoiceMode>BothWays</ns0:ChoiceMode>\n\t\t\t<ns0:DefaultListForm />\n\t\t\t<ns0:DefaultChoiceForm />\n\t\t\t<ns0:AuxiliaryListForm />\n\t\t\t<ns0:AuxiliaryChoiceForm />\n\t\t\t<ns0:ListPresentation />\n\t\t\t<ns0:ExtendedListPresentation />\n\t\t\t<ns0:Explanation />\n\t\t\t<ns0:ChoiceHistoryOnInput>Auto</ns0:ChoiceHistoryOnInput>\n\t\t</ns0:Properties><ns0:ChildObjects><ns0:EnumValue uuid=\"dd7ef1bd-9d9b-494b-8abf-24df5971ccec\">\n\t\t\t\t<ns0:Properties>\n\t\t\t\t\t<ns0:Name>ЗначениеПеречисления1</ns0:Name>\n\t\t\t\t\t<ns0:Synonym />\n\t\t\t\t\t<ns0:Comment />\n\t\t\t\t</ns0:Properties>\n\t\t\t</ns0:EnumValue>\n\t\t\t<ns0:EnumValue uuid=\"ff330a49-aaec-4576-87d5-15cb95f5269e\">\n\t\t\t\t<ns0:Properties>\n\t\t\t\t\t<ns0:Name>ЗначениеПеречисления2</ns0:Name>\n\t\t\t\t\t<ns0:Synonym />\n\t\t\t\t\t<ns0:Comment />\n\t\t\t\t</ns0:Properties>\n\t\t\t</ns0:EnumValue>\n\t\t\t<ns0:EnumValue uuid=\"225cbac1-1e24-403f-99b8-5a2fd3a02c77\">\n\t\t\t\t<ns0:Properties>\n\t\t\t\t\t<ns0:Name>ЗначениеПеречисления3</ns0:Name>\n\t\t\t\t\t<ns0:Synonym />\n\t\t\t\t\t<ns0:Comment />\n\t\t\t\t</ns0:Properties>\n\t\t\t</ns0:EnumValue>\n\t\t</ns0:ChildObjects></ns0:Enum></ns0:MetaDataObject>",
+  "yaml": "Синоним: \"\"\nЗначения:\n  ЗначениеПеречисления1:\n    Синоним: \"\"\n  ЗначениеПеречисления2:\n    Синоним: \"\"\n  ЗначениеПеречисления3:\n    Синоним: \"\"",
+  "ownerIdentity": "9c860460-72d9-491d-b622-4916f7ff3323",
+  "ownerInternalTypes": [
+    {
+      "name": "EnumRef.Перечисление1",
+      "typeId": "db37da37-1f75-40ad-9b75-b9f1f7cafcb9",
+      "valueId": "99890920-10e6-446d-a0d1-107d0d51e0b3"
+    },
+    {
+      "name": "EnumManager.Перечисление1",
+      "typeId": "1f339323-fb28-4fca-9e5b-f69357dc10f8",
+      "valueId": "a0269d5f-8f36-4272-889b-1880235573a3"
+    },
+    {
+      "name": "EnumList.Перечисление1",
+      "typeId": "22d3d09d-2040-46ec-8a9b-35a774fdae68",
+      "valueId": "de9dd146-1730-4ed6-b153-ccabf7d67eeb"
+    }
+  ],
+  "ownerPath": "Enum.Перечисление1",
+  "ownerForms": [],
+  "ownerChildIdentities": [
+    {
+      "kind": "EnumValue",
+      "name": "ЗначениеПеречисления1",
+      "identity": "dd7ef1bd-9d9b-494b-8abf-24df5971ccec"
+    },
+    {
+      "kind": "EnumValue",
+      "name": "ЗначениеПеречисления2",
+      "identity": "ff330a49-aaec-4576-87d5-15cb95f5269e"
+    },
+    {
+      "kind": "EnumValue",
+      "name": "ЗначениеПеречисления3",
+      "identity": "225cbac1-1e24-403f-99b8-5a2fd3a02c77"
+    }
+  ],
+  "ownerTemplates": [],
+  "xmlQNamePaths": [],
+  "source": [
+    {
+      "path": "e2e/fixtures/xml/cf/Enums/Перечисление1.xml",
+      "sha256": "a3093fabbc0df92c9e8e1bbe122f23f0acdbf8e58f183331bbd39e4cec820ad9"
+    },
+    {
+      "path": "e2e/fixtures/nkdk/cf/Перечисление/Перечисление1/Свойства.yaml",
+      "sha256": "932e6257ca6171f5422e5a4c575c761ba6d6b63c691d83def2a352a80addff5b"
+    }
+  ],
+  "inputs": {
+    "ownerName": "Перечисление1",
+    "owner": "Enum.Перечисление1",
+    "ownerIdentity": "9c860460-72d9-491d-b622-4916f7ff3323",
+    "forms": [],
+    "templates": [],
+    "commandNames": [],
+    "defaultLanguage": "ru",
+    "registeredLanguages": [
+      "ru",
+      "en"
+    ],
+    "component": "cf",
+    "compatibilityMode": "Version8_3_27",
+    "componentKind": "configuration",
+    "profiles": [
+      {
+        "name": "Order",
+        "yamlName": "Порядок",
+        "pathName": "Порядок",
+        "emptyForm": "mapping",
+        "policy": "notSpecified",
+        "expectedKind": "",
+        "maxTextLength": "",
+        "maxNumberDigits": "",
+        "allowedTextLength": "",
+        "owners": []
+      },
+      {
+        "name": "Ref",
+        "yamlName": "Ссылка",
+        "pathName": "Ссылка",
+        "emptyForm": "mapping",
+        "policy": "notSpecified",
+        "expectedKind": "",
+        "maxTextLength": "",
+        "maxNumberDigits": "",
+        "allowedTextLength": "",
+        "owners": []
+      }
+    ],
+    "owners": [],
+    "canonicalNames": [
+      "Order",
+      "Ref"
+    ],
+    "elidableNames": [
+      "Order",
+      "Ref"
+    ]
+  }
+}

@@ -12,6 +12,14 @@ value:
   fields:
     - {name: variant, type: {use: variant}}
     - {name: date, type: {use: date}}
+dataPath:
+  type: StandardBeginningDate
+  aliases: [СтандартнаяДатаНачала]
+  members:
+    - {field: variant, internal: Variant, terminalTypes: [StandardBeginningDateVariant]}
+    - {field: date, internal: Date, terminalTypes: [dateTime]}
+  views:
+    formConditionalFilter: [date]
 representations:
   xml:
     kind: with-attributes

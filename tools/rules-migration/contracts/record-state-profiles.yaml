@@ -1,0 +1,17 @@
+# Подключение представлений common к состояниям свойства. Это данные переноса,
+# а не обработчики XML/YAML и не перечень аномалий.
+format: nkdk-record-state-profiles/1
+values:
+  common.type-description:
+    plainForm: sequence
+    view:
+      concat: [items, types, typeSets, identifiers]
+      lastPresent: [numberDigits, numberFractionDigits, numberAllowedSign, stringLength, stringAllowedLength, dateFractions, binaryLength, binaryAllowedLength]
+    grouped:
+      semantic: common.grouped-type-description
+      mode: MultiState
+      capability: multi
+      viewGroups: [check, notify, extend]
+
+  common.i8n-text:
+    plainForm: input-profile

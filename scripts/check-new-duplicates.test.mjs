@@ -6,7 +6,7 @@ import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { fileURLToPath } from "node:url"
 
-import { findNewDuplicates } from "./check-new-duplicates.mjs"
+import { findNewDuplicates, isRustSignatureOnly } from "./check-new-duplicates.mjs"
 import { resolveNodePackageBinary } from "./node-package-binary.mjs"
 
 async function scanDuplicates(directory) {
@@ -99,6 +99,28 @@ describe("findNewDuplicates", () => {
     ]
 
     assert.deepEqual(findNewDuplicates(base, current), [current[1]])
+  })
+})
+
+describe("Rust signatures are not duplicated implementation", () => {
+  const signature = "fn resolve(\n    module: &Module,\n    ids: &BTreeMap<&str, u32>,\n) -> Result<LinkedType, Diagnostic> {"
+  const pair = (fragment) => ({
+    firstFile: { name: "first.rs" },
+    secondFile: { name: "second.rs" },
+    fragments: [fragment, fragment],
+  })
+
+  it("ignores matching declarations without a body", () => {
+    assert.equal(isRustSignatureOnly(pair(signature)), true)
+    assert.equal(
+      isRustSignatureOnly(pair(`${signature}\n    let (kind, value_type) = match &expression.kind {`)),
+      true
+    )
+  })
+
+  it("keeps matching executable code and non-Rust files", () => {
+    assert.equal(isRustSignatureOnly(pair(`${signature}\n    compute()\n}`)), false)
+    assert.equal(isRustSignatureOnly({ ...pair(signature), secondFile: { name: "second.ts" } }), false)
   })
 })
 

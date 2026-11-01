@@ -1,0 +1,21 @@
+format: nkdk-declarations/1
+kind: value
+id: common.picture-standard-reference
+imports:
+  picture: system.PictureLib
+value:
+  kind: record
+  fields:
+    - name: picture
+      type:
+        use: picture
+representations:
+  xml:
+    kind: text-pattern
+    parts:
+      - literal: StdPicture.
+      - field: picture
+  yaml:
+    kind: text-pattern
+    parts:
+      - field: picture

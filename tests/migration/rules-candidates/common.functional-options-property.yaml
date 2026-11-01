@@ -1,23 +1,23 @@
 format: nkdk-declarations/1
 kind: value
 id: common.functional-options-property
+imports:
+  item: common.functional-option-item
 value:
   kind: sequence
   item:
-    kind: scalar
-    scalar: text
+    use: item
 representations:
   xml:
     kind: element-sequence
     path:
       - Item
     item:
-      kind: text
+      kind: declared
   yaml:
     kind: sequence
     item:
-      kind: scalar
-      scalar: text
+      kind: declared
 presence:
   - target: self
     xml:

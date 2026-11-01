@@ -5,6 +5,8 @@ imports:
   text: common.i8n-text
   boolean: common.boolean
   group: common.metadata-command-group
+  parameterType: common.type-description
+  picture: common.picture
   rootKind: common.path-root
   CommandParameterUseMode: system.CommandParameterUseMode
   ButtonRepresentation: system.ButtonRepresentation
@@ -26,10 +28,12 @@ value:
   - {name: Synonym, type: {use: text, with: {excludeIfEqualNameYAML: true}, bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}, ownerName: {input: name}}}}
   - {name: Comment, type: {kind: scalar, scalar: text}}
   - {name: Group, type: {use: group, bind: {roots: {input: roots}}}}
+  - {name: CommandParameterType, type: {use: parameterType}}
   - {name: ParameterUseMode, type: {use: CommandParameterUseMode}}
   - {name: ModifiesData, type: {use: boolean}}
   - {name: Representation, type: {use: ButtonRepresentation}}
   - {name: ToolTip, type: {use: text, bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}, ownerName: {input: name}}}}
+  - {name: Picture, type: {use: picture}}
   - {name: Shortcut, type: {kind: scalar, scalar: text}}
   - {name: OnMainServerUnavalableBehavior, type: {use: OnMainServerUnavalableBehavior}}
 representations:
@@ -40,10 +44,12 @@ representations:
     - {field: Synonym, path: [md:Command, md:Properties, md:Synonym]}
     - {field: Comment, path: [md:Command, md:Properties, md:Comment]}
     - {field: Group, path: [md:Command, md:Properties, md:Group]}
+    - {field: CommandParameterType, path: [md:Command, md:Properties, md:CommandParameterType]}
     - {field: ParameterUseMode, path: [md:Command, md:Properties, md:ParameterUseMode]}
     - {field: ModifiesData, path: [md:Command, md:Properties, md:ModifiesData]}
     - {field: Representation, path: [md:Command, md:Properties, md:Representation]}
     - {field: ToolTip, path: [md:Command, md:Properties, md:ToolTip]}
+    - {field: Picture, path: [md:Command, md:Properties, md:Picture]}
     - {field: Shortcut, path: [md:Command, md:Properties, md:Shortcut]}
     - {field: OnMainServerUnavalableBehavior, path: [md:Command, md:Properties, md:OnMainServerUnavalableBehavior]}
   yaml:
@@ -53,13 +59,21 @@ representations:
     - {field: Synonym, key: Синоним}
     - {field: Comment, key: Комментарий}
     - {field: Group, key: Группа}
+    - {field: CommandParameterType, key: ТипПараметраКоманды}
     - {field: ParameterUseMode, key: РежимИспользованияПараметра}
     - {field: ModifiesData, key: ИзменяетДанные}
     - {field: Representation, key: Отображение}
     - {field: ToolTip, key: Подсказка}
+    - {field: Picture, key: Картинка}
     - {field: Shortcut, key: СочетаниеКлавиш}
     - {field: OnMainServerUnavalableBehavior, key: ПоведениеПриНедоступностиОсновногоСервера}
 presence:
+- target: {field: CommandParameterType}
+  xml:
+    missing: {denotes: {absent: true}}
+    empty: [{form: empty-element, denotes: {absent: true}}]
+    canonical: [{when: {not: {present: {field: CommandParameterType}}}, form: empty-element}]
+  yaml: {missing: {denotes: {absent: true}}}
 - target: {field: Name}
   xml: {missing: {denotes: {absent: true}}}
   yaml: {default: {input: name}}
@@ -84,3 +98,9 @@ presence:
 - target: {field: ToolTip}
   xml:
     canonical: [{when: {not: {present: {field: ToolTip}}}, form: empty-element}]
+- target: {field: Picture}
+  xml:
+    missing: {denotes: {absent: true}}
+    empty: [{form: empty-element, denotes: {absent: true}}]
+    canonical: [{when: {not: {present: {field: Picture}}}, form: empty-element}]
+  yaml: {missing: {denotes: {absent: true}}}

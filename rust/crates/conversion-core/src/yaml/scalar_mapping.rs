@@ -8,6 +8,49 @@ pub struct ScalarEntry {
     pub tag: Option<String>,
 }
 
+pub enum ScalarOrMappingEntry {
+    Scalar(Scalar, Option<String>),
+    Field(ScalarEntry),
+}
+
+/// One scalar or one flat mapping, selected by the first YAML event.
+#[derive(Default)]
+pub struct ScalarOrMapping {
+    mapping: ScalarMapping,
+    scalar_seen: bool,
+}
+impl ScalarOrMapping {
+    pub fn consume(
+        &mut self,
+        node: Node,
+        position: Position,
+    ) -> Result<Option<ScalarOrMappingEntry>> {
+        if self.scalar_seen {
+            return Err(position.apply(
+                &[],
+                RuntimeDiagnostic::new("yaml.document", "Expected one YAML value"),
+            ));
+        }
+        match node {
+            Node::Scalar(value, tag) if !self.mapping.opened => {
+                self.scalar_seen = true;
+                Ok(Some(ScalarOrMappingEntry::Scalar(value, tag)))
+            }
+            node => self
+                .mapping
+                .consume(node, position)
+                .map(|entry| entry.map(ScalarOrMappingEntry::Field)),
+        }
+    }
+    pub fn finish(self) -> Result<()> {
+        if self.scalar_seen {
+            Ok(())
+        } else {
+            self.mapping.finish()
+        }
+    }
+}
+
 /// State for one flat mapping; separate instances may receive interleaved events.
 #[derive(Default)]
 pub struct ScalarMapping {

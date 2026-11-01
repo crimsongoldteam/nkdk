@@ -1,0 +1,85 @@
+# Generated from packages/rules/metadata/commonObjects/predefined/rules.ts and packages/rules/metadata/appliedObjects/metadataCatalog/rules.ts by file-envelope-operation.mjs
+format: nkdk-declarations/1
+kind: object
+id: probe.predefined-catalog-owner
+namespaces:
+  md: http://v8.1c.ru/8.3/MDClasses
+imports:
+  file: fragment.predefined-catalog-file
+inputs:
+  component:
+    type:
+      kind: scalar
+      scalar: text
+  identities:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: scalar
+        scalar: text
+    index: metadata.predefined-identities
+compose:
+  - use: file
+    bind:
+      owner:
+        concat:
+          - input: component
+          - literal: /
+          - literal: Справочник.
+          - field: name
+      identities:
+        input: identities
+value:
+  kind: record
+  fields:
+    - name: name
+      type:
+        kind: scalar
+        scalar: text
+    - name: belonging
+      type:
+        kind: scalar
+        scalar: text
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: name
+        path:
+          - md:MetaDataObject
+          - md:Catalog
+          - md:Properties
+          - md:Name
+      - field: belonging
+        path:
+          - md:MetaDataObject
+          - md:Catalog
+          - md:Properties
+          - md:ObjectBelonging
+  yaml:
+    kind: mapping
+    fields:
+      - field: name
+        key: Имя
+      - field: belonging
+        key: Принадлежность
+presence:
+  - target:
+      field: belonging
+    xml:
+      missing:
+        denotes:
+          literal: Native
+      canonical:
+        - when:
+            eq:
+              - field: belonging
+              - literal: Native
+          form: missing
+        - form: ordinary
+    yaml:
+      default:
+        literal: Native

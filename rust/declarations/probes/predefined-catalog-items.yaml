@@ -1,0 +1,118 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: fragment
+  id: fragment.predefined-catalog-item
+  namespaces: {p: 'http://v8.1c.ru/8.3/xcf/predef'}
+  imports: {code: common.predefined-code, boolean: common.boolean, children: probe.predefined-catalog-items, type: common.type-description}
+  parameters:
+    emitType: {type: {kind: scalar, scalar: boolean}, default: false}
+  inputs:
+    parent: {type: {kind: scalar, scalar: text}}
+    identities: {type: {kind: index, key: {kind: scalar, scalar: text}, value: {kind: scalar, scalar: text}}}
+  value:
+    kind: record
+    fields:
+    - {name: name, type: {kind: scalar, scalar: text}}
+    - {name: code, type: {use: code}}
+    - {name: description, type: {kind: scalar, scalar: text}}
+    - {name: type, type: {use: type}}
+    - {name: isFolder, type: {use: boolean}}
+    - {name: id, type: {kind: scalar, scalar: text}}
+  representations:
+    xml:
+      kind: record
+      fields:
+      - {field: name, path: [p:Name]}
+      - {field: code, path: [p:Code]}
+      - {field: description, path: [p:Description]}
+      - {field: type, path: [p:Type]}
+      - {field: isFolder, path: [p:IsFolder]}
+      - {field: id, path: [], attribute: id}
+    yaml:
+      kind: mapping
+      fields:
+      - {field: name, key: Имя}
+      - {field: code, key: Код}
+      - {field: description, key: Наименование}
+      - {field: type, key: ТипЗначения}
+      - {field: isFolder, key: ЭтоГруппа}
+      - {field: id, key: Идентификатор}
+  presence:
+  - target: {field: description}
+    yaml:
+      default: {literal: ''}
+  - target: {field: type}
+    xml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: empty-element, denotes: {absent: true}}]
+      canonical:
+      - {when: {not: {parameter: emitType}}, form: missing}
+      - {when: {not: {present: {field: type}}}, form: empty-element}
+      - {form: ordinary}
+    yaml:
+      missing: {denotes: {absent: true}}
+  - target: {field: isFolder}
+    xml: {missing: {denotes: {literal: false}}}
+    yaml:
+      default: {literal: false}
+  - target: {field: id}
+    xml: {missing: {denotes: {absent: true}}}
+    yaml:
+      missing:
+        denotes:
+          lookup:
+            in: {input: identities}
+            key: {concat: [{input: parent}, {literal: '.Предопределенный.'}, {field: name}]}
+      omitWhen:
+        match:
+          value: {lookup: {in: {input: identities}, key: {concat: [{input: parent}, {literal: '.Предопределенный.'}, {field: name}]}}}
+          present: {as: uuid, then: {eq: [{field: id}, {var: uuid}]}}
+          absent: {literal: false}
+  contributions:
+  - index: metadata.predefined-identities
+    key: {concat: [{input: parent}, {literal: '.Предопределенный.'}, {field: name}]}
+    value: {field: id}
+    when: {present: {field: id}}
+- kind: value
+  id: probe.predefined-catalog-item
+  imports: {row: fragment.predefined-catalog-item, children: probe.predefined-catalog-items}
+  parameters:
+    emitType: {type: {kind: scalar, scalar: boolean}, default: false}
+  inputs:
+    parent: {type: {kind: scalar, scalar: text}}
+    identities: {type: {kind: index, key: {kind: scalar, scalar: text}, value: {kind: scalar, scalar: text}}}
+  compose: [{use: row, with: {emitType: {parameter: emitType}}, bind: {parent: {input: parent}, identities: {input: identities}}}]
+  namespaces: {p: 'http://v8.1c.ru/8.3/xcf/predef'}
+  value:
+    kind: record
+    fields:
+    - name: children
+      type:
+        use: children
+        with: {emitType: {parameter: emitType}}
+        bind:
+          parent: {concat: [{input: parent}, {literal: '.Предопределенный.'}, {field: name}]}
+          identities: {input: identities}
+  representations:
+    xml: {kind: record, fields: [{field: children, path: [p:ChildItems]}]}
+    yaml: {kind: mapping, fields: [{field: children, key: Элементы}]}
+- kind: value
+  id: probe.predefined-catalog-items
+  namespaces: {p: 'http://v8.1c.ru/8.3/xcf/predef'}
+  imports: {item: probe.predefined-catalog-item}
+  parameters:
+    emitType: {type: {kind: scalar, scalar: boolean}, default: false}
+  inputs:
+    parent: {type: {kind: scalar, scalar: text}}
+    identities: {type: {kind: index, key: {kind: scalar, scalar: text}, value: {kind: scalar, scalar: text}}}
+  value:
+    kind: sequence
+    item: {use: item, with: {emitType: {parameter: emitType}}, bind: {parent: {input: parent}, identities: {input: identities}}}
+  representations:
+    xml: {kind: element-sequence, path: [p:Item], item: {kind: declared}}
+    yaml: {kind: record-mapping, key: name}
+  presence:
+  - target: self
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}}

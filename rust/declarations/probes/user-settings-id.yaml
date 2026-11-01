@@ -1,0 +1,14 @@
+format: nkdk-declarations/1
+kind: object
+id: probe.user-settings-id
+imports: {value: common.user-settings-id}
+value: {kind: record, fields: [{name: value, type: {use: value}}]}
+representations:
+  xml: {kind: record, fields: [{field: value, path: [Root, UserSettingsID]}]}
+  yaml: {kind: mapping, fields: [{field: value, key: Идентификатор}]}
+presence:
+- target: {field: value}
+  xml:
+    missing: {denotes: {absent: true}}
+    empty: [{form: empty-element, denotes: {absent: true}}]
+  yaml: {missing: {denotes: {absent: true}}}

@@ -1,0 +1,19 @@
+format: nkdk-declarations/1
+kind: value
+id: common.dcs-typed-order
+value:
+  kind: enum
+  variants:
+    - name: Order
+      value: order
+representations:
+  xml:
+    kind: text
+    values:
+      - value: order
+        text: ''
+  yaml:
+    kind: scalar
+    values:
+      - value: order
+        literal: Порядок

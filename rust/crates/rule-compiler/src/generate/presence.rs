@@ -1,5 +1,23 @@
 use super::*;
 use std::fmt::Write;
+/// Whether this side explicitly accepts no semantic value at the given boundary.
+pub(super) fn denotes_absent(
+    entry: &LinkedEntry,
+    target: LinkedPresenceTarget,
+    side: crate::plan::RepresentationSide,
+) -> bool {
+    entry.presence.iter().any(|rule| {
+        let missing = match side {
+            crate::plan::RepresentationSide::Xml => &rule.xml_missing,
+            crate::plan::RepresentationSide::Yaml => &rule.yaml_missing,
+        };
+        rule.target == target
+            && missing
+                .as_ref()
+                .is_some_and(|value| matches!(value.kind, LinkedExpressionKind::Absent))
+    })
+}
+
 #[derive(Default)]
 pub(super) struct Presence {
     pub definitions: String,
@@ -12,6 +30,7 @@ pub(super) struct Presence {
     pub namespaces: BTreeSet<String>,
     pub yaml_value: String,
     pub yaml_write: String,
+    pub yaml_explicit_default: String,
     pub xml_write: String,
     pub yaml_empty_read: String,
 }
@@ -22,6 +41,34 @@ fn uses_self(value: &LinkedExpression) -> bool {
         _ => false,
     }
 }
+
+fn uses_sequence_parse(value: &LinkedExpression) -> bool {
+    match &value.kind {
+        LinkedExpressionKind::Operation {
+            operator: LinkedOperator::ParseYaml,
+            ..
+        } => matches!(value.value_type, LinkedType::Sequence(_)),
+        LinkedExpressionKind::Operation { arguments, .. } => {
+            arguments.iter().any(uses_sequence_parse)
+        }
+        _ => false,
+    }
+}
+
+// An ambiguous fact or missing semantic dependency cannot prove an explicit
+// value equals its default. Keep the value; readiness and internal errors propagate.
+pub(super) fn omission_condition(condition: &str) -> String {
+    let evaluation = condition
+        .strip_prefix("presence_")
+        .and_then(|call| {
+            call.strip_suffix('?')
+                .map(|call| format!("presence_{call}"))
+        })
+        .unwrap_or_else(|| format!("(|| -> core::Result<bool> {{ Ok({condition}) }})()"));
+    format!(
+        "match {evaluation} {{ Err(error) if matches!(error.code.as_deref(),Some(\"fact.ambiguous\"|\"value.missing\"))=>false, result=>result? }}"
+    )
+}
 fn code(
     value: &LinkedExpression,
     common: &LinkedEntry,
@@ -29,13 +76,131 @@ fn code(
     program: &Program,
     bindings: &[LinkedBinding],
     arguments: &[LinkedExpression],
-    index: usize,
+    label: &str,
 ) -> Result<(String, String), Diagnostic> {
     let value = super::shorthand::specialize(value, bindings, arguments, owner)?;
-    let with_self = uses_self(&value);
+    code_resolved(&value, common, owner, program, label)
+}
+
+fn code_resolved(
+    value: &LinkedExpression,
+    common: &LinkedEntry,
+    owner: &LinkedEntry,
+    program: &Program,
+    label: &str,
+) -> Result<(String, String), Diagnostic> {
+    if let LinkedExpressionKind::Operation {
+        operator: LinkedOperator::SequenceConcat,
+        arguments: parts,
+    } = &value.kind
+        && uses_sequence_parse(value)
+    {
+        if uses_self(value) {
+            return Err(unsupported(
+                owner,
+                "Sequence concatenation with self is not generated for presence",
+            ));
+        }
+        let mut definitions = String::new();
+        let mut append = String::new();
+        for (index, part) in parts.iter().enumerate() {
+            let (definition, call) =
+                code_resolved(part, common, owner, program, &format!("{label}p{index}"))?;
+            definitions.push_str(&definition);
+            write!(
+                append,
+                "match {call}{{core::Sequence::Present(mut part)=>{{present=true;rows.append(&mut part);}},core::Sequence::Absent=>{{}}}}"
+            )
+            .unwrap();
+        }
+        let name = format!("presence_{}_{label}", owner.id);
+        let definition = format!(
+            "{definitions}fn {name}(_inputs:&InputView<'_>)->core::Result<core::Sequence<R{}>>{{let mut rows=Vec::new();let mut present=false;{append}Ok(if present{{core::Sequence::Present(rows)}}else{{core::Sequence::Absent}})}}\n",
+            owner.id
+        );
+        return Ok((definition, format!("{name}(_inputs)?")));
+    }
+    if let LinkedExpressionKind::Operation {
+        operator: LinkedOperator::Conditional,
+        arguments: branches,
+    } = &value.kind
+        && (matches!(value.value_type, LinkedType::Sequence(_))
+            || matches!(&value.value_type, LinkedType::Optional(inner) if matches!(inner.as_ref(), LinkedType::Sequence(_))))
+        && branches.iter().skip(1).any(uses_sequence_parse)
+    {
+        let [condition, yes, no] = branches.as_slice() else {
+            return Err(unsupported(
+                owner,
+                "Conditional presence requires three expressions",
+            ));
+        };
+        let mut context = common.clone();
+        context.id = owner.id;
+        let (constants, predicate) = expressions::expression(&context, program, condition)?;
+        let (yes_definition, yes_call) =
+            code_resolved(yes, common, owner, program, &format!("{label}y"))?;
+        let (no_definition, no_call) =
+            code_resolved(no, common, owner, program, &format!("{label}n"))?;
+        let name = format!("presence_{}_{label}", owner.id);
+        let definition = format!(
+            "{yes_definition}{no_definition}fn {name}(_inputs:&InputView<'_>)->core::Result<core::Sequence<R{}>>{{{constants}Ok(if {predicate}{{{yes_call}}}else{{{no_call}}})}}\n",
+            owner.id
+        );
+        return Ok((definition, format!("{name}(_inputs)?")));
+    }
+    if let LinkedExpressionKind::Operation {
+        operator: LinkedOperator::ParseYaml,
+        arguments: parsed,
+    } = &value.kind
+        && matches!(value.value_type, LinkedType::Sequence(_))
+    {
+        let [source] = parsed.as_slice() else {
+            return Err(unsupported(
+                owner,
+                "Sequence YAML parsing requires one source",
+            ));
+        };
+        let LinkedExpressionKind::Operation {
+            operator: LinkedOperator::Sequence,
+            arguments: items,
+        } = &source.kind
+        else {
+            return Err(unsupported(
+                owner,
+                "Sequence YAML parsing requires text items",
+            ));
+        };
+        if !matches!(&common.yaml, YamlRepresentation::Sequence { item, .. } if matches!(item.as_ref(), YamlRepresentation::Text))
+        {
+            return Err(unsupported(
+                owner,
+                "Sequence YAML parsing requires scalar text items",
+            ));
+        }
+        let mut context = common.clone();
+        context.id = owner.id;
+        let items = items
+            .iter()
+            .map(|item| {
+                let (constants, expression) = expressions::expression(&context, program, item)?;
+                Ok::<_, Diagnostic>(format!(
+                    "{{{constants}read_row_{}([({expression}).to_owned()],&[],core::Position::default(),false,_inputs)}}",
+                    owner.id
+                ))
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+        let name = format!("presence_{}_{label}", owner.id);
+        let definition = format!(
+            "fn {name}(_inputs:&InputView<'_>)->core::Result<core::Sequence<R{}>>{{let rows=[{}];Ok(core::Sequence::Present(rows.into_iter().collect::<core::Result<Vec<_>>>()?))}}\n",
+            owner.id,
+            items.join(",")
+        );
+        return Ok((definition, format!("{name}(_inputs)?")));
+    }
+    let with_self = uses_self(value);
     let mut context = common.clone();
     context.id = owner.id;
-    let (definitions, mut expression) = expressions::expression(&context, program, &value)?;
+    let (definitions, mut expression) = expressions::expression(&context, program, value)?;
     if matches!(value.kind, LinkedExpressionKind::Input(_))
         && matches!(&value.value_type, LinkedType::Sequence(item) if **item == LinkedType::Scalar(ScalarType::Text))
     {
@@ -51,7 +216,7 @@ fn code(
         }
         LinkedType::Scalar(ScalarType::Boolean) => "bool".into(),
         LinkedType::Scalar(ScalarType::Text) => {
-            expression = expressions::Expressions::text_owned(&value, expression);
+            expression = expressions::Expressions::text_owned(value, expression);
             "String".into()
         }
         _ => {
@@ -61,7 +226,7 @@ fn code(
             ));
         }
     };
-    let name = format!("presence_{}_{index}", owner.id);
+    let name = format!("presence_{}_{label}", owner.id);
     let (value_parameter, value_argument) = if with_self {
         (format!("_value: &V{}, ", owner.id), "_value, ")
     } else {
@@ -80,7 +245,7 @@ pub(super) fn generate(
     program: &Program,
     bindings: &[LinkedBinding],
     arguments: &[LinkedExpression],
-    key: &str,
+    key: Option<&str>,
     parent: &[ExpandedName],
 ) -> Result<Presence, Diagnostic> {
     let mut definitions = String::new();
@@ -93,7 +258,7 @@ pub(super) fn generate(
             program,
             bindings,
             arguments,
-            next_function,
+            &next_function.to_string(),
         )?;
         next_function += 1;
         definitions.push_str(&function);
@@ -191,14 +356,36 @@ pub(super) fn generate(
             };
             candidates.push((value, format!(": {literal}")));
         }
-        if let Some(omit) = &rule.yaml_omit_when {
-            let condition = expression(omit)?;
+        if let Some(omit) = &rule.yaml_omit_when
+            && key.is_some()
+        {
+            let equal_to_missing = rule.yaml_missing.as_ref().is_some_and(|missing| {
+                matches!(&omit.kind, LinkedExpressionKind::Operation {
+                    operator: LinkedOperator::Equal, arguments,
+                } if arguments.len() == 2 && (
+                    matches!(arguments[0].kind, LinkedExpressionKind::SelfValue)
+                        && arguments[1].equivalent_to(missing)
+                    || matches!(arguments[1].kind, LinkedExpressionKind::SelfValue)
+                        && arguments[0].equivalent_to(missing)))
+            });
+            let condition = if equal_to_missing {
+                let check = format!("std::cmp::PartialEq::eq(&value.rows, &({yaml_missing}))");
+                result.yaml_explicit_default = check.clone();
+                check
+            } else {
+                expression(omit)?
+            };
             let condition = if yaml_guard.is_empty() {
                 condition
             } else {
                 format!("{yaml_guard}({condition})")
             };
-            writeln!(result.yaml_write, "if {condition} {{ return Ok(()); }}").unwrap();
+            let condition = omission_condition(&condition);
+            writeln!(
+                result.yaml_write,
+                "if shorten && {condition} {{ return Ok(()); }}"
+            )
+            .unwrap();
         }
         // Canonical conditions are ordered; ordinary terminates selection as well.
         if !rule.canonical.is_empty() {
@@ -230,11 +417,33 @@ pub(super) fn generate(
         }
     }
     let id = owner.id;
-    if result.yaml_missing {
-        writeln!(result.yaml_write, "if {yaml_guard}!value.rows.is_present() && std::cmp::PartialEq::eq(&value.rows, &({yaml_missing})) {{ return Ok(()); }}").unwrap();
+    if result.yaml_missing && key.is_some() {
+        let condition = omission_condition(&format!(
+            "{yaml_guard}!value.rows.is_present() && std::cmp::PartialEq::eq(&value.rows, &({yaml_missing}))"
+        ));
+        writeln!(
+            result.yaml_write,
+            "if shorten && {condition} {{ return Ok(()); }}"
+        )
+        .unwrap();
     }
     for (value, output) in candidates {
-        writeln!(result.yaml_write, "if {yaml_guard}std::cmp::PartialEq::eq(&value.rows, &({value})) {{ out.push_str(&core::yaml::scalar({key:?})); out.push_str({output:?}); return Ok(()); }}").unwrap();
+        let condition = omission_condition(&format!(
+            "{yaml_guard}std::cmp::PartialEq::eq(&value.rows, &({value}))"
+        ));
+        let write = if let Some(key) = key {
+            format!("out.push_str(&core::yaml::scalar({key:?})); out.push_str({output:?});")
+        } else {
+            format!(
+                "out.push_str({:?});",
+                output.strip_prefix(':').unwrap_or(&output).trim_start()
+            )
+        };
+        writeln!(
+            result.yaml_write,
+            "if {condition} {{ {write} return Ok(()); }}"
+        )
+        .unwrap();
     }
     if has_string {
         let position = if keep_self {

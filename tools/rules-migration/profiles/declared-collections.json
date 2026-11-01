@@ -1,0 +1,14 @@
+{
+  "Events": {
+    "declaration": "common.form-event-bindings",
+    "xmlNamespace": {"prefix": "f", "uri": "http://v8.1c.ru/8.3/xcf/logform"},
+    "parameters": ["type", "yaml", "tag", "xml", "xmlParents", "items", "toEnterprise"],
+    "recordTable": {"parameter": "items", "input": "eventNames", "key": "xml", "value": "yaml", "keyTransform": "upper-first"}
+  },
+  "FormParameters": {
+    "declaration": "common.form-parameters",
+    "xmlNamespace": {"prefix": "f", "uri": "http://v8.1c.ru/8.3/xcf/logform"},
+    "qname": true,
+    "parameters": ["type", "yaml", "tag", "xml", "xmlParents"]
+  }
+}

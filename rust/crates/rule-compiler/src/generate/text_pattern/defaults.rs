@@ -1,7 +1,7 @@
 //! A shorter spelling restores omitted slots from the declared prepared inputs.
 use super::*;
 
-fn prepared(value: &LinkedExpression) -> bool {
+pub(super) fn prepared(value: &LinkedExpression) -> bool {
     match &value.kind {
         LinkedExpressionKind::SelfValue | LinkedExpressionKind::Field(_) => false,
         LinkedExpressionKind::Operation { arguments, .. } => arguments.iter().all(prepared),
@@ -30,13 +30,13 @@ pub(super) fn definition(codec: &Codec<'_>, name: &str) -> Result<String, Diagno
             slots.push(format!("parsed[{slot}]"));
         } else {
             let value = codec
-                .common
+                .entry()
                 .presence
                 .iter()
                 .find(|rule| rule.target == LinkedPresenceTarget::Field(index as u32))
                 .and_then(|rule| rule.yaml_missing.as_ref())
                 .ok_or_else(|| {
-                    unsupported(codec.common, "Omitted text slot requires a YAML default")
+                    unsupported(codec.entry(), "Omitted text slot requires a YAML default")
                 })?;
             if !prepared(value)
                 || !matches!(
@@ -45,12 +45,12 @@ pub(super) fn definition(codec: &Codec<'_>, name: &str) -> Result<String, Diagno
                 )
             {
                 return Err(unsupported(
-                    codec.common,
+                    codec.entry(),
                     "Text slot defaults require prepared text expressions",
                 ));
             }
             let (definitions, expression) =
-                expressions::expression(codec.common, codec.program, value)?;
+                expressions::expression(codec.entry(), codec.program, value)?;
             writeln!(
                 defaults,
                 "let default_{index}={{ {definitions} {expression} }};"
@@ -65,7 +65,7 @@ pub(super) fn definition(codec: &Codec<'_>, name: &str) -> Result<String, Diagno
                             .find(|item| item.value == variant.value)
                             .ok_or_else(|| {
                                 unsupported(
-                                    codec.common,
+                                    codec.entry(),
                                     "Projected enum default needs a YAML lexeme",
                                 )
                             })?;
@@ -127,7 +127,7 @@ pub(super) fn definition(codec: &Codec<'_>, name: &str) -> Result<String, Diagno
 }
 
 pub(super) fn presence_supported(codec: &Codec<'_>) -> bool {
-    codec.common.presence.iter().all(|rule| {
+    codec.entry().presence.iter().all(|rule| {
         let LinkedPresenceTarget::Field(index) = rule.target else {
             return false;
         };

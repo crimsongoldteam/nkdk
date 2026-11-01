@@ -1,0 +1,2 @@
+# Ownership of complete generated conversion bodies.
+objects/enumeration.generated.yaml

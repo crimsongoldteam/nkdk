@@ -11,6 +11,9 @@ imports:
   base: fragment.journal-base-properties
   links: fragment.journal-form-links
   children: fragment.journal-child-names
+  commands: fragment.journal-commands
+  columns: fragment.journal-columns
+  standardAttributes: fragment.journal-standard-attributes
 namespaces: {md: 'http://v8.1c.ru/8.3/MDClasses'}
 inputs:
   additionalIndexIds: {index: metadata.additional-index-ids}
@@ -26,16 +29,46 @@ inputs:
   valueIds: {index: metadata.internal-value-ids}
   forms: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
   templates: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  commandIds: {index: metadata.own-identities}
+  columnIds: {index: metadata.own-identities}
+  baseIds: {index: metadata.base-identities}
+  component: {type: {kind: scalar, scalar: text}}
+  componentKind: {type: {kind: scalar, scalar: text}}
+  owners: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  canonicalNames: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  elidableNames: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  profiles:
+    type:
+      kind: sequence
+      item:
+        kind: record
+        fields:
+        - {name: name, type: {kind: scalar, scalar: text}}
+        - {name: yamlName, type: {kind: scalar, scalar: text}}
+        - {name: pathName, type: {kind: scalar, scalar: text}}
+        - {name: emptyForm, type: {kind: scalar, scalar: text}}
+        - {name: policy, type: {kind: scalar, scalar: text}}
+        - {name: expectedKind, type: {kind: scalar, scalar: text}}
+        - {name: maxTextLength, type: {kind: scalar, scalar: text}}
+        - {name: maxNumberDigits, type: {kind: scalar, scalar: text}}
+        - {name: allowedTextLength, type: {kind: scalar, scalar: text}}
+        - {name: owners, type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  standardForms:
+    index: metadata.forms
 compose:
 - {use: indexes, bind: {owner: {input: owner}, identities: {input: additionalIndexIds}}}
 - {use: templateFiles, bind: {names: {input: templates}}}
 - {use: childModules, bind: {forms: {input: forms}, commands: {input: commandNames}}}
 - {use: managerModule}
 - {use: internal, bind: {owner: {input: owner}, name: {input: name}, typeIds: {input: typeIds}, valueIds: {input: valueIds}}}
-- {use: base, bind: {name: {input: name}, defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}, roots: {input: roots}}}
-- {use: links, bind: {ownerPath: {input: ownerPath}, forms: {input: forms}}}
+- {use: base, bind: {name: {input: name}, owner: {input: owner}, component: {input: component}, adopted: {present: {lookup: {in: {input: baseIds}, key: {record: {component: {input: component}, identity: {input: owner}}}}}}, baseIds: {input: baseIds}, defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}, roots: {input: roots}}}
+- {use: standardAttributes, bind: {profiles: {input: profiles}, defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}, ownerName: {input: name}, roots: {input: roots}, forms: {input: standardForms}, owners: {input: owners}, componentKind: {input: componentKind}, canonicalNames: {input: canonicalNames}, elidableNames: {input: elidableNames}}}
+- {use: links, bind: {ownerPath: {input: ownerPath}, forms: {input: forms}, extension: {eq: [{input: componentKind}, {literal: extension}]}, adopted: {present: {lookup: {in: {input: baseIds}, key: {record: {component: {input: component}, identity: {input: owner}}}}}}}}
+- {use: columns, bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}, identities: {input: columnIds}, baseIds: {input: baseIds}, component: {input: component}, owner: {input: owner}}}
 - {use: children, bind: {forms: {input: forms}, templates: {input: templates}}}
+- {use: commands, bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}, roots: {input: roots}, identities: {input: commandIds}, baseIds: {input: baseIds}, component: {input: component}, owner: {input: owner}}}
 - {use: help, bind: {pages: {input: helpPages}}}
+xmlOrder: [indexes, types, states, ObjectBelonging, Name, Synonym, Comment, ExtendedConfigurationObject, DefaultForm, AuxiliaryForm, UseStandardCommands, RegisteredDocuments, IncludeHelpInContents, items, ListPresentation, ExtendedListPresentation, Explanation, columns, forms, templates, commands, help, uuid]
 value: {kind: record, fields: [{name: uuid, type: {kind: scalar, scalar: text}}]}
 representations:
   xml: {kind: with-attributes, attributes: [{name: version, value: {text: '2.20'}}], content: {kind: record, fields: [{field: uuid, path: ['md:MetaDataObject', 'md:DocumentJournal'], attribute: uuid}]}}

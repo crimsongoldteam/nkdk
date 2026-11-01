@@ -1,0 +1,67 @@
+format: nkdk-declarations/1
+kind: value
+id: common.dcs-design-time-localized-text
+imports:
+  kind: common.dcs-localized-kind
+  value: common.dcs-local-string-type
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+value:
+  kind: record
+  fields:
+    - name: kind
+      type:
+        use: kind
+    - name: value
+      type:
+        use: value
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: value
+        path: []
+  yaml:
+    kind: mapping
+    fields:
+      - field: kind
+        key: Тип
+      - field: value
+        key: Значение
+presence:
+  - target:
+      field: kind
+    xml:
+      missing:
+        denotes:
+          literal: МногоязычнаяСтрока
+constraints:
+  - id: localized-kind
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    assert:
+      isVariant:
+        value:
+          field: value
+        variant: localized
+    diagnostic:
+      code: dcs.localized-kind
+      severity: error
+      at:
+        field: value
+      message: Ожидалась многоязычная строка

@@ -1,0 +1,31 @@
+format: nkdk-declarations/1
+kind: value
+id: source.form-column
+value:
+  kind: record
+  fields:
+    - name: name
+      type:
+        kind: scalar
+        scalar: text
+    - name: id
+      type:
+        kind: scalar
+        scalar: text
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: name
+        path: []
+        attribute: name
+      - field: id
+        path: []
+        attribute: id
+  yaml:
+    kind: mapping
+    fields:
+      - field: name
+        key: Имя
+      - field: id
+        key: Идентификатор

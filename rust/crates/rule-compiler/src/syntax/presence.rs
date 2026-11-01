@@ -44,7 +44,12 @@ pub(super) fn presence(path: &str, fields: &[(Node, Node)]) -> Result<Vec<Presen
                 .map(|node| node.mapping(path, &["missing", "empty", "canonical"]))
                 .transpose()?;
             let yaml = optional_field(fields, "yaml")
-                .map(|node| node.mapping(path, &["missing", "empty", "omitWhen", "default"]))
+                .map(|node| {
+                    node.mapping(
+                        path,
+                        &["missing", "empty", "omitWhen", "nullWhen", "default"],
+                    )
+                })
                 .transpose()?;
             let xml_fields = xml.unwrap_or(&[]);
             let yaml_fields = yaml.unwrap_or(&[]);
@@ -164,6 +169,9 @@ pub(super) fn presence(path: &str, fields: &[(Node, Node)]) -> Result<Vec<Presen
                 yaml_missing,
                 yaml_empty: empty_forms(path, yaml_fields, false)?,
                 yaml_omit_when,
+                yaml_null_when: optional_field(yaml_fields, "nullWhen")
+                    .map(|node| expression(path, node))
+                    .transpose()?,
                 xml_canonical,
                 source: location(path, target),
             })
@@ -203,7 +211,7 @@ pub(super) fn empty_forms(
     items
         .iter()
         .map(|item| {
-            let fields = item.mapping(path, &["form", "denotes"])?;
+            let fields = item.mapping(path, &["form", "denotes", "when"])?;
             let name = item.field(path, fields, "form")?;
             let Shape::Scalar(spelling, _) = &name.shape else {
                 return Err(error(
@@ -235,6 +243,9 @@ pub(super) fn empty_forms(
                 return Err(repeated(path, name.mark, first, "duplicate_empty_form"));
             }
             Ok(EmptyForm {
+                when: optional_field(fields, "when")
+                    .map(|value| expression(path, value))
+                    .transpose()?,
                 form,
                 denotes: expression(path, item.field(path, fields, "denotes")?)?,
                 source: location(path, name),

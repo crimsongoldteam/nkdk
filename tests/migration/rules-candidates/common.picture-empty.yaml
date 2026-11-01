@@ -1,0 +1,34 @@
+format: nkdk-declarations/1
+kind: value
+id: common.picture-empty
+parameters:
+  allowEmpty:
+    type:
+      kind: scalar
+      scalar: boolean
+    default: false
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: text-pattern
+    parts:
+      - literal: ''
+  yaml:
+    kind: text-pattern
+    parts:
+      - literal: ''
+constraints:
+  - id: empty-picture
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    assert:
+      parameter: allowEmpty
+    diagnostic:
+      code: picture.empty
+      severity: error
+      at:
+        self: true
+      message: Пустая картинка не разрешена

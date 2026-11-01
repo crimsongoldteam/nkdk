@@ -1,0 +1,62 @@
+format: nkdk-declarations/1
+kind: value
+id: common.metadata-member-path
+imports:
+  root: common.path-root
+  name: common.metadata-name
+  member: common.path-member-kind
+value:
+  kind: record
+  fields:
+    - name: root
+      type:
+        use: root
+    - name: owner
+      type:
+        use: name
+    - name: kind
+      type:
+        use: member
+    - name: name
+      type:
+        use: name
+representations:
+  xml:
+    kind: text-pattern
+    parts:
+      - field: root
+      - literal: .
+      - field: owner
+      - literal: .
+      - field: kind
+      - literal: .
+      - field: name
+  yaml:
+    kind: text-pattern
+    parts:
+      - field: root
+      - literal: .
+      - field: owner
+      - literal: .
+      - field: kind
+      - literal: .
+      - field: name
+constraints:
+  - id: ordinary-member
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    assert:
+      not:
+        eq:
+          - get:
+              of:
+                self: true
+              field: kind
+          - literal: StandardAttribute
+    diagnostic:
+      code: path.member-kind
+      severity: error
+      at:
+        self: true
+      message: Standard attributes require their own name vocabulary

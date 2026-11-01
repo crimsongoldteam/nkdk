@@ -1,9 +1,10 @@
+import {bindMappedFieldViews} from './record-state-view.mjs';
 import { bindSiblingExpressions, mergeMappedInputs } from './common-inputs.mjs';
 import { createHash } from 'node:crypto';
 import { mapProperty } from './mappings.mjs';
 
 const hash = value => createHash('sha256').update(JSON.stringify(value)).digest('hex').slice(0,20);
-function referencedFields(value, result=new Set()) {
+export function referencedFields(value, result=new Set()) {
   if(Array.isArray(value))for(const item of value)referencedFields(item,result);
   else if(value && typeof value==='object') {
     if(Object.keys(value).length===1 && typeof value.field==='string')result.add(value.field);
@@ -16,7 +17,7 @@ function joinDependentChunks(chunks) {
     changed=false;
     const positions=new Map(chunks.flatMap((chunk,index)=>chunk.fields.map(field=>[field.property.name,index])));
     for(const [last,chunk] of chunks.entries())for(const field of chunk.fields) {
-      const dependencies=referencedFields(field.mapped.presence);
+      const dependencies=referencedFields([field.mapped.presence,field.mapped.constraints]);
       for(const sibling of dependencies) {
         const first=positions.get(sibling);
         if(first===undefined || first===last)continue;
@@ -25,6 +26,33 @@ function joinDependentChunks(chunks) {
         chunks.splice(start,joined.length,{origin:joined.map(part=>part.origin).join('+'),fields:joined.flatMap(part=>part.fields)});
         changed=true;
         break;
+      }
+      if(changed)break;
+    }
+  }
+}
+// Dependent attributes and child elements belong to the same owner boundary.
+// Grouping by the first XML path segment must not sever a semantic dependency.
+function joinDependentGroups(groups, ordered) {
+  for(let changed=true;changed;) {
+    changed=false;
+    const positions=new Map([...groups].flatMap(([key,fields])=>fields.map(field=>[field.property.name,key])));
+    for(const [key,fields] of groups) {
+      for(const {mapped} of fields) {
+        for(const name of referencedFields([mapped.presence,mapped.constraints])) {
+          const other=positions.get(name);
+          if(other===undefined || other===key)continue;
+          const [root,tag]=JSON.parse(key),[otherRoot,otherTag]=JSON.parse(other);
+          if(tag!==otherTag)continue;
+          const combined=new Set([...fields,...groups.get(other)]);
+          const target=JSON.stringify([root===otherRoot?root:null,tag]);
+          if(target!==key && target!==other && groups.has(target))
+            for(const field of groups.get(target))combined.add(field);
+          groups.delete(key);groups.delete(other);
+          groups.set(target,ordered.flatMap(property=>[...combined].filter(field=>field.property===property)));
+          changed=true;break;
+        }
+        if(changed)break;
       }
       if(changed)break;
     }
@@ -69,7 +97,7 @@ function instantiateOwnerConstraints(fields,catalog) {
   return result;
 }
 
-export function emitCandidates(entries, catalog, origin = p => p.source.path, xmlNamespaces={}) {
+export function emitCandidates(entries, catalog, origin = p => p.source.path, xmlNamespaces={},fieldViews={},options={}) {
   const modules = new Map(), results = [];
   for (const entry of entries) {
     const result = {path:entry.path, symbol:entry.symbol, ownerStatus:entry.comparison.status,
@@ -84,11 +112,20 @@ export function emitCandidates(entries, catalog, origin = p => p.source.path, xm
     for (const property of ordered) {
       const invalidOrder = entry.xmlOrder?.status === 'static' && new Set(entry.xmlOrder.keys).size !== entry.xmlOrder.keys.length;
       let mapped = entry.xmlOrder?.status === 'unresolved' || invalidOrder ? {status:'blocked',reason:'owner-order-unresolved'} :
-        entry.comparison.status === 'keys-match' ? mapProperty(property,catalog,xmlNamespaces) : {status:'blocked',reason:`owner-${entry.comparison.status}`};
-      result.properties.push({name:property.name, source:property.source, status:mapped.status, ...(property.constantDefaults?{constantDefaults:property.constantDefaults}:{}), ...(mapped.sourceTag?{sourceTag:mapped.sourceTag}:{}), ...(mapped.reason ? {reason:mapped.reason} : {}), ...(mapped.parameterEquivalences ? {parameterEquivalences:mapped.parameterEquivalences} : {}), ...(mapped.excludedParameters ? {excludedParameters:mapped.excludedParameters} : {})});
+        entry.comparison.status === 'keys-match' ? mapProperty(property,catalog,xmlNamespaces,
+          {properties:entry.properties,fieldViews,collectionValues:options.collectionValues,hasTypeSibling:entry.properties.some(sibling=>sibling.name==='type')||Object.hasOwn(fieldViews,'type')}) : {status:'blocked',reason:`owner-${entry.comparison.status}`};
+      if(mapped.status==='candidate')mapped=bindMappedFieldViews(mapped,fieldViews);
+      result.properties.push({name:property.name, source:property.source, status:mapped.status, ...(mapped.qname?{qname:true}:{}), ...(property.constantDefaults?{constantDefaults:property.constantDefaults}:{}), ...(mapped.sourceTag?{sourceTag:mapped.sourceTag}:{}), ...(mapped.reason ? {reason:mapped.reason} : {}), ...(mapped.profile ? {profile:mapped.profile} : {}), ...(mapped.parameterEquivalences ? {parameterEquivalences:mapped.parameterEquivalences} : {}), ...(mapped.excludedParameters ? {excludedParameters:mapped.excludedParameters} : {})});
       if (mapped.status !== 'candidate') continue;
+      if(mapped.ownerRequirements) {
+        const requirements={property:property.name,...structuredClone(mapped.ownerRequirements)};
+        (result.ownerRequirements??=[]).push(requirements);
+        if(options.deferOwnerContributions!==true)
+          result.ownerBlockers.push({reason:'owner-collection-contribution-required',...requirements});
+      }
+      const fieldOrigin=mapped.sharedOrigin??origin(property);
       if(mapped.yamlOnly) {
-        yamlOnly.push({property,mapped,origin:origin(property)});
+        yamlOnly.push({property,mapped,origin:fieldOrigin});
         continue;
       }
       if(mapped.ownerFactRole) {
@@ -98,14 +135,15 @@ export function emitCandidates(entries, catalog, origin = p => p.source.path, xm
       const root = mapped.path[0] ?? null;
       const group=JSON.stringify([root,mapped.sourceTag??null]);
       if (!groups.has(group)) groups.set(group,[]);
-      groups.get(group).push({property, mapped, origin:origin(property)});
+      groups.get(group).push({property, mapped, origin:fieldOrigin});
     }
     if(yamlOnly.length) {
       const target=groups.values().next().value;
       if(target)target.push(...yamlOnly.map(field=>({...field,origin:target.at(-1).origin})));
       else result.ownerBlockers.push({reason:'owner-root-required',properties:yamlOnly.map(field=>field.property.name)});
     }
-    for (const fields of groups.values()) {
+    joinDependentGroups(groups,ordered);
+    for (const [groupKey,fields] of groups) {
       const eligibleFields=fields.filter(field=>{
         const missing=Object.values(field.mapped.siblingExpressions??{}).find(spec=>
           !fields.some(sibling=>sibling.property.name===spec.source && sibling.mapped.id===spec.sourceId));
@@ -114,8 +152,21 @@ export function emitCandidates(entries, catalog, origin = p => p.source.path, xm
         row.status='blocked';row.reason='sibling-expression-required';
         return false;
       });
+      for(let changed=true;changed;) {
+        changed=false;
+        for(let index=eligibleFields.length-1;index>=0;index--) {
+          const field=eligibleFields[index];
+          const dependencies=referencedFields([field.mapped.presence,field.mapped.constraints]);
+          const missing=[...dependencies].filter(name=>name!==field.property.name &&
+            !Object.hasOwn(fieldViews,name) && !eligibleFields.some(sibling=>sibling.property.name===name));
+          if(!missing.length)continue;
+          const row=result.properties.find(row=>row.name===field.property.name);
+          row.status='blocked';row.reason='sibling-expression-required';
+          eligibleFields.splice(index,1);changed=true;
+        }
+      }
       if(!eligibleFields.length)continue;
-      const root=eligibleFields[0].mapped.path[0] ?? null,sourceTag=eligibleFields[0].mapped.sourceTag;
+      const [root,sourceTag]=JSON.parse(groupKey);
       const chunks = [];
       for (const field of eligibleFields) {
         if (chunks.at(-1)?.origin === field.origin) chunks.at(-1).fields.push(field);
@@ -142,7 +193,8 @@ export function emitCandidates(entries, catalog, origin = p => p.source.path, xm
           if(!mapped.yamlOnly) {
             fragment.representations.xml.fields.push({field:property.name,path:mapped.path,...(mapped.attribute?{attribute:mapped.attribute}:{})});
           }
-          if(mapped.key!==undefined)fragment.representations.yaml.fields.push({field:property.name,key:mapped.key});
+          if(mapped.file!==undefined)fragment.representations.yaml.fields.push({field:property.name,file:mapped.file});
+          else if(mapped.key!==undefined)fragment.representations.yaml.fields.push({field:property.name,key:mapped.key});
           if(mapped.presence)fragment.presence.push(mapped.presence);
           if(mapped.constraints)(fragment.constraints??=[]).push(...mapped.constraints);
           mergeMappedInputs(fragmentInputs,mapped);

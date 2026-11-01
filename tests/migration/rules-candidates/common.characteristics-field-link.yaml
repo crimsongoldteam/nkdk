@@ -1,0 +1,45 @@
+format: nkdk-declarations/1
+kind: value
+id: common.characteristics-field-link
+imports:
+  field: common.metadata-field-chain-path
+  service: common.characteristics-service-field
+value:
+  kind: choice
+  variants:
+    - name: field
+      type:
+        use: field
+    - name: service
+      type:
+        use: service
+representations:
+  xml:
+    kind: choice
+  yaml:
+    kind: choice
+presence:
+  - target: self
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          variant:
+            name: service
+            value:
+              literal: '-1'
+      omitWhen:
+        and:
+          - isVariant:
+              value:
+                self: true
+              variant: service
+          - eq:
+              - variantValue:
+                  value:
+                    self: true
+                  variant: service
+              - literal: '-1'

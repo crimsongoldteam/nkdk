@@ -1,0 +1,75 @@
+format: nkdk-declarations/1
+kind: object
+imports:
+  value0: system.ObjectBelonging
+  value1: common.string
+  value2: common.i8n-text
+  inputType1f8ea46361ff: common.path-root
+  value4: common.owner-or-common-form-link
+  value5: common.boolean
+  value6: common.journal-document-links
+value:
+  kind: record
+  fields:
+    - name: registeredDocuments
+      type:
+        use: value6
+        bind:
+          roots:
+            input: roots
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: registeredDocuments
+        path:
+          - Properties
+          - RegisteredDocuments
+  yaml:
+    kind: mapping
+    fields:
+      - field: registeredDocuments
+        key: РегистрируемыеДокументы
+presence: []
+inputs:
+  ownerName:
+    type:
+      kind: scalar
+      scalar: text
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  forms:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  roots:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: kind
+            type:
+              use: inputType1f8ea46361ff
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+id: contract.property.1f963ec54088b3bb2645

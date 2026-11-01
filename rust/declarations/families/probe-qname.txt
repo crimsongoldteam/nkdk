@@ -1,0 +1,2 @@
+migration.xdto-type-name
+migration.xdto-type-name-metadata

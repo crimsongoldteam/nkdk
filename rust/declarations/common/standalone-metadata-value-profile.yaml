@@ -1,0 +1,28 @@
+format: nkdk-declarations/1
+kind: object
+id: common.standalone-metadata-value-profile
+imports: {value: common.metadata-value}
+inputs:
+  defaultLanguage: {type: {kind: scalar, scalar: text}}
+  registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+value:
+  kind: record
+  fields:
+  - name: value
+    type:
+      use: value
+      with: {exportNilValue: true}
+      bind:
+        defaultLanguage: {input: defaultLanguage}
+        registeredLanguages: {input: registeredLanguages}
+        onlyStringType: {literal: false}
+representations:
+  xml: {kind: record, fields: [{field: value, path: [Root, Value]}]}
+  yaml: {kind: mapping, fields: [{field: value, key: Значение}]}
+presence:
+- target: {field: value}
+  xml:
+    missing: {denotes: {absent: true}}
+    empty: [{form: nil, denotes: {absent: true}}]
+    canonical: [{when: {not: {present: {field: value}}}, form: nil}]
+  yaml: {missing: {denotes: {absent: true}}}

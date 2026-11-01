@@ -1,0 +1,213 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: common.picture-default-true
+  value: {kind: enum, variants: [{name: Expected, value: expected}]}
+  representations:
+    xml: {kind: text, values: [{value: expected, text: 'true'}]}
+    yaml: {kind: scalar, values: [{value: expected, literal: Истина}]}
+- kind: value
+  id: common.picture-default-false
+  value: {kind: enum, variants: [{name: Expected, value: expected}]}
+  representations:
+    xml: {kind: text, values: [{value: expected, text: 'false'}]}
+    yaml: {kind: scalar, values: [{value: expected, literal: Ложь}]}
+- kind: value
+  id: common.picture-standard-simple
+  namespaces:
+    xr: http://v8.1c.ru/8.3/xcf/readable
+  imports: {reference: common.picture-standard-reference, transparent: common.picture-default-true}
+  value:
+    kind: record
+    fields:
+    - {name: reference, type: {use: reference}}
+    - {name: transparent, type: {use: transparent}}
+  representations:
+    xml:
+      kind: record
+      fields:
+      - {field: reference, path: [xr:Ref]}
+      - {field: transparent, path: [xr:LoadTransparent]}
+    yaml: {kind: projection, field: reference}
+  presence:
+  - target: {field: transparent}
+    yaml: {missing: {denotes: {literal: expected}}}
+- kind: value
+  id: common.picture-common-simple
+  namespaces:
+    xr: http://v8.1c.ru/8.3/xcf/readable
+  imports: {reference: common.picture-common-reference, transparent: common.picture-default-false}
+  value:
+    kind: record
+    fields:
+    - {name: reference, type: {use: reference}}
+    - {name: transparent, type: {use: transparent}}
+  representations:
+    xml:
+      kind: record
+      fields:
+      - {field: reference, path: [xr:Ref]}
+      - {field: transparent, path: [xr:LoadTransparent]}
+    yaml: {kind: projection, field: reference}
+  presence:
+  - target: {field: transparent}
+    yaml: {missing: {denotes: {literal: expected}}}
+- kind: value
+  id: common.picture-raw-zero-simple
+  namespaces:
+    xr: http://v8.1c.ru/8.3/xcf/readable
+  imports: {reference: common.picture-zero-reference}
+  value: {kind: record, fields: [{name: reference, type: {use: reference}}]}
+  representations:
+    xml: {kind: record, fields: [{field: reference, path: [xr:Ref]}]}
+    yaml: {kind: projection, field: reference}
+- kind: value
+  id: common.picture-raw-uuid-simple
+  namespaces:
+    xr: http://v8.1c.ru/8.3/xcf/readable
+  imports: {reference: common.picture-uuid-reference}
+  value: {kind: record, fields: [{name: reference, type: {use: reference}}]}
+  representations:
+    xml: {kind: record, fields: [{field: reference, path: [xr:Ref]}]}
+    yaml: {kind: projection, field: reference}
+- kind: value
+  id: common.picture-absolute-simple
+  namespaces:
+    xr: http://v8.1c.ru/8.3/xcf/readable
+  imports: {reference: common.string, transparent: common.picture-default-false}
+  value:
+    kind: record
+    fields:
+    - {name: reference, type: {use: reference}}
+    - {name: transparent, type: {use: transparent}}
+  representations:
+    xml:
+      kind: record
+      fields:
+      - {field: reference, path: [xr:Abs]}
+      - {field: transparent, path: [xr:LoadTransparent]}
+    yaml: {kind: projection, field: reference}
+  presence:
+  - target: {field: transparent}
+    yaml: {missing: {denotes: {literal: expected}}}
+- kind: value
+  id: common.picture-pixel
+  imports: {coordinate: common.exact-decimal}
+  value:
+    kind: record
+    fields:
+    - {name: x, type: {use: coordinate}}
+    - {name: y, type: {use: coordinate}}
+  representations:
+    xml:
+      kind: record
+      fields:
+      - {field: x, path: [], attribute: x}
+      - {field: y, path: [], attribute: y}
+    yaml:
+      kind: mapping
+      fields:
+      - {field: x, key: x}
+      - {field: y, key: y}
+- kind: value
+  id: common.picture-reference-expanded
+  namespaces:
+    xr: http://v8.1c.ru/8.3/xcf/readable
+  imports: {reference: common.picture-reference, transparent: common.boolean, pixel: common.picture-pixel}
+  value:
+    kind: record
+    fields:
+    - {name: reference, type: {use: reference}}
+    - {name: transparent, type: {use: transparent}}
+    - {name: pixel, type: {use: pixel}}
+  representations:
+    xml:
+      kind: record
+      fields:
+      - {field: reference, path: [xr:Ref]}
+      - {field: transparent, path: [xr:LoadTransparent]}
+      - {field: pixel, path: [xr:TransparentPixel]}
+    yaml:
+      kind: mapping
+      fields:
+      - {field: reference, key: Ссылка}
+      - {field: transparent, key: ПрозрачныйФон}
+      - {field: pixel, key: ПрозрачныйПиксель}
+  presence:
+  - target: {field: pixel}
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}}
+- kind: value
+  id: common.picture-absolute-expanded
+  namespaces:
+    xr: http://v8.1c.ru/8.3/xcf/readable
+  imports: {reference: common.string, transparent: common.boolean, pixel: common.picture-pixel}
+  value:
+    kind: record
+    fields:
+    - {name: reference, type: {use: reference}}
+    - {name: transparent, type: {use: transparent}}
+    - {name: pixel, type: {use: pixel}}
+  representations:
+    xml:
+      kind: record
+      fields:
+      - {field: reference, path: [xr:Abs]}
+      - {field: transparent, path: [xr:LoadTransparent]}
+      - {field: pixel, path: [xr:TransparentPixel]}
+    yaml:
+      kind: mapping
+      fields:
+      - {field: reference, key: Ссылка}
+      - {field: transparent, key: ПрозрачныйФон}
+      - {field: pixel, key: ПрозрачныйПиксель}
+  presence:
+  - target: {field: pixel}
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}}
+- kind: value
+  id: common.picture-empty
+  parameters:
+    allowEmpty: {type: {kind: scalar, scalar: boolean}, default: false}
+  value: {kind: record, fields: []}
+  representations:
+    xml: {kind: text-pattern, parts: [{literal: ''}]}
+    yaml: {kind: text-pattern, parts: [{literal: ''}]}
+  constraints:
+  - id: empty-picture
+    appliesTo: [xml-import, yaml-validation]
+    assert: {parameter: allowEmpty}
+    diagnostic: {code: picture.empty, severity: error, at: {self: true}, message: Пустая картинка не разрешена}
+- kind: value
+  id: common.picture
+  parameters:
+    allowEmpty: {type: {kind: scalar, scalar: boolean}, default: false}
+  imports:
+    empty: common.picture-empty
+    standard: common.picture-standard-simple
+    common: common.picture-common-simple
+    zero: common.picture-raw-zero-simple
+    uuid: common.picture-raw-uuid-simple
+    absolute: common.picture-absolute-simple
+    reference_expanded: common.picture-reference-expanded
+    expanded: common.picture-absolute-expanded
+  value:
+    kind: choice
+    variants:
+    - {name: Пустая, type: {use: empty, with: {allowEmpty: {parameter: allowEmpty}}}}
+    - {name: СтандартнаяКартинка, type: {use: standard}}
+    - {name: ОбщаяКартинка, type: {use: common}}
+    - {name: НулеваяСсылка, type: {use: zero}}
+    - {name: СсылкаПоUUID, type: {use: uuid}}
+    - {name: Файл, type: {use: absolute}}
+    - {name: СсылкаСНастройками, type: {use: reference_expanded}}
+    - {name: ФайлСНастройками, type: {use: expanded}}
+  representations:
+    xml: {kind: choice, fallback: СсылкаСНастройками}
+    yaml:
+      kind: choice
+      fallback: Файл
+      variants:
+      - {variant: СсылкаСНастройками, form: mapping, key: Ссылка}
+      - {variant: ФайлСНастройками, form: mapping, key: Ссылка}

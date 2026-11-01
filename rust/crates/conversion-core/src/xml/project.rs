@@ -1,10 +1,12 @@
 //! A property document is built only after shared conversion needs preservation.
-use super::{Name, Token, Tree, Writer, matches, visit};
+mod lexical;
+use super::{Name, Token, Writer, matches, visit};
 use crate::{Result, RuntimeDiagnostic};
 
 #[derive(Clone, Copy)]
 pub enum PropertyProjection<'a> {
     Element,
+    WithoutAttributes(&'a [(&'a str, &'a str)]),
     Members,
     Fields(&'a [(&'a str, &'a str)]),
     Path(&'a [(&'a str, &'a str)]),
@@ -24,7 +26,7 @@ pub fn project_property(
     let members = matches!(projection, PropertyProjection::Members);
     if target.is_empty()
         || (matches!(projection, PropertyProjection::Element) && target.len() < 2)
-        || (members && target.len() < 3)
+        || (members && target.len() < 2)
         || matches!(projection, PropertyProjection::Fields(names) if names.is_empty())
         || matches!(projection, PropertyProjection::Path(path) if path.is_empty())
     {
@@ -38,66 +40,30 @@ pub fn project_property(
     } else {
         target
     };
-    let mut tree = Tree::capture_with_qnames(source, boundary, qname_text)?;
-    let selected = match projection {
-        PropertyProjection::Members => Some(&target[target.len() - 1..]),
-        PropertyProjection::Fields(names) | PropertyProjection::Record { fields: names, .. } => {
-            Some(names)
+    // Projection selects syntax, not a semantic alternative. Preserve lexical
+    // values and namespace bindings until the selected declaration reads them.
+    let _ = (qname_attribute, qname_text);
+    let mut result = None;
+    lexical::visit_documents(source, boundary, target, projection, &mut |document| {
+        if result.is_some() {
+            return Err(RuntimeDiagnostic::new(
+                "xml.preservation-shape",
+                format!("Repeated property boundary: {target:?}"),
+            ));
         }
-        PropertyProjection::Element => None,
-        PropertyProjection::Path(path) => Some(&path[..1]),
-    };
-    if let (Some(names), Some(tree)) = (selected, &mut tree) {
-        if let PropertyProjection::Path(path) = projection {
-            tree.retain_owned_path(path);
-        } else if let PropertyProjection::Record { attributes, .. } = projection {
-            tree.retain_record(names, attributes);
-        } else {
-            tree.retain_children(names);
-        }
-    }
-    let owns = |path: &[Name]| {
-        if let Some(names) = selected {
-            path.len() > boundary.len()
-                && matches(&path[..boundary.len()], boundary)
-                && names.iter().any(|name| {
-                    path[boundary.len()].namespace == name.0 && path[boundary.len()].local == name.1
-                })
-        } else {
-            path.len() >= target.len() && matches(&path[..target.len()], target)
-        }
-    };
-    let mut qnames = Vec::new();
-    visit(source, |path, token| {
-        if (owns(path)
-            || matches!(projection, PropertyProjection::Record { .. }) && matches(path, boundary))
-            && let Token::Attribute(attribute) = token
-            && qname_attribute(path, &attribute.name)
-            && !qnames.contains(&attribute.name)
-        {
-            qnames.push(attribute.name);
-        }
+        result = Some(document.to_vec());
         Ok(())
     })?;
-    let mut namespaces: Vec<_> = target
+    if let Some(result) = result {
+        return Ok(result);
+    }
+    let namespaces: Vec<_> = boundary
         .iter()
-        .map(|(uri, _)| *uri)
-        .filter(|uri| !uri.is_empty())
+        .map(|name| name.0)
+        .filter(|name| !name.is_empty())
         .collect();
-    if let Some(tree) = &tree {
-        tree.collect_namespaces(&mut namespaces);
-    }
     let mut writer = Writer::new(&namespaces);
-    let parent = &boundary[..boundary.len() - 1];
-    if let Some(tree) = &tree {
-        let qnames: Vec<_> = qnames
-            .iter()
-            .map(|name| (name.namespace.as_str(), name.local.as_str()))
-            .collect();
-        tree.write_at(&mut writer, parent, &qnames)?;
-    } else {
-        writer.ensure_container(parent);
-    }
+    writer.ensure_container(&boundary[..boundary.len() - 1]);
     Ok(writer.finish())
 }
 
@@ -156,4 +122,42 @@ pub fn project_attributes(
         writer.ensure_container(&target[..target.len() - 1]);
     }
     Ok(writer.finish())
+}
+
+/// Visit repeated properties without assigning semantic types to their text.
+/// Each document retains ancestor namespace bindings and contains one occurrence.
+pub fn visit_property_documents(
+    source: &[u8],
+    target: &[(&str, &str)],
+    mut consume: impl FnMut(&[u8]) -> Result<()>,
+) -> Result<()> {
+    if target.is_empty() {
+        return Err(RuntimeDiagnostic::new(
+            "xml.property-boundary",
+            "Expected a property route",
+        ));
+    }
+    lexical::visit_documents(
+        source,
+        target,
+        target,
+        PropertyProjection::Element,
+        &mut consume,
+    )
+}
+
+/// Singular projections cannot represent repeated scalar boundaries. Readers
+/// retain the original source in that exceptional case; the enclosing owner
+/// remains responsible for preserving all occurrences.
+pub fn borrow_or_project<'a>(
+    source: &'a [u8],
+    project: impl FnOnce(&[u8]) -> Result<Vec<u8>>,
+) -> Result<std::borrow::Cow<'a, [u8]>> {
+    match project(source) {
+        Ok(piece) => Ok(std::borrow::Cow::Owned(piece)),
+        Err(error) if error.code.as_deref() == Some("xml.preservation-shape") => {
+            Ok(std::borrow::Cow::Borrowed(source))
+        }
+        Err(error) => Err(error),
+    }
 }

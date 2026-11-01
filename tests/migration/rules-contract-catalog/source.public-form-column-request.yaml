@@ -1,0 +1,35 @@
+format: nkdk-declarations/1
+kind: value
+id: source.public-form-column-request
+inputs:
+  component:
+    type:
+      kind: scalar
+      scalar: text
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  parent:
+    type:
+      kind: scalar
+      scalar: text
+value:
+  kind: record
+  fields:
+    - name: name
+      type:
+        kind: scalar
+        scalar: text
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: name
+        path: []
+        attribute: name
+  yaml:
+    kind: mapping
+    fields:
+      - field: name
+        key: Имя

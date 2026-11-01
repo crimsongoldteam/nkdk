@@ -161,3 +161,56 @@ manifest и `docs/superpowers/reports/2026-09-13-collection-emission.md`.
 записи, в том числе вложенные свойства, пропущенные/повторные имена и аномалии.
 Полнота записей и контекст по-прежнему проверяются до выпуска; наличие
 сгенерированного свойства не означает приёмку полного владельца.
+
+
+### Составной кандидат плана видов характеристик
+
+```sh
+node tools/rules-migration/src/characteristic-owner-operation.mjs
+node tools/rules-migration/src/characteristic-owner-operation.mjs --check
+```
+
+Операция соединяет обычную генерацию с готовыми сборщиками стандартных
+реквизитов, ввода по строке, команд, имён дочерних объектов и внешних файлов.
+Сохраняются дерево compose, связи полей, XML-порядок исходной регистрации и
+существующая сортировка YAML. Одно исходное свойство нельзя присвоить двум
+частям. Кандидат не включается в рабочую сборку автоматически.
+
+`tests/migration/characteristic-owner-coverage.json` перечисляет соединённые
+свойства и оставшиеся условия. `complete: false` нельзя заменять флажком
+полного переноса: нужны контекстные источники и e2e-приёмка основы и расширения.
+
+Проверочные примеры подключённых коллекций генерируются отдельно:
+
+```sh
+node tools/rules-migration/src/characteristic-collections-cases.mjs
+node tools/rules-migration/src/characteristic-collections-cases.mjs --check
+```
+
+Матрица использует неизменные e2e-фикстуры; приёмка коллекций основы
+не заменяет полную приёмку владельца и расширения.
+
+Связь с объектом основы и её совместная история проверяются отдельно:
+
+```sh
+node tools/rules-migration/src/characteristic-base-state-cases.mjs
+node tools/rules-migration/src/characteristic-base-state-cases.mjs --check
+```
+
+Пять случаев используют прежние e2e-данные, принятую границу Notify и
+отклонение порядка XML. Проверяются общая история чисел, булевого значения,
+перечисления и ссылки на основу, а также подключение TypeDescription.
+Это не полная приёмка всех свойств заимствованного владельца и MultiState.
+Канонический порядок пропущенных в старой xmlOrder полей заголовка задан
+в `contracts/owner-property-order.yaml`; явный порядок rules.ts приоритетен.
+
+
+## Матрица создания значений по умолчанию
+
+`pnpm test:migration-family --family record-defaults` проверяет общий путь
+от существующего `presence.yaml.missing.denotes.record` до хранилища Rust.
+Примеры обычных и вложенных записей, фрагментов, условий и строки коллекции
+содержат независимые XML/YAML-ожидания. Проверка по одному случаю:
+`pnpm test:migration-family --family record-defaults --case record-default-nested-context`.
+Каждый случай собирается отдельно для ограничения памяти `rustc`.
+Эта матрица проверяет механизм и не ставит флажки приёмки common-объектов.

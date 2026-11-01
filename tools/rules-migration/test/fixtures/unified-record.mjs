@@ -204,7 +204,7 @@ cases.push({...cases.find(value=>value.id==='unified-dependent-record-items'),id
   yaml:'Элементы:\n  -\n    Имя: Alpha\n    Включено: Истина\n  -\n    Имя: Beta\n    Включено: Ложь'});
 for(const [source,id,element] of [['unified-conditional-nested-boundary','unified-nested-header-anomaly','First'],['unified-conditional-item-boundary','unified-item-header-anomaly','Item']]){
   const original=cases.find(value=>value.id===source);
-  cases.push({...original,id,xml:original.xml.replace(`<${element} `,`<${element} extra="preserved" `),yaml:undefined,annotation:element==='First'?'  !xml/raw':'Элементы: !xml/raw',...(element==='First'?{retainedYAML:['    Имя: Alpha','    Включено: Истина']}:{})});
+  cases.push({...original,id,xml:original.xml.replace(`<${element} `,`<${element} extra="preserved" `),yaml:undefined,annotation:element==='First'?'Первый: !xml/raw':'    !xml/raw',...(element==='First'?{retainedYAML:['    Имя: Alpha','    Включено: Истина']}:{})});
 }
 
 const otherList=structuredClone(list);otherList.id='test.unified.other-list';otherList.representations.xml.path=['Other'];
@@ -218,7 +218,7 @@ cases.push({id:'unified-two-shared-collections',entry:sharedOwner.id,inputs:case
   xml:`<Root xmlns:v8="http://v8.1c.ru/8.1/data/core"><Shared enabled="true">${sharedRows[0]}${sharedRows[1].replaceAll('Item>','Other>')}</Shared></Root>`,
   yaml:'Общий:\n  Включено: Истина\n  Первые:\n    -\n      Имя: Alpha\n  Вторые:\n    -\n      Имя: Beta'});
 const sharedCase=cases.find(value=>value.id==='unified-two-shared-collections');
-cases.push({...sharedCase,id:'unified-shared-collection-anomaly',xml:sharedCase.xml.replace('<Item>','<Item extra="preserved">'),yaml:undefined,annotation:'  Первые: !xml/raw',retainedYAML:['  Вторые:','      Имя: Beta']});
+cases.push({...sharedCase,id:'unified-shared-collection-anomaly',xml:sharedCase.xml.replace('<Item>','<Item extra="preserved">'),yaml:undefined,annotation:'      !xml/raw',retainedYAML:['  Вторые:','      Имя: Beta']});
 const deepFirst=structuredClone(list);deepFirst.id='test.unified.deep-first';deepFirst.representations.xml.path.unshift('Deep');
 const deepSecond=structuredClone(otherList);deepSecond.id='test.unified.deep-second';deepSecond.representations.xml.path.unshift('Deep');
 const deepShared=structuredClone(shared);deepShared.id='test.unified.deep-shared';deepShared.imports.first=deepFirst.id;deepShared.imports.second=deepSecond.id;
@@ -226,5 +226,31 @@ const deepOwner=structuredClone(sharedOwner);deepOwner.id='test.unified.deep-own
 declarations.push(deepFirst,deepSecond,deepShared,deepOwner);
 const deepCase={...sharedCase,id:'unified-deep-shared-collections',entry:deepOwner.id,xml:sharedCase.xml.replace('enabled="true">','enabled="true"><Deep>').replace('</Shared>','</Deep></Shared>')};
 cases.push(deepCase);
-cases.push({...deepCase,id:'unified-deep-shared-anomaly',xml:deepCase.xml.replace('<Item>','<Item extra="preserved">'),yaml:undefined,annotation:'  Первые: !xml/raw',retainedYAML:['  Вторые:','      Имя: Beta']});
+cases.push({...deepCase,id:'unified-deep-shared-anomaly',xml:deepCase.xml.replace('<Item>','<Item extra="preserved">'),yaml:undefined,annotation:'      !xml/raw',retainedYAML:['  Вторые:','      Имя: Beta']});
 cases.push({...sharedCase,id:'unified-empty-shared-collections',xml:'<Root><Shared enabled="true"/></Root>',yaml:'Общий:\n  Включено: Истина\n  Первые: []\n  Вторые: []'});
+
+
+// Adopted defaults must not turn an omitted YAML key into an explicit XML value.
+// The boolean/default contract comes from the existing attribute rule parameters.
+import {deriveOwnerDefaultProfiles} from '../../src/owner-default-profiles.mjs';
+const defaults={format:'nkdk-declarations/1',kind:'object',id:'test.unified.adopted-defaults',
+  imports:{boolean:'common.boolean'},inputs:{adopted:{type:scalar('boolean')}},
+  value:{kind:'record',fields:[{name:'name',type:scalar('text')},{name:'enabled',type:{use:'boolean'}}]},
+  representations:{xml:{kind:'record',fields:[{field:'name',path:['Root','Name']},{field:'enabled',path:['Root','Enabled']}]},
+    yaml:{kind:'mapping',fields:[{field:'name',key:'Имя'},{field:'enabled',key:'Включено'}]}},
+  presence:[{target:{field:'enabled'},xml:{missing:{denotes:{absent:true}},canonical:[{form:'ordinary'}]},
+    yaml:{default:{literal:false}}}]};
+deriveOwnerDefaultProfiles(defaults,{properties:[{name:'enabled',type:'boolean',
+  parameters:{defaultValueXML:false}}]},{adopted:{input:'adopted'}});
+declarations.push(defaults);
+for(const [id,adopted,xml,value] of [
+  ['omitted',true,'<Root/>','{}'],
+  ['explicit-default',true,'<Root><Enabled>false</Enabled></Root>','Включено: Ложь'],
+  ['ordinary-default',false,'<Root><Enabled>false</Enabled></Root>','{}'],
+  ['nondefault',true,'<Root><Enabled>true</Enabled></Root>','Включено: Истина'],
+])cases.push({id:'unified-adopted-default-'+id,entry:defaults.id,
+  inputs:{adopted,component:'cfe'},xml:xml==='<Root/>'?'<Root><Name>Alpha</Name></Root>':xml.replace('<Root>','<Root><Name>Alpha</Name>'),
+  yaml:'Имя: Alpha'+(value==='{}'?'':'\n'+value),noRaw:true});
+
+import {declarations as dependentDefaults,cases as dependentCases} from './owner-dependent-defaults.mjs';
+declarations.push(...dependentDefaults);cases.push(...dependentCases);

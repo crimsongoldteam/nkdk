@@ -1,0 +1,5 @@
+format: nkdk-declarations/1
+kind: value
+id: common.metadata-allowed-paths-0b8a64ef81b9305c.nested0.kind
+enum:
+  Subsystem: Подсистема

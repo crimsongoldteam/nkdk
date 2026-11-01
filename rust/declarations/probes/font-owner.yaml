@@ -1,0 +1,15 @@
+format: nkdk-declarations/1
+kind: object
+id: probe.font-owner
+imports: {font: common.font}
+inputs: {styleTypes: {index: metadata.style-item-types}}
+value: {kind: record, fields: [{name: font, type: {use: font, bind: {styleTypes: {input: styleTypes}}}}]}
+representations:
+  xml: {kind: record, fields: [{field: font, path: [Root, Font]}]}
+  yaml: {kind: mapping, fields: [{field: font, key: Шрифт}]}
+presence:
+- target: {field: font}
+  xml:
+    missing: {denotes: {absent: true}}
+    empty: [{form: empty-element, denotes: {absent: true}}]
+  yaml: {missing: {denotes: {absent: true}}}

@@ -1,0 +1,5068 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+  - format: nkdk-declarations/1
+    kind: value
+    id: candidate.member-source.view.e4e2aaa692579daf2b4a
+    description: >-
+      Обратимое описание типов; классификация XML-групп задана выражениями
+      декларации
+    namespaces:
+      v8: http://v8.1c.ru/8.1/data/core
+      xsi: http://www.w3.org/2001/XMLSchema-instance
+      xr: http://v8.1c.ru/8.3/xcf/readable
+    imports:
+      items: common.type-description-items
+      types: common.type-description-types
+      typeSets: common.type-description-type-sets
+      identifiers: common.type-description-identifiers
+      text: common.string
+      description: common.type-description
+      compatibility: common.boolean
+    parameters:
+      requireValues:
+        type:
+          kind: scalar
+          scalar: boolean
+        default: false
+      addTypeDescriptionAttributeToXML:
+        type:
+          kind: scalar
+          scalar: boolean
+        default: false
+      metadataAttributeTypesOnly:
+        type:
+          kind: scalar
+          scalar: boolean
+        default: false
+    value:
+      kind: record
+      fields:
+        - name: items
+          type:
+            use: items
+            with:
+              metadataAttributeTypesOnly:
+                parameter: metadataAttributeTypesOnly
+              requireValues:
+                parameter: requireValues
+        - name: types
+          type:
+            use: types
+        - name: typeSets
+          type:
+            use: typeSets
+        - name: identifiers
+          type:
+            use: identifiers
+        - name: numberDigits
+          type:
+            use: text
+        - name: numberFractionDigits
+          type:
+            use: text
+        - name: numberAllowedSign
+          type:
+            use: text
+        - name: stringLength
+          type:
+            use: text
+        - name: stringAllowedLength
+          type:
+            use: text
+        - name: dateFractions
+          type:
+            use: text
+        - name: binaryLength
+          type:
+            use: text
+        - name: binaryAllowedLength
+          type:
+            use: text
+        - name: sourceKind
+          type:
+            kind: scalar
+            scalar: text
+        - name: checked
+          type:
+            use: description
+            with:
+              addTypeDescriptionAttributeToXML: true
+        - name: notified
+          type:
+            use: description
+            with:
+              addTypeDescriptionAttributeToXML: true
+        - name: extended
+          type:
+            use: description
+            with:
+              addTypeDescriptionAttributeToXML: true
+        - name: compatible
+          type:
+            use: compatibility
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: types
+            path: []
+          - field: typeSets
+            path: []
+          - field: identifiers
+            path: []
+          - field: numberDigits
+            path:
+              - v8:NumberQualifiers
+              - v8:Digits
+          - field: numberFractionDigits
+            path:
+              - v8:NumberQualifiers
+              - v8:FractionDigits
+          - field: numberAllowedSign
+            path:
+              - v8:NumberQualifiers
+              - v8:AllowedSign
+          - field: stringLength
+            path:
+              - v8:StringQualifiers
+              - v8:Length
+          - field: stringAllowedLength
+            path:
+              - v8:StringQualifiers
+              - v8:AllowedLength
+          - field: dateFractions
+            path:
+              - v8:DateQualifiers
+              - v8:DateFractions
+          - field: binaryLength
+            path:
+              - v8:BinaryDataQualifiers
+              - v8:Length
+          - field: binaryAllowedLength
+            path:
+              - v8:BinaryDataQualifiers
+              - v8:AllowedLength
+          - field: sourceKind
+            path: []
+            attribute: xsi:type
+          - field: checked
+            path:
+              - xr:CheckValue
+          - field: notified
+            path:
+              - xr:NotifyValue
+          - field: extended
+            path:
+              - xr:ExtendValue
+      yaml:
+        kind: mapping
+        fields:
+          - field: items
+            key: items
+          - field: types
+            key: types
+          - field: typeSets
+            key: typeSets
+          - field: identifiers
+            key: identifiers
+          - field: numberDigits
+            key: numberDigits
+          - field: numberFractionDigits
+            key: numberFractionDigits
+          - field: numberAllowedSign
+            key: numberAllowedSign
+          - field: stringLength
+            key: stringLength
+          - field: stringAllowedLength
+            key: stringAllowedLength
+          - field: dateFractions
+            key: dateFractions
+          - field: binaryLength
+            key: binaryLength
+          - field: binaryAllowedLength
+            key: binaryAllowedLength
+          - field: sourceKind
+            key: sourceKind
+          - field: checked
+            key: checked
+          - field: notified
+            key: notified
+          - field: extended
+            key: extended
+          - field: compatible
+            key: compatible
+    presence:
+      - target:
+          field: items
+        xml:
+          missing:
+            denotes:
+              concat:
+                - map:
+                    in:
+                      field: types
+                    as: item
+                    value:
+                      record:
+                        value:
+                          if:
+                            eq:
+                              - get:
+                                  of:
+                                    var: item
+                                  field: value
+                              - literal: Строка
+                          then:
+                            if:
+                              isReady:
+                                field: stringAllowedLength
+                            then:
+                              if:
+                                eq:
+                                  - field: stringAllowedLength
+                                  - literal: Fixed
+                              then:
+                                literal: ФиксированнаяСтрока
+                              else:
+                                literal: Строка
+                            else:
+                              literal: Строка
+                          else:
+                            if:
+                              eq:
+                                - get:
+                                    of:
+                                      var: item
+                                    field: value
+                                - literal: Число
+                            then:
+                              if:
+                                isReady:
+                                  field: numberAllowedSign
+                              then:
+                                if:
+                                  eq:
+                                    - field: numberAllowedSign
+                                    - literal: Nonnegative
+                                then:
+                                  literal: ПоложительноеЧисло
+                                else:
+                                  literal: Число
+                              else:
+                                literal: Число
+                            else:
+                              if:
+                                matches:
+                                  value:
+                                    get:
+                                      of:
+                                        var: item
+                                      field: value
+                                  pattern: Дата|ДатаВремя
+                              then:
+                                if:
+                                  isReady:
+                                    field: dateFractions
+                                then:
+                                  if:
+                                    eq:
+                                      - field: dateFractions
+                                      - literal: Time
+                                  then:
+                                    literal: Время
+                                  else:
+                                    if:
+                                      eq:
+                                        - field: dateFractions
+                                        - literal: DateTime
+                                    then:
+                                      literal: ДатаВремя
+                                    else:
+                                      literal: Дата
+                                else:
+                                  literal: Дата
+                              else:
+                                get:
+                                  of:
+                                    var: item
+                                  field: value
+                        first:
+                          if:
+                            eq:
+                              - get:
+                                  of:
+                                    var: item
+                                  field: value
+                              - literal: Строка
+                          then:
+                            if:
+                              isReady:
+                                field: stringLength
+                            then:
+                              if:
+                                and:
+                                  - eq:
+                                      - field: stringLength
+                                      - literal: '0'
+                                  - not:
+                                      eq:
+                                        - field: stringAllowedLength
+                                        - literal: Fixed
+                              then:
+                                literal: ''
+                              else:
+                                field: stringLength
+                            else:
+                              literal: ''
+                          else:
+                            if:
+                              eq:
+                                - get:
+                                    of:
+                                      var: item
+                                    field: value
+                                - literal: Число
+                            then:
+                              if:
+                                isReady:
+                                  field: numberDigits
+                              then:
+                                if:
+                                  and:
+                                    - eq:
+                                        - field: numberDigits
+                                        - literal: '0'
+                                    - eq:
+                                        - field: numberFractionDigits
+                                        - literal: '0'
+                                    - eq:
+                                        - field: numberAllowedSign
+                                        - literal: Any
+                                then:
+                                  literal: ''
+                                else:
+                                  field: numberDigits
+                              else:
+                                literal: ''
+                            else:
+                              literal: ''
+                        second:
+                          if:
+                            eq:
+                              - get:
+                                  of:
+                                    var: item
+                                  field: value
+                              - literal: Число
+                          then:
+                            if:
+                              isReady:
+                                field: numberFractionDigits
+                            then:
+                              if:
+                                and:
+                                  - eq:
+                                      - field: numberDigits
+                                      - literal: '0'
+                                  - eq:
+                                      - field: numberFractionDigits
+                                      - literal: '0'
+                                  - eq:
+                                      - field: numberAllowedSign
+                                      - literal: Any
+                              then:
+                                literal: ''
+                              else:
+                                field: numberFractionDigits
+                            else:
+                              literal: ''
+                          else:
+                            literal: ''
+                - map:
+                    in:
+                      field: typeSets
+                    as: item
+                    value:
+                      record:
+                        value:
+                          get:
+                            of:
+                              var: item
+                            field: value
+                        first:
+                          literal: ''
+                        second:
+                          literal: ''
+                - map:
+                    in:
+                      filter:
+                        in:
+                          field: identifiers
+                        as: item
+                        where:
+                          matches:
+                            value:
+                              get:
+                                of:
+                                  var: item
+                                field: value
+                            pattern: >-
+                              [0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}
+                    as: item
+                    value:
+                      record:
+                        value:
+                          get:
+                            of:
+                              var: item
+                            field: value
+                        first:
+                          literal: ''
+                        second:
+                          literal: ''
+      - target:
+          field: identifiers
+        yaml:
+          missing:
+            denotes:
+              map:
+                in:
+                  filter:
+                    in:
+                      field: items
+                    as: item
+                    where:
+                      matches:
+                        value:
+                          get:
+                            of:
+                              var: item
+                            field: value
+                        pattern: >-
+                          [0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}
+                as: item
+                value:
+                  record:
+                    value:
+                      get:
+                        of:
+                          var: item
+                        field: value
+      - target:
+          field: typeSets
+        yaml:
+          missing:
+            denotes:
+              map:
+                in:
+                  filter:
+                    in:
+                      field: items
+                    as: item
+                    where:
+                      matches:
+                        value:
+                          get:
+                            of:
+                              var: item
+                            field: value
+                        pattern: >-
+                          AccumulationRegisterRecordSet|CalculationRegisterRecordSet|ChartOfAccountsObject|ConstantValueManager|RecalculationRecordSet|SequenceRecordSet|БизнесПроцесс|БизнесПроцессОбъект|ВнешнийИсточникДанныхКубМенеджерЗаписи|ВнешнийИсточникДанныхКубТаблицаИзмерения|ВнешнийИсточникДанныхТаблица|ВнешнийИсточникДанныхТаблицаОбъект|Документ|ДокументОбъект|Задача|ЗадачаОбъект|ЛюбаяСсылка|ОпределяемыйТип(\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)?|Перечисление|ПланВидовРасчета|ПланВидовРасчетаОбъект|ПланВидовХарактеристик|ПланВидовХарактеристикОбъект|ПланОбмена|ПланОбменаОбъект|ПланСчетов|ПланСчетовОбъект|РегистрБухгалтерииНаборЗаписей|РегистрСведенийНаборЗаписей|Справочник|СправочникОбъект|ТочкаМаршрутаБизнесПроцесса|ТочкаМаршрутаБизнесПроцессаОбъект|Характеристика
+                as: item
+                value:
+                  record:
+                    value:
+                      get:
+                        of:
+                          var: item
+                        field: value
+      - target:
+          field: types
+        yaml:
+          missing:
+            denotes:
+              map:
+                in:
+                  filter:
+                    in:
+                      field: items
+                    as: item
+                    where:
+                      and:
+                        - not:
+                            matches:
+                              value:
+                                get:
+                                  of:
+                                    var: item
+                                  field: value
+                              pattern: >-
+                                [0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}
+                        - not:
+                            matches:
+                              value:
+                                get:
+                                  of:
+                                    var: item
+                                  field: value
+                              pattern: >-
+                                AccumulationRegisterRecordSet|CalculationRegisterRecordSet|ChartOfAccountsObject|ConstantValueManager|RecalculationRecordSet|SequenceRecordSet|БизнесПроцесс|БизнесПроцессОбъект|ВнешнийИсточникДанныхКубМенеджерЗаписи|ВнешнийИсточникДанныхКубТаблицаИзмерения|ВнешнийИсточникДанныхТаблица|ВнешнийИсточникДанныхТаблицаОбъект|Документ|ДокументОбъект|Задача|ЗадачаОбъект|ЛюбаяСсылка|ОпределяемыйТип(\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)?|Перечисление|ПланВидовРасчета|ПланВидовРасчетаОбъект|ПланВидовХарактеристик|ПланВидовХарактеристикОбъект|ПланОбмена|ПланОбменаОбъект|ПланСчетов|ПланСчетовОбъект|РегистрБухгалтерииНаборЗаписей|РегистрСведенийНаборЗаписей|Справочник|СправочникОбъект|ТочкаМаршрутаБизнесПроцесса|ТочкаМаршрутаБизнесПроцессаОбъект|Характеристика
+                as: item
+                value:
+                  record:
+                    value:
+                      if:
+                        matches:
+                          value:
+                            get:
+                              of:
+                                var: item
+                              field: value
+                          pattern: Строка|ФиксированнаяСтрока
+                      then:
+                        literal: Строка
+                      else:
+                        if:
+                          matches:
+                            value:
+                              get:
+                                of:
+                                  var: item
+                                field: value
+                            pattern: Число|ПоложительноеЧисло
+                        then:
+                          literal: Число
+                        else:
+                          if:
+                            matches:
+                              value:
+                                get:
+                                  of:
+                                    var: item
+                                  field: value
+                              pattern: Дата|Время|ДатаВремя
+                          then:
+                            literal: ДатаВремя
+                          else:
+                            get:
+                              of:
+                                var: item
+                              field: value
+      - target:
+          field: stringLength
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              match:
+                value:
+                  find:
+                    in:
+                      field: items
+                    as: item
+                    where:
+                      matches:
+                        value:
+                          get:
+                            of:
+                              var: item
+                            field: value
+                        pattern: Строка|ФиксированнаяСтрока
+                present:
+                  as: item
+                  then:
+                    if:
+                      eq:
+                        - get:
+                            of:
+                              var: item
+                            field: first
+                        - literal: ''
+                    then:
+                      literal: '0'
+                    else:
+                      get:
+                        of:
+                          var: item
+                        field: first
+                absent:
+                  absent: true
+      - target:
+          field: stringAllowedLength
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              match:
+                value:
+                  find:
+                    in:
+                      field: items
+                    as: item
+                    where:
+                      matches:
+                        value:
+                          get:
+                            of:
+                              var: item
+                            field: value
+                        pattern: Строка|ФиксированнаяСтрока
+                present:
+                  as: item
+                  then:
+                    if:
+                      eq:
+                        - get:
+                            of:
+                              var: item
+                            field: value
+                        - literal: ФиксированнаяСтрока
+                    then:
+                      literal: Fixed
+                    else:
+                      literal: Variable
+                absent:
+                  absent: true
+      - target:
+          field: numberDigits
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              match:
+                value:
+                  find:
+                    in:
+                      field: items
+                    as: item
+                    where:
+                      matches:
+                        value:
+                          get:
+                            of:
+                              var: item
+                            field: value
+                        pattern: Число|ПоложительноеЧисло
+                present:
+                  as: item
+                  then:
+                    if:
+                      eq:
+                        - get:
+                            of:
+                              var: item
+                            field: first
+                        - literal: ''
+                    then:
+                      literal: '0'
+                    else:
+                      get:
+                        of:
+                          var: item
+                        field: first
+                absent:
+                  absent: true
+      - target:
+          field: numberFractionDigits
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              match:
+                value:
+                  find:
+                    in:
+                      field: items
+                    as: item
+                    where:
+                      matches:
+                        value:
+                          get:
+                            of:
+                              var: item
+                            field: value
+                        pattern: Число|ПоложительноеЧисло
+                present:
+                  as: item
+                  then:
+                    if:
+                      eq:
+                        - get:
+                            of:
+                              var: item
+                            field: second
+                        - literal: ''
+                    then:
+                      literal: '0'
+                    else:
+                      get:
+                        of:
+                          var: item
+                        field: second
+                absent:
+                  absent: true
+      - target:
+          field: numberAllowedSign
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              match:
+                value:
+                  find:
+                    in:
+                      field: items
+                    as: item
+                    where:
+                      matches:
+                        value:
+                          get:
+                            of:
+                              var: item
+                            field: value
+                        pattern: Число|ПоложительноеЧисло
+                present:
+                  as: item
+                  then:
+                    if:
+                      eq:
+                        - get:
+                            of:
+                              var: item
+                            field: value
+                        - literal: ПоложительноеЧисло
+                    then:
+                      literal: Nonnegative
+                    else:
+                      literal: Any
+                absent:
+                  absent: true
+      - target:
+          field: dateFractions
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              match:
+                value:
+                  find:
+                    in:
+                      field: items
+                    as: item
+                    where:
+                      matches:
+                        value:
+                          get:
+                            of:
+                              var: item
+                            field: value
+                        pattern: Дата|Время|ДатаВремя
+                present:
+                  as: item
+                  then:
+                    if:
+                      eq:
+                        - get:
+                            of:
+                              var: item
+                            field: value
+                        - literal: Время
+                    then:
+                      literal: Time
+                    else:
+                      if:
+                        eq:
+                          - get:
+                              of:
+                                var: item
+                              field: value
+                          - literal: ДатаВремя
+                      then:
+                        literal: DateTime
+                      else:
+                        literal: Date
+                absent:
+                  absent: true
+      - target:
+          field: binaryLength
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              if:
+                exists:
+                  in:
+                    field: items
+                  as: item
+                  where:
+                    eq:
+                      - get:
+                          of:
+                            var: item
+                          field: value
+                      - literal: ДвоичныеДанные
+              then:
+                literal: '0'
+              else:
+                absent: true
+      - target:
+          field: binaryAllowedLength
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              if:
+                exists:
+                  in:
+                    field: items
+                  as: item
+                  where:
+                    eq:
+                      - get:
+                          of:
+                            var: item
+                          field: value
+                      - literal: ДвоичныеДанные
+              then:
+                literal: Variable
+              else:
+                absent: true
+      - target:
+          field: sourceKind
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+      - target:
+          field: checked
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+      - target:
+          field: notified
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+      - target:
+          field: extended
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+      - target:
+          field: compatible
+        xml:
+          missing:
+            denotes:
+              or:
+                - not:
+                    or:
+                      - exists:
+                          in:
+                            field: items
+                          as: item
+                          where:
+                            literal: true
+                      - if:
+                          present:
+                            field: checked
+                        then:
+                          exists:
+                            in:
+                              get:
+                                of:
+                                  field: checked
+                                field: items
+                            as: item
+                            where:
+                              literal: true
+                        else:
+                          literal: false
+                      - if:
+                          present:
+                            field: notified
+                        then:
+                          exists:
+                            in:
+                              get:
+                                of:
+                                  field: notified
+                                field: items
+                            as: item
+                            where:
+                              literal: true
+                        else:
+                          literal: false
+                      - if:
+                          present:
+                            field: extended
+                        then:
+                          exists:
+                            in:
+                              get:
+                                of:
+                                  field: extended
+                                field: items
+                            as: item
+                            where:
+                              literal: true
+                        else:
+                          literal: false
+                - exists:
+                    in:
+                      field: items
+                    as: item
+                    where:
+                      matches:
+                        value:
+                          get:
+                            of:
+                              var: item
+                            field: value
+                        pattern: >-
+                          Строка|ФиксированнаяСтрока|Число|ПоложительноеЧисло|Дата|Время|ДатаВремя|Булево|УникальныйИдентификатор|ОпределяемыйТип\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}
+                - if:
+                    present:
+                      field: checked
+                  then:
+                    exists:
+                      in:
+                        get:
+                          of:
+                            field: checked
+                          field: items
+                      as: item
+                      where:
+                        matches:
+                          value:
+                            get:
+                              of:
+                                var: item
+                              field: value
+                          pattern: >-
+                            Строка|ФиксированнаяСтрока|Число|ПоложительноеЧисло|Дата|Время|ДатаВремя|Булево|УникальныйИдентификатор|ОпределяемыйТип\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}
+                  else:
+                    literal: false
+                - if:
+                    present:
+                      field: notified
+                  then:
+                    exists:
+                      in:
+                        get:
+                          of:
+                            field: notified
+                          field: items
+                      as: item
+                      where:
+                        matches:
+                          value:
+                            get:
+                              of:
+                                var: item
+                              field: value
+                          pattern: >-
+                            Строка|ФиксированнаяСтрока|Число|ПоложительноеЧисло|Дата|Время|ДатаВремя|Булево|УникальныйИдентификатор|ОпределяемыйТип\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}
+                  else:
+                    literal: false
+                - if:
+                    present:
+                      field: extended
+                  then:
+                    exists:
+                      in:
+                        get:
+                          of:
+                            field: extended
+                          field: items
+                      as: item
+                      where:
+                        matches:
+                          value:
+                            get:
+                              of:
+                                var: item
+                              field: value
+                          pattern: >-
+                            Строка|ФиксированнаяСтрока|Число|ПоложительноеЧисло|Дата|Время|ДатаВремя|Булево|УникальныйИдентификатор|ОпределяемыйТип\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}
+                  else:
+                    literal: false
+        yaml:
+          missing:
+            denotes:
+              or:
+                - not:
+                    or:
+                      - exists:
+                          in:
+                            field: items
+                          as: item
+                          where:
+                            literal: true
+                      - if:
+                          present:
+                            field: checked
+                        then:
+                          exists:
+                            in:
+                              get:
+                                of:
+                                  field: checked
+                                field: items
+                            as: item
+                            where:
+                              literal: true
+                        else:
+                          literal: false
+                      - if:
+                          present:
+                            field: notified
+                        then:
+                          exists:
+                            in:
+                              get:
+                                of:
+                                  field: notified
+                                field: items
+                            as: item
+                            where:
+                              literal: true
+                        else:
+                          literal: false
+                      - if:
+                          present:
+                            field: extended
+                        then:
+                          exists:
+                            in:
+                              get:
+                                of:
+                                  field: extended
+                                field: items
+                            as: item
+                            where:
+                              literal: true
+                        else:
+                          literal: false
+                - exists:
+                    in:
+                      field: items
+                    as: item
+                    where:
+                      matches:
+                        value:
+                          get:
+                            of:
+                              var: item
+                            field: value
+                        pattern: >-
+                          Строка|ФиксированнаяСтрока|Число|ПоложительноеЧисло|Дата|Время|ДатаВремя|Булево|УникальныйИдентификатор|ОпределяемыйТип\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}
+                - if:
+                    present:
+                      field: checked
+                  then:
+                    exists:
+                      in:
+                        get:
+                          of:
+                            field: checked
+                          field: items
+                      as: item
+                      where:
+                        matches:
+                          value:
+                            get:
+                              of:
+                                var: item
+                              field: value
+                          pattern: >-
+                            Строка|ФиксированнаяСтрока|Число|ПоложительноеЧисло|Дата|Время|ДатаВремя|Булево|УникальныйИдентификатор|ОпределяемыйТип\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}
+                  else:
+                    literal: false
+                - if:
+                    present:
+                      field: notified
+                  then:
+                    exists:
+                      in:
+                        get:
+                          of:
+                            field: notified
+                          field: items
+                      as: item
+                      where:
+                        matches:
+                          value:
+                            get:
+                              of:
+                                var: item
+                              field: value
+                          pattern: >-
+                            Строка|ФиксированнаяСтрока|Число|ПоложительноеЧисло|Дата|Время|ДатаВремя|Булево|УникальныйИдентификатор|ОпределяемыйТип\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}
+                  else:
+                    literal: false
+                - if:
+                    present:
+                      field: extended
+                  then:
+                    exists:
+                      in:
+                        get:
+                          of:
+                            field: extended
+                          field: items
+                      as: item
+                      where:
+                        matches:
+                          value:
+                            get:
+                              of:
+                                var: item
+                              field: value
+                          pattern: >-
+                            Строка|ФиксированнаяСтрока|Число|ПоложительноеЧисло|Дата|Время|ДатаВремя|Булево|УникальныйИдентификатор|ОпределяемыйТип\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}
+                  else:
+                    literal: false
+    constraints: []
+  - format: nkdk-declarations/1
+    kind: value
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      key: common.string
+      source_type: candidate.member-source.view.e4e2aaa692579daf2b4a
+    value:
+      kind: record
+      fields:
+        - name: name
+          type:
+            use: key
+        - name: uuid
+          type:
+            kind: scalar
+            scalar: text
+        - name: type
+          type:
+            use: source_type
+            bind: {}
+        - name: indexedName
+          type:
+            kind: scalar
+            scalar: text
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: name
+            path:
+              - md:Properties
+              - md:Name
+          - field: uuid
+            path: []
+            attribute: uuid
+          - field: type
+            path:
+              - md:Properties
+              - md:Type
+      yaml:
+        kind: mapping
+        fields:
+          - field: name
+            key: name
+          - field: type
+            key: Тип
+    presence:
+      - target:
+          field: name
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+      - target:
+          field: uuid
+        yaml:
+          missing:
+            denotes:
+              absent: true
+      - target:
+          field: type
+        xml:
+          missing:
+            denotes:
+              absent: true
+          empty:
+            - form: empty-element
+              denotes:
+                absent: true
+          canonical:
+            - when:
+                not:
+                  present:
+                    field: type
+              form: empty-element
+        yaml:
+          missing:
+            denotes:
+              absent: true
+      - target:
+          field: indexedName
+        xml:
+          missing:
+            denotes:
+              if:
+                or:
+                  - not:
+                      present:
+                        field: type
+                  - get:
+                      of:
+                        field: type
+                      field: compatible
+              then:
+                field: name
+              else:
+                literal: ''
+        yaml:
+          missing:
+            denotes:
+              if:
+                or:
+                  - not:
+                      present:
+                        field: type
+                  - get:
+                      of:
+                        field: type
+                      field: compatible
+              then:
+                field: name
+              else:
+                literal: ''
+    constraints:
+      - id: name-required
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        assert:
+          present:
+            field: name
+        diagnostic:
+          code: value.required
+          severity: warning
+          at:
+            field: name
+          message: Обязательное значение отсутствует
+    id: candidate.member-source.item.637f964c746280367bb1
+  - format: nkdk-declarations/1
+    kind: value
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      item: candidate.member-source.item.637f964c746280367bb1
+    value:
+      kind: sequence
+      item:
+        use: item
+    representations:
+      xml:
+        kind: element-sequence
+        path:
+          - md:Attribute
+      yaml:
+        kind: record-mapping
+        key: name
+    id: candidate.member-source.list.ace0cdfa60e84b814f87
+  - format: nkdk-declarations/1
+    kind: object
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      items: candidate.member-source.list.ace0cdfa60e84b814f87
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: attributes
+          type:
+            use: items
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: attributes
+            path:
+              - md:MetaDataObject
+              - md:BusinessProcess
+              - md:ChildObjects
+      yaml:
+        kind: mapping
+        fields:
+          - field: attributes
+            key: Реквизиты
+    presence:
+      - target:
+          field: attributes
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+    contributions:
+      - index: metadata.input-by-string-members
+        forEach:
+          in:
+            field: attributes
+          as: row
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: owner
+            role:
+              literal: attributes
+            name:
+              get:
+                of:
+                  var: row
+                field: name
+        value:
+          get:
+            of:
+              var: row
+            field: indexedName
+    id: candidate.member-source.owner.844cd1ed1242d4aab6bf
+  - format: nkdk-declarations/1
+    kind: object
+    id: candidate.input-by-string-base-numbers.businessprocess
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      number: common.exact-decimal
+      context_numberType: system.BusinessProcessNumberType
+    inputs:
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: NumberLength
+          type:
+            use: number
+        - name: NumberType
+          type:
+            use: context_numberType
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: NumberLength
+            path:
+              - md:MetaDataObject
+              - md:BusinessProcess
+              - md:Properties
+              - md:NumberLength
+          - field: NumberType
+            path:
+              - md:MetaDataObject
+              - md:BusinessProcess
+              - md:Properties
+              - md:NumberType
+      yaml:
+        kind: mapping
+        fields:
+          - field: NumberLength
+            key: NumberLength
+          - field: NumberType
+            key: NumberType
+    presence:
+      - target:
+          field: NumberLength
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+      - target:
+          field: NumberType
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+    contributions:
+      - index: metadata.base-owner-numbers
+        when:
+          present:
+            field: NumberLength
+        key:
+          record:
+            owner:
+              input: owner
+            property:
+              literal: NumberLength
+        value:
+          decimalText:
+            field: NumberLength
+      - index: metadata.base-owner-numbers
+        when:
+          present:
+            field: NumberType
+        key:
+          record:
+            owner:
+              input: owner
+            property:
+              literal: NumberType
+        value:
+          enumText:
+            field: NumberType
+  - format: nkdk-declarations/1
+    kind: object
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      items: candidate.member-source.list.ace0cdfa60e84b814f87
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: attributes
+          type:
+            use: items
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: attributes
+            path:
+              - md:MetaDataObject
+              - md:BusinessProcess
+              - md:ChildObjects
+      yaml:
+        kind: mapping
+        fields:
+          - field: attributes
+            key: Реквизиты
+    presence:
+      - target:
+          field: attributes
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+    contributions:
+      - index: metadata.input-by-string-members
+        forEach:
+          in:
+            field: attributes
+          as: row
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: owner
+            role:
+              literal: attributes
+            name:
+              get:
+                of:
+                  var: row
+                field: name
+        value:
+          get:
+            of:
+              var: row
+            field: indexedName
+      - index: metadata.input-by-string-local-members
+        forEach:
+          in:
+            field: attributes
+          as: row
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: owner
+            role:
+              literal: attributes
+            name:
+              get:
+                of:
+                  var: row
+                field: name
+        value:
+          get:
+            of:
+              var: row
+            field: indexedName
+    id: candidate.member-source.overlay.1a1bdf83d2e9247c9b78
+  - format: nkdk-declarations/1
+    kind: object
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      items: candidate.member-source.list.ace0cdfa60e84b814f87
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+      localMembers:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: component
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: role
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: name
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+        index: metadata.input-by-string-local-members
+    value:
+      kind: record
+      fields:
+        - name: attributes
+          type:
+            use: items
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: attributes
+            path:
+              - md:MetaDataObject
+              - md:BusinessProcess
+              - md:ChildObjects
+      yaml:
+        kind: mapping
+        fields:
+          - field: attributes
+            key: Реквизиты
+    presence:
+      - target:
+          field: attributes
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+    contributions:
+      - index: metadata.input-by-string-members
+        forEach:
+          in:
+            field: attributes
+          as: row
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: owner
+            role:
+              literal: attributes
+            name:
+              get:
+                of:
+                  var: row
+                field: name
+        value:
+          get:
+            of:
+              var: row
+            field: indexedName
+        when:
+          match:
+            value:
+              lookup:
+                in:
+                  input: localMembers
+                key:
+                  record:
+                    component:
+                      input: component
+                    owner:
+                      input: owner
+                    role:
+                      literal: attributes
+                    name:
+                      get:
+                        of:
+                          var: row
+                        field: name
+            present:
+              as: existing
+              then:
+                literal: false
+            absent:
+              literal: true
+    id: candidate.member-source.overlay.754b3ef901233a450811
+  - format: nkdk-declarations/1
+    kind: value
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      key: common.string
+      source_type: candidate.member-source.view.e4e2aaa692579daf2b4a
+    value:
+      kind: record
+      fields:
+        - name: name
+          type:
+            use: key
+        - name: uuid
+          type:
+            kind: scalar
+            scalar: text
+        - name: type
+          type:
+            use: source_type
+            bind: {}
+            with:
+              metadataAttributeTypesOnly: true
+        - name: indexedName
+          type:
+            kind: scalar
+            scalar: text
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: name
+            path:
+              - md:Properties
+              - md:Name
+          - field: uuid
+            path: []
+            attribute: uuid
+          - field: type
+            path:
+              - md:Properties
+              - md:Type
+      yaml:
+        kind: mapping
+        fields:
+          - field: name
+            key: name
+          - field: type
+            key: Тип
+    presence:
+      - target:
+          field: name
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+      - target:
+          field: uuid
+        yaml:
+          missing:
+            denotes:
+              absent: true
+      - target:
+          field: type
+        xml:
+          missing:
+            denotes:
+              absent: true
+          empty:
+            - form: empty-element
+              denotes:
+                absent: true
+          canonical:
+            - when:
+                not:
+                  present:
+                    field: type
+              form: empty-element
+        yaml:
+          missing:
+            denotes:
+              absent: true
+      - target:
+          field: indexedName
+        xml:
+          missing:
+            denotes:
+              if:
+                or:
+                  - not:
+                      present:
+                        field: type
+                  - get:
+                      of:
+                        field: type
+                      field: compatible
+              then:
+                field: name
+              else:
+                literal: ''
+        yaml:
+          missing:
+            denotes:
+              if:
+                or:
+                  - not:
+                      present:
+                        field: type
+                  - get:
+                      of:
+                        field: type
+                      field: compatible
+              then:
+                field: name
+              else:
+                literal: ''
+    constraints:
+      - id: name-required
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        assert:
+          present:
+            field: name
+        diagnostic:
+          code: value.required
+          severity: warning
+          at:
+            field: name
+          message: Обязательное значение отсутствует
+    id: candidate.member-source.item.8985960f1f75a716443a
+  - format: nkdk-declarations/1
+    kind: value
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      item: candidate.member-source.item.8985960f1f75a716443a
+    value:
+      kind: sequence
+      item:
+        use: item
+    representations:
+      xml:
+        kind: element-sequence
+        path:
+          - md:Attribute
+      yaml:
+        kind: record-mapping
+        key: name
+    id: candidate.member-source.list.c26b5d338c8b547f53be
+  - format: nkdk-declarations/1
+    kind: object
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      items: candidate.member-source.list.c26b5d338c8b547f53be
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: attributes
+          type:
+            use: items
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: attributes
+            path:
+              - md:MetaDataObject
+              - md:Catalog
+              - md:ChildObjects
+      yaml:
+        kind: mapping
+        fields:
+          - field: attributes
+            key: Реквизиты
+    presence:
+      - target:
+          field: attributes
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+    contributions:
+      - index: metadata.input-by-string-members
+        forEach:
+          in:
+            field: attributes
+          as: row
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: owner
+            role:
+              literal: attributes
+            name:
+              get:
+                of:
+                  var: row
+                field: name
+        value:
+          get:
+            of:
+              var: row
+            field: indexedName
+    id: candidate.member-source.owner.619e52f90412bd2db1cf
+  - format: nkdk-declarations/1
+    kind: object
+    id: candidate.input-by-string-base-numbers.catalog
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      number: common.exact-decimal
+      context_codeType: system.CatalogCodeType
+    inputs:
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: DescriptionLength
+          type:
+            use: number
+        - name: CodeLength
+          type:
+            use: number
+        - name: CodeType
+          type:
+            use: context_codeType
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: DescriptionLength
+            path:
+              - md:MetaDataObject
+              - md:Catalog
+              - md:Properties
+              - md:DescriptionLength
+          - field: CodeLength
+            path:
+              - md:MetaDataObject
+              - md:Catalog
+              - md:Properties
+              - md:CodeLength
+          - field: CodeType
+            path:
+              - md:MetaDataObject
+              - md:Catalog
+              - md:Properties
+              - md:CodeType
+      yaml:
+        kind: mapping
+        fields:
+          - field: DescriptionLength
+            key: DescriptionLength
+          - field: CodeLength
+            key: CodeLength
+          - field: CodeType
+            key: CodeType
+    presence:
+      - target:
+          field: DescriptionLength
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+      - target:
+          field: CodeLength
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+      - target:
+          field: CodeType
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+    contributions:
+      - index: metadata.base-owner-numbers
+        when:
+          present:
+            field: DescriptionLength
+        key:
+          record:
+            owner:
+              input: owner
+            property:
+              literal: DescriptionLength
+        value:
+          decimalText:
+            field: DescriptionLength
+      - index: metadata.base-owner-numbers
+        when:
+          present:
+            field: CodeLength
+        key:
+          record:
+            owner:
+              input: owner
+            property:
+              literal: CodeLength
+        value:
+          decimalText:
+            field: CodeLength
+      - index: metadata.base-owner-numbers
+        when:
+          present:
+            field: CodeType
+        key:
+          record:
+            owner:
+              input: owner
+            property:
+              literal: CodeType
+        value:
+          enumText:
+            field: CodeType
+  - format: nkdk-declarations/1
+    kind: object
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      items: candidate.member-source.list.c26b5d338c8b547f53be
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: attributes
+          type:
+            use: items
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: attributes
+            path:
+              - md:MetaDataObject
+              - md:Catalog
+              - md:ChildObjects
+      yaml:
+        kind: mapping
+        fields:
+          - field: attributes
+            key: Реквизиты
+    presence:
+      - target:
+          field: attributes
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+    contributions:
+      - index: metadata.input-by-string-members
+        forEach:
+          in:
+            field: attributes
+          as: row
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: owner
+            role:
+              literal: attributes
+            name:
+              get:
+                of:
+                  var: row
+                field: name
+        value:
+          get:
+            of:
+              var: row
+            field: indexedName
+      - index: metadata.input-by-string-local-members
+        forEach:
+          in:
+            field: attributes
+          as: row
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: owner
+            role:
+              literal: attributes
+            name:
+              get:
+                of:
+                  var: row
+                field: name
+        value:
+          get:
+            of:
+              var: row
+            field: indexedName
+    id: candidate.member-source.overlay.85efbeda2eb6e0db3476
+  - format: nkdk-declarations/1
+    kind: object
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      items: candidate.member-source.list.c26b5d338c8b547f53be
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+      localMembers:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: component
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: role
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: name
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+        index: metadata.input-by-string-local-members
+    value:
+      kind: record
+      fields:
+        - name: attributes
+          type:
+            use: items
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: attributes
+            path:
+              - md:MetaDataObject
+              - md:Catalog
+              - md:ChildObjects
+      yaml:
+        kind: mapping
+        fields:
+          - field: attributes
+            key: Реквизиты
+    presence:
+      - target:
+          field: attributes
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+    contributions:
+      - index: metadata.input-by-string-members
+        forEach:
+          in:
+            field: attributes
+          as: row
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: owner
+            role:
+              literal: attributes
+            name:
+              get:
+                of:
+                  var: row
+                field: name
+        value:
+          get:
+            of:
+              var: row
+            field: indexedName
+        when:
+          match:
+            value:
+              lookup:
+                in:
+                  input: localMembers
+                key:
+                  record:
+                    component:
+                      input: component
+                    owner:
+                      input: owner
+                    role:
+                      literal: attributes
+                    name:
+                      get:
+                        of:
+                          var: row
+                        field: name
+            present:
+              as: existing
+              then:
+                literal: false
+            absent:
+              literal: true
+    id: candidate.member-source.overlay.1ade316d1d9b219580da
+  - format: nkdk-declarations/1
+    kind: object
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      items: candidate.member-source.list.ace0cdfa60e84b814f87
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: attributes
+          type:
+            use: items
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: attributes
+            path:
+              - md:MetaDataObject
+              - md:ChartOfAccounts
+              - md:ChildObjects
+      yaml:
+        kind: mapping
+        fields:
+          - field: attributes
+            key: Реквизиты
+    presence:
+      - target:
+          field: attributes
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+    contributions:
+      - index: metadata.input-by-string-members
+        forEach:
+          in:
+            field: attributes
+          as: row
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: owner
+            role:
+              literal: attributes
+            name:
+              get:
+                of:
+                  var: row
+                field: name
+        value:
+          get:
+            of:
+              var: row
+            field: indexedName
+    id: candidate.member-source.owner.1130139ef41dbd62dc94
+  - format: nkdk-declarations/1
+    kind: object
+    id: candidate.input-by-string-base-numbers.chartofaccounts
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      number: common.exact-decimal
+    inputs:
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: DescriptionLength
+          type:
+            use: number
+        - name: CodeLength
+          type:
+            use: number
+        - name: MaxExtDimensionCount
+          type:
+            use: number
+        - name: OrderLength
+          type:
+            use: number
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: DescriptionLength
+            path:
+              - md:MetaDataObject
+              - md:ChartOfAccounts
+              - md:Properties
+              - md:DescriptionLength
+          - field: CodeLength
+            path:
+              - md:MetaDataObject
+              - md:ChartOfAccounts
+              - md:Properties
+              - md:CodeLength
+          - field: MaxExtDimensionCount
+            path:
+              - md:MetaDataObject
+              - md:ChartOfAccounts
+              - md:Properties
+              - md:MaxExtDimensionCount
+          - field: OrderLength
+            path:
+              - md:MetaDataObject
+              - md:ChartOfAccounts
+              - md:Properties
+              - md:OrderLength
+      yaml:
+        kind: mapping
+        fields:
+          - field: DescriptionLength
+            key: DescriptionLength
+          - field: CodeLength
+            key: CodeLength
+          - field: MaxExtDimensionCount
+            key: MaxExtDimensionCount
+          - field: OrderLength
+            key: OrderLength
+    presence:
+      - target:
+          field: DescriptionLength
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+      - target:
+          field: CodeLength
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+      - target:
+          field: MaxExtDimensionCount
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+      - target:
+          field: OrderLength
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+    contributions:
+      - index: metadata.base-owner-numbers
+        when:
+          present:
+            field: DescriptionLength
+        key:
+          record:
+            owner:
+              input: owner
+            property:
+              literal: DescriptionLength
+        value:
+          decimalText:
+            field: DescriptionLength
+      - index: metadata.base-owner-numbers
+        when:
+          present:
+            field: CodeLength
+        key:
+          record:
+            owner:
+              input: owner
+            property:
+              literal: CodeLength
+        value:
+          decimalText:
+            field: CodeLength
+      - index: metadata.base-owner-numbers
+        when:
+          present:
+            field: MaxExtDimensionCount
+        key:
+          record:
+            owner:
+              input: owner
+            property:
+              literal: MaxExtDimensionCount
+        value:
+          decimalText:
+            field: MaxExtDimensionCount
+      - index: metadata.base-owner-numbers
+        when:
+          present:
+            field: OrderLength
+        key:
+          record:
+            owner:
+              input: owner
+            property:
+              literal: OrderLength
+        value:
+          decimalText:
+            field: OrderLength
+  - format: nkdk-declarations/1
+    kind: object
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      items: candidate.member-source.list.ace0cdfa60e84b814f87
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: attributes
+          type:
+            use: items
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: attributes
+            path:
+              - md:MetaDataObject
+              - md:ChartOfAccounts
+              - md:ChildObjects
+      yaml:
+        kind: mapping
+        fields:
+          - field: attributes
+            key: Реквизиты
+    presence:
+      - target:
+          field: attributes
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+    contributions:
+      - index: metadata.input-by-string-members
+        forEach:
+          in:
+            field: attributes
+          as: row
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: owner
+            role:
+              literal: attributes
+            name:
+              get:
+                of:
+                  var: row
+                field: name
+        value:
+          get:
+            of:
+              var: row
+            field: indexedName
+      - index: metadata.input-by-string-local-members
+        forEach:
+          in:
+            field: attributes
+          as: row
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: owner
+            role:
+              literal: attributes
+            name:
+              get:
+                of:
+                  var: row
+                field: name
+        value:
+          get:
+            of:
+              var: row
+            field: indexedName
+    id: candidate.member-source.overlay.abf14de417de1069b726
+  - format: nkdk-declarations/1
+    kind: object
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      items: candidate.member-source.list.ace0cdfa60e84b814f87
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+      localMembers:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: component
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: role
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: name
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+        index: metadata.input-by-string-local-members
+    value:
+      kind: record
+      fields:
+        - name: attributes
+          type:
+            use: items
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: attributes
+            path:
+              - md:MetaDataObject
+              - md:ChartOfAccounts
+              - md:ChildObjects
+      yaml:
+        kind: mapping
+        fields:
+          - field: attributes
+            key: Реквизиты
+    presence:
+      - target:
+          field: attributes
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+    contributions:
+      - index: metadata.input-by-string-members
+        forEach:
+          in:
+            field: attributes
+          as: row
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: owner
+            role:
+              literal: attributes
+            name:
+              get:
+                of:
+                  var: row
+                field: name
+        value:
+          get:
+            of:
+              var: row
+            field: indexedName
+        when:
+          match:
+            value:
+              lookup:
+                in:
+                  input: localMembers
+                key:
+                  record:
+                    component:
+                      input: component
+                    owner:
+                      input: owner
+                    role:
+                      literal: attributes
+                    name:
+                      get:
+                        of:
+                          var: row
+                        field: name
+            present:
+              as: existing
+              then:
+                literal: false
+            absent:
+              literal: true
+    id: candidate.member-source.overlay.6c023eafc93e20136eed
+  - format: nkdk-declarations/1
+    kind: object
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      items: candidate.member-source.list.ace0cdfa60e84b814f87
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: attributes
+          type:
+            use: items
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: attributes
+            path:
+              - md:MetaDataObject
+              - md:ChartOfCalculationTypes
+              - md:ChildObjects
+      yaml:
+        kind: mapping
+        fields:
+          - field: attributes
+            key: Реквизиты
+    presence:
+      - target:
+          field: attributes
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+    contributions:
+      - index: metadata.input-by-string-members
+        forEach:
+          in:
+            field: attributes
+          as: row
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: owner
+            role:
+              literal: attributes
+            name:
+              get:
+                of:
+                  var: row
+                field: name
+        value:
+          get:
+            of:
+              var: row
+            field: indexedName
+    id: candidate.member-source.owner.a79f310261c8d099eb97
+  - format: nkdk-declarations/1
+    kind: object
+    id: candidate.input-by-string-base-numbers.chartofcalculationtypes
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      number: common.exact-decimal
+      context_codeType: system.ChartOfCalculationTypesCodeType
+    inputs:
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: DescriptionLength
+          type:
+            use: number
+        - name: CodeLength
+          type:
+            use: number
+        - name: CodeType
+          type:
+            use: context_codeType
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: DescriptionLength
+            path:
+              - md:MetaDataObject
+              - md:ChartOfCalculationTypes
+              - md:Properties
+              - md:DescriptionLength
+          - field: CodeLength
+            path:
+              - md:MetaDataObject
+              - md:ChartOfCalculationTypes
+              - md:Properties
+              - md:CodeLength
+          - field: CodeType
+            path:
+              - md:MetaDataObject
+              - md:ChartOfCalculationTypes
+              - md:Properties
+              - md:CodeType
+      yaml:
+        kind: mapping
+        fields:
+          - field: DescriptionLength
+            key: DescriptionLength
+          - field: CodeLength
+            key: CodeLength
+          - field: CodeType
+            key: CodeType
+    presence:
+      - target:
+          field: DescriptionLength
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+      - target:
+          field: CodeLength
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+      - target:
+          field: CodeType
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+    contributions:
+      - index: metadata.base-owner-numbers
+        when:
+          present:
+            field: DescriptionLength
+        key:
+          record:
+            owner:
+              input: owner
+            property:
+              literal: DescriptionLength
+        value:
+          decimalText:
+            field: DescriptionLength
+      - index: metadata.base-owner-numbers
+        when:
+          present:
+            field: CodeLength
+        key:
+          record:
+            owner:
+              input: owner
+            property:
+              literal: CodeLength
+        value:
+          decimalText:
+            field: CodeLength
+      - index: metadata.base-owner-numbers
+        when:
+          present:
+            field: CodeType
+        key:
+          record:
+            owner:
+              input: owner
+            property:
+              literal: CodeType
+        value:
+          enumText:
+            field: CodeType
+  - format: nkdk-declarations/1
+    kind: object
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      items: candidate.member-source.list.ace0cdfa60e84b814f87
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: attributes
+          type:
+            use: items
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: attributes
+            path:
+              - md:MetaDataObject
+              - md:ChartOfCalculationTypes
+              - md:ChildObjects
+      yaml:
+        kind: mapping
+        fields:
+          - field: attributes
+            key: Реквизиты
+    presence:
+      - target:
+          field: attributes
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+    contributions:
+      - index: metadata.input-by-string-members
+        forEach:
+          in:
+            field: attributes
+          as: row
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: owner
+            role:
+              literal: attributes
+            name:
+              get:
+                of:
+                  var: row
+                field: name
+        value:
+          get:
+            of:
+              var: row
+            field: indexedName
+      - index: metadata.input-by-string-local-members
+        forEach:
+          in:
+            field: attributes
+          as: row
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: owner
+            role:
+              literal: attributes
+            name:
+              get:
+                of:
+                  var: row
+                field: name
+        value:
+          get:
+            of:
+              var: row
+            field: indexedName
+    id: candidate.member-source.overlay.14a42411b04f398076c9
+  - format: nkdk-declarations/1
+    kind: object
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      items: candidate.member-source.list.ace0cdfa60e84b814f87
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+      localMembers:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: component
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: role
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: name
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+        index: metadata.input-by-string-local-members
+    value:
+      kind: record
+      fields:
+        - name: attributes
+          type:
+            use: items
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: attributes
+            path:
+              - md:MetaDataObject
+              - md:ChartOfCalculationTypes
+              - md:ChildObjects
+      yaml:
+        kind: mapping
+        fields:
+          - field: attributes
+            key: Реквизиты
+    presence:
+      - target:
+          field: attributes
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+    contributions:
+      - index: metadata.input-by-string-members
+        forEach:
+          in:
+            field: attributes
+          as: row
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: owner
+            role:
+              literal: attributes
+            name:
+              get:
+                of:
+                  var: row
+                field: name
+        value:
+          get:
+            of:
+              var: row
+            field: indexedName
+        when:
+          match:
+            value:
+              lookup:
+                in:
+                  input: localMembers
+                key:
+                  record:
+                    component:
+                      input: component
+                    owner:
+                      input: owner
+                    role:
+                      literal: attributes
+                    name:
+                      get:
+                        of:
+                          var: row
+                        field: name
+            present:
+              as: existing
+              then:
+                literal: false
+            absent:
+              literal: true
+    id: candidate.member-source.overlay.ea530783227f9ad8b44e
+  - format: nkdk-declarations/1
+    kind: object
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      items: candidate.member-source.list.c26b5d338c8b547f53be
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: attributes
+          type:
+            use: items
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: attributes
+            path:
+              - md:MetaDataObject
+              - md:ChartOfCharacteristicTypes
+              - md:ChildObjects
+      yaml:
+        kind: mapping
+        fields:
+          - field: attributes
+            key: Реквизиты
+    presence:
+      - target:
+          field: attributes
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+    contributions:
+      - index: metadata.input-by-string-members
+        forEach:
+          in:
+            field: attributes
+          as: row
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: owner
+            role:
+              literal: attributes
+            name:
+              get:
+                of:
+                  var: row
+                field: name
+        value:
+          get:
+            of:
+              var: row
+            field: indexedName
+    id: candidate.member-source.owner.49f40fb0ba55ae3e469b
+  - format: nkdk-declarations/1
+    kind: object
+    id: candidate.input-by-string-base-numbers.chartofcharacteristictypes
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      number: common.exact-decimal
+    inputs:
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: DescriptionLength
+          type:
+            use: number
+        - name: CodeLength
+          type:
+            use: number
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: DescriptionLength
+            path:
+              - md:MetaDataObject
+              - md:ChartOfCharacteristicTypes
+              - md:Properties
+              - md:DescriptionLength
+          - field: CodeLength
+            path:
+              - md:MetaDataObject
+              - md:ChartOfCharacteristicTypes
+              - md:Properties
+              - md:CodeLength
+      yaml:
+        kind: mapping
+        fields:
+          - field: DescriptionLength
+            key: DescriptionLength
+          - field: CodeLength
+            key: CodeLength
+    presence:
+      - target:
+          field: DescriptionLength
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+      - target:
+          field: CodeLength
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+    contributions:
+      - index: metadata.base-owner-numbers
+        when:
+          present:
+            field: DescriptionLength
+        key:
+          record:
+            owner:
+              input: owner
+            property:
+              literal: DescriptionLength
+        value:
+          decimalText:
+            field: DescriptionLength
+      - index: metadata.base-owner-numbers
+        when:
+          present:
+            field: CodeLength
+        key:
+          record:
+            owner:
+              input: owner
+            property:
+              literal: CodeLength
+        value:
+          decimalText:
+            field: CodeLength
+  - format: nkdk-declarations/1
+    kind: object
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      items: candidate.member-source.list.c26b5d338c8b547f53be
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: attributes
+          type:
+            use: items
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: attributes
+            path:
+              - md:MetaDataObject
+              - md:ChartOfCharacteristicTypes
+              - md:ChildObjects
+      yaml:
+        kind: mapping
+        fields:
+          - field: attributes
+            key: Реквизиты
+    presence:
+      - target:
+          field: attributes
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+    contributions:
+      - index: metadata.input-by-string-members
+        forEach:
+          in:
+            field: attributes
+          as: row
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: owner
+            role:
+              literal: attributes
+            name:
+              get:
+                of:
+                  var: row
+                field: name
+        value:
+          get:
+            of:
+              var: row
+            field: indexedName
+      - index: metadata.input-by-string-local-members
+        forEach:
+          in:
+            field: attributes
+          as: row
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: owner
+            role:
+              literal: attributes
+            name:
+              get:
+                of:
+                  var: row
+                field: name
+        value:
+          get:
+            of:
+              var: row
+            field: indexedName
+    id: candidate.member-source.overlay.b4f2967f53890efe1e00
+  - format: nkdk-declarations/1
+    kind: object
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      items: candidate.member-source.list.c26b5d338c8b547f53be
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+      localMembers:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: component
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: role
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: name
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+        index: metadata.input-by-string-local-members
+    value:
+      kind: record
+      fields:
+        - name: attributes
+          type:
+            use: items
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: attributes
+            path:
+              - md:MetaDataObject
+              - md:ChartOfCharacteristicTypes
+              - md:ChildObjects
+      yaml:
+        kind: mapping
+        fields:
+          - field: attributes
+            key: Реквизиты
+    presence:
+      - target:
+          field: attributes
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+    contributions:
+      - index: metadata.input-by-string-members
+        forEach:
+          in:
+            field: attributes
+          as: row
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: owner
+            role:
+              literal: attributes
+            name:
+              get:
+                of:
+                  var: row
+                field: name
+        value:
+          get:
+            of:
+              var: row
+            field: indexedName
+        when:
+          match:
+            value:
+              lookup:
+                in:
+                  input: localMembers
+                key:
+                  record:
+                    component:
+                      input: component
+                    owner:
+                      input: owner
+                    role:
+                      literal: attributes
+                    name:
+                      get:
+                        of:
+                          var: row
+                        field: name
+            present:
+              as: existing
+              then:
+                literal: false
+            absent:
+              literal: true
+    id: candidate.member-source.overlay.4080faf3714dd9d3fdb6
+  - format: nkdk-declarations/1
+    kind: object
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      items: candidate.member-source.list.c26b5d338c8b547f53be
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: attributes
+          type:
+            use: items
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: attributes
+            path:
+              - md:MetaDataObject
+              - md:Document
+              - md:ChildObjects
+      yaml:
+        kind: mapping
+        fields:
+          - field: attributes
+            key: Реквизиты
+    presence:
+      - target:
+          field: attributes
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+    contributions:
+      - index: metadata.input-by-string-members
+        forEach:
+          in:
+            field: attributes
+          as: row
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: owner
+            role:
+              literal: attributes
+            name:
+              get:
+                of:
+                  var: row
+                field: name
+        value:
+          get:
+            of:
+              var: row
+            field: indexedName
+    id: candidate.member-source.owner.9b0fcb5759e85d600d4f
+  - format: nkdk-declarations/1
+    kind: object
+    id: candidate.input-by-string-base-numbers.document
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      number: common.exact-decimal
+      context_numberType: system.DocumentNumberType
+    inputs:
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: NumberLength
+          type:
+            use: number
+        - name: NumberType
+          type:
+            use: context_numberType
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: NumberLength
+            path:
+              - md:MetaDataObject
+              - md:Document
+              - md:Properties
+              - md:NumberLength
+          - field: NumberType
+            path:
+              - md:MetaDataObject
+              - md:Document
+              - md:Properties
+              - md:NumberType
+      yaml:
+        kind: mapping
+        fields:
+          - field: NumberLength
+            key: NumberLength
+          - field: NumberType
+            key: NumberType
+    presence:
+      - target:
+          field: NumberLength
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+      - target:
+          field: NumberType
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+    contributions:
+      - index: metadata.base-owner-numbers
+        when:
+          present:
+            field: NumberLength
+        key:
+          record:
+            owner:
+              input: owner
+            property:
+              literal: NumberLength
+        value:
+          decimalText:
+            field: NumberLength
+      - index: metadata.base-owner-numbers
+        when:
+          present:
+            field: NumberType
+        key:
+          record:
+            owner:
+              input: owner
+            property:
+              literal: NumberType
+        value:
+          enumText:
+            field: NumberType
+  - format: nkdk-declarations/1
+    kind: object
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      items: candidate.member-source.list.c26b5d338c8b547f53be
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: attributes
+          type:
+            use: items
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: attributes
+            path:
+              - md:MetaDataObject
+              - md:Document
+              - md:ChildObjects
+      yaml:
+        kind: mapping
+        fields:
+          - field: attributes
+            key: Реквизиты
+    presence:
+      - target:
+          field: attributes
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+    contributions:
+      - index: metadata.input-by-string-members
+        forEach:
+          in:
+            field: attributes
+          as: row
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: owner
+            role:
+              literal: attributes
+            name:
+              get:
+                of:
+                  var: row
+                field: name
+        value:
+          get:
+            of:
+              var: row
+            field: indexedName
+      - index: metadata.input-by-string-local-members
+        forEach:
+          in:
+            field: attributes
+          as: row
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: owner
+            role:
+              literal: attributes
+            name:
+              get:
+                of:
+                  var: row
+                field: name
+        value:
+          get:
+            of:
+              var: row
+            field: indexedName
+    id: candidate.member-source.overlay.083efd9eec7229693513
+  - format: nkdk-declarations/1
+    kind: object
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      items: candidate.member-source.list.c26b5d338c8b547f53be
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+      localMembers:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: component
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: role
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: name
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+        index: metadata.input-by-string-local-members
+    value:
+      kind: record
+      fields:
+        - name: attributes
+          type:
+            use: items
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: attributes
+            path:
+              - md:MetaDataObject
+              - md:Document
+              - md:ChildObjects
+      yaml:
+        kind: mapping
+        fields:
+          - field: attributes
+            key: Реквизиты
+    presence:
+      - target:
+          field: attributes
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+    contributions:
+      - index: metadata.input-by-string-members
+        forEach:
+          in:
+            field: attributes
+          as: row
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: owner
+            role:
+              literal: attributes
+            name:
+              get:
+                of:
+                  var: row
+                field: name
+        value:
+          get:
+            of:
+              var: row
+            field: indexedName
+        when:
+          match:
+            value:
+              lookup:
+                in:
+                  input: localMembers
+                key:
+                  record:
+                    component:
+                      input: component
+                    owner:
+                      input: owner
+                    role:
+                      literal: attributes
+                    name:
+                      get:
+                        of:
+                          var: row
+                        field: name
+            present:
+              as: existing
+              then:
+                literal: false
+            absent:
+              literal: true
+    id: candidate.member-source.overlay.824928fde7b7d6711b2c
+  - format: nkdk-declarations/1
+    kind: object
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      items: candidate.member-source.list.c26b5d338c8b547f53be
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: attributes
+          type:
+            use: items
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: attributes
+            path:
+              - md:MetaDataObject
+              - md:ExchangePlan
+              - md:ChildObjects
+      yaml:
+        kind: mapping
+        fields:
+          - field: attributes
+            key: Реквизиты
+    presence:
+      - target:
+          field: attributes
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+    contributions:
+      - index: metadata.input-by-string-members
+        forEach:
+          in:
+            field: attributes
+          as: row
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: owner
+            role:
+              literal: attributes
+            name:
+              get:
+                of:
+                  var: row
+                field: name
+        value:
+          get:
+            of:
+              var: row
+            field: indexedName
+    id: candidate.member-source.owner.1e6f49e8fc622414f157
+  - format: nkdk-declarations/1
+    kind: object
+    id: candidate.input-by-string-base-numbers.exchangeplan
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      number: common.exact-decimal
+    inputs:
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: DescriptionLength
+          type:
+            use: number
+        - name: CodeLength
+          type:
+            use: number
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: DescriptionLength
+            path:
+              - md:MetaDataObject
+              - md:ExchangePlan
+              - md:Properties
+              - md:DescriptionLength
+          - field: CodeLength
+            path:
+              - md:MetaDataObject
+              - md:ExchangePlan
+              - md:Properties
+              - md:CodeLength
+      yaml:
+        kind: mapping
+        fields:
+          - field: DescriptionLength
+            key: DescriptionLength
+          - field: CodeLength
+            key: CodeLength
+    presence:
+      - target:
+          field: DescriptionLength
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+      - target:
+          field: CodeLength
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+    contributions:
+      - index: metadata.base-owner-numbers
+        when:
+          present:
+            field: DescriptionLength
+        key:
+          record:
+            owner:
+              input: owner
+            property:
+              literal: DescriptionLength
+        value:
+          decimalText:
+            field: DescriptionLength
+      - index: metadata.base-owner-numbers
+        when:
+          present:
+            field: CodeLength
+        key:
+          record:
+            owner:
+              input: owner
+            property:
+              literal: CodeLength
+        value:
+          decimalText:
+            field: CodeLength
+  - format: nkdk-declarations/1
+    kind: object
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      items: candidate.member-source.list.c26b5d338c8b547f53be
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: attributes
+          type:
+            use: items
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: attributes
+            path:
+              - md:MetaDataObject
+              - md:ExchangePlan
+              - md:ChildObjects
+      yaml:
+        kind: mapping
+        fields:
+          - field: attributes
+            key: Реквизиты
+    presence:
+      - target:
+          field: attributes
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+    contributions:
+      - index: metadata.input-by-string-members
+        forEach:
+          in:
+            field: attributes
+          as: row
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: owner
+            role:
+              literal: attributes
+            name:
+              get:
+                of:
+                  var: row
+                field: name
+        value:
+          get:
+            of:
+              var: row
+            field: indexedName
+      - index: metadata.input-by-string-local-members
+        forEach:
+          in:
+            field: attributes
+          as: row
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: owner
+            role:
+              literal: attributes
+            name:
+              get:
+                of:
+                  var: row
+                field: name
+        value:
+          get:
+            of:
+              var: row
+            field: indexedName
+    id: candidate.member-source.overlay.17eb97e310d255d17e77
+  - format: nkdk-declarations/1
+    kind: object
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      items: candidate.member-source.list.c26b5d338c8b547f53be
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+      localMembers:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: component
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: role
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: name
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+        index: metadata.input-by-string-local-members
+    value:
+      kind: record
+      fields:
+        - name: attributes
+          type:
+            use: items
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: attributes
+            path:
+              - md:MetaDataObject
+              - md:ExchangePlan
+              - md:ChildObjects
+      yaml:
+        kind: mapping
+        fields:
+          - field: attributes
+            key: Реквизиты
+    presence:
+      - target:
+          field: attributes
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+    contributions:
+      - index: metadata.input-by-string-members
+        forEach:
+          in:
+            field: attributes
+          as: row
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: owner
+            role:
+              literal: attributes
+            name:
+              get:
+                of:
+                  var: row
+                field: name
+        value:
+          get:
+            of:
+              var: row
+            field: indexedName
+        when:
+          match:
+            value:
+              lookup:
+                in:
+                  input: localMembers
+                key:
+                  record:
+                    component:
+                      input: component
+                    owner:
+                      input: owner
+                    role:
+                      literal: attributes
+                    name:
+                      get:
+                        of:
+                          var: row
+                        field: name
+            present:
+              as: existing
+              then:
+                literal: false
+            absent:
+              literal: true
+    id: candidate.member-source.overlay.b50ed771a0f68b71909c
+  - format: nkdk-declarations/1
+    kind: object
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      items: candidate.member-source.list.ace0cdfa60e84b814f87
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: attributes
+          type:
+            use: items
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: attributes
+            path:
+              - md:MetaDataObject
+              - md:Task
+              - md:ChildObjects
+      yaml:
+        kind: mapping
+        fields:
+          - field: attributes
+            key: Реквизиты
+    presence:
+      - target:
+          field: attributes
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+    contributions:
+      - index: metadata.input-by-string-members
+        forEach:
+          in:
+            field: attributes
+          as: row
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: owner
+            role:
+              literal: attributes
+            name:
+              get:
+                of:
+                  var: row
+                field: name
+        value:
+          get:
+            of:
+              var: row
+            field: indexedName
+    id: candidate.member-source.owner.b02a8a749d07668e0beb
+  - format: nkdk-declarations/1
+    kind: object
+    id: candidate.input-by-string-base-numbers.task
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      number: common.exact-decimal
+      context_numberType: system.TaskNumberType
+    inputs:
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: DescriptionLength
+          type:
+            use: number
+        - name: NumberLength
+          type:
+            use: number
+        - name: NumberType
+          type:
+            use: context_numberType
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: DescriptionLength
+            path:
+              - md:MetaDataObject
+              - md:Task
+              - md:Properties
+              - md:DescriptionLength
+          - field: NumberLength
+            path:
+              - md:MetaDataObject
+              - md:Task
+              - md:Properties
+              - md:NumberLength
+          - field: NumberType
+            path:
+              - md:MetaDataObject
+              - md:Task
+              - md:Properties
+              - md:NumberType
+      yaml:
+        kind: mapping
+        fields:
+          - field: DescriptionLength
+            key: DescriptionLength
+          - field: NumberLength
+            key: NumberLength
+          - field: NumberType
+            key: NumberType
+    presence:
+      - target:
+          field: DescriptionLength
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+      - target:
+          field: NumberLength
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+      - target:
+          field: NumberType
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+    contributions:
+      - index: metadata.base-owner-numbers
+        when:
+          present:
+            field: DescriptionLength
+        key:
+          record:
+            owner:
+              input: owner
+            property:
+              literal: DescriptionLength
+        value:
+          decimalText:
+            field: DescriptionLength
+      - index: metadata.base-owner-numbers
+        when:
+          present:
+            field: NumberLength
+        key:
+          record:
+            owner:
+              input: owner
+            property:
+              literal: NumberLength
+        value:
+          decimalText:
+            field: NumberLength
+      - index: metadata.base-owner-numbers
+        when:
+          present:
+            field: NumberType
+        key:
+          record:
+            owner:
+              input: owner
+            property:
+              literal: NumberType
+        value:
+          enumText:
+            field: NumberType
+  - format: nkdk-declarations/1
+    kind: object
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      items: candidate.member-source.list.ace0cdfa60e84b814f87
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: attributes
+          type:
+            use: items
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: attributes
+            path:
+              - md:MetaDataObject
+              - md:Task
+              - md:ChildObjects
+      yaml:
+        kind: mapping
+        fields:
+          - field: attributes
+            key: Реквизиты
+    presence:
+      - target:
+          field: attributes
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+    contributions:
+      - index: metadata.input-by-string-members
+        forEach:
+          in:
+            field: attributes
+          as: row
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: owner
+            role:
+              literal: attributes
+            name:
+              get:
+                of:
+                  var: row
+                field: name
+        value:
+          get:
+            of:
+              var: row
+            field: indexedName
+      - index: metadata.input-by-string-local-members
+        forEach:
+          in:
+            field: attributes
+          as: row
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: owner
+            role:
+              literal: attributes
+            name:
+              get:
+                of:
+                  var: row
+                field: name
+        value:
+          get:
+            of:
+              var: row
+            field: indexedName
+    id: candidate.member-source.overlay.cc50f08a9edbed0e3ef4
+  - format: nkdk-declarations/1
+    kind: object
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      items: candidate.member-source.list.ace0cdfa60e84b814f87
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+      localMembers:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: component
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: role
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: name
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+        index: metadata.input-by-string-local-members
+    value:
+      kind: record
+      fields:
+        - name: attributes
+          type:
+            use: items
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: attributes
+            path:
+              - md:MetaDataObject
+              - md:Task
+              - md:ChildObjects
+      yaml:
+        kind: mapping
+        fields:
+          - field: attributes
+            key: Реквизиты
+    presence:
+      - target:
+          field: attributes
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+    contributions:
+      - index: metadata.input-by-string-members
+        forEach:
+          in:
+            field: attributes
+          as: row
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: owner
+            role:
+              literal: attributes
+            name:
+              get:
+                of:
+                  var: row
+                field: name
+        value:
+          get:
+            of:
+              var: row
+            field: indexedName
+        when:
+          match:
+            value:
+              lookup:
+                in:
+                  input: localMembers
+                key:
+                  record:
+                    component:
+                      input: component
+                    owner:
+                      input: owner
+                    role:
+                      literal: attributes
+                    name:
+                      get:
+                        of:
+                          var: row
+                        field: name
+            present:
+              as: existing
+              then:
+                literal: false
+            absent:
+              literal: true
+    id: candidate.member-source.overlay.bfff7e72b8cd47d75b7d
+  - format: nkdk-declarations/1
+    kind: object
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      items: candidate.member-source.list.ace0cdfa60e84b814f87
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: attributes
+          type:
+            use: items
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: attributes
+            path:
+              - md:MetaDataObject
+              - md:DataProcessor
+              - md:ChildObjects
+      yaml:
+        kind: mapping
+        fields:
+          - field: attributes
+            key: Реквизиты
+    presence:
+      - target:
+          field: attributes
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+    contributions:
+      - index: metadata.input-by-string-members
+        forEach:
+          in:
+            field: attributes
+          as: row
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: owner
+            role:
+              literal: attributes
+            name:
+              get:
+                of:
+                  var: row
+                field: name
+        value:
+          get:
+            of:
+              var: row
+            field: indexedName
+    id: candidate.member-source.owner.812de58b4b29e3feeba3
+  - format: nkdk-declarations/1
+    kind: object
+    id: candidate.member-source.probe.inherited-fields
+    imports:
+      field: common.owner-checked-metadata-field-path
+      root: common.path-root
+      kind: common.path-ordinary-member-kind
+      fields: common.owner-checked-metadata-fields
+    inputs:
+      ownerRoot:
+        type:
+          use: root
+      ownerName:
+        type:
+          kind: scalar
+          scalar: text
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+      memberRole:
+        type:
+          kind: scalar
+          scalar: text
+      memberKind:
+        type:
+          use: kind
+      members:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: component
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: role
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: name
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+        index: metadata.input-by-string-members
+      standardNames:
+        type:
+          kind: sequence
+          item:
+            kind: scalar
+            scalar: text
+    value:
+      kind: record
+      fields:
+        - name: fields
+          type:
+            use: fields
+            bind:
+              ownerRoot:
+                input: ownerRoot
+              ownerName:
+                input: ownerName
+              component:
+                input: component
+              owner:
+                input: owner
+              memberRole:
+                input: memberRole
+              memberKind:
+                input: memberKind
+              standardNames:
+                input: standardNames
+              members:
+                input: members
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: fields
+            path:
+              - Probe
+              - List
+      yaml:
+        kind: mapping
+        fields:
+          - field: fields
+            key: Fields
+  - format: nkdk-declarations/1
+    kind: object
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      items: candidate.member-source.list.ace0cdfa60e84b814f87
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: attributes
+          type:
+            use: items
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: attributes
+            path:
+              - md:MetaDataObject
+              - md:DataProcessor
+              - md:ChildObjects
+      yaml:
+        kind: mapping
+        fields:
+          - field: attributes
+            key: Реквизиты
+    presence:
+      - target:
+          field: attributes
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+    contributions:
+      - index: metadata.input-by-string-members
+        forEach:
+          in:
+            field: attributes
+          as: row
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: owner
+            role:
+              literal: attributes
+            name:
+              get:
+                of:
+                  var: row
+                field: name
+        value:
+          get:
+            of:
+              var: row
+            field: indexedName
+      - index: metadata.input-by-string-local-members
+        forEach:
+          in:
+            field: attributes
+          as: row
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: owner
+            role:
+              literal: attributes
+            name:
+              get:
+                of:
+                  var: row
+                field: name
+        value:
+          get:
+            of:
+              var: row
+            field: indexedName
+    id: candidate.member-source.overlay.562cfc80a9f16d5f74f6
+  - format: nkdk-declarations/1
+    kind: object
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      items: candidate.member-source.list.ace0cdfa60e84b814f87
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+      localMembers:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: component
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: role
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: name
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+        index: metadata.input-by-string-local-members
+    value:
+      kind: record
+      fields:
+        - name: attributes
+          type:
+            use: items
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: attributes
+            path:
+              - md:MetaDataObject
+              - md:DataProcessor
+              - md:ChildObjects
+      yaml:
+        kind: mapping
+        fields:
+          - field: attributes
+            key: Реквизиты
+    presence:
+      - target:
+          field: attributes
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+    contributions:
+      - index: metadata.input-by-string-members
+        forEach:
+          in:
+            field: attributes
+          as: row
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: owner
+            role:
+              literal: attributes
+            name:
+              get:
+                of:
+                  var: row
+                field: name
+        value:
+          get:
+            of:
+              var: row
+            field: indexedName
+        when:
+          match:
+            value:
+              lookup:
+                in:
+                  input: localMembers
+                key:
+                  record:
+                    component:
+                      input: component
+                    owner:
+                      input: owner
+                    role:
+                      literal: attributes
+                    name:
+                      get:
+                        of:
+                          var: row
+                        field: name
+            present:
+              as: existing
+              then:
+                literal: false
+            absent:
+              literal: true
+    id: candidate.member-source.overlay.bc9d4b0e85376a103d27

@@ -1,0 +1,23 @@
+format: nkdk-declarations/1
+kind: fragment
+id: fragment.command-module-with-parent-resource
+inputs:
+  name: {type: {kind: scalar, scalar: text}}
+  parentName: {type: {kind: scalar, scalar: text}}
+  container: {type: {kind: scalar, scalar: text}}
+value: {kind: record, fields: []}
+representations:
+  xml: {kind: record, fields: []}
+  yaml: {kind: mapping, fields: []}
+resources:
+- oneOf:
+  - xml:
+      if: {eq: [{input: parentName}, {literal: ''}]}
+      then: {sequence: [{literal: Commands}, {input: name}, {literal: Ext}, {literal: CommandModule.bsl}]}
+      else: {sequence: [{input: container}, {input: parentName}, {literal: Commands}, {input: name}, {literal: Ext}, {literal: CommandModule.bsl}]}
+    yaml: {sequence: [{literal: Команды}, {concat: [{input: name}, {literal: '.bsl'}]}]}
+  - xml:
+      if: {eq: [{input: parentName}, {literal: ''}]}
+      then: {sequence: [{literal: Commands}, {input: name}, {literal: Ext}, {literal: CommandModule.bin}]}
+      else: {sequence: [{input: container}, {input: parentName}, {literal: Commands}, {input: name}, {literal: Ext}, {literal: CommandModule.bin}]}
+    yaml: {sequence: [{literal: Команды}, {concat: [{input: name}, {literal: '.bin'}]}]}

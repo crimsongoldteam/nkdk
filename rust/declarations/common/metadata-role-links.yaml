@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: value
+id: common.metadata-role-links
+imports: {item: common.metadata-role-link}
+namespaces: {xr: 'http://v8.1c.ru/8.3/xcf/readable'}
+value: {kind: sequence, item: {use: item}}
+representations:
+  xml: {kind: element-sequence, path: [xr:Item]}
+  yaml: {kind: sequence}
+presence:
+- target: self
+  xml:
+    missing: {denotes: {absent: true}}
+    empty: [{form: empty-element, denotes: {absent: true}}]
+  yaml:
+    missing: {denotes: {absent: true}}
+    empty: [{form: empty-sequence, denotes: {absent: true}}]
+    omitWhen: {not: {present: {self: true}}}

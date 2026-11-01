@@ -1,0 +1,19 @@
+format: nkdk-declarations/1
+kind: value
+id: common.picture-default-true
+value:
+  kind: enum
+  variants:
+    - name: Expected
+      value: expected
+representations:
+  xml:
+    kind: text
+    values:
+      - value: expected
+        text: 'true'
+  yaml:
+    kind: scalar
+    values:
+      - value: expected
+        literal: Истина

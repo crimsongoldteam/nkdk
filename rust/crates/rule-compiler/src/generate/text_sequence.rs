@@ -3,14 +3,62 @@ use super::*;
 use std::fmt::Write;
 
 pub(super) struct Codec<'a> {
+    entry: &'a LinkedEntry,
+    program: &'a Program<'a>,
     head: Option<(text_pattern::Codec<'a>, Vec<usize>, Vec<usize>)>,
     item: item::Item<'a>,
     xml: (&'a str, Vec<usize>),
     yaml: (&'a str, Vec<usize>),
 }
 impl<'a> Codec<'a> {
+    pub(super) fn framed_value(&self) -> bool {
+        self.head.is_some()
+    }
+    pub(super) fn constructible(&self) -> bool {
+        self.item.constructible()
+            && self
+                .head
+                .as_ref()
+                .is_none_or(|(head, _, _)| head.constructible())
+    }
+    pub(super) fn semantic_default(
+        &self,
+        expression: &LinkedExpression,
+        name: &str,
+        owner: &LinkedEntry,
+        program: &Program,
+    ) -> Result<String, Diagnostic> {
+        if self.framed_value() {
+            return super::declared_construction::record_expression(
+                expression, owner, self.entry, program, name,
+            );
+        }
+        let LinkedExpressionKind::Operation {
+            operator: LinkedOperator::Sequence,
+            arguments,
+        } = &expression.kind
+        else {
+            return Err(unsupported(
+                owner,
+                "Text sequence default requires semantic rows",
+            ));
+        };
+        let rows = arguments
+            .iter()
+            .map(|row| {
+                self.item
+                    .semantic_default(row, &format!("{name}Item"), owner, program)
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+        let context = if self.needs_inputs() { ",_inputs" } else { "" };
+        Ok(format!(
+            "{{let value={name}{{rows:vec![{}]}};value.check(true{context})?;value.check(false{context})?;value}}",
+            rows.join(",")
+        ))
+    }
     pub(super) fn needs_inputs(&self) -> bool {
-        self.item.needs_inputs()
+        (self.head.is_some() && !self.entry.inputs.is_empty())
+            || self.item.needs_inputs()
             || self
                 .head
                 .as_ref()
@@ -28,7 +76,7 @@ impl<'a> Codec<'a> {
         else {
             return Err(unsupported(entry, "Expected paired text sequence"));
         };
-        specialized(entry)?;
+        specialized(entry, false)?;
         if !entry.constraints.is_empty() {
             return Err(unsupported(
                 entry,
@@ -45,6 +93,8 @@ impl<'a> Codec<'a> {
             .expect("linked item");
         let layout = item::Item::resolve(common, program, xml, yaml)?;
         Ok(Self {
+            entry,
+            program,
             head: None,
             item: layout.item,
             xml: (xml, layout.xml),
@@ -66,11 +116,12 @@ impl<'a> Codec<'a> {
         if !matches!(tail.xml, LinkedXml::TextSequence { .. }) {
             return Ok(None);
         }
-        specialized(entry)?;
+        specialized(entry, true)?;
         let (fields, xml, xorder) = crate::link::text_sequence::head_layout(entry, tail, true)?;
         let (_, yaml, yorder) = crate::link::text_sequence::head_layout(entry, tail, false)?;
         let head = text_pattern::Codec::resolve_parts(entry, program, fields, xml, yaml)?;
         let mut codec = Self::resolve(tail, program)?;
+        codec.entry = entry;
         codec.head = Some((head, xorder, yorder));
         Ok(Some(codec))
     }
@@ -88,7 +139,7 @@ impl<'a> Codec<'a> {
                 "Text sequence choice requires a discriminating head",
             ));
         };
-        let mut parts = head.selection_parts(xml).into_iter();
+        let mut parts = head.selection_parts(xml, false).into_iter();
         let Some(Part::Words(words)) = parts.next() else {
             return Err(unsupported(
                 entry,
@@ -115,6 +166,10 @@ impl<'a> Codec<'a> {
             None
         }
     }
+    pub(super) fn item_choice_type(&self, name: &str) -> Option<String> {
+        self.item.with_text().then(|| format!("{name}Item"))
+    }
+
     pub(super) fn item_fields(&self, name: &str, slot: u32) -> Vec<String> {
         let item::Item::Record(item) = &self.item else {
             return Vec::new();
@@ -127,24 +182,42 @@ impl<'a> Codec<'a> {
     pub(super) fn definition(&self, name: &str) -> Result<String, Diagnostic> {
         let mut out = self.item.definition(&format!("{name}Item"))?;
         let count = self.xml.1.len();
+        let variable_width = self.item.variable_width();
+        out.push_str(
+            &self
+                .item
+                .width_selector(&format!("{name}Item"), self.xml.0, self.yaml.0)?,
+        );
+        let width_argument = if variable_width {
+            format!(
+                ",|first|{name}Item::row_width(first,xml).map_err(|_|core::text_pattern::PatternError::Input{{offset:0}})"
+            )
+        } else {
+            String::new()
+        };
+
         let mut head_field = String::new();
         let mut head_read = String::new();
         let mut head_init = String::new();
         let mut head_visit = String::new();
         let mut head_issues = String::new();
         let input;
-        let rows = if self.item.with_text() {
+        let rows = if variable_width {
+            "rows_variable"
+        } else if self.item.with_text() {
             "rows_with_text"
         } else {
             "rows"
         };
-        let rows_with_head = if self.item.with_text() {
+        let rows_with_head = if variable_width {
+            "rows_with_head_variable"
+        } else if self.item.with_text() {
             "rows_with_head_text"
         } else {
             "rows_with_head"
         };
         if let Some((head, xorder, yorder)) = &self.head {
-            out.push_str(&head.element_definition(&format!("{name}Head"))?);
+            out.push_str(&head.framed_head_definition(&format!("{name}Head"))?);
             let width = xorder.len();
             let order = if xorder == yorder {
                 format!("{xorder:?}")
@@ -153,8 +226,9 @@ impl<'a> Codec<'a> {
             };
             head_field = format!("head:{name}Head,");
             head_init = "head,".into();
+            let extra_generic = if variable_width { ",_" } else { "" };
             input = format!(
-                "let (cells,input)=Self::plan(xml).{rows_with_head}::<{width}>(text,usize::MAX,text.len()).map_err(|_|RuntimeDiagnostic::new(\"value.text-sequence\",\"Incomplete text head\"))?;"
+                "let (cells,input)=Self::plan(xml).{rows_with_head}::<{width}{extra_generic}>(text,usize::MAX,text.len(){width_argument}).map_err(|_|RuntimeDiagnostic::new(\"value.text-sequence\",\"Incomplete text head\"))?;"
             );
             head_read = format!(
                 "let order={order};let mut slots=[\"\";{width}];for(index,field)in order.iter().enumerate(){{slots[*field]=cells[index];}}let head={name}Head::read_slots(slots,xml)?;"
@@ -162,10 +236,10 @@ impl<'a> Codec<'a> {
             head_visit = format!(
                 "let owned_pieces=self.head.pieces(xml)?;let pieces=owned_pieces.each_ref().map(|piece| &piece[..]);let order={order};for(index,field)in order.iter().enumerate(){{visit(pieces[*field],index<order.len().saturating_sub(1)||!self.rows.is_empty())?;}}"
             );
-            head_issues = "errors.extend(self.head.issues(xml,_inputs));".into();
+            head_issues = "errors.extend(self.own_issues(xml,_inputs));".into();
         } else {
             input = format!(
-                "let input=Self::plan(xml).{rows}(text,usize::MAX,text.len()).map_err(|_|RuntimeDiagnostic::new(\"value.text-sequence\",\"Invalid text sequence\"))?;"
+                "let input=Self::plan(xml).{rows}(text,usize::MAX,text.len(){width_argument}).map_err(|_|RuntimeDiagnostic::new(\"value.text-sequence\",\"Invalid text sequence\"))?;"
             );
         }
         let empty_guard = if self.head.is_none() {
@@ -226,12 +300,54 @@ impl<'a> Codec<'a> {
             format!("let mut errors=self.child_issues(xml,_inputs);{head_issues}errors")
         };
         writeln!(out,"#[allow(dead_code)] fn child_issues(&self,xml:bool,_inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{{let mut errors=Vec::new();for(index,row)in self.rows.iter().enumerate(){{errors.extend(row.issues(xml,_inputs).into_iter().map(|mut issue|{{issue.message=format!(\"Element {{}}: {{}}\",index+1,issue.message);issue}}));}}errors}}\n#[allow(dead_code)] fn issues(&self,xml:bool,_inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{{{combined_issues}}}}}\n").unwrap();
+        if self.constructible() {
+            let item = self.item.construct(name);
+            writeln!(out,"impl {name}{{fn construct_rows(source:core::inputs::Records<'_>,inputs:&InputView<'_>)->core::Result<Vec<{name}Item>>{{let mut rows=Vec::new();for(position,row)in source.iter().enumerate(){{let context=inputs.with_collection_position(position);let item={item};rows.try_reserve(1).map_err(|_|RuntimeDiagnostic::new(\"value.budget\",\"Semantic text sequence exceeds memory budget\"))?;rows.push(item);}}Ok(rows)}}").unwrap();
+            let context = if self.needs_inputs() { ",inputs" } else { "" };
+            if let Some((_, order, _)) = &self.head {
+                let width = order.len();
+                writeln!(out,"fn from_record(source:&dyn core::inputs::RecordInput,inputs:&InputView<'_>)->core::Result<Self>{{let head={name}Head::from_record(source,inputs)?;let rows=Self::construct_rows(source.records({width})?,inputs)?;let value=Self{{head,rows}};value.check(true{context})?;value.check(false{context})?;Ok(value)}}}}impl core::inputs::RecordInput for {name}{{fn field(&self,index:usize)->Option<core::inputs::InputRef<'_>>{{if index<{width}{{core::inputs::RecordInput::field(&self.head,index)}}else if index=={width}{{Some(core::inputs::InputRef::Records(core::inputs::Records::new(&self.rows)))}}else{{None}}}}}}").unwrap();
+            } else {
+                writeln!(out,"fn from_rows(source:core::inputs::Records<'_>,inputs:&InputView<'_>)->core::Result<Self>{{let value=Self{{rows:Self::construct_rows(source,inputs)?}};value.check(true{context})?;value.check(false{context})?;Ok(value)}}}}").unwrap();
+            }
+        }
+        if let Some((head, _, _)) = &self.head {
+            let LinkedType::Record(fields) = &self.entry.value else {
+                unreachable!("framed record")
+            };
+            let mut storage = (0..fields.len() - 1)
+                .map(|index| {
+                    (
+                        head.field_meaning(&format!("{name}Head"), index, "self.head"),
+                        "true".into(),
+                    )
+                })
+                .collect::<Vec<_>>();
+            storage.push(("self.rows.as_slice()".into(), "true".into()));
+            out.push_str(&super::text_item_checks::generate_with_storage(
+                self.entry,
+                self.program,
+                name,
+                fields,
+                &storage,
+                "own_issues",
+                super::text_item_checks::Scope {
+                    sequence: Some(name),
+                    input_prelude: "",
+                    field_type_names: Some(
+                        (0..fields.len())
+                            .map(|index| format!("{name}HeadP{index}"))
+                            .collect(),
+                    ),
+                },
+            )?);
+        }
         Ok(out)
     }
 }
 
-fn specialized(entry: &LinkedEntry) -> Result<(), Diagnostic> {
-    if !entry.inputs.is_empty()
+fn specialized(entry: &LinkedEntry, allow_inputs: bool) -> Result<(), Diagnostic> {
+    if (!allow_inputs && !entry.inputs.is_empty())
         || !entry.parameters.is_empty()
         || !entry.presence.is_empty()
         || !entry.shorthands.is_empty()

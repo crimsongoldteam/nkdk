@@ -1,0 +1,47 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: common.calculated-field-order-expression
+  namespaces: {dcscor: 'http://v8.1c.ru/8.1/data-composition-system/common'}
+  imports: {expression: common.string, direction: system.DataCompositionSortDirection, flag: common.boolean}
+  value:
+    kind: record
+    fields:
+    - {name: expression, type: {use: expression}}
+    - {name: direction, type: {use: direction}}
+    - {name: autoOrder, type: {use: flag}}
+  representations:
+    xml:
+      kind: record
+      fields:
+      - {field: expression, path: [dcscor:expression]}
+      - {field: direction, path: [dcscor:orderType]}
+      - {field: autoOrder, path: [dcscor:autoOrder]}
+    yaml:
+      kind: mapping
+      fields:
+      - {field: expression, key: Выражение}
+      - {field: direction, key: ТипУпорядочивания}
+      - {field: autoOrder, key: Автоупорядочивание}
+  presence:
+  - target: {field: direction}
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}}
+  - target: {field: autoOrder}
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}}
+- kind: value
+  id: common.calculated-field-order-expressions
+  namespaces: {dcssch: 'http://v8.1c.ru/8.1/data-composition-system/schema'}
+  imports: {item: common.calculated-field-order-expression}
+  value: {kind: sequence, item: {use: item}}
+  representations:
+    xml: {kind: element-sequence, path: [dcssch:orderExpression], item: {kind: declared}}
+    yaml: {kind: sequence, item: {kind: declared}}
+  presence:
+  - target: self
+    xml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: empty-element, denotes: {absent: true}}]
+    yaml: {missing: {denotes: {absent: true}}}

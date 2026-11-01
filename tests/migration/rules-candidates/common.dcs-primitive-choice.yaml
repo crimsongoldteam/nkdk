@@ -1,0 +1,970 @@
+format: nkdk-declarations/1
+kind: value
+id: common.dcs-primitive-choice
+description: Полиморфное значение метаданных; ветвь выбирается только из декларации
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  xs: http://www.w3.org/2001/XMLSchema
+  xr: http://v8.1c.ru/8.3/xcf/readable
+  v8: http://v8.1c.ru/8.1/data/core
+  ent: http://v8.1c.ru/8.1/data/enterprise
+  dcsset: http://v8.1c.ru/8.1/data-composition-system/settings
+  n0: http://v8.1c.ru/8.1/data/enterprise
+  n1: http://v8.1c.ru/8.1/data-composition-system/core
+  n2: http://v8.1c.ru/8.1/data-composition-system/settings
+  n3: http://v8.1c.ru/8.1/data/ui
+  n4: http://v8.1c.ru/8.2/data/data-analysis
+imports:
+  text: common.dcs-primitive-text
+  decimal: common.exact-decimal
+  boolean: common.boolean
+  calendar: common.date-time-seconds
+  reference: common.metadata-reference
+  list: common.metadata-value-list
+  comparison: common.metadata-comparison-type
+  account: common.metadata-account-type
+  dcsComparison: common.metadata-dcs-comparison-type
+  fixedArray: common.metadata-fixed-array
+  formChoice: common.metadata-form-choice-list-value
+  period: common.standard-period
+  beginningDate: common.standard-beginning-date
+  enumeration: common.dcs-primitive-enumeration
+parameters:
+  fixedArrayItem:
+    type:
+      kind: scalar
+      scalar: boolean
+    default: false
+  exportNilValue:
+    type:
+      kind: scalar
+      scalar: boolean
+    default: false
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  onlyStringType:
+    type:
+      kind: scalar
+      scalar: boolean
+  labels:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: code
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  codes:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: label
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+value:
+  kind: choice
+  variants:
+    - name: reference
+      type:
+        use: reference
+    - name: list
+      type:
+        use: list
+    - name: comparison
+      type:
+        use: comparison
+    - name: account
+      type:
+        use: account
+    - name: dcsComparison
+      type:
+        use: dcsComparison
+    - name: fixedArray
+      type:
+        use: fixedArray
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+    - name: formChoice
+      type:
+        use: formChoice
+        with:
+          fixedArrayItem:
+            parameter: fixedArrayItem
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+    - name: period
+      type:
+        use: period
+    - name: beginningDate
+      type:
+        use: beginningDate
+    - name: boolean
+      type:
+        use: boolean
+    - name: decimal
+      type:
+        use: decimal
+    - name: calendar
+      type:
+        use: calendar
+    - name: text
+      type:
+        use: text
+    - name: enumeration
+      type:
+        use: enumeration
+        bind:
+          labels:
+            input: labels
+          codes:
+            input: codes
+representations:
+  xml:
+    kind: choice
+    attribute: xsi:type
+    variants:
+      - variant: reference
+        in:
+          - xr:DesignTimeRef
+        emit: xr:DesignTimeRef
+      - variant: list
+        in:
+          - xr:ValueList
+        emit: xr:ValueList
+      - variant: comparison
+        in:
+          - ent:ComparisonType
+        emit: ent:ComparisonType
+      - variant: account
+        in:
+          - ent:AccountType
+        emit: ent:AccountType
+      - variant: dcsComparison
+        in:
+          - dcsset:DataCompositionComparisonType
+        emit: dcsset:DataCompositionComparisonType
+      - variant: fixedArray
+        in:
+          - v8:FixedArray
+        emit: v8:FixedArray
+      - variant: formChoice
+        in:
+          - FormChoiceListDesTimeValue
+        emit: FormChoiceListDesTimeValue
+      - variant: period
+        in:
+          - v8:StandardPeriod
+        emit: v8:StandardPeriod
+      - variant: beginningDate
+        in:
+          - v8:StandardBeginningDate
+        emit: v8:StandardBeginningDate
+      - variant: boolean
+        in:
+          - xs:boolean
+        emit: xs:boolean
+      - variant: decimal
+        in:
+          - xs:decimal
+          - xs:integer
+          - xs:double
+          - xs:float
+        emit: xs:decimal
+      - variant: calendar
+        in:
+          - xs:dateTime
+        emit: xs:dateTime
+      - variant: text
+        in:
+          - xs:string
+          - xr:MDObjectRef
+          - v8:Type
+          - v8:UUID
+        emit: xs:string
+      - variant: enumeration
+        in:
+          - n0:DynamicListSearchStringViewMode
+          - n0:XDTOFacetType
+          - n0:XMLForm
+          - n0:WSParameterDirection
+          - n0:DOMBuilderAction
+          - n0:DOMDocumentPosition
+          - n0:DOMNodeFilterParameters
+          - n0:DOMNodeType
+          - n0:DOMXPathResultType
+          - n0:HTMLContentCategory
+          - n1:DataCompositionAccountingBalanceType
+          - n1:DataCompositionAreaTemplateType
+          - n1:DataCompositionAttributesPlacement
+          - n1:DataCompositionBalanceType
+          - n1:DataCompositionChartLegendPlacement
+          - n1:DataCompositionConditionalAppearanceUse
+          - n1:DataCompositionDataSetsLinkType
+          - n1:DataCompositionDetailsProcessingAction
+          - n2:DataCompositionFieldPlacement
+          - n1:DataCompositionFieldsTitleType
+          - n1:DataCompositionFilterApplicationType
+          - n1:DataCompositionFilterItemsGroupType
+          - n1:DataCompositionFixation
+          - n1:DataCompositionGroupFieldsPlacement
+          - n1:DataCompositionGroupPlacement
+          - n1:DataCompositionGroupTemplateType
+          - n1:DataCompositionGroupType
+          - n1:DataCompositionGroupUseVariant
+          - n0:DCSParameterUse
+          - n1:DataCompositionPeriodAdditionType
+          - n1:DataCompositionPeriodType
+          - n1:DataCompositionPictureOutputType
+          - n1:DataCompositionResourcesAutoPosition
+          - n1:DataCompositionResourcesPlacement
+          - n1:DataCompositionResourcesPlacementInChart
+          - n1:DataCompositionResultItemType
+          - n1:DataCompositionResultNestedItemsLayout
+          - n1:DataCompositionSettingsItemState
+          - n1:DataCompositionSettingsItemViewMode
+          - n1:DataCompositionSettingsRefreshMethod
+          - n1:DataCompositionSettingsViewMode
+          - n1:DataCompositionSortDirection
+          - n1:DataCompositionTextOutputType
+          - n1:DataCompositionTextPlacementType
+          - n1:DataCompositionTotalPlacement
+          - n0:OnUnavailabilityDataCompositionSettingsAction
+          - n0:ResultCompositionMode
+          - n0:SaveDataCompositionAppearance
+          - n0:XSAttributeUseCategory
+          - n0:XSComplexFinal
+          - n0:XSComponentType
+          - n0:XSCompositor
+          - n0:XSConstraint
+          - n0:XSContentModel
+          - n0:XSDerivationMethod
+          - n0:XSDisallowedSubstitutions
+          - n0:XSForm
+          - n0:XSIdentityConstraintCategory
+          - n0:XSNamespaceConstraintCategory
+          - n0:XSProcessContents
+          - n0:XSProhibitedSubstitutions
+          - n0:XSSchemaFinal
+          - n0:XSSimpleFinal
+          - n0:XSSimpleTypeVariety
+          - n0:XSSubstitutionGroupExclusions
+          - n0:XSWhitespaceHandling
+          - n0:XSXPathVariety
+          - n0:EventLogDataStorageSplitPeriod
+          - n0:EventLogEntryTransactionMode
+          - n0:EventLogEntryTransactionStatus
+          - n0:EventLogLevel
+          - n0:DataLockControlMode
+          - n0:DataLockMode
+          - n0:AccountingRecordType
+          - n0:AccumulationRecordType
+          - n0:AccumulationRegisterAggregatePeriodicity
+          - n0:AccumulationRegisterAggregateUse
+          - n0:AutoTimeMode
+          - n0:BusinessProcessRoutePointType
+          - n0:CalculationRegisterPeriodType
+          - n0:DocumentPostingMode
+          - n0:DocumentWriteMode
+          - n0:FoldersAndItemsUse
+          - n0:PostingModeUse
+          - n0:SliceUse
+          - n0:BackgroundJobState
+          - n0:CryptoCertificateCheckMode
+          - n0:CryptoCertificateIncludeMode
+          - n0:CryptoCertificateStorePlacement
+          - n0:CryptoCertificateStoreType
+          - n0:CryptoInteractiveModeUse
+          - n0:FormattedDocumentFileType
+          - n0:FormattedDocumentParagraphType
+          - n0:RowGotoDirection
+          - n0:InternetMailAttachmentEncodingMode
+          - n0:InternetMailMessageImportance
+          - n0:InternetMailMessageNonASCIISymbolsEncodingMode
+          - n0:InternetMailMessageParseStatus
+          - n0:InternetMailProtocol
+          - n0:InternetMailTextProcessing
+          - n0:InternetMailTextType
+          - n0:POP3AuthenticationMode
+          - n0:SMTPAuthenticationMode
+          - n0:UseInternetMailTokenAuthentication
+          - n0:QueryBuilderDimensionType
+          - n0:AddInConnectionType
+          - n0:AddInType
+          - n0:AllowedLength
+          - n0:AllowedSign
+          - n0:ApplicationFormsOpenningMode
+          - n0:BorderType
+          - n0:BoundaryType
+          - n0:ByteOrderMarkUse
+          - n0:ClientApplicationBaseFontVariant
+          - n0:ClientApplicationFormScaleVariant
+          - n0:ClientApplicationInterfaceVariant
+          - n0:ClientApplicationType
+          - n0:ClientConnectionSpeed
+          - n0:ClientRunMode
+          - n0:ColorType
+          - n0:CompositeWordsSeparationMode
+          - n0:ConfigurationExtensionApplicationIssueSeverity
+          - n0:ConfigurationExtensionScope
+          - n0:ConfigurationExtensionsSource
+          - n0:DataBaseConfigurationUpdateExecutionInformationItemType
+          - n0:DataBaseConfigurationUpdateState
+          - n0:DatabaseTablespacesUseMode
+          - n0:DateFractions
+          - n0:DialogReturnCode
+          - n0:DynamicListKeyType
+          - n0:EnterKeyBehaviorType
+          - n0:ExternalDataSourceState
+          - n0:FillChecking
+          - n0:FontType
+          - n0:FullTextSearchMetadataUse
+          - n0:FullTextSearchMode
+          - n0:FullTextSearchRepresentationType
+          - n0:FullTextSearchVersion
+          - n0:HashFunction
+          - n0:InterfaceCompatibilityMode
+          - n0:IntervalBoundVariant
+          - n0:Key
+          - n0:LocationRelativeToGeofence
+          - n0:MessageStatus
+          - n0:NumericValueType
+          - n0:PasswordPolicyComplianceCheckResult
+          - n0:PeriodSettingsVariant
+          - n0:PeriodVariant
+          - n0:PictureType
+          - n0:PlatformType
+          - n0:PredefinedDataUpdate
+          - n0:QuestionDialogMode
+          - n0:ReplacementMode
+          - n0:RoundMode
+          - n0:SearchDirection
+          - n0:SectionsPanelRepresentation
+          - n0:SortDirection
+          - n0:StandardBeginningDateVariant
+          - n0:StandardGlobalSearchType
+          - n0:StandardPeriodVariant
+          - n0:StringEncodingMethod
+          - n0:TextEncoding
+          - n0:TransactionsIsolationLevel
+          - n0:UUIDVersion
+          - n0:UpdateOnDataChange
+          - n0:UserPasswordHashAlgorithmType
+          - n0:WorkingDateMode
+          - n0:XBaseEncoding
+          - n0:CalendarEventRecurrence
+          - n0:ContactDataAddressType
+          - n0:ContactDataEmailAddressType
+          - n0:ContactDataInstantMessagingAddressType
+          - n0:ContactDataPhoneNumberType
+          - n0:ContactDataRelationshipType
+          - n0:ContactDataURLType
+          - n0:CallLogCallType
+          - n0:TelephonyToolsCallEventVariant
+          - n0:TelephonyToolsSMSType
+          - n0:AudioRecordingChannelUse
+          - n0:AudioRecordingFormat
+          - n0:BarcodeType
+          - n0:CameraLightingType
+          - n0:DeviceCameraType
+          - n0:DocumentScanningCheckingQuality
+          - n0:DocumentScanningOrientationDetectionMode
+          - n0:DocumentScanningProcessingFilter
+          - n0:MultimediaRecordingStopButtonPlacement
+          - n0:VideoQuality
+          - n0:QuerySchemaAvailableTableParameterType
+          - n0:QuerySchemaJoinType
+          - n0:QuerySchemaOrderDirection
+          - n0:QuerySchemaPeriodAdditionType
+          - n0:QuerySchemaTotalCalculationFieldType
+          - n0:QuerySchemaUnionType
+          - n0:NewPlannerItemsTextType
+          - n0:PlannerCommandSource
+          - n0:PlannerInsideDragAction
+          - n0:PlannerInsideDragBoundaryChangeVariant
+          - n0:PlannerItemActionLocation
+          - n0:PlannerItemEnableEditMode
+          - n0:PlannerItemsBehaviorOnLackOfSpace
+          - n0:PlannerItemsTimeRepresentation
+          - n0:PlannerStandardCommand
+          - n0:JSONCharactersEscapeMode
+          - n0:JSONDateFormat
+          - n0:JSONDateWritingVariant
+          - n0:JSONLineBreak
+          - n0:JSONValueType
+          - n0:DeliverableNotificationSendErrorType
+          - n0:DeliverableNotificationSubscriberType
+          - n0:SoundAlert
+          - n0:InAppPurchaseService
+          - n0:InAppPurchaseType
+          - n0:FTPSecureConnectionUsageLevel
+          - n0:InternetConnectionType
+          - n0:MacOSCertificateSelectMode
+          - n0:OSCertificateSelectMode
+          - n0:RoamingUsage
+          - n0:ServerTLSCertificateRevocationCheckMode
+          - n0:WindowsCertificateSelectMode
+          - n0:ByteOrder
+          - n0:PositionInStream
+          - n0:AdBannerRepresentation
+          - n0:AdStatus
+          - n0:DataLineChangeType
+          - n0:RepresentableDocumentBatchFileType
+          - n0:ClientApplicationAgentState
+          - n1:DataCompositionDataRelevanceOutputType
+          - n1:DataCompositionDatabaseCopyOutputType
+          - n0:DatabaseCopiesStandardReplicationVersion
+          - n0:DatabaseCopiesUse
+          - n0:DatabaseCopyContentItemFieldUse
+          - n0:DatabaseCopyDBMSType
+          - n0:DatabaseCopyReplicationType
+          - n0:DatabaseCopyState
+          - n0:DatabaseCopyTurnedOffReason
+          - n0:DatabaseCopyUpdateState
+          - n0:RequiredDataRelevance
+          - n0:CollaborationSystemCommandSource
+          - n0:CollaborationSystemDataDumpStatus
+          - n0:CollaborationSystemFromDataDumpRestoreStatus
+          - n0:CollaborationSystemMessageButtonPanelButtonAction
+          - n0:CollaborationSystemMessageButtonPanelButtonType
+          - n0:CollaborationSystemNotificationRepresentation
+          - n0:CollaborationSystemStandardCommand
+          - n0:CollaborationSystemUsersChoicePurpose
+          - n0:AdministrationActionOnResourceConsumptionLimitExcess
+          - n0:AdministrationAssignmentRuleType
+          - n0:AdministrationConnectionSecurityLevel
+          - n0:AdministrationInfoBaseDeletionMode
+          - n0:AdministrationProcessChoicePriority
+          - n0:AdministrationResourceConsumptionCounterFilterType
+          - n0:AdministrationResourceConsumptionCounterGroupType
+          - n0:AdministrationWorkProcessStatus
+          - n0:DuplexPrintingType
+          - n0:PageOrientation
+          - n0:PagePlacementAlternation
+          - n0:PrintAccuracy
+          - n0:SpreadsheetDocumentAreaFillType
+          - n0:SpreadsheetDocumentCellAreaType
+          - n0:SpreadsheetDocumentCellLineType
+          - n0:SpreadsheetDocumentDetailUse
+          - n0:SpreadsheetDocumentDrawingLineType
+          - n0:SpreadsheetDocumentDrawingType
+          - n0:SpreadsheetDocumentFileType
+          - n0:SpreadsheetDocumentGroupHeaderPlacement
+          - n0:SpreadsheetDocumentPatternType
+          - n0:SpreadsheetDocumentPointerType
+          - n0:SpreadsheetDocumentSavedPicturesDensity
+          - n0:SpreadsheetDocumentSelectionShowModeType
+          - n0:SpreadsheetDocumentShiftType
+          - n0:SpreadsheetDocumentStepDirectionType
+          - n0:SpreadsheetDocumentTextPlacementType
+          - n0:SpreadsheetDocumentValuesReadingMode
+          - n0:TextPositionRelativeToPicture
+          - n0:UseSpreadsheetDocumentWidthReduction
+          - n0:PivotTableColumnTotalPosition
+          - n0:PivotTableLinesShowType
+          - n0:PivotTableRowTotalPosition
+          - n0:QueryRecordType
+          - n0:QueryResultIteration
+          - n0:ConnectedComponentsOfSystemOfLinearEquationsCalculationGettingMethod
+          - n0:AdditionalUserVerificationMethod
+          - n0:BiometricVerificationMethod
+          - n0:SecureStorageAccessProtectionMethod
+          - n0:ErrorCategory
+          - n0:ErrorMessageDisplayVariant
+          - n0:ErrorReportingMode
+          - n0:MobileClientSignatureVerificationMethod
+          - n0:OnMainServerUnavalableBehavior
+          - n0:UsedServer
+          - n0:PDFAttachmentRelationshipType
+          - n0:PDFDocumentFileType
+          - n0:PDFModificationAccessPermissions
+          - n0:PDFSignatureType
+          - n0:ProgressiveWebApplicationMode
+          - n0:AdditionalShowMode
+          - n0:AppearanceAreaType
+          - n0:ArrowStyle
+          - n0:AutoCapitalizationOnTextInput
+          - n0:AutoCorrectionOnTextInput
+          - n0:AutoSaveFormDataInSettings
+          - n0:AutoShowClearButtonMode
+          - n0:AutoShowOpenButtonMode
+          - n0:AutoShowStateMode
+          - n0:AutonumerationInForm
+          - n0:ButtonGroupRepresentation
+          - n0:ButtonLocationInCommandBar
+          - n0:ButtonPictureLocation
+          - n0:ButtonRepresentation
+          - n0:FormCommandButtonRepresentation
+          - n0:ButtonShape
+          - n0:ButtonShapeRepresentation
+          - n0:CheckBoxType
+          - n0:ChildFormItemsGroup
+          - n0:ChildFormItemsWidth
+          - n0:ChoiceButtonRepresentation
+          - n0:ChoiceHistoryOnInput
+          - n0:ClipboardDataStandardFormat
+          - n0:CollapseFormItemsByImportance
+          - n0:ColorDepth
+          - n0:ColumnEditMode
+          - n0:ColumnLocation
+          - n0:ColumnSizeChange
+          - n0:ColumnsGroup
+          - n0:CommandBarButtonAlignment
+          - n0:CommandBarButtonOrder
+          - n0:CommandBarButtonRepresentation
+          - n0:CommandBarButtonType
+          - n0:CommandGroupCategory
+          - n0:CommandParameterUseMode
+          - n0:ConnectorLineType
+          - n0:ConnectorTextLocation
+          - n0:ControlBorderType
+          - n0:ControlCollapseMode
+          - n0:ControlEdge
+          - n0:CurrentRowUse
+          - n0:DataChangeType
+          - n0:DateSelectionMode
+          - n0:DimensionAttributePlacementType
+          - n0:DimensionPlacementType
+          - n0:DisplayImportance
+          - n0:DragAction
+          - n0:DragAllowedActions
+          - n0:DrawingSelectionShowMode
+          - n0:EditTextUpdate
+          - n0:FitPageMode
+          - n0:FixingInTable
+          - n0:FoldersAndItems
+          - n0:FormButtonPictureLocation
+          - n0:FormButtonType
+          - n0:FormCommandBarLabelLocation
+          - n0:FormConversationsRepresentation
+          - n0:FormDecorationType
+          - n0:FormFieldType
+          - n0:FormGroupType
+          - n0:FormItemAdditionType
+          - n0:FormItemCommandBarLabelLocation
+          - n0:FormItemOrientation
+          - n0:FormItemSpacing
+          - n0:FormItemTitleLocation
+          - n0:FormPagesRepresentation
+          - n0:FormPagesState
+          - n0:FormStandardURLVariant
+          - n0:FormWindowOpeningMode
+          - n0:GraphicalSchemaGridDrawMode
+          - n0:GraphicalSchemaItemPictureLocation
+          - n0:GraphicalSchemaShapes
+          - n0:GraphicalSchemeElementSideType
+          - n0:HTMLDocumentFieldMode
+          - n3:HorizontalAlign
+          - n0:IncompleteChoiceMode
+          - n0:InitialListView
+          - n0:InitialTreeView
+          - n0:InputFieldAutofillHint
+          - n0:InputFieldCommandSource
+          - n0:InputFieldMultipleValuePictureShape
+          - n0:InputFieldMultipleValuePictureSize
+          - n0:InputFieldStandardCommand
+          - n0:ItemHeightControlVariant
+          - n0:ItemHorizontalLocation
+          - n0:ItemVerticalAlign
+          - n0:ItemsAndTitlesAlignVariant
+          - n0:LabelPictureLocation
+          - n0:LinkedValueChangeMode
+          - n0:ListEditMode
+          - n0:MainClientApplicationWindowMode
+          - n0:NewRowShowCheckVariant
+          - n0:OnScreenKeyboardReturnKeyText
+          - n0:Orientation
+          - n0:PanelPictureLocation
+          - n0:PictureFormat
+          - n0:PictureSize
+          - n0:PrintDialogUseMode
+          - n0:ProgressBarSmoothingMode
+          - n0:RadioButtonType
+          - n0:RefreshRequestMethod
+          - n0:ReportFormType
+          - n0:ReportResultViewMode
+          - n0:SaveFormDataInSettings
+          - n0:ScrollBarUse
+          - n0:ScrollingTextMode
+          - n0:SearchControlLocation
+          - n0:SearchInTableOnInput
+          - n0:SearchStringLocation
+          - n0:SelectionShowMode
+          - n0:ShowTabs
+          - n3:SizeChangeMode
+          - n0:SpecialTextInputMode
+          - n0:SpellCheckingOnTextInput
+          - n0:StandardAppearance
+          - n0:StandardCommandsGroup
+          - n0:TableBehaviorOnHorizontalCompression
+          - n0:TableBoxRowInputMode
+          - n0:TableBoxRowSelectionMode
+          - n0:TableBoxSelectionMode
+          - n0:TableCurrentRowUse
+          - n0:TableHeightControlVariant
+          - n0:TableRepresentation
+          - n0:TableRowInputMode
+          - n0:TableRowSelectionMode
+          - n0:TableSelectionMode
+          - n0:TaskListMode
+          - n0:TextDirection
+          - n0:ThroughAlign
+          - n0:TimeScalePosition
+          - n0:TitleLocation
+          - n0:ToolTipRepresentation
+          - n0:TrackBarMarkingAppearance
+          - n0:UseMenuMode
+          - n0:UseOutput
+          - n0:UserNotificationStatus
+          - n0:UsualGroupBehavior
+          - n0:UsualGroupControlRepresentation
+          - n0:UsualGroupRepresentation
+          - n3:VerticalAlign
+          - n0:VerticalFormScroll
+          - n0:ViewModeApplicationOnSetReportResult
+          - n0:ViewScalingMode
+          - n0:ViewStatusLocation
+          - n0:WarningOnEditRepresentation
+          - n0:WindowAppearanceModeChange
+          - n0:WindowAppearanceModeVariant
+          - n0:WindowDockVariant
+          - n0:WindowLocationVariant
+          - n0:WindowSizeChange
+          - n0:WindowStateVariant
+          - n0:AutoSeriesSeparation
+          - n0:BarChartPointsOrder
+          - n0:BubbleChartNegativeValuesShowMode
+          - n0:ChartAnimation
+          - n0:ChartBoundaryDetectionMethod
+          - n0:ChartBubbleSizeValueSource
+          - n0:ChartBubbleSizing
+          - n0:ChartColorPalette
+          - n0:ChartGridLinesShowMode
+          - n0:ChartLabelLocation
+          - n0:ChartLabelType
+          - n0:ChartLabelsOrientation
+          - n0:ChartLegendPlacement
+          - n0:ChartLineType
+          - n0:ChartMarkerType
+          - n0:ChartOrientation
+          - n0:ChartPlotAreaPlacement
+          - n0:ChartPointsAxisValuesSource
+          - n0:ChartPointsConnectionType
+          - n0:ChartReferenceBandBorderPosition
+          - n0:ChartReferenceLinePosition
+          - n0:ChartScaleLabelLocation
+          - n0:ChartScaleLocation
+          - n0:ChartScaleMarkLocation
+          - n0:ChartScaleTitlePlacement
+          - n0:ChartScaleTitleTextSource
+          - n0:ChartSelectionMode
+          - n0:ChartSemitransparencyMode
+          - n0:ChartSeriesGraphicalRepresentationType
+          - n0:ChartSeriesOrderInLegend
+          - n0:ChartSeriesStackType
+          - n0:ChartSpaceMode
+          - n0:ChartSplineMode
+          - n0:ChartTitleAreaPlacement
+          - n0:ChartTrendlineApproximationType
+          - n0:ChartTrendlineFactor
+          - n0:ChartType
+          - n0:ChartValueEditState
+          - n0:ChartValuesBySeriesConnectionType
+          - n0:ChartValuesEditMode
+          - n0:ChartValuesToolTipFillType
+          - n0:ChartValuesToolTipShowMode
+          - n0:GaugeChartValueRepresentation
+          - n0:GaugeChartValuesScaleLabelsLocation
+          - n0:MaxSeries
+          - n0:NonnumericChartValueUse
+          - n0:PointsConnectionAcrossSkippedChartValuesType
+          - n0:RadarChartScaleType
+          - n0:ShowChartPopupReferenceLine
+          - n0:ShowChartScaleTitle
+          - n0:ShowInChart
+          - n0:ShowInChartLegend
+          - n0:StockChartUsedPointValue
+          - n0:UsedChartValuesAxis
+          - n0:GanttChartIntervalRepresentation
+          - n0:GanttChartIntervalTextRepresentation
+          - n0:GanttChartIntervalsSelectionMode
+          - n0:GanttChartLinkType
+          - n0:GanttChartScaleKeeping
+          - n0:GanttChartTableLocation
+          - n0:GanttChartTextPlacementType
+          - n0:GanttChartValueTextRepresentation
+          - n0:GanttChartValuesSelectionMode
+          - n0:GanttChartVerticalStretch
+          - n0:ShowInGanttChart
+          - n0:TimeScaleDayFormat
+          - n0:TimeScaleUnitType
+          - n0:PivotChartLabelsOrientation
+          - n0:PivotChartScaleKeeping
+          - n0:PivotChartType
+          - n0:PivotChartValuesShowMode
+          - n0:DendrogramOrientation
+          - n0:DendrogramScaleKeeping
+          - n0:GeographicalSchemaDataSourceOrganizationType
+          - n0:GeographicalSchemaLayerSeriesImportModeType
+          - n0:GeographicalSchemaLayerSeriesShowMode
+          - n0:GeographicalSchemaLegendItemShowScaleType
+          - n0:GeographicalSchemaLineType
+          - n0:GeographicalSchemaMarkerType
+          - n0:GeographicalSchemaObjectFindType
+          - n0:GeographicalSchemaPointObjectDrawingType
+          - n0:GeographicalSchemaProjection
+          - n0:GeographicalSchemaShowMode
+          - n0:PaintingReferencePointPosition
+          - n0:SeriesValuesDrawingMode
+          - n0:IntegrationServiceChannelState
+          - n0:ArchiveFileCompressionLevel
+          - n0:ArchiveFileCompressionMethod
+          - n0:ArchiveFileEncryptionMethod
+          - n0:ArchiveFileRestoreFilePathsMode
+          - n0:ArchiveFileStorePathMode
+          - n0:ArchiveFileSubDirProcessingMode
+          - n0:ArchiveFileType
+          - n0:FileNamesEncodingInArchiveFile
+          - n0:FileAccess
+          - n0:FileCompareMethod
+          - n0:FileDialogMode
+          - n0:FileDialogSection
+          - n0:FileDragMode
+          - n0:FileOpenMode
+          - n0:GetFilesArchiveMode
+          - n0:IncomingShareRequestStandardCommand
+          - n0:MobileDeviceLibraryDirType
+          - n0:ShareRequestDataProcessingVariant
+          - n0:AccountMainPresentation
+          - n0:AccumulationRegisterType
+          - n0:AttributeUse
+          - n0:BinaryDataBlockStorageUseMode
+          - n0:BinaryDataStorageMode
+          - n0:BusinessProcessNumberPeriodicity
+          - n0:BusinessProcessNumberType
+          - n0:CalculationRegisterPeriodicity
+          - n0:CalculationTypeMainPresentation
+          - n0:CatalogCodeType
+          - n0:CatalogCodesSeries
+          - n0:CatalogMainPresentation
+          - n0:CharOfAccountCodeSeries
+          - n0:CharacteristicKindCodesSeries
+          - n0:CharacteristicTypeMainPresentation
+          - n0:ChartOfCalculationTypesBaseUse
+          - n0:ChartOfCalculationTypesCodeType
+          - n0:ChoiceDataGetModeOnInputByString
+          - n0:ChoiceMode
+          - n0:CommonAttributeAuthenticationSeparation
+          - n0:CommonAttributeAutoUse
+          - n0:CommonAttributeConfigurationExtensionsSeparation
+          - n0:CommonAttributeDataSeparation
+          - n0:CommonAttributeSeparatedDataUse
+          - n0:CommonAttributeUse
+          - n0:CommonAttributeUsersSeparation
+          - n0:CompatibilityMode
+          - n0:ConfigurationExtensionPurpose
+          - n0:CreateOnInput
+          - n0:DataExchangeMainPresentation
+          - n0:DataHistoryUse
+          - n0:DefaultDataLockControlMode
+          - n0:DocumentNumberPeriodicity
+          - n0:DocumentNumberType
+          - n0:EditType
+          - n0:ExternalDataSourceTableDataType
+          - n0:ExternalDataSourceTableType
+          - n0:FormType
+          - n0:FullTextSearchOnInputByString
+          - n0:HTTPMethod
+          - n0:HierarchyType
+          - n0:Indexing
+          - n0:InformationRegisterPeriodicity
+          - n0:IntegrationServiceChannelMessageDirection
+          - n0:ModalityUseMode
+          - n0:MoveBoundaryOnPosting
+          - n0:ObjectAutonumerationMode
+          - n0:ObjectBelonging
+          - n0:Posting
+          - n0:RealTimePosting
+          - n0:RegisterRecordsDeletion
+          - n0:RegisterRecordsWritingOnPost
+          - n0:RegisterWriteMode
+          - n0:ReturnValuesReuse
+          - n0:ScriptVariant
+          - n0:SearchStringModeOnInputByString
+          - n0:SequenceFilling
+          - n0:SessionReuseMode
+          - n0:StyleElementType
+          - n0:SubordinationUse
+          - n0:SynchronousExtensionAndAddInCallUseMode
+          - n0:SynchronousPlatformExtensionAndAddInCallUseMode
+          - n0:TaskMainPresentation
+          - n0:TaskNumberAutoPrefix
+          - n0:TaskNumberType
+          - n0:TemplateType
+          - n0:TransferDirection
+          - n0:TypeReductionMode
+          - n0:UseFullTextSearch
+          - n0:UseQuickChoice
+          - n0:PresentationAdditionType
+          - n0:ReportBuilderDetailsFillType
+          - n0:ReportBuilderDimensionType
+          - n0:TotalPlacementType
+          - n0:XMLAttributeType
+          - n0:XMLCanonicalizationType
+          - n0:XMLNodeType
+          - n0:XMLSpace
+          - n0:XMLTypeAssignment
+          - n0:XMLValidationType
+          - n0:AllowedMessageNo
+          - n0:AutoChangeRecord
+          - n0:DataItemReceive
+          - n0:DataItemSend
+          - n4:AnalysisDataType
+          - n4:AssociationRulesDataSourceType
+          - n4:AssociationRulesPruneType
+          - n4:ClusterizationMethod
+          - n4:DataAnalysisAssociationRulesOrderType
+          - n4:DataAnalysisColumnTypeAssociationRules
+          - n4:DataAnalysisColumnTypeClusterization
+          - n4:DataAnalysisColumnTypeDecisionTree
+          - n4:DataAnalysisColumnTypeSequentialPatterns
+          - n4:DataAnalysisColumnTypeSummaryStatistics
+          - n4:DataAnalysisDistanceMetricType
+          - n0:DataAnalysisFieldType
+          - n4:DataAnalysisNumericValueUseType
+          - n4:DataAnalysisResultTableFillType
+          - n4:DataAnalysisSequentialPatternsOrderType
+          - n4:DataAnalysisStandardizationType
+          - n4:DataAnalysisTimeIntervalUnitType
+          - n4:DecisionTreeSimplificationType
+          - n4:PredictionModelColumnType
+          - n0:FileNamesEncodingInZipFile
+          - n0:ZIPCompressionLevel
+          - n0:ZIPCompressionMethod
+          - n0:ZIPEncryptionMethod
+          - n0:ZIPRestoreFilePathsMode
+          - n0:ZIPStorePathMode
+          - n0:ZIPSubDirProcessingMode
+          - n0:Chars
+          - n0:PictureLib
+          - n0:StyleBorders
+          - n0:StyleColors
+          - n0:StyleFonts
+          - n0:WebColors
+          - n0:WindowsColors
+          - n0:WindowsFonts
+          - n0:BinaryDataStorageLocationUse
+          - n0:StatePresentation
+          - n0:ButtonLocationInContextMenu
+          - n0:RequiredMobileApplicationPermissionMessages
+          - n0:RequiredMobileApplicationPermissions
+          - n0:MobileApplicationFunctionalities
+    otherwise: text
+  yaml:
+    kind: choice
+    variants:
+      - variant: fixedArray
+        form: sequence
+      - variant: formChoice
+        form: mapping
+        key: Тип
+        value: ЗначениеСпискаВыбора
+      - variant: formChoice
+        form: mapping
+        key: Представление
+      - variant: formChoice
+        form: mapping
+        key: Значение
+      - variant: comparison
+        form: mapping
+        key: Тип
+        value: ВидСравнения
+      - variant: account
+        form: mapping
+        key: Тип
+        value: ВидСчета
+      - variant: dcsComparison
+        form: mapping
+        key: Тип
+        value: ВидСравненияКомпоновкиДанных
+      - variant: period
+        form: mapping
+        key: Вариант
+      - variant: beginningDate
+        form: mapping
+        key: Вариант
+      - variant: enumeration
+        form: mapping
+        key: Тип
+        value: СистемноеПеречисление
+presence:
+  - target: self
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+        - form: nil
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            input: onlyStringType
+          form: empty-element
+          type: xs:string
+        - when:
+            and:
+              - parameter: exportNilValue
+              - not:
+                  present:
+                    self: true
+          form: nil
+        - when:
+            not:
+              present:
+                self: true
+          form: missing
+    yaml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: 'null'
+          denotes:
+            absent: true

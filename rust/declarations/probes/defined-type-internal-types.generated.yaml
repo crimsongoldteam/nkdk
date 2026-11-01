@@ -19,6 +19,10 @@ inputs:
     type:
       kind: scalar
       scalar: text
+  identitySeed:
+    type:
+      kind: scalar
+      scalar: text
   identities:
     index: metadata.own-identities
 types:
@@ -159,3 +163,47 @@ contributions:
         of:
           var: row
         field: valueId
+presence:
+  - target:
+      field: types
+    yaml:
+      missing:
+        denotes:
+          sequence:
+            - record:
+                name:
+                  concat:
+                    - literal: DefinedType.
+                    - input: ownerName
+                category:
+                  literal: DefinedType
+                typeId:
+                  identity:
+                    seed:
+                      input: identitySeed
+                    domain: uuid
+                    format: uuid
+                    address:
+                      - literal: ОпределяемыйТип
+                      - input: ownerName
+                      - literal: InternalInfo
+                      - literal: GeneratedType
+                      - concat:
+                          - literal: DefinedType.
+                          - input: ownerName
+                      - literal: TypeId
+                valueId:
+                  identity:
+                    seed:
+                      input: identitySeed
+                    domain: uuid
+                    format: uuid
+                    address:
+                      - literal: ОпределяемыйТип
+                      - input: ownerName
+                      - literal: InternalInfo
+                      - literal: GeneratedType
+                      - concat:
+                          - literal: DefinedType.
+                          - input: ownerName
+                      - literal: ValueId

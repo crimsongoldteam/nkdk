@@ -1,0 +1,39 @@
+{
+  "scope": "filter-owner-source, release, explicit selector vs mapping fallback; same current compiler/core",
+  "iterationsPerGroup": 20000,
+  "groups": 5,
+  "timingsNs": {
+    "xml-to-yaml": {
+      "before": [
+        39030.4021,
+        38527.6354,
+        38428.2479,
+        38594.27915,
+        38410.6104
+      ],
+      "after": [
+        38491.2896,
+        38675.8271,
+        38741.9083,
+        38299.09795,
+        38647.525
+      ]
+    },
+    "yaml-to-xml": {
+      "before": [
+        9449.98125,
+        9409.2771,
+        9121.2271,
+        9127.0646,
+        9474.4229
+      ],
+      "after": [
+        9317.96665,
+        9341.8875,
+        9140.2771,
+        9384.24165,
+        9464.58955
+      ]
+    }
+  }
+}

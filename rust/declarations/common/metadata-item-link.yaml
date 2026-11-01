@@ -37,7 +37,9 @@ declarations:
     xml:
       missing: {denotes: {absent: true}}
       empty: [{form: empty-element, denotes: {absent: true}}]
-    yaml: {missing: {denotes: {absent: true}}}
+    yaml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: 'null', denotes: {absent: true}}]
   constraints:
   - id: form-exists
     appliesTo: [xml-import, yaml-validation]

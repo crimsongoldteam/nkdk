@@ -1,0 +1,337 @@
+format: nkdk-declarations/1
+kind: value
+imports:
+  field0: common.i8n-text
+  field1: common.type-description
+  field2: common.user-visible
+  field3: common.user-visible
+  field4: system.FillChecking
+  field5: common.functional-options-property
+  field6: common.string
+  field7: common.string
+value:
+  kind: record
+  fields:
+    - name: title
+      type:
+        use: field0
+        with:
+          excludeIfEqualNameYAML: true
+          skipEmptyToXML: true
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            field: name
+    - name: type
+      type:
+        use: field1
+        bind: {}
+    - name: view
+      type:
+        use: field2
+        bind:
+          roles:
+            input: roles
+    - name: edit
+      type:
+        use: field3
+        bind:
+          roles:
+            input: roles
+    - name: fillCheck
+      type:
+        use: field4
+    - name: functionalOptions
+      type:
+        use: field5
+        bind: {}
+    - name: name
+      type:
+        use: field6
+    - name: id
+      type:
+        use: field7
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: title
+        path:
+          - f:Title
+      - field: type
+        path:
+          - f:Type
+      - field: view
+        path:
+          - f:View
+      - field: edit
+        path:
+          - f:Edit
+      - field: fillCheck
+        path:
+          - f:FillCheck
+      - field: functionalOptions
+        path:
+          - f:FunctionalOptions
+      - field: name
+        path: []
+        attribute: name
+      - field: id
+        path: []
+        attribute: id
+  yaml:
+    kind: mapping
+    fields:
+      - field: name
+        key: name
+      - field: title
+        key: Заголовок
+      - field: type
+        key: Тип
+      - field: view
+        key: Просмотр
+      - field: edit
+        key: Редактирование
+      - field: fillCheck
+        key: ПроверкаЗаполнения
+      - field: functionalOptions
+        key: ФункциональныеОпции
+presence:
+  - target:
+      field: title
+    xml:
+      missing:
+        denotes:
+          sequence:
+            - record:
+                language:
+                  input: defaultLanguage
+                content:
+                  literal: ''
+  - target:
+      field: type
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: type
+          form: empty-element
+        - form: ordinary
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: view
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: edit
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: fillCheck
+    xml:
+      missing:
+        denotes:
+          literal: DontCheck
+      canonical:
+        - when:
+            eq:
+              - field: fillCheck
+              - literal: DontCheck
+          form: missing
+    yaml:
+      default:
+        literal: DontCheck
+  - target:
+      field: functionalOptions
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: name
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: id
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          match:
+            value:
+              lookup:
+                in:
+                  input: numbers
+                key:
+                  record:
+                    component:
+                      input: component
+                    owner:
+                      input: owner
+                    name:
+                      if:
+                        eq:
+                          - field: name
+                          - literal: ''
+                      then:
+                        logicalAddress:
+                          parent:
+                            input: parent
+                          parts:
+                            - literal: Колонка
+                            - collectionPosition: true
+                      else:
+                        logicalAddress:
+                          parent:
+                            input: parent
+                          parts:
+                            - literal: Колонка
+                            - field: name
+            present:
+              as: number
+              then:
+                var: number
+            absent:
+              require:
+                lookup:
+                  in:
+                    input: numbers
+                  key:
+                    record:
+                      component:
+                        input: component
+                      owner:
+                        input: owner
+                      name:
+                        logicalAddress:
+                          parent:
+                            input: parent
+                          parts:
+                            - literal: Колонка
+                            - collectionPosition: true
+constraints:
+  - id: name-required
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    assert:
+      present:
+        field: name
+    diagnostic:
+      code: value.required
+      severity: warning
+      at:
+        field: name
+      message: Обязательное значение отсутствует
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  roles:
+    type:
+      kind: sequence
+      item:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: yamlName
+            type:
+              kind: scalar
+              scalar: text
+  component:
+    type:
+      kind: scalar
+      scalar: text
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  parent:
+    type:
+      kind: scalar
+      scalar: text
+  numbers:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: component
+            type:
+              kind: scalar
+              scalar: text
+          - name: owner
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+namespaces:
+  f: http://v8.1c.ru/8.3/xcf/logform
+id: candidate.collection.item.ae60c43816b9ad5bd863

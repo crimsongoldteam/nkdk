@@ -154,3 +154,38 @@ pub fn concat(parts: &[&str], max_bytes: usize) -> Result<String> {
     }
     Ok(result)
 }
+
+/// Check all declared document paths before allocation or filesystem reads.
+pub fn validate_document_paths(paths: &[RelativePath], limits: Limits) -> Result<()> {
+    if paths.len() > limits.routes {
+        return Err(RuntimeDiagnostic::new(
+            "resource.limit",
+            "Document count exceeds limit",
+        ));
+    }
+    let mut unique = std::collections::BTreeSet::new();
+    let mut bytes = 0usize;
+    for path in paths {
+        if !unique.insert(path.segments()) {
+            return Err(RuntimeDiagnostic::new(
+                "resource.destination-collision",
+                "Several fields own the same document",
+            ));
+        }
+        bytes = bytes
+            .checked_add(path.bytes)
+            .filter(|sum| *sum <= limits.path_bytes)
+            .ok_or_else(|| {
+                RuntimeDiagnostic::new("resource.limit", "Document paths exceed limit")
+            })?;
+    }
+    Ok(())
+}
+
+/// Consume the aggregate content budget before copying generated document bytes.
+pub fn copy_document_bytes(bytes: &[u8], remaining: &mut usize) -> Result<Vec<u8>> {
+    *remaining = remaining
+        .checked_sub(bytes.len())
+        .ok_or_else(|| RuntimeDiagnostic::new("resource.limit", "Document bytes exceed limit"))?;
+    Ok(bytes.to_vec())
+}

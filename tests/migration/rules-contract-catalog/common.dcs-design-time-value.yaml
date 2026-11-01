@@ -1,0 +1,42 @@
+format: nkdk-declarations/1
+kind: value
+id: common.dcs-design-time-value
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  dcscor: http://v8.1c.ru/8.1/data-composition-system/core
+imports:
+  root: common.path-root.russian-xml
+  name: common.metadata-name
+value:
+  kind: record
+  fields:
+    - name: root
+      type:
+        use: root
+    - name: owner
+      type:
+        use: name
+    - name: value
+      type:
+        use: name
+representations:
+  xml:
+    kind: with-attributes
+    attributes:
+      - name: xsi:type
+        value:
+          qname: dcscor:DesignTimeValue
+    content:
+      kind: text-pattern
+      separator: .
+      parts:
+        - field: root
+        - field: owner
+        - field: value
+  yaml:
+    kind: text-pattern
+    separator: .
+    parts:
+      - field: root
+      - field: owner
+      - field: value

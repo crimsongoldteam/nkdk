@@ -1,0 +1,22 @@
+format: nkdk-declarations/1
+kind: value
+id: common.picture-uuid-reference
+imports:
+  uuid: common.picture-uuid
+value:
+  kind: record
+  fields:
+    - name: uuid
+      type:
+        use: uuid
+representations:
+  xml:
+    kind: text-pattern
+    parts:
+      - literal: '0:'
+      - field: uuid
+  yaml:
+    kind: text-pattern
+    parts:
+      - literal: '0:'
+      - field: uuid

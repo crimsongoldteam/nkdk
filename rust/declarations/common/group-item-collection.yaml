@@ -1,0 +1,44 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: common.group-item
+  namespaces:
+    xsi: http://www.w3.org/2001/XMLSchema-instance
+    dcsset: http://v8.1c.ru/8.1/data-composition-system/settings
+  imports: {field: common.group-item-field, auto: common.group-item-auto}
+  value:
+    kind: choice
+    variants:
+    - {name: field, type: {use: field}}
+    - {name: auto, type: {use: auto}}
+  representations:
+    xml:
+      kind: choice
+      attribute: xsi:type
+      variants:
+      - {variant: field, in: [dcsset:GroupItemField], emit: dcsset:GroupItemField}
+      - {variant: auto, in: [dcsset:GroupItemAuto], emit: dcsset:GroupItemAuto}
+      otherwise: field
+    yaml:
+      kind: choice
+      variants: [{variant: field, form: mapping, key: Поле}]
+- kind: value
+  id: common.group-item-row
+  imports: {item: common.group-item}
+  value: {kind: record, fields: [{name: item, type: {use: item}}]}
+  representations:
+    xml: {kind: record, fields: [{field: item, path: []}]}
+    yaml: {kind: projection, field: item}
+- kind: value
+  id: common.group-item-collection
+  namespaces: {dcsset: http://v8.1c.ru/8.1/data-composition-system/settings}
+  imports: {item: common.group-item-row}
+  value: {kind: sequence, item: {use: item}}
+  representations:
+    xml: {kind: element-sequence, path: [dcsset:item], item: {kind: declared}}
+    yaml: {kind: sequence, item: {kind: declared}}
+  presence:
+  - target: self
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}}

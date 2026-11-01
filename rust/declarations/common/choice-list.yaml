@@ -1,0 +1,57 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: common.choice-list-item
+  namespaces: {xr: 'http://v8.1c.ru/8.3/xcf/readable'}
+  imports: {value: common.metadata-value, text: common.string, decimal: common.exact-decimal}
+  inputs:
+    defaultLanguage: {type: {kind: scalar, scalar: text}}
+    registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  value:
+    kind: record
+    fields:
+    - {name: presentation, type: {use: text}}
+    - {name: checkState, type: {use: decimal}}
+    - name: value
+      type:
+        use: value
+        bind:
+          defaultLanguage: {input: defaultLanguage}
+          registeredLanguages: {input: registeredLanguages}
+          onlyStringType: {literal: false}
+  representations:
+    xml:
+      kind: record
+      fields:
+      - {field: presentation, path: [xr:Presentation]}
+      - {field: checkState, path: [xr:CheckState]}
+      - {field: value, path: [xr:Value]}
+    yaml: {kind: projection, field: value}
+  presence:
+  - target: {field: presentation}
+    xml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: empty-element, denotes: {absent: true}}]
+      canonical: [{when: {not: {present: {field: presentation}}}, form: empty-element}]
+    yaml: {missing: {denotes: {absent: true}}}
+  - target: {field: checkState}
+    yaml: {missing: {denotes: {literal: 0}}}
+- kind: value
+  id: common.choice-list
+  namespaces: {xr: 'http://v8.1c.ru/8.3/xcf/readable'}
+  imports: {item: common.choice-list-item}
+  inputs:
+    defaultLanguage: {type: {kind: scalar, scalar: text}}
+    registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  value: {kind: sequence, item: {use: item, bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}}}}
+  representations:
+    xml: {kind: element-sequence, path: [xr:Item], item: {kind: declared}}
+    yaml: {kind: sequence, item: {kind: declared}}
+  presence:
+  - target: self
+    xml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: empty-element, denotes: {absent: true}}]
+    yaml:
+      missing: {denotes: {absent: true}}

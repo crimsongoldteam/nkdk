@@ -1,15 +1,9 @@
 use std::{fs, process::Command};
+#[path = "../../../test-support/temp.rs"]
+mod temp;
 #[test]
 fn conversion_replaces_output_without_modifying_a_hard_linked_input() {
-    let directory = std::env::temp_dir().join(format!(
-        "nkdk-cli-{}-{}",
-        std::process::id(),
-        std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap()
-            .as_nanos()
-    ));
-    fs::create_dir_all(&directory).unwrap();
+    let directory = temp::unique_directory("cli");
     let input = directory.join("input.xml");
     let output = directory.join("output.yaml");
     let xml = b"<Root><Value>true</Value></Root>";

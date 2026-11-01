@@ -1,0 +1,20 @@
+format: nkdk-declarations/1
+kind: value
+id: common.data-table-base
+imports:
+  value: common.data-table-base-suffix
+value:
+  kind: record
+  fields:
+    - name: value
+      type:
+        use: value
+representations:
+  xml:
+    kind: text-pattern
+    parts:
+      - field: value
+  yaml:
+    kind: text-pattern
+    parts:
+      - field: value

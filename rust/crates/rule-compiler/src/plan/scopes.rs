@@ -1,6 +1,7 @@
 use super::*;
 mod captures;
 pub(crate) use captures::capture_inputs;
+pub(crate) use captures::materialize_row_inputs;
 
 /// Dependencies order evaluation, never physical XML or YAML fields.
 pub(crate) fn schedule(
@@ -15,6 +16,16 @@ pub(crate) fn schedule(
         path: &mut Vec<usize>,
         result: &mut Vec<usize>,
     ) -> Result<(), Diagnostic> {
+        if index >= states.len() {
+            return Err(diagnostic(
+                "field_dependency_scope",
+                &fields[0].source,
+                &format!(
+                    "Field dependency {index} is outside this {}-field record",
+                    fields.len()
+                ),
+            ));
+        }
         if states[index] == 2 {
             return Ok(());
         }

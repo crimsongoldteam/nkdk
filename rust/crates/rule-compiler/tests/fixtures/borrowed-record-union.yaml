@@ -1,0 +1,117 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: test.union-pattern
+  inputs:
+    rows:
+      type: {kind: sequence, item: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}]}}
+  value: {kind: record, fields: [{name: prefix, type: {kind: scalar, scalar: text}}, {name: name, type: {kind: scalar, scalar: text}}]}
+  representations:
+    xml: {kind: text-pattern, separator: '.', parts: [{field: prefix}, {field: name}]}
+    yaml: {kind: text-pattern, parts: [{field: name}]}
+  presence:
+  - target: {field: prefix}
+    yaml:
+      missing:
+        denotes:
+          match:
+            value: {find: {in: {input: rows}, as: row, where: {eq: [{get: {of: {var: row}, field: name}}, {literal: match}]}}}
+            present: {as: selected, then: {get: {of: {var: selected}, field: name}}}
+            absent: {literal: none}
+- kind: value
+  id: test.union-choice
+  imports: {pattern: test.union-pattern}
+  inputs:
+    rows:
+      type: {kind: sequence, item: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}]}}
+  value: {kind: choice, variants: [{name: own, type: {use: pattern, bind: {rows: {input: rows}}}}]}
+  representations:
+    xml: {kind: choice, fallback: own}
+    yaml: {kind: choice, fallback: own}
+- kind: object
+  id: test.borrowed-record-union
+  imports: {pattern: test.union-choice}
+  inputs:
+    groups:
+      type:
+        kind: record
+        fields:
+        - name: first
+          type: {kind: sequence, item: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}]}}
+        - name: second
+          type: {kind: sequence, item: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}]}}
+        - {name: note, type: {kind: scalar, scalar: text}}
+        - {name: both, type: {kind: scalar, scalar: boolean}}
+  value:
+    kind: record
+    fields:
+    - name: source
+      type:
+        use: pattern
+        bind:
+          rows: {concat: [{get: {of: {input: groups}, field: first}}, {get: {of: {input: groups}, field: second}}]}
+    - {name: result, type: {kind: scalar, scalar: text}}
+  representations:
+    xml: {kind: record, fields: [{field: source, path: [Root, Source]}]}
+    yaml: {kind: mapping, fields: [{field: source, key: Источник}, {field: result, key: Результат}]}
+  presence:
+  - target: {field: result}
+    xml:
+      missing:
+        denotes:
+          concat:
+          - if:
+              one:
+                in: {concat: [{get: {of: {input: groups}, field: first}}, {get: {of: {input: groups}, field: second}}]}
+                as: row
+                where: {eq: [{get: {of: {var: row}, field: name}}, {literal: match}]}
+            then: {literal: one}
+            else:
+              if:
+                exists:
+                  in: {concat: [{get: {of: {input: groups}, field: first}}, {get: {of: {input: groups}, field: second}}]}
+                  as: row
+                  where: {eq: [{get: {of: {var: row}, field: name}}, {literal: match}]}
+              then: {literal: many}
+              else: {literal: empty}
+          - {literal: '|'}
+          - if:
+              each:
+                in:
+                  if: {get: {of: {input: groups}, field: both}}
+                  then: {concat: [{get: {of: {input: groups}, field: first}}, {get: {of: {input: groups}, field: second}}]}
+                  else: {get: {of: {input: groups}, field: first}}
+                as: row
+                where: {eq: [{get: {of: {var: row}, field: name}}, {literal: match}]}
+            then: {literal: all}
+            else: {literal: some}
+          - {literal: '|'}
+          - match:
+              value:
+                find:
+                  in: {concat: [{get: {of: {input: groups}, field: first}}, {get: {of: {input: groups}, field: second}}]}
+                  as: row
+                  where: {eq: [{get: {of: {var: row}, field: name}}, {literal: match}]}
+              present: {as: selected, then: {get: {of: {var: selected}, field: name}}}
+              absent: {literal: none}
+          - {literal: '|'}
+          - if: {present: {get: {of: {input: groups}, field: note}}}
+            then: {literal: present}
+            else: {literal: missing}
+          - {literal: '|'}
+          - if: {isReady: {get: {of: {input: groups}, field: note}}}
+            then: {literal: ready}
+            else: {literal: not-ready}
+    yaml: {missing: {denotes: {absent: true}}}
+  constraints:
+  - id: computed-note-pattern
+    appliesTo: [xml-import, yaml-validation]
+    assert:
+      matches:
+        value:
+          if: {present: {get: {of: {input: groups}, field: note}}}
+          then: {concat: [{get: {of: {input: groups}, field: note}}, {literal: ':ok'}]}
+          else: {literal: 'missing:ok'}
+        pattern: '.*:ok'
+    diagnostic: {code: test.computed-note, severity: error, at: {field: result}, message: Invalid computed note}

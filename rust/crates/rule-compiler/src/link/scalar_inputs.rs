@@ -6,6 +6,24 @@ pub(super) fn specialize(
     bindings: &[LinkedBinding],
     arguments: &[LinkedExpression],
 ) -> Result<Option<LinkedEntry>, Diagnostic> {
+    // Profile selectors refer to declared input names. Keep their checked
+    // bindings on the reference; substituting expressions and clearing inputs
+    // would leave those selectors without their input contract.
+    // A routed choice passes caller inputs to the selected value backend.
+    // Keep sibling expressions at the caller boundary rather than embedding
+    // them into the referenced choice's own field scope.
+    if !common.inputs.is_empty()
+        && matches!(common.value, LinkedType::Choice(_))
+        && matches!(common.xml, LinkedXml::Choice { fallback: Some(_) })
+    {
+        return Ok(None);
+    }
+    if matches!(&common.yaml, YamlRepresentation::Choice { variants, .. }
+        if variants.iter().any(|case| matches!(case.form,
+            YamlChoiceForm::ScalarInput { .. } | YamlChoiceForm::MappingInput { .. } | YamlChoiceForm::InputProfile { .. })))
+    {
+        return Ok(None);
+    }
     if (matches!(common.xml, LinkedXml::TextPattern(_))
         && matches!(common.yaml, YamlRepresentation::TextPattern(_)))
         || (matches!(common.value, LinkedType::Choice(_))

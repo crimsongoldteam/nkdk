@@ -1,0 +1,486 @@
+format: nkdk-declarations/1
+kind: value
+id: common.dcs-parameter-value
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  dcscor: http://v8.1c.ru/8.1/data-composition-system/core
+  dcsset: http://v8.1c.ru/8.1/data-composition-system/settings
+imports:
+  text: common.string
+  flag: common.boolean
+  value: common.dcs-parameter-values
+  view: system.DataCompositionSettingsItemViewMode
+  presentation: common.dcs-local-string-type
+  children: common.dcs-parameter-children
+parameters:
+  settingsXsi:
+    type:
+      kind: scalar
+      scalar: boolean
+    default: true
+inputs:
+  parameterName:
+    type:
+      kind: scalar
+      scalar: text
+  valueProfile:
+    type:
+      kind: scalar
+      scalar: text
+  styleTypes:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  labels:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: code
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  codes:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: label
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+value:
+  kind: record
+  fields:
+    - name: use
+      type:
+        use: flag
+    - name: parameter
+      type:
+        use: text
+    - name: value
+      type:
+        use: value
+        bind:
+          valueProfile:
+            input: valueProfile
+          styleTypes:
+            input: styleTypes
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          labels:
+            input: labels
+          codes:
+            input: codes
+    - name: children
+      type:
+        use: children
+        bind:
+          parameterName:
+            input: parameterName
+          valueProfile:
+            input: valueProfile
+          styleTypes:
+            input: styleTypes
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          labels:
+            input: labels
+          codes:
+            input: codes
+    - name: viewMode
+      type:
+        use: view
+    - name: userSettingID
+      type:
+        use: text
+    - name: userSettingPresentation
+      type:
+        use: presentation
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+representations:
+  xml:
+    kind: with-attributes
+    attributes:
+      - name: xsi:type
+        value:
+          qname: dcsset:SettingsParameterValue
+        when:
+          or:
+            - parameter: settingsXsi
+            - present:
+                field: viewMode
+            - present:
+                field: userSettingID
+            - present:
+                field: userSettingPresentation
+    content:
+      kind: record
+      fields:
+        - field: use
+          path:
+            - dcscor:use
+        - field: parameter
+          path:
+            - dcscor:parameter
+        - field: value
+          path: []
+        - field: children
+          path: []
+        - field: viewMode
+          path:
+            - dcsset:viewMode
+        - field: userSettingID
+          path:
+            - dcsset:userSettingID
+        - field: userSettingPresentation
+          path:
+            - dcsset:userSettingPresentation
+  yaml:
+    kind: mapping
+    fields:
+      - field: use
+        key: Использовать
+      - field: value
+        key: Значение
+      - field: viewMode
+        key: РежимОтображения
+      - field: userSettingID
+        key: ИдентификаторПользовательскойНастройки
+      - field: userSettingPresentation
+        key: ПредставлениеПользовательскойНастройки
+      - field: children
+        key: Элементы
+    shorthand:
+      - id: compact-value
+        canonical: false
+        representation:
+          kind: scalar
+          field: value
+        when:
+          or:
+            - eq:
+                - input: valueProfile
+                - literal: Field
+            - eq:
+                - input: valueProfile
+                - literal: Primitive
+            - eq:
+                - input: valueProfile
+                - literal: DesignTimeValue
+      - id: compact-typed-value
+        representation:
+          kind: mapping
+          field: value
+        when:
+          eq:
+            - input: valueProfile
+            - literal: DesignTimeValue
+      - id: auto-color
+        representation:
+          kind: scalar
+          literal: Авто
+        when:
+          eq:
+            - input: valueProfile
+            - literal: Color
+        denotes:
+          record:
+            use:
+              literal: true
+            parameter:
+              input: parameterName
+            value:
+              sequence:
+                - record:
+                    value:
+                      variant:
+                        name: color
+                        value:
+                          variant:
+                            name: Авто
+                            value:
+                              record: {}
+            children:
+              sequence: []
+            viewMode:
+              absent: true
+            userSettingID:
+              absent: true
+            userSettingPresentation:
+              absent: true
+presence:
+  - target:
+      field: use
+    xml:
+      missing:
+        denotes:
+          literal: true
+      canonical:
+        - when:
+            field: use
+          form: missing
+        - form: ordinary
+    yaml:
+      missing:
+        denotes:
+          literal: true
+      omitWhen:
+        field: use
+  - target:
+      field: parameter
+    yaml:
+      missing:
+        denotes:
+          input: parameterName
+  - target:
+      field: value
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: viewMode
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: userSettingID
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: userSettingPresentation
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: children
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          sequence: []
+constraints:
+  - id: parameter-name
+    appliesTo:
+      - xml-import
+    assert:
+      eq:
+        - field: parameter
+        - input: parameterName
+    diagnostic:
+      code: dcs.parameter-name
+      severity: error
+      at:
+        field: parameter
+      message: Имя параметра не соответствует правилу
+  - id: selected-profile
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    assert:
+      not:
+        eq:
+          - input: valueProfile
+          - literal: ''
+    diagnostic:
+      code: dcs.parameter-profile-missing
+      severity: error
+      at:
+        field: parameter
+      message: Для параметра не определён тип значения
+  - id: parameter-profile
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    assert:
+      each:
+        in:
+          field: value
+        as: item
+        where:
+          or:
+            - not:
+                present:
+                  get:
+                    of:
+                      var: item
+                    field: value
+            - and:
+                - eq:
+                    - input: valueProfile
+                    - literal: Color
+                - isVariant:
+                    value:
+                      get:
+                        of:
+                          var: item
+                        field: value
+                    variant: color
+            - and:
+                - eq:
+                    - input: valueProfile
+                    - literal: Font
+                - isVariant:
+                    value:
+                      get:
+                        of:
+                          var: item
+                        field: value
+                    variant: font
+            - and:
+                - eq:
+                    - input: valueProfile
+                    - literal: ChoiceParameterLinks
+                - isVariant:
+                    value:
+                      get:
+                        of:
+                          var: item
+                        field: value
+                    variant: links
+            - and:
+                - eq:
+                    - input: valueProfile
+                    - literal: ChoiceParameters
+                - isVariant:
+                    value:
+                      get:
+                        of:
+                          var: item
+                        field: value
+                    variant: choiceParameters
+            - and:
+                - eq:
+                    - input: valueProfile
+                    - literal: Field
+                - isVariant:
+                    value:
+                      get:
+                        of:
+                          var: item
+                        field: value
+                    variant: field
+            - and:
+                - eq:
+                    - input: valueProfile
+                    - literal: HorizontalAlign
+                - isVariant:
+                    value:
+                      get:
+                        of:
+                          var: item
+                        field: value
+                    variant: horizontalAlign
+            - and:
+                - eq:
+                    - input: valueProfile
+                    - literal: FoldersAndItemsUse
+                - isVariant:
+                    value:
+                      get:
+                        of:
+                          var: item
+                        field: value
+                    variant: foldersAndItemsUse
+            - and:
+                - eq:
+                    - input: valueProfile
+                    - literal: TypeLink
+                - isVariant:
+                    value:
+                      get:
+                        of:
+                          var: item
+                        field: value
+                    variant: typeLink
+            - and:
+                - eq:
+                    - input: valueProfile
+                    - literal: DesignTimeValue
+                - isVariant:
+                    value:
+                      get:
+                        of:
+                          var: item
+                        field: value
+                    variant: designTime
+            - and:
+                - eq:
+                    - input: valueProfile
+                    - literal: Primitive
+                - isVariant:
+                    value:
+                      get:
+                        of:
+                          var: item
+                        field: value
+                    variant: primitive
+    diagnostic:
+      code: dcs.parameter-profile
+      severity: error
+      at:
+        field: value
+      message: Значение не соответствует типу параметра

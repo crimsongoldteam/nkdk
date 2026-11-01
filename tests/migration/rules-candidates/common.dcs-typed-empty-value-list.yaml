@@ -1,0 +1,58 @@
+format: nkdk-declarations/1
+kind: value
+id: common.dcs-typed-empty-value-list
+namespaces:
+  v8: http://v8.1c.ru/8.1/data/core
+imports:
+  type: common.dcs-typed-empty-value-type
+  id: common.dcs-typed-empty-list-id
+value:
+  kind: record
+  fields:
+    - name: type
+      type:
+        use: type
+    - name: id
+      type:
+        use: id
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: type
+        path:
+          - v8:valueType
+      - field: id
+        path:
+          - v8:lastId
+  yaml:
+    kind: mapping
+    fields:
+      - field: type
+        key: ТипЗначений
+      - field: id
+        key: ПоследнийИдентификатор
+    shorthand:
+      - id: empty-list
+        representation:
+          kind: scalar
+          literal: СписокЗначений
+        denotes:
+          record:
+            type:
+              literal: empty
+            id:
+              literal: minus-one
+presence:
+  - target:
+      field: type
+    yaml:
+      missing:
+        denotes:
+          literal: empty
+  - target:
+      field: id
+    yaml:
+      missing:
+        denotes:
+          literal: minus-one

@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.picture
+value:
+  kind: record
+  fields:
+    - name: picture
+      type:
+        use: value0
+        bind: {}
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: picture
+        path:
+          - Picture
+  yaml:
+    kind: mapping
+    fields:
+      - field: picture
+        key: Картинка
+presence:
+  - target:
+      field: picture
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+id: candidate.fragment.1a28776cb9784c6e0331

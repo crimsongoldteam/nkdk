@@ -1,6 +1,6 @@
 # Извлечение свойств и сравнение с собранными TS-правилами
 
-Команда: `pnpm migration:extract`. База Git: `809c31492e8b96cfccfc69c2452393c232a59248`.
+Команда: `pnpm migration:extract`. База Git: `91a01277cbd10ccebd70bb0b4e7a32886dcf090f`.
 Машинный результат: [rules-extraction.json](../../../tests/migration/rules-extraction.json).
 Статический анализ не исполняет TS. Отдельный процесс Node/tsx загружает
 локальные модули для независимого чтения ключей properties, itemType и

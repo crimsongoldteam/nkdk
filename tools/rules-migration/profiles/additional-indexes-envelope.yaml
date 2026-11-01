@@ -1,0 +1,118 @@
+format: nkdk-file-envelope/1
+source:
+  path: packages/rules/metadata/commonObjects/additionalIndex/rules.ts
+  symbol: AdditionalIndexRules
+value:
+  format: nkdk-declarations/1
+  kind: value
+  id: common.additional-indexes
+  imports:
+    row: common.additional-index-row
+  namespaces:
+    x: http://v8.1c.ru/8.3/xcf/extrnprops
+  inputs:
+    owner:
+      type:
+        kind: scalar
+        scalar: text
+    identities:
+      type:
+        kind: index
+        key:
+          kind: record
+          fields:
+            - name: owner
+              type:
+                kind: scalar
+                scalar: text
+            - name: name
+              type:
+                kind: scalar
+                scalar: text
+        value:
+          kind: scalar
+          scalar: text
+  value:
+    kind: sequence
+    item:
+      use: row
+      bind:
+        owner:
+          input: owner
+        identities:
+          input: identities
+  representations:
+    xml:
+      kind: element-sequence
+      path:
+        - x:AdditionalIndex
+    yaml:
+      kind: sequence
+  presence:
+    - target: self
+      xml:
+        missing:
+          denotes:
+            absent: true
+      yaml:
+        missing:
+          denotes:
+            absent: true
+owner:
+  format: nkdk-declarations/1
+  kind: object
+  id: migration.additional-indexes
+  imports:
+    indexes: common.additional-indexes
+  namespaces:
+    x: http://v8.1c.ru/8.3/xcf/extrnprops
+  inputs:
+    owner:
+      type:
+        kind: scalar
+        scalar: text
+    identities:
+      index: metadata.additional-index-ids
+  value:
+    kind: record
+    fields:
+      - name: indexes
+        type:
+          use: indexes
+          bind:
+            owner:
+              input: owner
+            identities:
+              input: identities
+  representations:
+    xml:
+      kind: record
+      fields:
+        - field: indexes
+          path: []
+    yaml:
+      kind: projection
+      field: indexes
+  contributions:
+    - index: metadata.additional-index-ids
+      forEach:
+        in:
+          field: indexes
+        as: row
+      key:
+        record:
+          owner:
+            input: owner
+          name:
+            get:
+              of:
+                var: row
+              field: name
+      value:
+        get:
+          of:
+            var: row
+          field: id
+outputs:
+  value: rust/declarations/common/additional-indexes.yaml
+  owner: rust/declarations/probes/additional-indexes.yaml

@@ -103,6 +103,12 @@ pub(super) fn expand(value: &str, namespaces: &[(&str, &str)], attribute: bool) 
             .iter()
             .find(|(name, _)| *name == prefix)
             .map(|(_, uri)| *uri)
+            .or(match prefix {
+                "xsi" => Some("http://www.w3.org/2001/XMLSchema-instance"),
+                "xs" => Some("http://www.w3.org/2001/XMLSchema"),
+                "v8" => Some("http://v8.1c.ru/8.1/data/core"),
+                _ => None,
+            })
             .ok_or_else(|| failure("Undeclared preserved XML prefix"))?,
         None if attribute => "",
         None => namespaces
@@ -175,7 +181,9 @@ pub(super) fn build(
                         .iter()
                         .any(|(uri, local)| *uri == name.namespace && *local == name.local)
                     {
-                        Some(expand(&value, namespaces, false)?)
+                        // An unresolved input spelling is preserved as literal
+                        // attribute text; only resolved names can be rebound.
+                        expand(&value, namespaces, false).ok()
                     } else {
                         None
                     };

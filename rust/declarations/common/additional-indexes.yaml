@@ -1,23 +1,62 @@
+# Generated from packages/rules/metadata/commonObjects/additionalIndex/rules.ts by file-envelope-operation.mjs
 format: nkdk-declarations/1
 kind: value
 id: common.additional-indexes
-imports: {row: common.additional-index-row}
-namespaces: {x: 'http://v8.1c.ru/8.3/xcf/extrnprops'}
+imports:
+  row: common.additional-index-row
+namespaces:
+  x: http://v8.1c.ru/8.3/xcf/extrnprops
 inputs:
-  owner: {type: {kind: scalar, scalar: text}}
+  owner:
+    type:
+      kind: scalar
+      scalar: text
   identities:
     type:
       kind: index
-      key: {kind: record, fields: [{name: owner, type: {kind: scalar, scalar: text}}, {name: name, type: {kind: scalar, scalar: text}}]}
-      value: {kind: scalar, scalar: text}
-value: {kind: sequence, item: {use: row, bind: {owner: {input: owner}, identities: {input: identities}}}}
+      key:
+        kind: record
+        fields:
+          - name: owner
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+value:
+  kind: sequence
+  item:
+    use: row
+    bind:
+      owner:
+        input: owner
+      identities:
+        input: identities
 representations:
   xml:
     kind: with-attributes
-    attributes: [{name: version, value: {text: '2.20'}}]
-    content: {kind: element-sequence, path: [x:AdditionalIndex]}
-  yaml: {kind: sequence}
+    attributes:
+      - name: version
+        value:
+          text: '2.20'
+    content:
+      kind: element-sequence
+      path:
+        - x:AdditionalIndex
+  yaml:
+    kind: sequence
 presence:
-- target: self
-  xml: {missing: {denotes: {absent: true}}}
-  yaml: {missing: {denotes: {absent: true}}}
+  - target: self
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true

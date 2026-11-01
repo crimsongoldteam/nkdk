@@ -1,0 +1,11 @@
+format: nkdk-declarations/1
+kind: resources
+id: resources.ws-definition-schemas
+imports: {schemas: fragment.ws-definition-schemas}
+inputs:
+  files: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+compose: [{use: schemas, bind: {files: {input: files}}}]
+value: {kind: record, fields: []}
+representations:
+  xml: {kind: record, fields: []}
+  yaml: {kind: mapping, fields: []}

@@ -1,0 +1,4 @@
+- kind: value
+  id: test.text
+  value: {kind: scalar, scalar: text}
+  representations: {xml: {kind: text}, yaml: {kind: scalar, scalar: text}}

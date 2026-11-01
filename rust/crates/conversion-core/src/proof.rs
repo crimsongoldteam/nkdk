@@ -2,6 +2,9 @@ use crate::{
     Result, RuntimeDiagnostic,
     xml::{self, Name, Token},
 };
+/// Shared code for a failed reconstruction proof.
+pub const MISMATCH: &str = "xml.round-trip-mismatch";
+
 use sha2::{Digest, Sha256};
 
 pub fn verify(original: &[u8], restored: &[u8], scalar: impl Fn(&[Name]) -> bool) -> Result<()> {
@@ -53,21 +56,19 @@ where
             original,
             &|path, _| scalar(path),
             &qname_attribute,
-            &qname_text,
+            &|path, _| qname_text(path),
             &skip,
         )?,
         fingerprint::<false>(
             restored,
             &|path, _| scalar(path),
             &qname_attribute,
-            &qname_text,
+            &|path, _| qname_text(path),
             &|_| false,
         )?,
     )
 }
 
-/// Supply one-based sibling occurrences for each component of the current path.
-/// This separates repeated records whose corresponding fields have different shapes.
 pub fn verify_with_occurrences<S, A, T>(
     original: &[u8],
     restored: &[u8],
@@ -80,11 +81,36 @@ where
     A: Fn(&[Name], &Name) -> bool,
     T: Fn(&[Name]) -> bool,
 {
+    verify_with_value_qnames(
+        original,
+        restored,
+        &[],
+        scalar,
+        qname_attribute,
+        |path, _| qname_text(path),
+    )
+}
+/// Classify text from the selected semantic value at each sibling occurrence.
+/// Possible routes of other choice variants must not determine XML meaning.
+pub fn verify_with_value_qnames(
+    original: &[u8],
+    restored: &[u8],
+    omitted: &[&[(&str, &str)]],
+    scalar: impl Fn(&[Name], &[usize]) -> bool,
+    qname_attribute: impl Fn(&[Name], &Name) -> bool,
+    qname_text: impl Fn(&[Name], &[usize]) -> bool,
+) -> Result<()> {
+    let skip = |path: &[Name]| {
+        omitted
+            .iter()
+            .any(|route| path.len() >= route.len() && xml::matches(&path[..route.len()], route))
+    };
     compare(
-        fingerprint::<true>(original, &scalar, &qname_attribute, &qname_text, &|_| false)?,
+        fingerprint::<true>(original, &scalar, &qname_attribute, &qname_text, &skip)?,
         fingerprint::<true>(restored, &scalar, &qname_attribute, &qname_text, &|_| false)?,
     )
 }
+
 fn compare(original: [u8; 32], restored: [u8; 32]) -> Result<()> {
     if original != restored {
         return Err(RuntimeDiagnostic::new(
@@ -120,13 +146,12 @@ fn fingerprint<const OCCURRENCES: bool>(
     source: &[u8],
     scalar: &impl Fn(&[Name], &[usize]) -> bool,
     qname: &impl Fn(&[Name], &Name) -> bool,
-    qname_text: &impl Fn(&[Name]) -> bool,
+    qname_text: &impl Fn(&[Name], &[usize]) -> bool,
     skip: &impl Fn(&[Name]) -> bool,
 ) -> Result<[u8; 32]> {
     let mut hash = Sha256::new();
     let mut text_runs: Vec<TextRun> = Vec::new();
-    let mut counts: Vec<std::collections::BTreeMap<Name, usize>> = Vec::new();
-    let mut occurrences = Vec::new();
+    let mut occurrences = xml::Occurrences::default();
     xml::visit_scoped(source, |path, token, scope| {
         if skip(path) {
             return Ok(());
@@ -134,20 +159,7 @@ fn fingerprint<const OCCURRENCES: bool>(
         match token {
             Token::Start(_) => {
                 if OCCURRENCES {
-                    let index = if let Some(siblings) = counts.last_mut() {
-                        let name = path.last().expect("element name");
-                        if let Some(count) = siblings.get_mut(name) {
-                            *count += 1;
-                            *count
-                        } else {
-                            siblings.insert(name.clone(), 1);
-                            1
-                        }
-                    } else {
-                        1
-                    };
-                    occurrences.push(index);
-                    counts.push(std::collections::BTreeMap::new());
+                    occurrences.enter(path.last().expect("element name"));
                 }
                 if let Some(parent) = text_runs.last_mut() {
                     parent.children = true;
@@ -159,8 +171,8 @@ fn fingerprint<const OCCURRENCES: bool>(
                     parent.flush(&mut hash, false);
                 }
                 text_runs.push(TextRun {
-                    scalar: scalar(path, &occurrences),
-                    qname: qname_text(path).then(String::new),
+                    scalar: scalar(path, occurrences.path()),
+                    qname: qname_text(path, occurrences.path()).then(String::new),
                     ..TextRun::default()
                 });
                 hash.update([0, b'S']);
@@ -176,18 +188,22 @@ fn fingerprint<const OCCURRENCES: bool>(
                     hash.update((part.len() as u64).to_le_bytes());
                     hash.update(part.as_bytes());
                 }
-                if (attribute.name.namespace == "http://www.w3.org/2001/XMLSchema-instance"
+                let expanded = if (attribute.name.namespace
+                    == "http://www.w3.org/2001/XMLSchema-instance"
                     && attribute.name.local == "type")
                     || qname(path, &attribute.name)
                 {
-                    let name = attribute.qname.ok_or_else(|| {
-                        RuntimeDiagnostic::new(
-                            "xml.qname",
-                            "Expected a bound QName attribute value",
-                        )
-                    })?;
+                    attribute
+                        .qname
+                        .as_ref()
+                        .map(|name| (name.namespace.as_str(), name.local.as_str()))
+                        .or_else(|| scope.resolve_qname(&attribute.text).ok())
+                } else {
+                    None
+                };
+                if let Some((namespace, local)) = expanded {
                     hash.update(b"Q");
-                    for part in [&name.namespace, &name.local] {
+                    for part in [namespace, local] {
                         hash.update((part.len() as u64).to_le_bytes());
                         hash.update(part.as_bytes());
                     }
@@ -199,8 +215,7 @@ fn fingerprint<const OCCURRENCES: bool>(
             }
             Token::End => {
                 if OCCURRENCES {
-                    counts.pop();
-                    occurrences.pop();
+                    occurrences.leave();
                 }
                 let mut run = text_runs.pop().expect("started element");
                 if let Some(value) = run.qname.as_deref()
@@ -247,14 +262,24 @@ mod canonical_tests {
         let original = b"<Root><Defaulted>value</Defaulted><Name>One</Name></Root>";
         let omitted = &[&[("", "Root"), ("", "Defaulted")][..]];
         let verify = |restored: &[u8]| {
-            verify_with_canonical_omissions(
+            let plain = verify_with_canonical_omissions(
                 original,
                 restored,
                 omitted,
                 |_| true,
                 |_, _| false,
                 |_| false,
-            )
+            );
+            let scoped = verify_with_value_qnames(
+                original,
+                restored,
+                omitted,
+                |_, _| true,
+                |_, _| false,
+                |_, _| false,
+            );
+            assert_eq!(plain.is_ok(), scoped.is_ok());
+            scoped
         };
         verify(b"<Root><Name>One</Name></Root>").unwrap();
         assert!(verify(b"<Root><Name>Two</Name></Root>").is_err());

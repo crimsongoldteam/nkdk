@@ -1,5 +1,5 @@
-use nkdk_compiled_rules_probes as nkdk_compiled_rules;
 use nkdk_compiled_rules::{Direction, PreparedInputs, convert_file, entry_id, verify_candidate};
+use nkdk_compiled_rules_probes as nkdk_compiled_rules;
 
 fn convert(direction: Direction, source: &str) -> Vec<u8> {
     convert_file(

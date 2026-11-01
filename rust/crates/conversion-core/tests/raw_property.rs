@@ -1,4 +1,49 @@
 use nkdk_conversion_core::raw::Property;
+
+#[test]
+fn nested_raw_value_can_be_decoded() {
+    let mut written = String::from("Значение:");
+    nkdk_conversion_core::yaml::append_nested_value(
+        &mut written,
+        "!xml/raw\n$значение: {}\n$xml:\n  _type: boolean",
+        "  ",
+    );
+    assert!(written.starts_with("Значение: !xml/raw\n  $значение: {}"));
+    let mut direct = String::from("Значение:\n  !xml/raw\n  $значение: {}");
+    nkdk_conversion_core::yaml::lift_nested_tag(&mut direct, "Значение".len(), "Значение:\n".len());
+    assert_eq!(direct, "Значение: !xml/raw\n  $значение: {}");
+    let mut ordinary = String::from("Значение:\n  Вариант: ПроизвольныйПериод");
+    nkdk_conversion_core::yaml::lift_nested_tag(
+        &mut ordinary,
+        "Значение".len(),
+        "Значение:\n".len(),
+    );
+    assert_eq!(ordinary, "Значение:\n  Вариант: ПроизвольныйПериод");
+    let yaml =
+        "Значение: !xml/raw\n  $значение: {}\n  $xml:\n    _type: boolean\n    \"#text\": maybe\n";
+    let envelope = Property::decode(yaml.as_bytes(), "Значение", "Value")
+        .unwrap()
+        .unwrap();
+    assert_eq!(envelope.meaning, "Значение: {}".as_bytes());
+    assert_eq!(
+        nkdk_conversion_core::raw::record_contents(&envelope.meaning, "Значение").unwrap(),
+        Some(Vec::new())
+    );
+}
+
+#[test]
+fn physical_raw_boundary_uses_the_declared_name_inside_a_record() {
+    let mut yaml = "ЦветФона:\n  value: !xml/raw\n    $xml:\n      unexpected: data".to_owned();
+    let start = "ЦветФона:".len();
+    Property::rename_physical_boundary(&mut yaml, start, "Значение", "value", "  ").unwrap();
+    assert_eq!(
+        yaml,
+        "ЦветФона:\n  Значение: !xml/raw\n    $xml:\n      unexpected: data"
+    );
+    let mut ordinary = "ЦветФона:\n  Значение: Красный".to_owned();
+    Property::rename_physical_boundary(&mut ordinary, start, "Значение", "value", "  ").unwrap();
+    assert_eq!(ordinary, "ЦветФона:\n  Значение: Красный");
+}
 #[test]
 fn raw_property_keeps_semantic_annotations_and_requires_an_exact_boundary() {
     let owner =
@@ -9,6 +54,14 @@ fn raw_property_keeps_semantic_annotations_and_requires_an_exact_boundary() {
         .unwrap();
     assert_eq!(decoded.meaning, b"Number: 9007199254740993");
     assert_eq!(decoded.payload, b"_format: null");
+    assert!(!decoded.meaning_is_empty().unwrap());
+    for meaning in [b"".as_slice(), b"{}"] {
+        let encoded = nkdk_conversion_core::raw::Document::encode(meaning, b"{}").unwrap();
+        let decoded = nkdk_conversion_core::raw::Document::decode(&encoded)
+            .unwrap()
+            .unwrap();
+        assert!(decoded.meaning_is_empty().unwrap());
+    }
     for source in [
         b"!xml/raw\n$xml: {}".as_slice(),
         "!xml/raw\n$значение: {}\n$xml: {}\nextra: x".as_bytes(),
@@ -29,10 +82,37 @@ fn raw_property_keeps_semantic_annotations_and_requires_an_exact_boundary() {
             .unwrap()
             .unwrap();
         assert_eq!(decoded.meaning, semantic);
+        assert!(!decoded.meaning_is_empty().unwrap());
         assert_eq!(decoded.payload, b"_format: null");
     }
     for unsupported in [b"!custom alpha".as_slice(), b"!xml/raw alpha"] {
         assert!(nkdk_conversion_core::raw::Document::encode(unsupported, b"{}").is_err());
+    }
+    for parent in [None, Some("Row")] {
+        let meaning = if parent.is_some() {
+            b"Row:\n  Before: kept\n  Value: {}\n  After: retained".as_slice()
+        } else {
+            b"Before: kept\nValue: {}\nAfter: retained".as_slice()
+        };
+        let encoded = Property::encode_in(
+            parent,
+            "Value",
+            "Value",
+            meaning,
+            b"'#replace': 'true'\n'#text': oops",
+        )
+        .unwrap();
+        let envelope = Property::decode_in(&encoded, parent, "Value", "Value")
+            .unwrap()
+            .unwrap();
+        let decoded = envelope.without_empty_scalar(parent, "Value").unwrap();
+        let decoded = std::str::from_utf8(&decoded).unwrap();
+        assert!(
+            decoded.contains("Before: kept") && decoded.contains("After: retained"),
+            "{decoded}"
+        );
+        assert!(!decoded.contains("Value:"), "{decoded}");
+        assert!(decoded.find("Before").unwrap() < decoded.find("After").unwrap());
     }
     let mut marks = nkdk_conversion_core::raw::Fields::default();
     let violation = nkdk_conversion_core::RuntimeDiagnostic::declared(

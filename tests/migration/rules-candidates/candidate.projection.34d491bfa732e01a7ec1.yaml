@@ -1,0 +1,32 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.34d491bfa732e01a7ec1
+description: 'Кандидат проекции: относительный XML-корень Font; не полный владелец'
+imports:
+  part0: candidate.fragment.6fc1480b380e6783364a
+compose:
+  - use: part0
+    bind:
+      styleTypes:
+        input: styleTypes
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []
+inputs:
+  styleTypes:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: scalar
+        scalar: text
+    index: metadata.style-item-types

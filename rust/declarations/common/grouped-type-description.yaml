@@ -1,0 +1,43 @@
+format: nkdk-declarations/1
+kind: value
+id: common.grouped-type-description
+namespaces:
+  v8: http://v8.1c.ru/8.1/data/core
+  xr: http://v8.1c.ru/8.3/xcf/readable
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+imports: {description: common.type-description}
+parameters:
+  metadataAttributeTypesOnly: {type: {kind: scalar, scalar: boolean}, default: false}
+value:
+  kind: record
+  fields:
+  - {name: check, type: {use: description, with: {metadataAttributeTypesOnly: {parameter: metadataAttributeTypesOnly}, addTypeDescriptionAttributeToXML: true}}}
+  - {name: notify, type: {use: description, with: {metadataAttributeTypesOnly: {parameter: metadataAttributeTypesOnly}, addTypeDescriptionAttributeToXML: true, requireValues: true}}}
+  - {name: extend, type: {use: description, with: {metadataAttributeTypesOnly: {parameter: metadataAttributeTypesOnly}, addTypeDescriptionAttributeToXML: true, requireValues: true}}}
+representations:
+  xml:
+    kind: with-attributes
+    attributes:
+    - {name: xsi:type, value: {qname: xr:ExtendedProperty}}
+    content:
+      kind: record
+      fields:
+      - {field: check, path: [xr:CheckValue]}
+      - {field: notify, path: [xr:NotifyValue]}
+      - {field: extend, path: [xr:ExtendValue]}
+  yaml:
+    kind: grouped-sequence
+    groups:
+    - {field: check}
+    - {field: notify, itemTag: проверять}
+    - {field: extend, itemTag: изменять}
+presence:
+- target: {field: check}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {missing: {denotes: {absent: true}}}
+- target: {field: notify}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {missing: {denotes: {absent: true}}}
+- target: {field: extend}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {missing: {denotes: {absent: true}}}

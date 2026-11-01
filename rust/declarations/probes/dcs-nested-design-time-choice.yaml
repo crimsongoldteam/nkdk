@@ -1,0 +1,44 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: migration.dcs-nested-design-time-choice
+  namespaces:
+    xsi: http://www.w3.org/2001/XMLSchema-instance
+    dcscor: http://v8.1c.ru/8.1/data-composition-system/core
+    v8: http://v8.1c.ru/8.1/data/core
+    xs: http://www.w3.org/2001/XMLSchema
+  imports: {value: common.dcs-design-time-choice}
+  inputs:
+    defaultLanguage: {type: {kind: scalar, scalar: text}}
+    registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  value:
+    kind: choice
+    variants:
+    - {name: designTime, type: {use: value, bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}}}}
+  representations:
+    xml:
+      kind: choice
+      attribute: xsi:type
+      variants:
+      - {variant: designTime, in: [dcscor:DesignTimeValue, dcscor:Field, v8:LocalStringType, v8:LocalFormattedStringType, xs:string]}
+      otherwise: designTime
+    yaml:
+      kind: choice
+      variants:
+      - {variant: designTime, form: mapping, key: Тип}
+- kind: object
+  id: migration.dcs-nested-design-time-owner
+  namespaces: {dcscor: http://v8.1c.ru/8.1/data-composition-system/core}
+  imports: {value: migration.dcs-nested-design-time-choice}
+  inputs:
+    defaultLanguage: {type: {kind: scalar, scalar: text}}
+    registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  value:
+    kind: record
+    fields:
+    - name: value
+      type: {use: value, bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}}}
+  representations:
+    xml: {kind: record, fields: [{field: value, path: [Root, Item, dcscor:value]}]}
+    yaml: {kind: mapping, fields: [{field: value, key: Значение}]}

@@ -66,9 +66,11 @@ impl<'a> Codec<'a> {
                         LinkedType::Choice(_),
                         LinkedXml::Choice { .. } | LinkedXml::DiscriminatedChoice(_),
                         YamlRepresentation::Choice { .. },
-                    ) => Ok(Self::Forms(Box::new(super::text_choice::Codec::resolve(
-                        target, program,
-                    )?))),
+                    ) => {
+                        let mut choice = super::text_choice::Codec::resolve(target, program)?;
+                        choice.exclude_lifted_checks(owner);
+                        Ok(Self::Forms(Box::new(choice)))
+                    }
                     (
                         LinkedType::Scalar(ScalarType::Text),
                         LinkedXml::Text,
@@ -136,9 +138,12 @@ impl<'a> Codec<'a> {
                         if let Some(tail) = super::text_sequence::Codec::framed(target, program)? {
                             Ok(Self::Sequence(Box::new(tail)))
                         } else {
-                            Ok(Self::Pattern(Box::new(
-                                super::text_pattern::Codec::resolve(target, program)?,
-                            )))
+                            let mut pattern = super::text_pattern::Codec::resolve(target, program)?;
+                            if let LinkedType::BoundReference { bindings, .. } = value {
+                                pattern.bind_inputs(bindings, owner)?;
+                            }
+                            pattern.exclude_lifted_checks(owner);
+                            Ok(Self::Pattern(Box::new(pattern)))
                         }
                     }
                     (
@@ -228,6 +233,16 @@ impl<'a> Codec<'a> {
             | Self::States(..) => Some("text"),
             Self::Boolean(..) => Some("boolean"),
             Self::Decimal | Self::FormattedDecimal(_) => Some("decimal"),
+            Self::Calendar { .. } => Some("calendar"),
+            _ => None,
+        }
+    }
+    pub fn input_variant(&self) -> Option<&'static str> {
+        match self.input_method()? {
+            "text" => Some("Text"),
+            "boolean" => Some("Boolean"),
+            "decimal" => Some("Decimal"),
+            "calendar" => Some("Calendar"),
             _ => None,
         }
     }
@@ -338,13 +353,17 @@ impl<'a> Codec<'a> {
     pub(super) fn choice_selector_argument(&self, index: usize, xml: bool) -> String {
         match self {
             Self::Forms(choice) if choice.discriminated() && xml => format!(",variant{index}"),
-            Self::Forms(choice) if choice.discriminated() => format!(",variant{index}"),
+            Self::Forms(choice) if choice.selects_scalar_variant() && !xml => {
+                format!(",variant{index}")
+            }
+            Self::Forms(choice) if choice.selects_scalar_variant() => ",None".into(),
             _ => String::new(),
         }
     }
     pub(super) fn child_check_method(&self) -> Option<&'static str> {
         match self {
             Self::Sequence(_) => Some("issues"),
+            Self::Pattern(pattern) if pattern.has_child_checks() => Some("child_issues"),
             Self::Forms(choice) if choice.has_child_checks() => Some("child_issues"),
             _ => None,
         }
@@ -364,6 +383,17 @@ impl<'a> Codec<'a> {
             name,
             &format!("_value.f{index}.as_ref().expect(\"guarded scalar\")"),
         )
+    }
+    /// Internal input transport retains native calendar components; expression text stays textual.
+    pub(super) fn input_reference(&self, name: &str, reference: &str) -> String {
+        if matches!(self, Self::Sequence(sequence) if !sequence.framed_value()) {
+            let receiver = reference.strip_prefix('&').unwrap_or(reference);
+            format!("core::inputs::Records::new(&({receiver}).rows)")
+        } else if matches!(self, Self::Calendar { .. }) {
+            reference.into()
+        } else {
+            self.meaning_reference(name, reference)
+        }
     }
     pub(super) fn meaning_reference(&self, name: &str, reference: &str) -> String {
         let receiver = reference.strip_prefix('&').unwrap_or(reference);
@@ -469,11 +499,22 @@ impl<'a> Codec<'a> {
                 "let read=||->core::Result<String>{{core::xml::validate_text(&r{index})?;let mut mapped=None;for row in _inputs.records({input})?{{if row.text({external})?==r{index}{{if mapped.is_some(){{return Err(RuntimeDiagnostic::new(\"input.ambiguous\",\"Repeated external text spelling\"));}}mapped=Some(row.text({internal})?);}}}}Ok(mapped.map_or_else(||r{index}.clone(),str::to_owned))}};let f{index}=read().map_err(|error|positions[{index}].apply(source,error.field({key:?})))?;\n"
             );
         }
+        if let Self::Pattern(pattern) = self
+            && !pattern.bound_scope().is_empty()
+        {
+            let inputs = self.read_input_argument();
+            return format!(
+                "{}let f{index}={{ {} {name}::read(&r{index},{xml_side}{inputs}).map_err(|error|positions[{index}].apply(source,error.field({key:?})))? }};\n",
+                self.qname_read_prefix(index, xml_side),
+                pattern.bound_scope()
+            );
+        }
         if matches!(self, Self::Pattern(_) | Self::Forms(_) | Self::Sequence(_)) {
             let inputs = self.read_input_argument();
             let selector = self.choice_selector_argument(index, xml_side);
             return format!(
-                "let f{index}={name}::read(&r{index},{xml_side}{selector}{inputs}).map_err(|error|positions[{index}].apply(source,error.field({key:?})))?;\n"
+                "{}let f{index}={name}::read(&r{index},{xml_side}{selector}{inputs}).map_err(|error|positions[{index}].apply(source,error.field({key:?})))?;\n",
+                self.qname_read_prefix(index, xml_side)
             );
         }
         if matches!(self, Self::Choice(_)) {
@@ -595,6 +636,12 @@ impl<'a> Codec<'a> {
             } else {
                 ""
             };
+            if !pattern.bound_scope().is_empty() {
+                return format!(
+                    "&{{{}({reference}).write({xml_side}{inputs})?}}",
+                    pattern.bound_scope()
+                );
+            }
             return format!("&({reference}).write({xml_side}{inputs})?");
         }
         if let Self::Sequence(sequence) = self {
@@ -684,8 +731,61 @@ impl<'a> Codec<'a> {
         self.write_reference(name, reference, xml_side)
     }
 
-    pub fn qname_owned_reference(&self, name: &str, reference: &str) -> Option<String> {
+    pub(super) fn qname_prefixes(&self) -> Option<Vec<(&str, &str)>> {
         match self {
+            Self::Pattern(pattern) => pattern.qname_parts().map(|parts| vec![parts]),
+            Self::Forms(choice) => choice.qname_parts(),
+            _ => None,
+        }
+    }
+    pub(super) fn is_qname(&self) -> bool {
+        matches!(self, Self::QNameText(_) | Self::QNameEnumeration(..))
+            || self.qname_prefixes().is_some()
+    }
+    fn qname_read_prefix(&self, index: usize, xml: bool) -> String {
+        let Some(parts) = xml.then(|| self.qname_prefixes()).flatten() else {
+            return String::new();
+        };
+        let parts = parts
+            .into_iter()
+            .map(|(prefix, namespace)| (namespace, prefix))
+            .collect::<BTreeMap<_, _>>();
+        let arms = parts
+            .iter()
+            .map(|(namespace, prefix)| {
+                format!("{namespace:?}=>Some(format!(\"{{}}{{}}\",{prefix:?},local)),")
+            })
+            .collect::<String>();
+        format!(
+            "let qname_text{index}=match r{index}.split_once('\\0'){{Some((namespace,local))=>match namespace{{{arms}_=>return Err(RuntimeDiagnostic::new(\"value.qname\",\"Unknown declared QName namespace\")),}},None=>None}};let r{index}=qname_text{index}.as_deref().unwrap_or(r{index}.as_str());"
+        )
+    }
+    pub fn qname_owned_reference(&self, name: &str, reference: &str) -> Option<String> {
+        let receiver = reference.strip_prefix('&').unwrap_or(reference);
+        match self {
+            Self::Pattern(pattern) if pattern.qname_parts().is_some() => {
+                let (prefix, namespace) = pattern.qname_parts().unwrap();
+                let inputs = if pattern.needs_inputs() {
+                    ",_inputs"
+                } else {
+                    ""
+                };
+                Some(format!(
+                    "{{{}let mut text=({receiver}).write(true{inputs})?;text.drain(..{});({namespace:?},std::borrow::Cow::<str>::Owned(text))}}",
+                    pattern.bound_scope(),
+                    prefix.len()
+                ))
+            }
+            Self::Forms(choice) if choice.qname_parts().is_some() => {
+                let inputs = if choice.needs_inputs() {
+                    ",_inputs"
+                } else {
+                    ""
+                };
+                Some(format!(
+                    "{{let (prefix,namespace)=({receiver}).qname_parts();let mut text=({receiver}).write_text(true{inputs})?;text.drain(..prefix.len());(namespace,std::borrow::Cow::<str>::Owned(text))}}"
+                ))
+            }
             Self::QNameEnumeration(variants, table, _) => {
                 let arms = table
                     .iter()
@@ -732,6 +832,12 @@ impl<'a> Codec<'a> {
 
     pub fn qname_namespace_reference(&self, name: &str, reference: &str) -> Option<String> {
         match self {
+            Self::Pattern(pattern) if pattern.qname_parts().is_some() => {
+                Some(format!("Some({:?})", pattern.qname_parts().unwrap().1))
+            }
+            Self::Forms(choice) if choice.qname_parts().is_some() => {
+                Some(format!("Some(({reference}).qname_parts().1)"))
+            }
             Self::QNameEnumeration(variants, table, _) => {
                 let mut arms = String::new();
                 for item in *table {
@@ -784,7 +890,7 @@ fn qname_tail_guard(value: &str, separator: &str, prefixes: &[String]) -> String
         .chain(std::iter::once("parts.next().is_none()".to_owned()))
         .collect::<Vec<_>>()
         .join("&&");
-    format!("{{let mut parts=({value}).split({separator:?});{checks}}}")
+    format!("{{let tail:&str={value};let mut parts=tail.split({separator:?});{checks}}}")
 }
 
 /// Absence is a declared state, not a default for an unknown scalar token.
@@ -849,7 +955,10 @@ pub(crate) fn optional(entry: &LinkedEntry) -> Result<bool, Diagnostic> {
                 && missing(&p.xml_missing)
                 && missing(&p.yaml_missing)
                 && super::scalar_presence::supported_empty(p)
-                && p.yaml_empty.is_empty()
+                && p.yaml_empty.iter().all(|empty| {
+                    empty.form == EmptyKind::Null
+                        && matches!(empty.denotes.kind, LinkedExpressionKind::Absent)
+                })
                 && super::scalar_presence::supported_canonical(p)
         })
     {

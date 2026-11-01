@@ -1,0 +1,22 @@
+format: nkdk-declarations/1
+kind: value
+id: system.StyleFonts
+enum:
+  LargeTextFont: КрупныйШрифтТекста
+  SmallTextFont: МелкийШрифтТекста
+  NormalTextFont: ОбычныйШрифтТекста
+  ExtraLargeTextFont: ОченьКрупныйШрифтТекста
+  TextFont: ШрифтТекста
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  t: http://v8.1c.ru/8.1/data/enterprise
+projections:
+  - id: system.StyleFonts.dcs
+    xml:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: t:StyleFonts
+      content:
+        kind: text

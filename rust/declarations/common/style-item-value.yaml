@@ -1,0 +1,64 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: common.style-item-value-color
+  imports: {kind: common.string, value: common.color}
+  inputs: {styleTypes: {type: {kind: index, key: {kind: scalar, scalar: text}, value: {kind: scalar, scalar: text}}}}
+  value: {kind: record, fields: [{name: kind, type: {use: kind}}, {name: value, type: {use: value, bind: {styleTypes: {input: styleTypes}}}}]}
+  representations:
+    xml: {kind: record, fields: [{field: value, path: []}]}
+    yaml: {kind: mapping, fields: [{field: kind, key: Вид}, {field: value, key: Значение}]}
+  presence:
+  - target: {field: kind}
+    xml: {missing: {denotes: {literal: Цвет}}}
+- kind: value
+  id: common.style-item-value-font
+  imports: {kind: common.string, value: common.font}
+  inputs: {styleTypes: {type: {kind: index, key: {kind: scalar, scalar: text}, value: {kind: scalar, scalar: text}}}}
+  value: {kind: record, fields: [{name: kind, type: {use: kind}}, {name: value, type: {use: value, bind: {styleTypes: {input: styleTypes}}}}]}
+  representations:
+    xml: {kind: record, fields: [{field: value, path: []}]}
+    yaml: {kind: mapping, fields: [{field: kind, key: Вид}, {field: value, key: Значение}]}
+  presence:
+  - target: {field: kind}
+    xml: {missing: {denotes: {literal: Шрифт}}}
+- kind: value
+  id: common.style-item-value-border
+  imports: {kind: common.string, value: common.border}
+  inputs: {styleTypes: {type: {kind: index, key: {kind: scalar, scalar: text}, value: {kind: scalar, scalar: text}}}}
+  value: {kind: record, fields: [{name: kind, type: {use: kind}}, {name: value, type: {use: value, bind: {styleTypes: {input: styleTypes}}}}]}
+  representations:
+    xml: {kind: record, fields: [{field: value, path: []}]}
+    yaml: {kind: mapping, fields: [{field: kind, key: Вид}, {field: value, key: Значение}]}
+  presence:
+  - target: {field: kind}
+    xml: {missing: {denotes: {literal: Рамка}}}
+- kind: value
+  id: common.style-item-value
+  namespaces:
+    xsi: http://www.w3.org/2001/XMLSchema-instance
+    v8ui: http://v8.1c.ru/8.1/data/ui
+  imports: {color: common.style-item-value-color, font: common.style-item-value-font, border: common.style-item-value-border}
+  inputs: {styleTypes: {type: {kind: index, key: {kind: scalar, scalar: text}, value: {kind: scalar, scalar: text}}}}
+  value:
+    kind: choice
+    variants:
+    - {name: color, type: {use: color, bind: {styleTypes: {input: styleTypes}}}}
+    - {name: font, type: {use: font, bind: {styleTypes: {input: styleTypes}}}}
+    - {name: border, type: {use: border, bind: {styleTypes: {input: styleTypes}}}}
+  representations:
+    xml:
+      kind: choice
+      attribute: xsi:type
+      variants:
+      - {variant: color, in: [v8ui:Color], emit: v8ui:Color}
+      - {variant: font, in: [v8ui:Font], emit: v8ui:Font}
+      - {variant: border, in: [v8ui:Border], emit: v8ui:Border}
+      otherwise: color
+    yaml:
+      kind: choice
+      variants:
+      - {variant: color, form: mapping, key: Вид, value: Цвет}
+      - {variant: font, form: mapping, key: Вид, value: Шрифт}
+      - {variant: border, form: mapping, key: Вид, value: Рамка}

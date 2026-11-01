@@ -1,0 +1,462 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+  - kind: value
+    id: common.changed-number
+    imports:
+      boolean: common.boolean
+    inputs:
+      implicit:
+        type:
+          kind: scalar
+          scalar: number
+          profile: decimal
+      property:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+      states:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: property
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: mode
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+    value:
+      kind: record
+      fields:
+        - name: capacity
+          type:
+            kind: scalar
+            scalar: number
+            profile: decimal
+        - name: state
+          type:
+            use: boolean
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: capacity
+            path: []
+      yaml:
+        kind: projection
+        field: capacity
+    presence:
+      - target:
+          field: capacity
+        yaml:
+          empty:
+            - form: 'null'
+              denotes:
+                input: implicit
+          nullWhen:
+            eq:
+              - field: capacity
+              - input: implicit
+      - target:
+          field: state
+        xml:
+          missing:
+            denotes:
+              and:
+                - present:
+                    lookup:
+                      in:
+                        input: states
+                      key:
+                        record:
+                          owner:
+                            input: owner
+                          property:
+                            input: property
+                          mode:
+                            literal: Extended
+                - not:
+                    present:
+                      lookup:
+                        in:
+                          input: states
+                        key:
+                          record:
+                            owner:
+                              input: owner
+                            property:
+                              input: property
+                            mode:
+                              literal: Notify
+        yaml:
+          missing:
+            denotes:
+              literal: true
+    constraints:
+      - id: selected-state
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        forms:
+          - record
+          - scalar
+        assert:
+          field: state
+        diagnostic:
+          code: state.expected
+          severity: error
+          at:
+            self: true
+          message: Expected the selected state
+  - kind: value
+    id: common.notified-number
+    imports:
+      boolean: common.boolean
+    inputs:
+      implicit:
+        type:
+          kind: scalar
+          scalar: number
+          profile: decimal
+      property:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+      states:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: property
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: mode
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+    value:
+      kind: record
+      fields:
+        - name: capacity
+          type:
+            kind: scalar
+            scalar: number
+            profile: decimal
+        - name: state
+          type:
+            use: boolean
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: capacity
+            path: []
+      yaml:
+        kind: projection
+        field: capacity
+    presence:
+      - target:
+          field: capacity
+        yaml:
+          empty:
+            - form: 'null'
+              denotes:
+                input: implicit
+          nullWhen:
+            eq:
+              - field: capacity
+              - input: implicit
+      - target:
+          field: state
+        xml:
+          missing:
+            denotes:
+              and:
+                - present:
+                    lookup:
+                      in:
+                        input: states
+                      key:
+                        record:
+                          owner:
+                            input: owner
+                          property:
+                            input: property
+                          mode:
+                            literal: Notify
+                - not:
+                    present:
+                      lookup:
+                        in:
+                          input: states
+                        key:
+                          record:
+                            owner:
+                              input: owner
+                            property:
+                              input: property
+                            mode:
+                              literal: Extended
+        yaml:
+          missing:
+            denotes:
+              literal: true
+    constraints:
+      - id: selected-state
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        forms:
+          - record
+          - scalar
+        assert:
+          field: state
+        diagnostic:
+          code: state.expected
+          severity: error
+          at:
+            self: true
+          message: Expected the notify state
+  - kind: value
+    id: common.plain-number
+    imports:
+      boolean: common.boolean
+    inputs:
+      implicit:
+        type:
+          kind: scalar
+          scalar: number
+          profile: decimal
+      property:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+      states:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: property
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: mode
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+    value:
+      kind: record
+      fields:
+        - name: capacity
+          type:
+            kind: scalar
+            scalar: number
+            profile: decimal
+        - name: state
+          type:
+            use: boolean
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: capacity
+            path: []
+      yaml:
+        kind: projection
+        field: capacity
+    presence:
+      - target:
+          field: capacity
+        yaml:
+          empty:
+            - form: 'null'
+              denotes:
+                input: implicit
+          nullWhen:
+            eq:
+              - field: capacity
+              - input: implicit
+      - target:
+          field: state
+        xml:
+          missing:
+            denotes:
+              or:
+                - present:
+                    lookup:
+                      in:
+                        input: states
+                      key:
+                        record:
+                          owner:
+                            input: owner
+                          property:
+                            input: property
+                          mode:
+                            literal: Extended
+                - present:
+                    lookup:
+                      in:
+                        input: states
+                      key:
+                        record:
+                          owner:
+                            input: owner
+                          property:
+                            input: property
+                          mode:
+                            literal: Notify
+        yaml:
+          missing:
+            denotes:
+              literal: false
+    constraints:
+      - id: selected-state
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        forms:
+          - record
+          - scalar
+        assert:
+          not:
+            field: state
+        diagnostic:
+          code: state.expected
+          severity: error
+          at:
+            self: true
+          message: Expected the ordinary state
+  - kind: value
+    id: common.stateful-number
+    imports:
+      changed: common.changed-number
+      plain: common.plain-number
+      notified: common.notified-number
+    inputs:
+      implicit:
+        type:
+          kind: scalar
+          scalar: number
+          profile: decimal
+      property:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+      states:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: property
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: mode
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+    value:
+      kind: choice
+      variants:
+        - name: changed
+          type:
+            use: changed
+            bind:
+              implicit:
+                input: implicit
+              states:
+                input: states
+              owner:
+                input: owner
+              property:
+                input: property
+        - name: notified
+          type:
+            use: notified
+            bind:
+              implicit:
+                input: implicit
+              states:
+                input: states
+              owner:
+                input: owner
+              property:
+                input: property
+        - name: plain
+          type:
+            use: plain
+            bind:
+              implicit:
+                input: implicit
+              states:
+                input: states
+              owner:
+                input: owner
+              property:
+                input: property
+    representations:
+      xml:
+        kind: choice
+        fallback: plain
+      yaml:
+        kind: choice
+        variants:
+          - variant: changed
+            form: scalar
+            tag: изменять
+          - variant: notified
+            form: scalar
+            tag: проверять

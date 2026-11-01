@@ -13,10 +13,18 @@ pub(super) fn generate(
         item,
         shorthand,
         singleton,
+        item_tag,
     } = &common.yaml
     else {
         unreachable!()
     };
+    if *singleton == Some(nkdk_rule_model::YamlSingleton::Value) {
+        return Err(unsupported(
+            common,
+            "Singleton value requires a separately declared item",
+        ));
+    }
+    let singleton = singleton.is_some();
     let keys = match item.as_ref() {
         YamlRepresentation::Text => None,
         YamlRepresentation::Declared if typed.is_some() => None,
@@ -67,18 +75,48 @@ pub(super) fn generate(
                 short.values
             )
         };
-        writeln!(shorten, "if {annotation_guard}_shorten && value.rows.is_present() && {matches} {{out.push_str(&core::yaml::scalar({key:?}));out.push_str(\": \");out.push_str(&core::yaml::scalar({:?}));return Ok(());}}", short.text).unwrap();
+        writeln!(shorten, "if {annotation_guard}shorten && value.rows.is_present() && {matches} {{out.push_str(&core::yaml::scalar({key:?}));out.push_str(\": \");out.push_str(&core::yaml::scalar({:?}));return Ok(());}}", short.text).unwrap();
     }
     let id = owner.id;
     let count = fields.len();
     let yaml_value = &presence.yaml_value;
     let can_read_missing = presence.yaml_missing;
     let yaml_write = &presence.yaml_write;
+    let explicit_yaml_init = if presence.yaml_explicit_default.is_empty() {
+        ""
+    } else {
+        ",yaml_explicit:seen"
+    };
+    let diagnostic = "RuntimeDiagnostic::new(\"yaml.implicit-value\",\"This value is represented by an omitted property\")";
+    let default_check = |condition: &str, issue: &str| {
+        format!(
+            "if {condition} {{match (||->core::Result<bool>{{Ok({})}})() {{Ok(true)=>issues.push({issue}),Ok(false)=>{{}},Err(error)=>issues.push(error)}}}}",
+            super::presence::omission_condition(&presence.yaml_explicit_default)
+        )
+    };
+    let yaml_check = if presence.yaml_explicit_default.is_empty() {
+        "value.yaml_issues.clone()".to_owned()
+    } else {
+        let check = default_check(
+            "value.yaml_explicit && value.rows.is_present() && value.raw.is_none() && value.annotations.is_empty()",
+            &format!("value.position.apply(_source,{diagnostic})"),
+        );
+        format!("{{let mut issues=value.yaml_issues.clone();{check}issues}}")
+    };
+    let plain_yaml_check = if presence.yaml_explicit_default.is_empty() {
+        "Vec::new()".to_owned()
+    } else {
+        let check = default_check(
+            "value.yaml_explicit && value.rows.is_present() && value.raw.is_none()",
+            diagnostic,
+        );
+        format!("{{let mut issues=Vec::new();{check}issues}}")
+    };
     let required = !presence.yaml_missing;
     let empty_mapping = presence.yaml_empty_mapping;
     let read_value = if annotated {
         format!(
-            r#"let mut value=V{id}{{rows:{yaml_value},raw:None,position,annotations,yaml_issues:Vec::new(),declared_issues:Vec::new()}};
+            r#"let mut value=V{id}{{rows:{yaml_value},raw:None,position,annotations,yaml_issues:Vec::new(),declared_issues:Vec::new(){explicit_yaml_init}}};
 value.declared_issues=issues_yaml_{id}(&value,source,_inputs);
 let evidence=if value.annotations.is_empty() {{Vec::new()}} else {{issues_xml_{id}(&value,source,_inputs)}};
 value.yaml_issues=value.annotations.validate_with_evidence({key:?},std::iter::empty::<(&str,core::Position)>(),value.declared_issues.clone(),&evidence);
@@ -88,13 +126,13 @@ Ok(value)"#
         format!(
             r#"let _=position;
 if !annotations.is_empty() {{return Err(RuntimeDiagnostic::new("annotation.unnecessary","No declared violation supports this annotation"));}}
-Ok(V{id}{{rows:{yaml_value},raw:None}})"#
+Ok(V{id}{{rows:{yaml_value},raw:None{explicit_yaml_init}}})"#
         )
     };
     let checks = if annotated {
         format!(
             r#"fn check_xml_{id}(value:&V{id},source:&[u8],inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{{issues_xml_{id}(value,source,inputs).into_iter().filter(|issue|issue.kind==core::annotations::IssueKind::Structural || issue.severity!=Severity::Error).collect()}}
-fn check_yaml_{id}(value:&V{id},_source:&[u8],_inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{{value.yaml_issues.clone()}}
+fn check_yaml_{id}(value:&V{id},_source:&[u8],_inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{{{yaml_check}}}
 fn prepare_yaml_into_{id}(value:&V{id},inputs:&InputView<'_>,shorten:bool,out:&mut String,indent:&str)->core::Result<()>{{
 core::yaml::append_properties(out,|out| {{
 let start=out.len();emit_yaml_fields_{id}(value,inputs,shorten,&mut core::yaml::Indented::new(out,indent))?;
@@ -107,7 +145,7 @@ if !restored.annotations.is_empty() {{out.truncate(start);emit_yaml_fields_{id}(
     } else {
         format!(
             r#"fn check_xml_{id}(_value:&V{id},_source:&[u8],_inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{{Vec::new()}}
-fn check_yaml_{id}(_value:&V{id},_source:&[u8],_inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{{Vec::new()}}
+fn check_yaml_{id}(value:&V{id},_source:&[u8],_inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{{let _=value;{plain_yaml_check}}}
 fn prepare_yaml_into_{id}(value:&V{id},inputs:&InputView<'_>,shorten:bool,out:&mut String,indent:&str)->core::Result<()>{{core::yaml::append_properties(out,|out|emit_yaml_fields_{id}(value,inputs,shorten,&mut core::yaml::Indented::new(out,indent)))}}"#
         )
     };
@@ -116,6 +154,17 @@ fn prepare_yaml_into_{id}(value:&V{id},inputs:&InputView<'_>,shorten:bool,out:&m
         "if let Some(tag)=value.annotations.label(None) {out.push(' ');out.push_str(&tag);}"
     } else {
         ""
+    };
+    let (mark_field, mark_init, mark_read, mark_write) = if let Some(mark) = item_tag {
+        let mark = format!("!{mark}");
+        (
+            ",marks:core::yaml::ItemTags".to_owned(),
+            format!(",marks:core::yaml::ItemTags::new({mark:?})"),
+            "let node=self.marks.consume(node)?;".to_owned(),
+            format!("out.push_str({mark:?});out.push(' ');"),
+        )
+    } else {
+        (String::new(), String::new(), String::new(), String::new())
     };
     let read_row = if typed.is_some() {
         format!("read_row_{id}(fields,source,position,false,_inputs)")
@@ -133,12 +182,12 @@ fn read_yaml_events_{id}(source:&[u8], _inputs:&InputView<'_>, events:impl core:
     state.finish(source,_inputs)
 }}
 const SEQUENCE_SHORTHANDS_{id}: &[(&str,&[&str])] = {table};
-struct YamlSequence{id} {{property:core::yaml::PropertyReader,rows:core::yaml::SequenceReader<'static,{count},R{id}>}}
+struct YamlSequence{id} {{property:core::yaml::PropertyReader,rows:core::yaml::SequenceReader<'static,{count},R{id}>{mark_field}}}
 impl YamlSequence{id} {{
-fn new()->Self{{Self{{property:core::yaml::PropertyReader::default(),rows:core::yaml::SequenceReader::new({keys_code},SEQUENCE_SHORTHANDS_{id},{empty_mapping}).with_singleton({singleton})}}}}
+fn new()->Self{{Self{{property:core::yaml::PropertyReader::default(),rows:core::yaml::SequenceReader::new({keys_code},SEQUENCE_SHORTHANDS_{id},{empty_mapping}).with_singleton({singleton}){mark_init}}}}}
 fn consume(&mut self,node:core::yaml::Node,position:core::Position,source:&[u8],_inputs:&InputView<'_>)->core::Result<()>{{
 let _=source;
-if let Some(node)=self.property.consume(node,{key:?},"yaml.collection-form")? {{self.rows.consume(node,position,|fields,position|{{let _=position;{read_row}}})?;}}Ok(())}}
+if let Some(node)=self.property.consume(node,{key:?},"yaml.collection-form")? {{{mark_read}self.rows.consume(node,position,|fields,position|{{let _=position;{read_row}}})?;}}Ok(())}}
 fn finish(self,source:&[u8],inputs:&InputView<'_>)->core::Result<V{id}>{{let present=self.property.finish("yaml.collection-form")?;finish_yaml_sequence_{id}(present.then_some(self.rows.finish()?),source,inputs)}}
 }}
 fn finish_yaml_sequence_{id}(physical:Option<core::yaml::SequenceValues<R{id}>>,source:&[u8],_inputs:&InputView<'_>)->core::Result<V{id}> {{
@@ -150,8 +199,9 @@ fn finish_yaml_sequence_{id}(physical:Option<core::yaml::SequenceValues<R{id}>>,
 }}
 {checks}
 fn prepare_yaml_{id}(value:&V{id},inputs:&InputView<'_>,shorten:bool)->core::Result<Vec<u8>>{{let mut out=String::new();prepare_yaml_into_{id}(value,inputs,shorten,&mut out,"")?;Ok(out.into_bytes())}}
-fn emit_yaml_fields_{id}(value:&V{id},_inputs:&InputView<'_>,_shorten:bool,out:&mut core::yaml::Indented<'_>)->core::Result<()>{{
+fn emit_yaml_fields_{id}(value:&V{id},_inputs:&InputView<'_>,shorten:bool,out:&mut core::yaml::Indented<'_>)->core::Result<()>{{
     let _value=value;
+    let _=shorten;
     {shortened}
     if !value.rows.is_present() {{if {can_read_missing} {{return Ok(());}}return Err(RuntimeDiagnostic::new("yaml.presence","No YAML form for absence"));}}
     out.push_str(&core::yaml::scalar({key:?}));out.push(':');
@@ -161,6 +211,7 @@ fn emit_yaml_fields_{id}(value:&V{id},_inputs:&InputView<'_>,_shorten:bool,out:&
         if {singleton} && value.rows.len()==1 {{out.push(' ');}} else {{out.push_str("\n  - ");}}
 "#
     );
+    out.push_str(&mark_write);
     if let Some(keys) = keys {
         for (index, key) in keys.iter().enumerate() {
             if index != 0 {
@@ -170,7 +221,7 @@ fn emit_yaml_fields_{id}(value:&V{id},_inputs:&InputView<'_>,_shorten:bool,out:&
         }
     } else {
         let value = typed.map_or("&row.fields[0]".into(), |codec| {
-            codec.write_reference(&collection_values::name(id), "&row.fields[0]", false)
+            codec.write_text_reference(&collection_values::name(id), "&row.fields[0]", false)
         });
         writeln!(out, "out.push_str(&core::yaml::scalar({value}));").unwrap();
     }

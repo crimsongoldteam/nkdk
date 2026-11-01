@@ -1,0 +1,23 @@
+format: nkdk-declarations/1
+kind: value
+id: common.font-windows
+namespaces:
+  sys: http://v8.1c.ru/8.1/data/ui/fonts/system
+imports:
+  font: system.WindowsFonts
+value:
+  kind: record
+  fields:
+    - name: font
+      type:
+        use: font
+representations:
+  xml:
+    kind: text-pattern
+    parts:
+      - literal: 'sys:'
+      - field: font
+  yaml:
+    kind: text-pattern
+    parts:
+      - field: font

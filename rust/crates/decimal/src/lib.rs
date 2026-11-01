@@ -11,7 +11,7 @@ impl std::error::Error for ParseDecimalError {}
 use std::{cmp::Ordering, fmt};
 
 /// Exact finite decimal. The exponent never materializes a run of zero digits.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Decimal {
     negative: bool,
     digits: Cow<'static, str>,
@@ -193,6 +193,23 @@ impl fmt::Display for Decimal {
 #[cfg(test)]
 mod tests {
     use super::Decimal;
+
+    #[test]
+    fn equal_decimal_forms_share_hash_keys_without_rounding() {
+        for (left, right) in [
+            ("1", "1.0"),
+            ("-0", "0"),
+            ("10", "+1e1"),
+            ("9007199254740993", "9007199254740993.0"),
+        ] {
+            let mut keys = std::collections::HashSet::new();
+            assert!(keys.insert(Decimal::parse(left).unwrap()));
+            assert!(!keys.insert(Decimal::parse(right).unwrap()));
+        }
+        let mut keys = std::collections::HashSet::new();
+        assert!(keys.insert(Decimal::parse("9007199254740993").unwrap()));
+        assert!(keys.insert(Decimal::parse("9007199254740992").unwrap()));
+    }
 
     #[test]
     fn precision_checks_exact_digits_without_floating_point() {

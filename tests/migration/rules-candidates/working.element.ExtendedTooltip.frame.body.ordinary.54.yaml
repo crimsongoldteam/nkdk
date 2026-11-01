@@ -1,0 +1,42 @@
+format: nkdk-declarations/1
+kind: fragment
+id: working.element.ExtendedTooltip.frame.body.ordinary.54
+description: 'Кандидат проекции: относительный XML-корень ToolTip; не полный владелец'
+imports:
+  part0: working.element.ExtendedTooltip.frame.body.ordinary.55
+compose:
+  - use: part0
+    bind:
+      defaultLanguage:
+        input: defaultLanguage
+      registeredLanguages:
+        input: registeredLanguages
+      ownerName:
+        input: ownerName
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  ownerName:
+    type:
+      kind: scalar
+      scalar: text
+namespaces:
+  md: http://v8.1c.ru/8.3/xcf/logform

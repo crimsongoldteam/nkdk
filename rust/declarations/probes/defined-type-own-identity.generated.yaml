@@ -15,6 +15,14 @@ inputs:
     type:
       kind: scalar
       scalar: text
+  ownerName:
+    type:
+      kind: scalar
+      scalar: text
+  identitySeed:
+    type:
+      kind: scalar
+      scalar: text
 value:
   kind: record
   fields:
@@ -67,3 +75,23 @@ representations:
         key: name
       - field: uuid
         key: uuid
+presence:
+  - target:
+      field: name
+    yaml:
+      missing:
+        denotes:
+          input: ownerName
+  - target:
+      field: uuid
+    yaml:
+      missing:
+        denotes:
+          identity:
+            seed:
+              input: identitySeed
+            domain: uuid
+            format: uuid
+            address:
+              - literal: ОпределяемыйТип
+              - input: ownerName

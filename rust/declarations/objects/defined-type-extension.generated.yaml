@@ -183,9 +183,16 @@ presence:
       missing:
         denotes:
           if:
-            eq:
-              - input: component
-              - literal: cfe
+            present:
+              lookup:
+                in:
+                  input: baseIdentities
+                key:
+                  record:
+                    component:
+                      input: component
+                    identity:
+                      field: uuid
           then:
             literal: Adopted
           else:
@@ -223,9 +230,16 @@ presence:
       missing:
         denotes:
           if:
-            eq:
-              - input: component
-              - literal: cfe
+            present:
+              lookup:
+                in:
+                  input: baseIdentities
+                key:
+                  record:
+                    component:
+                      input: component
+                    identity:
+                      field: uuid
           then:
             require:
               lookup:

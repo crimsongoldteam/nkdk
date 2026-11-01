@@ -1,11 +1,42 @@
 use super::*;
+#[path = "numbering.rs"]
+mod numbering;
 use crate::facts::graph::{
     GraphBudget, GraphLimit, NamedAlternative, NamedUnionGraph, NamedValues,
 };
+pub use numbering::text_number_index;
 
 /// The catalog erases the index width once; rows retain fixed-size typed keys.
 pub trait TextIndexBuilder: Send {
     fn push(&mut self, text: &mut TextBuilder, key: &[&str], value: &str) -> Result<(), FactLimit>;
+    fn reserve_number(
+        &mut self,
+        _text: &mut TextBuilder,
+        _scope: &[&str],
+        _value: &str,
+    ) -> Result<(), FactLimit> {
+        Err(FactLimit::WrongIndexKind)
+    }
+    fn request_number(
+        &mut self,
+        _text: &mut TextBuilder,
+        _key: &[&str],
+        _first: u64,
+    ) -> Result<(), FactLimit> {
+        Err(FactLimit::WrongIndexKind)
+    }
+    fn request_number_in_phase(
+        &mut self,
+        _text: &mut TextBuilder,
+        _key: &[&str],
+        _first: u64,
+        _phase: u32,
+    ) -> Result<(), FactLimit> {
+        Err(FactLimit::WrongIndexKind)
+    }
+    fn seal(&mut self, _text: &mut TextBuilder) -> Result<(), FactLimit> {
+        Ok(())
+    }
     fn begin_union(&mut self, _text: &mut TextBuilder, _name: &str) -> Result<(), FactLimit> {
         Err(FactLimit::WrongIndexKind)
     }
@@ -197,6 +228,7 @@ impl PreparedTextIndex for UnionPrepared {
 }
 
 struct Builder<const N: usize> {
+    coalesce_equal: bool,
     columns: Option<[&'static str; N]>,
     index: FactIndexBuilder<[TextId; N], TextId>,
 }
@@ -206,7 +238,14 @@ struct Prepared<const N: usize> {
 }
 
 pub fn text_scalar_index(generation: Generation) -> Box<dyn TextIndexBuilder> {
+    text_scalar_index_with_coalescing(generation, false)
+}
+pub fn text_scalar_index_with_coalescing(
+    generation: Generation,
+    coalesce_equal: bool,
+) -> Box<dyn TextIndexBuilder> {
     Box::new(Builder::<1> {
+        coalesce_equal,
         columns: None,
         index: FactIndexBuilder::new(generation),
     })
@@ -215,7 +254,15 @@ pub fn text_record_index<const N: usize>(
     generation: Generation,
     columns: [&'static str; N],
 ) -> Box<dyn TextIndexBuilder> {
+    text_record_index_with_coalescing(generation, columns, false)
+}
+pub fn text_record_index_with_coalescing<const N: usize>(
+    generation: Generation,
+    columns: [&'static str; N],
+    coalesce_equal: bool,
+) -> Box<dyn TextIndexBuilder> {
     Box::new(Builder {
+        coalesce_equal,
         columns: Some(columns),
         index: FactIndexBuilder::new(generation),
     })
@@ -223,16 +270,7 @@ pub fn text_record_index<const N: usize>(
 
 impl<const N: usize> TextIndexBuilder for Builder<N> {
     fn push(&mut self, text: &mut TextBuilder, key: &[&str], value: &str) -> Result<(), FactLimit> {
-        if key.len() != N {
-            return Err(FactLimit::KeyArity {
-                expected: N,
-                actual: key.len(),
-            });
-        }
-        let mut ids = [TextId(0); N];
-        for (id, part) in ids.iter_mut().zip(key) {
-            *id = text.intern(part).map_err(FactLimit::Text)?;
-        }
+        let ids = intern_key(text, key)?;
         let value = text.intern(value).map_err(FactLimit::Text)?;
         self.index.extend([(ids, value)]);
         Ok(())
@@ -243,9 +281,30 @@ impl<const N: usize> TextIndexBuilder for Builder<N> {
     fn finish(self: Box<Self>) -> Box<dyn PreparedTextIndex> {
         Box::new(Prepared {
             columns: self.columns,
-            index: self.index.finish(),
+            index: if self.coalesce_equal {
+                self.index.finish_coalesced()
+            } else {
+                self.index.finish()
+            },
         })
     }
+}
+
+fn intern_key<const N: usize>(
+    text: &mut TextBuilder,
+    key: &[&str],
+) -> Result<[TextId; N], FactLimit> {
+    if key.len() != N {
+        return Err(FactLimit::KeyArity {
+            expected: N,
+            actual: key.len(),
+        });
+    }
+    let mut ids = [TextId(0); N];
+    for (id, part) in ids.iter_mut().zip(key) {
+        *id = text.intern(part).map_err(FactLimit::Text)?;
+    }
+    Ok(ids)
 }
 
 impl<const N: usize> PreparedTextIndex for Prepared<N> {

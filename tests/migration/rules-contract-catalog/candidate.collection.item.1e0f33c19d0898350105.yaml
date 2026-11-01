@@ -1,0 +1,214 @@
+format: nkdk-declarations/1
+kind: value
+imports:
+  field0: common.string
+  field1: candidate.collection.list.80ad27c0fd6fef7a1def
+value:
+  kind: record
+  fields:
+    - name: table
+      type:
+        use: field0
+    - name: columns
+      type:
+        use: field1
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          roles:
+            input: roles
+          component:
+            input: component
+          owner:
+            input: owner
+          parent:
+            if:
+              or:
+                - eq:
+                    - field: table
+                    - literal: ''
+                - eq:
+                    - require:
+                        lookup:
+                          in:
+                            input: groupModes
+                          key:
+                            record:
+                              component:
+                                input: component
+                              owner:
+                                input: owner
+                              origin:
+                                literal: current
+                              parent:
+                                input: parent
+                              name:
+                                field: table
+                    - literal: positional
+            then:
+              logicalAddress:
+                parent:
+                  input: parent
+                parts:
+                  - literal: ДополнительныеКолонки
+                  - collectionPosition: true
+            else:
+              logicalAddress:
+                parent:
+                  input: parent
+                parts:
+                  - literal: ДополнительныеКолонки
+                  - field: table
+          numbers:
+            input: numbers
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: table
+        path: []
+        attribute: table
+      - field: columns
+        path: []
+  yaml:
+    kind: mapping
+    fields:
+      - field: table
+        key: table
+      - field: columns
+        key: Колонки
+presence:
+  - target:
+      field: table
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: columns
+    xml:
+      missing:
+        denotes:
+          sequence: []
+    yaml:
+      missing:
+        denotes:
+          sequence: []
+      omitWhen:
+        not:
+          exists:
+            in:
+              field: columns
+            as: row
+            where:
+              literal: true
+constraints:
+  - id: table-required
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    assert:
+      present:
+        field: table
+    diagnostic:
+      code: value.required
+      severity: warning
+      at:
+        field: table
+      message: Обязательное значение отсутствует
+namespaces:
+  f: http://v8.1c.ru/8.3/xcf/logform
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  roles:
+    type:
+      kind: sequence
+      item:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: yamlName
+            type:
+              kind: scalar
+              scalar: text
+  component:
+    type:
+      kind: scalar
+      scalar: text
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  parent:
+    type:
+      kind: scalar
+      scalar: text
+  numbers:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: component
+            type:
+              kind: scalar
+              scalar: text
+          - name: owner
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  groupModes:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: component
+            type:
+              kind: scalar
+              scalar: text
+          - name: owner
+            type:
+              kind: scalar
+              scalar: text
+          - name: origin
+            type:
+              kind: scalar
+              scalar: text
+          - name: parent
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+id: candidate.collection.item.1e0f33c19d0898350105

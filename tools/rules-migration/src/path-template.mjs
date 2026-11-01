@@ -15,10 +15,31 @@ export function pathTemplate(source) {
   const key=binding.propertyName??binding.name;
   if(!ts.isIdentifier(key))return undefined;
   const body=unwrap(fn.body);
-  if(!ts.isTemplateExpression(body) || body.head.text!=='' || body.templateSpans.length!==1)return undefined;
-  const span=body.templateSpans[0];
-  if(!ts.isIdentifier(span.expression) || span.expression.text!==binding.name.text)return undefined;
-  const parts=span.literal.text.split('/');
-  if(parts.shift()!=='' || !parts.length || parts.some(part=>!part || ['.','..'].includes(part) || /[\\\0:]/.test(part)))return undefined;
-  return [{input:key.text},...parts];
+  const operands=[];
+  if(ts.isTemplateExpression(body)) {
+    if(body.templateSpans.length!==1)return undefined;
+    const span=body.templateSpans[0];
+    if(!ts.isIdentifier(span.expression) || span.expression.text!==binding.name.text)return undefined;
+    operands.push(body.head.text,null,span.literal.text);
+  } else {
+    function flatten(node) {
+      if(ts.isBinaryExpression(node) && node.operatorToken.kind===ts.SyntaxKind.PlusToken) {
+        return flatten(node.left) && flatten(node.right);
+      }
+      if(ts.isStringLiteral(node) && !node.text.includes('\0')) {operands.push(node.text);return true;}
+      if(ts.isIdentifier(node) && node.text===binding.name.text) {operands.push(null);return true;}
+      return false;
+    }
+    if(!flatten(body))return undefined;
+  }
+  if(operands.filter(value=>value===null).length!==1)return undefined;
+  const segments=operands.map(value=>value===null?'\0':value).join('').split('/');
+  if(segments.some(segment=>!segment || ['.','..'].includes(segment) || /[\\:]/.test(segment)))return undefined;
+  return segments.map(segment=>{
+    const at=segment.indexOf('\0');
+    if(at<0)return segment;
+    const before=segment.slice(0,at),after=segment.slice(at+1);
+    if(!before && !after)return {input:key.text};
+    return {concat:[...(before?[{literal:before}]:[]),{input:key.text},...(after?[{literal:after}]:[])]};
+  });
 }

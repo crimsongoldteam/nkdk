@@ -1,0 +1,42 @@
+format: nkdk-declarations/1
+kind: value
+id: common.functional-options-property
+imports:
+  item: common.functional-option-item
+value:
+  kind: sequence
+  item:
+    use: item
+representations:
+  xml:
+    kind: element-sequence
+    path:
+      - Item
+    item:
+      kind: declared
+  yaml:
+    kind: sequence
+    item:
+      kind: declared
+presence:
+  - target: self
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-sequence
+          denotes:
+            absent: true
+      omitWhen:
+        not:
+          present:
+            self: true

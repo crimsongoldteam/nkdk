@@ -1,0 +1,84 @@
+format: nkdk-declarations/1
+kind: value
+id: common.metadata-allowed-paths-0b8a64ef81b9305c
+imports:
+  item: common.metadata-allowed-paths-0b8a64ef81b9305c.item
+  rootKind: common.path-root
+namespaces:
+  xr: http://v8.1c.ru/8.3/xcf/readable
+inputs:
+  roots:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: kind
+            type:
+              use: rootKind
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  pathChildren:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: parent
+            type:
+              kind: scalar
+              scalar: text
+          - name: kind
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+value:
+  kind: sequence
+  item:
+    use: item
+    bind:
+      roots:
+        input: roots
+      pathChildren:
+        input: pathChildren
+representations:
+  xml:
+    kind: element-sequence
+    path:
+      - xr:Object
+  yaml:
+    kind: sequence
+presence:
+  - target: self
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-sequence
+          denotes:
+            absent: true
+      omitWhen:
+        not:
+          present:
+            self: true

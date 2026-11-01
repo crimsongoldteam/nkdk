@@ -1,0 +1,34 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.1c320f1ab232388b95d1
+description: 'Кандидат проекции: относительный XML-корень dcsset:filter; не полный владелец'
+imports:
+  part0: candidate.fragment.973db2443c7f4fcc8d26
+compose:
+  - use: part0
+    bind:
+      defaultLanguage:
+        input: defaultLanguage
+      registeredLanguages:
+        input: registeredLanguages
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text

@@ -1,0 +1,37 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.type-description
+value:
+  kind: record
+  fields:
+    - name: type
+      type:
+        use: value0
+        bind: {}
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: type
+        path:
+          - xr:Type
+  yaml:
+    kind: mapping
+    fields:
+      - field: type
+        key: Тип
+presence:
+  - target:
+      field: type
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+namespaces:
+  xr: http://v8.1c.ru/8.3/xcf/readable
+id: candidate.fragment.acdf24120ffc03227ce0

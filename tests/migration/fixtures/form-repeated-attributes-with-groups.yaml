@@ -1,0 +1,23 @@
+# Сохранённый повтор имени; смысловая запись одна, исходных реквизита два.
+Реквизиты: !xml/raw
+  $значение:
+    Повтор:
+      Колонки:
+        Отступ: {Тип: Строка}
+      ДополнительныеКолонки:
+        G:
+          Сумма: {Тип: "Число(10, 2)"}
+  $xml:
+    "{http://v8.1c.ru/8.3/xcf/logform}Attribute":
+      - _name: Повтор
+        "{http://v8.1c.ru/8.3/xcf/logform}Columns":
+          "{http://v8.1c.ru/8.3/xcf/logform}Column": {_name: Отступ}
+          "{http://v8.1c.ru/8.3/xcf/logform}AdditionalColumns":
+            _table: G
+            "{http://v8.1c.ru/8.3/xcf/logform}Column": {_name: Сумма}
+      - _name: Повтор
+        "{http://v8.1c.ru/8.3/xcf/logform}Columns":
+          "{http://v8.1c.ru/8.3/xcf/logform}Column": {_name: Отступ}
+          "{http://v8.1c.ru/8.3/xcf/logform}AdditionalColumns":
+            _table: G
+            "{http://v8.1c.ru/8.3/xcf/logform}Column": {_name: Сумма}

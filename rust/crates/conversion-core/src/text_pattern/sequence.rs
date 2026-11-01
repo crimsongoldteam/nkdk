@@ -74,6 +74,23 @@ impl<'a, const N: usize> Sequence<'a, N> {
         HeadRows<'s, H, impl Iterator<Item = Result<[&'s str; N], PatternError>>>,
         PatternError,
     > {
+        let (head, remainder) = self.head::<H>(source, byte_budget)?;
+        Ok((
+            head,
+            self.stream(
+                remainder.unwrap_or(""),
+                row_budget,
+                remainder.is_none(),
+                source.len(),
+            ),
+        ))
+    }
+
+    fn head<'s, const H: usize>(
+        &self,
+        source: &'s str,
+        byte_budget: usize,
+    ) -> Result<([&'s str; H], Option<&'s str>), PatternError> {
         if H == 0 {
             return Err(PatternError::Plan("Head must be nonempty"));
         }
@@ -91,15 +108,94 @@ impl<'a, const N: usize> Sequence<'a, N> {
                 None => (text, None),
             };
         }
+        Ok((head, remainder))
+    }
+
+    /// Variant width is chosen from its first cell; all returned cells borrow source.
+    pub fn rows_variable<'s, F>(
+        &self,
+        source: &'s str,
+        row_budget: usize,
+        byte_budget: usize,
+        width: F,
+    ) -> Result<impl Iterator<Item = Result<Row<'s, N>, PatternError>>, PatternError>
+    where
+        F: FnMut(&str) -> Result<usize, PatternError>,
+    {
+        if source.len() > byte_budget {
+            return Err(PatternError::Budget);
+        }
+        Ok(self.variable_stream(source, row_budget, source.is_empty(), width))
+    }
+
+    pub fn rows_with_head_variable<'s, const H: usize, F>(
+        &self,
+        source: &'s str,
+        row_budget: usize,
+        byte_budget: usize,
+        width: F,
+    ) -> Result<HeadRows<'s, H, impl Iterator<Item = Result<Row<'s, N>, PatternError>>>, PatternError>
+    where
+        F: FnMut(&str) -> Result<usize, PatternError>,
+    {
+        let (head, remainder) = self.head::<H>(source, byte_budget)?;
         Ok((
             head,
-            self.stream(
+            self.variable_stream(
                 remainder.unwrap_or(""),
                 row_budget,
                 remainder.is_none(),
-                source.len(),
+                width,
             ),
         ))
+    }
+
+    fn variable_stream<'s, F>(
+        &self,
+        source: &'s str,
+        row_budget: usize,
+        empty: bool,
+        mut width: F,
+    ) -> impl Iterator<Item = Result<Row<'s, N>, PatternError>>
+    where
+        F: FnMut(&str) -> Result<usize, PatternError>,
+    {
+        let separator = self.boundary.literal;
+        let mut remaining = if empty { None } else { Some(source) };
+        let mut count = 0;
+        std::iter::from_fn(move || {
+            let text = remaining?;
+            let next = (|| {
+                if count == row_budget {
+                    return Err(PatternError::Budget);
+                }
+                let first = text.split_once(separator).map_or(text, |(cell, _)| cell);
+                let size = width(first)?;
+                if size == 0 || size > N {
+                    return Err(PatternError::Plan("Variant width exceeds row capacity"));
+                }
+                let mut cells = [""; N];
+                for cell in &mut cells[..size] {
+                    let tail = remaining.ok_or(PatternError::Input {
+                        offset: source.len(),
+                    })?;
+                    (*cell, remaining) = tail
+                        .split_once(separator)
+                        .map_or((tail, None), |(cell, tail)| (cell, Some(tail)));
+                }
+                count += 1;
+                let length = cells[..size].iter().map(|cell| cell.len()).sum::<usize>()
+                    + (size - 1) * separator.len();
+                Ok(Row {
+                    cells,
+                    text: &text[..length],
+                })
+            })();
+            if next.is_err() {
+                remaining = None;
+            }
+            Some(next)
+        })
     }
 
     /// Reads a head and retains each tail row's original spelling.

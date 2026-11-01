@@ -1,0 +1,41 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: test.hidden-text
+  value: {kind: scalar, scalar: text}
+  representations: {xml: {kind: text}, yaml: {kind: scalar, scalar: text}}
+- kind: value
+  id: test.hidden-row
+  imports: {text: test.hidden-text}
+  value: {kind: record, fields: [{name: label, type: {use: text}}]}
+  representations:
+    xml: {kind: record, fields: [{field: label, path: [Label]}]}
+    yaml: {kind: mapping, fields: [{field: label, key: Label}]}
+- kind: value
+  id: test.hidden-choice
+  namespaces: {xsi: 'http://www.w3.org/2001/XMLSchema-instance', t: 'urn:test'}
+  imports: {row: test.hidden-row}
+  value: {kind: choice, variants: [{name: row, type: {use: row}}]}
+  representations:
+    xml: {kind: choice, attribute: xsi:type, variants: [{variant: row, in: [t:Row], emit: t:Row}], otherwise: row}
+    yaml: {kind: choice, variants: [{variant: row, form: mapping, key: Label}]}
+- kind: value
+  id: test.hidden-outer
+  imports: {inner: test.hidden-choice}
+  value: {kind: choice, variants: [{name: nested, type: {use: inner}}]}
+  representations: {xml: {kind: choice, fallback: nested}, yaml: {kind: choice, variants: [{variant: nested, form: mapping, key: Label}], fallback: nested}}
+- kind: object
+  id: test.hidden-owner
+  imports: {source: test.hidden-outer, text: test.hidden-text}
+  value:
+    kind: record
+    fields: [{name: source, type: {use: source}}, {name: label, type: {use: text}}]
+  representations:
+    xml: {kind: record, fields: [{field: source, path: [Root, Source]}]}
+    yaml: {kind: mapping, fields: [{field: label, key: Label}]}
+  presence:
+  - target: {field: source}
+    yaml: {missing: {denotes: {variant: {name: nested, value: {if: {eq: [{field: label}, {literal: hello}]}, then: {variant: {name: row, value: {record: {label: {literal: hello}}}}}, else: {variant: {name: row, value: {record: {label: {field: label}}}}}}}}}}
+  - target: {field: label}
+    xml: {missing: {denotes: {get: {of: {variantValue: {value: {variantValue: {value: {field: source}, variant: nested}}, variant: row}}, field: label}}}}

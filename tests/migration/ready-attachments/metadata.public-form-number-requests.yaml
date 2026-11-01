@@ -1,0 +1,59 @@
+format: nkdk-declarations/1
+kind: object
+id: metadata.public-form-number-requests
+inputs:
+  component:
+    type:
+      kind: scalar
+      scalar: text
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  groupModes:
+    index: metadata.form-additional-group-address-modes
+  attributeModes:
+    index: metadata.form-attribute-address-modes
+imports:
+  rows: source.public-form-number-request-rows
+namespaces:
+  f: http://v8.1c.ru/8.3/xcf/logform
+value:
+  kind: record
+  fields:
+    - name: rows
+      type:
+        use: rows
+        bind:
+          component:
+            input: component
+          owner:
+            input: owner
+          groupModes:
+            input: groupModes
+          attributeModes:
+            input: attributeModes
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: rows
+        path:
+          - f:Form
+          - f:Attributes
+  yaml:
+    kind: mapping
+    fields:
+      - field: rows
+        key: Реквизиты
+presence:
+  - target:
+      field: rows
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true

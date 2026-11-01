@@ -1,0 +1,167 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  types: common.internal-generated-types
+namespaces:
+  md: http://v8.1c.ru/8.3/MDClasses
+inputs:
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  name:
+    type:
+      kind: scalar
+      scalar: text
+  typeIds:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: owner
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  valueIds:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: owner
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+value:
+  kind: record
+  fields:
+    - name: types
+      type:
+        use: types
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: types
+        path:
+          - md:MetaDataObject
+          - md:ExternalDataSource
+          - md:InternalInfo
+  yaml:
+    kind: mapping
+    fields:
+      - field: types
+        key: ВнутренниеТипы
+presence:
+  - target:
+      field: types
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        sequence:
+          - record:
+              name:
+                concat:
+                  - literal: ExternalDataSourceManager.
+                  - input: name
+              category:
+                literal: Manager
+              typeId:
+                require:
+                  lookup:
+                    in:
+                      input: typeIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        name:
+                          literal: ExternalDataSourceManager
+              valueId:
+                require:
+                  lookup:
+                    in:
+                      input: valueIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        name:
+                          literal: ExternalDataSourceManager
+          - record:
+              name:
+                concat:
+                  - literal: ExternalDataSourceTablesManager.
+                  - input: name
+              category:
+                literal: TablesManager
+              typeId:
+                require:
+                  lookup:
+                    in:
+                      input: typeIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        name:
+                          literal: ExternalDataSourceTablesManager
+              valueId:
+                require:
+                  lookup:
+                    in:
+                      input: valueIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        name:
+                          literal: ExternalDataSourceTablesManager
+          - record:
+              name:
+                concat:
+                  - literal: ExternalDataSourceCubesManager.
+                  - input: name
+              category:
+                literal: CubesManager
+              typeId:
+                require:
+                  lookup:
+                    in:
+                      input: typeIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        name:
+                          literal: ExternalDataSourceCubesManager
+              valueId:
+                require:
+                  lookup:
+                    in:
+                      input: valueIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        name:
+                          literal: ExternalDataSourceCubesManager
+id: candidate.internal-info.d435857dd1654d254f07

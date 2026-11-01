@@ -1,4 +1,5 @@
 use nkdk_compiled_rules::{Direction, convert_file, entry_id, read_inputs, verify_candidate};
+#[cfg(nkdk_candidate_document)]
 use nkdk_conversion_core::{
     InputValue,
     facts::{
@@ -10,6 +11,7 @@ use nkdk_conversion_core::{
     inputs,
 };
 
+#[cfg(nkdk_candidate_document)]
 #[test]
 fn working_document_attributes_restore_real_document_rows_without_xml_reference() {
     let manifest: serde_json::Value = serde_json::from_str(include_str!(
@@ -79,7 +81,8 @@ fn working_document_attributes_restore_real_document_rows_without_xml_reference(
         );
         if case["entry"] == "migration.document-attribute-form-links" {
             assert!(
-                String::from_utf8_lossy(&yaml.bytes).contains("ПоляБлокировкиДанных:\n  - СтандартныйРеквизит.Номер"),
+                String::from_utf8_lossy(&yaml.bytes)
+                    .contains("ПоляБлокировкиДанных:\n  - СтандартныйРеквизит.Номер"),
                 "{}",
                 String::from_utf8_lossy(&yaml.bytes)
             );
@@ -88,6 +91,7 @@ fn working_document_attributes_restore_real_document_rows_without_xml_reference(
     }
 }
 
+#[cfg(nkdk_candidate_standard)]
 #[test]
 fn complete_standard_attribute_profiles_are_in_the_working_catalog() {
     let name = "metadata.standard-attribute-owner";
@@ -97,6 +101,7 @@ fn complete_standard_attribute_profiles_are_in_the_working_catalog() {
     );
 }
 
+#[cfg(nkdk_candidate_standard)]
 #[test]
 fn working_standard_attribute_profiles_round_trip_complete_e2e_collections() {
     let contract: serde_json::Value = serde_json::from_str(include_str!(
@@ -135,6 +140,37 @@ fn working_standard_attribute_profiles_round_trip_complete_e2e_collections() {
             "{case_id}"
         );
         verify_candidate(entry, xml, &converted.bytes, &inputs).unwrap();
-        verify_candidate(entry, xml, expected_yaml, &inputs).unwrap();
+        verify_candidate(entry, xml, expected_yaml, &inputs)
+            .unwrap_or_else(|error| panic!("{case_id}: {error:?}"));
     }
+}
+
+#[cfg(nkdk_candidate_standard)]
+#[test]
+fn journal_standard_attributes_mount_the_shared_list_in_the_complete_xml_path() {
+    let contract: serde_json::Value = serde_json::from_str(include_str!(
+        "../../../../tests/migration/rules-contract-cases.json"
+    ))
+    .unwrap();
+    let case = contract["cases"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|case| case["id"] == "standard-attribute-family-document-journal")
+        .unwrap();
+    let entry = entry_id("migration.journal-standard-attributes").unwrap();
+    let inputs = read_inputs(entry, &serde_json::to_vec(&case["inputs"]).unwrap()).unwrap();
+    let fragment = case["xml"].as_str().unwrap().replacen(
+        "<StandardAttributes ",
+        "<StandardAttributes xmlns=\"http://v8.1c.ru/8.3/MDClasses\" ",
+        1,
+    );
+    let xml = format!(
+        "<md:MetaDataObject xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\"><md:DocumentJournal><md:Properties>{fragment}</md:Properties></md:DocumentJournal></md:MetaDataObject>"
+    );
+    let converted = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+    let yaml = String::from_utf8_lossy(&converted.bytes);
+    assert!(yaml.contains("СтандартныеРеквизиты:"), "{yaml}");
+    assert!(yaml.contains("Ссылка:"), "{yaml}");
+    verify_candidate(entry, xml.as_bytes(), &converted.bytes, &inputs).unwrap();
 }

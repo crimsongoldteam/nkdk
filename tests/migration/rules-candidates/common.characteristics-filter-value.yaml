@@ -1,0 +1,63 @@
+format: nkdk-declarations/1
+kind: value
+id: common.characteristics-filter-value
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  xr: http://v8.1c.ru/8.3/xcf/readable
+  xs: http://www.w3.org/2001/XMLSchema
+imports:
+  reference: common.metadata-reference
+  boolean: common.boolean
+  text: common.string
+value:
+  kind: choice
+  variants:
+    - name: reference
+      type:
+        use: reference
+    - name: boolean
+      type:
+        use: boolean
+    - name: text
+      type:
+        use: text
+representations:
+  xml:
+    kind: choice
+    attribute: xsi:type
+    variants:
+      - variant: reference
+        in:
+          - xr:DesignTimeRef
+        emit: xr:DesignTimeRef
+      - variant: boolean
+        in:
+          - xs:boolean
+        emit: xs:boolean
+      - variant: text
+        in:
+          - xs:string
+        emit: xs:string
+    otherwise: text
+  yaml:
+    kind: choice
+presence:
+  - target: self
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: nil
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                self: true
+          form: nil
+    yaml:
+      missing:
+        denotes:
+          absent: true

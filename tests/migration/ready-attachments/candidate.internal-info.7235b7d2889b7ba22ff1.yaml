@@ -1,0 +1,202 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  types: common.internal-generated-types
+  containedObjects: common.internal-contained-objects
+namespaces:
+  md: http://v8.1c.ru/8.3/MDClasses
+  xr: http://v8.1c.ru/8.3/xcf/readable
+inputs:
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  name:
+    type:
+      kind: scalar
+      scalar: text
+  containedIds:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: owner
+            type:
+              kind: scalar
+              scalar: text
+          - name: classId
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+value:
+  kind: record
+  fields:
+    - name: types
+      type:
+        use: types
+    - name: containedObjects
+      type:
+        use: containedObjects
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: types
+        path:
+          - md:MetaDataObject
+          - md:Configuration
+          - md:InternalInfo
+      - field: containedObjects
+        path:
+          - md:MetaDataObject
+          - md:Configuration
+          - md:InternalInfo
+  yaml:
+    kind: mapping
+    fields:
+      - field: types
+        key: ВнутренниеТипы
+      - field: containedObjects
+        key: ВнутренниеОбъекты
+presence:
+  - target:
+      field: types
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        sequence: []
+  - target:
+      field: containedObjects
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        sequence:
+          - record:
+              classId:
+                literal: 9cd510cd-abfc-11d4-9434-004095e12fc7
+              objectId:
+                require:
+                  lookup:
+                    in:
+                      input: containedIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        classId:
+                          literal: 9cd510cd-abfc-11d4-9434-004095e12fc7
+          - record:
+              classId:
+                literal: 9fcd25a0-4822-11d4-9414-008048da11f9
+              objectId:
+                require:
+                  lookup:
+                    in:
+                      input: containedIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        classId:
+                          literal: 9fcd25a0-4822-11d4-9414-008048da11f9
+          - record:
+              classId:
+                literal: e3687481-0a87-462c-a166-9f34594f9bba
+              objectId:
+                require:
+                  lookup:
+                    in:
+                      input: containedIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        classId:
+                          literal: e3687481-0a87-462c-a166-9f34594f9bba
+          - record:
+              classId:
+                literal: 9de14907-ec23-4a07-96f0-85521cb6b53b
+              objectId:
+                require:
+                  lookup:
+                    in:
+                      input: containedIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        classId:
+                          literal: 9de14907-ec23-4a07-96f0-85521cb6b53b
+          - record:
+              classId:
+                literal: 51f2d5d8-ea4d-4064-8892-82951750031e
+              objectId:
+                require:
+                  lookup:
+                    in:
+                      input: containedIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        classId:
+                          literal: 51f2d5d8-ea4d-4064-8892-82951750031e
+          - record:
+              classId:
+                literal: e68182ea-4237-4383-967f-90c1e3370bc7
+              objectId:
+                require:
+                  lookup:
+                    in:
+                      input: containedIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        classId:
+                          literal: e68182ea-4237-4383-967f-90c1e3370bc7
+          - record:
+              classId:
+                literal: fb282519-d103-4dd3-bc12-cb271d631dfc
+              objectId:
+                require:
+                  lookup:
+                    in:
+                      input: containedIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        classId:
+                          literal: fb282519-d103-4dd3-bc12-cb271d631dfc
+contributions:
+  - index: metadata.internal-contained-ids
+    forEach:
+      in:
+        field: containedObjects
+      as: row
+    key:
+      record:
+        owner:
+          input: owner
+        classId:
+          get:
+            of:
+              var: row
+            field: classId
+    value:
+      get:
+        of:
+          var: row
+        field: objectId
+id: candidate.internal-info.7235b7d2889b7ba22ff1

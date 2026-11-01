@@ -1,0 +1,9 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.common-attribute-content
+namespaces: {xr: 'http://v8.1c.ru/8.3/xcf/readable'}
+imports: {content: common.common-attribute-content}
+value: {kind: record, fields: [{name: content, type: {use: content}}]}
+representations:
+  xml: {kind: record, fields: [{field: content, path: [Root, Content]}]}
+  yaml: {kind: mapping, fields: [{field: content, key: Состав}]}

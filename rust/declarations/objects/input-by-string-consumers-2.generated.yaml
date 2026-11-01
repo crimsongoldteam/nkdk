@@ -1,0 +1,519 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+  - format: nkdk-declarations/1
+    kind: object
+    id: candidate.input-by-string.chartofaccounts
+    imports:
+      part: fragment.input-by-string.chartofaccounts
+      part_compatibility: system.CompatibilityMode
+    inputs:
+      name:
+        type:
+          kind: scalar
+          scalar: text
+      adopted:
+        type:
+          kind: scalar
+          scalar: boolean
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+      members:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: component
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: role
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: name
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+        index: metadata.input-by-string-members
+      states:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: property
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: mode
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+        index: metadata.property-state-membership
+      baseNumbers:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: property
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+        index: metadata.base-owner-numbers
+      compatibilityMode:
+        type:
+          use: part_compatibility
+    compose:
+      - use: part
+        bind:
+          name:
+            input: name
+          adopted:
+            input: adopted
+          component:
+            input: component
+          owner:
+            input: owner
+          members:
+            input: members
+          states:
+            input: states
+          baseNumbers:
+            input: baseNumbers
+          compatibilityMode:
+            input: compatibilityMode
+    value:
+      kind: record
+      fields: []
+    representations:
+      xml:
+        kind: record
+        fields: []
+      yaml:
+        kind: mapping
+        fields: []
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+  - format: nkdk-declarations/1
+    kind: object
+    id: candidate.input-by-string.exchangeplan
+    imports:
+      part: fragment.input-by-string.exchangeplan
+      part_compatibility: system.CompatibilityMode
+    inputs:
+      name:
+        type:
+          kind: scalar
+          scalar: text
+      adopted:
+        type:
+          kind: scalar
+          scalar: boolean
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+      members:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: component
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: role
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: name
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+        index: metadata.input-by-string-members
+      states:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: property
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: mode
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+        index: metadata.property-state-membership
+      baseNumbers:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: property
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+        index: metadata.base-owner-numbers
+      compatibilityMode:
+        type:
+          use: part_compatibility
+    compose:
+      - use: part
+        bind:
+          name:
+            input: name
+          adopted:
+            input: adopted
+          component:
+            input: component
+          owner:
+            input: owner
+          members:
+            input: members
+          states:
+            input: states
+          baseNumbers:
+            input: baseNumbers
+          compatibilityMode:
+            input: compatibilityMode
+    value:
+      kind: record
+      fields: []
+    representations:
+      xml:
+        kind: record
+        fields: []
+      yaml:
+        kind: mapping
+        fields: []
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+  - format: nkdk-declarations/1
+    kind: object
+    id: candidate.chartofaccounts-name-and-input
+    imports:
+      name: fragment.chartofaccounts-source-name
+      input: fragment.input-by-string.chartofaccounts
+      input_compatibility: system.CompatibilityMode
+    inputs:
+      name:
+        type:
+          kind: scalar
+          scalar: text
+      adopted:
+        type:
+          kind: scalar
+          scalar: boolean
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+      members:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: component
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: role
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: name
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+        index: metadata.input-by-string-members
+      states:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: property
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: mode
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+        index: metadata.property-state-membership
+      baseNumbers:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: property
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+        index: metadata.base-owner-numbers
+      compatibilityMode:
+        type:
+          use: input_compatibility
+    compose:
+      - use: name
+        bind:
+          ownerName:
+            input: name
+      - use: input
+        bind:
+          name:
+            input: name
+          adopted:
+            input: adopted
+          component:
+            input: component
+          owner:
+            input: owner
+          members:
+            input: members
+          states:
+            input: states
+          baseNumbers:
+            input: baseNumbers
+          compatibilityMode:
+            input: compatibilityMode
+    value:
+      kind: record
+      fields: []
+    representations:
+      xml:
+        kind: record
+        fields: []
+      yaml:
+        kind: mapping
+        fields: []
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    xmlOrder:
+      - history
+      - name
+      - MaxExtDimensionCount
+      - CodeLength
+      - DescriptionLength
+      - InputByString
+      - OrderLength
+  - format: nkdk-declarations/1
+    kind: object
+    id: candidate.exchangeplan-name-and-input
+    imports:
+      name: fragment.exchangeplan-source-name
+      input: fragment.input-by-string.exchangeplan
+      input_compatibility: system.CompatibilityMode
+    inputs:
+      name:
+        type:
+          kind: scalar
+          scalar: text
+      adopted:
+        type:
+          kind: scalar
+          scalar: boolean
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+      members:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: component
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: role
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: name
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+        index: metadata.input-by-string-members
+      states:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: property
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: mode
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+        index: metadata.property-state-membership
+      baseNumbers:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: property
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+        index: metadata.base-owner-numbers
+      compatibilityMode:
+        type:
+          use: input_compatibility
+    compose:
+      - use: name
+        bind:
+          ownerName:
+            input: name
+      - use: input
+        bind:
+          name:
+            input: name
+          adopted:
+            input: adopted
+          component:
+            input: component
+          owner:
+            input: owner
+          members:
+            input: members
+          states:
+            input: states
+          baseNumbers:
+            input: baseNumbers
+          compatibilityMode:
+            input: compatibilityMode
+    value:
+      kind: record
+      fields: []
+    representations:
+      xml:
+        kind: record
+        fields: []
+      yaml:
+        kind: mapping
+        fields: []
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    xmlOrder:
+      - history
+      - name
+      - CodeLength
+      - DescriptionLength
+      - InputByString

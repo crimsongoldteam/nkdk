@@ -1,0 +1,194 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+  - kind: fragment
+    id: fragment.predefined-account-item
+    namespaces:
+      p: http://v8.1c.ru/8.3/xcf/predef
+    imports:
+      code: common.predefined-code
+      boolean: common.boolean
+      accountType: system.AccountType
+      flags: probe.predefined-account-flags
+      dimensions: probe.predefined-account-dimensions
+    inputs:
+      parent:
+        type: {kind: scalar, scalar: text}
+      identities:
+        type: {kind: index, key: {kind: scalar, scalar: text}, value: {kind: scalar, scalar: text}}
+    value:
+      kind: record
+      fields:
+        - {name: name, type: {kind: scalar, scalar: text}}
+        - {name: code, type: {use: code}}
+        - {name: description, type: {kind: scalar, scalar: text}}
+        - {name: accountType, type: {use: accountType}}
+        - {name: offBalance, type: {use: boolean}}
+        - {name: order, type: {kind: scalar, scalar: text}}
+        - {name: flags, type: {use: flags}}
+        - {name: dimensions, type: {use: dimensions}}
+        - {name: id, type: {kind: scalar, scalar: text}}
+    representations:
+      xml:
+        kind: record
+        fields: [{field: name, path: [p:Name]}, {field: code, path: [p:Code]}, {field: description, path: [p:Description]}, {field: accountType, path: [p:AccountType]}, {field: offBalance, path: [p:OffBalance]}, {field: order, path: [p:Order]}, {field: flags, path: [p:AccountingFlags]}, {field: dimensions, path: [p:ExtDimensionTypes]}, {field: id, path: [], attribute: id}]
+      yaml:
+        kind: mapping
+        fields: [{field: name, key: Имя}, {field: code, key: Код}, {field: description, key: Наименование}, {field: accountType, key: ВидСчета}, {field: offBalance, key: Забалансовый}, {field: order, key: Порядок}, {field: flags, key: ПризнакиУчета}, {field: dimensions, key: ВидыСубконто}, {field: id, key: Идентификатор}]
+    presence:
+      - target: {field: description}
+        yaml: {default: {literal: ''}}
+      - target: {field: id}
+        xml: {missing: {denotes: {absent: true}}}
+        yaml: {missing: {denotes: {lookup: {in: {input: identities}, key: {concat: [{input: parent}, {literal: .Предопределенный.}, {field: name}]}}}}, omitWhen: {match: {value: {lookup: {in: {input: identities}, key: {concat: [{input: parent}, {literal: .Предопределенный.}, {field: name}]}}}, present: {as: uuid, then: {eq: [{field: id}, {var: uuid}]}}, absent: {literal: false}}}}
+      - target: {field: accountType}
+        xml: {missing: {denotes: {literal: ActivePassive}}}
+        yaml: {default: {literal: ActivePassive}}
+      - target: {field: offBalance}
+        xml: {missing: {denotes: {literal: false}}}
+        yaml: {missing: {denotes: {literal: false}}}
+      - target: {field: order}
+        yaml: {missing: {denotes: {literal: ''}}}
+      - target: {field: dimensions}
+        xml: {missing: {denotes: {absent: true}}, empty: [{form: empty-element, denotes: {absent: true}}], canonical: [{when: {not: {present: {field: dimensions}}}, form: empty-element}, {form: ordinary}]}
+        yaml: {missing: {denotes: {absent: true}}}
+    contributions:
+    - index: metadata.predefined-identities
+      key: {concat: [{input: parent}, {literal: .Предопределенный.}, {field: name}]}
+      value: {field: id}
+      when: {present: {field: id}}
+  - kind: value
+    id: probe.predefined-account-item
+    namespaces: {p: 'http://v8.1c.ru/8.3/xcf/predef'}
+    imports: {fields: fragment.predefined-account-item, children: probe.predefined-account-items}
+    yamlOrder: [name, code, description, accountType, offBalance, order, flags, dimensions, children, id]
+    inputs:
+      parent: {type: {kind: scalar, scalar: text}}
+      identities: {type: {kind: index, key: {kind: scalar, scalar: text}, value: {kind: scalar, scalar: text}}}
+    compose: [{use: fields, bind: {parent: {input: parent}, identities: {input: identities}}}]
+    value:
+      kind: record
+      fields:
+        - {name: children, type: {use: children, bind: {parent: {concat: [{input: parent}, {literal: .Предопределенный.}, {field: name}]}, identities: {input: identities}}}}
+    representations:
+      xml: {kind: record, fields: [{field: children, path: [p:ChildItems]}]}
+      yaml: {kind: mapping, fields: [{field: children, key: Элементы}]}
+  - kind: value
+    id: probe.predefined-account-items
+    namespaces:
+      p: http://v8.1c.ru/8.3/xcf/predef
+    imports:
+      item: probe.predefined-account-item
+    inputs:
+      parent:
+        type: {kind: scalar, scalar: text}
+      identities:
+        type: {kind: index, key: {kind: scalar, scalar: text}, value: {kind: scalar, scalar: text}}
+    value:
+      kind: sequence
+      item:
+        use: item
+        bind: {parent: {input: parent}, identities: {input: identities}}
+    representations:
+      xml:
+        kind: element-sequence
+        path: [p:Item]
+        item: {kind: declared}
+      yaml:
+        kind: record-mapping
+        key: name
+    presence:
+      - target: self
+        xml: {missing: {denotes: {absent: true}}}
+        yaml: {missing: {denotes: {absent: true}}}
+  - kind: value
+    id: probe.predefined-account-flag
+    namespaces:
+      p: http://v8.1c.ru/8.3/xcf/predef
+    imports:
+      boolean: common.boolean
+    value:
+      kind: record
+      fields:
+        - {name: value, type: {use: boolean}}
+        - {name: ref, type: {kind: scalar, scalar: text}}
+    representations:
+      xml:
+        kind: record
+        fields: [{field: value, path: []}, {field: ref, path: [], attribute: ref}]
+      yaml:
+        kind: mapping
+        fields: [{field: value, key: Значение}, {field: ref, key: Ссылка}]
+  - kind: value
+    id: probe.predefined-account-flags
+    namespaces:
+      p: http://v8.1c.ru/8.3/xcf/predef
+    imports:
+      item: probe.predefined-account-flag
+    value:
+      kind: sequence
+      item:
+        use: item
+    representations:
+      xml:
+        kind: element-sequence
+        path: [p:Flag]
+        item: {kind: declared}
+      yaml:
+        kind: record-mapping
+        key: ref
+    presence:
+      - target: self
+        xml: {missing: {denotes: {absent: true}}}
+        yaml: {missing: {denotes: {absent: true}}}
+  - kind: value
+    id: probe.predefined-account-dimension
+    namespaces:
+      p: http://v8.1c.ru/8.3/xcf/predef
+    imports:
+      boolean: common.boolean
+      flags: probe.predefined-account-flags
+    value:
+      kind: record
+      fields:
+        - {name: turnover, type: {use: boolean}}
+        - {name: flags, type: {use: flags}}
+        - {name: name, type: {kind: scalar, scalar: text}}
+    representations:
+      xml:
+        kind: record
+        fields: [{field: turnover, path: [p:Turnover]}, {field: flags, path: [p:AccountingFlags]}, {field: name, path: [], attribute: name}]
+      yaml:
+        kind: mapping
+        fields: [{field: turnover, key: Оборотный}, {field: flags, key: ПризнакиУчета}, {field: name, key: Имя}]
+    presence:
+      - target: {field: turnover}
+        xml: {missing: {denotes: {literal: false}}}
+        yaml: {default: {literal: false}}
+    constraints:
+      - id: characteristic-predefined-target
+        appliesTo: [xml-import, yaml-validation]
+        assert: {matches: {value: {field: name}, pattern: 'ChartOfCharacteristicTypes\.[A-Za-zА-Яа-яЁё_][A-Za-zА-Яа-яЁё0-9_]*\.[A-Za-zА-Яа-яЁё_][A-Za-zА-Яа-яЁё0-9_]*'}}
+        diagnostic: {code: predefined.characteristic-target, severity: error, at: {field: name}, message: Вид субконто должен ссылаться на предопределённое значение плана характеристик}
+  - kind: value
+    id: probe.predefined-account-dimensions
+    namespaces:
+      p: http://v8.1c.ru/8.3/xcf/predef
+    imports:
+      item: probe.predefined-account-dimension
+    value:
+      kind: sequence
+      item:
+        use: item
+    representations:
+      xml:
+        kind: element-sequence
+        path: [p:ExtDimensionType]
+        item: {kind: declared}
+      yaml:
+        kind: record-mapping
+        key: name
+    presence:
+      - target: self
+        xml: {missing: {denotes: {absent: true}}}
+        yaml: {missing: {denotes: {absent: true}}}

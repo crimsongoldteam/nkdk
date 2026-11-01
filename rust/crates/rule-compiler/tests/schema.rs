@@ -1,4 +1,290 @@
 use nkdk_rule_compiler::{SourceFile, link, parse, schema};
+mod support;
+
+#[test]
+fn group_item_collection_schema_accepts_both_item_kinds() {
+    let program = declaration_program(&[
+        "common/string.yaml",
+        "common/boolean.yaml",
+        "common/typed-date-time.yaml",
+        "common/system-enumerations.yaml",
+        "common/group-item-auto.yaml",
+        "common/group-item-field.yaml",
+        "common/group-item-collection.yaml",
+        "probes/group-item-collection.yaml",
+    ]);
+    let actual: serde_json::Value =
+        serde_json::from_slice(&schema(&program, "migration.group-item-collection").unwrap())
+            .unwrap();
+    let validator = jsonschema::validator_for(&actual).unwrap();
+    for value in [
+        serde_json::json!({"ПоляГруппировки": ["Наименование", "[Авто]", {"Поле": "Код", "Использование": "Ложь"}]}),
+        serde_json::json!({"ПоляГруппировки": ["([Авто])", "(Наименование)"]}),
+    ] {
+        assert!(validator.is_valid(&value), "{value}");
+    }
+    assert!(!validator.is_valid(
+        &serde_json::json!({"ПоляГруппировки": [{"Поле": "Код", "ТипГруппировки": "Неверный"}]})
+    ));
+    let chain = declaration_program(&[
+        "common/string.yaml",
+        "common/boolean.yaml",
+        "common/typed-date-time.yaml",
+        "common/system-enumerations.yaml",
+        "common/group-item-auto.yaml",
+        "common/group-item-field.yaml",
+        "common/group-item-collection.yaml",
+        "common/structure-item-group.yaml",
+        "probes/structure-item-group.yaml",
+    ]);
+    let chain_schema: serde_json::Value =
+        serde_json::from_slice(&schema(&chain, "migration.structure-item-group").unwrap()).unwrap();
+    let chain_validator = jsonschema::validator_for(&chain_schema).unwrap();
+    assert!(
+        chain_validator.is_valid(&serde_json::json!({"Группировка": ["Наименование", "[Авто]"]}))
+    );
+    assert!(!chain_validator.is_valid(
+        &serde_json::json!({"Группировка": [{"Поле": "Код", "ТипГруппировки": "Неверный"}]})
+    ));
+}
+
+#[test]
+fn group_item_field_schema_accepts_both_short_forms_and_the_full_record() {
+    let program = declaration_program(&[
+        "common/string.yaml",
+        "common/boolean.yaml",
+        "common/typed-date-time.yaml",
+        "common/system-enumerations.yaml",
+        "common/group-item-field.yaml",
+        "probes/group-item-field.yaml",
+    ]);
+    let actual: serde_json::Value =
+        serde_json::from_slice(&schema(&program, "migration.group-item-field").unwrap()).unwrap();
+    let validator = jsonschema::validator_for(&actual).unwrap();
+    for value in [
+        serde_json::json!({"Значение": "Наименование"}),
+        serde_json::json!({"Значение": "(Наименование)"}),
+        serde_json::json!({"Значение": {"Поле": "Наименование", "Использование": "Ложь"}}),
+    ] {
+        assert!(validator.is_valid(&value), "{value}");
+    }
+    assert!(!validator.is_valid(&serde_json::json!({"Значение": {"Использование": "Ложь"}})));
+    assert!(
+        !validator.is_valid(
+            &serde_json::json!({"Значение": {"Поле": "Код", "ТипГруппировки": "Неверный"}})
+        )
+    );
+}
+
+#[test]
+fn available_fields_schema_accepts_short_and_full_rows() {
+    let program = declaration_program(&[
+        "common/string.yaml",
+        "common/boolean.yaml",
+        "common/i8n-text.yaml",
+        "common/system-enumerations.yaml",
+        "common/dcs-available-fields.yaml",
+        "probes/dcs-available-fields.yaml",
+    ]);
+    let actual: serde_json::Value =
+        serde_json::from_slice(&schema(&program, "migration.dcs-available-fields").unwrap())
+            .unwrap();
+    let validator = jsonschema::validator_for(&actual).unwrap();
+    for row in [
+        serde_json::json!("Документ"),
+        serde_json::json!({"Поле": "Документ"}),
+        serde_json::json!({"Поле": "Документ", "Использование": "Ложь", "Заголовок": "Название", "РежимОтображения": "Обычный"}),
+    ] {
+        assert!(
+            validator.is_valid(&serde_json::json!({"Поля": [row]})),
+            "{row}"
+        );
+    }
+    for row in [
+        serde_json::json!({"Использование": "Истина"}),
+        serde_json::json!({"Поле": "Документ", "РежимОтображения": "Неверный"}),
+        serde_json::json!({"Поле": "Документ", "Лишнее": "значение"}),
+    ] {
+        assert!(
+            !validator.is_valid(&serde_json::json!({"Поля": [row]})),
+            "{row}"
+        );
+    }
+}
+
+#[test]
+fn dcs_local_string_schema_accepts_text_and_language_mapping() {
+    let program = declaration_program(&[
+        "common/i8n-text.yaml",
+        "common/dcs-local-string-type.yaml",
+        "probes/dcs-local-string-type.yaml",
+    ]);
+    let actual: serde_json::Value =
+        serde_json::from_slice(&schema(&program, "migration.dcs-local-string-type").unwrap())
+            .unwrap();
+    let validator = jsonschema::validator_for(&actual).unwrap();
+    assert!(validator.is_valid(&serde_json::json!({"Заголовок": "Текст"})));
+    assert!(validator.is_valid(&serde_json::json!({"Заголовок": {"ru": "Текст", "en": "Text"}})));
+    assert!(!validator.is_valid(&serde_json::json!({"Заголовок": 42})));
+    assert!(!validator.is_valid(&serde_json::json!({"Заголовок": ["Текст"]})));
+}
+
+#[test]
+fn user_visible_schema_uses_declared_role_map_and_boolean_values() {
+    let program = declaration_program(&[
+        "common/boolean.yaml",
+        "common/user-visible.yaml",
+        "probes/user-visible.yaml",
+    ]);
+    let actual: serde_json::Value =
+        serde_json::from_slice(&schema(&program, "probe.user-visible").unwrap()).unwrap();
+    let validator = jsonschema::validator_for(&actual).unwrap();
+    assert!(validator.is_valid(&serde_json::json!({"Использование": {
+        "Разрешить": "Ложь",
+        "Роли": {"Менеджер": "Истина"}
+    }})));
+    assert!(!validator.is_valid(&serde_json::json!({"Использование": {
+        "Роли": {"Менеджер": "Неверно"}
+    }})));
+}
+
+#[test]
+fn calculated_field_use_restriction_schema_is_inferred_from_boolean_fields() {
+    let program = declaration_program(&[
+        "common/boolean.yaml",
+        "common/calculated-field-use-restriction.yaml",
+        "probes/calculated-field-use-restriction.yaml",
+    ]);
+    let actual: serde_json::Value = serde_json::from_slice(
+        &schema(&program, "migration.calculated-field-use-restriction").unwrap(),
+    )
+    .unwrap();
+    let validator = jsonschema::validator_for(&actual).unwrap();
+    assert!(
+        validator.is_valid(&serde_json::json!({"ОграничениеИспользования": {"Поле": "Истина"}}))
+    );
+    assert!(
+        !validator.is_valid(&serde_json::json!({"ОграничениеИспользования": {"Поле": "Неверно"}}))
+    );
+    assert!(
+        !validator.is_valid(&serde_json::json!({"ОграничениеИспользования": {"Лишнее": true}}))
+    );
+}
+
+#[test]
+fn calculated_field_order_expression_schema_reuses_the_sort_direction() {
+    let program = declaration_program(&[
+        "common/boolean.yaml",
+        "common/string.yaml",
+        "common/system-enumerations.yaml",
+        "common/calculated-field-order-expressions.yaml",
+        "probes/calculated-field-order-expressions.yaml",
+    ]);
+    let actual: serde_json::Value = serde_json::from_slice(
+        &schema(&program, "migration.calculated-field-order-expressions").unwrap(),
+    )
+    .unwrap();
+    let validator = jsonschema::validator_for(&actual).unwrap();
+    assert!(
+        validator.is_valid(&serde_json::json!({"ВыраженияУпорядочивания": [
+            {"Выражение": "Дата", "ТипУпорядочивания": "Возр", "Автоупорядочивание": "Истина"}
+        ]}))
+    );
+    assert!(
+        !validator.is_valid(&serde_json::json!({"ВыраженияУпорядочивания": [
+            {"Выражение": "Дата", "ТипУпорядочивания": "Вперед"}
+        ]}))
+    );
+    assert!(!validator.is_valid(&serde_json::json!({"ВыраженияУпорядочивания": "Дата"})));
+}
+
+#[test]
+fn common_attribute_content_schema_reuses_the_declared_paths_and_enum() {
+    let program = declaration_program(&[
+        "common/common-attribute-content.yaml",
+        "common/metadata-name.yaml",
+        "common/metadata-path-lexicons.yaml",
+        "common/string.yaml",
+        "common/system-enumerations.yaml",
+        "probes/common-attribute-content.yaml",
+    ]);
+    let actual: serde_json::Value =
+        serde_json::from_slice(&schema(&program, "migration.common-attribute-content").unwrap())
+            .unwrap();
+    let validator = jsonschema::validator_for(&actual).unwrap();
+    assert!(validator.is_valid(&serde_json::json!({"Состав": [{
+        "Объект": "Справочники.Товары",
+        "Использование": "Использовать",
+        "УсловноеРазделение": ""
+    }]})));
+    assert!(!validator.is_valid(&serde_json::json!({"Состав": "Товары"})));
+    assert!(!validator.is_valid(&serde_json::json!({"Состав": [{
+        "Объект": "Справочники.Товары",
+        "Использование": "Неверно"
+    }]})));
+    assert!(!validator.is_valid(&serde_json::json!({"Состав": [{
+        "Объект": "Справочники.Товары",
+        "Использование": "Использовать",
+        "ЛишнееПоле": true
+    }]})));
+}
+
+#[test]
+fn metadata_link_collection_schema_comes_from_the_shared_declaration() {
+    let program = declaration_program(&[
+        "common/metadata-name.yaml",
+        "common/metadata-path-lexicons.yaml",
+        "common/metadata-field-segments.yaml",
+        "common/metadata-member-paths.yaml",
+        "common/metadata-root-path.yaml",
+        "common/metadata-structural-path.yaml",
+        "common/metadata-ref.yaml",
+        "common/standard-attribute-name.yaml",
+        "probes/metadata-item-links.yaml",
+    ]);
+    let actual: serde_json::Value =
+        serde_json::from_slice(&schema(&program, "migration.metadata-item-links").unwrap())
+            .unwrap();
+    let validator = jsonschema::validator_for(&actual).unwrap();
+    assert!(validator.is_valid(&serde_json::json!({"Ссылки": ["Catalog.Товары", ""]})));
+    assert!(!validator.is_valid(&serde_json::json!({"Ссылки": "Catalog.Товары"})));
+    assert!(!validator.is_valid(&serde_json::json!({"Ссылки": [42]})));
+}
+
+#[test]
+fn choice_list_schema_is_derived_from_its_item_declaration() {
+    let program = declaration_program(&[
+        "common/boolean.yaml",
+        "common/choice-list.yaml",
+        "common/date-time-seconds.yaml",
+        "common/i8n-text.yaml",
+        "common/metadata-field-segments.yaml",
+        "common/metadata-member-paths.yaml",
+        "common/metadata-name.yaml",
+        "common/metadata-path-lexicons.yaml",
+        "common/metadata-root-path.yaml",
+        "common/metadata-value-path.yaml",
+        "common/metadata-value.yaml",
+        "common/number.yaml",
+        "common/standard-attribute-name.yaml",
+        "common/standard-beginning-date.yaml",
+        "common/standard-period.yaml",
+        "common/string.yaml",
+        "common/system-enumerations.yaml",
+        "probes/choice-list.yaml",
+    ]);
+    let actual: serde_json::Value =
+        serde_json::from_slice(&schema(&program, "migration.choice-list").unwrap()).unwrap();
+    let validator = jsonschema::validator_for(&actual).unwrap();
+    assert!(validator.is_valid(&serde_json::json!({"СписокВыбора": []})));
+    assert!(validator.is_valid(&serde_json::json!({"СписокВыбора": [
+        {"Представление": "Первый", "Значение": "1"},
+        {"Представление": "Второй", "Значение": 2}
+    ]})));
+    assert!(!validator.is_valid(&serde_json::json!({"СписокВыбора": "Первый"})));
+    assert!(!validator.is_valid(&serde_json::json!({"СписокВыбора": {"Значение": "1"}})));
+    assert!(!validator.is_valid(&serde_json::json!({"СписокВыбора": [{"НеизвестноеПоле": 1}]})));
+}
 
 #[test]
 fn border_schema_comes_from_the_shared_declaration() {
@@ -48,25 +334,65 @@ fn color_schema_is_generated_from_the_shared_declaration() {
 }
 
 #[test]
+fn font_schema_is_generated_from_the_shared_declaration() {
+    let program = declaration_program(&[
+        "common/system-enumerations.yaml",
+        "common/metadata-name.yaml",
+        "common/string.yaml",
+        "common/number.yaml",
+        "common/boolean.yaml",
+        "common/font-reference.yaml",
+    ]);
+    let actual: serde_json::Value =
+        serde_json::from_slice(&schema(&program, "common.font").unwrap()).unwrap();
+    let validator = jsonschema::validator_for(&actual).unwrap();
+    for font in [
+        serde_json::json!({"Вид":"КрупныйШрифтТекста","Размер":20,"Полужирный":"Истина"}),
+        serde_json::json!({"Вид":"ЭлементСтиля","Значение":"0","Размер":10}),
+        serde_json::json!({"ВидXML":"Absolute","Имя":"Arial"}),
+    ] {
+        assert!(validator.is_valid(&font), "{font}");
+    }
+    assert!(!validator.is_valid(&serde_json::json!({"Размер":"двадцать"})));
+    assert_eq!(actual["x-nkdk-runtime-validation"], true);
+}
+
+#[test]
+fn picture_schema_covers_simple_and_expanded_yaml() {
+    let program = declaration_program(&[
+        "common/system-enumerations.yaml",
+        "common/metadata-name.yaml",
+        "common/string.yaml",
+        "common/boolean.yaml",
+        "common/number.yaml",
+        "common/picture-reference.yaml",
+        "common/picture.yaml",
+    ]);
+    let actual: serde_json::Value =
+        serde_json::from_slice(&schema(&program, "common.picture").unwrap()).unwrap();
+    let validator = jsonschema::validator_for(&actual).unwrap();
+    for picture in [
+        serde_json::json!("БизнесПроцесс"),
+        serde_json::json!("ОбщаяКартинка.Логотип"),
+        serde_json::json!("0"),
+        serde_json::json!("Picture.png"),
+        serde_json::json!({"Ссылка":"0","ПрозрачныйПиксель":{"x":12,"y":2}}),
+        serde_json::json!({"Ссылка":"Picture.png","ПрозрачныйФон":"Истина"}),
+    ] {
+        assert!(validator.is_valid(&picture), "{picture}");
+    }
+    assert!(!validator.is_valid(&serde_json::json!({"ПрозрачныйФон":"Истина"})));
+    assert!(
+        !validator.is_valid(
+            &serde_json::json!({"Ссылка":"0","ПрозрачныйПиксель":{"x":"двенадцать","y":2}})
+        )
+    );
+    assert_eq!(actual["x-nkdk-runtime-validation"], true);
+}
+
+#[test]
 fn recursive_collection_schema_uses_defs_and_ref() {
-    let program = link(&[
-        parse(SourceFile {
-            path: "node.yaml",
-            bytes: include_bytes!("fixtures/recursive-node.yaml"),
-        })
-        .unwrap(),
-        parse(SourceFile {
-            path: "nodes.yaml",
-            bytes: include_bytes!("fixtures/recursive-nodes.yaml"),
-        })
-        .unwrap(),
-        parse(SourceFile {
-            path: "owner.yaml",
-            bytes: include_bytes!("fixtures/recursive-owner.yaml"),
-        })
-        .unwrap(),
-    ])
-    .unwrap();
+    let program = link(&support::recursive_modules()).unwrap();
     let actual: serde_json::Value =
         serde_json::from_slice(&schema(&program, "applied.tree").unwrap()).unwrap();
     assert_eq!(
@@ -596,4 +922,272 @@ constraints:
         assert!(validator.is_valid(&valid), "{representation:?}: {shape}");
         assert!(!validator.is_valid(&invalid), "{representation:?}: {shape}");
     }
+}
+
+#[test]
+fn grouped_sequence_schema_describes_whole_items_and_empty_groups() {
+    let source = r#"format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: test.row
+  value: {kind: record, fields: [{name: text, type: {kind: scalar, scalar: text}}]}
+  representations:
+    xml: {kind: record, fields: [{field: text, path: [Text]}]}
+    yaml: {kind: text-pattern, parts: [{field: text}]}
+- kind: value
+  id: test.rows
+  imports: {row: test.row}
+  value: {kind: sequence, item: {use: row}}
+  representations: {xml: {kind: element-sequence, path: [Item], item: {kind: declared}}, yaml: {kind: sequence, item: {kind: declared}}}
+- kind: object
+  id: test.groups
+  imports: {rows: test.rows}
+  value: {kind: record, fields: [{name: first, type: {use: rows}}, {name: second, type: {use: rows}}]}
+  representations:
+    xml: {kind: record, fields: [{field: first, path: [Root, First]}, {field: second, path: [Root, Second]}]}
+    yaml: {kind: grouped-sequence, groups: [{field: first}, {field: second, itemTag: другой}]}
+- kind: object
+  id: test.ordinary
+  imports: {rows: test.rows}
+  value: {kind: record, fields: [{name: rows, type: {use: rows}}]}
+  representations:
+    xml: {kind: record, fields: [{field: rows, path: [Root]}]}
+    yaml: {kind: mapping, fields: [{field: rows, key: Rows}]}
+"#;
+    let program = link(
+        &nkdk_rule_compiler::parse_many(SourceFile {
+            path: "groups.yaml",
+            bytes: source.as_bytes(),
+        })
+        .unwrap(),
+    )
+    .unwrap();
+    let ordinary: serde_json::Value =
+        serde_json::from_slice(&schema(&program, "test.ordinary").unwrap()).unwrap();
+    let ordinary_validator = jsonschema::validator_for(&ordinary).unwrap();
+    assert!(ordinary_validator.is_valid(&serde_json::json!({"Rows":["one", "two"]})));
+    assert!(!ordinary_validator.is_valid(&serde_json::json!({"Rows":[42]})));
+    let actual: serde_json::Value =
+        serde_json::from_slice(&schema(&program, "test.groups").unwrap()).unwrap();
+    let validator = jsonschema::validator_for(&actual).unwrap();
+    for value in [
+        serde_json::json!([]),
+        serde_json::json!([[]]),
+        serde_json::json!(["one", "two"]),
+    ] {
+        assert!(validator.is_valid(&value), "{value}: {actual}");
+    }
+    for value in [
+        serde_json::json!({"First": []}),
+        serde_json::json!([42]),
+        serde_json::json!([["one"]]),
+    ] {
+        assert!(!validator.is_valid(&value), "{value}: {actual}");
+    }
+    assert_eq!(actual["items"]["anyOf"][1]["x-nkdk-yaml-tag"], "!другой");
+}
+
+#[test]
+fn collection_position_checks_are_deferred_to_contextual_validation() {
+    let source = r#"format: nkdk-declarations/1
+kind: value
+id: test.position-number
+value: {kind: record, fields: [{name: number, type: {kind: scalar, scalar: number, profile: decimal}}]}
+representations:
+  xml: {kind: record, fields: [{field: number, path: [], attribute: number}]}
+  yaml: {kind: mapping, fields: [{field: number, key: Number}]}
+constraints:
+- id: position
+  appliesTo: [yaml-validation]
+  assert: {eq: [{field: number}, {collectionPosition: true}]}
+  diagnostic: {code: row.position, severity: error, at: {field: number}, message: Wrong position}
+"#;
+    let program = link(&[parse_module(("position-number.yaml", source))]).unwrap();
+    let actual: serde_json::Value =
+        serde_json::from_slice(&schema(&program, "test.position-number").unwrap()).unwrap();
+    assert_eq!(actual["x-nkdk-runtime-validation"], true);
+    let validator = jsonschema::validator_for(&actual).unwrap();
+    assert!(validator.is_valid(&serde_json::json!({"Number": 1})));
+    assert!(validator.is_valid(&serde_json::json!({"Number": 2})));
+    assert!(!validator.is_valid(&serde_json::json!({"Number": "bad"})));
+}
+
+#[test]
+fn mapping_field_alias_schema_keeps_the_referenced_value_shape() {
+    let modules = [
+        ("payload", r#"format: nkdk-declarations/1
+kind: value
+id: test.alias-payload
+value: {kind: record, fields: [{name: width, type: {kind: scalar, scalar: number, profile: decimal}}]}
+representations:
+  xml: {kind: record, fields: [{field: width, path: [Width]}]}
+  yaml: {kind: mapping, fields: [{field: width, key: Ширина}]}
+"#),
+        ("wrapper", r#"format: nkdk-declarations/1
+kind: value
+id: test.alias-wrapper
+imports: {payload: test.alias-payload}
+value: {kind: record, fields: [{name: value, type: {use: payload}}]}
+representations:
+  xml: {kind: record, fields: [{field: value, path: [Value]}]}
+  yaml:
+    kind: mapping
+    fields: [{field: value, key: Значение}]
+    shorthand:
+    - id: direct-payload
+      canonical: false
+      representation: {kind: mapping, field: value}
+"#),
+    ].map(parse_module);
+    let program = link(&modules).unwrap();
+    let actual: serde_json::Value =
+        serde_json::from_slice(&schema(&program, "test.alias-wrapper").unwrap()).unwrap();
+    let validator = jsonschema::validator_for(&actual).unwrap();
+    assert!(validator.is_valid(&serde_json::json!({"Ширина": 3})));
+    assert!(validator.is_valid(&serde_json::json!({"Значение": {"Ширина": 3}})));
+    assert!(!validator.is_valid(&serde_json::json!({"Ширина": "wrong"})));
+    assert!(!validator.is_valid(&serde_json::json!({"ДругойКлюч": 3})));
+}
+
+#[test]
+fn singleton_modes_keep_the_declared_item_shape() {
+    let row=b"format: nkdk-declarations/1\nkind: value\nid: common.row\nvalue: {kind: record, fields: [{name: key, type: {kind: scalar, scalar: text}}]}\nrepresentations:\n  xml: {kind: record, fields: [{field: key, path: [Key]}]}\n  yaml: {kind: mapping, fields: [{field: key, key: Key}]}\n";
+    for mode in ["scalar", "value"] {
+        let collection = format!(
+            "format: nkdk-declarations/1\nkind: value\nid: common.rows\nimports: {{row: common.row}}\nvalue: {{kind: sequence, item: {{use: row}}}}\nrepresentations:\n  xml: {{kind: element-sequence, path: [Item]}}\n  yaml: {{kind: sequence, singleton: {mode}}}\n"
+        );
+        let owner = "format: nkdk-declarations/1\nkind: object\nid: test.rows\nimports: {rows: common.rows}\nvalue: {kind: record, fields: [{name: rows, type: {use: rows}}]}\nrepresentations:\n  xml: {kind: record, fields: [{field: rows, path: [Root, Entries]}]}\n  yaml: {kind: mapping, fields: [{field: rows, key: Entries}]}\n";
+        let sources = [
+            ("row", row.as_slice()),
+            ("rows", collection.as_bytes()),
+            ("owner", owner.as_bytes()),
+        ];
+        let modules = sources
+            .into_iter()
+            .map(|(path, bytes)| parse(SourceFile { path, bytes }).unwrap())
+            .collect::<Vec<_>>();
+        let name = modules[2].id.clone();
+        let program = link(&modules).unwrap();
+        let actual: serde_json::Value =
+            serde_json::from_slice(&schema(&program, &name).unwrap()).unwrap();
+        let validator = jsonschema::validator_for(&actual).unwrap();
+        for value in [
+            serde_json::json!({"Entries": []}),
+            serde_json::json!({"Entries": [{"Key":"first"}]}),
+        ] {
+            assert!(validator.is_valid(&value), "{value}");
+        }
+        assert_eq!(
+            validator.is_valid(&serde_json::json!({"Entries":{"Key":"first"}})),
+            mode == "value"
+        );
+        assert!(!validator.is_valid(&serde_json::json!({"Entries":{"Other":"first"}})));
+        assert!(!validator.is_valid(&serde_json::json!({"Entries":123})));
+    }
+}
+
+#[test]
+fn settings_parameter_profiles_expose_their_public_yaml_shapes() {
+    std::thread::Builder::new()
+        .stack_size(16 * 1024 * 1024)
+        .spawn(|| {
+            #[path = "../../../build-support/declarations.rs"]
+            mod declarations;
+            #[path = "../../../build-support/family.rs"]
+            mod family;
+            let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+            let files = declarations::load(&root, &root.join("declarations")).unwrap();
+            let entries = [
+                "working.settings-parameters-field",
+                "working.settings-parameters-primitive",
+                "working.working.dcs-data-set-field",
+                "working.working.filter-tree",
+                "working.working.filter-owner",
+                "working.working.conditional-items",
+                "working.working.conditional-appearance",
+            ];
+            let selected = family::select(&files, &entries);
+            let modules = selected
+                .iter()
+                .flat_map(|(path, bytes)| {
+                    nkdk_rule_compiler::parse_many(SourceFile { path, bytes }).unwrap()
+                })
+                .collect::<Vec<_>>();
+            let program = link(&modules).unwrap();
+            for entry in entries {
+                let bytes = schema(&program, entry).unwrap();
+                let actual: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
+                let text = String::from_utf8(bytes).unwrap();
+                if entry.starts_with("working.working.conditional-") {
+                    let validator = jsonschema::validator_for(&actual).unwrap();
+                    for value in [
+                        serde_json::json!({"Элементы":[]}),
+                        serde_json::json!({"Элементы":[{},{}]}),
+                        serde_json::json!({"Элементы":[{"Поля":["Реквизит"],"Отбор":{"Элементы":[{}]},"Использование":"Ложь"}]}),
+                    ] {
+                        assert!(validator.is_valid(&value), "{entry}: {value}");
+                    }
+                    assert!(!validator.is_valid(&serde_json::json!({"Элементы":[{"Использование":"oops"}]})));
+                    assert!(!validator.is_valid(&serde_json::json!({"ЧужоеПоле":1})));
+                    continue;
+                }
+                if entry.starts_with("working.working.filter-") {
+                    let validator = jsonschema::validator_for(&actual).unwrap();
+                    for value in [
+                        serde_json::json!({}),
+                        serde_json::json!({"Элементы":[{}]}),
+                        serde_json::json!({"Элементы":[{"ТипГруппы":"ГруппаИ","Элементы":[{},{}]}]}),
+                    ] {
+                        assert!(validator.is_valid(&value), "{entry}: {value}");
+                    }
+                    assert!(!validator.is_valid(&serde_json::json!({"Элементы":[{"ТипГруппы":"Неверный"}]})));
+                    assert!(!validator.is_valid(&serde_json::json!({"ЧужоеПоле":1})));
+                    continue;
+                }
+                if entry == "working.working.dcs-data-set-field" {
+                    let validator = jsonschema::validator_for(&actual).unwrap();
+                    for value in [
+                        serde_json::json!({"Вид":"ПолеНабораДанныхСхемыКомпоновкиДанных","ПутьКДанным":"Код","Поле":"Код"}),
+                        serde_json::json!({"Вид":"ПапкаПолейНабораДанныхСхемыКомпоновкиДанных","ПутьКДанным":"Группа"}),
+                        serde_json::json!({"Вид":"ВложенныйНаборДанныхСхемыКомпоновкиДанных","ПутьКДанным":"Товары","Поле":"Товары"}),
+                        serde_json::json!({"ПутьКДанным":"Код","Поле":"Код"}),
+                    ] {
+                        assert!(validator.is_valid(&value), "{entry}: {value}");
+                    }
+                    assert!(!validator.is_valid(&serde_json::json!({"Вид":"Неверный"})));
+                    assert!(!validator.is_valid(&serde_json::json!({"ЧужоеПоле":1})));
+                    for key in ["Роль", "ДоступныеЗначения", "ТипЗначения", "ОграничениеИспользованияРеквизитов", "НаборДанныхПроверкиИерархии"] {
+                        assert!(text.contains(key), "{entry}: missing {key}");
+                    }
+                    continue;
+                }
+                for token in [
+                    "Тип",
+                    "Строка",
+                    "Значение",
+                    "Вид",
+                    "ПутьКДанным",
+                    "СистемноеПеречисление",
+                ] {
+                    assert!(text.contains(token), "{entry}: missing {token}");
+                }
+                let validator = jsonschema::validator_for(&actual).unwrap();
+                for row in [
+                    serde_json::json!({"Параметр1":"ПараметрыДанных.Параметр1"}),
+                    serde_json::json!({"Параметр1":{"Значение":null}}),
+                    serde_json::json!({"Параметр1":{"Значение":5,"Использовать":"Ложь"}}),
+                serde_json::json!({"Шрифт":{"Значение":{"ВидXML":"Absolute","Имя":"Academy Engraved LET"}}}),
+                serde_json::json!({"СвязиПараметровВыбора":{"Значение":[{"Имя":"ПараметрВыбора","ПутьКДанным":"Поле1","РежимИзменения":"НеИзменять"}]}}),
+                serde_json::json!({"НоменклатураВключение":{"Использовать":"Ложь","Значение":{"Тип":"Строка","Значение":""}}}),
+                ] {
+                    let value = serde_json::json!({"ПараметрыДанных":row});
+                    assert!(validator.is_valid(&value), "{entry}: {value}");
+                }
+                assert!(!validator.is_valid(&serde_json::json!({"ЧужоеПоле":1})));
+            }
+        })
+        .unwrap()
+        .join()
+        .unwrap();
 }

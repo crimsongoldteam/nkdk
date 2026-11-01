@@ -1,0 +1,28 @@
+format: nkdk-declarations/1
+kind: value
+id: common.metadata-root-path
+imports:
+  root: common.path-root
+  name: common.metadata-name
+value:
+  kind: record
+  fields:
+    - name: root
+      type:
+        use: root
+    - name: name
+      type:
+        use: name
+representations:
+  xml:
+    kind: text-pattern
+    parts:
+      - field: root
+      - literal: .
+      - field: name
+  yaml:
+    kind: text-pattern
+    parts:
+      - field: root
+      - literal: .
+      - field: name

@@ -1,0 +1,108 @@
+# Проверенное соответствие старого правила; восстановление задано выражением декларации.
+source:
+  path: packages/rules/metadata/forms/commonObjects/formAttribute/rules.ts
+  symbol: FormAttributeColumnRules
+  property: id
+  parameters:
+    type: string
+    xml: _id
+    xmlOnly: true
+  registration:
+    type: FormAttributeColumns
+    parameters:
+      propertyType: FormAttributeColumns
+      xmlElement: Column
+      keyField: name
+      configurationIndexUidSegment: Колонка
+      requiredIdentity: xmlId
+  xmlNamespace:
+    prefix: f
+    uri: http://v8.1c.ru/8.3/xcf/logform
+binding:
+  inputs:
+    component:
+      type:
+        kind: scalar
+        scalar: text
+    owner:
+      type:
+        kind: scalar
+        scalar: text
+    parent:
+      type:
+        kind: scalar
+        scalar: text
+    numbers:
+      type:
+        kind: index
+        key:
+          kind: record
+          fields:
+            - name: component
+              type:
+                kind: scalar
+                scalar: text
+            - name: owner
+              type:
+                kind: scalar
+                scalar: text
+            - name: name
+              type:
+                kind: scalar
+                scalar: text
+        value:
+          kind: scalar
+          scalar: text
+  expression:
+    match:
+      value:
+        lookup:
+          in:
+            input: numbers
+          key:
+            record:
+              component:
+                input: component
+              owner:
+                input: owner
+              name:
+                if:
+                  eq:
+                    - field: name
+                    - literal: ''
+                then:
+                  logicalAddress:
+                    parent:
+                      input: parent
+                    parts:
+                      - literal: Колонка
+                      - collectionPosition: true
+                else:
+                  logicalAddress:
+                    parent:
+                      input: parent
+                    parts:
+                      - literal: Колонка
+                      - field: name
+      present:
+        as: number
+        then:
+          var: number
+      absent:
+        require:
+          lookup:
+            in:
+              input: numbers
+            key:
+              record:
+                component:
+                  input: component
+                owner:
+                  input: owner
+                name:
+                  logicalAddress:
+                    parent:
+                      input: parent
+                    parts:
+                      - literal: Колонка
+                      - collectionPosition: true

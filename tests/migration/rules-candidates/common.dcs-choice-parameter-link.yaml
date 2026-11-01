@@ -1,0 +1,58 @@
+format: nkdk-declarations/1
+kind: value
+id: common.dcs-choice-parameter-link
+namespaces:
+  dcscor: http://v8.1c.ru/8.1/data-composition-system/core
+imports:
+  path: common.type-link-path
+  mode: system.LinkedValueChangeMode.dcs
+value:
+  kind: record
+  fields:
+    - name: name
+      type:
+        kind: scalar
+        scalar: text
+    - name: dataPath
+      type:
+        use: path
+    - name: valueChange
+      type:
+        use: mode
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: name
+        path:
+          - dcscor:choiceParameter
+      - field: dataPath
+        path:
+          - dcscor:value
+      - field: valueChange
+        path:
+          - dcscor:mode
+  yaml:
+    kind: mapping
+    fields:
+      - field: name
+        key: Имя
+      - field: dataPath
+        key: ПутьКДанным
+      - field: valueChange
+        key: РежимИзменения
+presence:
+  - target:
+      field: valueChange
+    xml:
+      missing:
+        denotes:
+          literal: Clear
+    yaml:
+      missing:
+        denotes:
+          literal: Clear
+      omitWhen:
+        eq:
+          - field: valueChange
+          - literal: Clear

@@ -1,0 +1,31 @@
+format: nkdk-declarations/1
+kind: value
+id: common.data-composition-schema-data-set-field-kind
+namespaces:
+  dcssch: http://v8.1c.ru/8.1/data-composition-system/schema
+value:
+  kind: scalar
+  scalar: text
+representations:
+  xml:
+    kind: qname-lexicon
+    values:
+      - name: dcssch:DataSetFieldField
+        literal: ПолеНабораДанныхСхемыКомпоновкиДанных
+      - name: dcssch:DataSetFieldFolder
+        literal: ПапкаПолейНабораДанныхСхемыКомпоновкиДанных
+      - name: dcssch:DataSetFieldNestedDataSet
+        literal: ВложенныйНаборДанныхСхемыКомпоновкиДанных
+  yaml:
+    kind: scalar
+    scalar: text
+presence:
+  - target: self
+    xml:
+      missing:
+        denotes:
+          literal: ПолеНабораДанныхСхемыКомпоновкиДанных
+    yaml:
+      missing:
+        denotes:
+          literal: ПолеНабораДанныхСхемыКомпоновкиДанных

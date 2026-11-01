@@ -289,6 +289,7 @@ pub(super) fn generate(
         LinkedXml::ElementSequence {
             path: relative,
             item,
+            next: None,
         },
         _,
     ) = attributes::content(&text.xml)
@@ -394,7 +395,7 @@ struct XmlPrepared{id} {{scalars:scalars_{id}::Prepared,tree:Option<core::xml::T
 fn write_plain_xml_{id}(value:&V{id},inputs:&InputView<'_>)->core::Result<Vec<u8>> {{let prepared=XmlPrepared{id}{{scalars:scalars_{id}::prepare(&value.scalars,inputs)?,tree:None}};let mut namespaces=Vec::new();namespaces_xml_{id}(value,&prepared,&mut namespaces);let mut out=core::xml::Writer::new(&namespaces);write_xml_fields_{id}(value,&prepared,inputs,&mut out)?;Ok(out.finish())}}
 fn write_xml_fields_{id}<'a>(value:&V{id},prepared:&'a XmlPrepared{id},inputs:&InputView<'_>,out:&mut core::xml::Writer<'a>)->core::Result<()> {{
 let _value=value;{canonical}
-scalars_{id}::with_attributes(&value.scalars,|fields|{{
+scalars_{id}::with_attributes(&value.scalars,inputs,|fields|{{
 nested_{id}::write_xml_fields_{n}(&value.child,inputs,fields.iter().flatten(),value.present,out)
 }})?;
 if value.present {{scalars_{id}::write_elements(&value.scalars,&prepared.scalars,inputs,out)?;}}Ok(()) }}
@@ -442,11 +443,9 @@ if let Some(tree)=&prepared.tree {{tree.write_at(out,{parent_path},&{qnames:?})}
 fn write_xml_{id}(value:&V{id},inputs:&InputView<'_>)->core::Result<Vec<u8>> {{
 let prepared=prepare_xml_{id}(value,inputs)?;let mut namespaces=Vec::new();namespaces_xml_{id}(value,&prepared,&mut namespaces);let mut out=core::xml::Writer::new(&namespaces);write_xml_into_{id}(value,&prepared,inputs,&mut out)?;Ok(out.finish())
 }}
-fn finalize_yaml_{id}(original:&[u8],candidate:Vec<u8>,value:&V{id},inputs:&InputView<'_>)->core::Result<Vec<u8>> {{
-match verify_{id}(original,&candidate,inputs) {{Ok(())=>return Ok(candidate),Err(error) if error.code.as_deref()==Some("xml.round-trip-mismatch")=>{{}},Err(error)=>return Err(error)}}
-let full=prepare_yaml_{id}(value,inputs,false)?;
-if full!=candidate {{match verify_{id}(original,&full,inputs) {{Ok(())=>return Ok(full),Err(error) if error.code.as_deref()==Some("xml.round-trip-mismatch")=>{{}},Err(error)=>return Err(error)}}}}
-let tree=core::xml::Tree::capture(original,{path})?.ok_or_else(||RuntimeDiagnostic::new("xml.preservation-shape","Cannot preserve absent property"))?;
+"#).unwrap();
+    out.push_str(&super::proof::finalize_yaml_prefix(id));
+    writeln!(out, r#"let tree=core::xml::Tree::capture(original,{path})?.ok_or_else(||RuntimeDiagnostic::new("xml.preservation-shape","Cannot preserve absent property"))?;
 let ordinary=write_plain_xml_{id}(&read_plain_yaml_{id}(&candidate,inputs)?,inputs)?;
 let ordinary=core::xml::Tree::capture(&ordinary,{path})?;
 let payload=tree.patch_yaml(ordinary.as_ref(),&{namespaces:?},&{qnames:?})?;

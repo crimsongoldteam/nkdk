@@ -24,6 +24,9 @@ export function propertyContractSignature(module) {
     }));
   }
   const {id,format,imports,inputs:declaredInputs,...contract}=module;
+  // Filtering unrelated owner constraints may leave an empty list. It has
+  // the same behavior as an omitted list; nonempty constraints remain signed.
+  if(Array.isArray(contract.constraints) && !contract.constraints.length)delete contract.constraints;
   const normalized=normalize(contract);
   normalized.inputs=Object.fromEntries([...inputs].sort().map(name=>{
     if(!declaredInputs?.[name])throw new Error('Unresolved contract input');

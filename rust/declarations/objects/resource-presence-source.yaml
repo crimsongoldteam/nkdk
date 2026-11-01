@@ -1,0 +1,82 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: migration.resource-presence-flag
+  value: {kind: scalar, scalar: boolean}
+  representations:
+    xml: {kind: text, values: [{value: true, text: 'true'}, {value: false, text: 'false'}]}
+    yaml: {kind: scalar, values: [{value: true, literal: 'true'}, {value: false, literal: 'false'}]}
+- kind: value
+  id: migration.resource-presence-item
+  imports: {flag: migration.resource-presence-flag}
+  value:
+    kind: record
+    fields:
+    - {name: name, type: {kind: scalar, scalar: text}}
+    - {name: present, type: {use: flag}}
+    - {name: fingerprint, type: {kind: scalar, scalar: text}}
+  representations:
+    xml: {kind: record, fields: [{field: name, path: [Name]}, {field: present, path: [Present]}, {field: fingerprint, path: [Fingerprint]}]}
+    yaml: {kind: mapping, fields: [{field: name, key: name}, {field: present, key: present}, {field: fingerprint, key: fingerprint}]}
+  presence:
+  - target: {field: fingerprint}
+    xml: {missing: {denotes: {literal: ''}}}
+    yaml: {missing: {denotes: {literal: ''}}}
+- kind: value
+  id: migration.resource-presence-items
+  imports: {item: migration.resource-presence-item}
+  value: {kind: sequence, item: {use: item}}
+  representations:
+    xml: {kind: element-sequence, path: [File]}
+    yaml: {kind: sequence}
+- kind: fragment
+  id: migration.resource-presence-data
+  imports: {items: migration.resource-presence-items}
+  value: {kind: record, fields: [{name: files, type: {use: items}}]}
+  representations:
+    xml: {kind: record, fields: [{field: files, path: [Files]}]}
+    yaml: {kind: mapping, fields: [{field: files, key: files}]}
+  presence:
+  - target: {field: files}
+    xml: {missing: {denotes: {sequence: []}}}
+    yaml: {missing: {denotes: {sequence: []}}}
+
+- kind: object
+  id: migration.resource-presence-source
+  imports: {data: migration.resource-presence-data}
+  compose: [{use: data}]
+  value: {kind: record, fields: []}
+  representations: {xml: {kind: record, fields: []}, yaml: {kind: mapping, fields: []}}
+- kind: object
+  id: migration.resource-fingerprint-source
+  imports: {data: migration.resource-presence-data}
+  compose: [{use: data}]
+  inputs:
+    component: {type: {kind: scalar, scalar: text}}
+    owner: {type: {kind: scalar, scalar: text}}
+  value: {kind: record, fields: []}
+  representations: {xml: {kind: record, fields: []}, yaml: {kind: mapping, fields: []}}
+  contributions:
+  - index: metadata.resource-registrations
+    duplicates: coalesce-equal
+    forEach: {in: {field: files}, as: file}
+    key:
+      record:
+        component: {input: component}
+        owner: {input: owner}
+        property: {get: {of: {var: file}, field: name}}
+    value: {literal: present}
+  - index: metadata.resource-fingerprints
+    duplicates: coalesce-equal
+    forEach: {in: {field: files}, as: file}
+    when:
+      and:
+      - {get: {of: {var: file}, field: present}}
+      - {not: {eq: [{get: {of: {var: file}, field: fingerprint}}, {literal: ''}]}}
+    key:
+      record:
+        component: {input: component}
+        owner: {input: owner}
+        property: {get: {of: {var: file}, field: name}}
+    value: {get: {of: {var: file}, field: fingerprint}}

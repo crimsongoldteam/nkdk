@@ -1,0 +1,165 @@
+use generated_source_owner::*;
+use nkdk_conversion_core as core;
+// Mapping field order is presentation; sequence order and semantic tags are
+// preserved. Verify both imported and expected YAML against the original XML.
+fn canonical_nodes(nodes:&[String],cursor:&mut usize)->String {
+    let head=nodes[*cursor].clone();
+    *cursor+=1;
+    if head.starts_with("mapping:") {
+        let mut pairs=Vec::new();
+        while nodes[*cursor]!="end-mapping" {
+            let key=canonical_nodes(nodes,cursor);
+            let value=canonical_nodes(nodes,cursor);
+            pairs.push((key,value));
+        }
+        *cursor+=1;
+        pairs.sort_by(|left,right|left.0.cmp(&right.0));
+        format!("{head}:{pairs:?}")
+    } else if head.starts_with("sequence:") {
+        let mut values=Vec::new();
+        while nodes[*cursor]!="end-sequence" {values.push(canonical_nodes(nodes,cursor));}
+        *cursor+=1;
+        format!("{head}:{values:?}")
+    } else {head}
+}
+pub fn verify_cases(cases: &serde_json::Value) {
+    for case in cases.as_array().unwrap() {
+    let text=|key:&str|case[key].as_str().unwrap();
+    let component=case["component"].as_str().unwrap_or("cf");
+    let operation=case["operation"].as_str().unwrap_or("test.complete-record-state");
+    let generation=core::facts::Generation(1);
+    let budget=||core::facts::prepared::FactBudget{rows:1000,text:core::facts::text::TextBudget{entries:1000,bytes:100000}};
+    let mut builder=fact_builder(generation,budget());
+    if let Some(sources)=case["fileFactSources"].as_array() {
+        for source in sources {
+            let source_entry=entry_id(source["entry"].as_str().unwrap()).unwrap();
+            let values=source["inputs"].as_array().unwrap().iter().map(|name| {
+                let name=name.as_str().unwrap();
+                let value=match name {"component"=>component,other=>panic!("Unexpected fixture fact input: {other}")};
+                (name.into(),InputValue::Text(value.into()))
+            }).collect();
+            let source_inputs=prepare_inputs(source_entry,values).unwrap();
+            let mut from_xml=fact_builder(generation,budget());
+            let issues=contribute_file(source_entry,Direction::XmlToYaml,text("factXml").as_bytes(),&source_inputs,&mut from_xml);
+            assert!(issues.is_empty(),"{}: {issues:?}",source["entry"]);
+            let snapshot=snapshot_fact_source(source_entry,text("factXml").as_bytes(),&source_inputs).unwrap();
+            let issues=contribute_file(source_entry,Direction::YamlToXml,&snapshot,&source_inputs,&mut builder);
+            assert!(issues.is_empty(),"{} snapshot: {issues:?}",source["entry"]);
+            if source["entry"].as_str().unwrap().ends_with(".own-identity") {
+                let parent_attribute=format!(" uuid=\"{}\"",text("parentIdentity"));
+                assert!(text("factXml").contains(&parent_attribute));
+                let missing=text("factXml").replacen(&parent_attribute,"",1);
+                for invalid in [missing.as_bytes(),b"<Unexpected/>".as_slice()] {
+                    let mut rejected=fact_builder(generation,budget());
+                    assert!(!contribute_file(source_entry,Direction::XmlToYaml,invalid,&source_inputs,&mut rejected).is_empty(),"Accepted incomplete fact context");
+                }
+            }
+        }
+    } else if case["generatedInput"]==true {
+        // These cases create XML from independently specified YAML tags first.
+        builder.push_parts(fact_id("metadata.own-identities").unwrap(),&[component,"Attribute",text("name"),text("parentIdentity")],text("ownerIdentity")).unwrap();
+        for row in case["ownerContext"]["history"].as_array().unwrap() {
+            builder.push_parts(fact_id("metadata.property-state-membership").unwrap(),&[row["State"].as_str().unwrap(),text("ownerIdentity"),row["Property"].as_str().unwrap()],"present").unwrap();
+        }
+        if let Some(base)=case["ownerContext"]["baseIdentity"].as_str() {
+            builder.push_parts(fact_id("metadata.base-identities").unwrap(),&[component,text("ownerIdentity")],base).unwrap();
+        }
+    } else {
+      for row in case["rows"].as_array().map(|rows|rows.as_slice()).unwrap_or_else(||std::slice::from_ref(case)) {
+        let text=|key:&str|row[key].as_str().unwrap();
+        let sources=[
+            ("own-identity",vec![("component",component),("owner",text("parentIdentity"))]),
+            ("states",vec![("owner",text("ownerIdentity"))]),
+            ("base-identity",vec![("component",component),("owner",text("ownerIdentity"))]),
+        ];
+        for (suffix,values) in sources {
+            if suffix=="own-identity" && case["entry"]=="test.borrowed-record-context" {continue;}
+            let source_entry=entry_id(&format!("{operation}.{suffix}")).unwrap();
+            let source_inputs=prepare_inputs(source_entry,values.into_iter()
+                .map(|(name,value)|(name.into(),InputValue::Text(value.into()))).collect()).unwrap();
+            let issues=contribute_file(source_entry,Direction::XmlToYaml,text("xml").as_bytes(),&source_inputs,&mut builder);
+            assert!(issues.is_empty(),"{suffix}: {issues:?}");
+            if suffix=="own-identity" {
+                let snapshot=snapshot_fact_source(source_entry,text("xml").as_bytes(),&source_inputs).unwrap();
+                assert!(String::from_utf8_lossy(&snapshot).contains(text("ownerIdentity")));
+            }
+        }
+      }
+    }
+    let facts=std::sync::Arc::new(builder.finish());
+    let entry=entry_id(case["entry"].as_str().unwrap_or(operation)).unwrap();
+    let mut values:Vec<(String,InputValue)>=vec![
+        ("state_adopted".into(),InputValue::Boolean(case["ownerContext"]["objectBelonging"]=="Adopted")),
+        ("state_component".into(),InputValue::Text(component.into())),
+        ("state_owner".into(),InputValue::Text(text("ownerIdentity").into())),
+        ("state_ownerName".into(),InputValue::Text(text("name").into())),
+        ("state_defaultLanguage".into(),InputValue::Text("ru".into())),
+        ("state_registeredLanguages".into(),InputValue::Sequence(vec![InputValue::Text("ru".into()),InputValue::Text("en".into())])),
+        ("state_compatibilityMode".into(),InputValue::Text("Version8_3_27".into())),
+        ("ordinary0_ownerName".into(),InputValue::Text(text("name").into())),
+        ("ordinary0_defaultLanguage".into(),InputValue::Text("ru".into())),
+        ("ordinary0_registeredLanguages".into(),InputValue::Sequence(vec![InputValue::Text("ru".into()),InputValue::Text("en".into())])),
+        ("ordinary0_ownerRoot".into(),InputValue::Text("Catalog".into())),
+        ("ordinary0_containingOwnerName".into(),InputValue::Text(text("parentName").into())),
+        ("ordinary0_attributes".into(),InputValue::Sequence(vec![])),
+        ("ordinary1_owner".into(),InputValue::Text(text("parentIdentity").into())),
+        ("ordinary1_kind".into(),InputValue::Text("Attribute".into())),
+        ("ordinary1_name".into(),InputValue::Text(text("name").into())),
+    ];
+    if case["entry"]=="test.borrowed-record-context" {values.retain(|(name,_)|name.starts_with("state_"));}
+    assert_eq!(fact_input_bindings(entry).len(),if case["entry"]=="test.borrowed-record-context" {2}else{6});
+    if let Some(bound)=case["boundInputs"].as_array() {
+        values.retain(|(name,_)|!bound.iter().any(|value|value.as_str()==Some(name.as_str())));
+    }
+    let inputs=prepare_fact_inputs(entry,facts,generation,values).unwrap();
+    let expected=case["collectionYaml"].as_str().unwrap_or_else(||text("yaml")).as_bytes();
+    let generated_source;
+    let source=if case["generatedInput"]==true {
+        generated_source=convert_file(entry,Direction::YamlToXml,expected,&inputs).unwrap().bytes;
+        let mut property=String::new();let mut format_state=None;
+        core::xml::visit(&generated_source,|path,token| {
+            if let core::xml::Token::Text(value)=token {
+                if path.last().is_some_and(|name|name.local=="Property") {property=value.to_string();}
+                if property=="Format"&&path.last().is_some_and(|name|name.local=="State") {format_state=Some(value.to_string());}
+            }
+            Ok(())
+        }).unwrap();
+        assert_eq!(format_state.as_deref(),case["expectedFormatState"].as_str());
+        generated_source.as_slice()
+    } else {case["collectionXml"].as_str().unwrap_or_else(||text("xml")).as_bytes()};
+    let imported=convert_file(entry,Direction::XmlToYaml,source,&inputs).unwrap();
+    let nodes=|bytes:&[u8]|{let mut result=Vec::new();core::yaml::visit_nodes(bytes,|node,_|{result.push(match node {
+        core::yaml::Node::Scalar(value,tag)=>format!("scalar:{tag:?}:{}",match value.clone().into_text(){Ok(text)=>format!("text:{text}"),Err(_)=>format!("plain:{}",value.into_decimal_text()?)}),
+        core::yaml::Node::SequenceStart(tag)=>format!("sequence:{tag:?}"),
+        core::yaml::Node::SequenceEnd=>"end-sequence".into(),
+        core::yaml::Node::MappingStart(tag)=>format!("mapping:{tag:?}"),
+        core::yaml::Node::MappingEnd=>"end-mapping".into(),
+    });Ok(())}).unwrap();let mut cursor=0;let meaning=canonical_nodes(&result,&mut cursor);assert_eq!(cursor,result.len());meaning};
+    assert_eq!(nodes(&imported.bytes),nodes(expected),"{}",String::from_utf8_lossy(&imported.bytes));
+    verify_candidate(entry,source,expected,&inputs).unwrap();
+    verify_candidate(entry,source,&imported.bytes,&inputs).unwrap();
+    let original=std::str::from_utf8(source).unwrap();
+    if let Some(start)=original.find("PasswordMode>") {
+    let start=start+"PasswordMode>".len();
+    assert_eq!(&original[start..start+5],"false");
+    let mut invalid=original.to_owned();
+    invalid.replace_range(start..start+5,"oops");
+    let anomalous=convert_file(entry,Direction::XmlToYaml,invalid.as_bytes(),&inputs).unwrap();
+    let anomalous_text=String::from_utf8_lossy(&anomalous.bytes);
+    assert!(anomalous_text.contains("!xml/"),"{anomalous_text}");
+    assert!(anomalous_text.contains("Тип:"));
+    verify_candidate(entry,invalid.as_bytes(),&anomalous.bytes,&inputs).unwrap();
+    }
+    let exported=convert_file(entry,Direction::YamlToXml,expected,&inputs).unwrap();
+    if let Some(property)=case["expectedNoState"].as_str() {
+        core::xml::visit(&exported.bytes,|path,token| {
+            if path.last().is_some_and(|name|name.local=="Property") && let core::xml::Token::Text(value)=token {
+                assert_ne!(value,property,"a plain value must not create PropertyState");
+            }
+            Ok(())
+        }).unwrap();
+    }
+    let reimported=convert_file(entry,Direction::XmlToYaml,&exported.bytes,&inputs).unwrap();
+    assert_eq!(nodes(&reimported.bytes),nodes(expected));
+}
+}

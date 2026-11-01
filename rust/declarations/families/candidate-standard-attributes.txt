@@ -1,0 +1,2 @@
+metadata.standard-attribute-owner
+migration.journal-standard-attributes

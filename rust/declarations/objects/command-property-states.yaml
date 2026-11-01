@@ -1,0 +1,38 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- format: nkdk-declarations/1
+  kind: value
+  id: command.property-state-name
+  value:
+    kind: enum
+    variants:
+    - {name: CommandModule, value: CommandModule}
+  representations:
+    xml: {kind: text, values: [{value: CommandModule, text: CommandModule}]}
+    yaml: {kind: scalar, values: [{value: CommandModule, literal: МодульКоманды}]}
+- format: nkdk-declarations/1
+  kind: value
+  id: command.property-state-row
+  imports: {name: command.property-state-name}
+  namespaces: {xr: 'http://v8.1c.ru/8.3/xcf/readable'}
+  value:
+    kind: record
+    fields:
+    - {name: name, type: {use: name}}
+    - {name: mode, type: {kind: scalar, scalar: text}}
+  representations:
+    xml: {kind: record, fields: [{field: name, path: [xr:Property]}, {field: mode, path: [xr:State]}]}
+    yaml: {kind: projection, field: name}
+  presence:
+  - target: {field: mode}
+    yaml: {missing: {denotes: {literal: Extended}}}
+- format: nkdk-declarations/1
+  kind: value
+  id: command.property-states
+  imports: {row: command.property-state-row}
+  namespaces: {xr: 'http://v8.1c.ru/8.3/xcf/readable'}
+  value: {kind: sequence, item: {use: row}}
+  representations:
+    xml: {kind: element-sequence, path: [xr:PropertyState]}
+    yaml: {kind: sequence}

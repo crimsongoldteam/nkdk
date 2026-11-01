@@ -5,7 +5,11 @@ use super::{
     graph::GraphLimit,
     text::{PreparedText, TextBudget, TextBuilder, TextId, TextLimit},
 };
-pub use index::{PreparedTextIndex, TextIndexBuilder, text_record_index, text_scalar_index};
+pub use index::text_number_index;
+pub use index::{
+    PreparedTextIndex, TextIndexBuilder, text_record_index, text_record_index_with_coalescing,
+    text_scalar_index, text_scalar_index_with_coalescing,
+};
 pub use index::{TextUnionValues, text_union_index};
 use std::sync::Arc;
 
@@ -25,6 +29,7 @@ pub enum FactLimit {
     Rows,
     KeyArity { expected: usize, actual: usize },
     WrongIndexKind,
+    NumberExhausted,
     Graph(GraphLimit),
 }
 
@@ -92,6 +97,63 @@ impl TextFactsBuilder {
         Ok(())
     }
 
+    pub fn request_number(
+        &mut self,
+        index: FactId,
+        key: &[&str],
+        first: u64,
+    ) -> Result<(), FactLimit> {
+        self.update(index, |target, text| {
+            target.request_number(text, key, first)
+        })
+    }
+
+    /// Lower phases allocate first; retained values remain authoritative.
+    pub fn request_number_in_phase(
+        &mut self,
+        index: FactId,
+        key: &[&str],
+        first: u64,
+        phase: u32,
+    ) -> Result<(), FactLimit> {
+        self.update(index, |target, text| {
+            target.request_number_in_phase(text, key, first, phase)
+        })
+    }
+
+    pub fn reserve_number(
+        &mut self,
+        index: FactId,
+        scope: &[&str],
+        value: &str,
+    ) -> Result<(), FactLimit> {
+        self.update(index, |target, text| {
+            target.reserve_number(text, scope, value)
+        })
+    }
+
+    /// Stream ordinary or preserved attributes directly into occupied sets.
+    /// A failed source must never leave a publishable partial reservation set.
+    pub fn reserve_attributes(
+        &mut self,
+        index: FactId,
+        profile: &crate::xml::attribute_scan::Profile<'_>,
+        scopes: &[&[&str]],
+        source: impl crate::xml::attribute_scan::Source,
+    ) -> crate::Result<()> {
+        let result = profile.visit(source, |scope, value| {
+            let scope = scopes.get(scope).ok_or_else(|| {
+                crate::RuntimeDiagnostic::new("fact.scope", "Missing attribute reservation scope")
+            })?;
+            self.reserve_number(index, scope, value)
+                .map_err(|error| crate::RuntimeDiagnostic::new("fact.budget", format!("{error:?}")))
+        });
+        if result.is_err() {
+            let _ = self.mark_unready(index);
+        }
+        result
+    }
+
     pub fn begin_union(&mut self, index: FactId, name: &str) -> Result<(), FactLimit> {
         self.update(index, |target, text| target.begin_union(text, name))
     }
@@ -134,6 +196,12 @@ impl TextFactsBuilder {
             .indexes
             .get_mut(index.0 as usize)
             .ok_or(FactLimit::UnknownIndex(index))?;
+        if let Some(builder) = pending.as_mut()
+            && let Err(limit) = builder.seal(&mut self.text)
+        {
+            builder.mark_unready();
+            return Err(limit);
+        }
         if let Some(pending) = pending.take() {
             let completed = pending.finish();
             if let Some(limit) = completed.graph_limit() {
@@ -156,8 +224,13 @@ impl TextFactsBuilder {
         }))
     }
 
-    pub fn finish(self) -> PreparedTextFacts {
+    pub fn finish(mut self) -> PreparedTextFacts {
         drop(self.snapshot);
+        for pending in self.indexes.iter_mut().flatten() {
+            if pending.seal(&mut self.text).is_err() {
+                pending.mark_unready();
+            }
+        }
         PreparedTextFacts {
             generation: self.generation,
             text: self.text.finish(),
@@ -383,6 +456,13 @@ impl TextIndexInput {
                 "The index is incomplete or belongs to another generation",
             ),
         };
-        Err(crate::RuntimeDiagnostic::new(code, message))
+        Err(crate::RuntimeDiagnostic::new(
+            code,
+            if code == "fact.ambiguous" {
+                format!("{message}: index {}, key {key:?}", self.0.index.0)
+            } else {
+                message.to_owned()
+            },
+        ))
     }
 }

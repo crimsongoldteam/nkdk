@@ -1,0 +1,19 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.dcs-local-string-type
+imports: {title: common.dcs-local-string-type}
+inputs:
+  defaultLanguage: {type: {kind: scalar, scalar: text}}
+  registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+value:
+  kind: record
+  fields:
+  - name: title
+    type:
+      use: title
+      bind:
+        defaultLanguage: {input: defaultLanguage}
+        registeredLanguages: {input: registeredLanguages}
+representations:
+  xml: {kind: record, fields: [{field: title, path: [Root, Title]}]}
+  yaml: {kind: mapping, fields: [{field: title, key: Заголовок}]}

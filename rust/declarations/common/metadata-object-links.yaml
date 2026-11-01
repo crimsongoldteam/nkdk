@@ -1,0 +1,81 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: common.metadata-object-path-checked
+  imports: {root: common.path-root, name: common.metadata-name}
+  inputs:
+    roots:
+      type:
+        kind: index
+        key:
+          kind: record
+          fields:
+          - {name: kind, type: {use: root}}
+          - {name: name, type: {kind: scalar, scalar: text}}
+        value: {kind: scalar, scalar: text}
+  value:
+    kind: record
+    fields:
+    - {name: root, type: {use: root}}
+    - {name: name, type: {use: name}}
+  representations:
+    xml: {kind: text-pattern, separator: '.', parts: [{field: root}, {field: name}]}
+    yaml: {kind: text-pattern, separator: '.', parts: [{field: root}, {field: name}]}
+  constraints:
+  - id: target-exists
+    appliesTo: [xml-import, yaml-validation]
+    assert:
+      present:
+        lookup:
+          in: {input: roots}
+          key: {record: {kind: {get: {of: {self: true}, field: root}}, name: {get: {of: {self: true}, field: name}}}}
+    diagnostic: {code: metadata.target-missing, severity: error, at: {self: true}, message: Целевой объект отсутствует}
+- kind: value
+  id: common.metadata-object-link
+  imports: {object: common.metadata-object-path-checked, uuid: common.metadata-link-uuid, empty: common.metadata-link-empty, root: common.path-root}
+  inputs:
+    roots:
+      type:
+        kind: index
+        key: {kind: record, fields: [{name: kind, type: {use: root}}, {name: name, type: {kind: scalar, scalar: text}}]}
+        value: {kind: scalar, scalar: text}
+  parameters:
+    typedXML: {type: {kind: scalar, scalar: boolean}, default: false}
+  namespaces: {xsi: 'http://www.w3.org/2001/XMLSchema-instance', xr: 'http://v8.1c.ru/8.3/xcf/readable'}
+  value:
+    kind: choice
+    variants:
+    - {name: object, type: {use: object, bind: {roots: {input: roots}}}}
+    - {name: uuid, type: {use: uuid}}
+    - {name: empty, type: {use: empty}}
+  representations:
+    xml:
+      kind: with-attributes
+      attributes: [{name: xsi:type, value: {qname: xr:MDObjectRef}, when: {parameter: typedXML}}]
+      content: {kind: choice, fallback: uuid}
+    yaml: {kind: choice, fallback: uuid}
+- kind: value
+  id: common.metadata-object-link-list
+  imports: {item: common.metadata-object-link, root: common.path-root}
+  inputs:
+    roots:
+      type:
+        kind: index
+        key: {kind: record, fields: [{name: kind, type: {use: root}}, {name: name, type: {kind: scalar, scalar: text}}]}
+        value: {kind: scalar, scalar: text}
+  namespaces: {xr: 'http://v8.1c.ru/8.3/xcf/readable'}
+  value: {kind: sequence, item: {use: item, with: {typedXML: true}, bind: {roots: {input: roots}}}}
+  representations:
+    xml: {kind: element-sequence, path: [xr:Item]}
+    yaml: {kind: sequence}
+  presence:
+  - target: self
+    xml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: empty-element, denotes: {absent: true}}]
+      canonical: [{when: {not: {present: {self: true}}}, form: empty-element}, {form: ordinary}]
+    yaml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: empty-sequence, denotes: {absent: true}}]
+      omitWhen: {not: {present: {self: true}}}

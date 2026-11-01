@@ -1,0 +1,33 @@
+format: nkdk-declarations/1
+kind: object
+id: probe.font-record-owner
+imports: {reference: common.font-reference, kind: system.FontType}
+inputs: {styleTypes: {index: metadata.style-item-types}}
+value:
+  kind: record
+  fields:
+  - {name: reference, type: {use: reference, bind: {styleTypes: {input: styleTypes}}}}
+  - {name: kind, type: {use: kind}}
+representations:
+  xml:
+    kind: record
+    fields:
+    - {field: reference, path: [Root, Font], attribute: ref}
+    - {field: kind, path: [Root, Font], attribute: kind}
+  yaml:
+    kind: mapping
+    fields:
+    - {field: reference, key: Вид}
+    - {field: kind, key: ВидXML}
+presence:
+- target: {field: reference}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {missing: {denotes: {absent: true}}}
+- target: {field: kind}
+  yaml:
+    missing:
+      denotes:
+        if: {isVariant: {value: {field: reference}, variant: ШрифтWindows}}
+        then: {literal: WindowsFont}
+        else: {literal: StyleItem}
+    omitWhen: {present: {field: reference}}

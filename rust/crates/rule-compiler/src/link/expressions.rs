@@ -4,6 +4,7 @@ use super::*;
 pub(super) struct Scope {
     pub variables: Vec<(String, LinkedType)>,
     pub captures: Vec<(String, LinkedType)>,
+    pub ordinals: BTreeSet<u32>,
 }
 
 impl Scope {
@@ -57,7 +58,7 @@ fn resolve_choice_variant(
     Ok((value, index as u32, variants[index].value.clone()))
 }
 
-fn resolve_reference_shape(
+pub(super) fn resolve_reference_shape(
     mut shape: LinkedType,
     expression: &Expression,
     modules: &BTreeMap<&str, &Module>,
@@ -99,6 +100,93 @@ pub(super) fn resolve_expression_in(
     scope: &Scope,
 ) -> Result<LinkedExpression, Diagnostic> {
     let (kind, value_type) = match &expression.kind {
+        ExpressionKind::LogicalAddress { parent, parts } => {
+            let mut arguments = parent
+                .iter()
+                .map(|parent| resolve_expression_in(module, parent, modules, ids, scope))
+                .collect::<Result<Vec<_>, _>>()?;
+            for part in parts {
+                if let ExpressionKind::YamlField(field) = &part.kind {
+                    for segment in yaml_addresses::segments(module, field, modules, &part.source)? {
+                        arguments.push(LinkedExpression {
+                            kind: LinkedExpressionKind::Literal(ScalarLiteral::Text(segment)),
+                            value_type: LinkedType::Scalar(ScalarType::Text),
+                            source: part.source.clone(),
+                        });
+                    }
+                } else {
+                    arguments.push(resolve_expression_in(module, part, modules, ids, scope)?);
+                }
+            }
+            let has_parent = parent.is_some();
+            if arguments.is_empty()
+                || arguments[0].value_type != LinkedType::Scalar(ScalarType::Text)
+                || arguments.iter().any(|part| {
+                    !matches!(
+                        part.value_type,
+                        LinkedType::Scalar(ScalarType::Text | ScalarType::Decimal)
+                    )
+                })
+            {
+                return Err(diagnostic(
+                    "expression_type_mismatch",
+                    &expression.source,
+                    "Address needs a text parent or first segment, followed by text names or exact numeric positions",
+                ));
+            }
+            (
+                LinkedExpressionKind::Operation {
+                    operator: LinkedOperator::LogicalAddress { parent: has_parent },
+                    arguments,
+                },
+                LinkedType::Scalar(ScalarType::Text),
+            )
+        }
+        ExpressionKind::YamlField(_) => {
+            return Err(diagnostic(
+                "yaml_address_scope",
+                &expression.source,
+                "YAML field selectors require logicalAddress parts",
+            ));
+        }
+        ExpressionKind::Identity {
+            seed,
+            domain,
+            format,
+            address,
+        } => {
+            if domain.is_empty() || !matches!(format.as_str(), "uuid" | "hex128" | "hex160") {
+                return Err(diagnostic(
+                    "invalid_identity",
+                    &expression.source,
+                    "Identity needs a nonempty domain and a supported format",
+                ));
+            }
+            let arguments = std::iter::once(seed.as_ref())
+                .chain(address.iter())
+                .map(|part| resolve_expression_in(module, part, modules, ids, scope))
+                .collect::<Result<Vec<_>, _>>()?;
+            if arguments
+                .iter()
+                .any(|part| part.value_type != LinkedType::Scalar(ScalarType::Text))
+            {
+                return Err(diagnostic(
+                    "expression_type_mismatch",
+                    &expression.source,
+                    "Identity seed and address segments must be text",
+                ));
+            }
+            (
+                LinkedExpressionKind::Operation {
+                    operator: LinkedOperator::Identity {
+                        domain: domain.clone(),
+                        format: format.clone(),
+                    },
+                    arguments,
+                },
+                LinkedType::Scalar(ScalarType::Text),
+            )
+        }
         ExpressionKind::ConstructVariant { .. } => {
             return Err(diagnostic(
                 "expression_type_mismatch",
@@ -128,8 +216,11 @@ pub(super) fn resolve_expression_in(
             } else {
                 matches!(
                     selected,
-                    LinkedType::Scalar(ScalarType::Text | ScalarType::Decimal)
-                )
+                    LinkedType::Scalar(
+                        ScalarType::Text | ScalarType::Decimal | ScalarType::Boolean
+                    ) | LinkedType::Record(_)
+                        | LinkedType::Choice(_)
+                ) || matches!(&selected, LinkedType::Sequence(item) if matches!(item.as_ref(), LinkedType::Record(_)))
             };
             if !supported {
                 return Err(diagnostic(
@@ -138,7 +229,7 @@ pub(super) fn resolve_expression_in(
                     if text_choice {
                         "Variant text requires a text choice"
                     } else {
-                        "Variant projection requires a text or decimal scalar"
+                        "Variant projection requires a record, choice, record sequence or a borrowable scalar"
                     },
                 ));
             }
@@ -235,6 +326,40 @@ pub(super) fn resolve_expression_in(
                 LinkedType::Scalar(ScalarType::Boolean),
             )
         }
+        ExpressionKind::DecimalText(value) => {
+            let value = resolve_expression_in(module, value, modules, ids, scope)?;
+            if value.value_type != LinkedType::Scalar(ScalarType::Decimal) {
+                return Err(diagnostic(
+                    "expression_type_mismatch",
+                    &expression.source,
+                    "Canonical decimal text requires an exact decimal",
+                ));
+            }
+            (
+                LinkedExpressionKind::Operation {
+                    operator: LinkedOperator::DecimalText,
+                    arguments: vec![value],
+                },
+                LinkedType::Scalar(ScalarType::Text),
+            )
+        }
+        ExpressionKind::EnumText(value) => {
+            let value = resolve_expression_in(module, value, modules, ids, scope)?;
+            if !matches!(value.value_type, LinkedType::Enum(_)) {
+                return Err(diagnostic(
+                    "expression_type_mismatch",
+                    &expression.source,
+                    "Canonical enum text requires a declared enumeration",
+                ));
+            }
+            (
+                LinkedExpressionKind::Operation {
+                    operator: LinkedOperator::EnumText,
+                    arguments: vec![value],
+                },
+                LinkedType::Scalar(ScalarType::Text),
+            )
+        }
         ExpressionKind::DecimalFits {
             value,
             digits,
@@ -279,7 +404,7 @@ pub(super) fn resolve_expression_in(
                 ));
             };
             contextual_literals(key_type, &mut key)?;
-            if !same_type(&key.value_type, key_type) {
+            if !projected_key_matches(&key.value_type, key_type) {
                 return Err(diagnostic(
                     "expression_type_mismatch",
                     &key.source,
@@ -467,7 +592,24 @@ pub(super) fn resolve_expression_in(
                 .iter()
                 .map(|value| resolve_expression_in(module, value, modules, ids, scope))
                 .collect::<Result<Vec<_>, Diagnostic>>()?;
-            let (operator, value_type) = if matches!(expression.kind, ExpressionKind::Concat(_)) {
+            let (operator, value_type) = if matches!(expression.kind, ExpressionKind::Concat(_))
+                && arguments
+                    .first()
+                    .is_some_and(|value| matches!(value.value_type, LinkedType::Sequence(_)))
+            {
+                let first = &arguments[0];
+                for argument in &arguments[1..] {
+                    require_same(first, argument)?;
+                    if !same_ordered_type(&first.value_type, &argument.value_type) {
+                        return Err(diagnostic(
+                            "expression_type_mismatch",
+                            &argument.source,
+                            "Concatenated records require the same field order",
+                        ));
+                    }
+                }
+                (LinkedOperator::SequenceConcat, first.value_type.clone())
+            } else if matches!(expression.kind, ExpressionKind::Concat(_)) {
                 for value in &arguments {
                     if value.value_type != LinkedType::Scalar(ScalarType::Text) {
                         return Err(diagnostic(
@@ -517,7 +659,11 @@ pub(super) fn resolve_expression_in(
                     )
                 })?;
             (
-                LinkedExpressionKind::Variable(slot as u32),
+                if scope.ordinals.contains(&(slot as u32)) {
+                    LinkedExpressionKind::Ordinal(slot as u32)
+                } else {
+                    LinkedExpressionKind::Variable(slot as u32)
+                },
                 value_type.clone(),
             )
         }
@@ -663,6 +809,10 @@ pub(super) fn resolve_expression_in(
                 result_type,
             )
         }
+        ExpressionKind::CollectionPosition => (
+            LinkedExpressionKind::CollectionPosition(0),
+            LinkedType::Scalar(ScalarType::Decimal),
+        ),
         ExpressionKind::SelfValue => (
             LinkedExpressionKind::SelfValue,
             module_shape(module, modules, ids, &mut BTreeSet::new())?,
@@ -688,7 +838,19 @@ pub(super) fn resolve_expression_in(
                     )
                 })?;
             let value_type = selected.value.clone();
-            let kind = if matches!(value.kind, LinkedExpressionKind::SelfValue) {
+            let kind = if let LinkedExpressionKind::Operation {
+                operator: LinkedOperator::VariantValue(variant),
+                arguments,
+            } = &value.kind
+            {
+                LinkedExpressionKind::Operation {
+                    operator: LinkedOperator::VariantField {
+                        variant: *variant,
+                        field: index as u32,
+                    },
+                    arguments: arguments.clone(),
+                }
+            } else if matches!(value.kind, LinkedExpressionKind::SelfValue) {
                 LinkedExpressionKind::Field(index as u32)
             } else {
                 LinkedExpressionKind::Operation {
@@ -836,8 +998,38 @@ pub(super) fn resolve_expression_in(
             else_value,
         } => {
             let condition = resolve_expression_in(module, condition, modules, ids, scope)?;
-            let then_value = resolve_expression_in(module, then_value, modules, ids, scope)?;
-            let else_value = resolve_expression_in(module, else_value, modules, ids, scope)?;
+            let empty = |value: &Expression| matches!(&value.kind, ExpressionKind::Sequence(items) if items.is_empty());
+            let typed_empty = |value: &Expression,
+                               expected: &LinkedExpression|
+             -> Result<LinkedExpression, Diagnostic> {
+                if !matches!(expected.value_type, LinkedType::Sequence(_)) {
+                    return Err(diagnostic(
+                        "expression_type_mismatch",
+                        &value.source,
+                        "Empty branch requires a sequence counterpart",
+                    ));
+                }
+                Ok(LinkedExpression {
+                    kind: LinkedExpressionKind::Operation {
+                        operator: LinkedOperator::Sequence,
+                        arguments: vec![],
+                    },
+                    value_type: expected.value_type.clone(),
+                    source: value.source.clone(),
+                })
+            };
+            let (then_value, else_value) = if empty(then_value) && !empty(else_value) {
+                let other = resolve_expression_in(module, else_value, modules, ids, scope)?;
+                (typed_empty(then_value, &other)?, other)
+            } else {
+                let first = resolve_expression_in(module, then_value, modules, ids, scope)?;
+                let second = if empty(else_value) {
+                    typed_empty(else_value, &first)?
+                } else {
+                    resolve_expression_in(module, else_value, modules, ids, scope)?
+                };
+                (first, second)
+            };
             require_boolean(&condition)?;
             let value_type = conditional_type(&then_value.value_type, &else_value.value_type)
                 .ok_or_else(|| {
@@ -856,26 +1048,15 @@ pub(super) fn resolve_expression_in(
             )
         }
         ExpressionKind::Field(name) => {
-            let LinkedType::Record(fields) =
-                module_shape(module, modules, ids, &mut BTreeSet::new())?
-            else {
-                return Err(diagnostic(
-                    "unknown_field",
-                    &expression.source,
-                    "Field reference requires a record",
-                ));
-            };
-            let (index, field) = fields
-                .iter()
-                .enumerate()
-                .find(|(_, field)| &field.name == name)
-                .ok_or_else(|| {
-                    diagnostic("unknown_field", &expression.source, "Field is not declared")
-                })?;
-            (
-                LinkedExpressionKind::Field(index as u32),
-                field.value.clone(),
-            )
+            let shape = module_shape(module, modules, ids, &mut BTreeSet::new())?;
+            let (index, field) = record_field(
+                &shape,
+                name,
+                &expression.source,
+                "Field reference requires a record",
+                "Field is not declared",
+            )?;
+            (LinkedExpressionKind::Field(index), field.value.clone())
         }
         ExpressionKind::Input(name) => {
             let (slot, input) = module
@@ -937,10 +1118,56 @@ pub(super) fn resolve_expression_in(
     })
 }
 
+/// A canonical textual index accepts enum meanings; declared enum domains stay strict.
+fn projected_key_matches(actual: &LinkedType, expected: &LinkedType) -> bool {
+    match (actual, expected) {
+        (actual, LinkedType::Scalar(ScalarType::Text)) => crate::fact_shape::text_cell(actual),
+        (LinkedType::Record(actual), LinkedType::Record(expected)) => {
+            record_fields_match(actual, expected, projected_key_matches)
+        }
+        _ => same_type(actual, expected),
+    }
+}
+
+pub(super) fn record_fields_match(
+    actual: &[LinkedField],
+    expected: &[LinkedField],
+    compare: impl Fn(&LinkedType, &LinkedType) -> bool,
+) -> bool {
+    actual.len() == expected.len()
+        && expected.iter().all(|field| {
+            actual
+                .iter()
+                .find(|other| other.name == field.name)
+                .is_some_and(|other| compare(&other.value, &field.value))
+        })
+}
+
+fn same_ordered_type(left: &LinkedType, right: &LinkedType) -> bool {
+    match (left, right) {
+        (LinkedType::Record(a), LinkedType::Record(b))
+        | (LinkedType::Choice(a), LinkedType::Choice(b)) => {
+            a.len() == b.len()
+                && a.iter()
+                    .zip(b)
+                    .all(|(a, b)| a.name == b.name && same_ordered_type(&a.value, &b.value))
+        }
+        (LinkedType::Sequence(a), LinkedType::Sequence(b))
+        | (LinkedType::Optional(a), LinkedType::Optional(b)) => same_ordered_type(a, b),
+        _ => same_type(left, right),
+    }
+}
+
 pub(super) fn same_type(left: &LinkedType, right: &LinkedType) -> bool {
     match (left, right) {
         (LinkedType::Index { key: a, value: b }, LinkedType::Index { key: c, value: d }) => {
-            same_type(a, c) && same_type(b, d)
+            // Prepared keys use canonical text cells, including enum values.
+            // Their ABI is defined by the named columns, not enum ordinals.
+            let keys_match = match (crate::fact_shape::columns(a), crate::fact_shape::columns(c)) {
+                (Some(left), Some(right)) => left == right,
+                _ => same_type(a, c),
+            };
+            keys_match && same_type(b, d)
         }
         (LinkedType::Scalar(a), LinkedType::Scalar(b)) => a == b,
         (LinkedType::Enum(a), LinkedType::Enum(b)) => {
@@ -953,13 +1180,12 @@ pub(super) fn same_type(left: &LinkedType, right: &LinkedType) -> bool {
         (LinkedType::Reference(a), LinkedType::Reference(b)) => a == b,
         (LinkedType::Sequence(a), LinkedType::Sequence(b))
         | (LinkedType::Optional(a), LinkedType::Optional(b)) => same_type(a, b),
-        (LinkedType::Record(a), LinkedType::Record(b)) => {
+        (LinkedType::Record(a), LinkedType::Record(b)) => record_fields_match(a, b, same_type),
+        (LinkedType::Choice(a), LinkedType::Choice(b)) => {
             a.len() == b.len()
-                && a.iter().all(|field| {
-                    b.iter()
-                        .find(|other| other.name == field.name)
-                        .is_some_and(|other| same_type(&field.value, &other.value))
-                })
+                && a.iter()
+                    .zip(b)
+                    .all(|(a, b)| a.name == b.name && same_type(&a.value, &b.value))
         }
         _ => false,
     }
@@ -969,36 +1195,27 @@ pub(super) fn field_shape(
     module: &Module,
     value: &TypeDefinition,
     source: &SourceLocation,
-    modules: &BTreeMap<&str, &Module>,
-    ids: &BTreeMap<&str, u32>,
+    registry: (&BTreeMap<&str, &Module>, &BTreeMap<&str, u32>),
     visiting: &mut BTreeSet<String>,
 ) -> Result<LinkedType, Diagnostic> {
+    let (modules, ids) = registry;
     match value {
         TypeDefinition::Index { key, value } => Ok(LinkedType::Index {
-            key: Box::new(field_shape(module, key, source, modules, ids, visiting)?),
-            value: Box::new(field_shape(module, value, source, modules, ids, visiting)?),
+            key: Box::new(field_shape(module, key, source, registry, visiting)?),
+            value: Box::new(field_shape(module, value, source, registry, visiting)?),
         }),
         TypeDefinition::Use(usage) => {
-            let import = module
-                .imports
-                .iter()
-                .find(|import| import.name == usage.name)
-                .ok_or_else(|| {
-                    diagnostic(
-                        "missing_import_alias",
-                        &usage.source,
-                        "Import alias is not declared",
-                    )
-                })?;
-            let target = modules[import.value.as_str()];
+            let target = imported_module(module, usage, modules, "Import alias is not declared")?;
             let key = format!("module:{}", target.id);
-            if visiting.contains(&key) {
+            if visiting.contains(&key)
+                || composition_reaches_visiting(target, modules, visiting, &mut BTreeSet::new())?
+            {
                 return Ok(LinkedType::Reference(ids[target.id.as_str()]));
             }
             module_shape(target, modules, ids, visiting)
         }
-        TypeDefinition::Record(fields) => Ok(LinkedType::Record(
-            fields
+        TypeDefinition::Record(fields) | TypeDefinition::Choice(fields) => {
+            let fields = fields
                 .iter()
                 .map(|field| {
                     Ok(LinkedField {
@@ -1007,17 +1224,21 @@ pub(super) fn field_shape(
                             module,
                             &field.definition,
                             &field.source,
-                            modules,
-                            ids,
+                            registry,
                             visiting,
                         )?,
                         source: field.source.clone(),
                     })
                 })
-                .collect::<Result<_, Diagnostic>>()?,
-        )),
+                .collect::<Result<_, Diagnostic>>()?;
+            Ok(if matches!(value, TypeDefinition::Choice(_)) {
+                LinkedType::Choice(fields)
+            } else {
+                LinkedType::Record(fields)
+            })
+        }
         TypeDefinition::Sequence(item) => Ok(LinkedType::Sequence(Box::new(field_shape(
-            module, item, source, modules, ids, visiting,
+            module, item, source, registry, visiting,
         )?))),
         TypeDefinition::Local(name) => {
             let key = format!("{}:{name}", module.id);
@@ -1035,7 +1256,7 @@ pub(super) fn field_shape(
                 .ok_or_else(|| {
                     diagnostic("missing_local_type", source, "Local type is not declared")
                 })?;
-            let result = field_shape(module, &target.definition, source, modules, ids, visiting);
+            let result = field_shape(module, &target.definition, source, registry, visiting);
             visiting.remove(&key);
             result
         }
@@ -1066,6 +1287,29 @@ fn require_same(left: &LinkedExpression, right: &LinkedExpression) -> Result<(),
     }
 }
 
+// A value reference may return through an already expanded fragment even
+// when the composition graph itself is acyclic. Keep that value reference
+// lazy; direct cycles of compose edges are still rejected by module_shape.
+fn composition_reaches_visiting(
+    module: &Module,
+    modules: &BTreeMap<&str, &Module>,
+    visiting: &BTreeSet<String>,
+    checked: &mut BTreeSet<String>,
+) -> Result<bool, Diagnostic> {
+    if !checked.insert(module.id.clone()) {
+        return Ok(false);
+    }
+    for usage in &module.compose {
+        let fragment = composed_fragment(module, usage, modules)?;
+        if visiting.contains(&format!("module:{}", fragment.id))
+            || composition_reaches_visiting(fragment, modules, visiting, checked)?
+        {
+            return Ok(true);
+        }
+    }
+    Ok(false)
+}
+
 pub(super) fn module_shape(
     module: &Module,
     modules: &BTreeMap<&str, &Module>,
@@ -1084,8 +1328,7 @@ pub(super) fn module_shape(
         module,
         &module.value,
         &module.source,
-        modules,
-        ids,
+        (modules, ids),
         visiting,
     )?;
     if module.compose.is_empty() {
@@ -1101,25 +1344,7 @@ pub(super) fn module_shape(
     };
     let mut fields = vec![];
     for usage in &module.compose {
-        let import = module
-            .imports
-            .iter()
-            .find(|import| import.name == usage.name)
-            .ok_or_else(|| {
-                diagnostic(
-                    "missing_import_alias",
-                    &usage.source,
-                    "Fragment alias is not declared",
-                )
-            })?;
-        let target = modules[import.value.as_str()];
-        if target.kind != ModuleKind::Fragment {
-            return Err(diagnostic(
-                "expected_fragment",
-                &usage.source,
-                "Composition target must be a fragment",
-            ));
-        }
+        let target = composed_fragment(module, usage, modules)?;
         let LinkedType::Record(fragment) = module_shape(target, modules, ids, visiting)? else {
             return Err(diagnostic(
                 "invalid_composition_role",
@@ -1130,14 +1355,7 @@ pub(super) fn module_shape(
         fields.extend(fragment);
     }
     fields.append(&mut own_fields);
-    let mut seen = BTreeMap::new();
-    for field in &fields {
-        if let Some(first) = seen.insert(&field.name, &field.source) {
-            let mut error = diagnostic("duplicate_field", &field.source, "Composed fields collide");
-            error.related.push(first.clone());
-            return Err(error);
-        }
-    }
+    unique_linked_fields(&fields)?;
     visiting.remove(&key);
     Ok(LinkedType::Record(fields))
 }
@@ -1165,6 +1383,26 @@ pub(super) fn contextual_literals(
     expected: &LinkedType,
     literal: &mut LinkedExpression,
 ) -> Result<(), Diagnostic> {
+    if let (
+        LinkedType::Sequence(expected_item),
+        LinkedExpressionKind::Operation {
+            operator: LinkedOperator::Sequence,
+            arguments,
+        },
+    ) = (expected, &mut literal.kind)
+    {
+        for argument in arguments {
+            contextual_literals(expected_item, argument)?;
+            if !same_type(&argument.value_type, expected_item) {
+                return Err(diagnostic(
+                    "binding_type_mismatch",
+                    &argument.source,
+                    "Sequence binding item does not match the declared input type",
+                ));
+            }
+        }
+        literal.value_type = expected.clone();
+    }
     if let (LinkedType::Enum(variants), LinkedExpressionKind::Literal(ScalarLiteral::Text(value))) =
         (expected, &literal.kind)
     {
@@ -1224,6 +1462,52 @@ pub(super) fn iteration_scope(
             "forEach requires a sequence",
         ));
     };
-    let scope = Scope::default().bind(&iteration.binding, *item.clone(), &iteration.source)?;
-    Ok((Some(LinkedIteration { input, slot: 0 }), scope))
+    let mut scope = Scope::default().bind(&iteration.binding, *item.clone(), &iteration.source)?;
+    let index = if let Some(name) = &iteration.index {
+        scope = scope.bind(
+            name,
+            LinkedType::Scalar(ScalarType::Decimal),
+            &iteration.source,
+        )?;
+        scope.ordinals.insert(1);
+        Some(1)
+    } else {
+        None
+    };
+    Ok((
+        Some(LinkedIteration {
+            input,
+            slot: 0,
+            index,
+        }),
+        scope,
+    ))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn choice_bindings_preserve_variant_ordinals_names_and_payload_types() {
+        let field = |name: &str, target| LinkedField {
+            name: name.into(),
+            value: LinkedType::Reference(target),
+            source: SourceLocation {
+                file: "choice.yaml".into(),
+                line: 1,
+                column: 1,
+            },
+        };
+        let expected = LinkedType::Choice(vec![field("active", 1), field("inactive", 2)]);
+        assert!(same_type(&expected, &expected.clone()));
+        for actual in [
+            vec![field("inactive", 2), field("active", 1)],
+            vec![field("renamed", 1), field("inactive", 2)],
+            vec![field("active", 2), field("inactive", 2)],
+            vec![field("active", 1)],
+        ] {
+            assert!(!same_type(&LinkedType::Choice(actual), &expected));
+        }
+    }
 }

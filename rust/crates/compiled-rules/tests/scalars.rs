@@ -1,17 +1,270 @@
 use nkdk_compiled_rules::{Direction, PreparedInputs, convert_file, entry_id, validate_file};
 use nkdk_compiled_rules_probes as nkdk_compiled_rules;
 
+#[path = "support/candidate.rs"]
+mod candidate_support;
+use candidate_support::{assert_valid_candidate, preserved_raw_yaml};
+#[path = "../../../test-support/ui_fragment.rs"]
+mod ui_fragment;
+
+#[test]
+fn tagged_scalar_choice_preserves_both_textual_xml_variants() {
+    let entry = entry_id("migration.tagged-scalar-choice").unwrap();
+    let inputs = nkdk_compiled_rules::prepare_inputs(entry, Vec::new()).unwrap();
+    for (type_name, expected_tag) in [("xs:string", "!xml/string "), ("v8:LocalStringType", "")] {
+        let xml = format!(
+            "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\"><Value xsi:type=\"{type_name}\">Текст</Value></Root>"
+        );
+        let result = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+        let yaml = String::from_utf8(result.bytes).unwrap();
+        assert!(
+            yaml.contains(&format!("Значение: {expected_tag}Текст")),
+            "{yaml}"
+        );
+        assert_valid_candidate(entry, xml.as_bytes(), yaml.as_bytes(), &inputs);
+        let exported = convert_file(entry, Direction::YamlToXml, yaml.as_bytes(), &inputs).unwrap();
+        let rebuilt = String::from_utf8(exported.bytes).unwrap();
+        assert!(
+            rebuilt.contains("type=") && rebuilt.contains("Текст"),
+            "{rebuilt}"
+        );
+    }
+}
+
+#[test]
+fn calculated_field_use_restriction_round_trips_real_sparse_values() {
+    let entry = entry_id("migration.calculated-field-use-restriction").unwrap();
+    let inputs = nkdk_compiled_rules::prepare_inputs(entry, Vec::new()).unwrap();
+    let source =
+        include_str!("../../../../e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml");
+    let mut real_values = 0;
+    for (start, _) in source.match_indices("<dcssch:useRestriction>") {
+        let end = start
+            + source[start..].find("</dcssch:useRestriction>").unwrap()
+            + "</dcssch:useRestriction>".len();
+        let value = &source[start..end];
+        if !value.contains("<dcssch:field>") && !value.contains("<dcssch:condition>") {
+            continue;
+        }
+        let xml = format!(
+            "<Root xmlns:dcssch=\"http://v8.1c.ru/8.1/data-composition-system/schema\">{value}</Root>"
+        );
+        let imported = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs)
+            .unwrap_or_else(|errors| panic!("{xml}: {errors:?}"));
+        let yaml = String::from_utf8(imported.bytes).unwrap();
+        assert!(yaml.contains("Истина"), "{yaml}");
+        assert!(!yaml.contains("!xml"), "{yaml}");
+        assert_valid_candidate(entry, xml.as_bytes(), yaml.as_bytes(), &inputs);
+        real_values += 1;
+    }
+    assert_eq!(real_values, 3);
+
+    let authored = "ОграничениеИспользования:\n  Поле: Истина\n  Условие: Истина\n  Группировка: Истина\n  Порядок: Истина\n";
+    let exported = convert_file(entry, Direction::YamlToXml, authored.as_bytes(), &inputs).unwrap();
+    let rebuilt = String::from_utf8(exported.bytes).unwrap();
+    for field in ["field", "condition", "group", "order"] {
+        assert!(rebuilt.contains(&format!(":{field}>true</")), "{rebuilt}");
+    }
+
+    for inner in [
+        "<dcssch:useRestriction/>",
+        "<dcssch:useRestriction><dcssch:field>false</dcssch:field></dcssch:useRestriction>",
+        "<dcssch:useRestriction><dcssch:condition>неверно</dcssch:condition></dcssch:useRestriction>",
+    ] {
+        let xml = format!(
+            "<Root xmlns:dcssch=\"http://v8.1c.ru/8.1/data-composition-system/schema\">{inner}</Root>"
+        );
+        let imported = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+        let yaml = String::from_utf8(imported.bytes).unwrap();
+        assert_valid_candidate(entry, xml.as_bytes(), yaml.as_bytes(), &inputs);
+        if inner.contains("неверно") {
+            assert!(yaml.contains("!xml/"), "{yaml}");
+        }
+    }
+}
+
+#[test]
+fn group_item_auto_round_trips_both_fixture_states() {
+    let entry = entry_id("migration.group-item-auto").unwrap();
+    let inputs = nkdk_compiled_rules::prepare_inputs(entry, Vec::new()).unwrap();
+    for (fixture, expected) in [
+        (
+            include_str!(
+                "../../../../packages/rules/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemAuto/__fixtures__/dynamicList.xml"
+            ),
+            "[Авто]",
+        ),
+        (
+            include_str!(
+                "../../../../packages/rules/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemAuto/__fixtures__/dynamicListUseFalse.xml"
+            ),
+            "([Авто])",
+        ),
+    ] {
+        let source = format!(
+            "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:dcsset=\"http://v8.1c.ru/8.1/data-composition-system/settings\">{fixture}</Root>"
+        );
+        let converted =
+            convert_file(entry, Direction::XmlToYaml, source.as_bytes(), &inputs).unwrap();
+        let yaml = String::from_utf8(converted.bytes).unwrap();
+        assert!(yaml.contains(expected), "{yaml}");
+        assert!(!yaml.contains("!xml"), "{yaml}");
+        nkdk_compiled_rules::verify_candidate(entry, source.as_bytes(), yaml.as_bytes(), &inputs)
+            .unwrap();
+    }
+    let real_form =
+        include_str!("../../../../e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml");
+    let mut found = 0;
+    for (start, _) in real_form.match_indices("<dcsset:item xsi:type=\"dcsset:GroupItemAuto\"") {
+        let rest = &real_form[start..];
+        let end = if rest.starts_with("<dcsset:item xsi:type=\"dcsset:GroupItemAuto\"/>") {
+            start + rest.find("/>").unwrap() + 2
+        } else {
+            start + rest.find("</dcsset:item>").unwrap() + "</dcsset:item>".len()
+        };
+        let source = format!(
+            "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:dcsset=\"http://v8.1c.ru/8.1/data-composition-system/settings\">{}</Root>",
+            &real_form[start..end]
+        );
+        let converted =
+            convert_file(entry, Direction::XmlToYaml, source.as_bytes(), &inputs).unwrap();
+        let yaml = String::from_utf8(converted.bytes).unwrap();
+        assert!(
+            yaml.contains(if source.contains(":use>false") {
+                "([Авто])"
+            } else {
+                "[Авто]"
+            }),
+            "{yaml}"
+        );
+        assert!(!yaml.contains("!xml"), "{yaml}");
+        nkdk_compiled_rules::verify_candidate(entry, source.as_bytes(), yaml.as_bytes(), &inputs)
+            .unwrap();
+        found += 1;
+    }
+    assert_eq!(found, 2);
+    for (yaml, disabled) in [("Группа: '[Авто]'", false), ("Группа: '([Авто])'", true)]
+    {
+        let exported = convert_file(entry, Direction::YamlToXml, yaml.as_bytes(), &inputs).unwrap();
+        let xml = String::from_utf8(exported.bytes).unwrap();
+        assert!(xml.contains("GroupItemAuto"), "{xml}");
+        assert_eq!(xml.contains(":use>false</"), disabled, "{xml}");
+    }
+    let invalid = "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:dcsset=\"http://v8.1c.ru/8.1/data-composition-system/settings\"><dcsset:item xsi:type=\"dcsset:GroupItemAuto\"><dcsset:use>oops</dcsset:use></dcsset:item></Root>";
+    for source in [
+        invalid.to_owned(),
+        invalid.replace("GroupItemAuto", "UnknownGroupItem"),
+    ] {
+        let converted =
+            convert_file(entry, Direction::XmlToYaml, source.as_bytes(), &inputs).unwrap();
+        let yaml = String::from_utf8(converted.bytes).unwrap();
+        assert!(yaml.contains("!xml/"), "{yaml}");
+        nkdk_compiled_rules::verify_candidate(entry, source.as_bytes(), yaml.as_bytes(), &inputs)
+            .unwrap();
+    }
+}
+
+#[test]
+fn calculated_field_order_expressions_preserve_the_real_pair_and_anomalies() {
+    let entry = entry_id("migration.calculated-field-order-expressions").unwrap();
+    let inputs = nkdk_compiled_rules::prepare_inputs(entry, Vec::new()).unwrap();
+    let source =
+        include_str!("../../../../e2e/fixtures/xml/cf/CommonForms/ДинамическийСписок/Ext/Form.xml");
+    let first = source.find("<dcssch:orderExpression>").unwrap();
+    let start = source[first + 1..]
+        .find("<dcssch:orderExpression>")
+        .unwrap()
+        + first
+        + 1;
+    let second = source[start + 1..]
+        .find("<dcssch:orderExpression>")
+        .unwrap()
+        + start
+        + 1;
+    let end = second
+        + source[second..].find("</dcssch:orderExpression>").unwrap()
+        + "</dcssch:orderExpression>".len();
+    let xml = format!(
+        "<Root xmlns:dcssch=\"http://v8.1c.ru/8.1/data-composition-system/schema\">{}</Root>",
+        &source[start..end]
+    );
+    let imported = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+    let yaml = String::from_utf8(imported.bytes).unwrap();
+    assert!(yaml.contains("Выражение: Наименование"), "{yaml}");
+    assert!(yaml.contains("ТипУпорядочивания: Возр"), "{yaml}");
+    assert!(yaml.contains("Выражение: Ссылка"), "{yaml}");
+    assert!(yaml.contains("ТипУпорядочивания: Убыв"), "{yaml}");
+    assert!(!yaml.contains("!xml"), "{yaml}");
+    assert_valid_candidate(entry, xml.as_bytes(), yaml.as_bytes(), &inputs);
+
+    let first_end = start
+        + source[start..].find("</dcssch:orderExpression>").unwrap()
+        + "</dcssch:orderExpression>".len();
+    let repeated = format!(
+        "<Root xmlns:dcssch=\"http://v8.1c.ru/8.1/data-composition-system/schema\">{}{}</Root>",
+        &source[start..first_end],
+        &source[start..first_end]
+    );
+    let repeated_yaml = convert_file(entry, Direction::XmlToYaml, repeated.as_bytes(), &inputs)
+        .unwrap()
+        .bytes;
+    assert_eq!(
+        String::from_utf8_lossy(&repeated_yaml)
+            .matches("Выражение:")
+            .count(),
+        2
+    );
+    assert_valid_candidate(entry, repeated.as_bytes(), &repeated_yaml, &inputs);
+
+    let authored = "ВыраженияУпорядочивания:\n  - Выражение: Наименование\n    ТипУпорядочивания: Возр\n    Автоупорядочивание: Истина\n  - Выражение: Ссылка\n    ТипУпорядочивания: Убыв\n    Автоупорядочивание: Ложь\n";
+    let exported = convert_file(entry, Direction::YamlToXml, authored.as_bytes(), &inputs).unwrap();
+    let rebuilt = String::from_utf8(exported.bytes).unwrap();
+    assert!(rebuilt.contains("Asc"), "{rebuilt}");
+    assert!(rebuilt.contains("Desc"), "{rebuilt}");
+    assert!(rebuilt.contains("Наименование"), "{rebuilt}");
+    assert!(rebuilt.contains("Ссылка"), "{rebuilt}");
+
+    let compact = "ВыраженияУпорядочивания:\n  - Выражение: Дата\n    Автоупорядочивание: Ложь\n";
+    let compact_xml = convert_file(entry, Direction::YamlToXml, compact.as_bytes(), &inputs)
+        .unwrap()
+        .bytes;
+    let compact_xml = String::from_utf8(compact_xml).unwrap();
+    assert!(compact_xml.contains("Дата"), "{compact_xml}");
+    assert!(!compact_xml.contains("orderType"), "{compact_xml}");
+
+    for inner in [
+        "<dcssch:orderExpression/>",
+        "<dcssch:orderExpression><orderType xmlns=\"http://v8.1c.ru/8.1/data-composition-system/common\">Invalid</orderType></dcssch:orderExpression>",
+    ] {
+        let original = format!(
+            "<Root xmlns:dcssch=\"http://v8.1c.ru/8.1/data-composition-system/schema\">{inner}</Root>"
+        );
+        let imported =
+            convert_file(entry, Direction::XmlToYaml, original.as_bytes(), &inputs).unwrap();
+        assert_valid_candidate(entry, original.as_bytes(), &imported.bytes, &inputs);
+        if inner.contains("Invalid") {
+            assert!(String::from_utf8(imported.bytes).unwrap().contains("!xml/"));
+        }
+    }
+}
+
 #[test]
 fn border_resolves_a_real_style_item_and_checks_its_type() {
     let source = include_str!("../../../../e2e/fixtures/xml/cf/StyleItems/ЭлементСтиляРамка.xml");
     assert!(source.contains("<Name>ЭлементСтиляРамка</Name>"));
     assert!(source.contains("<Type>Border</Type>"));
     let (entry, inputs) = color_inputs_from_xml("probe.border-owner", &[source]);
-    let xml = "<Root><Border ref=\"style:ЭлементСтиляРамка\"/></Root>";
+    let xml = ui_fragment::document("<Root><Border ref=\"style:ЭлементСтиляРамка\"/></Root>");
     let imported = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
     assert_eq!(
         String::from_utf8(imported.bytes).unwrap(),
         "Рамка:\n  Имя: ЭлементСтиля.ЭлементСтиляРамка"
+    );
+    assert_valid_candidate(
+        entry,
+        xml.as_bytes(),
+        "Рамка:\n  Имя: ЭлементСтиля.ЭлементСтиляРамка".as_bytes(),
+        &inputs,
     );
     let exported = convert_file(
         entry,
@@ -23,21 +276,21 @@ fn border_resolves_a_real_style_item_and_checks_its_type() {
     assert!(
         String::from_utf8(exported.bytes)
             .unwrap()
-            .contains("ref=\"style:ЭлементСтиляРамка\"")
+            .contains("ЭлементСтиляРамка")
     );
     for yaml in [
         "Рамка:\n  Имя: ЭлементСтиля.Нет",
         "Рамка:\n  Имя: ЭлементСтиля.НеверныйТип",
     ] {
-        let (_, inputs) = color_inputs("probe.border-owner", &[("НеверныйТип", "Color")]);
+        let (_, inputs) = style_item_inputs("probe.border-owner", &[("НеверныйТип", "Color")]);
         assert!(
             validate_file(entry, yaml.as_bytes(), &inputs)
                 .iter()
                 .any(|issue| issue.code.as_deref() == Some("border.style-item"))
         );
     }
-    let (_, wrong_inputs) = color_inputs("probe.border-owner", &[("НеверныйТип", "Color")]);
-    let wrong_xml = "<Root><Border ref=\"style:НеверныйТип\"/></Root>";
+    let (_, wrong_inputs) = style_item_inputs("probe.border-owner", &[("НеверныйТип", "Color")]);
+    let wrong_xml = ui_fragment::document("<Root><Border ref=\"style:НеверныйТип\"/></Root>");
     let imported = convert_file(
         entry,
         Direction::XmlToYaml,
@@ -47,12 +300,13 @@ fn border_resolves_a_real_style_item_and_checks_its_type() {
     .unwrap();
     let yaml = String::from_utf8(imported.bytes).unwrap();
     assert!(yaml.contains("!xml/invalid"), "{yaml}");
+    assert_valid_candidate(entry, wrong_xml.as_bytes(), yaml.as_bytes(), &wrong_inputs);
     let exported =
         convert_file(entry, Direction::YamlToXml, yaml.as_bytes(), &wrong_inputs).unwrap();
     assert!(
         String::from_utf8(exported.bytes)
             .unwrap()
-            .contains("ref=\"style:НеверныйТип\"")
+            .contains("НеверныйТип")
     );
 }
 
@@ -172,10 +426,16 @@ fn empty_border_preserves_its_element_and_sibling() {
     let entry = entry_id("probe.border-owner").unwrap();
     let inputs = PreparedInputs::default();
     let xml = "<Root><Border/><Note>Сосед</Note></Root>";
+    assert_valid_candidate(
+        entry,
+        xml.as_bytes(),
+        "Border: !xml/raw\n  $xml: \"\"\nПримечание: Сосед".as_bytes(),
+        &inputs,
+    );
     let imported = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
     let yaml = std::str::from_utf8(&imported.bytes).unwrap();
-    assert!(yaml.contains("Border: !xml/raw"), "{yaml}");
-    assert!(yaml.contains("$xml: \"\""), "{yaml}");
+    assert!(yaml.contains("!xml/raw"), "{yaml}");
+    assert!(yaml.contains("$xml:"), "{yaml}");
     assert!(yaml.contains("Примечание: Сосед"), "{yaml}");
     let exported = convert_file(entry, Direction::YamlToXml, &imported.bytes, &inputs).unwrap();
     let exported = String::from_utf8(exported.bytes).unwrap();
@@ -212,53 +472,172 @@ fn malformed_border_preserves_original_xml_and_sibling() {
     assert!(exported.contains("<Note>Сосед</Note>"), "{exported}");
 }
 
-fn color_inputs(
-    owner: &str,
-    styles: &[(&str, &str)],
-) -> (nkdk_compiled_rules::EntryId, PreparedInputs) {
-    let sources = styles
-        .iter()
-        .map(|(name, kind)| {
-            format!(
-                "<MetaDataObject xmlns=\"http://v8.1c.ru/8.3/MDClasses\"><StyleItem><Properties><Name>{name}</Name><Type>{kind}</Type></Properties></StyleItem></MetaDataObject>"
-            )
-        })
-        .collect::<Vec<_>>();
-    color_inputs_from_xml(
-        owner,
-        &sources.iter().map(String::as_str).collect::<Vec<_>>(),
-    )
+include!("support/style_item_inputs.rs");
+
+#[test]
+fn user_settings_id_preserves_boolean_and_reference_forms() {
+    let entry = entry_id("probe.user-settings-id").unwrap();
+    let inputs = PreparedInputs::default();
+    let real_form = include_str!(
+        "../../../../e2e/fixtures/xml/cfe/all-extension/InformationRegisters/РегистрСведенийВсеСвойстваНезависимыйExt/Forms/ФормаСписка/Ext/Form.xml"
+    );
+    let real_value = real_form
+        .split_once("<dcsset:itemsUserSettingID>")
+        .unwrap()
+        .1
+        .split_once("</dcsset:itemsUserSettingID>")
+        .unwrap()
+        .0;
+    for (value, expected) in [
+        ("true", "Истина"),
+        ("false", "Ложь"),
+        (real_value, real_value),
+    ] {
+        let xml = format!("<Root><UserSettingsID>{value}</UserSettingsID></Root>");
+        let yaml = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+        assert_eq!(
+            String::from_utf8(yaml.bytes.clone()).unwrap(),
+            format!("Идентификатор: {expected}")
+        );
+        assert_valid_candidate(entry, xml.as_bytes(), &yaml.bytes, &inputs);
+        let exported = convert_file(entry, Direction::YamlToXml, &yaml.bytes, &inputs).unwrap();
+        nkdk_conversion_core::proof::verify(xml.as_bytes(), &exported.bytes, |_| false).unwrap();
+        let direct_yaml = format!("Идентификатор: {expected}");
+        let direct_xml =
+            convert_file(entry, Direction::YamlToXml, direct_yaml.as_bytes(), &inputs).unwrap();
+        nkdk_conversion_core::proof::verify(xml.as_bytes(), &direct_xml.bytes, |_| false).unwrap();
+    }
+    for (xml, expected) in [
+        ("<Root/>", ""),
+        ("<Root><UserSettingsID/></Root>", "!xml/raw"),
+    ] {
+        let yaml = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+        assert!(
+            String::from_utf8_lossy(&yaml.bytes).contains(expected),
+            "{xml}: {}",
+            String::from_utf8_lossy(&yaml.bytes)
+        );
+        assert_valid_candidate(entry, xml.as_bytes(), &yaml.bytes, &inputs);
+    }
+    for invalid in ["Истина", "tru"] {
+        let xml = format!("<Root><UserSettingsID>{invalid}</UserSettingsID></Root>");
+        let yaml = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+        assert!(
+            String::from_utf8_lossy(&yaml.bytes).contains("!xml/raw"),
+            "{}",
+            String::from_utf8_lossy(&yaml.bytes)
+        );
+        assert_valid_candidate(entry, xml.as_bytes(), &yaml.bytes, &inputs);
+    }
 }
 
-fn color_inputs_from_xml(
-    owner: &str,
-    sources: &[&str],
-) -> (nkdk_compiled_rules::EntryId, PreparedInputs) {
-    let producer = entry_id("probe.style-item-type-facts").unwrap();
-    let entry = entry_id(owner).unwrap();
-    let generation = nkdk_conversion_core::facts::Generation(1);
-    let budget = nkdk_conversion_core::facts::prepared::FactBudget {
-        text: nkdk_conversion_core::facts::text::TextBudget {
-            entries: 20,
-            bytes: 4096,
-        },
-        rows: 20,
-    };
-    let mut builder = nkdk_compiled_rules::fact_builder(generation, budget);
-    for source in sources {
-        let issues = nkdk_compiled_rules::contribute_file(
-            producer,
-            Direction::XmlToYaml,
-            source.as_bytes(),
-            &PreparedInputs::default(),
-            &mut builder,
-        );
-        assert!(issues.is_empty(), "{issues:?}");
-    }
-    let facts = std::sync::Arc::new(builder.finish());
-    (
+#[test]
+fn tagged_style_value_reuses_nested_color_font_and_border_declarations() {
+    let entry = entry_id("probe.tagged-style-value").unwrap();
+    let inputs = PreparedInputs::default();
+    let xml = style_value_from_fixture(include_str!(
+        "../../../../e2e/fixtures/xml/cf/StyleItems/ЭлементСтиляЦвет.xml"
+    ));
+    let yaml = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+    assert_eq!(
+        String::from_utf8(yaml.bytes.clone()).unwrap(),
+        "Значение:\n  Вид: Цвет\n  Значение: \"#8A31E2\""
+    );
+    assert_valid_candidate(entry, xml.as_bytes(), &yaml.bytes, &inputs);
+    let font_xml = style_value_from_fixture(include_str!(
+        "../../../../e2e/fixtures/xml/cf/StyleItems/ЭлементСтиляШрифтВсеСвойства.xml"
+    ));
+    let font_yaml =
+        convert_file(entry, Direction::XmlToYaml, font_xml.as_bytes(), &inputs).unwrap();
+    assert!(String::from_utf8_lossy(&font_yaml.bytes).contains("Вид: Шрифт"));
+    assert_valid_candidate(entry, font_xml.as_bytes(), &font_yaml.bytes, &inputs);
+    let reference_xml = style_value_from_fixture(include_str!(
+        "../../../../e2e/fixtures/xml/cfe/all-extension/StyleItems/ЭлементСтиляШрифтВсеСвойства.xml"
+    ))
+    .replace("xmlns:style=", "xmlns:alternateStyle=")
+    .replace("ref=\"style:TextFont\"", "ref=\"alternateStyle:TextFont\"");
+    let reference_yaml = convert_file(
         entry,
-        nkdk_compiled_rules::prepare_fact_inputs(entry, facts, generation, vec![]).unwrap(),
+        Direction::XmlToYaml,
+        reference_xml.as_bytes(),
+        &inputs,
+    )
+    .unwrap();
+    assert_eq!(
+        String::from_utf8_lossy(&reference_yaml.bytes),
+        "Значение:\n  Вид: Шрифт\n  Значение:\n    Вид: ШрифтТекста"
+    );
+    assert_valid_candidate(
+        entry,
+        reference_xml.as_bytes(),
+        &reference_yaml.bytes,
+        &inputs,
+    );
+    let border_xml = style_value_from_fixture(include_str!(
+        "../../../../e2e/fixtures/xml/cf/StyleItems/ЭлементСтиляРамка.xml"
+    ));
+    let border_yaml =
+        convert_file(entry, Direction::XmlToYaml, border_xml.as_bytes(), &inputs).unwrap();
+    assert!(String::from_utf8_lossy(&border_yaml.bytes).contains("Вид: Рамка"));
+    assert_valid_candidate(entry, border_xml.as_bytes(), &border_yaml.bytes, &inputs);
+    for yaml in [
+        "Значение:\n  Вид: Тень\n  Значение: \"#FFE100\"",
+        "Значение:\n  Вид: Цвет\n  Значение: \"#FFE100\"\n  Лишнее: значение",
+    ] {
+        assert!(
+            !validate_file(entry, yaml.as_bytes(), &inputs).is_empty(),
+            "{yaml}"
+        );
+    }
+    let invalid_border = border_xml.replace("width=\"5\"", "width=\"oops\"");
+    let yaml = convert_file(
+        entry,
+        Direction::XmlToYaml,
+        invalid_border.as_bytes(),
+        &inputs,
+    )
+    .unwrap();
+    assert!(
+        String::from_utf8_lossy(&yaml.bytes).contains("Значение: !xml/raw"),
+        "{}",
+        String::from_utf8_lossy(&yaml.bytes)
+    );
+    assert_valid_candidate(entry, invalid_border.as_bytes(), &yaml.bytes, &inputs);
+    let invalid_font = font_xml.replace("height=\"16\"", "height=\"oops\"");
+    let yaml = convert_file(
+        entry,
+        Direction::XmlToYaml,
+        invalid_font.as_bytes(),
+        &inputs,
+    )
+    .unwrap();
+    assert!(String::from_utf8_lossy(&yaml.bytes).contains("!xml/"));
+    assert_valid_candidate(entry, invalid_font.as_bytes(), &yaml.bytes, &inputs);
+    let unknown = b"<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:v8ui=\"http://v8.1c.ru/8.1/data/ui\"><Value xsi:type=\"v8ui:Shadow\"/></Root>";
+    let preserved = convert_file(entry, Direction::XmlToYaml, unknown, &inputs).unwrap();
+    assert!(String::from_utf8_lossy(&preserved.bytes).contains("!xml/raw"));
+    assert_valid_candidate(entry, unknown, &preserved.bytes, &inputs);
+    let missing = b"<Root/>";
+    let yaml = convert_file(entry, Direction::XmlToYaml, missing, &inputs).unwrap();
+    assert!(String::from_utf8_lossy(&yaml.bytes).contains("!xml/raw"));
+    assert_valid_candidate(entry, missing, &yaml.bytes, &inputs);
+    let empty = b"<Root><Value/></Root>";
+    let yaml = convert_file(entry, Direction::XmlToYaml, empty, &inputs).unwrap();
+    assert!(String::from_utf8_lossy(&yaml.bytes).contains("!xml/raw"));
+    assert_valid_candidate(entry, empty, &yaml.bytes, &inputs);
+}
+
+fn style_value_from_fixture(source: &str) -> String {
+    let start = source.find("<Value ").expect("style value in e2e fixture");
+    let rest = &source[start..];
+    let end = rest
+        .find("</Value>")
+        .map(|index| index + "</Value>".len())
+        .or_else(|| rest.find("/>").map(|index| index + 2))
+        .expect("closed style value");
+    format!(
+        "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:v8ui=\"http://v8.1c.ru/8.1/data/ui\" xmlns:style=\"http://v8.1c.ru/8.1/data/ui/style\">{}</Root>",
+        &rest[..end]
     )
 }
 
@@ -268,20 +647,15 @@ fn assert_color_value(
     xml_value: &str,
     yaml: &str,
 ) {
-    let xml = format!("<Root><Color>{xml_value}</Color></Root>");
+    let xml = ui_fragment::document(&format!("<Root><Color>{xml_value}</Color></Root>"));
     let imported = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), inputs).unwrap();
     assert_eq!(String::from_utf8(imported.bytes).unwrap(), yaml);
-    let exported = convert_file(entry, Direction::YamlToXml, yaml.as_bytes(), inputs).unwrap();
-    assert!(
-        String::from_utf8(exported.bytes)
-            .unwrap()
-            .contains(&format!("<Color>{xml_value}</Color>"))
-    );
+    assert_valid_candidate(entry, xml.as_bytes(), yaml.as_bytes(), inputs);
 }
 
 #[test]
 fn color_uses_the_five_existing_xml_forms_in_both_directions() {
-    let (entry, inputs) = color_inputs("probe.color-owner", &[("ПоясняющийТекст", "Color")]);
+    let (entry, inputs) = style_item_inputs("probe.color-owner", &[("ПоясняющийТекст", "Color")]);
     for (xml, yaml) in [
         (
             include_str!(
@@ -314,13 +688,11 @@ fn color_uses_the_five_existing_xml_forms_in_both_directions() {
             "Цвет: ЭлементСтиля.ПоясняющийТекст",
         ),
     ] {
-        let input_xml = format!("<Root>{xml}</Root>");
+        let input_xml = ui_fragment::document(&format!("<Root>{xml}</Root>"));
         let imported =
             convert_file(entry, Direction::XmlToYaml, input_xml.as_bytes(), &inputs).unwrap();
         assert_eq!(String::from_utf8(imported.bytes).unwrap(), yaml);
-        let exported = convert_file(entry, Direction::YamlToXml, yaml.as_bytes(), &inputs).unwrap();
-        let exported = String::from_utf8(exported.bytes).unwrap();
-        assert!(exported.contains(xml), "{exported}");
+        assert_valid_candidate(entry, input_xml.as_bytes(), yaml.as_bytes(), &inputs);
     }
 }
 
@@ -330,7 +702,7 @@ fn color_matches_independent_e2e_style_values() {
         serde_json::from_str(include_str!("../../../../tests/migration/color-e2e.json")).unwrap();
     let source =
         include_str!("../../../../e2e/fixtures/xml/cf/Styles/СтильВсеСвойства/Ext/Style.xml");
-    let (entry, inputs) = color_inputs("probe.color-owner", &[]);
+    let (entry, inputs) = style_item_inputs("probe.color-owner", &[]);
     for case in evidence["cases"].as_array().unwrap() {
         let xml_value = case["xml"].as_str().unwrap();
         let yaml_value = case["yaml"].as_str().unwrap();
@@ -342,7 +714,7 @@ fn color_matches_independent_e2e_style_values() {
 
 #[test]
 fn color_preserves_raw_forms_and_omits_auto() {
-    let (entry, inputs) = color_inputs("probe.color-owner", &[("ПоясняющийТекст", "Color")]);
+    let (entry, inputs) = style_item_inputs("probe.color-owner", &[("ПоясняющийТекст", "Color")]);
     for (xml_value, yaml) in [
         ("0", "Цвет: \"0\""),
         (
@@ -377,7 +749,7 @@ fn color_style_item_checks_the_prepared_name_and_type_index() {
             ),
         ],
     );
-    let xml = "<Root><Color>style:ЭлементСтиляЦвет</Color></Root>";
+    let xml = ui_fragment::document("<Root><Color>style:ЭлементСтиляЦвет</Color></Root>");
     let imported = convert_file(owner, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
     assert_eq!(
         String::from_utf8(imported.bytes).unwrap(),
@@ -410,7 +782,7 @@ fn color_style_item_checks_the_prepared_name_and_type_index() {
 
 #[test]
 fn malformed_color_preserves_its_xml_without_losing_a_sibling() {
-    let (entry, inputs) = color_inputs("probe.color-with-sibling", &[]);
+    let (entry, inputs) = style_item_inputs("probe.color-with-sibling", &[]);
     for (value, annotation) in [
         ("#oops", "!xml/invalid"),
         ("0:wrong-uuid", "!xml/invalid"),
@@ -632,11 +1004,7 @@ fn boolean_absence_is_distinct_from_false_and_invalid_tokens() {
         "<Root><Value>0</Value></Root>",
         "<Root><Value> true </Value></Root>",
     ] {
-        let result = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
-        assert!(String::from_utf8_lossy(&result.bytes).contains("!xml/raw"));
-        assert!(validate_file(entry, &result.bytes, &inputs).is_empty());
-        nkdk_compiled_rules::verify_candidate(entry, xml.as_bytes(), &result.bytes, &inputs)
-            .unwrap();
+        preserved_raw_yaml(entry, xml, &inputs);
     }
 }
 
@@ -673,18 +1041,13 @@ fn scalar_anomalies_preserve_lexemes_and_neighbouring_values() {
         ),
     ] {
         let entry = entry_id(entry).unwrap();
-        let result = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
-        let yaml = String::from_utf8_lossy(&result.bytes);
-        assert!(yaml.contains("!xml/raw"));
+        let yaml = preserved_raw_yaml(entry, xml, &inputs);
         if xml.contains("<Unexpected") {
             assert!(!yaml.contains("$значение:"), "{yaml}");
         }
         if xml.contains("extra=") {
             assert!(yaml.contains("$значение: unchanged"), "{yaml}");
         }
-        assert!(validate_file(entry, &result.bytes, &inputs).is_empty());
-        nkdk_compiled_rules::verify_candidate(entry, xml.as_bytes(), &result.bytes, &inputs)
-            .unwrap();
     }
 }
 
@@ -865,9 +1228,7 @@ fn scalar_choice_preserves_type_and_the_two_export_profiles() {
             let ordinary = attributes.is_empty()
                 || (name == "migration.predefined-code" && attributes == "xsi:type=\"xs:decimal\"");
             assert_eq!(yaml.contains("!xml/raw"), !ordinary, "{yaml}");
-            assert!(validate_file(entry, &result.bytes, &inputs).is_empty());
-            nkdk_compiled_rules::verify_candidate(entry, xml.as_bytes(), &result.bytes, &inputs)
-                .unwrap();
+            assert_valid_candidate(entry, xml.as_bytes(), &result.bytes, &inputs);
         }
         let absent = convert_file(entry, Direction::XmlToYaml, b"<Root/>", &inputs).unwrap();
         assert!(absent.bytes.is_empty());
@@ -1102,9 +1463,7 @@ fn decimal_representations_preserve_comma_dot_and_the_xml_type() {
                 text != canonical && !(kind == "string" && text == "9007199254740993,125"),
                 "{yaml}"
             );
-            assert!(validate_file(entry, &result.bytes, &inputs).is_empty());
-            nkdk_compiled_rules::verify_candidate(entry, xml.as_bytes(), &result.bytes, &inputs)
-                .unwrap();
+            assert_valid_candidate(entry, xml.as_bytes(), &result.bytes, &inputs);
         }
         for text in ["", "NaN", "1,2,3"] {
             let xml = format!("<Root><Value>{text}</Value></Root>");

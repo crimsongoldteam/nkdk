@@ -1,0 +1,168 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: probe.inferred-changed-capacity
+  imports: {boolean: common.boolean}
+  inputs:
+    property: {type: {kind: scalar, scalar: text}}
+    owner: {type: {kind: scalar, scalar: text}}
+    states: {type: {kind: index, key: {kind: record, fields: [{name: owner, type: {kind: scalar, scalar: text}}, {name: property, type: {kind: scalar, scalar: text}}, {name: mode, type: {kind: scalar, scalar: text}}]}, value: {kind: scalar, scalar: text}}}
+  value: {kind: record, fields: [{name: capacity, type: {kind: scalar, scalar: number, profile: decimal}}, {name: state, type: {use: boolean}}]}
+  representations:
+    xml: {kind: record, fields: [{field: capacity, path: [Value]}]}
+    yaml: {kind: projection, field: capacity}
+  presence:
+  - target: {field: capacity}
+    yaml:
+      empty: [{form: 'null', denotes: {literal: 9}}]
+      nullWhen: {eq: [{field: capacity}, {literal: 9}]}
+  - target: {field: state}
+    xml: {missing: {denotes: {present: {lookup: {in: {input: states}, key: {record: {owner: {input: owner}, property: {input: property}, mode: {literal: Extended}}}}}}}}
+    yaml: {missing: {denotes: {literal: true}}}
+  constraints:
+  - id: selected-state
+    appliesTo: [xml-import, yaml-validation]
+    forms: [record, scalar]
+    assert: {field: state}
+    diagnostic: {code: state.expected, severity: error, at: {self: true}, message: Expected the selected state}
+- kind: value
+  id: probe.inferred-plain-capacity
+  imports: {boolean: common.boolean}
+  inputs:
+    property: {type: {kind: scalar, scalar: text}}
+    owner: {type: {kind: scalar, scalar: text}}
+    states: {type: {kind: index, key: {kind: record, fields: [{name: owner, type: {kind: scalar, scalar: text}}, {name: property, type: {kind: scalar, scalar: text}}, {name: mode, type: {kind: scalar, scalar: text}}]}, value: {kind: scalar, scalar: text}}}
+  value: {kind: record, fields: [{name: capacity, type: {kind: scalar, scalar: number, profile: decimal}}, {name: state, type: {use: boolean}}]}
+  representations:
+    xml: {kind: record, fields: [{field: capacity, path: [Value]}]}
+    yaml: {kind: projection, field: capacity}
+  presence:
+  - target: {field: state}
+    xml: {missing: {denotes: {present: {lookup: {in: {input: states}, key: {record: {owner: {input: owner}, property: {input: property}, mode: {literal: Extended}}}}}}}}
+    yaml: {missing: {denotes: {literal: false}}}
+  constraints:
+  - id: selected-state
+    appliesTo: [xml-import, yaml-validation]
+    forms: [record, scalar]
+    assert: {not: {field: state}}
+    diagnostic: {code: state.expected, severity: error, at: {self: true}, message: Expected the ordinary state}
+- kind: value
+  id: probe.inferred-stateful-capacity
+  imports: {changed: probe.inferred-changed-capacity, plain: probe.inferred-plain-capacity}
+  inputs:
+    property: {type: {kind: scalar, scalar: text}}
+    owner: {type: {kind: scalar, scalar: text}}
+    states: {type: {kind: index, key: {kind: record, fields: [{name: owner, type: {kind: scalar, scalar: text}}, {name: property, type: {kind: scalar, scalar: text}}, {name: mode, type: {kind: scalar, scalar: text}}]}, value: {kind: scalar, scalar: text}}}
+  value:
+    kind: choice
+    variants:
+    - {name: changed, type: {use: changed, bind: {states: {input: states}, owner: {input: owner}, property: {input: property}}}}
+    - {name: plain, type: {use: plain, bind: {states: {input: states}, owner: {input: owner}, property: {input: property}}}}
+  representations:
+    xml: {kind: choice, fallback: plain}
+    yaml: {kind: choice, variants: [{variant: changed, form: scalar, tag: изменять}]}
+- kind: object
+  id: migration.tagged-inferred-state
+  inputs:
+    owner: {type: {kind: scalar, scalar: text}}
+    states: {index: metadata.property-state-membership}
+  imports: {capacity: probe.inferred-stateful-capacity, rows: common.property-states}
+  value:
+    kind: record
+    fields:
+    - {name: rows, type: {use: rows}}
+    - {name: capacity, type: {use: capacity, bind: {states: {input: states}, owner: {input: owner}, property: {literal: Capacity}}}}
+  representations:
+    xml: {kind: record, fields: [{field: rows, path: [Root, InternalInfo]}, {field: capacity, path: [Root, Properties]}]}
+    yaml: {kind: mapping, fields: [{field: capacity, key: Длина}, {field: rows, key: Состояния}]}
+  presence:
+  - target: {field: rows}
+    xml: {missing: {denotes: {sequence: []}}}
+    yaml:
+      default:
+        if: {isVariant: {value: {field: capacity}, variant: changed}}
+        then: {sequence: [{record: {name: {literal: Capacity}, mode: {literal: Extended}}}]}
+        else: {sequence: []}
+  constraints:
+  - id: state-agrees-with-tag
+    appliesTo: [yaml-validation]
+    assert:
+      eq:
+      - {isVariant: {value: {field: capacity}, variant: changed}}
+      - exists:
+          in: {field: rows}
+          as: row
+          where: {and: [{eq: [{get: {of: {var: row}, field: name}}, {literal: Capacity}]}, {eq: [{get: {of: {var: row}, field: mode}}, {literal: Extended}]}]}
+    diagnostic: {code: state.expected, severity: error, at: {field: capacity}, message: Пометка не соответствует явно заданным состояниям}
+- kind: object
+  id: migration.tagged-multiple-states
+  inputs:
+    owner: {type: {kind: scalar, scalar: text}}
+    states: {index: metadata.property-state-membership}
+  imports: {capacity: probe.inferred-stateful-capacity, rows: common.property-states}
+  value:
+    kind: record
+    fields:
+    - {name: history, type: {use: rows}}
+    - {name: first, type: {use: capacity, bind: {states: {input: states}, owner: {input: owner}, property: {literal: Capacity}}}}
+    - {name: second, type: {use: capacity, bind: {states: {input: states}, owner: {input: owner}, property: {literal: Counter}}}}
+    - {name: title, type: {kind: scalar, scalar: text}}
+  representations:
+    xml: {kind: record, fields: [{field: history, path: [Root, InternalInfo]}, {field: first, path: [Root, FirstProperties]}, {field: second, path: [Root, SecondProperties]}, {field: title, path: [Root, Title]}]}
+    yaml: {kind: mapping, fields: [{field: first, key: Первое}, {field: second, key: Второе}, {field: title, key: Подпись}, {field: history, key: История}]}
+  presence:
+  - target: {field: title}
+    yaml:
+      default:
+        if:
+          lt:
+          - {literal: 0}
+          - if: {isVariant: {value: {field: first}, variant: changed}}
+            then: {get: {of: {variantValue: {value: {field: first}, variant: changed}}, field: capacity}}
+            else: {get: {of: {variantValue: {value: {field: first}, variant: plain}}, field: capacity}}
+        then: {literal: positive}
+        else: {literal: zero-or-negative}
+  - target: {field: history}
+    xml: {missing: {denotes: {sequence: []}}}
+    yaml:
+      default:
+        concat:
+        - if: {isVariant: {value: {field: first}, variant: changed}}
+          then: {sequence: [{record: {name: {literal: Capacity}, mode: {literal: Extended}}}]}
+          else: {sequence: []}
+        - if: {isVariant: {value: {field: second}, variant: changed}}
+          then: {sequence: [{record: {name: {literal: Counter}, mode: {literal: Extended}}}]}
+          else: {sequence: []}
+  constraints:
+  - id: first-agrees-with-tag
+    appliesTo: [yaml-validation]
+    assert: {eq: [{isVariant: {value: {field: first}, variant: changed}}, {exists: {in: {field: history}, as: row, where: {and: [{eq: [{get: {of: {var: row}, field: name}}, {literal: Capacity}]}, {eq: [{get: {of: {var: row}, field: mode}}, {literal: Extended}]}]}}}]}
+    diagnostic: {code: state.expected, severity: error, at: {field: first}, message: Пометка не соответствует явно заданным состояниям}
+  - id: second-agrees-with-tag
+    appliesTo: [yaml-validation]
+    assert: {eq: [{isVariant: {value: {field: second}, variant: changed}}, {exists: {in: {field: history}, as: row, where: {and: [{eq: [{get: {of: {var: row}, field: name}}, {literal: Counter}]}, {eq: [{get: {of: {var: row}, field: mode}}, {literal: Extended}]}]}}}]}
+    diagnostic: {code: state.expected, severity: error, at: {field: second}, message: Пометка не соответствует явно заданным состояниям}
+- kind: object
+  id: migration.property-state-source
+  imports: {rows: common.property-states}
+  inputs:
+    owner: {type: {kind: scalar, scalar: text}}
+  value: {kind: record, fields: [{name: rows, type: {use: rows}}]}
+  representations:
+    xml: {kind: record, fields: [{field: rows, path: [Root, InternalInfo]}]}
+    yaml: {kind: mapping, fields: [{field: rows, key: Состояния}]}
+  presence:
+  - target: {field: rows}
+    xml: {missing: {denotes: {sequence: []}}}
+    yaml: {missing: {denotes: {sequence: []}}}
+  contributions:
+  - index: metadata.property-state-membership
+    duplicates: coalesce-equal
+    forEach: {in: {field: rows}, as: row}
+    key:
+      record:
+        owner: {input: owner}
+        property: {get: {of: {var: row}, field: name}}
+        mode: {get: {of: {var: row}, field: mode}}
+    value: {literal: present}

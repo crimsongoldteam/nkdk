@@ -6,6 +6,7 @@ pub mod graph;
 pub mod identity;
 pub mod preparation;
 pub mod prepared;
+pub mod retained;
 pub mod text;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -75,6 +76,20 @@ impl<K: Ord, V> FactIndexBuilder<K, V> {
     }
 }
 
+impl<K: Ord, V: Ord> FactIndexBuilder<K, V> {
+    /// Equal projections may represent repeated observations, not identities.
+    /// Conflicting projections remain ambiguous and incomplete indexes stay unready.
+    pub fn finish_coalesced(mut self) -> FactIndex<K, V> {
+        self.rows.sort_unstable();
+        self.rows.dedup();
+        FactIndex {
+            generation: self.generation,
+            ready: self.ready,
+            rows: self.rows,
+        }
+    }
+}
+
 impl<K: Ord, V> FactIndex<K, V> {
     /// A borrowed result needs no allocation and never chooses among duplicates.
     pub fn lookup(&self, generation: Generation, key: &K) -> FactState<&V> {
@@ -98,4 +113,12 @@ impl<K: Ord, V> FactIndex<K, V> {
             FactState::Ready(value)
         }
     }
+}
+
+/// Exact canonical positive ids are the only values that collide with generated ids.
+pub(crate) fn positive_number(value: &str) -> Option<u64> {
+    (matches!(value.as_bytes().first(), Some(b'1'..=b'9'))
+        && value.bytes().all(|byte| byte.is_ascii_digit()))
+    .then(|| value.parse().ok())
+    .flatten()
 }

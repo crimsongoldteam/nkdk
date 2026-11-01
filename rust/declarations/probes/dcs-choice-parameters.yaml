@@ -1,0 +1,28 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.dcs-choice-parameters
+imports: {parameters: common.dcs-choice-parameters}
+inputs:
+  defaultLanguage: {type: {kind: scalar, scalar: text}}
+  registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+value:
+  kind: record
+  fields:
+  - name: parameters
+    type:
+      use: parameters
+      bind:
+        defaultLanguage: {input: defaultLanguage}
+        registeredLanguages: {input: registeredLanguages}
+representations:
+  xml: {kind: record, fields: [{field: parameters, path: [Root, Parameters]}]}
+  yaml: {kind: mapping, fields: [{field: parameters, key: Параметры}]}
+presence:
+- target: {field: parameters}
+  xml:
+    missing: {denotes: {absent: true}}
+    empty: [{form: nil, denotes: {absent: true}}]
+    canonical: [{when: {not: {present: {field: parameters}}}, form: nil}]
+  yaml:
+    missing: {denotes: {absent: true}}
+    empty: [{form: null, denotes: {absent: true}}]

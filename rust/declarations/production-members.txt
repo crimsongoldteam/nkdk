@@ -1,0 +1,2 @@
+# Ownership of current member source partition 0.
+objects/input-by-string-members-0.generated.yaml

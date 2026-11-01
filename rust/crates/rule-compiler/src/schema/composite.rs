@@ -16,6 +16,16 @@ pub(super) fn build(program: &Program, owner: &LinkedEntry) -> Result<Option<Val
     else {
         return Err(unsupported(common));
     };
+    if !fields.iter().any(|field| {
+        reference(&field.value).is_some_and(|(id, _, _)| {
+            program
+                .entries
+                .iter()
+                .any(|entry| entry.id == id && matches!(entry.value, LinkedType::Sequence(_)))
+        })
+    }) {
+        return Ok(None);
+    }
     let mut properties = serde_json::Map::new();
     let mut required = Vec::new();
     let planned = program.record(common)?;
@@ -23,6 +33,9 @@ pub(super) fn build(program: &Program, owner: &LinkedEntry) -> Result<Option<Val
         let Some(mapping) = planned.fields[index].yaml else {
             continue;
         };
+        if mapping.file.is_some() {
+            continue;
+        }
         let key = &mapping.key;
         let target = reference(&field.value).map(|(id, _, _)| {
             program

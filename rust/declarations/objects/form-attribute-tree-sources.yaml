@@ -1,0 +1,1622 @@
+# Whole-tree identity preparation; public form conversion is separate.
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: source.form-tree-column
+  value:
+    kind: record
+    fields:
+    - {name: name, type: {kind: scalar, scalar: text}}
+    - {name: id, type: {kind: scalar, scalar: text}}
+  representations:
+    xml:
+      kind: record
+      fields:
+      - {field: name, path: [], attribute: name}
+      - {field: id, path: [], attribute: id}
+    yaml:
+      kind: mapping
+      fields:
+      - {field: name, key: Имя}
+      - {field: id, key: Идентификатор}
+  presence:
+  - target: {field: id}
+    xml:
+      missing:
+        denotes: {absent: true}
+    yaml:
+      missing:
+        denotes: {absent: true}
+- kind: value
+  id: source.form-tree-column-rows
+  namespaces: {f: 'http://v8.1c.ru/8.3/xcf/logform'}
+  imports: {row: source.form-tree-column}
+  value:
+    kind: sequence
+    item: {use: row}
+  representations:
+    xml:
+      kind: element-sequence
+      path:
+      - f:Column
+      item: {kind: declared}
+    yaml:
+      kind: sequence
+      item: {kind: declared}
+- kind: fragment
+  id: source.form-tree-column-row-data
+  imports: {rows: source.form-tree-column-rows}
+  value:
+    kind: record
+    fields:
+    - {name: rows, type: {use: rows}}
+  representations:
+    xml:
+      kind: record
+      fields:
+      - {field: rows, path: []}
+    yaml:
+      kind: mapping
+      fields:
+      - {field: rows, key: Обычные}
+  presence:
+  - target: {field: rows}
+    xml:
+      missing:
+        denotes: {absent: true}
+    yaml:
+      missing:
+        denotes: {absent: true}
+- kind: fragment
+  id: source.form-tree-current-column-identities
+  imports: {data: source.form-tree-column-row-data}
+  inputs:
+    component: {type: {kind: scalar, scalar: text}}
+    owner: {type: {kind: scalar, scalar: text}}
+    parent: {type: {kind: scalar, scalar: text}}
+  value:
+    kind: record
+    fields: []
+  representations:
+    xml:
+      kind: record
+      fields: []
+    yaml:
+      kind: mapping
+      fields: []
+  compose:
+  - {use: data}
+  contributions:
+  - index: metadata.current-form-attribute-candidates
+    forEach: {in: {field: rows}, as: row, index: position}
+    key:
+      record:
+        component: {input: component}
+        owner: {input: owner}
+        name:
+          if:
+            and:
+            - not:
+                eq:
+                - get:
+                    of: {var: row}
+                    field: name
+                - {literal: ''}
+            - one:
+                in: {field: rows}
+                as: candidate
+                where:
+                  eq:
+                  - get:
+                      of: {var: candidate}
+                      field: name
+                  - get:
+                      of: {var: row}
+                      field: name
+          then:
+            logicalAddress:
+              parent: {input: parent}
+              parts:
+              - {literal: Колонка}
+              - get:
+                  of: {var: row}
+                  field: name
+          else:
+            logicalAddress:
+              parent: {input: parent}
+              parts:
+              - {literal: Колонка}
+              - {var: position}
+    value: {literal: present}
+  - index: metadata.form-attribute-identities
+    forEach: {in: {field: rows}, as: row, index: position}
+    key:
+      record:
+        component: {input: component}
+        owner: {input: owner}
+        name:
+          if:
+            and:
+            - not:
+                eq:
+                - get:
+                    of: {var: row}
+                    field: name
+                - {literal: ''}
+            - one:
+                in: {field: rows}
+                as: candidate
+                where:
+                  eq:
+                  - get:
+                      of: {var: candidate}
+                      field: name
+                  - get:
+                      of: {var: row}
+                      field: name
+          then:
+            logicalAddress:
+              parent: {input: parent}
+              parts:
+              - {literal: Колонка}
+              - get:
+                  of: {var: row}
+                  field: name
+          else:
+            logicalAddress:
+              parent: {input: parent}
+              parts:
+              - {literal: Колонка}
+              - {var: position}
+    value:
+      get:
+        of: {var: row}
+        field: id
+    when:
+      present:
+        get:
+          of: {var: row}
+          field: id
+  - index: metadata.form-attribute-identities
+    forEach: {in: {field: rows}, as: row, index: position}
+    key:
+      record:
+        component: {input: component}
+        owner: {input: owner}
+        name:
+          if:
+            and:
+            - not:
+                eq:
+                - get:
+                    of: {var: row}
+                    field: name
+                - {literal: ''}
+            - one:
+                in: {field: rows}
+                as: candidate
+                where:
+                  eq:
+                  - get:
+                      of: {var: candidate}
+                      field: name
+                  - get:
+                      of: {var: row}
+                      field: name
+          then:
+            logicalAddress:
+              parent: {input: parent}
+              parts:
+              - {literal: Колонка}
+              - get:
+                  of: {var: row}
+                  field: name
+          else:
+            logicalAddress:
+              parent: {input: parent}
+              parts:
+              - {literal: Колонка}
+              - {var: position}
+    allocate:
+      scope:
+      - component
+      - owner
+      first: 1
+- kind: value
+  id: source.form-tree-current-additional-column-group
+  imports: {columns: source.form-tree-current-column-identities}
+  inputs:
+    component: {type: {kind: scalar, scalar: text}}
+    owner: {type: {kind: scalar, scalar: text}}
+    parent: {type: {kind: scalar, scalar: text}}
+    origin: {type: {kind: scalar, scalar: text}}
+    groupModes:
+      type:
+        kind: index
+        key:
+          kind: record
+          fields:
+          - {name: component, type: {kind: scalar, scalar: text}}
+          - {name: name, type: {kind: scalar, scalar: text}}
+          - {name: origin, type: {kind: scalar, scalar: text}}
+          - {name: owner, type: {kind: scalar, scalar: text}}
+          - {name: parent, type: {kind: scalar, scalar: text}}
+        value: {kind: scalar, scalar: text}
+  compose:
+  - use: columns
+    bind:
+      component: {input: component}
+      owner: {input: owner}
+      parent:
+        if:
+          eq:
+          - require:
+              lookup:
+                in: {input: groupModes}
+                key:
+                  record:
+                    component: {input: component}
+                    owner: {input: owner}
+                    origin: {input: origin}
+                    parent: {input: parent}
+                    name: {field: table}
+          - {literal: named}
+        then:
+          logicalAddress:
+            parent: {input: parent}
+            parts:
+            - {literal: ДополнительныеКолонки}
+            - {field: table}
+        else:
+          logicalAddress:
+            parent: {input: parent}
+            parts:
+            - {literal: ДополнительныеКолонки}
+            - {collectionPosition: true}
+  value:
+    kind: record
+    fields:
+    - {name: table, type: {kind: scalar, scalar: text}}
+  representations:
+    xml:
+      kind: record
+      fields:
+      - {field: table, path: [], attribute: table}
+    yaml:
+      kind: mapping
+      fields:
+      - {field: table, key: Таблица}
+- kind: value
+  id: source.form-tree-current-additional-column-groups
+  namespaces: {f: 'http://v8.1c.ru/8.3/xcf/logform'}
+  imports: {group: source.form-tree-current-additional-column-group}
+  inputs:
+    component: {type: {kind: scalar, scalar: text}}
+    owner: {type: {kind: scalar, scalar: text}}
+    parent: {type: {kind: scalar, scalar: text}}
+    origin: {type: {kind: scalar, scalar: text}}
+    groupModes:
+      type:
+        kind: index
+        key:
+          kind: record
+          fields:
+          - {name: component, type: {kind: scalar, scalar: text}}
+          - {name: name, type: {kind: scalar, scalar: text}}
+          - {name: origin, type: {kind: scalar, scalar: text}}
+          - {name: owner, type: {kind: scalar, scalar: text}}
+          - {name: parent, type: {kind: scalar, scalar: text}}
+        value: {kind: scalar, scalar: text}
+  value:
+    kind: sequence
+    item: {use: group, bind: {component: {input: component}, owner: {input: owner}, parent: {input: parent}, origin: {input: origin}, groupModes: {
+          input: groupModes}}}
+  representations:
+    xml:
+      kind: element-sequence
+      path:
+      - f:AdditionalColumns
+      item: {kind: declared}
+    yaml:
+      kind: sequence
+      item: {kind: declared}
+- kind: value
+  id: source.form-tree-current-column-container
+  imports: {ordinary: source.form-tree-current-column-identities, additional: source.form-tree-current-additional-column-groups}
+  inputs:
+    component: {type: {kind: scalar, scalar: text}}
+    owner: {type: {kind: scalar, scalar: text}}
+    parent: {type: {kind: scalar, scalar: text}}
+    origin: {type: {kind: scalar, scalar: text}}
+    groupModes:
+      type:
+        kind: index
+        key:
+          kind: record
+          fields:
+          - {name: component, type: {kind: scalar, scalar: text}}
+          - {name: name, type: {kind: scalar, scalar: text}}
+          - {name: origin, type: {kind: scalar, scalar: text}}
+          - {name: owner, type: {kind: scalar, scalar: text}}
+          - {name: parent, type: {kind: scalar, scalar: text}}
+        value: {kind: scalar, scalar: text}
+  compose:
+  - {use: ordinary, bind: {component: {input: component}, owner: {input: owner}, parent: {input: parent}}}
+  value:
+    kind: record
+    fields:
+    - name: groups
+      type: {use: additional, bind: {component: {input: component}, owner: {input: owner}, parent: {input: parent}, origin: {input: origin}, groupModes: {
+            input: groupModes}}}
+  representations:
+    xml:
+      kind: record
+      fields:
+      - {field: groups, path: []}
+    yaml:
+      kind: mapping
+      fields:
+      - {field: groups, key: Дополнительные}
+  presence:
+  - target: {field: groups}
+    xml:
+      missing:
+        denotes: {absent: true}
+    yaml:
+      missing:
+        denotes: {absent: true}
+- kind: fragment
+  id: source.form-tree-base-column-identities
+  imports: {data: source.form-tree-column-row-data}
+  inputs:
+    component: {type: {kind: scalar, scalar: text}}
+    owner: {type: {kind: scalar, scalar: text}}
+    parent: {type: {kind: scalar, scalar: text}}
+    current:
+      type:
+        kind: index
+        key:
+          kind: record
+          fields:
+          - {name: component, type: {kind: scalar, scalar: text}}
+          - {name: name, type: {kind: scalar, scalar: text}}
+          - {name: owner, type: {kind: scalar, scalar: text}}
+        value: {kind: scalar, scalar: text}
+  value:
+    kind: record
+    fields: []
+  representations:
+    xml:
+      kind: record
+      fields: []
+    yaml:
+      kind: mapping
+      fields: []
+  compose:
+  - {use: data}
+  contributions:
+  - index: metadata.form-attribute-identities
+    forEach: {in: {field: rows}, as: row, index: position}
+    key:
+      record:
+        component: {input: component}
+        owner: {input: owner}
+    reserve:
+      get:
+        of: {var: row}
+        field: id
+    when:
+      present:
+        get:
+          of: {var: row}
+          field: id
+  - index: metadata.form-attribute-identities
+    forEach: {in: {field: rows}, as: row, index: position}
+    key:
+      record:
+        component: {input: component}
+        owner: {input: owner}
+        name:
+          if:
+            and:
+            - not:
+                eq:
+                - get:
+                    of: {var: row}
+                    field: name
+                - {literal: ''}
+            - one:
+                in: {field: rows}
+                as: candidate
+                where:
+                  eq:
+                  - get:
+                      of: {var: candidate}
+                      field: name
+                  - get:
+                      of: {var: row}
+                      field: name
+          then:
+            logicalAddress:
+              parent: {input: parent}
+              parts:
+              - {literal: Колонка}
+              - get:
+                  of: {var: row}
+                  field: name
+          else:
+            logicalAddress:
+              parent: {input: parent}
+              parts:
+              - {literal: Колонка}
+              - {var: position}
+    value:
+      get:
+        of: {var: row}
+        field: id
+    when:
+      and:
+      - present:
+          get:
+            of: {var: row}
+            field: id
+      - not:
+          present:
+            lookup:
+              in: {input: current}
+              key:
+                record:
+                  component: {input: component}
+                  owner: {input: owner}
+                  name:
+                    if:
+                      and:
+                      - not:
+                          eq:
+                          - get:
+                              of: {var: row}
+                              field: name
+                          - {literal: ''}
+                      - one:
+                          in: {field: rows}
+                          as: candidate
+                          where:
+                            eq:
+                            - get:
+                                of: {var: candidate}
+                                field: name
+                            - get:
+                                of: {var: row}
+                                field: name
+                    then:
+                      logicalAddress:
+                        parent: {input: parent}
+                        parts:
+                        - {literal: Колонка}
+                        - get:
+                            of: {var: row}
+                            field: name
+                    else:
+                      logicalAddress:
+                        parent: {input: parent}
+                        parts:
+                        - {literal: Колонка}
+                        - {var: position}
+  - index: metadata.form-attribute-identities
+    forEach: {in: {field: rows}, as: row, index: position}
+    key:
+      record:
+        component: {input: component}
+        owner: {input: owner}
+        name:
+          if:
+            and:
+            - not:
+                eq:
+                - get:
+                    of: {var: row}
+                    field: name
+                - {literal: ''}
+            - one:
+                in: {field: rows}
+                as: candidate
+                where:
+                  eq:
+                  - get:
+                      of: {var: candidate}
+                      field: name
+                  - get:
+                      of: {var: row}
+                      field: name
+          then:
+            logicalAddress:
+              parent: {input: parent}
+              parts:
+              - {literal: Колонка}
+              - get:
+                  of: {var: row}
+                  field: name
+          else:
+            logicalAddress:
+              parent: {input: parent}
+              parts:
+              - {literal: Колонка}
+              - {var: position}
+    when:
+      not:
+        present:
+          lookup:
+            in: {input: current}
+            key:
+              record:
+                component: {input: component}
+                owner: {input: owner}
+                name:
+                  if:
+                    and:
+                    - not:
+                        eq:
+                        - get:
+                            of: {var: row}
+                            field: name
+                        - {literal: ''}
+                    - one:
+                        in: {field: rows}
+                        as: candidate
+                        where:
+                          eq:
+                          - get:
+                              of: {var: candidate}
+                              field: name
+                          - get:
+                              of: {var: row}
+                              field: name
+                  then:
+                    logicalAddress:
+                      parent: {input: parent}
+                      parts:
+                      - {literal: Колонка}
+                      - get:
+                          of: {var: row}
+                          field: name
+                  else:
+                    logicalAddress:
+                      parent: {input: parent}
+                      parts:
+                      - {literal: Колонка}
+                      - {var: position}
+    allocate:
+      scope:
+      - component
+      - owner
+      first: 1000001
+      phase: 1
+- kind: value
+  id: source.form-tree-base-additional-column-group
+  imports: {columns: source.form-tree-base-column-identities}
+  inputs:
+    component: {type: {kind: scalar, scalar: text}}
+    owner: {type: {kind: scalar, scalar: text}}
+    parent: {type: {kind: scalar, scalar: text}}
+    current:
+      type:
+        kind: index
+        key:
+          kind: record
+          fields:
+          - {name: component, type: {kind: scalar, scalar: text}}
+          - {name: name, type: {kind: scalar, scalar: text}}
+          - {name: owner, type: {kind: scalar, scalar: text}}
+        value: {kind: scalar, scalar: text}
+    origin: {type: {kind: scalar, scalar: text}}
+    groupModes:
+      type:
+        kind: index
+        key:
+          kind: record
+          fields:
+          - {name: component, type: {kind: scalar, scalar: text}}
+          - {name: name, type: {kind: scalar, scalar: text}}
+          - {name: origin, type: {kind: scalar, scalar: text}}
+          - {name: owner, type: {kind: scalar, scalar: text}}
+          - {name: parent, type: {kind: scalar, scalar: text}}
+        value: {kind: scalar, scalar: text}
+  compose:
+  - use: columns
+    bind:
+      component: {input: component}
+      owner: {input: owner}
+      parent:
+        if:
+          eq:
+          - require:
+              lookup:
+                in: {input: groupModes}
+                key:
+                  record:
+                    component: {input: component}
+                    owner: {input: owner}
+                    origin: {input: origin}
+                    parent: {input: parent}
+                    name: {field: table}
+          - {literal: named}
+        then:
+          logicalAddress:
+            parent: {input: parent}
+            parts:
+            - {literal: ДополнительныеКолонки}
+            - {field: table}
+        else:
+          logicalAddress:
+            parent: {input: parent}
+            parts:
+            - {literal: ДополнительныеКолонки}
+            - {collectionPosition: true}
+      current: {input: current}
+  value:
+    kind: record
+    fields:
+    - {name: table, type: {kind: scalar, scalar: text}}
+  representations:
+    xml:
+      kind: record
+      fields:
+      - {field: table, path: [], attribute: table}
+    yaml:
+      kind: mapping
+      fields:
+      - {field: table, key: Таблица}
+- kind: value
+  id: source.form-tree-base-additional-column-groups
+  namespaces: {f: 'http://v8.1c.ru/8.3/xcf/logform'}
+  imports: {group: source.form-tree-base-additional-column-group}
+  inputs:
+    component: {type: {kind: scalar, scalar: text}}
+    owner: {type: {kind: scalar, scalar: text}}
+    parent: {type: {kind: scalar, scalar: text}}
+    current:
+      type:
+        kind: index
+        key:
+          kind: record
+          fields:
+          - {name: component, type: {kind: scalar, scalar: text}}
+          - {name: name, type: {kind: scalar, scalar: text}}
+          - {name: owner, type: {kind: scalar, scalar: text}}
+        value: {kind: scalar, scalar: text}
+    origin: {type: {kind: scalar, scalar: text}}
+    groupModes:
+      type:
+        kind: index
+        key:
+          kind: record
+          fields:
+          - {name: component, type: {kind: scalar, scalar: text}}
+          - {name: name, type: {kind: scalar, scalar: text}}
+          - {name: origin, type: {kind: scalar, scalar: text}}
+          - {name: owner, type: {kind: scalar, scalar: text}}
+          - {name: parent, type: {kind: scalar, scalar: text}}
+        value: {kind: scalar, scalar: text}
+  value:
+    kind: sequence
+    item:
+      use: group
+      bind:
+        component: {input: component}
+        owner: {input: owner}
+        parent: {input: parent}
+        current: {input: current}
+        origin: {input: origin}
+        groupModes: {input: groupModes}
+  representations:
+    xml:
+      kind: element-sequence
+      path:
+      - f:AdditionalColumns
+      item: {kind: declared}
+    yaml:
+      kind: sequence
+      item: {kind: declared}
+- kind: value
+  id: source.form-tree-base-column-container
+  imports: {ordinary: source.form-tree-base-column-identities, additional: source.form-tree-base-additional-column-groups}
+  inputs:
+    component: {type: {kind: scalar, scalar: text}}
+    owner: {type: {kind: scalar, scalar: text}}
+    parent: {type: {kind: scalar, scalar: text}}
+    current:
+      type:
+        kind: index
+        key:
+          kind: record
+          fields:
+          - {name: component, type: {kind: scalar, scalar: text}}
+          - {name: name, type: {kind: scalar, scalar: text}}
+          - {name: owner, type: {kind: scalar, scalar: text}}
+        value: {kind: scalar, scalar: text}
+    origin: {type: {kind: scalar, scalar: text}}
+    groupModes:
+      type:
+        kind: index
+        key:
+          kind: record
+          fields:
+          - {name: component, type: {kind: scalar, scalar: text}}
+          - {name: name, type: {kind: scalar, scalar: text}}
+          - {name: origin, type: {kind: scalar, scalar: text}}
+          - {name: owner, type: {kind: scalar, scalar: text}}
+          - {name: parent, type: {kind: scalar, scalar: text}}
+        value: {kind: scalar, scalar: text}
+  compose:
+  - {use: ordinary, bind: {component: {input: component}, owner: {input: owner}, parent: {input: parent}, current: {input: current}}}
+  value:
+    kind: record
+    fields:
+    - name: groups
+      type:
+        use: additional
+        bind:
+          component: {input: component}
+          owner: {input: owner}
+          parent: {input: parent}
+          current: {input: current}
+          origin: {input: origin}
+          groupModes: {input: groupModes}
+  representations:
+    xml:
+      kind: record
+      fields:
+      - {field: groups, path: []}
+    yaml:
+      kind: mapping
+      fields:
+      - {field: groups, key: Дополнительные}
+  presence:
+  - target: {field: groups}
+    xml:
+      missing:
+        denotes: {absent: true}
+    yaml:
+      missing:
+        denotes: {absent: true}
+- kind: object
+  id: metadata.current-form-attribute-mode-source
+  namespaces: {f: 'http://v8.1c.ru/8.3/xcf/logform'}
+  imports: {rows: source.form-attribute-id-rows}
+  inputs:
+    component: {type: {kind: scalar, scalar: text}}
+    owner: {type: {kind: scalar, scalar: text}}
+  value:
+    kind: record
+    fields:
+    - {name: rows, type: {use: rows}}
+  representations:
+    xml:
+      kind: record
+      fields:
+      - {field: rows, path: ['f:Form', 'f:Attributes']}
+    yaml:
+      kind: mapping
+      fields:
+      - {field: rows, key: Реквизиты}
+  presence:
+  - target: {field: rows}
+    xml:
+      missing:
+        denotes: {absent: true}
+    yaml:
+      missing:
+        denotes: {absent: true}
+  contributions:
+  - index: metadata.form-attribute-address-modes
+    duplicates: coalesce-equal
+    forEach: {in: {field: rows}, as: row}
+    key:
+      record:
+        component: {input: component}
+        owner: {input: owner}
+        origin: {literal: current}
+        name:
+          get:
+            of: {var: row}
+            field: name
+    value:
+      if:
+        and:
+        - not:
+            eq:
+            - get:
+                of: {var: row}
+                field: name
+            - {literal: ''}
+        - one:
+            in: {field: rows}
+            as: candidate
+            where:
+              eq:
+              - get:
+                  of: {var: candidate}
+                  field: name
+              - get:
+                  of: {var: row}
+                  field: name
+      then: {literal: named}
+      else: {literal: positional}
+- kind: object
+  id: metadata.base-form-attribute-mode-source
+  namespaces: {f: 'http://v8.1c.ru/8.3/xcf/logform'}
+  imports: {rows: source.form-attribute-id-rows}
+  inputs:
+    component: {type: {kind: scalar, scalar: text}}
+    owner: {type: {kind: scalar, scalar: text}}
+  value:
+    kind: record
+    fields:
+    - {name: rows, type: {use: rows}}
+  representations:
+    xml:
+      kind: record
+      fields:
+      - {field: rows, path: ['f:Form', 'f:BaseForm', 'f:Attributes']}
+    yaml:
+      kind: mapping
+      fields:
+      - {field: rows, key: Реквизиты}
+  presence:
+  - target: {field: rows}
+    xml:
+      missing:
+        denotes: {absent: true}
+    yaml:
+      missing:
+        denotes: {absent: true}
+  contributions:
+  - index: metadata.form-attribute-address-modes
+    duplicates: coalesce-equal
+    forEach: {in: {field: rows}, as: row}
+    key:
+      record:
+        component: {input: component}
+        owner: {input: owner}
+        origin: {literal: base}
+        name:
+          get:
+            of: {var: row}
+            field: name
+    value:
+      if:
+        and:
+        - not:
+            eq:
+            - get:
+                of: {var: row}
+                field: name
+            - {literal: ''}
+        - one:
+            in: {field: rows}
+            as: candidate
+            where:
+              eq:
+              - get:
+                  of: {var: candidate}
+                  field: name
+              - get:
+                  of: {var: row}
+                  field: name
+      then: {literal: named}
+      else: {literal: positional}
+- kind: fragment
+  id: source.form-tree-attribute-id-data
+  value:
+    kind: record
+    fields:
+    - {name: name, type: {kind: scalar, scalar: text}}
+    - {name: id, type: {kind: scalar, scalar: text}}
+  representations:
+    xml:
+      kind: record
+      fields:
+      - {field: name, path: [], attribute: name}
+      - {field: id, path: [], attribute: id}
+    yaml:
+      kind: mapping
+      fields:
+      - {field: name, key: Имя}
+      - {field: id, key: Идентификатор}
+  presence:
+  - target: {field: id}
+    xml:
+      missing:
+        denotes: {absent: true}
+    yaml:
+      missing:
+        denotes: {absent: true}
+- kind: fragment
+  id: source.form-tree-current-attribute-data
+  namespaces: {f: 'http://v8.1c.ru/8.3/xcf/logform'}
+  imports: {data: source.form-tree-attribute-id-data, columns: source.form-tree-current-column-container}
+  inputs:
+    component: {type: {kind: scalar, scalar: text}}
+    owner: {type: {kind: scalar, scalar: text}}
+    origin: {type: {kind: scalar, scalar: text}}
+    modes:
+      type:
+        kind: index
+        key:
+          kind: record
+          fields:
+          - {name: component, type: {kind: scalar, scalar: text}}
+          - {name: name, type: {kind: scalar, scalar: text}}
+          - {name: origin, type: {kind: scalar, scalar: text}}
+          - {name: owner, type: {kind: scalar, scalar: text}}
+        value: {kind: scalar, scalar: text}
+    groupModes:
+      type:
+        kind: index
+        key:
+          kind: record
+          fields:
+          - {name: component, type: {kind: scalar, scalar: text}}
+          - {name: name, type: {kind: scalar, scalar: text}}
+          - {name: origin, type: {kind: scalar, scalar: text}}
+          - {name: owner, type: {kind: scalar, scalar: text}}
+          - {name: parent, type: {kind: scalar, scalar: text}}
+        value: {kind: scalar, scalar: text}
+  value:
+    kind: record
+    fields:
+    - name: columns
+      type:
+        use: columns
+        bind:
+          component: {input: component}
+          owner: {input: owner}
+          parent:
+            if:
+              eq:
+              - require:
+                  lookup:
+                    in: {input: modes}
+                    key:
+                      record:
+                        component: {input: component}
+                        owner: {input: owner}
+                        origin: {input: origin}
+                        name: {field: name}
+              - {literal: named}
+            then:
+              logicalAddress:
+                parts:
+                - {literal: Атрибут}
+                - {field: name}
+            else:
+              logicalAddress:
+                parts:
+                - {literal: Атрибут}
+                - {collectionPosition: true}
+          origin: {input: origin}
+          groupModes: {input: groupModes}
+  representations:
+    xml:
+      kind: record
+      fields:
+      - {field: columns, path: ['f:Columns']}
+    yaml:
+      kind: mapping
+      fields:
+      - {field: columns, key: Колонки}
+  presence:
+  - target: {field: columns}
+    xml:
+      missing:
+        denotes: {absent: true}
+    yaml:
+      missing:
+        denotes: {absent: true}
+  compose:
+  - {use: data}
+  contributions:
+  - index: metadata.current-form-attribute-candidates
+    key:
+      record:
+        component: {input: component}
+        owner: {input: owner}
+        name:
+          if:
+            eq:
+            - require:
+                lookup:
+                  in: {input: modes}
+                  key:
+                    record:
+                      component: {input: component}
+                      owner: {input: owner}
+                      origin: {input: origin}
+                      name: {field: name}
+            - {literal: named}
+          then:
+            logicalAddress:
+              parts:
+              - {literal: Атрибут}
+              - {field: name}
+          else:
+            logicalAddress:
+              parts:
+              - {literal: Атрибут}
+              - {collectionPosition: true}
+    value: {literal: present}
+  - index: metadata.form-attribute-identities
+    key:
+      record:
+        component: {input: component}
+        owner: {input: owner}
+        name:
+          if:
+            eq:
+            - require:
+                lookup:
+                  in: {input: modes}
+                  key:
+                    record:
+                      component: {input: component}
+                      owner: {input: owner}
+                      origin: {input: origin}
+                      name: {field: name}
+            - {literal: named}
+          then:
+            logicalAddress:
+              parts:
+              - {literal: Атрибут}
+              - {field: name}
+          else:
+            logicalAddress:
+              parts:
+              - {literal: Атрибут}
+              - {collectionPosition: true}
+    value: {field: id}
+    when:
+      present: {field: id}
+  - index: metadata.form-attribute-identities
+    key:
+      record:
+        component: {input: component}
+        owner: {input: owner}
+        name:
+          if:
+            eq:
+            - require:
+                lookup:
+                  in: {input: modes}
+                  key:
+                    record:
+                      component: {input: component}
+                      owner: {input: owner}
+                      origin: {input: origin}
+                      name: {field: name}
+            - {literal: named}
+          then:
+            logicalAddress:
+              parts:
+              - {literal: Атрибут}
+              - {field: name}
+          else:
+            logicalAddress:
+              parts:
+              - {literal: Атрибут}
+              - {collectionPosition: true}
+    allocate:
+      scope:
+      - component
+      - owner
+      first: 1
+- kind: value
+  id: source.form-tree-current-attribute-rows
+  namespaces: {f: 'http://v8.1c.ru/8.3/xcf/logform'}
+  imports: {row: source.form-tree-current-attribute}
+  inputs:
+    component: {type: {kind: scalar, scalar: text}}
+    owner: {type: {kind: scalar, scalar: text}}
+    origin: {type: {kind: scalar, scalar: text}}
+    modes:
+      type:
+        kind: index
+        key:
+          kind: record
+          fields:
+          - {name: component, type: {kind: scalar, scalar: text}}
+          - {name: name, type: {kind: scalar, scalar: text}}
+          - {name: origin, type: {kind: scalar, scalar: text}}
+          - {name: owner, type: {kind: scalar, scalar: text}}
+        value: {kind: scalar, scalar: text}
+    groupModes:
+      type:
+        kind: index
+        key:
+          kind: record
+          fields:
+          - {name: component, type: {kind: scalar, scalar: text}}
+          - {name: name, type: {kind: scalar, scalar: text}}
+          - {name: origin, type: {kind: scalar, scalar: text}}
+          - {name: owner, type: {kind: scalar, scalar: text}}
+          - {name: parent, type: {kind: scalar, scalar: text}}
+        value: {kind: scalar, scalar: text}
+  value:
+    kind: sequence
+    item: {use: row, bind: {component: {input: component}, owner: {input: owner}, origin: {input: origin}, modes: {input: modes}, groupModes: {
+          input: groupModes}}}
+  representations:
+    xml:
+      kind: element-sequence
+      path:
+      - f:Attribute
+      item: {kind: declared}
+    yaml:
+      kind: sequence
+      item: {kind: declared}
+- kind: object
+  id: metadata.current-form-attribute-tree-source
+  namespaces: {f: 'http://v8.1c.ru/8.3/xcf/logform'}
+  imports: {rows: source.form-tree-current-attribute-rows}
+  inputs:
+    component: {type: {kind: scalar, scalar: text}}
+    owner: {type: {kind: scalar, scalar: text}}
+    modes: {index: metadata.form-attribute-address-modes}
+    groupModes: {index: metadata.form-additional-group-address-modes}
+  value:
+    kind: record
+    fields:
+    - {name: rows, type: {use: rows, bind: {component: {input: component}, owner: {input: owner}, origin: {literal: current}, modes: {input: modes},
+          groupModes: {input: groupModes}}}}
+  representations:
+    xml:
+      kind: record
+      fields:
+      - {field: rows, path: ['f:Form', 'f:Attributes']}
+    yaml:
+      kind: mapping
+      fields:
+      - {field: rows, key: Реквизиты}
+  presence:
+  - target: {field: rows}
+    xml:
+      missing:
+        denotes: {absent: true}
+    yaml:
+      missing:
+        denotes: {absent: true}
+- kind: fragment
+  id: source.form-tree-base-attribute-data
+  namespaces: {f: 'http://v8.1c.ru/8.3/xcf/logform'}
+  imports: {data: source.form-tree-attribute-id-data, columns: source.form-tree-base-column-container}
+  inputs:
+    component: {type: {kind: scalar, scalar: text}}
+    owner: {type: {kind: scalar, scalar: text}}
+    origin: {type: {kind: scalar, scalar: text}}
+    modes:
+      type:
+        kind: index
+        key:
+          kind: record
+          fields:
+          - {name: component, type: {kind: scalar, scalar: text}}
+          - {name: name, type: {kind: scalar, scalar: text}}
+          - {name: origin, type: {kind: scalar, scalar: text}}
+          - {name: owner, type: {kind: scalar, scalar: text}}
+        value: {kind: scalar, scalar: text}
+    current:
+      type:
+        kind: index
+        key:
+          kind: record
+          fields:
+          - {name: component, type: {kind: scalar, scalar: text}}
+          - {name: name, type: {kind: scalar, scalar: text}}
+          - {name: owner, type: {kind: scalar, scalar: text}}
+        value: {kind: scalar, scalar: text}
+    groupModes:
+      type:
+        kind: index
+        key:
+          kind: record
+          fields:
+          - {name: component, type: {kind: scalar, scalar: text}}
+          - {name: name, type: {kind: scalar, scalar: text}}
+          - {name: origin, type: {kind: scalar, scalar: text}}
+          - {name: owner, type: {kind: scalar, scalar: text}}
+          - {name: parent, type: {kind: scalar, scalar: text}}
+        value: {kind: scalar, scalar: text}
+  value:
+    kind: record
+    fields:
+    - name: columns
+      type:
+        use: columns
+        bind:
+          component: {input: component}
+          owner: {input: owner}
+          parent:
+            if:
+              eq:
+              - require:
+                  lookup:
+                    in: {input: modes}
+                    key:
+                      record:
+                        component: {input: component}
+                        owner: {input: owner}
+                        origin: {input: origin}
+                        name: {field: name}
+              - {literal: named}
+            then:
+              logicalAddress:
+                parts:
+                - {literal: Атрибут}
+                - {field: name}
+            else:
+              logicalAddress:
+                parts:
+                - {literal: Атрибут}
+                - {collectionPosition: true}
+          current: {input: current}
+          origin: {input: origin}
+          groupModes: {input: groupModes}
+  representations:
+    xml:
+      kind: record
+      fields:
+      - {field: columns, path: ['f:Columns']}
+    yaml:
+      kind: mapping
+      fields:
+      - {field: columns, key: Колонки}
+  presence:
+  - target: {field: columns}
+    xml:
+      missing:
+        denotes: {absent: true}
+    yaml:
+      missing:
+        denotes: {absent: true}
+  compose:
+  - {use: data}
+  contributions:
+  - index: metadata.form-attribute-identities
+    key:
+      record:
+        component: {input: component}
+        owner: {input: owner}
+    reserve: {field: id}
+    when:
+      present: {field: id}
+  - index: metadata.form-attribute-identities
+    key:
+      record:
+        component: {input: component}
+        owner: {input: owner}
+        name:
+          if:
+            eq:
+            - require:
+                lookup:
+                  in: {input: modes}
+                  key:
+                    record:
+                      component: {input: component}
+                      owner: {input: owner}
+                      origin: {input: origin}
+                      name: {field: name}
+            - {literal: named}
+          then:
+            logicalAddress:
+              parts:
+              - {literal: Атрибут}
+              - {field: name}
+          else:
+            logicalAddress:
+              parts:
+              - {literal: Атрибут}
+              - {collectionPosition: true}
+    value: {field: id}
+    when:
+      and:
+      - present: {field: id}
+      - not:
+          present:
+            lookup:
+              in: {input: current}
+              key:
+                record:
+                  component: {input: component}
+                  owner: {input: owner}
+                  name:
+                    if:
+                      eq:
+                      - require:
+                          lookup:
+                            in: {input: modes}
+                            key:
+                              record:
+                                component: {input: component}
+                                owner: {input: owner}
+                                origin: {input: origin}
+                                name: {field: name}
+                      - {literal: named}
+                    then:
+                      logicalAddress:
+                        parts:
+                        - {literal: Атрибут}
+                        - {field: name}
+                    else:
+                      logicalAddress:
+                        parts:
+                        - {literal: Атрибут}
+                        - {collectionPosition: true}
+  - index: metadata.form-attribute-identities
+    key:
+      record:
+        component: {input: component}
+        owner: {input: owner}
+        name:
+          if:
+            eq:
+            - require:
+                lookup:
+                  in: {input: modes}
+                  key:
+                    record:
+                      component: {input: component}
+                      owner: {input: owner}
+                      origin: {input: origin}
+                      name: {field: name}
+            - {literal: named}
+          then:
+            logicalAddress:
+              parts:
+              - {literal: Атрибут}
+              - {field: name}
+          else:
+            logicalAddress:
+              parts:
+              - {literal: Атрибут}
+              - {collectionPosition: true}
+    allocate:
+      scope:
+      - component
+      - owner
+      first: 1000001
+      phase: 1
+    when:
+      not:
+        present:
+          lookup:
+            in: {input: current}
+            key:
+              record:
+                component: {input: component}
+                owner: {input: owner}
+                name:
+                  if:
+                    eq:
+                    - require:
+                        lookup:
+                          in: {input: modes}
+                          key:
+                            record:
+                              component: {input: component}
+                              owner: {input: owner}
+                              origin: {input: origin}
+                              name: {field: name}
+                    - {literal: named}
+                  then:
+                    logicalAddress:
+                      parts:
+                      - {literal: Атрибут}
+                      - {field: name}
+                  else:
+                    logicalAddress:
+                      parts:
+                      - {literal: Атрибут}
+                      - {collectionPosition: true}
+- kind: value
+  id: source.form-tree-base-attribute-rows
+  namespaces: {f: 'http://v8.1c.ru/8.3/xcf/logform'}
+  imports: {row: source.form-tree-base-attribute}
+  inputs:
+    component: {type: {kind: scalar, scalar: text}}
+    owner: {type: {kind: scalar, scalar: text}}
+    origin: {type: {kind: scalar, scalar: text}}
+    modes:
+      type:
+        kind: index
+        key:
+          kind: record
+          fields:
+          - {name: component, type: {kind: scalar, scalar: text}}
+          - {name: name, type: {kind: scalar, scalar: text}}
+          - {name: origin, type: {kind: scalar, scalar: text}}
+          - {name: owner, type: {kind: scalar, scalar: text}}
+        value: {kind: scalar, scalar: text}
+    current:
+      type:
+        kind: index
+        key:
+          kind: record
+          fields:
+          - {name: component, type: {kind: scalar, scalar: text}}
+          - {name: name, type: {kind: scalar, scalar: text}}
+          - {name: owner, type: {kind: scalar, scalar: text}}
+        value: {kind: scalar, scalar: text}
+    groupModes:
+      type:
+        kind: index
+        key:
+          kind: record
+          fields:
+          - {name: component, type: {kind: scalar, scalar: text}}
+          - {name: name, type: {kind: scalar, scalar: text}}
+          - {name: origin, type: {kind: scalar, scalar: text}}
+          - {name: owner, type: {kind: scalar, scalar: text}}
+          - {name: parent, type: {kind: scalar, scalar: text}}
+        value: {kind: scalar, scalar: text}
+  value:
+    kind: sequence
+    item:
+      use: row
+      bind:
+        component: {input: component}
+        owner: {input: owner}
+        origin: {input: origin}
+        modes: {input: modes}
+        current: {input: current}
+        groupModes: {input: groupModes}
+  representations:
+    xml:
+      kind: element-sequence
+      path:
+      - f:Attribute
+      item: {kind: declared}
+    yaml:
+      kind: sequence
+      item: {kind: declared}
+- kind: object
+  id: metadata.base-form-attribute-tree-source
+  namespaces: {f: 'http://v8.1c.ru/8.3/xcf/logform'}
+  imports: {rows: source.form-tree-base-attribute-rows}
+  inputs:
+    component: {type: {kind: scalar, scalar: text}}
+    owner: {type: {kind: scalar, scalar: text}}
+    modes: {index: metadata.form-attribute-address-modes}
+    current: {index: metadata.current-form-attribute-candidates}
+    groupModes: {index: metadata.form-additional-group-address-modes}
+  value:
+    kind: record
+    fields:
+    - name: rows
+      type:
+        use: rows
+        bind:
+          component: {input: component}
+          owner: {input: owner}
+          origin: {literal: base}
+          modes: {input: modes}
+          current: {input: current}
+          groupModes: {input: groupModes}
+  representations:
+    xml:
+      kind: record
+      fields:
+      - {field: rows, path: ['f:Form', 'f:BaseForm', 'f:Attributes']}
+    yaml:
+      kind: mapping
+      fields:
+      - {field: rows, key: Реквизиты}
+  presence:
+  - target: {field: rows}
+    xml:
+      missing:
+        denotes: {absent: true}
+    yaml:
+      missing:
+        denotes: {absent: true}
+- kind: value
+  id: source.form-tree-current-attribute
+  imports: {data: source.form-tree-current-attribute-data}
+  inputs:
+    component: {type: {kind: scalar, scalar: text}}
+    owner: {type: {kind: scalar, scalar: text}}
+    origin: {type: {kind: scalar, scalar: text}}
+    modes:
+      type:
+        kind: index
+        key:
+          kind: record
+          fields:
+          - {name: component, type: {kind: scalar, scalar: text}}
+          - {name: name, type: {kind: scalar, scalar: text}}
+          - {name: origin, type: {kind: scalar, scalar: text}}
+          - {name: owner, type: {kind: scalar, scalar: text}}
+        value: {kind: scalar, scalar: text}
+    groupModes:
+      type:
+        kind: index
+        key:
+          kind: record
+          fields:
+          - {name: component, type: {kind: scalar, scalar: text}}
+          - {name: name, type: {kind: scalar, scalar: text}}
+          - {name: origin, type: {kind: scalar, scalar: text}}
+          - {name: owner, type: {kind: scalar, scalar: text}}
+          - {name: parent, type: {kind: scalar, scalar: text}}
+        value: {kind: scalar, scalar: text}
+  compose:
+  - {use: data, bind: {component: {input: component}, owner: {input: owner}, origin: {input: origin}, modes: {input: modes}, groupModes: {input: groupModes}}}
+  value:
+    kind: record
+    fields: []
+  representations:
+    xml:
+      kind: record
+      fields: []
+    yaml:
+      kind: mapping
+      fields: []
+- kind: value
+  id: source.form-tree-base-attribute
+  imports: {data: source.form-tree-base-attribute-data}
+  inputs:
+    component: {type: {kind: scalar, scalar: text}}
+    owner: {type: {kind: scalar, scalar: text}}
+    origin: {type: {kind: scalar, scalar: text}}
+    modes:
+      type:
+        kind: index
+        key:
+          kind: record
+          fields:
+          - {name: component, type: {kind: scalar, scalar: text}}
+          - {name: name, type: {kind: scalar, scalar: text}}
+          - {name: origin, type: {kind: scalar, scalar: text}}
+          - {name: owner, type: {kind: scalar, scalar: text}}
+        value: {kind: scalar, scalar: text}
+    current:
+      type:
+        kind: index
+        key:
+          kind: record
+          fields:
+          - {name: component, type: {kind: scalar, scalar: text}}
+          - {name: name, type: {kind: scalar, scalar: text}}
+          - {name: owner, type: {kind: scalar, scalar: text}}
+        value: {kind: scalar, scalar: text}
+    groupModes:
+      type:
+        kind: index
+        key:
+          kind: record
+          fields:
+          - {name: component, type: {kind: scalar, scalar: text}}
+          - {name: name, type: {kind: scalar, scalar: text}}
+          - {name: origin, type: {kind: scalar, scalar: text}}
+          - {name: owner, type: {kind: scalar, scalar: text}}
+          - {name: parent, type: {kind: scalar, scalar: text}}
+        value: {kind: scalar, scalar: text}
+  compose:
+  - use: data
+    bind:
+      component: {input: component}
+      owner: {input: owner}
+      origin: {input: origin}
+      modes: {input: modes}
+      current: {input: current}
+      groupModes: {input: groupModes}
+  value:
+    kind: record
+    fields: []
+  representations:
+    xml:
+      kind: record
+      fields: []
+    yaml:
+      kind: mapping
+      fields: []

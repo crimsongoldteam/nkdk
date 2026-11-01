@@ -1,0 +1,10 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.contextual-member-links
+imports: {links: common.contextual-member-links}
+inputs:
+  ownerName: {type: {kind: scalar, scalar: text}}
+value: {kind: record, fields: [{name: links, type: {use: links, bind: {ownerName: {input: ownerName}}}}]}
+representations:
+  xml: {kind: record, fields: [{field: links, path: [Properties, LeadingRegisterData]}]}
+  yaml: {kind: mapping, fields: [{field: links, key: ДанныеВедущихРегистров}]}

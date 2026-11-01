@@ -1,0 +1,20 @@
+format: nkdk-declarations/1
+kind: value
+id: common.xml-name
+imports:
+  text: common.xml-name-text
+value:
+  kind: choice
+  variants:
+    - name: explicit
+      type:
+        use: text
+representations:
+  xml:
+    kind: choice
+  yaml:
+    kind: choice
+    variants:
+      - variant: explicit
+        form: scalar
+        tag: xml/name

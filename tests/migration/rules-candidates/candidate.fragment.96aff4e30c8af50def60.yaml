@@ -1,0 +1,39 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.picture
+value:
+  kind: record
+  fields:
+    - name: rowsPicture
+      type:
+        use: value0
+        bind: {}
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: rowsPicture
+        path:
+          - RowsPicture
+  yaml:
+    kind: mapping
+    fields:
+      - field: rowsPicture
+        key: КартинкаСтрок
+presence:
+  - target:
+      field: rowsPicture
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+id: candidate.fragment.96aff4e30c8af50def60

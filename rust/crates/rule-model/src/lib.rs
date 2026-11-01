@@ -45,11 +45,37 @@ pub struct Module {
     pub normalization: Option<Normalization>,
     pub constraints: Vec<Constraint>,
     pub contributions: Vec<Contribution>,
+    pub data_path: Option<DataPathDefinition>,
     pub resources: Vec<ResourceGroup<Expression>>,
     pub compose: Vec<TypeUse>,
+    pub xml_order: Vec<String>,
     pub yaml_order: Vec<String>,
     pub value: TypeDefinition,
     pub representations: Representations,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DataPathDefinition {
+    pub type_name: String,
+    pub aliases: Vec<String>,
+    pub members: Vec<DataPathMember>,
+    pub views: Vec<DataPathView>,
+    pub source: SourceLocation,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DataPathMember {
+    pub field: String,
+    pub internal: String,
+    pub terminal_types: Vec<String>,
+    pub source: SourceLocation,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DataPathView {
+    pub purpose: String,
+    pub fields: Vec<String>,
+    pub source: SourceLocation,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -80,6 +106,7 @@ pub enum ScalarType {
 pub struct Representations {
     pub xml: XmlRepresentation,
     pub yaml: YamlRepresentation,
+    pub shorthand: Vec<Shorthand>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -108,6 +135,7 @@ pub enum XmlRepresentation {
     },
     ElementSequence {
         path: Vec<String>,
+        next: Option<Vec<String>>,
         item: Box<XmlRepresentation>,
     },
     Record(Vec<XmlField>),
@@ -128,8 +156,32 @@ pub struct YamlChoiceCase {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum YamlChoiceForm {
+    /// Select a complete YAML value by its semantic tag, independently of node shape.
+    Tagged {
+        tag: String,
+    },
     Sequence,
-    Mapping { key: String, value: Option<String> },
+    Mapping {
+        key: String,
+        value: Option<String>,
+    },
+    MappingAny,
+    Scalar {
+        tag: String,
+    },
+    ScalarInput {
+        input: String,
+        equals: String,
+    },
+    MappingInput {
+        input: String,
+        equals: String,
+    },
+    /// Compile-time restriction independent of the YAML node shape.
+    InputProfile {
+        input: String,
+        equals: String,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -143,7 +195,15 @@ pub struct DiscriminatedChoiceXml<N> {
 pub struct DiscriminatedChoiceCase<N> {
     pub variant: String,
     pub values: Vec<N>,
+    /// Import all selector names from another declared choice during linking.
+    pub from: Option<String>,
     pub emit: Option<N>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum YamlSingleton {
+    Scalar,
+    Value,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -151,6 +211,8 @@ pub enum YamlRepresentation {
     States(Vec<YamlState>),
     /// Expose a single semantic field as the complete YAML document.
     Projection(String),
+    /// Merge complete declared collection projections, preserving group identity.
+    GroupedSequence(Vec<YamlGroup>),
     /// Use the complete declaration referenced by the sequence item type.
     Declared,
     TextSequence {
@@ -165,8 +227,9 @@ pub enum YamlRepresentation {
     TextPattern(Vec<TextPatternPart>),
     Sequence {
         item: Box<YamlRepresentation>,
+        item_tag: Option<String>,
         shorthand: Vec<LiteralSequenceShorthand>,
-        singleton: bool,
+        singleton: Option<YamlSingleton>,
     },
     ScalarChoice,
     Calendar {
@@ -176,9 +239,13 @@ pub enum YamlRepresentation {
     RecordMapping {
         key: String,
         value: Option<String>,
+        group_key: Option<String>,
+        item_inputs: Vec<RecordItemInput>,
+        max_items: Option<usize>,
         restore_from: Option<String>,
         omit_empty_for: Option<String>,
         empty_tag: Option<String>,
+        empty_row_null: bool,
         key_table: Option<RecordKeyTable>,
     },
     KeyedMapping {
@@ -191,6 +258,32 @@ pub enum YamlRepresentation {
     BooleanTable(Vec<BooleanLexeme>),
     EnumTable(Vec<EnumLexeme>),
     Decimal,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct YamlGroup {
+    pub field: String,
+    pub item_tag: Option<String>,
+    pub source: SourceLocation,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RecordItemInput {
+    pub target: String,
+    pub source: RecordItemInputSource,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum RecordItemInputSource {
+    RowKey,
+    Table {
+        values: Vec<(String, String)>,
+        default: String,
+    },
+    Lookup {
+        input: String,
+        default_input: String,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -324,12 +417,15 @@ pub struct XmlField {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct YamlField {
     pub field: String,
+    /// Empty only for external file storage; checked during parsing and linking.
     pub key: String,
+    pub file: Option<Expression>,
     pub source: SourceLocation,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Shorthand {
+    pub canonical: bool,
     pub id: String,
     pub representation: ShorthandRepresentation,
     pub capture: String,
@@ -340,7 +436,13 @@ pub struct Shorthand {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ShorthandRepresentation {
-    ScalarText,
+    MappingField(String),
+    ScalarField(String),
+    ScalarLiteral(String),
+    ScalarText {
+        prefix: String,
+        suffix: String,
+    },
     KeyedMapping {
         prefix: Vec<Expression>,
         suffix: Vec<Expression>,
@@ -356,6 +458,16 @@ pub struct Expression {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ExpressionKind {
+    LogicalAddress {
+        parent: Option<Box<Expression>>,
+        parts: Vec<Expression>,
+    },
+    Identity {
+        seed: Box<Expression>,
+        domain: String,
+        format: String,
+        address: Vec<Expression>,
+    },
     ConstructVariant {
         name: String,
         value: Box<Expression>,
@@ -390,6 +502,8 @@ pub enum ExpressionKind {
         value: Box<Expression>,
         fraction: Box<Expression>,
     },
+    DecimalText(Box<Expression>),
+    EnumText(Box<Expression>),
     DecimalFits {
         value: Box<Expression>,
         digits: Box<Expression>,
@@ -443,6 +557,9 @@ pub enum ExpressionKind {
     Not(Box<Expression>),
     Absent,
     SelfValue,
+    CollectionPosition,
+    /// Build-time selector of a declared YAML field inside an address.
+    YamlField(String),
     Variable(String),
     Get {
         value: Box<Expression>,
@@ -601,6 +718,7 @@ pub enum DiagnosticTarget {
 pub struct Iteration {
     pub input: Expression,
     pub binding: String,
+    pub index: Option<String>,
     pub source: SourceLocation,
 }
 
@@ -624,12 +742,14 @@ pub struct Presence {
     pub yaml_missing: Option<Expression>,
     pub yaml_empty: Vec<EmptyForm>,
     pub yaml_omit_when: Option<Expression>,
+    pub yaml_null_when: Option<Expression>,
     pub xml_canonical: Vec<CanonicalForm>,
     pub source: SourceLocation,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct EmptyForm {
+    pub when: Option<Expression>,
     pub form: EmptyKind,
     pub denotes: Expression,
     pub source: SourceLocation,
@@ -748,11 +868,51 @@ pub struct DecimalText {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Contribution {
     pub for_each: Option<Iteration>,
+    pub when: Option<Expression>,
     pub index: String,
     pub union_reference_prefix: Option<String>,
+    pub coalesce_equal: bool,
     pub key: Expression,
-    pub value: Expression,
+    pub write: IndexWrite<Expression>,
     pub source: SourceLocation,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct NumberAllocation {
+    pub scope: Vec<String>,
+    pub first: u64,
+    pub phase: u32,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum IndexWrite<E> {
+    Value(E),
+    Allocate(NumberAllocation),
+    Reserve(E),
+}
+
+impl<E> IndexWrite<E> {
+    pub fn value(&self) -> Option<&E> {
+        match self {
+            Self::Value(value) | Self::Reserve(value) => Some(value),
+            Self::Allocate(_) => None,
+        }
+    }
+    pub fn value_mut(&mut self) -> Option<&mut E> {
+        match self {
+            Self::Value(value) | Self::Reserve(value) => Some(value),
+            Self::Allocate(_) => None,
+        }
+    }
+    pub fn allocation(&self) -> Option<&NumberAllocation> {
+        match self {
+            Self::Allocate(allocation) => Some(allocation),
+            _ => None,
+        }
+    }
+    pub fn is_reservation(&self) -> bool {
+        matches!(self, Self::Reserve(_))
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

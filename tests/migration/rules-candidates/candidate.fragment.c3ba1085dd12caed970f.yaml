@@ -1,0 +1,37 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.user-settings-id
+value:
+  kind: record
+  fields:
+    - name: userSettingID
+      type:
+        use: value0
+        bind: {}
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: userSettingID
+        path:
+          - dcsset:userSettingID
+  yaml:
+    kind: mapping
+    fields:
+      - field: userSettingID
+        key: ИспользоватьПользовательскуюНастройку
+presence:
+  - target:
+      field: userSettingID
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+namespaces:
+  dcsset: http://v8.1c.ru/8.1/data-composition-system/settings
+id: candidate.fragment.c3ba1085dd12caed970f

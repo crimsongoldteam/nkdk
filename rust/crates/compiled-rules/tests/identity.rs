@@ -1,5 +1,5 @@
-use nkdk_compiled_rules_probes as nkdk_compiled_rules;
 use nkdk_compiled_rules::{Direction, InputValue, contribute_file, entry_id, prepare_inputs};
+use nkdk_compiled_rules_probes as nkdk_compiled_rules;
 use nkdk_conversion_core::facts::{FactState, Generation, prepared::FactBudget, text::TextBudget};
 
 #[test]
@@ -243,4 +243,108 @@ fn identity_fragments_keep_components_owners_and_base_links_separate() {
     .unwrap();
     assert_eq!(rows.len(), 572);
     assert_eq!(base_count, 179);
+}
+
+#[test]
+fn own_identity_is_collected_from_xml_and_restored_without_reference() {
+    let entry = entry_id("migration.metadata-uuid").unwrap();
+    let generation = Generation(1);
+    let values = || {
+        ["component", "owner", "kind"]
+            .into_iter()
+            .map(|key| (key.into(), InputValue::Text(key.into())))
+            .collect()
+    };
+    let builder = || {
+        nkdk_compiled_rules::fact_builder(
+            generation,
+            FactBudget {
+                text: TextBudget {
+                    entries: 100,
+                    bytes: 10000,
+                },
+                rows: 10,
+            },
+        )
+    };
+    let empty = std::sync::Arc::new(builder().finish());
+    let importing =
+        nkdk_compiled_rules::prepare_fact_inputs(entry, empty, generation, values()).unwrap();
+    // Own identities are opaque text, as in the existing import contract.
+    // Lexical spelling must not be normalized or replaced by a generated UUID.
+    for uuid in ["F8A59A9F-0A3D-4F80-BD43-9F1C85DC0EF6", "legacy-id", ""] {
+        let xml = format!("<Root uuid=\"{uuid}\"><Name>Имя</Name></Root>");
+        let mut collected = builder();
+        assert!(
+            contribute_file(
+                entry,
+                Direction::XmlToYaml,
+                xml.as_bytes(),
+                &importing,
+                &mut collected
+            )
+            .is_empty()
+        );
+        let facts = std::sync::Arc::new(collected.finish());
+        assert_eq!(
+            facts.lookup_parts(
+                generation,
+                nkdk_compiled_rules::fact_id("metadata.own-identities").unwrap(),
+                &["component", "kind", "Имя", "owner"]
+            ),
+            FactState::Ready(uuid)
+        );
+        let inputs =
+            nkdk_compiled_rules::prepare_fact_inputs(entry, facts, generation, values()).unwrap();
+        let imported =
+            nkdk_compiled_rules::convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs)
+                .unwrap();
+        assert_eq!(String::from_utf8_lossy(&imported.bytes).trim(), "Имя: Имя");
+        let mut published = builder();
+        assert!(
+            contribute_file(
+                entry,
+                Direction::YamlToXml,
+                &imported.bytes,
+                &inputs,
+                &mut published
+            )
+            .is_empty()
+        );
+        assert_eq!(
+            published.finish().lookup_parts(
+                generation,
+                nkdk_compiled_rules::fact_id("metadata.own-identities").unwrap(),
+                &["component", "kind", "Имя", "owner"]
+            ),
+            FactState::Ready(uuid)
+        );
+        for _ in 0..2 {
+            let output = nkdk_compiled_rules::convert_file(
+                entry,
+                Direction::YamlToXml,
+                &imported.bytes,
+                &inputs,
+            )
+            .unwrap();
+            nkdk_conversion_core::proof::verify(xml.as_bytes(), &output.bytes, |_| false).unwrap();
+        }
+        if !uuid.is_empty() {
+            // The snapshot would normally restore an identity. XML without the
+            // attribute must nevertheless stay without it after a round trip.
+            let absent = "<Root><Name>Имя</Name></Root>".as_bytes();
+            let imported =
+                nkdk_compiled_rules::convert_file(entry, Direction::XmlToYaml, absent, &inputs)
+                    .unwrap();
+            assert!(String::from_utf8_lossy(&imported.bytes).contains("!xml/raw"));
+            let restored = nkdk_compiled_rules::convert_file(
+                entry,
+                Direction::YamlToXml,
+                &imported.bytes,
+                &inputs,
+            )
+            .unwrap();
+            nkdk_conversion_core::proof::verify(absent, &restored.bytes, |_| false).unwrap();
+        }
+    }
 }

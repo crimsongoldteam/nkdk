@@ -33,7 +33,22 @@ fn events(source: &str) -> Vec<String> {
     output.0
 }
 pub fn compare(expected: &str, actual: &str) {
-    assert_eq!(events(expected), events(actual), "independent YAML events");
+    let expected_events = events(expected);
+    let actual_events = events(actual);
+    if expected_events != actual_events {
+        let index = expected_events
+            .iter()
+            .zip(&actual_events)
+            .position(|(left, right)| left != right)
+            .unwrap_or(expected_events.len().min(actual_events.len()));
+        panic!(
+            "independent YAML events differ at {index}: expected {:?}, actual {:?}\nexpected YAML: {}\nactual YAML: {}",
+            expected_events.get(index),
+            actual_events.get(index),
+            expected.chars().take(1200).collect::<String>(),
+            actual.chars().take(1200).collect::<String>(),
+        );
+    }
 }
 #[cfg(test)]
 mod tests {

@@ -1,0 +1,36 @@
+[package]
+name="nkdk-aot-7161263546aa444a"
+version="0.0.0"
+edition="2024"
+[lib]
+test=false
+[dependencies]
+nkdk-conversion-core = { path = "../../../../crates/conversion-core" }
+nkdk-aot-08543c7a22a0a6b7 = { path = "../nkdk-aot-08543c7a22a0a6b7" }
+nkdk-aot-0d9ed9f6c9ca19ed = { path = "../nkdk-aot-0d9ed9f6c9ca19ed" }
+nkdk-aot-0ef273a67359c331 = { path = "../nkdk-aot-0ef273a67359c331" }
+nkdk-aot-11ba53a22870f217 = { path = "../nkdk-aot-11ba53a22870f217" }
+nkdk-aot-16e1c052ec4a8c54 = { path = "../nkdk-aot-16e1c052ec4a8c54" }
+nkdk-aot-26199fc1e0cff6dd = { path = "../nkdk-aot-26199fc1e0cff6dd" }
+nkdk-aot-3421af588f529ecf = { path = "../nkdk-aot-3421af588f529ecf" }
+nkdk-aot-3d402bc8f1387add = { path = "../nkdk-aot-3d402bc8f1387add" }
+nkdk-aot-41daa4d866805f7e = { path = "../nkdk-aot-41daa4d866805f7e" }
+nkdk-aot-486c24a20301a31e = { path = "../nkdk-aot-486c24a20301a31e" }
+nkdk-aot-4dd005dd33c58cb5 = { path = "../nkdk-aot-4dd005dd33c58cb5" }
+nkdk-aot-73541f9f6d6d5f88 = { path = "../nkdk-aot-73541f9f6d6d5f88" }
+nkdk-aot-82f204770b9446ac = { path = "../nkdk-aot-82f204770b9446ac" }
+nkdk-aot-8eec41cf56dc9949 = { path = "../nkdk-aot-8eec41cf56dc9949" }
+nkdk-aot-905861f62891d7bb = { path = "../nkdk-aot-905861f62891d7bb" }
+nkdk-aot-a46895e6b131b836 = { path = "../nkdk-aot-a46895e6b131b836" }
+nkdk-aot-a83ebc9003e7b302 = { path = "../nkdk-aot-a83ebc9003e7b302" }
+nkdk-aot-aeb742cfbe09f4b8 = { path = "../nkdk-aot-aeb742cfbe09f4b8" }
+nkdk-aot-b010cb33733233bf = { path = "../nkdk-aot-b010cb33733233bf" }
+nkdk-aot-bab2e43b2cb51635 = { path = "../nkdk-aot-bab2e43b2cb51635" }
+nkdk-aot-ca35071d4eb78993 = { path = "../nkdk-aot-ca35071d4eb78993" }
+nkdk-aot-d0de0cc83db984d7 = { path = "../nkdk-aot-d0de0cc83db984d7" }
+nkdk-aot-de84ec554c59fa8f = { path = "../nkdk-aot-de84ec554c59fa8f" }
+nkdk-aot-df2027a033d4d8a6 = { path = "../nkdk-aot-df2027a033d4d8a6" }
+nkdk-aot-e8ffc5b33964f359 = { path = "../nkdk-aot-e8ffc5b33964f359" }
+nkdk-aot-ea4c12a3244fa739 = { path = "../nkdk-aot-ea4c12a3244fa739" }
+nkdk-aot-f42b3f13d94d572f = { path = "../nkdk-aot-f42b3f13d94d572f" }
+nkdk-aot-fdcbb79c4c672162 = { path = "../nkdk-aot-fdcbb79c4c672162" }

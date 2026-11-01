@@ -14,5 +14,6 @@ export function mapIdentity(property,catalog) {
   const context=commonInputs(common);
   return {status:'candidate',id:common.id,type:{use:'value',bind:context.bind},
     inputs:context.inputs,imports:context.imports,path,attribute:'uuid',identityProjection:true,
+    indexProviders:{identities:'metadata.own-identities'},
     ...(Object.hasOwn(p,'evaluateWhenYAMLMissing')?{parameterEquivalences:[{parameter:'evaluateWhenYAMLMissing',equivalentTo:'identity-lookup-on-missing',via:'common.uuid'}]}:{})};
 }

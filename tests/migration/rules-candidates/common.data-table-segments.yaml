@@ -1,0 +1,16 @@
+format: nkdk-declarations/1
+kind: value
+id: common.data-table-segments
+imports:
+  segment: common.data-table-segment
+value:
+  kind: sequence
+  item:
+    use: segment
+representations:
+  xml:
+    kind: text-sequence
+    separator: .
+  yaml:
+    kind: text-sequence
+    separator: .

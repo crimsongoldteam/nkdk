@@ -28,6 +28,9 @@ pub(super) fn infer(
             match contributions::resolve(module, &indexed, ids) {
                 Ok(contributions) => {
                     for contribution in contributions {
+                        if contribution.write.is_reservation() {
+                            continue;
+                        }
                         shapes.entry(contribution.index).or_insert((
                             contribution.key.value_type,
                             contribution.union_reference_prefix,
@@ -82,7 +85,8 @@ pub(super) fn infer(
 fn key_type(shape: &LinkedType) -> TypeDefinition {
     match shape {
         LinkedType::Scalar(ScalarType::Text) => TypeDefinition::Scalar(ScalarType::Text),
-        LinkedType::Enum(variants) => TypeDefinition::Enum(variants.clone()),
+        // Prepared indexes contain canonical text projections, not enum ordinals.
+        LinkedType::Enum(_) => TypeDefinition::Scalar(ScalarType::Text),
         LinkedType::Record(fields) => TypeDefinition::Record(
             fields
                 .iter()

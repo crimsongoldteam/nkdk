@@ -1,0 +1,9 @@
+format: nkdk-declarations/1
+kind: value
+id: common.dcs-typed-empty-reference
+enum:
+  Empty:
+    yaml: ПустаяСсылка
+    xml: ПустаяСсылка
+    accept:
+      - EmptyRef

@@ -1,0 +1,254 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.form-event-bindings
+value:
+  kind: record
+  fields:
+    - name: events
+      type:
+        use: value0
+        bind:
+          eventNames:
+            sequence:
+              - record:
+                  xml:
+                    literal: CollaborationSystemUsersAutoComplete
+                  yaml:
+                    literal: АвтоПодборПользователейСистемыВзаимодействия
+              - record:
+                  xml:
+                    literal: ExternalEvent
+                  yaml:
+                    literal: ВнешнееСобытие
+              - record:
+                  xml:
+                    literal: ActivationProcessing
+                  yaml:
+                    literal: ОбработкаАктивизации
+              - record:
+                  xml:
+                    literal: ChoiceProcessing
+                  yaml:
+                    literal: ОбработкаВыбора
+              - record:
+                  xml:
+                    literal: NewWriteProcessing
+                  yaml:
+                    literal: ОбработкаЗаписиНового
+              - record:
+                  xml:
+                    literal: URLProcessing
+                  yaml:
+                    literal: ОбработкаНавигационнойСсылки
+              - record:
+                  xml:
+                    literal: NotificationProcessing
+                  yaml:
+                    literal: ОбработкаОповещения
+              - record:
+                  xml:
+                    literal: NavigationProcessing
+                  yaml:
+                    literal: ОбработкаПерехода
+              - record:
+                  xml:
+                    literal: URLGetProcessing
+                  yaml:
+                    literal: ОбработкаПолученияНавигационнойСсылки
+              - record:
+                  xml:
+                    literal: URLListGetProcessing
+                  yaml:
+                    literal: ОбработкаПолученияСпискаНавигационныхСсылок
+              - record:
+                  xml:
+                    literal: CollaborationSystemUsersChoiceFormGetProcessing
+                  yaml:
+                    literal: ОбработкаПолученияФормыВыбораПользователейСистемыВзаимодействия
+              - record:
+                  xml:
+                    literal: FillCheckProcessingAtServer
+                  yaml:
+                    literal: ОбработкаПроверкиЗаполненияНаСервере
+              - record:
+                  xml:
+                    literal: AddInDetachmentOnError
+                  yaml:
+                    literal: ОтключениеВнешнейКомпонентыПриОшибке
+              - record:
+                  xml:
+                    literal: BeforeLoadDataFromSettingsAtServer
+                  yaml:
+                    literal: ПередЗагрузкойДанныхИзНастроекНаСервере
+              - record:
+                  xml:
+                    literal: BeforeExecute
+                  yaml:
+                    literal: ПередВыполнением
+              - record:
+                  xml:
+                    literal: BeforeLoadUserSettingsAtServer
+                  yaml:
+                    literal: ПередЗагрузкойПользовательскихНастроекНаСервере
+              - record:
+                  xml:
+                    literal: BeforeLoadVariantAtServer
+                  yaml:
+                    literal: ПередЗагрузкойВариантаНаСервере
+              - record:
+                  xml:
+                    literal: BeforeClose
+                  yaml:
+                    literal: ПередЗакрытием
+              - record:
+                  xml:
+                    literal: BeforeReopenFromOtherServer
+                  yaml:
+                    literal: ПередПереоткрытиемСДругогоСервера
+              - record:
+                  xml:
+                    literal: OnPasteFromClipboard
+                  yaml:
+                    literal: ПриВставкеИзБуфераОбмена
+              - record:
+                  xml:
+                    literal: OnLoadDataFromSettingsAtServer
+                  yaml:
+                    literal: ПриЗагрузкеДанныхИзНастроекНаСервере
+              - record:
+                  xml:
+                    literal: OnClose
+                  yaml:
+                    literal: ПриЗакрытии
+              - record:
+                  xml:
+                    literal: OnMainServerAvailabilityChange
+                  yaml:
+                    literal: ПриИзмененииДоступностиОсновногоСервера
+              - record:
+                  xml:
+                    literal: OnChangeDisplaySettings
+                  yaml:
+                    literal: ПриИзмененииПараметровЭкрана
+              - record:
+                  xml:
+                    literal: OnOpen
+                  yaml:
+                    literal: ПриОткрытии
+              - record:
+                  xml:
+                    literal: OnReopenFromOtherServer
+                  yaml:
+                    literal: ПриПереоткрытииСДругогоСервера
+              - record:
+                  xml:
+                    literal: OnReopen
+                  yaml:
+                    literal: ПриПовторномОткрытии
+              - record:
+                  xml:
+                    literal: OnCreateAtServer
+                  yaml:
+                    literal: ПриСозданииНаСервере
+              - record:
+                  xml:
+                    literal: OnLoadUserSettingsAtServer
+                  yaml:
+                    literal: ПриЗагрузкеПользовательскихНастроекНаСервере
+              - record:
+                  xml:
+                    literal: OnLoadVariantAtServer
+                  yaml:
+                    literal: ПриЗагрузкеВариантаНаСервере
+              - record:
+                  xml:
+                    literal: OnSaveDataInSettingsAtServer
+                  yaml:
+                    literal: ПриСохраненииДанныхВНастройкахНаСервере
+              - record:
+                  xml:
+                    literal: OnSaveUserSettingsAtServer
+                  yaml:
+                    literal: ПриСохраненииПользовательскихНастроекНаСервере
+              - record:
+                  xml:
+                    literal: OnSaveVariantAtServer
+                  yaml:
+                    literal: ПриСохраненииВариантаНаСервере
+              - record:
+                  xml:
+                    literal: OnUpdateUserSettingSetAtServer
+                  yaml:
+                    literal: ПриОбновленииСоставаПользовательскихНастроекНаСервере
+              - record:
+                  xml:
+                    literal: OnClientApplicationSuspend
+                  yaml:
+                    literal: ПриЗасыпанииКлиентскогоПриложения
+              - record:
+                  xml:
+                    literal: OnClientApplicationResume
+                  yaml:
+                    literal: ПриПробужденииКлиентскогоПриложения
+              - record:
+                  xml:
+                    literal: ValueChoice
+                  yaml:
+                    literal: ВыборЗначения
+              - record:
+                  xml:
+                    literal: BeforeWrite
+                  yaml:
+                    literal: ПередЗаписью
+              - record:
+                  xml:
+                    literal: BeforeWriteAtServer
+                  yaml:
+                    literal: ПередЗаписьюНаСервере
+              - record:
+                  xml:
+                    literal: AfterWrite
+                  yaml:
+                    literal: ПослеЗаписи
+              - record:
+                  xml:
+                    literal: AfterWriteAtServer
+                  yaml:
+                    literal: ПослеЗаписиНаСервере
+              - record:
+                  xml:
+                    literal: OnWriteAtServer
+                  yaml:
+                    literal: ПриЗаписиНаСервере
+              - record:
+                  xml:
+                    literal: OnReadAtServer
+                  yaml:
+                    literal: ПриЧтенииНаСервере
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: events
+        path:
+          - f:Events
+  yaml:
+    kind: mapping
+    fields:
+      - field: events
+        key: События
+presence:
+  - target:
+      field: events
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+namespaces:
+  f: http://v8.1c.ru/8.3/xcf/logform
+id: candidate.fragment.c8d15c466329b966c08d

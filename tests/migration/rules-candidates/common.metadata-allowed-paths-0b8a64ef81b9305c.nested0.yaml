@@ -1,0 +1,118 @@
+format: nkdk-declarations/1
+kind: value
+id: common.metadata-allowed-paths-0b8a64ef81b9305c.nested0
+imports:
+  root: common.metadata-allowed-paths-0b8a64ef81b9305c.nested0.kind
+  name: common.metadata-name
+  tail: common.metadata-allowed-paths-0b8a64ef81b9305c.nested0.tail
+  rootKind: common.path-root
+value:
+  kind: record
+  fields:
+    - name: root
+      type:
+        use: root
+    - name: name
+      type:
+        use: name
+    - name: tail
+      type:
+        use: tail
+representations:
+  xml:
+    kind: text-pattern
+    parts:
+      - field: root
+      - literal: .
+      - field: name
+      - literal: .
+      - field: tail
+  yaml:
+    kind: text-pattern
+    parts:
+      - field: root
+      - literal: .
+      - field: name
+      - literal: .
+      - field: tail
+inputs:
+  roots:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: kind
+            type:
+              use: rootKind
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  pathChildren:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: parent
+            type:
+              kind: scalar
+              scalar: text
+          - name: kind
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+constraints:
+  - id: target-exists
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    assert:
+      present:
+        fold:
+          in:
+            field: tail
+          initial:
+            lookup:
+              in:
+                input: roots
+              key:
+                record:
+                  kind:
+                    literal: Subsystem
+                  name:
+                    field: name
+          as: segment
+          state: parent
+          next:
+            lookup:
+              in:
+                input: pathChildren
+              key:
+                record:
+                  parent:
+                    var: parent
+                  kind:
+                    literal: Subsystem
+                  name:
+                    get:
+                      of:
+                        var: segment
+                      field: name
+    diagnostic:
+      code: metadata.target-missing
+      severity: error
+      at:
+        self: true
+      message: Target is missing

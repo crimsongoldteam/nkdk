@@ -1,0 +1,116 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: common.dcs-available-field-short
+  namespaces: {dcsset: 'http://v8.1c.ru/8.1/data-composition-system/settings'}
+  imports: {text: common.string}
+  value: {kind: record, fields: [{name: field, type: {use: text}}]}
+  representations:
+    xml: {kind: record, fields: [{field: field, path: [dcsset:field]}]}
+    yaml: {kind: projection, field: field}
+- kind: value
+  id: common.dcs-available-field-full
+  namespaces: {dcsset: 'http://v8.1c.ru/8.1/data-composition-system/settings'}
+  imports: {text: common.string, flag: common.boolean, title: common.i8n-text, mode: system.DataCompositionSettingsItemViewMode}
+  inputs:
+    defaultLanguage: {type: {kind: scalar, scalar: text}}
+    registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  value:
+    kind: record
+    fields:
+    - {name: use, type: {use: flag}}
+    - {name: field, type: {use: text}}
+    - name: title
+      type:
+        use: title
+        bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}, ownerName: {literal: ''}}
+    - name: lwsTitle
+      type:
+        use: title
+        bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}, ownerName: {literal: ''}}
+    - {name: viewMode, type: {use: mode}}
+  representations:
+    xml:
+      kind: record
+      fields:
+      - {field: use, path: [dcsset:use]}
+      - {field: field, path: [dcsset:field]}
+      - {field: title, path: [dcsset:title]}
+      - {field: lwsTitle, path: [dcsset:lwsTitle]}
+      - {field: viewMode, path: [dcsset:viewMode]}
+    yaml:
+      kind: mapping
+      fields:
+      - {field: field, key: Поле}
+      - {field: use, key: Использование}
+      - {field: title, key: Заголовок}
+      - {field: lwsTitle, key: МногоязычныйЗаголовок}
+      - {field: viewMode, key: РежимОтображения}
+  presence:
+  - target: {field: use}
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}}
+  - target: {field: title}
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}}
+  - target: {field: lwsTitle}
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}}
+  - target: {field: viewMode}
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}}
+- kind: value
+  id: common.dcs-available-field
+  imports: {short: common.dcs-available-field-short, full: common.dcs-available-field-full}
+  inputs:
+    defaultLanguage: {type: {kind: scalar, scalar: text}}
+    registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  value:
+    kind: choice
+    variants:
+    - {name: short, type: {use: short}}
+    - name: full
+      type:
+        use: full
+        bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}}
+  representations:
+    xml: {kind: choice, fallback: full}
+    yaml: {kind: choice, variants: [{variant: full, form: mapping, key: Поле}]}
+- kind: value
+  id: common.dcs-available-field-row
+  imports: {item: common.dcs-available-field}
+  inputs:
+    defaultLanguage: {type: {kind: scalar, scalar: text}}
+    registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  value:
+    kind: record
+    fields:
+    - name: item
+      type:
+        use: item
+        bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}}
+  representations:
+    xml: {kind: record, fields: [{field: item, path: []}]}
+    yaml: {kind: projection, field: item}
+- kind: value
+  id: common.dcs-available-fields
+  namespaces: {dcsset: 'http://v8.1c.ru/8.1/data-composition-system/settings'}
+  imports: {item: common.dcs-available-field-row}
+  inputs:
+    defaultLanguage: {type: {kind: scalar, scalar: text}}
+    registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  value:
+    kind: sequence
+    item:
+      use: item
+      bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}}
+  representations:
+    xml: {kind: element-sequence, path: [dcsset:item], item: {kind: declared}}
+    yaml: {kind: sequence, item: {kind: declared}}
+  presence:
+  - target: self
+    xml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: empty-element, denotes: {absent: true}}]
+    yaml: {missing: {denotes: {absent: true}}}

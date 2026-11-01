@@ -1,0 +1,37 @@
+format: nkdk-declarations/1
+kind: value
+id: common.picture-common-simple
+namespaces:
+  xr: http://v8.1c.ru/8.3/xcf/readable
+imports:
+  reference: common.picture-common-reference
+  transparent: common.picture-default-false
+value:
+  kind: record
+  fields:
+    - name: reference
+      type:
+        use: reference
+    - name: transparent
+      type:
+        use: transparent
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: reference
+        path:
+          - xr:Ref
+      - field: transparent
+        path:
+          - xr:LoadTransparent
+  yaml:
+    kind: projection
+    field: reference
+presence:
+  - target:
+      field: transparent
+    yaml:
+      missing:
+        denotes:
+          literal: expected

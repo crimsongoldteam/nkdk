@@ -4,6 +4,11 @@ id: common.type-description-items
 imports:
   item: common.type-description-item
 parameters:
+  requireValues:
+    type:
+      kind: scalar
+      scalar: boolean
+    default: false
   metadataAttributeTypesOnly:
     type:
       kind: scalar
@@ -37,3 +42,23 @@ presence:
       missing:
         denotes:
           absent: true
+constraints:
+  - id: has-values
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      parameter: requireValues
+    assert:
+      exists:
+        in:
+          self: true
+        as: item
+        where:
+          literal: true
+    diagnostic:
+      code: type-description.empty
+      severity: error
+      at:
+        self: true
+      message: Описание должно содержать хотя бы один тип

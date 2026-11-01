@@ -1,0 +1,13 @@
+format: nkdk-declarations/1
+kind: value
+id: common.picture-uuid
+value:
+  kind: scalar
+  scalar: text
+  pattern: '[0-9A-Fa-f-]+'
+representations:
+  xml:
+    kind: text
+  yaml:
+    kind: scalar
+    scalar: text

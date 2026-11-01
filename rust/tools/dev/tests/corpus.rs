@@ -1,30 +1,11 @@
 use std::{fs, process::Command};
+mod support;
 #[test]
 fn expected_failure_requires_the_exact_diagnostic_not_just_any_error() {
-    let repository = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../..")
-        .canonicalize()
-        .unwrap();
-    let root = std::env::temp_dir().join(format!(
-        "nkdk-corpus-cli-{}-{}",
-        std::process::id(),
-        std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap()
-            .as_nanos()
-    ));
-    fs::create_dir(&root).unwrap();
-    let manifest: serde_json::Value = serde_json::from_slice(
-        &fs::read(repository.join("tests/conversion-corpus/manifest.json")).unwrap(),
-    )
-    .unwrap();
-    let mut case = manifest["cases"]
-        .as_array()
-        .unwrap()
-        .iter()
-        .find(|case| case["id"] == "numeric-bound-fraction-overflow")
-        .unwrap()
-        .clone();
+    let repository = support::repository();
+    let root = support::temporary_directory("corpus-cli");
+    let manifest = support::corpus_manifest(&repository);
+    let mut case = support::corpus_case(&manifest, "numeric-bound-fraction-overflow");
     let bytes =
         fs::read(repository.join(case["expectations"]["diagnostics"].as_str().unwrap())).unwrap();
     let diagnostics = root.join("diagnostics.json");
@@ -61,23 +42,11 @@ fn expected_failure_requires_the_exact_diagnostic_not_just_any_error() {
 
 #[test]
 fn structural_comparison_requires_explicit_mode_and_preserves_leaf_text() {
-    let repository = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../..")
-        .canonicalize()
-        .unwrap();
+    let repository = support::repository();
     let root = std::env::temp_dir().join(format!("nkdk-corpus-structural-{}", std::process::id()));
     fs::create_dir_all(&root).unwrap();
-    let manifest: serde_json::Value = serde_json::from_slice(
-        &fs::read(repository.join("tests/conversion-corpus/manifest.json")).unwrap(),
-    )
-    .unwrap();
-    let mut case = manifest["cases"]
-        .as_array()
-        .unwrap()
-        .iter()
-        .find(|case| case["id"] == "generated-record-scalars")
-        .unwrap()
-        .clone();
+    let manifest = support::corpus_manifest(&repository);
+    let mut case = support::corpus_case(&manifest, "generated-record-scalars");
     let expected = root.join("expected.xml");
     let original =
         fs::read_to_string(repository.join(case["expectations"]["xml"].as_str().unwrap())).unwrap();
@@ -116,10 +85,7 @@ fn structural_comparison_requires_explicit_mode_and_preserves_leaf_text() {
 
 #[test]
 fn localized_collection_corpus_uses_declared_profiles_and_real_inputs() {
-    let repository = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../..")
-        .canonicalize()
-        .unwrap();
+    let repository = support::repository();
     let output = Command::new(env!("CARGO_BIN_EXE_nkdk-dev"))
         .current_dir(&repository)
         .args([
@@ -147,17 +113,8 @@ fn localized_collection_corpus_uses_declared_profiles_and_real_inputs() {
     );
     let root = std::env::temp_dir().join(format!("nkdk-corpus-context-{}", std::process::id()));
     fs::create_dir_all(&root).unwrap();
-    let manifest: serde_json::Value = serde_json::from_slice(
-        &fs::read(repository.join("tests/conversion-corpus/manifest.json")).unwrap(),
-    )
-    .unwrap();
-    let mut case = manifest["cases"]
-        .as_array()
-        .unwrap()
-        .iter()
-        .find(|case| case["id"] == "i8n-name-and-rest")
-        .unwrap()
-        .clone();
+    let manifest = support::corpus_manifest(&repository);
+    let mut case = support::corpus_case(&manifest, "i8n-name-and-rest");
     let context: serde_json::Value = serde_json::from_slice(
         &fs::read(repository.join(case["context"].as_str().unwrap())).unwrap(),
     )

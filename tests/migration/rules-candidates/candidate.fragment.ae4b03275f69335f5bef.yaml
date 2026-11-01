@@ -1,0 +1,26 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.dcs-order-item-fields
+value:
+  kind: record
+  fields:
+    - name: items
+      type:
+        use: value0
+        bind: {}
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: items
+        path: []
+  yaml:
+    kind: mapping
+    fields:
+      - field: items
+        key: Элементы
+presence: []
+namespaces:
+  dcsset: http://v8.1c.ru/8.1/data-composition-system/settings
+id: candidate.fragment.ae4b03275f69335f5bef

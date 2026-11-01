@@ -1,0 +1,109 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.form-event-bindings
+value:
+  kind: record
+  fields:
+    - name: events
+      type:
+        use: value0
+        bind:
+          eventNames:
+            sequence:
+              - record:
+                  xml:
+                    literal: OnChange
+                  yaml:
+                    literal: ПриИзменении
+              - record:
+                  xml:
+                    literal: Selection
+                  yaml:
+                    literal: Выбор
+              - record:
+                  xml:
+                    literal: DragStart
+                  yaml:
+                    literal: НачалоПеретаскивания
+              - record:
+                  xml:
+                    literal: AdditionalDetailProcessing
+                  yaml:
+                    literal: ОбработкаДополнительнойРасшифровки
+              - record:
+                  xml:
+                    literal: URLProcessing
+                  yaml:
+                    literal: ОбработкаНавигационнойСсылки
+              - record:
+                  xml:
+                    literal: DetailProcessing
+                  yaml:
+                    literal: ОбработкаРасшифровки
+              - record:
+                  xml:
+                    literal: DragEnd
+                  yaml:
+                    literal: ОкончаниеПеретаскивания
+              - record:
+                  xml:
+                    literal: BeforeWrite
+                  yaml:
+                    literal: ПередЗаписью
+              - record:
+                  xml:
+                    literal: BeforePrint
+                  yaml:
+                    literal: ПередПечатью
+              - record:
+                  xml:
+                    literal: Drag
+                  yaml:
+                    literal: Перетаскивание
+              - record:
+                  xml:
+                    literal: AfterWrite
+                  yaml:
+                    literal: ПослеЗаписи
+              - record:
+                  xml:
+                    literal: OnActivate
+                  yaml:
+                    literal: ПриАктивизации
+              - record:
+                  xml:
+                    literal: OnChangeAreaContent
+                  yaml:
+                    literal: ПриИзмененииСодержимогоОбласти
+              - record:
+                  xml:
+                    literal: DragCheck
+                  yaml:
+                    literal: ПроверкаПеретаскивания
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: events
+        path:
+          - f:Events
+  yaml:
+    kind: mapping
+    fields:
+      - field: events
+        key: События
+presence:
+  - target:
+      field: events
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+namespaces:
+  f: http://v8.1c.ru/8.3/xcf/logform
+id: candidate.fragment.2ce46f322e19b2424ad7

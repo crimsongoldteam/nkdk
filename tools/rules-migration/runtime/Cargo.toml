@@ -6,10 +6,25 @@ rust-version = "1.98"
 
 [workspace]
 
+[features]
+resource-boundary = []
+working-catalog = ["dep:nkdk-compiled-rules"]
+
 [dependencies]
+sha2 = "=0.10.9"
+nkdk-compiled-rules = { path = "../../../rust/crates/compiled-rules", optional = true }
 nkdk-conversion-core = { path = "../../../rust/crates/conversion-core" }
 serde_json = "=1.0.150"
 yaml-rust2 = { version = "=0.11.0", path = "../../../third-party/yaml-rust2" }
 
 [build-dependencies]
 nkdk-rule-compiler = { path = "../../../rust/crates/rule-compiler" }
+
+[[test]]
+name = "resource_boundary"
+required-features = ["resource-boundary"]
+path = "tests/resource_boundary.rs"
+
+[dev-dependencies]
+getrandom = "=0.3.4"
+quick-xml = "=0.42.0"

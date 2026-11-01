@@ -1,0 +1,30 @@
+format: nkdk-declarations/1
+kind: value
+id: common.dcs-filter-field
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  dcscor: http://v8.1c.ru/8.1/data-composition-system/core
+imports:
+  field: common.string
+value:
+  kind: record
+  fields:
+    - name: field
+      type:
+        use: field
+representations:
+  xml:
+    kind: with-attributes
+    attributes:
+      - name: xsi:type
+        value:
+          qname: dcscor:Field
+    content:
+      kind: text-pattern
+      parts:
+        - field: field
+  yaml:
+    kind: text-pattern
+    parts:
+      - literal: .
+      - field: field

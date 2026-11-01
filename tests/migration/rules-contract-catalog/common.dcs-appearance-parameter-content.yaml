@@ -1,0 +1,107 @@
+format: nkdk-declarations/1
+kind: value
+id: common.dcs-appearance-parameter-content
+inputs:
+  parameterName:
+    type:
+      kind: scalar
+      scalar: text
+  valueProfile:
+    type:
+      kind: scalar
+      scalar: text
+  styleTypes:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  labels:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: code
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  codes:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: label
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+imports:
+  ordinary: common.dcs-appearance-source-choice
+  string: common.dcs-appearance-string-content
+value:
+  kind: choice
+  variants:
+    - name: ordinary
+      type:
+        use: ordinary
+        bind:
+          valueProfile:
+            input: valueProfile
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          labels:
+            input: labels
+          codes:
+            input: codes
+          styleTypes:
+            input: styleTypes
+    - name: string
+      type:
+        use: string
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+representations:
+  xml:
+    kind: choice
+    fallback: ordinary
+  yaml:
+    kind: choice
+    variants:
+      - variant: string
+        form: input-profile
+        input: valueProfile
+        equals: DesignTimeValue
+    fallback: ordinary

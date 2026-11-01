@@ -1,8 +1,16 @@
 //! Materialize a resource request in a private snapshot. Publication belongs to
 //! the enclosing project operation, after all conversions have succeeded.
+#[path = "resource_files/documents.rs"]
 mod documents;
+#[path = "resource_files/fingerprint.rs"]
+mod fingerprint;
+pub use fingerprint::file_fingerprint;
+#[path = "resource_files/names.rs"]
+mod names;
+pub use names::{FileNameMode, directory_names, file_names};
+#[path = "resource_files/selection.rs"]
 mod selection;
-pub use documents::load_documents;
+pub use documents::{load_documents, load_relative_documents};
 use nkdk_conversion_core::{
     Direction, Result, RuntimeDiagnostic, Severity,
     resources::{Plan, RelativePath},
@@ -121,6 +129,13 @@ pub fn stage(
     }
     Ok(snapshot)
 }
+fn canonical_source_root(root: &Path) -> Result<Option<PathBuf>> {
+    match fs::canonicalize(root) {
+        Ok(root) => Ok(Some(root)),
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(None),
+        Err(error) => Err(io_error(error)),
+    }
+}
 fn existing_path(root: &Path, path: &RelativePath) -> Result<Option<PathBuf>> {
     let mut current = root.to_path_buf();
     for segment in path.segments() {
@@ -139,6 +154,22 @@ fn existing_path(root: &Path, path: &RelativePath) -> Result<Option<PathBuf>> {
         }
     }
     Ok(Some(current))
+}
+fn existing_file(root: &Path, path: &RelativePath) -> Result<Option<PathBuf>> {
+    let Some(root) = canonical_source_root(root)? else {
+        return Ok(None);
+    };
+    let Some(path) = existing_path(&root, path)? else {
+        return Ok(None);
+    };
+    Ok(fs::metadata(&path)
+        .map_err(io_error)?
+        .is_file()
+        .then_some(path))
+}
+/// Inspect one declared file without loading its contents. Empty files are present.
+pub fn file_present(root: &Path, path: &RelativePath) -> Result<bool> {
+    Ok(existing_file(root, path)?.is_some())
 }
 fn relative(path: &RelativePath) -> PathBuf {
     path.segments().iter().collect()

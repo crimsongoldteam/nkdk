@@ -1,0 +1,35 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.adopted-command-group-root-source
+imports: {name: common.metadata-name, rootKind: common.path-root}
+namespaces: {md: 'http://v8.1c.ru/8.3/MDClasses'}
+value:
+  kind: record
+  fields:
+  - {name: kind, type: {use: rootKind}}
+  - {name: name, type: {use: name}}
+  - {name: identity, type: {kind: scalar, scalar: text}}
+representations:
+  xml:
+    kind: record
+    fields:
+    - {field: name, path: ['md:MetaDataObject', 'md:CommandGroup', 'md:Properties', 'md:Name']}
+    - {field: identity, path: ['md:MetaDataObject', 'md:CommandGroup', 'md:Properties', 'md:ExtendedConfigurationObject']}
+  yaml:
+    kind: mapping
+    fields:
+    - {field: kind, key: Вид}
+    - {field: name, key: Имя}
+    - {field: identity, key: Идентификатор}
+presence:
+- target: {field: kind}
+  xml: {missing: {denotes: {literal: CommandGroup}}}
+  yaml: {default: {literal: CommandGroup}}
+- target: {field: identity}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {missing: {denotes: {absent: true}}}
+contributions:
+- index: metadata.roots
+  when: {present: {field: identity}}
+  key: {record: {kind: {field: kind}, name: {field: name}}}
+  value: {field: identity}

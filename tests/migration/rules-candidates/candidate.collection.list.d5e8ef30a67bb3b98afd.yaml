@@ -1,0 +1,83 @@
+format: nkdk-declarations/1
+kind: value
+imports:
+  item: common.data-composition-schema-data-set-field
+value:
+  kind: sequence
+  item:
+    use: item
+    bind:
+      defaultLanguage:
+        input: defaultLanguage
+      registeredLanguages:
+        input: registeredLanguages
+      styleTypes:
+        input: styleTypes
+      labels:
+        input: labels
+      codes:
+        input: codes
+representations:
+  xml:
+    kind: element-sequence
+    path:
+      - form:Field
+  yaml:
+    kind: sequence
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  styleTypes:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  labels:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: code
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  codes:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: label
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+namespaces:
+  form: http://v8.1c.ru/8.3/xcf/logform
+id: candidate.collection.list.d5e8ef30a67bb3b98afd

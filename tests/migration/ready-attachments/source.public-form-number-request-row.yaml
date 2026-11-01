@@ -1,0 +1,215 @@
+format: nkdk-declarations/1
+kind: value
+id: source.public-form-number-request-row
+inputs:
+  component:
+    type:
+      kind: scalar
+      scalar: text
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  groupModes:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: component
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: origin
+            type:
+              kind: scalar
+              scalar: text
+          - name: owner
+            type:
+              kind: scalar
+              scalar: text
+          - name: parent
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  attributeModes:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: component
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: origin
+            type:
+              kind: scalar
+              scalar: text
+          - name: owner
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+imports:
+  ordinary: source.public-form-column-requests
+  additional: source.public-form-additional-column-requests
+  columns: source.public-form-ordinary-column-requests
+  identity: source.public-form-attribute-number-request
+namespaces:
+  f: http://v8.1c.ru/8.3/xcf/logform
+value:
+  kind: record
+  fields:
+    - name: name
+      type:
+        kind: scalar
+        scalar: text
+    - name: additional
+      type:
+        use: additional
+        bind:
+          component:
+            input: component
+          owner:
+            input: owner
+          parent:
+            if:
+              eq:
+                - require:
+                    lookup:
+                      in:
+                        input: attributeModes
+                      key:
+                        record:
+                          component:
+                            input: component
+                          name:
+                            field: name
+                          origin:
+                            literal: current
+                          owner:
+                            input: owner
+                - literal: positional
+            then:
+              logicalAddress:
+                parts:
+                  - literal: Атрибут
+                  - collectionPosition: true
+            else:
+              logicalAddress:
+                parts:
+                  - literal: Атрибут
+                  - field: name
+          groupModes:
+            input: groupModes
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: name
+        path: []
+        attribute: name
+      - field: additional
+        path:
+          - f:Columns
+  yaml:
+    kind: mapping
+    fields:
+      - field: name
+        key: Имя
+      - field: additional
+        key: ДополнительныеКолонки
+presence:
+  - target:
+      field: additional
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+compose:
+  - use: identity
+    bind:
+      component:
+        input: component
+      owner:
+        input: owner
+      address:
+        if:
+          eq:
+            - require:
+                lookup:
+                  in:
+                    input: attributeModes
+                  key:
+                    record:
+                      component:
+                        input: component
+                      name:
+                        field: name
+                      origin:
+                        literal: current
+                      owner:
+                        input: owner
+            - literal: positional
+        then:
+          logicalAddress:
+            parts:
+              - literal: Атрибут
+              - collectionPosition: true
+        else:
+          logicalAddress:
+            parts:
+              - literal: Атрибут
+              - field: name
+  - use: columns
+    bind:
+      component:
+        input: component
+      owner:
+        input: owner
+      parent:
+        if:
+          eq:
+            - require:
+                lookup:
+                  in:
+                    input: attributeModes
+                  key:
+                    record:
+                      component:
+                        input: component
+                      name:
+                        field: name
+                      origin:
+                        literal: current
+                      owner:
+                        input: owner
+            - literal: positional
+        then:
+          logicalAddress:
+            parts:
+              - literal: Атрибут
+              - collectionPosition: true
+        else:
+          logicalAddress:
+            parts:
+              - literal: Атрибут
+              - field: name

@@ -1,0 +1,101 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: common.data-table-section-kind
+  enum: {TabularSection: ТабличнаяЧасть}
+- kind: value
+  id: common.data-table-section
+  imports: {kind: common.data-table-section-kind, name: common.metadata-name}
+  value: {kind: record, fields: [{name: kind, type: {use: kind}}, {name: name, type: {use: name}}]}
+  representations:
+    xml: {kind: text-pattern, separator: '.', parts: [{field: kind}, {field: name}]}
+    yaml: {kind: text-pattern, separator: '.', parts: [{field: kind}, {field: name}]}
+- kind: value
+  id: common.data-table-virtual
+  imports: {kind: common.path-virtual-table}
+  value: {kind: record, fields: [{name: kind, type: {use: kind}}]}
+  representations:
+    xml: {kind: text-pattern, parts: [{field: kind}]}
+    yaml: {kind: text-pattern, parts: [{field: kind}]}
+- kind: value
+  id: common.data-table-base-suffix
+  imports: {name: common.metadata-name}
+  value: {kind: record, fields: [{name: name, type: {use: name}}]}
+  representations:
+    xml: {kind: text-pattern, parts: [{literal: Base}, {field: name}]}
+    yaml: {kind: text-pattern, parts: [{literal: База}, {field: name}]}
+- kind: value
+  id: common.data-table-base
+  imports: {value: common.data-table-base-suffix}
+  value: {kind: record, fields: [{name: value, type: {use: value}}]}
+  representations:
+    xml: {kind: text-pattern, parts: [{field: value}]}
+    yaml: {kind: text-pattern, parts: [{field: value}]}
+- kind: value
+  id: common.data-table-segment
+  imports: {object: common.metadata-object-segment, section: common.data-table-section, virtual: common.data-table-virtual, base: common.data-table-base}
+  value:
+    kind: choice
+    variants:
+    - {name: object, type: {use: object}}
+    - {name: section, type: {use: section}}
+    - {name: virtual, type: {use: virtual}}
+    - {name: base, type: {use: base}}
+  representations: {xml: {kind: choice}, yaml: {kind: choice}}
+- kind: value
+  id: common.data-table-segments
+  imports: {segment: common.data-table-segment}
+  value: {kind: sequence, item: {use: segment}}
+  representations:
+    xml: {kind: text-sequence, separator: '.'}
+    yaml: {kind: text-sequence, separator: '.'}
+- kind: value
+  id: common.metadata-data-table-path
+  imports: {root: common.path-root, name: common.metadata-name, tail: common.data-table-segments}
+  inputs:
+    allowedRoots: {type: {kind: sequence, item: {use: root}}}
+  value:
+    kind: record
+    fields:
+    - {name: root, type: {use: root}}
+    - {name: name, type: {use: name}}
+    - {name: tail, type: {use: tail}}
+  representations:
+    xml: {kind: text-pattern, parts: [{field: root}, {literal: '.'}, {field: name}, {literal: '.'}, {field: tail}]}
+    yaml: {kind: text-pattern, parts: [{field: root}, {literal: '.'}, {field: name}, {literal: '.'}, {field: tail}]}
+  constraints:
+  - id: allowed-root
+    appliesTo: [xml-import, yaml-validation]
+    assert: {exists: {in: {input: allowedRoots}, as: root, where: {eq: [{var: root}, {field: root}]}}}
+    diagnostic: {code: metadata.target-root, severity: error, at: {self: true}, message: Недопустимый вид основной таблицы}
+  - id: segment-order
+    appliesTo: [xml-import, yaml-validation]
+    assert:
+      present:
+        fold:
+          in: {field: tail}
+          as: segment
+          state: previous
+          initial: {if: {literal: true}, then: {literal: object}, else: {absent: true}}
+          next:
+            if: {eq: [{var: previous}, {literal: closed}]}
+            then: {absent: true}
+            else:
+              if: {isVariant: {value: {var: segment}, variant: object}}
+              then:
+                if: {eq: [{var: previous}, {literal: object}]}
+                then: {literal: object}
+                else: {absent: true}
+              else:
+                if: {isVariant: {value: {var: segment}, variant: section}}
+                then: {literal: section}
+                else: {literal: closed}
+    diagnostic: {code: metadata.table-segment-order, severity: error, at: {self: true}, message: "Вложенные объекты должны предшествовать табличным частям, виртуальная таблица должна быть последней"}
+- kind: value
+  id: common.metadata-data-table-link
+  imports: {path: common.metadata-data-table-path, root: common.path-root}
+  inputs:
+    allowedRoots: {type: {kind: sequence, item: {use: root}}}
+  value: {kind: choice, variants: [{name: path, type: {use: path, bind: {allowedRoots: {input: allowedRoots}}}}]}
+  representations: {xml: {kind: choice}, yaml: {kind: choice}}

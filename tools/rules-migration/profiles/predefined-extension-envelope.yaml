@@ -1,0 +1,122 @@
+format: nkdk-file-envelope/1
+source:
+  path: packages/rules/metadata/commonObjects/predefined/rules.ts
+  symbol: PredefinedRules
+context:
+  ownerMetadataItem:
+    itemType: MetadataCatalog
+value:
+  format: nkdk-declarations/1
+  kind: value
+  id: probe.predefined-extension-file-items
+  namespaces:
+    p: http://v8.1c.ru/8.3/xcf/predef
+  imports:
+    item: probe.predefined-extension-row
+  inputs:
+    parent:
+      type:
+        kind: scalar
+        scalar: text
+    identities:
+      type:
+        kind: index
+        key:
+          kind: scalar
+          scalar: text
+        value:
+          kind: scalar
+          scalar: text
+    borrowed:
+      type:
+        kind: scalar
+        scalar: boolean
+  value:
+    kind: sequence
+    item:
+      use: item
+      bind:
+        parent:
+          input: parent
+        identities:
+          input: identities
+        borrowed:
+          input: borrowed
+  representations:
+    xml:
+      kind: element-sequence
+      path:
+        - p:Item
+      item:
+        kind: declared
+    yaml:
+      kind: record-mapping
+      key: name
+owner:
+  format: nkdk-declarations/1
+  kind: object
+  id: probe.predefined-extension-file
+  namespaces:
+    p: http://v8.1c.ru/8.3/xcf/predef
+  imports:
+    items: probe.predefined-extension-file-items
+  inputs:
+    owner:
+      type:
+        kind: scalar
+        scalar: text
+    identities:
+      type:
+        kind: index
+        key:
+          kind: scalar
+          scalar: text
+        value:
+          kind: scalar
+          scalar: text
+      index: metadata.predefined-identities
+    borrowed:
+      type:
+        kind: scalar
+        scalar: boolean
+  value:
+    kind: record
+    fields:
+      - name: items
+        type:
+          use: items
+          bind:
+            parent:
+              input: owner
+            identities:
+              input: identities
+            borrowed:
+              input: borrowed
+  representations:
+    xml:
+      kind: record
+      fields:
+        - field: items
+          path: []
+    yaml:
+      kind: projection
+      field: items
+outputs:
+  value: rust/declarations/probes/predefined-extension-file-items.yaml
+  owner: rust/declarations/probes/predefined-extension-file.yaml
+  attachment: rust/declarations/fragments/predefined-extension-file.generated.yaml
+  host: rust/declarations/probes/predefined-extension-owner.yaml
+attachment:
+  id: fragment.predefined-extension-file
+  source:
+    path: packages/rules/metadata/appliedObjects/metadataCatalog/rules.ts
+    symbol: MetadataCatalogRules
+  property: predefined
+  host:
+    id: probe.predefined-extension-owner
+    fields:
+      - {field: name, property: name, key: Имя}
+      - {field: belonging, property: objectBelonging, key: Принадлежность}
+    identity: {input: owner, name: name, component: component}
+    conditions:
+      borrowed: {field: belonging, equals: Adopted}

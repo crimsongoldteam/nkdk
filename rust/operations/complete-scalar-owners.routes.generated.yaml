@@ -1,0 +1,104 @@
+format: nkdk-operation-routes/1
+routes:
+  - xmlDir: DocumentNumerators
+    yamlDir: Нумератор
+    owners:
+      cf: candidate.complete-scalar-owner.documentnumerator
+      cfe:
+        select:
+          'on':
+            snapshot:
+              entry: candidate.complete-scalar-owner.documentnumerator.base-identity
+              field: objectBelonging
+          cases:
+            Собственный:
+              literal: candidate.complete-scalar-owner.documentnumerator
+            Заимствованный:
+              literal: candidate.complete-scalar-owner.documentnumerator.adopted
+    validators:
+      cf: candidate.complete-scalar-owner.documentnumerator.validation
+      cfe: candidate.complete-scalar-owner.documentnumerator.validation
+    inputs:
+      component: component
+      parent: parent
+      ownerName: name
+      defaultLanguage: defaultLanguage
+      registeredLanguages: registeredLanguages
+      compatibilityMode: compatibilityMode
+      owner:
+        snapshot:
+          entry: candidate.complete-scalar-owner.documentnumerator.own-identity
+          field: uuid
+      adopted:
+        byComponent:
+          cf:
+            literal: false
+          cfe:
+            select:
+              'on':
+                snapshot:
+                  entry: >-
+                    candidate.complete-scalar-owner.documentnumerator.base-identity
+                  field: objectBelonging
+              cases:
+                Собственный:
+                  literal: false
+                Заимствованный:
+                  literal: true
+    ownerFacts: false
+    sources:
+      - entry: candidate.complete-scalar-owner.documentnumerator.own-identity
+        inputs:
+          component: component
+          parent: parent
+          ownerName: name
+      - entry: candidate.complete-scalar-owner.documentnumerator.base-identity
+        inputs:
+          component: component
+        newOwner:
+          template:
+            uuid:
+              snapshot:
+                entry: candidate.complete-scalar-owner.documentnumerator.own-identity
+                field: uuid
+            base:
+              optional:
+                externalSnapshot:
+                  component: cf
+                  entry: >-
+                    candidate.complete-scalar-owner.documentnumerator.own-identity
+                  field: uuid
+      - entry: candidate.owner-numbers-states.documentnumerator
+        inputs:
+          owner:
+            snapshot:
+              entry: candidate.complete-scalar-owner.documentnumerator.own-identity
+              field: uuid
+        newOwner:
+          template: {}
+      - entry: candidate.owner-numbers-base.documentnumerator
+        only:
+          - cf
+        factDirections:
+          - xml-to-yaml
+        inputs:
+          owner:
+            snapshot:
+              entry: candidate.complete-scalar-owner.documentnumerator.own-identity
+              field: uuid
+        newOwner:
+          template: {}
+factRoutes:
+  - xmlDir: DocumentNumerators
+    yamlDir: Нумератор
+    entry: candidate.owner-numbers-base.documentnumerator.current-yaml
+    only:
+      - cf
+    fromBase: true
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      owner:
+        snapshot:
+          entry: candidate.complete-scalar-owner.documentnumerator.own-identity
+          field: uuid

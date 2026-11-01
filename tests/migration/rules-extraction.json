@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "sourceRevision": "809c31492e8b96cfccfc69c2452393c232a59248",
+  "sourceRevision": "91a01277cbd10ccebd70bb0b4e7a32886dcf090f",
   "scope": "Item *Rules variables in inventoried rules.ts and childRules.ts, including local rules exposed through owners; key/order comparison is not semantic migration acceptance",
   "sourceHashes": [
     {
@@ -11529,7 +11529,7 @@
     },
     {
       "path": "packages/rules/tests/metadataTestRunner.ts",
-      "sha256": "514acb4d864752c42072d60246ab8c90701a9bb5a4789e0a2dba328c9cfd88cf"
+      "sha256": "0f6e95d13f3650d0ea92f8d7677379075c3cbc0d4035bd44ffddfba346be56ff"
     },
     {
       "path": "packages/rules/tests/metadataWorkerTestPool.ts",
@@ -12537,7 +12537,7 @@
     },
     {
       "path": "packages/runtime/metadata/ruleRuntime/xmlAnomaly/localProof.test.ts",
-      "sha256": "950d704809fe5ab88c99a5abbfdcaa2daa0c0694d654f1e727ba0c4bc734672a"
+      "sha256": "85afd44ed08533692e526282cfb4aeb3ee20a13574f705407ff2002b89fa8d2d"
     },
     {
       "path": "packages/runtime/metadata/ruleRuntime/xmlAnomaly/localProof.ts",
@@ -12845,7 +12845,7 @@
     },
     {
       "path": "packages/runtime/vitest.config.ts",
-      "sha256": "77bf1047bce912d702e88fbb3cb138d74cb87cb1a3848810be77e80e0f53490e"
+      "sha256": "45f42096bc519ecb3d0d3d3647443a4cba445567c683202a3cf98f052698544f"
     },
     {
       "path": "packages/runtime/worker.ts",
@@ -20207,7 +20207,107 @@
               "Active": "Активность",
               "LineNumber": "НомерСтроки",
               "Recorder": "Регистратор",
-              "Period": "Период"
+              "Period": "Период",
+              "ExtDimension1": "Субконто1",
+              "ExtDimensionType1": "ВидСубконто1",
+              "ExtDimension2": "Субконто2",
+              "ExtDimensionType2": "ВидСубконто2",
+              "ExtDimension3": "Субконто3",
+              "ExtDimensionType3": "ВидСубконто3",
+              "ExtDimension4": "Субконто4",
+              "ExtDimensionType4": "ВидСубконто4",
+              "ExtDimension5": "Субконто5",
+              "ExtDimensionType5": "ВидСубконто5",
+              "ExtDimension6": "Субконто6",
+              "ExtDimensionType6": "ВидСубконто6",
+              "ExtDimension7": "Субконто7",
+              "ExtDimensionType7": "ВидСубконто7",
+              "ExtDimension8": "Субконто8",
+              "ExtDimensionType8": "ВидСубконто8",
+              "ExtDimension9": "Субконто9",
+              "ExtDimensionType9": "ВидСубконто9",
+              "ExtDimension10": "Субконто10",
+              "ExtDimensionType10": "ВидСубконто10",
+              "ExtDimension11": "Субконто11",
+              "ExtDimensionType11": "ВидСубконто11",
+              "ExtDimension12": "Субконто12",
+              "ExtDimensionType12": "ВидСубконто12",
+              "ExtDimension13": "Субконто13",
+              "ExtDimensionType13": "ВидСубконто13",
+              "ExtDimension14": "Субконто14",
+              "ExtDimensionType14": "ВидСубконто14",
+              "ExtDimension15": "Субконто15",
+              "ExtDimensionType15": "ВидСубконто15",
+              "ExtDimension16": "Субконто16",
+              "ExtDimensionType16": "ВидСубконто16",
+              "ExtDimension17": "Субконто17",
+              "ExtDimensionType17": "ВидСубконто17",
+              "ExtDimension18": "Субконто18",
+              "ExtDimensionType18": "ВидСубконто18",
+              "ExtDimension19": "Субконто19",
+              "ExtDimensionType19": "ВидСубконто19",
+              "ExtDimension20": "Субконто20",
+              "ExtDimensionType20": "ВидСубконто20",
+              "ExtDimension21": "Субконто21",
+              "ExtDimensionType21": "ВидСубконто21",
+              "ExtDimension22": "Субконто22",
+              "ExtDimensionType22": "ВидСубконто22",
+              "ExtDimension23": "Субконто23",
+              "ExtDimensionType23": "ВидСубконто23",
+              "ExtDimension24": "Субконто24",
+              "ExtDimensionType24": "ВидСубконто24",
+              "ExtDimension25": "Субконто25",
+              "ExtDimensionType25": "ВидСубконто25",
+              "ExtDimension26": "Субконто26",
+              "ExtDimensionType26": "ВидСубконто26",
+              "ExtDimension27": "Субконто27",
+              "ExtDimensionType27": "ВидСубконто27",
+              "ExtDimension28": "Субконто28",
+              "ExtDimensionType28": "ВидСубконто28",
+              "ExtDimension29": "Субконто29",
+              "ExtDimensionType29": "ВидСубконто29",
+              "ExtDimension30": "Субконто30",
+              "ExtDimensionType30": "ВидСубконто30",
+              "ExtDimension31": "Субконто31",
+              "ExtDimensionType31": "ВидСубконто31",
+              "ExtDimension32": "Субконто32",
+              "ExtDimensionType32": "ВидСубконто32",
+              "ExtDimension33": "Субконто33",
+              "ExtDimensionType33": "ВидСубконто33",
+              "ExtDimension34": "Субконто34",
+              "ExtDimensionType34": "ВидСубконто34",
+              "ExtDimension35": "Субконто35",
+              "ExtDimensionType35": "ВидСубконто35",
+              "ExtDimension36": "Субконто36",
+              "ExtDimensionType36": "ВидСубконто36",
+              "ExtDimension37": "Субконто37",
+              "ExtDimensionType37": "ВидСубконто37",
+              "ExtDimension38": "Субконто38",
+              "ExtDimensionType38": "ВидСубконто38",
+              "ExtDimension39": "Субконто39",
+              "ExtDimensionType39": "ВидСубконто39",
+              "ExtDimension40": "Субконто40",
+              "ExtDimensionType40": "ВидСубконто40",
+              "ExtDimension41": "Субконто41",
+              "ExtDimensionType41": "ВидСубконто41",
+              "ExtDimension42": "Субконто42",
+              "ExtDimensionType42": "ВидСубконто42",
+              "ExtDimension43": "Субконто43",
+              "ExtDimensionType43": "ВидСубконто43",
+              "ExtDimension44": "Субконто44",
+              "ExtDimensionType44": "ВидСубконто44",
+              "ExtDimension45": "Субконто45",
+              "ExtDimensionType45": "ВидСубконто45",
+              "ExtDimension46": "Субконто46",
+              "ExtDimensionType46": "ВидСубконто46",
+              "ExtDimension47": "Субконто47",
+              "ExtDimensionType47": "ВидСубконто47",
+              "ExtDimension48": "Субконто48",
+              "ExtDimensionType48": "ВидСубконто48",
+              "ExtDimension49": "Субконто49",
+              "ExtDimensionType49": "ВидСубконто49",
+              "ExtDimension50": "Субконто50",
+              "ExtDimensionType50": "ВидСубконто50"
             },
             "standartAttributeNamesXML": {
               "$unresolved": {
@@ -20226,24 +20326,6 @@
             ]
           },
           "issues": [
-            {
-              "kind": "unknown",
-              "reason": "unknown-object-spread",
-              "source": {
-                "path": "packages/rules/metadata/appliedObjects/metadataAccountingRegister/rules.ts",
-                "line": 37,
-                "column": 3
-              },
-              "cause": {
-                "kind": "unknown",
-                "reason": "unknown-call",
-                "source": {
-                  "path": "packages/rules/metadata/appliedObjects/metadataAccountingRegister/rules.ts",
-                  "line": 37,
-                  "column": 6
-                }
-              }
-            },
             {
               "kind": "expression",
               "source": {

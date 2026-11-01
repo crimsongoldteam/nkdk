@@ -1,0 +1,5 @@
+# Physical header fields omitted from legacy rules.ts xmlOrder.
+# Explicit source order always wins. These anchors apply across owner families.
+anchors:
+  - {field: extendedConfigurationObject, after: name, inheritedAfter: comment}
+  - {field: history, before: objectBelonging}

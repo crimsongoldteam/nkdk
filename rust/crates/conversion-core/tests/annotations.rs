@@ -120,33 +120,44 @@ fn keyed_mapping_derives_duplicate_tags_and_checks_their_numbering() {
             "{tag}"
         );
     }
-    let unknown = RuntimeDiagnostic::declared(
-        None,
-        Some("structure"),
-        Severity::Error,
-        "Unregistered language",
-    )
-    .field("Title")
-    .field("de")
-    .with_occurrence(NonZeroU32::new(1).unwrap());
+    let language_issue = |property: Option<&str>| {
+        let mut issue = RuntimeDiagnostic::declared(
+            None,
+            Some("structure"),
+            Severity::Error,
+            "Unregistered language",
+        );
+        if let Some(property) = property {
+            issue = issue.field(property);
+        }
+        issue
+            .field("de")
+            .with_occurrence(NonZeroU32::new(1).unwrap())
+    };
     let rows = [("de", Position::default()), ("de", Position::default())];
-    let tags = Mapping::infer(
-        "Title",
-        rows.iter().copied(),
-        std::slice::from_ref(&unknown),
-    )
-    .unwrap();
-    assert_eq!(tags.label(Some(0)).as_deref(), Some("!xml/invalid"));
-    assert_eq!(tags.label(Some(1)).as_deref(), Some("!xml/invalid/2"));
-    assert!(
-        tags.validate("Title", rows.iter().copied(), vec![unknown])
-            .is_empty()
-    );
-    assert!(
-        tags.validate("Title", rows.iter().copied(), vec![])
-            .iter()
-            .any(|error| error.code.as_deref() == Some("xml/anomaly-tag-unnecessary"))
-    );
+    // A document boundary differs from a property whose valid key is empty.
+    for property in [None, Some(""), Some("Title")] {
+        let unknown = language_issue(property);
+        let tags = Mapping::infer_at(
+            property,
+            rows.iter().copied(),
+            std::slice::from_ref(&unknown),
+        )
+        .unwrap();
+        assert_eq!(tags.label(Some(0)).as_deref(), Some("!xml/invalid"));
+        assert_eq!(tags.label(Some(1)).as_deref(), Some("!xml/invalid/2"));
+        assert!(
+            tags.validate_at(property, rows.iter().copied(), vec![unknown.clone()], &[])
+                .is_empty()
+        );
+        assert!(
+            tags.validate_at(property, rows.iter().copied(), vec![], &[])
+                .iter()
+                .any(|error| error.code.as_deref() == Some("xml/anomaly-tag-unnecessary"))
+        );
+        let other = if property.is_none() { Some("") } else { None };
+        assert!(Mapping::infer_at(other, rows.iter().copied(), &[unknown]).is_err());
+    }
     let structural =
         RuntimeDiagnostic::new("input.not-ready", "Missing language input").field("Title");
     assert!(Mapping::infer("Title", rows.iter().copied(), &[structural]).is_err());

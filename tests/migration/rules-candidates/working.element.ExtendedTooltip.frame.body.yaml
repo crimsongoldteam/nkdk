@@ -1,0 +1,356 @@
+format: nkdk-declarations/1
+kind: value
+id: working.element.ExtendedTooltip.frame.body
+imports:
+  identity: working.element.ExtendedTooltip.frame.body.identity
+  ordinary0: working.element.ExtendedTooltip.frame.body.ordinary.0
+  ordinary1: working.element.ExtendedTooltip.frame.body.ordinary.2
+  ordinary2: working.element.ExtendedTooltip.frame.body.ordinary.4
+  ordinary3: working.element.ExtendedTooltip.frame.body.ordinary.6
+  ordinary4: working.element.ExtendedTooltip.frame.body.ordinary.8
+  ordinary5: working.element.ExtendedTooltip.frame.body.ordinary.10
+  ordinary6: working.element.ExtendedTooltip.frame.body.ordinary.12
+  ordinary7: working.element.ExtendedTooltip.frame.body.ordinary.14
+  ordinary8: working.element.ExtendedTooltip.frame.body.ordinary.16
+  ordinary9: working.element.ExtendedTooltip.frame.body.ordinary.18
+  ordinary10: working.element.ExtendedTooltip.frame.body.ordinary.20
+  ordinary11: working.element.ExtendedTooltip.frame.body.ordinary.22
+  ordinary12: working.element.ExtendedTooltip.frame.body.ordinary.24
+  ordinary13: working.element.ExtendedTooltip.frame.body.ordinary.26
+  ordinary14: working.element.ExtendedTooltip.frame.body.ordinary.28
+  ordinary15: working.element.ExtendedTooltip.frame.body.ordinary.30
+  ordinary16: working.element.ExtendedTooltip.frame.body.ordinary.32
+  ordinary17: working.element.ExtendedTooltip.frame.body.ordinary.34
+  ordinary18: working.element.ExtendedTooltip.frame.body.ordinary.36
+  ordinary19: working.element.ExtendedTooltip.frame.body.ordinary.38
+  ordinary20: working.element.ExtendedTooltip.frame.body.ordinary.40
+  ordinary21: working.element.ExtendedTooltip.frame.body.ordinary.42
+  ordinary22: working.element.ExtendedTooltip.frame.body.ordinary.44
+  ordinary23: working.element.ExtendedTooltip.frame.body.ordinary.46
+  ordinary24: working.element.ExtendedTooltip.frame.body.ordinary.48
+  ordinary25: working.element.ExtendedTooltip.frame.body.ordinary.50
+  ordinary26: working.element.ExtendedTooltip.frame.body.ordinary.52
+  ordinary27: working.element.ExtendedTooltip.frame.body.ordinary.54
+  ordinary28: working.element.ExtendedTooltip.frame.body.ordinary.56
+  ordinary29: working.element.ExtendedTooltip.frame.body.ordinary.58
+inputs:
+  identity_component:
+    type:
+      kind: scalar
+      scalar: text
+  identity_owner:
+    type:
+      kind: scalar
+      scalar: text
+  identity_ownerName:
+    type:
+      kind: scalar
+      scalar: text
+  identity_names:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: component
+            type:
+              kind: scalar
+              scalar: text
+          - name: owner
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  identity_identities:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: component
+            type:
+              kind: scalar
+              scalar: text
+          - name: owner
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  ordinary10_styleTypes:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  ordinary11_styleTypes:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  ordinary12_defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  ordinary12_registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  ordinary20_styleTypes:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  ordinary21_styleTypes:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  ordinary22_styleTypes:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  ordinary27_defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  ordinary27_registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  ordinary29_roles:
+    type:
+      kind: sequence
+      item:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: yamlName
+            type:
+              kind: scalar
+              scalar: text
+compose:
+  - use: identity
+    bind:
+      component:
+        input: identity_component
+      owner:
+        input: identity_owner
+      ownerName:
+        input: identity_ownerName
+      names:
+        input: identity_names
+      identities:
+        input: identity_identities
+  - use: ordinary0
+    bind: {}
+  - use: ordinary1
+    bind: {}
+  - use: ordinary2
+    bind: {}
+  - use: ordinary3
+    bind: {}
+  - use: ordinary4
+    bind: {}
+  - use: ordinary5
+    bind: {}
+  - use: ordinary6
+    bind: {}
+  - use: ordinary7
+    bind: {}
+  - use: ordinary8
+    bind: {}
+  - use: ordinary9
+    bind: {}
+  - use: ordinary10
+    bind:
+      styleTypes:
+        input: ordinary10_styleTypes
+  - use: ordinary11
+    bind:
+      styleTypes:
+        input: ordinary11_styleTypes
+  - use: ordinary12
+    bind:
+      defaultLanguage:
+        input: ordinary12_defaultLanguage
+      registeredLanguages:
+        input: ordinary12_registeredLanguages
+      ownerName:
+        get:
+          of:
+            variantValue:
+              value:
+                field: name
+              variant: explicit
+          field: name
+  - use: ordinary13
+    bind: {}
+  - use: ordinary14
+    bind: {}
+  - use: ordinary15
+    bind: {}
+  - use: ordinary16
+    bind: {}
+  - use: ordinary17
+    bind: {}
+  - use: ordinary18
+    bind: {}
+  - use: ordinary19
+    bind: {}
+  - use: ordinary20
+    bind:
+      styleTypes:
+        input: ordinary20_styleTypes
+  - use: ordinary21
+    bind:
+      styleTypes:
+        input: ordinary21_styleTypes
+  - use: ordinary22
+    bind:
+      styleTypes:
+        input: ordinary22_styleTypes
+  - use: ordinary23
+    bind: {}
+  - use: ordinary24
+    bind: {}
+  - use: ordinary25
+    bind: {}
+  - use: ordinary26
+    bind: {}
+  - use: ordinary27
+    bind:
+      defaultLanguage:
+        input: ordinary27_defaultLanguage
+      registeredLanguages:
+        input: ordinary27_registeredLanguages
+      ownerName:
+        get:
+          of:
+            variantValue:
+              value:
+                field: name
+              variant: explicit
+          field: name
+  - use: ordinary28
+    bind: {}
+  - use: ordinary29
+    bind:
+      roles:
+        input: ordinary29_roles
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []
+namespaces:
+  md: http://v8.1c.ru/8.3/xcf/logform
+xmlOrder:
+  - name
+  - id
+  - visible
+  - enabled
+  - width
+  - autoMaxWidth
+  - maxWidth
+  - height
+  - autoMaxHeight
+  - maxHeight
+  - horizontalStretch
+  - verticalStretch
+  - textColor
+  - font
+  - title
+  - horizontalAlignInGroup
+  - verticalAlignInGroup
+  - onMainServerUnavalableBehavior
+  - hyperlink
+  - horizontalAlign
+  - verticalAlign
+  - titleHeight
+  - backColor
+  - borderColor
+  - border
+  - events
+  - displayImportance
+  - shortcut
+  - skipOnInput
+  - toolTip
+  - toolTipRepresentation
+  - userVisible
+yamlOrder:
+  - title
+  - autoMaxHeight
+  - autoMaxWidth
+  - displayImportance
+  - verticalAlign
+  - verticalAlignInGroup
+  - visible
+  - height
+  - titleHeight
+  - hyperlink
+  - horizontalAlign
+  - horizontalAlignInGroup
+  - enabled
+  - id
+  - name
+  - userVisible
+  - maxHeight
+  - maxWidth
+  - toolTipRepresentation
+  - onMainServerUnavalableBehavior
+  - toolTip
+  - skipOnInput
+  - border
+  - verticalStretch
+  - horizontalStretch
+  - events
+  - shortcut
+  - borderColor
+  - textColor
+  - backColor
+  - width
+  - font

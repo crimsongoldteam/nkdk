@@ -1,0 +1,482 @@
+# Generated from packages/rules/metadata/appliedObjects/metadataDocumentJournal/rules.ts by tools/rules-migration/src/journal-identity-operation.mjs
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+  - format: nkdk-declarations/1
+    kind: value
+    id: migration.journal-child-identity-row
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    value:
+      kind: record
+      fields:
+        - name: name
+          type:
+            kind: scalar
+            scalar: text
+        - name: uuid
+          type:
+            kind: scalar
+            scalar: text
+        - name: base
+          type:
+            kind: scalar
+            scalar: text
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: name
+            path:
+              - md:Properties
+              - md:Name
+          - field: uuid
+            path: []
+            attribute: uuid
+          - field: base
+            path:
+              - md:Properties
+              - md:ExtendedConfigurationObject
+      yaml:
+        kind: mapping
+        fields:
+          - field: name
+            key: name
+          - field: uuid
+            key: uuid
+          - field: base
+            key: base
+    presence:
+      - target:
+          field: base
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+  - format: nkdk-declarations/1
+    kind: value
+    id: migration.journal-columns-identities
+    imports:
+      row: migration.journal-child-identity-row
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    value:
+      kind: sequence
+      item:
+        use: row
+    representations:
+      xml:
+        kind: element-sequence
+        path:
+          - md:Column
+        item:
+          kind: declared
+      yaml:
+        kind: sequence
+        item:
+          kind: declared
+    presence:
+      - target: self
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+  - format: nkdk-declarations/1
+    kind: value
+    id: migration.journal-commands-identities
+    imports:
+      row: migration.journal-child-identity-row
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    value:
+      kind: sequence
+      item:
+        use: row
+    representations:
+      xml:
+        kind: element-sequence
+        path:
+          - md:Command
+        item:
+          kind: declared
+      yaml:
+        kind: sequence
+        item:
+          kind: declared
+    presence:
+      - target: self
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+  - format: nkdk-declarations/1
+    kind: object
+    id: migration.journal-columns-identity-source
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      columns: migration.journal-columns-identities
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      ownerIdentity:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: columns
+          type:
+            use: columns
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: columns
+            path:
+              - md:MetaDataObject
+              - md:DocumentJournal
+              - md:ChildObjects
+      yaml:
+        kind: mapping
+        fields:
+          - field: columns
+            key: columns
+    presence:
+      - target:
+          field: columns
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+    contributions:
+      - index: metadata.own-identities
+        forEach:
+          in:
+            field: columns
+          as: row
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: ownerIdentity
+            kind:
+              literal: Column
+            name:
+              get:
+                of:
+                  var: row
+                field: name
+        value:
+          get:
+            of:
+              var: row
+            field: uuid
+      - index: metadata.base-identities
+        forEach:
+          in:
+            field: columns
+          as: row
+        when:
+          present:
+            get:
+              of:
+                var: row
+              field: base
+        key:
+          record:
+            component:
+              input: component
+            identity:
+              get:
+                of:
+                  var: row
+                field: uuid
+        value:
+          get:
+            of:
+              var: row
+            field: base
+  - format: nkdk-declarations/1
+    kind: object
+    id: migration.journal-commands-identity-source
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      commands: migration.journal-commands-identities
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      ownerIdentity:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: commands
+          type:
+            use: commands
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: commands
+            path:
+              - md:MetaDataObject
+              - md:DocumentJournal
+              - md:ChildObjects
+      yaml:
+        kind: mapping
+        fields:
+          - field: commands
+            key: commands
+    presence:
+      - target:
+          field: commands
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+    contributions:
+      - index: metadata.own-identities
+        forEach:
+          in:
+            field: commands
+          as: row
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: ownerIdentity
+            kind:
+              literal: Command
+            name:
+              get:
+                of:
+                  var: row
+                field: name
+        value:
+          get:
+            of:
+              var: row
+            field: uuid
+      - index: metadata.base-identities
+        forEach:
+          in:
+            field: commands
+          as: row
+        when:
+          present:
+            get:
+              of:
+                var: row
+              field: base
+        key:
+          record:
+            component:
+              input: component
+            identity:
+              get:
+                of:
+                  var: row
+                field: uuid
+        value:
+          get:
+            of:
+              var: row
+            field: base
+      - index: metadata.path-children
+        forEach:
+          in:
+            field: commands
+          as: row
+        key:
+          record:
+            parent:
+              input: ownerIdentity
+            kind:
+              literal: Command
+            name:
+              get:
+                of:
+                  var: row
+                field: name
+        value:
+          get:
+            of:
+              var: row
+            field: uuid
+  - format: nkdk-declarations/1
+    kind: object
+    id: migration.journal-columns-base-source
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      columns: migration.journal-columns-identities
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      ownerIdentity:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: columns
+          type:
+            use: columns
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: columns
+            path:
+              - md:MetaDataObject
+              - md:DocumentJournal
+              - md:ChildObjects
+      yaml:
+        kind: mapping
+        fields:
+          - field: columns
+            key: columns
+    presence:
+      - target:
+          field: columns
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+    contributions:
+      - index: metadata.base-identities
+        forEach:
+          in:
+            field: columns
+          as: row
+        when:
+          present:
+            get:
+              of:
+                var: row
+              field: base
+        key:
+          record:
+            component:
+              input: component
+            identity:
+              get:
+                of:
+                  var: row
+                field: uuid
+        value:
+          get:
+            of:
+              var: row
+            field: base
+  - format: nkdk-declarations/1
+    kind: object
+    id: migration.journal-commands-base-source
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      commands: migration.journal-commands-identities
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      ownerIdentity:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: commands
+          type:
+            use: commands
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: commands
+            path:
+              - md:MetaDataObject
+              - md:DocumentJournal
+              - md:ChildObjects
+      yaml:
+        kind: mapping
+        fields:
+          - field: commands
+            key: commands
+    presence:
+      - target:
+          field: commands
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+    contributions:
+      - index: metadata.base-identities
+        forEach:
+          in:
+            field: commands
+          as: row
+        when:
+          present:
+            get:
+              of:
+                var: row
+              field: base
+        key:
+          record:
+            component:
+              input: component
+            identity:
+              get:
+                of:
+                  var: row
+                field: uuid
+        value:
+          get:
+            of:
+              var: row
+            field: base

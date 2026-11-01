@@ -1,0 +1,72 @@
+format: nkdk-declarations/1
+kind: value
+id: common.type-form-link-with-empty
+imports:
+  link: common.type-form-link
+  empty: common.metadata-link-empty
+  root: common.path-root
+  item: common.type-description-item
+inputs:
+  roots:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: kind
+            type:
+              use: root
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  forms:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: parent
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  typeItems:
+    type:
+      kind: sequence
+      item:
+        use: item
+        with:
+          metadataAttributeTypesOnly: true
+value:
+  kind: choice
+  variants:
+    - name: link
+      type:
+        use: link
+        bind:
+          roots:
+            input: roots
+          forms:
+            input: forms
+          typeItems:
+            input: typeItems
+    - name: empty
+      type:
+        use: empty
+representations:
+  xml:
+    kind: choice
+    fallback: link
+  yaml:
+    kind: choice
+    fallback: link

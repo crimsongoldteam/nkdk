@@ -1,0 +1,27 @@
+format: nkdk-declarations/1
+kind: value
+id: common.dcs-order-item-auto
+imports:
+  label: common.dcs-order-item-auto-label
+value:
+  kind: record
+  fields:
+    - name: label
+      type:
+        use: label
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: label
+        path: []
+  yaml:
+    kind: projection
+    field: label
+presence:
+  - target:
+      field: label
+    xml:
+      missing:
+        denotes:
+          literal: Auto

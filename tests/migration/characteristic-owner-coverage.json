@@ -1,0 +1,102 @@
+{
+  "assembled": [
+    "xmlRoot",
+    "internalInfo",
+    "uuid",
+    "name",
+    "synonym",
+    "comment",
+    "useStandardCommands",
+    "includeHelpInContents",
+    "characteristicExtValues",
+    "type",
+    "hierarchical",
+    "foldersOnTop",
+    "codeLength",
+    "codeAllowedLength",
+    "descriptionLength",
+    "codeSeries",
+    "checkUnique",
+    "autonumbering",
+    "defaultPresentation",
+    "standardAttributes",
+    "characteristics",
+    "predefinedDataUpdate",
+    "editType",
+    "quickChoice",
+    "choiceMode",
+    "inputByString",
+    "createOnInput",
+    "searchStringModeOnInputByString",
+    "choiceDataGetModeOnInputByString",
+    "fullTextSearchOnInputByString",
+    "choiceHistoryOnInput",
+    "defaultObjectForm",
+    "defaultFolderForm",
+    "defaultListForm",
+    "defaultChoiceForm",
+    "defaultFolderChoiceForm",
+    "auxiliaryObjectForm",
+    "auxiliaryFolderForm",
+    "auxiliaryListForm",
+    "auxiliaryChoiceForm",
+    "auxiliaryFolderChoiceForm",
+    "basedOn",
+    "dataLockFields",
+    "dataLockControlMode",
+    "fullTextSearch",
+    "objectPresentation",
+    "extendedObjectPresentation",
+    "listPresentation",
+    "extendedListPresentation",
+    "explanation",
+    "dataHistory",
+    "updateDataHistoryImmediatelyAfterWrite",
+    "executeAfterWriteDataHistoryVersionProcessing",
+    "objectBelonging",
+    "extendedConfigurationObject",
+    "attributes",
+    "tabularSections",
+    "forms",
+    "templates",
+    "commands",
+    "objectModule",
+    "managerModule",
+    "predefined",
+    "additionalIndexes",
+    "help"
+  ],
+  "pending": [],
+  "blockers": [
+    {
+      "reason": "owner-state-assembly-required"
+    },
+    {
+      "reason": "collection-extension-profile-required",
+      "properties": [
+        "attributes",
+        "tabularSections"
+      ]
+    },
+    {
+      "properties": [
+        "predefined"
+      ],
+      "reason": "file-extension-profile-required"
+    }
+  ],
+  "complete": false,
+  "collectionRequirements": [
+    {
+      "property": "attributes",
+      "ownerFactRole": "attributes",
+      "configurationIndexUidSegment": null,
+      "operationTarget": {
+        "kind": "namedCollectionTarget",
+        "targetKind": "attribute",
+        "migrationSegment": "Реквизит",
+        "requiresMigration": true
+      }
+    }
+  ]
+}

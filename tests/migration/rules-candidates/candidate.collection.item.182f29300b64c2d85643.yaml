@@ -1,0 +1,248 @@
+format: nkdk-declarations/1
+kind: value
+imports:
+  field0: common.string
+  field1: common.string
+  field2: common.dcs-local-string-type
+  field3: common.appearance-fields
+  field4: common.calculated-field-use-restriction
+  field5: common.dcs-available-values
+  field6: common.string
+  field7: common.calculated-field-order-expressions
+  field8: common.type-description
+value:
+  kind: record
+  fields:
+    - name: dataPath
+      type:
+        use: field0
+    - name: expression
+      type:
+        use: field1
+    - name: title
+      type:
+        use: field2
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+    - name: appearance
+      type:
+        use: field3
+        bind:
+          styleTypes:
+            input: styleTypes
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          labels:
+            input: labels
+          codes:
+            input: codes
+    - name: useRestriction
+      type:
+        use: field4
+        bind: {}
+    - name: availableValues
+      type:
+        use: field5
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+    - name: presentationExpression
+      type:
+        use: field6
+    - name: orderExpressions
+      type:
+        use: field7
+        bind: {}
+    - name: valueType
+      type:
+        use: field8
+        bind: {}
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: dataPath
+        path:
+          - dcssch:dataPath
+      - field: expression
+        path:
+          - dcssch:expression
+      - field: title
+        path:
+          - dcssch:title
+      - field: appearance
+        path:
+          - dcssch:appearance
+      - field: useRestriction
+        path:
+          - dcssch:useRestriction
+      - field: availableValues
+        path: []
+      - field: presentationExpression
+        path:
+          - dcssch:presentationExpression
+      - field: orderExpressions
+        path: []
+      - field: valueType
+        path:
+          - dcssch:valueType
+  yaml:
+    kind: mapping
+    fields:
+      - field: dataPath
+        key: ПутьКДанным
+      - field: expression
+        key: Выражение
+      - field: title
+        key: Заголовок
+      - field: availableValues
+        key: ДоступныеЗначения
+      - field: appearance
+        key: Оформление
+      - field: useRestriction
+        key: ОграничениеИспользования
+      - field: presentationExpression
+        key: ВыражениеПредставления
+      - field: orderExpressions
+        key: ВыраженияУпорядочивания
+      - field: valueType
+        key: ТипЗначения
+namespaces:
+  dcssch: http://v8.1c.ru/8.1/data-composition-system/schema
+presence:
+  - target:
+      field: dataPath
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: expression
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: title
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: appearance
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: useRestriction
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: presentationExpression
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: valueType
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  styleTypes:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  labels:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: code
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  codes:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: label
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+id: candidate.collection.item.182f29300b64c2d85643

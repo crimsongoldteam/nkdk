@@ -1,0 +1,132 @@
+format: nkdk-declarations/1
+kind: value
+id: common.calculated-field-use-restriction
+description: Допуск вычисляемого поля для поля, условия, группировки и порядка
+namespaces:
+  dcssch: http://v8.1c.ru/8.1/data-composition-system/schema
+imports:
+  flag: common.boolean
+value:
+  kind: record
+  fields:
+    - name: field
+      type:
+        use: flag
+    - name: condition
+      type:
+        use: flag
+    - name: group
+      type:
+        use: flag
+    - name: order
+      type:
+        use: flag
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: field
+        path:
+          - dcssch:field
+      - field: condition
+        path:
+          - dcssch:condition
+      - field: group
+        path:
+          - dcssch:group
+      - field: order
+        path:
+          - dcssch:order
+  yaml:
+    kind: mapping
+    fields:
+      - field: field
+        key: Поле
+      - field: condition
+        key: Условие
+      - field: group
+        key: Группировка
+      - field: order
+        key: Порядок
+presence:
+  - target: self
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: field
+    xml:
+      missing:
+        denotes:
+          literal: false
+      canonical:
+        - when:
+            not:
+              field: field
+          form: missing
+    yaml:
+      missing:
+        denotes:
+          literal: false
+      omitWhen:
+        not:
+          field: field
+  - target:
+      field: condition
+    xml:
+      missing:
+        denotes:
+          literal: false
+      canonical:
+        - when:
+            not:
+              field: condition
+          form: missing
+    yaml:
+      missing:
+        denotes:
+          literal: false
+      omitWhen:
+        not:
+          field: condition
+  - target:
+      field: group
+    xml:
+      missing:
+        denotes:
+          literal: false
+      canonical:
+        - when:
+            not:
+              field: group
+          form: missing
+    yaml:
+      missing:
+        denotes:
+          literal: false
+      omitWhen:
+        not:
+          field: group
+  - target:
+      field: order
+    xml:
+      missing:
+        denotes:
+          literal: false
+      canonical:
+        - when:
+            not:
+              field: order
+          form: missing
+    yaml:
+      missing:
+        denotes:
+          literal: false
+      omitWhen:
+        not:
+          field: order

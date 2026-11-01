@@ -1,3 +1,4 @@
+import {formColumnCases} from './form-column-cases.mjs';
 import { sourceContract } from './source-contract.mjs';
 import { propertyContract,propertyContractSignature } from './property-contract.mjs';
 import { execFileSync } from 'node:child_process';
@@ -111,7 +112,7 @@ if(choiceTable.rows[2]?.[1]!=='42' || choiceTable.rows[3]?.[1]!==42 || !choiceTa
 for(const [index,typed] of [[2,false],[3,true]]) {
  const [original,value]=choiceTable.rows[index];
  const xml=original.replaceAll('Value','ReportResult').replace('<ReportResult','<ReportResult xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema"');
- const expected=typed?'РезультатОтчета: !xml/raw\n'+yaml.dump({'$значение':value,'$xml':{'_{http://www.w3.org/2001/XMLSchema-instance}type':'{http://www.w3.org/2001/XMLSchema}decimal','#text':'42'}}).trimEnd().split('\n').map(line=>'  '+line).join('\n'):yaml.dump({'РезультатОтчета':value}).trimEnd();
+ const expected=typed?'РезультатОтчета: !xml/raw\n'+yaml.dump({'$значение':value,'$xml':{'#replace':'true','_{http://www.w3.org/2001/XMLSchema-instance}type':'{http://www.w3.org/2001/XMLSchema}decimal','#text':'42'}}).trimEnd().split('\n').map(line=>'  '+line).join('\n'):yaml.dump({'РезультатОтчета':value}).trimEnd();
  cases.push({id:`string-or-number-${typed?'number':'text'}`,entry:choiceEntry,xml,yaml:expected,source:[choiceTable.source],contract:'Independent legacy literal preserves text versus number; the existing scalar-choice raw contract retains the noncanonical numeric XML type'});
 }
 const formTagProjection=manifest.entries.find(row=>row.symbol==='ClientApplicationFormRules')?.projections.find(row=>row.fields.includes('autoTitle'));
@@ -130,7 +131,7 @@ for(const alternatePrefix of [false,true])cases.push({id:`qualified-view-mode-${
 const formSource=sourceContract(manifest.entries.find(row=>row.symbol==='ClientApplicationFormRules'),'Form',catalog,'Form');
 for(const module of formSource.modules) {catalog.set(module.id,module);derivedTexts.set(module.id,yaml.dump(module));}
 selected.push(catalog.get(formSource.entry));derivedProjections.push(formSource.source);
-if(formSource.fields.some(field=>field.xmlPath.length!==2))throw new Error('Form source contract needs direct child paths');
+if(formSource.fields.some(field=>field.xmlPath.length<2 || field.xmlPath[0]!=='Form'))throw new Error('Unexpected Form source property path');
 const metadataSource=sourceContract(manifest.entries.find(row=>row.symbol==='ClientApplicationFormRules'),'Metadata',catalog);
 for(const module of metadataSource.modules) {catalog.set(module.id,module);derivedTexts.set(module.id,yaml.dump(module));}
 selected.push(catalog.get(metadataSource.entry));derivedProjections.push(metadataSource.source);
@@ -143,7 +144,7 @@ for(const [id,xml,yamlPath] of [
 ]) {
  const formSourceOwner=rootSnapshot.forms.find(row=>row.source===xml.replace('/Ext/Form.xml','.xml'));
  if(!formSourceOwner || createHash('sha256').update(source(formSourceOwner.source)).digest('hex')!==formSourceOwner.sha256)throw new Error('Missing or stale form owner');
- const [data]=JSON.parse(execFileSync('python3',['tools/rules-migration/src/project-fixtures.py'],{input:JSON.stringify([{xml,yaml:yamlPath,sourceRoot:true,root:'Form',namespace:'http://v8.1c.ru/8.3/xcf/logform',fields:formSource.fields.map(field=>({xml:field.xmlPath[1],yaml:field.yaml}))}]),encoding:'utf8'}));
+ const [data]=JSON.parse(execFileSync('python3',['tools/rules-migration/src/project-fixtures.py'],{input:JSON.stringify([{xml,yaml:yamlPath,sourceRoot:true,root:'Form',namespace:'http://v8.1c.ru/8.3/xcf/logform',fields:formSource.fields.map(field=>({xml:field.xmlPath.slice(1),yaml:field.yaml,...(field.qname?{qname:true}:{}),...(field.namespace?{namespace:field.namespace}:{})}))}]),encoding:'utf8'}));
  cases.push({id,entry:formSource.entry,...data,source:[...data.source,{path:formSourceOwner.source,sha256:formSourceOwner.sha256}],sourceTag:'Form',inputs:{defaultLanguage:'ru',registeredLanguages:['ru','en'],ownerName:formSourceOwner.name},adaptation:'Combine supported properties of the Form XML source in declaration order; full source remainder is explicitly omitted'});
  const [metadata]=JSON.parse(execFileSync('python3',['tools/rules-migration/src/project-fixtures.py'],{input:JSON.stringify([{xml:formSourceOwner.source,yaml:yamlPath,fields:metadataSource.fields.map(field=>({xml:field.xmlPath[2],yaml:field.yaml}))}]),encoding:'utf8'}));
  const metadataInputs={defaultLanguage:'ru',registeredLanguages:['ru','en'],ownerName:formSourceOwner.name};
@@ -180,13 +181,42 @@ for(const [index,row] of fixture.data.entries()) {
  cases.push({id:`i8n-${index}`,entry:text,source:[fixture.source],xml:row.xml.replace('<Title>','<Title xmlns:v8="http://v8.1c.ru/8.1/data/core">'),yaml:yaml.dump({'Заголовок':row.fullYAML}).trimEnd(),inputs:{defaultLanguage:'ru',registeredLanguages:['ru','en','de'],ownerName:'НесовпадающееИмя'},adaptation:'Explicit namespace from legacy context; fullYAML literal expectation'});
 }
 for(const value of ['9007199254740993','9007199254740993.125'])cases.push({id:`exact-${value}`,entry:number,xml:`<Width>${value}</Width>`,yaml:`Ширина: ${value}`,source:[{path:'rust/crates/compiled-rules/tests/scalars.rs'}],contract:'Approved exact decimals; intentionally differs from TS binary floating point'});
-for(const value of ['', '0',' true '])cases.push({id:`boolean-anomaly-${JSON.stringify(value)}`,entry:bool,xml:`<Turnover>${value}</Turnover>`,yaml:'Turnover: !xml/raw\n'+yaml.dump({'$xml':value}).trimEnd().split('\n').map(line=>'  '+line).join('\n'),...(value===''?{reverseYAML:'Turnover: !xml/raw\n  $xml: {}'}:{}),source:[{path:'rust/crates/conversion-core/tests/raw_property.rs'},{path:'rust/crates/conversion-core/src/xml/tree/patch.rs'}],contract:'Approved inferred anomaly without semantic value uses physical XML key; existing raw_property contract with full literal payload expectation; independent reverse and cold XML restoration'});
+for(const value of ['', '0',' true '])cases.push({id:`boolean-anomaly-${JSON.stringify(value)}`,entry:bool,xml:`<Turnover>${value}</Turnover>`,yaml:'Turnover: !xml/raw\n'+yaml.dump({'$xml':{'#replace':'true','#text':value}}).trimEnd().split('\n').map(line=>'  '+line).join('\n'),...(value===''?{reverseYAML:'Turnover: !xml/raw\n  $xml: {}'}:{}),source:[{path:'rust/crates/conversion-core/tests/raw_property.rs'},{path:'rust/crates/conversion-core/src/xml/tree/patch.rs'}],contract:'Approved inferred anomaly without semantic value uses physical XML key; existing raw_property contract with full literal payload expectation; independent reverse and cold XML restoration'});
 source('rust/crates/conversion-core/tests/raw_property.rs');
 source('rust/crates/conversion-core/src/xml/tree/patch.rs');
 source('rust/crates/compiled-rules/tests/scalars.rs');
 cases.push(...i8nContracts(JSON.parse(source('tests/migration/i8n-full-round-trip-observations.json')),text));
 cases.push(...i8nContracts(JSON.parse(source('tests/migration/i8n-full-round-trip-observations.json')),synonym,2));
 cases.push({id:'i8n-absent-with-known-name',entry:synonym,xml:'<Properties/>',yaml:'Синоним: !xml/raw\n  $значение: {}\n  $xml: null',inputs:{defaultLanguage:'ru',registeredLanguages:['ru','en'],ownerName:'TestName'},source:[{path:'rust/declarations/common/i8n-text.yaml'}],contract:'Empty mapping denotes absent meaning; raw null removes the declared default empty XML element; omitted YAML derives the known name'});
+const attributeTitle=select('FormAttributeRules','title','Attribute');
+const columnTitle=select('FormAttributeColumnRules','title','Attribute');
+if(propertyContractSignature(catalog.get(attributeTitle))!==propertyContractSignature(catalog.get(columnTitle)))
+ throw new Error('Form attribute and column title contracts differ');
+sharedProfiles.push({coveredBy:attributeTitle,source:derivedProjections.at(-1),
+ signatureSHA256:createHash('sha256').update(propertyContractSignature(catalog.get(attributeTitle))).digest('hex'),
+ scope:'Shared title only; complete form attribute and column owners remain separate'});
+const titleInputs={defaultLanguage:'ru',registeredLanguages:['ru','en'],ownerName:'Отступ'};
+const titleSource='packages/rules/metadata/forms/commonObjects/formAttribute/rules.ts';
+source(titleSource);
+for(const [id,xml,expected,noRaw] of [
+ ['missing','<Attribute/>','Заголовок: ""',true],
+ ['name','<Attribute xmlns:v8="http://v8.1c.ru/8.1/data/core"><Title><v8:item><v8:lang>ru</v8:lang><v8:content>Отступ</v8:content></v8:item></Title></Attribute>','',true],
+ ['custom','<Attribute xmlns:v8="http://v8.1c.ru/8.1/data/core"><Title><v8:item><v8:lang>ru</v8:lang><v8:content>Пояснение</v8:content></v8:item></Title></Attribute>','Заголовок: Пояснение',true],
+ ['empty-element','<Attribute><Title/></Attribute>','Заголовок: !xml/raw\n  $значение: ""\n  $xml: ""',false],
+])cases.push({id:'form-attribute-title-'+id,entry:attributeTitle,xml,yaml:expected,inputs:titleInputs,noRaw,
+ source:[{path:titleSource}],contract:'Reviewed XML missing empty translation; existing YAML name default; empty-element shape preserved automatically'});
+const titleFixturePath='packages/rules/metadata/forms/commonObjects/formAttribute/__fixtures__/mixedColumns.xml';
+const titleFixture=source(titleFixturePath);
+const columnTitles=[...titleFixture.matchAll(/<Column name="([^"]+)"[^>]*>([\s\S]*?)<\/Column>/g)];
+if(columnTitles.length!==2)throw new Error('Changed mixed column fixture');
+for(const [position,match] of columnTitles.entries()) {
+ const title=match[2].match(/<Title>[\s\S]*?<\/Title>/)?.[0];
+ if(!title?.includes(`<v8:content>${match[1]}</v8:content>`))throw new Error('Changed independent column title');
+ cases.push({id:'form-attribute-title-real-'+position,entry:columnTitle,
+  xml:'<Attribute xmlns:v8="http://v8.1c.ru/8.1/data/core">'+title+'</Attribute>',yaml:'',
+  inputs:{...titleInputs,ownerName:match[1]},noRaw:true,source:[{path:titleFixturePath}],
+  adaptation:'Unchanged Title subtree in a synthetic Attribute placement; other column properties and full owner are not tested here'});
+}
 const formattedPath=base+'formattedI8nText/__fixtures__/data.ts';
 const formattedFixture=literalFixture(formattedPath,source(formattedPath),'formattedI8nTextFixtures');
 const formattedSeen=new Set();
@@ -209,6 +239,13 @@ for(const [field,xmlName,key] of [['indexedFields','IndexedFields','Индекс
  cases.push({id:`index-${field}`,entry,...xml,yaml:yaml.dump({[key]:indexExpected[key]}).trimEnd(),contract:'Original full.xml subtree and literal integration-test expectation; property wrapper namespace is supplied by the future owner'});
 }
 const owners=ownerContracts(manifest,catalog,rootSnapshot);
+// Independent compatibility update already covered by characteristics-empty:
+// the old fixture YAML omitted this XML state and could not restore it.
+const documentDefault=owners.cases.find(row=>row.id==='e2e-properties-ДокументПоУмолчанию');
+if(!documentDefault || !/<Characteristics\s*\/>/.test(documentDefault.xml) || documentDefault.yaml.trim()!=='')
+ throw new Error('Changed default Document Characteristics expectation');
+documentDefault.yaml='Characteristics: !xml/raw\n  $xml: ""';
+documentDefault.adaptation+='; preserve the independently accepted empty Characteristics XML state';
 const httpDefault=owners.cases.find(row=>row.id==='e2e-properties-МетодПоУмолчанию');
 if(!httpDefault?.yaml.split('\n').includes('HTTPМетод: GET'))throw new Error('Changed independent HTTP method default expectation');
 httpDefault.reverseYAML=httpDefault.yaml.split('\n').filter(line=>line!=='HTTPМетод: GET').join('\n');
@@ -242,7 +279,7 @@ const fillValueFixtures=JSON.parse(execFileSync('python3',['tools/rules-migratio
 for(const [index,fixture] of fillValueFixtures.entries()) {
  const [family]=fillValueFamilies[index];
  const expectedYAML=family==='external-field'
-   ? 'Тип: ДвоичныеДанные\nЗначение: !xml/raw\n  $значение: \'\'\n  $xml:\n    _{http://www.w3.org/2001/XMLSchema-instance}type: \'{http://v8.1c.ru/8.1/data/core}Null\''
+   ? 'Тип: ДвоичныеДанные\nЗначение: !xml/raw\n  $значение: \'\'\n  $xml:\n    "#replace": "true"\n    _{http://www.w3.org/2001/XMLSchema-instance}type: \'{http://v8.1c.ru/8.1/data/core}Null\''
    : fixture.yaml.replace(/^ЗначениеЗаполнения:/m,'Значение:');
  cases.push({id:`fill-value-family-${family}`,entry:fillValueProfile.id,
    xml:fixture.xml.replace('<Properties','<Root').replace('</Properties>','</Root>').replaceAll('<FillValue','<Value').replaceAll('</FillValue>','</Value>'),
@@ -1279,20 +1316,21 @@ const [numeratorXML]=JSON.parse(execFileSync('python3',['tools/rules-migration/s
 cases.push({id:'numerator-existing',entry:numerator,xml:`<Properties>${numeratorXML.xml}</Properties>`,yaml:numeratorExpected,factBindings:{roots:'metadata.roots'},source:[...numeratorXML.source,{path:numeratorYAML}],contract:'Existing e2e numerator reference with an independently prepared metadata index'});
 cases.push({id:'numerator-missing-target',entry:numerator,xml:'<Properties><Numerator>DocumentNumerator.Missing</Numerator></Properties>',yaml:'Нумератор: !xml/invalid Missing',factBindings:{roots:'metadata.roots'},contract:'A well-formed reference to an absent numerator is a semantic anomaly'});
 const group=select('MetadataCommonCommandRules','group');
-cases.push({id:'group-typed-wrapper',entry:group,xml:'<Properties xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable"><Group xsi:type="xr:MDObjectRef">NavigationPanelImportant</Group></Properties>',yaml:'Группа: !xml/raw\n'+yaml.dump({'$значение':'ПанельНавигацииВажное','$xml':{'_{http://www.w3.org/2001/XMLSchema-instance}type':'{http://v8.1c.ru/8.3/xcf/readable}MDObjectRef','#text':'NavigationPanelImportant'}}).trimEnd().split('\n').map(line=>'  '+line).join('\n'),factBindings:{roots:'metadata.roots'},contract:'Exceptional typed wrapper uses the existing raw subtree contract; ordinary spelling comes from e2e CommonCommand'});
+cases.push({id:'group-typed-wrapper',entry:group,xml:'<Properties xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable"><Group xsi:type="xr:MDObjectRef">NavigationPanelImportant</Group></Properties>',yaml:'Группа: !xml/raw\n'+yaml.dump({'$значение':'ПанельНавигацииВажное','$xml':{'#replace':'true','_{http://www.w3.org/2001/XMLSchema-instance}type':'{http://v8.1c.ru/8.3/xcf/readable}MDObjectRef','#text':'NavigationPanelImportant'}}).trimEnd().split('\n').map(line=>'  '+line).join('\n'),factBindings:{roots:'metadata.roots'},contract:'Exceptional typed wrapper uses the existing raw subtree contract; ordinary spelling comes from e2e CommonCommand'});
 cases.push({id:'group-missing-target',entry:group,xml:'<Properties><Group>CommandGroup.Missing</Group></Properties>',yaml:'Группа: !xml/invalid ГруппаКоманд.Missing',factBindings:{roots:'metadata.roots'},source:[{path:'rust/crates/compiled-rules/tests/path_lexicons.rs'}],contract:'Existing absent-target constraint becomes a semantic anomaly; no special object handler'});
 source('rust/crates/compiled-rules/tests/path_lexicons.rs');
 const groupObservations=JSON.parse(source('tests/migration/command-group-e2e.json'));
 for(const row of groupObservations.rows)if(createHash('sha256').update(readFileSync(row.source)).digest('hex')!==row.sha256)throw new Error(`Stale command Group observation: ${row.source}`);
 const factSources=[];
 const escape=text=>text.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
-for(const [collection,kinds,fields] of [
- ['roots',['CommandGroup','CommonForm','DocumentNumerator','Document','ChartOfAccounts','ExternalDataSource','ExchangePlan','Catalog','ChartOfCharacteristicTypes','BusinessProcess','ChartOfCalculationTypes','Task'],['kind','name','identity']],
- ['children',['Table'],['kind','name','parent','identity']],
+for(const [collection,kinds,fields,providerKind] of [
+ ['roots',['CommandGroup','CommonForm','DocumentNumerator','Document','ChartOfAccounts','ExternalDataSource','ExchangePlan','Catalog','ChartOfCharacteristicTypes','BusinessProcess','ChartOfCalculationTypes','Task','AccumulationRegister','AccountingRegister','CalculationRegister','InformationRegister'],['kind','name','identity'],'root'],
+ ['forms',null,['parent','name','identity'],'form'],
+ ['children',['Table'],['kind','name','parent','identity'],'child'],
 ]) {
- const providerText=source(`rust/declarations/probes/metadata-${collection==='roots'?'root':'child'}-index.yaml`),provider=yaml.load(providerText);
+ const providerText=source(`rust/declarations/probes/metadata-${providerKind}-index.yaml`),provider=yaml.load(providerText);
  catalog.set(provider.id,provider);derivedTexts.set(provider.id,providerText);selected.push(provider);
- for(const row of rootSnapshot[collection].filter(row=>kinds.includes(row.kind))) {
+ for(const row of rootSnapshot[collection].filter(row=>kinds===null || kinds.includes(row.kind))) {
   if(createHash('sha256').update(readFileSync(row.source)).digest('hex')!==row.sha256)throw new Error(`Changed indexed fixture: ${row.source}`);
   sources.push({path:row.source,sha256:row.sha256});
   factSources.push({entry:provider.id,xml:'<Root>'+fields.map(field=>{const tag=field[0].toUpperCase()+field.slice(1);return `<${tag}>${escape(row[field])}</${tag}>`;}).join('')+'</Root>',source:row.source});
@@ -1305,8 +1343,13 @@ derivedTexts.set(definedTypeProvider.id,definedTypeProviderText);
 selected.push(definedTypeProvider);
 factSources.push({entry:definedTypeProvider.id,xml:definedTypeXML,inputs:{ownerName:'ОпределяемыйТипВсеСвойства',defaultLanguage:'ru',registeredLanguages:['ru','en']},source:definedTypeXmlPath});
 for(const [id,module] of baseCatalog)if(!catalog.has(id))catalog.set(id,module);
+const formColumns=formColumnCases(baseCatalog);
+for(const module of formColumns.modules) {catalog.set(module.id,module);selected.push(module);}
+for(const path of new Set(formColumns.cases.flatMap(row=>row.source.map(item=>item.path))))source(path);
+cases.push(...formColumns.cases);
+factSources.push(...formColumns.factSources);
 const modules=[...selected,...dependencyFiles(selected,catalog)];
-const files=Object.fromEntries(modules.map(m=>[m.id+'.yaml',derivedTexts.get(m.id)??manifest.generatedFiles[m.id+'.yaml']??yaml.dump(m)]));
+const files=Object.fromEntries(modules.map(m=>[m.id+'.yaml',derivedTexts.get(m.id)??manifest.generatedFiles[m.id+'.yaml']??yaml.dump(m,{noRefs:true})]));
 writeCandidates('tests/migration/rules-contract-catalog',files,{status:'test-only',derivedProjections,entries:selected.map(m=>m.id)});
 const result={version:1,status:'limited-profile; original tests retained',derivedProjections,sharedProfiles,factSources,sources,cases,pendingRows,pending:['Dynamic test helpers and unselected tables','I8nText profiles absent from one-property candidates; complete-owner integration','Typed scalar XML and old invalid-input exceptions','Date timezone, invalid and empty-state contracts need candidate coverage','Full owners and other collection families; e2e integration'],xmlEquality:'Namespace-aware structure; no source XML reference passed to reverse operation'};
 writeFileSync('tests/migration/rules-contract-cases.json',JSON.stringify(result,null,2)+'\n');

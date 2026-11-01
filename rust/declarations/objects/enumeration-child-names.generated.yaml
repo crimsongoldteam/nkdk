@@ -1,0 +1,38 @@
+# Generated from rules.ts by tools/rules-migration/src/child-names-operation.mjs
+format: nkdk-declarations/1
+kind: object
+id: migration.enumeration-child-names
+imports:
+  part: fragment.enumeration-child-names
+inputs:
+  forms:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  templates:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+compose:
+  - use: part
+    bind:
+      forms:
+        input: forms
+      templates:
+        input: templates
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []
+namespaces:
+  md: http://v8.1c.ru/8.3/MDClasses

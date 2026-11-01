@@ -17,7 +17,7 @@ pub(super) fn resolve(
     )
 }
 
-fn resolve_scoped(
+pub(super) fn resolve_scoped(
     module: &Module,
     expression: &Expression,
     expected: &LinkedType,
@@ -41,11 +41,23 @@ fn resolve_scoped(
     let (kind, value_type) = match &expression.kind {
         ExpressionKind::Absent => (LinkedExpressionKind::Absent, LinkedType::Absent),
         ExpressionKind::ParseYaml(value) => {
-            if !matches!(expected_shape, LinkedType::Choice(_)) {
+            if !matches!(
+                expected_shape,
+                LinkedType::Choice(_) | LinkedType::Sequence(_)
+            ) {
                 return Err(type_error(expression));
             }
             let selected = expressions::resolve_expression_in(module, value, modules, ids, scope)?;
-            if !matches!(selected.value_type, LinkedType::Scalar(ScalarType::Text)) {
+            let compatible = match &expected_shape {
+                LinkedType::Choice(_) => {
+                    selected.value_type == LinkedType::Scalar(ScalarType::Text)
+                }
+                LinkedType::Sequence(_) => {
+                    matches!(&selected.value_type, LinkedType::Sequence(item) if **item == LinkedType::Scalar(ScalarType::Text))
+                }
+                _ => false,
+            };
+            if !compatible {
                 return Err(type_error(value));
             }
             (
@@ -110,11 +122,11 @@ fn resolve_scoped(
             let arguments = items
                 .iter()
                 .map(|value| {
-                    let result = resolve_scoped(module, value, expected, modules, ids, scope)?;
-                    if !expressions::same_type(&result.value_type, expected) {
+                    let resolved = resolve_scoped(module, value, expected, modules, ids, scope)?;
+                    if resolved.value_type == LinkedType::Absent {
                         return Err(type_error(value));
                     }
-                    Ok(result)
+                    Ok(resolved)
                 })
                 .collect::<Result<_, Diagnostic>>()?;
             (
@@ -155,7 +167,7 @@ fn resolve_scoped(
                     &format!("Record denotation expected a record target, got {expected_shape:?}"),
                 ));
             };
-            if fields.len() != expected_fields.len() {
+            if !fields.is_empty() && fields.len() != expected_fields.len() {
                 return Err(diagnostic(
                     "expression_type_mismatch",
                     &expression.source,
@@ -166,6 +178,16 @@ fn resolve_scoped(
                     ),
                 ));
             }
+            if fields.is_empty() && !expected_fields.is_empty() {
+                return Ok(LinkedExpression {
+                    kind: LinkedExpressionKind::Operation {
+                        operator: LinkedOperator::Record(Vec::new()),
+                        arguments: Vec::new(),
+                    },
+                    value_type: expected.clone(),
+                    source: expression.source.clone(),
+                });
+            }
             let arguments = expected_fields
                 .iter()
                 .map(|field| {
@@ -175,7 +197,11 @@ fn resolve_scoped(
                         .ok_or_else(|| type_error(expression))?;
                     let result =
                         resolve_scoped(module, &value.value, &field.value, modules, ids, scope)?;
-                    if !expressions::same_type(&result.value_type, &field.value) {
+                    // Absence is a semantic state in denotations, also inside a
+                    // record. Concrete values must still match the field type.
+                    if !matches!(result.kind, LinkedExpressionKind::Absent)
+                        && !expressions::same_type(&result.value_type, &field.value)
+                    {
                         return Err(diagnostic(
                             "expression_type_mismatch",
                             &value.value.source,

@@ -1,17 +1,56 @@
+# Generated from packages/rules/metadata/commonObjects/additionalIndex/rules.ts by file-envelope-operation.mjs
 format: nkdk-declarations/1
 kind: object
 id: migration.additional-indexes
-imports: {indexes: common.additional-indexes}
-namespaces: {x: 'http://v8.1c.ru/8.3/xcf/extrnprops'}
+imports:
+  indexes: common.additional-indexes
+namespaces:
+  x: http://v8.1c.ru/8.3/xcf/extrnprops
 inputs:
-  owner: {type: {kind: scalar, scalar: text}}
-  identities: {index: metadata.additional-index-ids}
-value: {kind: record, fields: [{name: indexes, type: {use: indexes, bind: {owner: {input: owner}, identities: {input: identities}}}}]}
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  identities:
+    index: metadata.additional-index-ids
+value:
+  kind: record
+  fields:
+    - name: indexes
+      type:
+        use: indexes
+        bind:
+          owner:
+            input: owner
+          identities:
+            input: identities
 representations:
-  xml: {kind: record, fields: [{field: indexes, path: [x:AdditionalIndexes]}]}
-  yaml: {kind: projection, field: indexes}
+  xml:
+    kind: record
+    fields:
+      - field: indexes
+        path:
+          - x:AdditionalIndexes
+  yaml:
+    kind: projection
+    field: indexes
 contributions:
-- index: metadata.additional-index-ids
-  forEach: {in: {field: indexes}, as: row}
-  key: {record: {owner: {input: owner}, name: {get: {of: {var: row}, field: name}}}}
-  value: {get: {of: {var: row}, field: id}}
+  - index: metadata.additional-index-ids
+    forEach:
+      in:
+        field: indexes
+      as: row
+    key:
+      record:
+        owner:
+          input: owner
+        name:
+          get:
+            of:
+              var: row
+            field: name
+    value:
+      get:
+        of:
+          var: row
+        field: id

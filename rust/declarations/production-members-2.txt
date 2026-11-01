@@ -1,0 +1,3 @@
+# Ownership of current member source partition 1.
+objects/input-by-string-members-1.generated.yaml
+objects/catalog-attribute-sources.generated.yaml

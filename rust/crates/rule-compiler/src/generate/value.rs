@@ -6,6 +6,7 @@ use std::fmt::Write;
 pub(super) struct InputScope {
     inherited: usize,
     fields: Vec<(usize, usize)>,
+    choices: BTreeSet<usize>,
     orders: [Vec<usize>; 2],
 }
 impl InputScope {
@@ -34,25 +35,49 @@ impl InputScope {
                 .expect("partitioned owner field")
         };
         let mut captured = Vec::new();
+        let mut choices = BTreeSet::new();
         for &field in captures {
             let capture = location(field as usize);
-            if super::declared_items::applies(&parts[capture.0], program) {
+            if super::choice_value::applies(&parts[capture.0], program) {
+                choices.insert(captured.len());
                 captured.push(capture);
                 continue;
             }
-            let borrowed_record = fields[field as usize]
+            let local;
+            let captured_part = if matches!(&parts[capture.0].xml, LinkedXml::Record(fields) if fields.iter().any(|field| field.file.is_some()))
+            {
+                local = super::value_adapters::local_usage(&parts[capture.0], program)?;
+                &local
+            } else {
+                &parts[capture.0]
+            };
+            if super::declared_items::applies(captured_part, program) {
+                captured.push(capture);
+                continue;
+            }
+            let target = fields[field as usize]
                 .value
                 .as_reference()
-                .and_then(|(id, _, _)| program.entries.iter().find(|entry| entry.id == id))
-                .is_some_and(|entry| matches!(entry.value, LinkedType::Record(_)));
+                .and_then(|(id, _, _)| program.entries.iter().find(|entry| entry.id == id));
+            // The collection adapter already exposes these rows through
+            // input_field. Borrow that view instead of resolving a sequence
+            // as a scalar (which also imposes scalar-only presence rules).
+            if target.is_some_and(super::collections::borrowed_records) {
+                captured.push(capture);
+                continue;
+            }
+            let borrowed_record =
+                target.is_some_and(|entry| matches!(entry.value, LinkedType::Record(_)));
             if borrowed_record
-                && crate::plan::routes::record_usage(&parts[capture.0], program)?.is_some()
+                && crate::plan::routes::record_usage(captured_part, program)?.is_some()
             {
                 captured.push(capture);
                 continue;
             }
             let codec = scalar::Codec::resolve(&fields[field as usize].value, owner, program)?;
-            if codec.input_method().is_none() {
+            if codec.input_method().is_none()
+                && !matches!(&codec, scalar::Codec::Forms(choice) if choice.constructible())
+            {
                 return Err(unsupported(
                     owner,
                     "An input capture requires a borrowable scalar value",
@@ -74,6 +99,7 @@ impl InputScope {
         Ok(Self {
             inherited: owner.inputs.len(),
             fields: captured,
+            choices,
             orders,
         })
     }
@@ -91,8 +117,16 @@ impl InputScope {
         for slot in 0..self.inherited {
             write!(out, "inputs.slot({slot}),").unwrap();
         }
-        for &(part, field) in &self.fields {
+        for (slot, &(part, field)) in self.fields.iter().enumerate() {
             if ready.is_none_or(|ready| ready[part]) {
+                if self.choices.contains(&slot) {
+                    let input = super::choice_value::borrowed_input(
+                        &format!("part_{id}_{part}"),
+                        &format!("{prefix}p{part}"),
+                    );
+                    write!(out, "{input},").unwrap();
+                    continue;
+                }
                 write!(
                     out,
                     "part_{id}_{part}::input_field(&{prefix}p{part},{field}).or(Some(core::inputs::InputRef::MissingValue)),"

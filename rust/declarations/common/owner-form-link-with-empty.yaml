@@ -1,0 +1,15 @@
+format: nkdk-declarations/1
+kind: value
+id: common.owner-form-link-with-empty
+imports: {link: common.owner-form-link, empty: common.metadata-link-empty}
+inputs:
+  owner: {type: {kind: scalar, scalar: text}}
+  forms: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+value:
+  kind: choice
+  variants:
+  - {name: link, type: {use: link, bind: {owner: {input: owner}, forms: {input: forms}}}}
+  - {name: empty, type: {use: empty}}
+representations:
+  xml: {kind: choice}
+  yaml: {kind: choice, fallback: link}

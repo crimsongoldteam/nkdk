@@ -1,0 +1,154 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: common.dcs-typed-quoted-string
+  imports: {text: common.string}
+  value: {kind: record, fields: [{name: text, type: {use: text}}]}
+  representations:
+    xml: {kind: text-pattern, parts: [{field: text}]}
+    yaml: {kind: text-pattern, parts: [{literal: "'"}, {field: text}, {literal: "'"}]}
+- kind: value
+  id: common.dcs-typed-order
+  value: {kind: enum, variants: [{name: Order, value: order}]}
+  representations:
+    xml: {kind: text, values: [{value: order, text: ''}]}
+    yaml: {kind: scalar, values: [{value: order, literal: Порядок}]}
+- kind: value
+  id: common.dcs-typed-empty-value-type
+  value: {kind: enum, variants: [{name: Empty, value: empty}]}
+  representations:
+    xml: {kind: text, values: [{value: empty, text: ''}]}
+    yaml: {kind: scalar, values: [{value: empty, literal: ''}]}
+- kind: value
+  id: common.dcs-typed-empty-list-id
+  namespaces: {xsi: http://www.w3.org/2001/XMLSchema-instance, xs: http://www.w3.org/2001/XMLSchema}
+  value: {kind: enum, variants: [{name: MinusOne, value: minus-one}]}
+  representations:
+    xml:
+      kind: with-attributes
+      attributes: [{name: xsi:type, value: {qname: xs:decimal}}]
+      content: {kind: text, values: [{value: minus-one, text: '-1'}]}
+    yaml: {kind: scalar, values: [{value: minus-one, literal: '-1'}]}
+- kind: value
+  id: common.dcs-typed-empty-value-list
+  namespaces: {v8: http://v8.1c.ru/8.1/data/core}
+  imports: {type: common.dcs-typed-empty-value-type, id: common.dcs-typed-empty-list-id}
+  value: {kind: record, fields: [{name: type, type: {use: type}}, {name: id, type: {use: id}}]}
+  representations:
+    xml: {kind: record, fields: [{field: type, path: [v8:valueType]}, {field: id, path: [v8:lastId]}]}
+    yaml:
+      kind: mapping
+      fields: [{field: type, key: ТипЗначений}, {field: id, key: ПоследнийИдентификатор}]
+      shorthand:
+      - id: empty-list
+        representation: {kind: scalar, literal: СписокЗначений}
+        denotes: {record: {type: {literal: empty}, id: {literal: minus-one}}}
+  presence:
+  - target: {field: type}
+    yaml: {missing: {denotes: {literal: empty}}}
+  - target: {field: id}
+    yaml: {missing: {denotes: {literal: minus-one}}}
+- kind: value
+  id: common.dcs-typed-empty-reference
+  enum:
+    Empty: {yaml: ПустаяСсылка, xml: ПустаяСсылка, accept: [EmptyRef]}
+- kind: value
+  id: common.dcs-typed-reference-member
+  imports: {empty: common.dcs-typed-empty-reference, name: common.metadata-name}
+  value: {kind: choice, variants: [{name: empty, type: {use: empty}}, {name: name, type: {use: name}}]}
+  representations: {xml: {kind: choice, fallback: name}, yaml: {kind: choice, fallback: name}}
+- kind: value
+  id: common.dcs-typed-reference
+  imports: {root: common.dcs-typed-reference-root, name: common.metadata-name, member: common.dcs-typed-reference-member}
+  value:
+    kind: record
+    fields: [{name: root, type: {use: root}}, {name: owner, type: {use: name}}, {name: member, type: {use: member}}]
+  representations:
+    xml: {kind: text-pattern, separator: '.', parts: [{field: root}, {field: owner}, {field: member}]}
+    yaml: {kind: text-pattern, separator: '.', parts: [{field: root}, {field: owner}, {field: member}]}
+- kind: value
+  id: common.dcs-typed-undefined-token
+  enum: {Undefined: {xml: Undefined, yaml: Неопределено}}
+- kind: value
+  id: common.dcs-typed-undefined
+  namespaces: {t: http://v8.1c.ru/8.2/data/types}
+  imports: {name: common.dcs-typed-undefined-token}
+  value: {kind: record, fields: [{name: name, type: {use: name}}]}
+  representations:
+    xml: {kind: text-pattern, parts: [{literal: 't:'}, {field: name}]}
+    yaml: {kind: text-pattern, parts: [{field: name}]}
+- kind: value
+  id: common.dcs-metadata-typed-value
+  namespaces:
+    xsi: http://www.w3.org/2001/XMLSchema-instance
+    xs: http://www.w3.org/2001/XMLSchema
+    v8: http://v8.1c.ru/8.1/data/core
+    dcscor: http://v8.1c.ru/8.1/data-composition-system/core
+    dcsset: http://v8.1c.ru/8.1/data-composition-system/settings
+    xr: http://v8.1c.ru/8.3/xcf/readable
+  imports:
+    undefined: common.dcs-typed-undefined
+    text: common.dcs-typed-quoted-string
+    order: common.dcs-typed-order
+    emptyList: common.dcs-typed-empty-value-list
+    field: common.dcs-filter-field
+    reference: common.dcs-typed-reference
+    decimal: common.exact-decimal
+    boolean: common.boolean
+    calendar: common.date-time-seconds
+    beginningDate: common.standard-beginning-date
+  value:
+    kind: choice
+    variants:
+    - {name: undefined, type: {use: undefined}}
+    - {name: text, type: {use: text}}
+    - {name: order, type: {use: order}}
+    - {name: emptyList, type: {use: emptyList}}
+    - {name: field, type: {use: field}}
+    - {name: reference, type: {use: reference}}
+    - {name: decimal, type: {use: decimal}}
+    - {name: boolean, type: {use: boolean}}
+    - {name: calendar, type: {use: calendar}}
+    - {name: beginningDate, type: {use: beginningDate}}
+  representations:
+    xml:
+      kind: choice
+      attribute: xsi:type
+      otherwise: text
+      variants:
+      - {variant: undefined, in: [v8:Type], emit: v8:Type}
+      - {variant: text, in: [xs:string], emit: xs:string}
+      - {variant: order, in: [dcsset:Order], emit: dcsset:Order}
+      - {variant: emptyList, in: [v8:ValueListType], emit: v8:ValueListType}
+      - {variant: field, in: [dcscor:Field], emit: dcscor:Field}
+      - {variant: reference, in: [dcscor:DesignTimeValue, xr:DesignTimeRef], emit: dcscor:DesignTimeValue}
+      - {variant: decimal, in: [xs:decimal], emit: xs:decimal}
+      - {variant: boolean, in: [xs:boolean], emit: xs:boolean}
+      - {variant: calendar, in: [xs:dateTime], emit: xs:dateTime}
+      - {variant: beginningDate, in: [v8:StandardBeginningDate], emit: v8:StandardBeginningDate}
+    yaml: {kind: choice, variants: [{variant: beginningDate, form: mapping, key: Вариант}, {variant: emptyList, form: mapping, key: ТипЗначений}]}
+
+- kind: value
+  id: common.dcs-typed-atom
+  namespaces: {xsi: http://www.w3.org/2001/XMLSchema-instance}
+  imports: {value: common.dcs-metadata-typed-value}
+  value: {kind: record, fields: [{name: value, type: {use: value}}]}
+  representations:
+    xml: {kind: record, fields: [{field: value, path: []}]}
+    yaml: {kind: projection, field: value}
+  presence:
+  - target: {field: value}
+    xml: {missing: {denotes: {absent: true}}, empty: [{form: nil, denotes: {absent: true}}]}
+    yaml: {missing: {denotes: {absent: true}}, empty: [{form: empty-mapping, denotes: {absent: true}}], omitWhen: {isVariant: {value: {field: value}, variant: undefined}}}
+- kind: value
+  id: common.dcs-typed-values
+  imports: {item: common.dcs-typed-atom}
+  value: {kind: sequence, item: {use: item}}
+  representations:
+    xml: {kind: element-sequence, path: []}
+    yaml: {kind: sequence, singleton: value}
+  presence:
+  - target: self
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}, empty: [{form: empty-sequence, denotes: {absent: true}}], omitWhen: {not: {exists: {in: {self: true}, as: item, where: {literal: true}}}}}

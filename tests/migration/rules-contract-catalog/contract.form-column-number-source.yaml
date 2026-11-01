@@ -1,0 +1,108 @@
+format: nkdk-declarations/1
+kind: object
+id: contract.form-column-number-source
+imports:
+  rows: source.form-column-rows
+value:
+  kind: record
+  fields:
+    - name: rows
+      type:
+        use: rows
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: rows
+        path:
+          - f:Columns
+  yaml:
+    kind: mapping
+    fields:
+      - field: rows
+        key: Обычные
+presence:
+  - target:
+      field: rows
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+inputs:
+  component:
+    type:
+      kind: scalar
+      scalar: text
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  parent:
+    type:
+      kind: scalar
+      scalar: text
+contributions:
+  - index: metadata.form-attribute-identities
+    forEach:
+      in:
+        field: rows
+      as: row
+      index: position
+    key:
+      record:
+        component:
+          input: component
+        owner:
+          input: owner
+        name:
+          if:
+            and:
+              - not:
+                  eq:
+                    - get:
+                        of:
+                          var: row
+                        field: name
+                    - literal: ''
+              - one:
+                  in:
+                    field: rows
+                  as: candidate
+                  where:
+                    eq:
+                      - get:
+                          of:
+                            var: candidate
+                          field: name
+                      - get:
+                          of:
+                            var: row
+                          field: name
+          then:
+            logicalAddress:
+              parent:
+                input: parent
+              parts:
+                - literal: Колонка
+                - get:
+                    of:
+                      var: row
+                    field: name
+          else:
+            logicalAddress:
+              parent:
+                input: parent
+              parts:
+                - literal: Колонка
+                - var: position
+    value:
+      get:
+        of:
+          var: row
+        field: id
+namespaces:
+  f: http://v8.1c.ru/8.3/xcf/logform

@@ -1,0 +1,8 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.metadata-object-links
+imports: {links: common.metadata-object-links}
+value: {kind: record, fields: [{name: links, type: {use: links}}]}
+representations:
+  xml: {kind: record, fields: [{field: links, path: [Root, Links]}]}
+  yaml: {kind: mapping, fields: [{field: links, key: Ссылки}]}

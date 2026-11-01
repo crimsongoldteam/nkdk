@@ -1,0 +1,131 @@
+{
+  "scope": "Build-time recognition only; no object acceptance implied",
+  "namespaces": {
+    "dcsset": "http://v8.1c.ru/8.1/data-composition-system/settings",
+    "dcscor": "http://v8.1c.ru/8.1/data-composition-system/core",
+    "xsi": "http://www.w3.org/2001/XMLSchema-instance"
+  },
+  "entries": [
+    {
+      "symbol": "ConditionalAppearanceRules",
+      "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/conditionalAppearance/rules.ts",
+      "ready": 2,
+      "total": 4,
+      "unresolved": [
+        {
+          "name": "conditionalAppearanceItems",
+          "reason": "unsupported-common",
+          "source": {
+            "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/conditionalAppearance/rules.ts",
+            "line": 10,
+            "column": 5
+          }
+        },
+        {
+          "name": "userSettingID",
+          "reason": "unsupported-common",
+          "source": {
+            "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/conditionalAppearance/rules.ts",
+            "line": 19,
+            "column": 5
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "ConditionalAppearanceItemRules",
+      "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/rules.ts",
+      "ready": 16,
+      "total": 18,
+      "unresolved": [
+        {
+          "name": "fields",
+          "reason": "unsupported-common",
+          "source": {
+            "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/rules.ts",
+            "line": 27,
+            "column": 5
+          }
+        },
+        {
+          "name": "filter",
+          "reason": "unsupported-common",
+          "source": {
+            "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/rules.ts",
+            "line": 33,
+            "column": 5
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "FilterRules",
+      "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filter/rules.ts",
+      "ready": 3,
+      "total": 5,
+      "unresolved": [
+        {
+          "name": "items",
+          "reason": "unsupported-common",
+          "source": {
+            "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filter/rules.ts",
+            "line": 20,
+            "column": 5
+          }
+        },
+        {
+          "name": "availableFields",
+          "reason": "unsupported-common",
+          "source": {
+            "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filter/rules.ts",
+            "line": 16,
+            "column": 5
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "FilterItemComparisonRules",
+      "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/rules.ts",
+      "ready": 8,
+      "total": 10,
+      "unresolved": [
+        {
+          "name": "userSettingID",
+          "reason": "unsupported-common",
+          "source": {
+            "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/rules.ts",
+            "line": 65,
+            "column": 5
+          }
+        },
+        {
+          "name": "parent",
+          "reason": "runtime-only-profile",
+          "source": {
+            "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/rules.ts",
+            "line": 74,
+            "column": 5
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "FilterItemGroupRules",
+      "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/rules.ts",
+      "ready": 7,
+      "total": 8,
+      "unresolved": [
+        {
+          "name": "items",
+          "reason": "unsupported-common",
+          "source": {
+            "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/rules.ts",
+            "line": 101,
+            "column": 5
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+format: nkdk-declarations/1
+kind: value
+id: common.journal-form-link
+imports:
+  name: common.metadata-name
+  rootKind: common.path-root
+inputs:
+  roots:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: kind
+            type:
+              use: rootKind
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  forms:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: parent
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+value:
+  kind: record
+  fields:
+    - name: journal
+      type:
+        use: name
+    - name: form
+      type:
+        use: name
+representations:
+  xml:
+    kind: text-pattern
+    separator: .
+    parts:
+      - literal: DocumentJournal
+      - field: journal
+      - literal: Form
+      - field: form
+  yaml:
+    kind: text-pattern
+    separator: .
+    parts:
+      - literal: ЖурналДокументов
+      - field: journal
+      - literal: Форма
+      - field: form
+constraints:
+  - id: target-exists
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    assert:
+      match:
+        value:
+          lookup:
+            in:
+              input: roots
+            key:
+              record:
+                kind:
+                  literal: DocumentJournal
+                name:
+                  get:
+                    of:
+                      self: true
+                    field: journal
+        present:
+          as: journal
+          then:
+            present:
+              lookup:
+                in:
+                  input: forms
+                key:
+                  record:
+                    parent:
+                      var: journal
+                    name:
+                      get:
+                        of:
+                          self: true
+                        field: form
+        absent:
+          literal: false
+    diagnostic:
+      code: metadata.target-missing
+      severity: error
+      at:
+        self: true
+      message: Journal form is missing

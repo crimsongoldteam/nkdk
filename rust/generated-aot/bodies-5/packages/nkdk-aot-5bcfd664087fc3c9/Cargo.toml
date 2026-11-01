@@ -1,0 +1,15 @@
+[package]
+name="nkdk-aot-5bcfd664087fc3c9"
+version="0.0.0"
+edition="2024"
+[lib]
+test=false
+[dependencies]
+nkdk-conversion-core = { path = "../../../../crates/conversion-core" }
+nkdk-aot-484afc404b57e0bb = { path = "../nkdk-aot-484afc404b57e0bb" }
+nkdk-aot-68b9afba06afe854 = { path = "../nkdk-aot-68b9afba06afe854" }
+nkdk-aot-d937c15689974ef7 = { path = "../nkdk-aot-d937c15689974ef7" }
+nkdk-aot-db076435c51a744c = { path = "../nkdk-aot-db076435c51a744c" }
+nkdk-aot-e221af39efbd8072 = { path = "../nkdk-aot-e221af39efbd8072" }
+nkdk-aot-e380e7c77055978f = { path = "../nkdk-aot-e380e7c77055978f" }
+nkdk-aot-e9897fdb1f673c16 = { path = "../nkdk-aot-e9897fdb1f673c16" }

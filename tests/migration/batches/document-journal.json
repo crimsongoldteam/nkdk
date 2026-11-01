@@ -1,6 +1,6 @@
 {
   "id": "document-journal",
-  "expectedPropertyCount": 48,
+  "expectedPropertyCount": 57,
   "cases": [
     "e2e-properties-ДокументПоУмолчанию",
     "e2e-properties-ДокументВсеСвойства",

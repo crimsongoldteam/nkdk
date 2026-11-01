@@ -177,13 +177,7 @@ fn resolve_forms(module: &Module, constraint: &Constraint) -> Result<Vec<LinkedF
         .contains(&ValidationPhase::YamlValidation)
     {
         let form = match &module.representations.yaml {
-            YamlRepresentation::Projection(_) => {
-                return Err(diagnostic(
-                    "unsupported_projection_constraint",
-                    &module.source,
-                    "Define constraints on the projected field declaration; whole-projection constraints are not yet supported",
-                ));
-            }
+            YamlRepresentation::Projection(_) => ("scalar", LinkedForm::YamlScalar),
             YamlRepresentation::Declared => {
                 return Err(diagnostic(
                     "invalid_declared_representation",
@@ -206,10 +200,17 @@ fn resolve_forms(module: &Module, constraint: &Constraint) -> Result<Vec<LinkedF
             YamlRepresentation::Mapping(_) | YamlRepresentation::RecordMapping { .. } => {
                 ("mapping", LinkedForm::YamlMapping)
             }
-            YamlRepresentation::Sequence { .. } => ("sequence", LinkedForm::YamlSequence),
+            YamlRepresentation::Sequence { .. } | YamlRepresentation::GroupedSequence(_) => {
+                ("sequence", LinkedForm::YamlSequence)
+            }
             YamlRepresentation::KeyedMapping { shorthand, .. } => {
                 if shorthand.iter().any(|short| {
-                    matches!(short.representation, ShorthandRepresentation::ScalarText)
+                    matches!(
+                        short.representation,
+                        ShorthandRepresentation::ScalarField(_)
+                            | ShorthandRepresentation::ScalarLiteral(_)
+                            | ShorthandRepresentation::ScalarText { .. }
+                    )
                 }) {
                     available.push(("scalar", LinkedForm::YamlScalar));
                 }

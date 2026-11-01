@@ -6,13 +6,13 @@ pub(super) fn fields(
     source: &SourceLocation,
 ) -> Result<(), Diagnostic> {
     fn visit(
-        parts: &[TextPatternPart],
+        sequence: &[TextPatternPart],
         fields: &[LinkedField],
         seen: &mut BTreeSet<String>,
         mut previous: bool,
     ) -> Result<bool, Diagnostic> {
         let mut prefixes: Vec<&str> = Vec::new();
-        for part in parts {
+        for (index, part) in sequence.iter().enumerate() {
             match &part.value {
                 TextPatternValue::Field(name) => {
                     if previous {
@@ -53,19 +53,28 @@ pub(super) fn fields(
                     previous = false;
                 }
                 TextPatternValue::Optional { field, parts } => {
-                    if !matches!(parts.first().map(|part|&part.value),Some(TextPatternValue::Literal(text)) if !text.is_empty())
-                    {
-                        return Err(diagnostic(
-                            "text_pattern_group",
-                            &part.source,
-                            "Optional group requires a nonempty opening literal",
-                        ));
-                    }
-                    let TextPatternValue::Literal(prefix) = &parts[0].value else {
-                        unreachable!("opening literal")
+                    let opening = match parts.first().map(|part| &part.value) {
+                        Some(TextPatternValue::Literal(text)) if !text.is_empty() => text.as_str(),
+                        Some(TextPatternValue::Field(_))
+                            if index == 0
+                                && matches!(parts.last().map(|part| &part.value), Some(TextPatternValue::Literal(text)) if !text.is_empty())
+                                && matches!(
+                                    sequence.get(index + 1).map(|part| &part.value),
+                                    Some(TextPatternValue::Field(_))
+                                ) =>
+                        {
+                            ""
+                        }
+                        _ => {
+                            return Err(diagnostic(
+                                "text_pattern_group",
+                                &part.source,
+                                "Optional group requires an opening literal or a leading field with a closing literal",
+                            ));
+                        }
                     };
                     if prefixes.iter().any(|previous| {
-                        previous.starts_with(prefix) || prefix.starts_with(previous)
+                        previous.starts_with(opening) || opening.starts_with(previous)
                     }) {
                         return Err(diagnostic(
                             "text_pattern_ambiguous",
@@ -73,7 +82,7 @@ pub(super) fn fields(
                             "Optional prefixes must be disjoint",
                         ));
                     }
-                    prefixes.push(prefix);
+                    prefixes.push(opening);
                     if !nkdk_rule_model::text_pattern_fields(parts).contains(&field.as_str()) {
                         return Err(diagnostic(
                             "text_pattern_group",

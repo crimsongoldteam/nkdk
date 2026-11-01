@@ -1,0 +1,59 @@
+# Generated from packages/rules/metadata/commonObjects/predefined/rules.ts and packages/rules/metadata/appliedObjects/metadataChartOfCalculationTypes/rules.ts by file-envelope-operation.mjs
+format: nkdk-declarations/1
+kind: fragment
+id: fragment.predefined-calculation-file
+namespaces:
+  p: http://v8.1c.ru/8.3/xcf/predef
+imports:
+  items: probe.predefined-calculation-file-items
+inputs:
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  identities:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: scalar
+        scalar: text
+value:
+  kind: record
+  fields:
+    - name: items
+      type:
+        use: items
+        bind:
+          parent:
+            input: owner
+          identities:
+            input: identities
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: items
+        path:
+          - p:PredefinedData
+        file:
+          - Ext
+          - Predefined.xml
+  yaml:
+    kind: mapping
+    fields:
+      - field: items
+        key: Предопределенные
+presence:
+  - target:
+      field: items
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true

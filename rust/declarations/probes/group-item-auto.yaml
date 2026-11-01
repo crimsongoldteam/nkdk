@@ -1,0 +1,9 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.group-item-auto
+namespaces: {dcsset: 'http://v8.1c.ru/8.1/data-composition-system/settings'}
+imports: {item: common.group-item-auto}
+value: {kind: record, fields: [{name: item, type: {use: item}}]}
+representations:
+  xml: {kind: record, fields: [{field: item, path: [Root, dcsset:item]}]}
+  yaml: {kind: mapping, fields: [{field: item, key: Группа}]}

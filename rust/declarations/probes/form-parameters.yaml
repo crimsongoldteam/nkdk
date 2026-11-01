@@ -1,0 +1,9 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.form-parameters
+imports: {parameters: common.form-parameters}
+namespaces: {f: 'http://v8.1c.ru/8.3/xcf/logform'}
+value: {kind: record, fields: [{name: parameters, type: {use: parameters}}]}
+representations:
+  xml: {kind: record, fields: [{field: parameters, path: [f:Parameters]}]}
+  yaml: {kind: mapping, fields: [{field: parameters, key: Параметры}]}

@@ -1,0 +1,104 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.bc4a1df6d12d3f43ce07
+description: 'Кандидат проекции: относительный XML-корень Properties; не полный владелец'
+imports:
+  inputType1f8ea46361ff: common.path-root
+  inputType00917033b468: common.path-object-kind
+  part0: candidate.fragment.0536024fc6d1317ac580
+compose:
+  - use: part0
+    bind:
+      ownerName:
+        input: ownerName
+      defaultLanguage:
+        input: defaultLanguage
+      registeredLanguages:
+        input: registeredLanguages
+      owner:
+        input: owner
+      forms:
+        input: forms
+      roots:
+        input: roots
+      adopted:
+        input: adopted
+      children:
+        input: children
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []
+inputs:
+  ownerName:
+    type:
+      kind: scalar
+      scalar: text
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  forms:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  roots:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: kind
+            type:
+              use: inputType1f8ea46361ff
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+    index: metadata.roots
+  adopted:
+    type:
+      kind: scalar
+      scalar: boolean
+  children:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: kind
+            type:
+              use: inputType00917033b468
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: parent
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+    index: metadata.children

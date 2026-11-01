@@ -6,9 +6,9 @@
 
 ## Результат генерации
 
-- 4312 вхождений свойств получили кандидаты.
-- 1060 уникальных фрагментов и 1007 уникальных проекций.
-- 286 существующих common/перечислений подключены как снимки зависимостей.
+- 4865 вхождений свойств получили кандидаты.
+- 1179 уникальных фрагментов и 1120 уникальных проекций.
+- 660 существующих common/перечислений подключены как снимки зависимостей.
 
 Проекция — только поддержанные свойства под относительным XML-корнем.
 Это не полный Document, DocumentJournal, реквизит или элемент формы.
@@ -56,7 +56,7 @@ excludedParameters у свойства; остальные неизвестны�
 свойств сохранены в manifest.json, а не дополнительными полями языка YAML.
 
 Ранее написанные YAML служат источником зависимостей и не перезаписываются.
-Для 728 полей найдены возможные соответствия
+Для 1483 полей найдены возможные соответствия
 в рабочем каталоге по common, YAML-ключу и суффиксу XML-пути. В manifest.json
 записаны различия пути, присутствия XML и YAML, параметров, входов и ограничений (до трёх примеров
 на поле с полным числом совпадений). Это список для проверки, не доказательство
@@ -67,34 +67,29 @@ excludedParameters у свойства; остальные неизвестны�
 
 | Причина | Вхождения известных свойств |
 |---|---:|
-| unsupported-common | 858 |
-| requires-expression-mapping | 214 |
-| explicit-yaml-name-required | 163 |
+| unsupported-common | 441 |
+| requires-expression-mapping | 155 |
 | runtime-only-profile | 131 |
 | hidden-scalar-default-required | 110 |
+| yaml-only-scalar-profile | 55 |
+| owner-name-profile | 53 |
+| dcs-parameter-collection-required | 12 |
 | asymmetric-defaults | 11 |
 | unsupported-parameters:xmlAliases | 10 |
-| unsupported-parameters:defaultValue | 8 |
-| unsupported-parameters:description,maximumWhen | 6 |
-| raw-default-profile | 6 |
-| form-default-profile | 5 |
 | unsupported-parameters:xmlOnly | 5 |
-| unsupported-parameters:defaultValueXMLEmpty | 4 |
 | identity-property-profile | 4 |
-| sibling-expression-required | 4 |
-| unsupported-parameters:fromXML | 4 |
-| adopted-default-profile | 3 |
+| unsupported-parameters:defaultValue | 4 |
 | unsupported-parameters:defaultValueXMLEmpty,defaultValue | 3 |
 | unsupported-parameters:xmlNamespace | 3 |
+| explicit-yaml-name-required | 2 |
 | required-default-profile | 2 |
-| unsupported-parameters:defaultValue,omitImplicitValueYAMLBySource | 2 |
-| unsupported-parameters:description | 2 |
+| unsupported-parameters:omitImplicitValueYAMLBySource | 2 |
+| unsupported-parameters:defaultValueXMLEmpty | 2 |
+| adopted-default-profile | 2 |
 | xml-path-profile | 1 |
-| unsupported-parameters:defaultValue,toXML | 1 |
 | record-parameter-profile | 1 |
+| sibling-expression-required | 1 |
 | metadata-value-profile | 1 |
-| unsupported-parameters:externalFile | 1 |
-| unsupported-parameters:fromXML,toXML | 1 |
 
 Неизвестные параметры не отбрасываются; файлы, ограничения, особые значения
 и направления преобразования требуют собственного соответствия. Пустой

@@ -1,0 +1,9 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.calculated-field-use-restriction
+namespaces: {dcssch: 'http://v8.1c.ru/8.1/data-composition-system/schema'}
+imports: {restriction: common.calculated-field-use-restriction}
+value: {kind: record, fields: [{name: restriction, type: {use: restriction}}]}
+representations:
+  xml: {kind: record, fields: [{field: restriction, path: [Root, dcssch:useRestriction]}]}
+  yaml: {kind: mapping, fields: [{field: restriction, key: ОграничениеИспользования}]}

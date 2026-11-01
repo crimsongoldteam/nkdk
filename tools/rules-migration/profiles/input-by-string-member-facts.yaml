@@ -1,0 +1,39 @@
+# Вычисляемые поля используют обычный язык деклараций.
+properties:
+- type
+index: metadata.input-by-string-members
+value:
+  get:
+    of:
+      var: row
+    field: indexedName
+computed:
+  value:
+    kind: record
+    fields:
+    - name: indexedName
+      type:
+        kind: scalar
+        scalar: text
+  presence:
+  - target:
+      field: indexedName
+    xml:
+      missing:
+        denotes: &id001
+          if:
+            or:
+            - not:
+                present:
+                  field: type
+            - get:
+                of:
+                  field: type
+                field: compatible
+          then:
+            field: name
+          else:
+            literal: ''
+    yaml:
+      missing:
+        denotes: *id001

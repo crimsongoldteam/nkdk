@@ -1,0 +1,3 @@
+migration.metadata-base-identity
+migration.metadata-own-identity
+migration.metadata-uuid

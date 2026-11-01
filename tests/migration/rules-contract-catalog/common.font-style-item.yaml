@@ -1,0 +1,61 @@
+format: nkdk-declarations/1
+kind: value
+id: common.font-style-item
+namespaces:
+  style: http://v8.1c.ru/8.1/data/ui/style
+imports:
+  name: common.metadata-name
+inputs:
+  styleTypes:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: scalar
+        scalar: text
+value:
+  kind: record
+  fields:
+    - name: name
+      type:
+        use: name
+representations:
+  xml:
+    kind: text-pattern
+    parts:
+      - literal: 'style:'
+      - field: name
+  yaml:
+    kind: text-pattern
+    parts:
+      - literal: ЭлементСтиля.
+      - field: name
+constraints:
+  - id: style-item-type
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    assert:
+      match:
+        value:
+          lookup:
+            in:
+              input: styleTypes
+            key:
+              field: name
+        present:
+          as: styleType
+          then:
+            eq:
+              - var: styleType
+              - literal: Font
+        absent:
+          literal: false
+    diagnostic:
+      code: font.style-item
+      severity: error
+      at:
+        self: true
+      message: Элемент стиля отсутствует или имеет другой тип

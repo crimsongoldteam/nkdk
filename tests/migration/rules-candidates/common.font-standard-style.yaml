@@ -1,0 +1,23 @@
+format: nkdk-declarations/1
+kind: value
+id: common.font-standard-style
+namespaces:
+  style: http://v8.1c.ru/8.1/data/ui/style
+imports:
+  font: system.StyleFonts
+value:
+  kind: record
+  fields:
+    - name: font
+      type:
+        use: font
+representations:
+  xml:
+    kind: text-pattern
+    parts:
+      - literal: 'style:'
+      - field: font
+  yaml:
+    kind: text-pattern
+    parts:
+      - field: font

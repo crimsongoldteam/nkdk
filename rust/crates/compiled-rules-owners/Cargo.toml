@@ -1,0 +1,14 @@
+[package]
+name = "nkdk-compiled-rules-owners"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+[lib]
+test = false
+[lints]
+workspace = true
+[dependencies]
+nkdk-conversion-core = {path="../conversion-core"}
+[build-dependencies]
+nkdk-rule-compiler = {path="../rule-compiler"}

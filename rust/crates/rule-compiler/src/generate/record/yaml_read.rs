@@ -6,6 +6,11 @@ fn read_value(field: &Field<'_>, index: usize, receiver: &str) -> String {
             "let (text,number)=value.into_choice_text().map_err(|error|error.field({:?}))?;{receiver}.number{index}=number;{receiver}.r{index}=Some(text);",
             field.key
         )
+    } else if matches!(&field.codec,Codec::Forms(choice) if !choice.scalar_tags().is_empty()) {
+        format!(
+            "let (text,_)=value.into_choice_text().map_err(|error|error.field({:?}))?;{receiver}.r{index}=Some(text);",
+            field.key
+        )
     } else if let Codec::Forms(choice) = &field.codec
         && choice.discriminated()
     {
@@ -29,7 +34,18 @@ fn read_value(field: &Field<'_>, index: usize, receiver: &str) -> String {
         )
     };
     if super::super::scalar_presence::yaml_empty(field.presence, EmptyKind::Null) {
-        format!("if value.is_null(){{{receiver}.r{index}=None;}}else{{{read}}}")
+        let mark = if super::tracks_null(field) {
+            format!("{receiver}.null{index}=true;")
+        } else {
+            String::new()
+        };
+        let null_value = if super::super::scalar_presence::yaml_null_value(field.presence).is_some()
+        {
+            format!("{receiver}.empty{index}=value.is_null();")
+        } else {
+            String::new()
+        };
+        format!("{null_value}if value.is_null(){{{receiver}.r{index}=None;{mark}}}else{{{read}}}")
     } else {
         read
     }
@@ -39,19 +55,33 @@ fn members(fields: &[Field<'_>]) -> Vec<String> {
     let mut names = vec!["raw".into(), "positions".into()];
     for (i, field) in fields.iter().enumerate() {
         names.push(format!("r{i}"));
+        if super::super::scalar_presence::yaml_null_value(field.presence).is_some() {
+            names.push(format!("empty{i}"));
+        }
+        if super::tracks_null(field) {
+            names.push(format!("null{i}"));
+        }
         if matches!(field.codec, Codec::Choice(_)) {
             names.push(format!("number{i}"));
         }
-        if matches!(&field.codec, Codec::Forms(choice) if choice.discriminated()) {
+        if matches!(&field.codec, Codec::Forms(choice) if choice.selects_scalar_variant()) {
             names.push(format!("variant{i}"));
         }
     }
     names
 }
-pub(super) fn bindings(id: u32, fields: &[Field<'_>]) -> String {
+pub(super) fn bindings(id: u32, fields: &[Field<'_>], mutable_raw: bool) -> String {
     format!(
         "let YamlFields{id}{{{}}}=state;let _=&positions;\n",
-        members(fields).join(",")
+        members(fields)
+            .into_iter()
+            .map(|name| if mutable_raw && name == "raw" {
+                "mut raw".into()
+            } else {
+                name
+            })
+            .collect::<Vec<_>>()
+            .join(",")
     )
 }
 pub(super) fn generate(id: u32, fields: &[Field<'_>]) -> String {
@@ -64,10 +94,16 @@ pub(super) fn generate(id: u32, fields: &[Field<'_>]) -> String {
     .unwrap();
     for (i, field) in fields.iter().enumerate() {
         writeln!(out, "r{i}:Option<String>,").unwrap();
+        if super::super::scalar_presence::yaml_null_value(field.presence).is_some() {
+            writeln!(out, "empty{i}:bool,").unwrap();
+        }
+        if super::tracks_null(field) {
+            writeln!(out, "null{i}:bool,").unwrap();
+        }
         if matches!(field.codec, Codec::Choice(_)) {
             writeln!(out, "number{i}:bool,").unwrap();
         }
-        if matches!(&field.codec, Codec::Forms(choice) if choice.discriminated()) {
+        if matches!(&field.codec, Codec::Forms(choice) if choice.selects_scalar_variant()) {
             writeln!(out, "variant{i}:Option<usize>,").unwrap();
         }
     }
@@ -91,10 +127,16 @@ pub(super) fn generate(id: u32, fields: &[Field<'_>]) -> String {
     .unwrap();
     for (i, field) in fields.iter().enumerate() {
         writeln!(out, "r{i}:None,").unwrap();
+        if super::super::scalar_presence::yaml_null_value(field.presence).is_some() {
+            writeln!(out, "empty{i}:false,").unwrap();
+        }
+        if super::tracks_null(field) {
+            writeln!(out, "null{i}:false,").unwrap();
+        }
         if matches!(field.codec, Codec::Choice(_)) {
             writeln!(out, "number{i}:false,").unwrap();
         }
-        if matches!(&field.codec, Codec::Forms(choice) if choice.discriminated()) {
+        if matches!(&field.codec, Codec::Forms(choice) if choice.selects_scalar_variant()) {
             writeln!(out, "variant{i}:None,").unwrap();
         }
     }
@@ -113,12 +155,13 @@ pub(super) fn generate(id: u32, fields: &[Field<'_>]) -> String {
             continue;
         }
         let read = read_value(field, i, "self");
-        writeln!(out,"{:?}=>{{self.positions[{i}]=value.position();self.raw.read_mark({i},value.annotation(),value.position())?;self.raw.read_mark({i},tag.as_deref(),self.positions[{i}])?;{read}Ok(())}},",field.key).unwrap();
+        let select = semantic_selection(field, i, "self");
+        writeln!(out,"{:?}=>{{self.positions[{i}]=value.position();{select}self.raw.read_mark({i},value.annotation(),value.position())?;self.raw.read_mark({i},tag.as_deref(),self.positions[{i}])?;{read}Ok(())}},",field.key).unwrap();
     }
     if has_keys {
         out.push_str("_=>");
     }
-    out.push_str("Err(RuntimeDiagnostic::new(\"yaml.unknown-field\",format!(\"Unknown YAML key: {key}\")).field(key))");
+    out.push_str("Err(RuntimeDiagnostic::unknown_yaml_field(key))");
     if has_keys {
         out.push('}');
     }
@@ -126,15 +169,53 @@ pub(super) fn generate(id: u32, fields: &[Field<'_>]) -> String {
     out
 }
 
-pub(super) fn projection_reader(id: u32, index: usize, field: &Field<'_>) -> String {
+pub(super) fn projection_reader(id: u32, index: usize, field: &Field<'_>, owner: &str) -> String {
+    let mapping = if super::super::scalar_presence::yaml_empty(field.presence, EmptyKind::Mapping) {
+        format!(
+            "match &node{{core::yaml::Node::MappingStart(None) if *seen==0=>{{*seen=2;state.positions[{index}]=position;return Ok(())}},core::yaml::Node::MappingEnd if *seen==2=>{{*seen=1;return Ok(())}},_ if *seen==2=>return Err(RuntimeDiagnostic::new(\"yaml.expected-empty-mapping\",\"Expected an empty projected mapping\")),_=>()}}"
+        )
+    } else {
+        String::new()
+    };
     let read = read_value(field, index, "state");
+    let select = semantic_selection(field, index, "state");
     format!(
-        "fn consume_yaml_projection_{id}(state:&mut YamlFields{id},seen:&mut bool,node:core::yaml::Node,position:core::Position)->core::Result<()>{{let core::yaml::Node::Scalar(value,tag)=node else{{return Err(RuntimeDiagnostic::new(\"yaml.expected-scalar\",\"Expected a scalar projection\"))}};if *seen{{return Err(RuntimeDiagnostic::new(\"yaml.document\",\"Expected one projected value\"))}}*seen=true;state.positions[{index}]=position;state.raw.read_mark({index},value.annotation(),position)?;state.raw.read_mark({index},tag.as_deref(),position)?;{read}Ok(())}}\n"
+        "fn consume_yaml_projection_{id}(state:&mut YamlFields{id},seen:&mut u8,node:core::yaml::Node,position:core::Position)->core::Result<()>{{{mapping}let core::yaml::Node::Scalar(value,tag)=node else{{return Err(RuntimeDiagnostic::expected_scalar_projection().field({owner:?}))}};if *seen!=0{{return Err(RuntimeDiagnostic::expected_projected_value())}}*seen=1;state.positions[{index}]=position;{select}state.raw.read_mark({index},value.annotation(),position)?;state.raw.read_mark({index},tag.as_deref(),position)?;{read}Ok(())}}\n"
+    )
+}
+
+fn semantic_selection(field: &Field<'_>, index: usize, receiver: &str) -> String {
+    let Codec::Forms(choice) = &field.codec else {
+        return String::new();
+    };
+    let tags = choice.scalar_tags();
+    if tags.is_empty() {
+        return String::new();
+    }
+    let arms = tags
+        .iter()
+        .map(|(variant, tag)| {
+            format!(
+                "Some({:?})=>{{{receiver}.variant{index}=Some({variant});None}},",
+                format!("!{tag}")
+            )
+        })
+        .collect::<String>();
+    let empty = if choice.has_untagged_scalar_variant() {
+        "None=>None,"
+    } else if super::super::scalar_presence::yaml_empty(field.presence, EmptyKind::Null) {
+        "None if value.is_null()=>None,"
+    } else {
+        ""
+    };
+    format!(
+        "let tag:Option<String>=match tag.as_deref(){{{arms}{empty}_=>return Err(RuntimeDiagnostic::new(\"yaml.choice-form\",\"Expected a declared scalar tag\").field({:?}))}};",
+        field.key
     )
 }
 
 pub(super) fn projection_read(id: u32) -> String {
     format!(
-        "let mut seen=false;events.visit(|node,position|consume_yaml_projection_{id}(&mut state,&mut seen,node,position))?;if !seen{{return Err(RuntimeDiagnostic::new(\"yaml.expected-scalar\",\"Missing projected value\"))}}finish_yaml_{id}(state,source,_inputs)"
+        "let mut seen=0u8;events.visit(|node,position|consume_yaml_projection_{id}(&mut state,&mut seen,node,position))?;if seen!=1{{return Err(RuntimeDiagnostic::new(\"yaml.expected-scalar\",\"Missing or incomplete projected value\"))}}finish_yaml_{id}(state,source,_inputs)"
     )
 }

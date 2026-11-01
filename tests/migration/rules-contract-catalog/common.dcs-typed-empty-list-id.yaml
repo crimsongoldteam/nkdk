@@ -1,0 +1,28 @@
+format: nkdk-declarations/1
+kind: value
+id: common.dcs-typed-empty-list-id
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  xs: http://www.w3.org/2001/XMLSchema
+value:
+  kind: enum
+  variants:
+    - name: MinusOne
+      value: minus-one
+representations:
+  xml:
+    kind: with-attributes
+    attributes:
+      - name: xsi:type
+        value:
+          qname: xs:decimal
+    content:
+      kind: text
+      values:
+        - value: minus-one
+          text: '-1'
+  yaml:
+    kind: scalar
+    values:
+      - value: minus-one
+        literal: '-1'

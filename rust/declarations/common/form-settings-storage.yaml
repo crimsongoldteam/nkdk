@@ -1,0 +1,91 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: common.form-settings-storage-report-form
+  imports: {name: common.metadata-name, rootKind: common.path-root}
+  inputs:
+    ownerName: {type: {kind: scalar, scalar: text}}
+    roots:
+      type:
+        kind: index
+        key: {kind: record, fields: [{name: kind, type: {use: rootKind}}, {name: name, type: {kind: scalar, scalar: text}}]}
+        value: {kind: scalar, scalar: text}
+    formTargets:
+      type:
+        kind: index
+        key: {kind: record, fields: [{name: parent, type: {kind: scalar, scalar: text}}, {name: name, type: {kind: scalar, scalar: text}}]}
+        value: {kind: scalar, scalar: text}
+  value:
+    kind: record
+    fields:
+    - {name: owner, type: {use: name}}
+    - {name: form, type: {use: name}}
+  representations:
+    xml:
+      kind: text-pattern
+      parts: [{literal: 'Report.'}, {field: owner}, {literal: '.Form.'}, {field: form}]
+    yaml:
+      kind: text-pattern
+      parts:
+      - optional: owner
+        parts: [{literal: 'Отчет.'}, {field: owner}, {literal: '.Форма.'}]
+      - {field: form}
+  presence:
+  - target: {field: owner}
+    yaml:
+      missing: {denotes: {input: ownerName}}
+      omitWhen: {eq: [{field: owner}, {input: ownerName}]}
+  constraints:
+  - id: form-exists
+    appliesTo: [xml-import, yaml-validation]
+    assert:
+      match:
+        value: {lookup: {in: {input: roots}, key: {record: {kind: {literal: Report}, name: {field: owner}}}}}
+        present:
+          as: report
+          then: {present: {lookup: {in: {input: formTargets}, key: {record: {parent: {var: report}, name: {field: form}}}}}}
+        absent: {literal: false}
+    diagnostic: {code: metadata.target-missing, severity: error, at: {self: true}, message: Report form is missing}
+- kind: value
+  id: common.form-settings-storage-object
+  imports: {name: common.metadata-name, rootKind: common.path-root}
+  inputs:
+    roots:
+      type:
+        kind: index
+        key: {kind: record, fields: [{name: kind, type: {use: rootKind}}, {name: name, type: {kind: scalar, scalar: text}}]}
+        value: {kind: scalar, scalar: text}
+  value: {kind: record, fields: [{name: name, type: {use: name}}]}
+  representations:
+    xml: {kind: text-pattern, parts: [{literal: 'SettingsStorage.'}, {field: name}]}
+    yaml: {kind: text-pattern, parts: [{literal: 'ХранилищеНастроек.'}, {field: name}]}
+  constraints:
+  - id: target-exists
+    appliesTo: [xml-import, yaml-validation]
+    assert: {present: {lookup: {in: {input: roots}, key: {record: {kind: {literal: SettingsStorage}, name: {field: name}}}}}}
+    diagnostic: {code: metadata.target-missing, severity: error, at: {self: true}, message: Settings storage is missing}
+- kind: value
+  id: common.form-settings-storage-link
+  imports: {report: common.form-settings-storage-report-form, storage: common.form-settings-storage-object, empty: common.metadata-link-empty, rootKind: common.path-root}
+  inputs:
+    ownerName: {type: {kind: scalar, scalar: text}}
+    roots:
+      type:
+        kind: index
+        key: {kind: record, fields: [{name: kind, type: {use: rootKind}}, {name: name, type: {kind: scalar, scalar: text}}]}
+        value: {kind: scalar, scalar: text}
+    formTargets:
+      type:
+        kind: index
+        key: {kind: record, fields: [{name: parent, type: {kind: scalar, scalar: text}}, {name: name, type: {kind: scalar, scalar: text}}]}
+        value: {kind: scalar, scalar: text}
+  value:
+    kind: choice
+    variants:
+    - {name: report, type: {use: report, bind: {ownerName: {input: ownerName}, roots: {input: roots}, formTargets: {input: formTargets}}}}
+    - {name: storage, type: {use: storage, bind: {roots: {input: roots}}}}
+    - {name: empty, type: {use: empty}}
+  representations:
+    xml: {kind: choice}
+    yaml: {kind: choice, fallback: report}

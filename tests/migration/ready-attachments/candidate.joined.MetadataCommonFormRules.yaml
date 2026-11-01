@@ -3,18 +3,18 @@ kind: object
 id: candidate.joined.MetadataCommonFormRules
 description: 'Кандидат проекции: относительный XML-корень Properties; не полный владелец'
 imports:
-  part0: candidate.fragment.56b5c7ec0379218277fe
+  part0: candidate.fragment.a672e0de39771a66e332
   ready: fragment.help
   attachment: fragment.help
 compose:
   - use: part0
     bind:
+      ownerName:
+        input: ownerName
       defaultLanguage:
         input: defaultLanguage
       registeredLanguages:
         input: registeredLanguages
-      ownerName:
-        input: ownerName
   - use: attachment
     bind:
       pages:
@@ -30,6 +30,10 @@ representations:
     kind: mapping
     fields: []
 inputs:
+  ownerName:
+    type:
+      kind: scalar
+      scalar: text
   defaultLanguage:
     type:
       kind: scalar
@@ -40,10 +44,6 @@ inputs:
       item:
         kind: scalar
         scalar: text
-  ownerName:
-    type:
-      kind: scalar
-      scalar: text
   attachment_pages:
     type:
       kind: sequence

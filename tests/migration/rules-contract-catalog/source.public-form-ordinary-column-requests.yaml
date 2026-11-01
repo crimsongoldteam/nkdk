@@ -1,0 +1,99 @@
+format: nkdk-declarations/1
+kind: fragment
+id: source.public-form-ordinary-column-requests
+inputs:
+  component:
+    type:
+      kind: scalar
+      scalar: text
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  parent:
+    type:
+      kind: scalar
+      scalar: text
+imports:
+  columns: source.public-form-column-requests
+namespaces:
+  f: http://v8.1c.ru/8.3/xcf/logform
+value:
+  kind: record
+  fields:
+    - name: ordinary
+      type:
+        use: columns
+        bind:
+          component:
+            input: component
+          owner:
+            input: owner
+          parent:
+            input: parent
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: ordinary
+        path:
+          - f:Columns
+  yaml:
+    kind: mapping
+    fields:
+      - field: ordinary
+        key: Колонки
+presence:
+  - target:
+      field: ordinary
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+contributions:
+  - index: metadata.form-attribute-identities
+    key:
+      record:
+        component:
+          input: component
+        owner:
+          input: owner
+        name:
+          if:
+            eq:
+              - get:
+                  of:
+                    var: row
+                  field: name
+              - literal: ''
+          then:
+            logicalAddress:
+              parent:
+                input: parent
+              parts:
+                - literal: Колонка
+                - var: position
+          else:
+            logicalAddress:
+              parent:
+                input: parent
+              parts:
+                - literal: Колонка
+                - get:
+                    of:
+                      var: row
+                    field: name
+    allocate:
+      scope:
+        - component
+        - owner
+      first: 1
+    forEach:
+      in:
+        field: ordinary
+      as: row
+      index: position

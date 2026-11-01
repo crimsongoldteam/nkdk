@@ -1,0 +1,433 @@
+{
+  "scope": "Events contract; whole form and element acceptance remain separate",
+  "cases": [
+    {
+      "id": "event-bindings-single-fixture",
+      "entry": "working.events.collection",
+      "xml": "<Events>\n\t<Event name=\"Click\">РаспознаваниеДокументаНадписьНажатие</Event>\n</Events>",
+      "yaml": "События:\n  Нажатие: РаспознаваниеДокументаНадписьНажатие",
+      "inputs": {
+        "eventNames": [
+          {
+            "xml": "Click",
+            "yaml": "Нажатие"
+          },
+          {
+            "xml": "OnChange",
+            "yaml": "ПриИзменении"
+          },
+          {
+            "xml": "Opening",
+            "yaml": "ПриОткрытии"
+          }
+        ]
+      },
+      "noRaw": true,
+      "source": [
+        {
+          "path": "packages/rules/metadata/forms/commonObjects/event/__fixtures__/single.xml"
+        }
+      ]
+    },
+    {
+      "id": "event-bindings-multiple-fixture",
+      "entry": "working.events.collection",
+      "xml": "<Events>\n\t<Event name=\"OnChange\">ОбработкаИзменения</Event>\n\t<Event name=\"Opening\">ПроцедураОткрытия</Event>\n</Events>",
+      "yaml": "События:\n  ПриИзменении: ОбработкаИзменения\n  ПриОткрытии: ПроцедураОткрытия",
+      "inputs": {
+        "eventNames": [
+          {
+            "xml": "Click",
+            "yaml": "Нажатие"
+          },
+          {
+            "xml": "OnChange",
+            "yaml": "ПриИзменении"
+          },
+          {
+            "xml": "Opening",
+            "yaml": "ПриОткрытии"
+          }
+        ]
+      },
+      "noRaw": true,
+      "source": [
+        {
+          "path": "packages/rules/metadata/forms/commonObjects/event/__fixtures__/multiple.xml"
+        }
+      ]
+    },
+    {
+      "id": "event-bindings-three-modes",
+      "entry": "working.events.collection",
+      "xml": "<Events><Event name=\"OnChange\" callType=\"Before\">a</Event><Event name=\"OnChange\" callType=\"After\">b</Event><Event name=\"OnChange\" callType=\"Override\">c</Event><Event name=\"Click\">Сосед</Event></Events>",
+      "yaml": "События:\n  ПриИзменении:\n    Перед: a\n    После: b\n    Вместо: c\n  Нажатие: Сосед",
+      "inputs": {
+        "eventNames": [
+          {
+            "xml": "Click",
+            "yaml": "Нажатие"
+          },
+          {
+            "xml": "OnChange",
+            "yaml": "ПриИзменении"
+          },
+          {
+            "xml": "Opening",
+            "yaml": "ПриОткрытии"
+          }
+        ]
+      },
+      "noRaw": true
+    },
+    {
+      "id": "event-bindings-yaml-mode-order",
+      "entry": "working.events.collection",
+      "xml": "<Events><Event name=\"OnChange\" callType=\"Override\">c</Event><Event name=\"OnChange\" callType=\"After\">b</Event><Event name=\"OnChange\" callType=\"Before\">a</Event></Events>",
+      "yaml": "События:\n  ПриИзменении:\n    Вместо: c\n    После: b\n    Перед: a",
+      "inputs": {
+        "eventNames": [
+          {
+            "xml": "Click",
+            "yaml": "Нажатие"
+          },
+          {
+            "xml": "OnChange",
+            "yaml": "ПриИзменении"
+          },
+          {
+            "xml": "Opening",
+            "yaml": "ПриОткрытии"
+          }
+        ]
+      },
+      "noRaw": true
+    },
+    {
+      "id": "event-bindings-empty-events",
+      "entry": "working.events.collection",
+      "xml": "<Events/>",
+      "inputs": {
+        "eventNames": [
+          {
+            "xml": "Click",
+            "yaml": "Нажатие"
+          },
+          {
+            "xml": "OnChange",
+            "yaml": "ПриИзменении"
+          },
+          {
+            "xml": "Opening",
+            "yaml": "ПриОткрытии"
+          }
+        ]
+      },
+      "annotation": "События: !xml/raw",
+      "retainedYAML": [
+        "  $значение: {}"
+      ]
+    },
+    {
+      "id": "event-bindings-duplicate",
+      "entry": "working.events.collection",
+      "xml": "<Events><Event name=\"OnChange\" callType=\"Before\">a</Event><Event name=\"OnChange\" callType=\"Before\">b</Event><Event name=\"Click\">Сосед</Event></Events>",
+      "inputs": {
+        "eventNames": [
+          {
+            "xml": "Click",
+            "yaml": "Нажатие"
+          },
+          {
+            "xml": "OnChange",
+            "yaml": "ПриИзменении"
+          },
+          {
+            "xml": "Opening",
+            "yaml": "ПриОткрытии"
+          }
+        ]
+      },
+      "annotation": "События: !xml/raw",
+      "retainedYAML": [
+        "    Нажатие: Сосед"
+      ]
+    },
+    {
+      "id": "event-bindings-conflict",
+      "entry": "working.events.collection",
+      "xml": "<Events><Event name=\"OnChange\">a</Event><Event name=\"OnChange\" callType=\"After\">b</Event><Event name=\"Click\">Сосед</Event></Events>",
+      "inputs": {
+        "eventNames": [
+          {
+            "xml": "Click",
+            "yaml": "Нажатие"
+          },
+          {
+            "xml": "OnChange",
+            "yaml": "ПриИзменении"
+          },
+          {
+            "xml": "Opening",
+            "yaml": "ПриОткрытии"
+          }
+        ]
+      },
+      "annotation": "События: !xml/raw",
+      "retainedYAML": [
+        "    Нажатие: Сосед"
+      ]
+    },
+    {
+      "id": "event-bindings-unknown-mode",
+      "entry": "working.events.collection",
+      "xml": "<Events><Event name=\"OnChange\" callType=\"During\">a</Event><Event name=\"Click\">Сосед</Event></Events>",
+      "inputs": {
+        "eventNames": [
+          {
+            "xml": "Click",
+            "yaml": "Нажатие"
+          },
+          {
+            "xml": "OnChange",
+            "yaml": "ПриИзменении"
+          },
+          {
+            "xml": "Opening",
+            "yaml": "ПриОткрытии"
+          }
+        ]
+      },
+      "annotation": "События: !xml/raw",
+      "retainedYAML": [
+        "    Нажатие: Сосед"
+      ]
+    },
+    {
+      "id": "event-bindings-unknown-event",
+      "entry": "working.events.collection",
+      "xml": "<Events><Event name=\"VendorSpecific\">a</Event><Event name=\"Click\">Сосед</Event></Events>",
+      "inputs": {
+        "eventNames": [
+          {
+            "xml": "Click",
+            "yaml": "Нажатие"
+          },
+          {
+            "xml": "OnChange",
+            "yaml": "ПриИзменении"
+          },
+          {
+            "xml": "Opening",
+            "yaml": "ПриОткрытии"
+          }
+        ]
+      },
+      "annotation": "События: !xml/raw",
+      "retainedYAML": [
+        "    Нажатие: Сосед"
+      ]
+    },
+    {
+      "id": "event-bindings-uuid-name",
+      "entry": "working.events.collection",
+      "xml": "<Events><Event name=\"047d4d09-961c-4bdc-8519-eef10674c35b\">a</Event><Event name=\"Click\">Сосед</Event></Events>",
+      "inputs": {
+        "eventNames": [
+          {
+            "xml": "Click",
+            "yaml": "Нажатие"
+          },
+          {
+            "xml": "OnChange",
+            "yaml": "ПриИзменении"
+          },
+          {
+            "xml": "Opening",
+            "yaml": "ПриОткрытии"
+          }
+        ]
+      },
+      "annotation": "События: !xml/raw",
+      "retainedYAML": [
+        "    Нажатие: Сосед"
+      ]
+    },
+    {
+      "id": "event-bindings-noncanonical-name",
+      "entry": "working.events.collection",
+      "xml": "<Events><Event name=\"onChange\">a</Event><Event name=\"Click\">Сосед</Event></Events>",
+      "inputs": {
+        "eventNames": [
+          {
+            "xml": "Click",
+            "yaml": "Нажатие"
+          },
+          {
+            "xml": "OnChange",
+            "yaml": "ПриИзменении"
+          },
+          {
+            "xml": "Opening",
+            "yaml": "ПриОткрытии"
+          }
+        ]
+      },
+      "annotation": "События: !xml/raw",
+      "retainedYAML": [
+        "    Нажатие: Сосед"
+      ]
+    },
+    {
+      "id": "event-bindings-source-namespace-and-table",
+      "entry": "working.events.element",
+      "xml": "<Events xmlns=\"http://v8.1c.ru/8.3/xcf/logform\">\n\t<Event name=\"Click\">РаспознаваниеДокументаНадписьНажатие</Event>\n</Events>",
+      "yaml": "События:\n  Нажатие: РаспознаваниеДокументаНадписьНажатие",
+      "noRaw": true,
+      "source": [
+        {
+          "path": "packages/rules/metadata/forms/commonObjects/event/__fixtures__/single.xml"
+        },
+        {
+          "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+          "symbol": "ExtendedTooltipRules"
+        }
+      ]
+    },
+    {
+      "id": "event-bindings-absent-events",
+      "entry": "working.events.record",
+      "xml": "<Root><Note>Сосед</Note></Root>",
+      "yaml": "Примечание: Сосед",
+      "inputs": {
+        "eventNames": [
+          {
+            "xml": "Click",
+            "yaml": "Нажатие"
+          },
+          {
+            "xml": "OnChange",
+            "yaml": "ПриИзменении"
+          },
+          {
+            "xml": "Opening",
+            "yaml": "ПриОткрытии"
+          }
+        ]
+      },
+      "noRaw": true
+    },
+    {
+      "id": "event-bindings-composite-owner",
+      "entry": "working.events.record",
+      "xml": "<Root><Events><Event name=\"OnChange\" callType=\"Before\">a</Event><Event name=\"OnChange\" callType=\"After\">b</Event></Events><Note>Сосед</Note></Root>",
+      "yaml": "События:\n  ПриИзменении:\n    Перед: a\n    После: b\nПримечание: Сосед",
+      "inputs": {
+        "eventNames": [
+          {
+            "xml": "Click",
+            "yaml": "Нажатие"
+          },
+          {
+            "xml": "OnChange",
+            "yaml": "ПриИзменении"
+          },
+          {
+            "xml": "Opening",
+            "yaml": "ПриОткрытии"
+          }
+        ]
+      },
+      "noRaw": true
+    },
+    {
+      "id": "event-bindings-composite-anomaly",
+      "entry": "working.events.record",
+      "xml": "<Root><Events><Event name=\"OnChange\" callType=\"During\">a</Event><Event name=\"Click\">Читаемый</Event></Events><Note>Сосед</Note></Root>",
+      "inputs": {
+        "eventNames": [
+          {
+            "xml": "Click",
+            "yaml": "Нажатие"
+          },
+          {
+            "xml": "OnChange",
+            "yaml": "ПриИзменении"
+          },
+          {
+            "xml": "Opening",
+            "yaml": "ПриОткрытии"
+          }
+        ]
+      },
+      "annotation": "События: !xml/raw",
+      "retainedYAML": [
+        "    Нажатие: Читаемый",
+        "Примечание: Сосед"
+      ]
+    },
+    {
+      "id": "event-bindings-e2e-cf",
+      "entry": "working.events.form",
+      "xml": "<Form xmlns:ns0=\"http://v8.1c.ru/8.3/xcf/logform\"><ns0:Events>\n\t\t<ns0:Event name=\"BeforeReopenFromOtherServer\">ПередПереоткрытиемСДругогоСервера</ns0:Event>\n\t\t<ns0:Event name=\"OnReopenFromOtherServer\">ПриПереоткрытииСДругогоСервера</ns0:Event>\n\t\t<ns0:Event name=\"OnSaveDataInSettingsAtServer\">ПриСохраненииДанныхВНастройкахНаСервере</ns0:Event>\n\t\t<ns0:Event name=\"OnClientApplicationSuspend\">ПриЗасыпанииКлиентскогоПриложения</ns0:Event>\n\t\t<ns0:Event name=\"ChoiceProcessing\">ОбработкаВыбора</ns0:Event>\n\t\t<ns0:Event name=\"BeforeLoadVariantAtServer\">ПередЗагрузкойВариантаНаСервере</ns0:Event>\n\t\t<ns0:Event name=\"OnPasteFromClipboard\">ПриВставкеИзБуфераОбмена</ns0:Event>\n\t\t<ns0:Event name=\"NotificationProcessing\">ОбработкаОповещения</ns0:Event>\n\t\t<ns0:Event name=\"NewWriteProcessing\">ОбработкаЗаписиНового</ns0:Event>\n\t\t<ns0:Event name=\"OnOpen\">ПриОткрытии</ns0:Event>\n\t\t<ns0:Event name=\"BeforeLoadUserSettingsAtServer\">ПередЗагрузкойПользовательскихНастроекНаСервере</ns0:Event>\n\t\t<ns0:Event name=\"URLListGetProcessing\">ОбработкаПолученияСпискаНавигационныхСсылок</ns0:Event>\n\t\t<ns0:Event name=\"OnSaveVariantAtServer\">ПриСохраненииВариантаНаСервере</ns0:Event>\n\t\t<ns0:Event name=\"BeforeClose\">ПередЗакрытием</ns0:Event>\n\t\t<ns0:Event name=\"ExternalEvent\">ВнешнееСобытие</ns0:Event>\n\t\t<ns0:Event name=\"CollaborationSystemUsersAutoComplete\">АвтоПодборПользователейСистемыВзаимодействия</ns0:Event>\n\t\t<ns0:Event name=\"URLGetProcessing\">ОбработкаПолученияНавигационнойСсылки</ns0:Event>\n\t\t<ns0:Event name=\"OnReopen\">ПриПовторномОткрытии</ns0:Event>\n\t\t<ns0:Event name=\"OnLoadDataFromSettingsAtServer\">ПриЗагрузкеДанныхИзНастроекНаСервере</ns0:Event>\n\t\t<ns0:Event name=\"OnLoadUserSettingsAtServer\">ПриЗагрузкеПользовательскихНастроекНаСервере</ns0:Event>\n\t\t<ns0:Event name=\"OnLoadVariantAtServer\">ПриЗагрузкеВариантаНаСервере</ns0:Event>\n\t\t<ns0:Event name=\"OnClientApplicationResume\">ПриПробужденииКлиентскогоПриложения</ns0:Event>\n\t\t<ns0:Event name=\"NavigationProcessing\">ОбработкаПерехода</ns0:Event>\n\t\t<ns0:Event name=\"OnSaveUserSettingsAtServer\">ПриСохраненииПользовательскихНастроекНаСервере</ns0:Event>\n\t\t<ns0:Event name=\"OnCreateAtServer\">ПриСозданииНаСервере</ns0:Event>\n\t\t<ns0:Event name=\"CollaborationSystemUsersChoiceFormGetProcessing\">ОбработкаПолученияФормыВыбораПользователейСистемыВзаимодействия</ns0:Event>\n\t\t<ns0:Event name=\"ActivationProcessing\">ОбработкаАктивизации</ns0:Event>\n\t\t<ns0:Event name=\"OnChangeDisplaySettings\">ПриИзмененииПараметровЭкрана</ns0:Event>\n\t\t<ns0:Event name=\"OnClose\">ПриЗакрытии</ns0:Event>\n\t\t<ns0:Event name=\"OnMainServerAvailabilityChange\">ПриИзмененииДоступностиОсновногоСервера</ns0:Event>\n\t\t<ns0:Event name=\"OnUpdateUserSettingSetAtServer\">ПриОбновленииСоставаПользовательскихНастроекНаСервере</ns0:Event>\n\t\t<ns0:Event name=\"URLProcessing\">ОбработкаНавигационнойСсылки</ns0:Event>\n\t\t<ns0:Event name=\"FillCheckProcessingAtServer\">ОбработкаПроверкиЗаполненияНаСервере</ns0:Event>\n\t\t<ns0:Event name=\"BeforeLoadDataFromSettingsAtServer\">ПередЗагрузкойДанныхИзНастроекНаСервере</ns0:Event>\n\t\t<ns0:Event name=\"AddInDetachmentOnError\">ОтключениеВнешнейКомпонентыПриОшибке</ns0:Event>\n\t</ns0:Events>\n\t</Form>",
+      "yaml": "События:\n  ПередПереоткрытиемСДругогоСервера: ПередПереоткрытиемСДругогоСервера\n  ПриПереоткрытииСДругогоСервера: ПриПереоткрытииСДругогоСервера\n  ПриСохраненииДанныхВНастройкахНаСервере: ПриСохраненииДанныхВНастройкахНаСервере\n  ПриЗасыпанииКлиентскогоПриложения: ПриЗасыпанииКлиентскогоПриложения\n  ОбработкаВыбора: ОбработкаВыбора\n  ПередЗагрузкойВариантаНаСервере: ПередЗагрузкойВариантаНаСервере\n  ПриВставкеИзБуфераОбмена: ПриВставкеИзБуфераОбмена\n  ОбработкаОповещения: ОбработкаОповещения\n  ОбработкаЗаписиНового: ОбработкаЗаписиНового\n  ПриОткрытии: ПриОткрытии\n  ПередЗагрузкойПользовательскихНастроекНаСервере: ПередЗагрузкойПользовательскихНастроекНаСервере\n  ОбработкаПолученияСпискаНавигационныхСсылок: ОбработкаПолученияСпискаНавигационныхСсылок\n  ПриСохраненииВариантаНаСервере: ПриСохраненииВариантаНаСервере\n  ПередЗакрытием: ПередЗакрытием\n  ВнешнееСобытие: ВнешнееСобытие\n  АвтоПодборПользователейСистемыВзаимодействия: АвтоПодборПользователейСистемыВзаимодействия\n  ОбработкаПолученияНавигационнойСсылки: ОбработкаПолученияНавигационнойСсылки\n  ПриПовторномОткрытии: ПриПовторномОткрытии\n  ПриЗагрузкеДанныхИзНастроекНаСервере: ПриЗагрузкеДанныхИзНастроекНаСервере\n  ПриЗагрузкеПользовательскихНастроекНаСервере: ПриЗагрузкеПользовательскихНастроекНаСервере\n  ПриЗагрузкеВариантаНаСервере: ПриЗагрузкеВариантаНаСервере\n  ПриПробужденииКлиентскогоПриложения: ПриПробужденииКлиентскогоПриложения\n  ОбработкаПерехода: ОбработкаПерехода\n  ПриСохраненииПользовательскихНастроекНаСервере: ПриСохраненииПользовательскихНастроекНаСервере\n  ПриСозданииНаСервере: ПриСозданииНаСервере\n  ОбработкаПолученияФормыВыбораПользователейСистемыВзаимодействия: ОбработкаПолученияФормыВыбораПользователейСистемыВзаимодействия\n  ОбработкаАктивизации: ОбработкаАктивизации\n  ПриИзмененииПараметровЭкрана: ПриИзмененииПараметровЭкрана\n  ПриЗакрытии: ПриЗакрытии\n  ПриИзмененииДоступностиОсновногоСервера: ПриИзмененииДоступностиОсновногоСервера\n  ПриОбновленииСоставаПользовательскихНастроекНаСервере: ПриОбновленииСоставаПользовательскихНастроекНаСервере\n  ОбработкаНавигационнойСсылки: ОбработкаНавигационнойСсылки\n  ОбработкаПроверкиЗаполненияНаСервере: ОбработкаПроверкиЗаполненияНаСервере\n  ПередЗагрузкойДанныхИзНастроекНаСервере: ПередЗагрузкойДанныхИзНастроекНаСервере\n  ОтключениеВнешнейКомпонентыПриОшибке: ОтключениеВнешнейКомпонентыПриОшибке",
+      "omittedXMLProperties": [
+        "ReportResult",
+        "DetailsData",
+        "ReportFormType",
+        "VariantAppearance",
+        "AutoShowState",
+        "CustomSettingsFolder",
+        "ReportResultViewMode",
+        "ViewModeApplicationOnSetReportResult",
+        "AutoCommandBar",
+        "ChildItems",
+        "Attributes"
+      ],
+      "xmlQNamePaths": [],
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cf/Reports/ОтчетВсеСвойства/Forms/ФормаОтчета/Ext/Form.xml",
+          "sha256": "7ae0a69f3059cfcca37c2941c11a70056efcf15436a619b8ed8c39a9ec0ccbc1"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cf/Отчет/ОтчетВсеСвойства/Формы/ФормаОтчета/Форма.yaml",
+          "sha256": "08a6d1b98c18566d673ea9d240be0dfcc8efb860c055f3150e2096ee0287e858"
+        }
+      ],
+      "noRaw": true
+    },
+    {
+      "id": "event-bindings-e2e-cfe",
+      "entry": "working.events.form",
+      "xml": "<Form xmlns:ns0=\"http://v8.1c.ru/8.3/xcf/logform\"><ns0:Events>\n\t\t<ns0:Event name=\"BeforeReopenFromOtherServer\">ПередПереоткрытиемСДругогоСервера</ns0:Event>\n\t\t<ns0:Event name=\"OnReopenFromOtherServer\">ПриПереоткрытииСДругогоСервера</ns0:Event>\n\t\t<ns0:Event name=\"OnSaveDataInSettingsAtServer\">ПриСохраненииДанныхВНастройкахНаСервере</ns0:Event>\n\t\t<ns0:Event name=\"OnClientApplicationSuspend\">ПриЗасыпанииКлиентскогоПриложения</ns0:Event>\n\t\t<ns0:Event name=\"ChoiceProcessing\">ОбработкаВыбора</ns0:Event>\n\t\t<ns0:Event name=\"BeforeLoadVariantAtServer\">ПередЗагрузкойВариантаНаСервере</ns0:Event>\n\t\t<ns0:Event name=\"OnPasteFromClipboard\">ПриВставкеИзБуфераОбмена</ns0:Event>\n\t\t<ns0:Event name=\"NotificationProcessing\">ОбработкаОповещения</ns0:Event>\n\t\t<ns0:Event name=\"NewWriteProcessing\">ОбработкаЗаписиНового</ns0:Event>\n\t\t<ns0:Event name=\"OnOpen\">ПриОткрытии</ns0:Event>\n\t\t<ns0:Event name=\"BeforeLoadUserSettingsAtServer\">ПередЗагрузкойПользовательскихНастроекНаСервере</ns0:Event>\n\t\t<ns0:Event name=\"URLListGetProcessing\">ОбработкаПолученияСпискаНавигационныхСсылок</ns0:Event>\n\t\t<ns0:Event name=\"OnSaveVariantAtServer\">ПриСохраненииВариантаНаСервере</ns0:Event>\n\t\t<ns0:Event name=\"BeforeClose\">ПередЗакрытием</ns0:Event>\n\t\t<ns0:Event name=\"ExternalEvent\">ВнешнееСобытие</ns0:Event>\n\t\t<ns0:Event name=\"CollaborationSystemUsersAutoComplete\">АвтоПодборПользователейСистемыВзаимодействия</ns0:Event>\n\t\t<ns0:Event name=\"URLGetProcessing\">ОбработкаПолученияНавигационнойСсылки</ns0:Event>\n\t\t<ns0:Event name=\"OnReopen\">ПриПовторномОткрытии</ns0:Event>\n\t\t<ns0:Event name=\"OnLoadDataFromSettingsAtServer\">ПриЗагрузкеДанныхИзНастроекНаСервере</ns0:Event>\n\t\t<ns0:Event name=\"OnLoadUserSettingsAtServer\">ПриЗагрузкеПользовательскихНастроекНаСервере</ns0:Event>\n\t\t<ns0:Event name=\"OnLoadVariantAtServer\">ПриЗагрузкеВариантаНаСервере</ns0:Event>\n\t\t<ns0:Event name=\"OnClientApplicationResume\">ПриПробужденииКлиентскогоПриложения</ns0:Event>\n\t\t<ns0:Event name=\"NavigationProcessing\">ОбработкаПерехода</ns0:Event>\n\t\t<ns0:Event name=\"OnSaveUserSettingsAtServer\">ПриСохраненииПользовательскихНастроекНаСервере</ns0:Event>\n\t\t<ns0:Event name=\"OnCreateAtServer\">ПриСозданииНаСервере</ns0:Event>\n\t\t<ns0:Event name=\"CollaborationSystemUsersChoiceFormGetProcessing\">ОбработкаПолученияФормыВыбораПользователейСистемыВзаимодействия</ns0:Event>\n\t\t<ns0:Event name=\"ActivationProcessing\">ОбработкаАктивизации</ns0:Event>\n\t\t<ns0:Event name=\"OnChangeDisplaySettings\">ПриИзмененииПараметровЭкрана</ns0:Event>\n\t\t<ns0:Event name=\"OnClose\">ПриЗакрытии</ns0:Event>\n\t\t<ns0:Event name=\"OnMainServerAvailabilityChange\">ПриИзмененииДоступностиОсновногоСервера</ns0:Event>\n\t\t<ns0:Event name=\"OnUpdateUserSettingSetAtServer\">ПриОбновленииСоставаПользовательскихНастроекНаСервере</ns0:Event>\n\t\t<ns0:Event name=\"URLProcessing\">ОбработкаНавигационнойСсылки</ns0:Event>\n\t\t<ns0:Event name=\"FillCheckProcessingAtServer\">ОбработкаПроверкиЗаполненияНаСервере</ns0:Event>\n\t\t<ns0:Event name=\"BeforeLoadDataFromSettingsAtServer\">ПередЗагрузкойДанныхИзНастроекНаСервере</ns0:Event>\n\t\t<ns0:Event name=\"AddInDetachmentOnError\">ОтключениеВнешнейКомпонентыПриОшибке</ns0:Event>\n\t</ns0:Events>\n\t</Form>",
+      "yaml": "События:\n  ПередПереоткрытиемСДругогоСервера: ПередПереоткрытиемСДругогоСервера\n  ПриПереоткрытииСДругогоСервера: ПриПереоткрытииСДругогоСервера\n  ПриСохраненииДанныхВНастройкахНаСервере: ПриСохраненииДанныхВНастройкахНаСервере\n  ПриЗасыпанииКлиентскогоПриложения: ПриЗасыпанииКлиентскогоПриложения\n  ОбработкаВыбора: ОбработкаВыбора\n  ПередЗагрузкойВариантаНаСервере: ПередЗагрузкойВариантаНаСервере\n  ПриВставкеИзБуфераОбмена: ПриВставкеИзБуфераОбмена\n  ОбработкаОповещения: ОбработкаОповещения\n  ОбработкаЗаписиНового: ОбработкаЗаписиНового\n  ПриОткрытии: ПриОткрытии\n  ПередЗагрузкойПользовательскихНастроекНаСервере: ПередЗагрузкойПользовательскихНастроекНаСервере\n  ОбработкаПолученияСпискаНавигационныхСсылок: ОбработкаПолученияСпискаНавигационныхСсылок\n  ПриСохраненииВариантаНаСервере: ПриСохраненииВариантаНаСервере\n  ПередЗакрытием: ПередЗакрытием\n  ВнешнееСобытие: ВнешнееСобытие\n  АвтоПодборПользователейСистемыВзаимодействия: АвтоПодборПользователейСистемыВзаимодействия\n  ОбработкаПолученияНавигационнойСсылки: ОбработкаПолученияНавигационнойСсылки\n  ПриПовторномОткрытии: ПриПовторномОткрытии\n  ПриЗагрузкеДанныхИзНастроекНаСервере: ПриЗагрузкеДанныхИзНастроекНаСервере\n  ПриЗагрузкеПользовательскихНастроекНаСервере: ПриЗагрузкеПользовательскихНастроекНаСервере\n  ПриЗагрузкеВариантаНаСервере: ПриЗагрузкеВариантаНаСервере\n  ПриПробужденииКлиентскогоПриложения: ПриПробужденииКлиентскогоПриложения\n  ОбработкаПерехода: ОбработкаПерехода\n  ПриСохраненииПользовательскихНастроекНаСервере: ПриСохраненииПользовательскихНастроекНаСервере\n  ПриСозданииНаСервере: ПриСозданииНаСервере\n  ОбработкаПолученияФормыВыбораПользователейСистемыВзаимодействия: ОбработкаПолученияФормыВыбораПользователейСистемыВзаимодействия\n  ОбработкаАктивизации: ОбработкаАктивизации\n  ПриИзмененииПараметровЭкрана: ПриИзмененииПараметровЭкрана\n  ПриЗакрытии: ПриЗакрытии\n  ПриИзмененииДоступностиОсновногоСервера: ПриИзмененииДоступностиОсновногоСервера\n  ПриОбновленииСоставаПользовательскихНастроекНаСервере: ПриОбновленииСоставаПользовательскихНастроекНаСервере\n  ОбработкаНавигационнойСсылки: ОбработкаНавигационнойСсылки\n  ОбработкаПроверкиЗаполненияНаСервере: ОбработкаПроверкиЗаполненияНаСервере\n  ПередЗагрузкойДанныхИзНастроекНаСервере: ПередЗагрузкойДанныхИзНастроекНаСервере\n  ОтключениеВнешнейКомпонентыПриОшибке: ОтключениеВнешнейКомпонентыПриОшибке",
+      "omittedXMLProperties": [
+        "ReportResult",
+        "DetailsData",
+        "ReportFormType",
+        "VariantAppearance",
+        "AutoShowState",
+        "CustomSettingsFolder",
+        "ReportResultViewMode",
+        "ViewModeApplicationOnSetReportResult",
+        "AutoCommandBar",
+        "ChildItems",
+        "Attributes"
+      ],
+      "xmlQNamePaths": [],
+      "source": [
+        {
+          "path": "e2e/fixtures/xml/cfe/all-extension/Reports/ОтчетВсеСвойстваExt/Forms/ФормаОтчета/Ext/Form.xml",
+          "sha256": "bbcf5d0e58e78fee17342cdacc18510d140d4840f2a68b18ffc12b5d6c7a6d86"
+        },
+        {
+          "path": "e2e/fixtures/nkdk/cfe/Расширение_All/Отчет/ОтчетВсеСвойстваExt/Формы/ФормаОтчета/Форма.yaml",
+          "sha256": "e68ea1ca0edb6f7be47d222ff4d971137b3cc4bd106ad7e459da6b0751ef6f80"
+        }
+      ],
+      "noRaw": true
+    }
+  ],
+  "factSources": []
+}

@@ -1,0 +1,118 @@
+{
+  "entry": "metadata.enumeration",
+  "coverage": {
+    "assembled": [
+      "xmlRoot",
+      "internalInfo",
+      "uuid",
+      "name",
+      "synonym",
+      "comment",
+      "objectBelonging",
+      "extendedConfigurationObject",
+      "useStandardCommands",
+      "standardAttributes",
+      "characteristics",
+      "quickChoice",
+      "choiceMode",
+      "defaultListForm",
+      "defaultChoiceForm",
+      "auxiliaryListForm",
+      "auxiliaryChoiceForm",
+      "managerModule",
+      "listPresentation",
+      "extendedListPresentation",
+      "explanation",
+      "choiceHistoryOnInput",
+      "enumValues",
+      "commands",
+      "forms",
+      "templates"
+    ],
+    "pending": []
+  },
+  "xml": "<ns0:MetaDataObject xmlns:ns0=\"http://v8.1c.ru/8.3/MDClasses\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" version=\"2.20\"><ns0:Enum uuid=\"d4d5d160-ee41-473b-b967-5d2ce005ce27\"><ns0:InternalInfo>\n\t\t\t<xr:GeneratedType name=\"EnumRef.ПеречислениеПоУмолчанию\" category=\"Ref\">\n\t\t\t\t<xr:TypeId>1fd90b11-fe59-44a4-9669-f395bfbb6b05</xr:TypeId>\n\t\t\t\t<xr:ValueId>6fb21b38-8d2d-4180-84b2-d56e70c079c3</xr:ValueId>\n\t\t\t</xr:GeneratedType>\n\t\t\t<xr:GeneratedType name=\"EnumManager.ПеречислениеПоУмолчанию\" category=\"Manager\">\n\t\t\t\t<xr:TypeId>fdf089ce-02f8-4a8e-98b5-5b2d988008c8</xr:TypeId>\n\t\t\t\t<xr:ValueId>0a87e3ca-7a2d-41c8-83f3-9eaf8ed73ad1</xr:ValueId>\n\t\t\t</xr:GeneratedType>\n\t\t\t<xr:GeneratedType name=\"EnumList.ПеречислениеПоУмолчанию\" category=\"List\">\n\t\t\t\t<xr:TypeId>d6fff02c-d581-43dd-8a79-034f4b35d31f</xr:TypeId>\n\t\t\t\t<xr:ValueId>be8a1eda-5346-4c04-bea3-8465cc67c44b</xr:ValueId>\n\t\t\t</xr:GeneratedType>\n\t\t</ns0:InternalInfo>\n\t\t<ns0:Properties><ns0:ObjectBelonging>Adopted</ns0:ObjectBelonging>\n\t\t\t<ns0:Name>ПеречислениеПоУмолчанию</ns0:Name>\n\t\t\t<ns0:Comment />\n\t\t\t<ns0:ExtendedConfigurationObject>7e194b74-4c07-45eb-b984-a1ab3b0eff63</ns0:ExtendedConfigurationObject>\n\t\t</ns0:Properties><ns0:ChildObjects /></ns0:Enum></ns0:MetaDataObject>",
+  "yaml": "ПринадлежностьОбъекта: Заимствованный",
+  "ownerIdentity": "d4d5d160-ee41-473b-b967-5d2ce005ce27",
+  "ownerInternalTypes": [
+    {
+      "name": "EnumRef.ПеречислениеПоУмолчанию",
+      "typeId": "1fd90b11-fe59-44a4-9669-f395bfbb6b05",
+      "valueId": "6fb21b38-8d2d-4180-84b2-d56e70c079c3"
+    },
+    {
+      "name": "EnumManager.ПеречислениеПоУмолчанию",
+      "typeId": "fdf089ce-02f8-4a8e-98b5-5b2d988008c8",
+      "valueId": "0a87e3ca-7a2d-41c8-83f3-9eaf8ed73ad1"
+    },
+    {
+      "name": "EnumList.ПеречислениеПоУмолчанию",
+      "typeId": "d6fff02c-d581-43dd-8a79-034f4b35d31f",
+      "valueId": "be8a1eda-5346-4c04-bea3-8465cc67c44b"
+    }
+  ],
+  "ownerPath": "Enum.ПеречислениеПоУмолчанию",
+  "ownerForms": [],
+  "ownerChildIdentities": [],
+  "ownerTemplates": [],
+  "xmlQNamePaths": [],
+  "source": [
+    {
+      "path": "e2e/fixtures/xml/cfe/all-extension/Enums/ПеречислениеПоУмолчанию.xml",
+      "sha256": "560174dd3a876313841079d95baa98e24a7ed872d16728d60c63598beacc64e0"
+    },
+    {
+      "path": "e2e/fixtures/nkdk/cfe/Расширение_All/Перечисление/ПеречислениеПоУмолчанию/Свойства.yaml",
+      "sha256": "1f2b17390c4e2d39e5b49f2b2eab571ec967a3f730018f05e2f74756dc012450"
+    }
+  ],
+  "baseIdentity": "7e194b74-4c07-45eb-b984-a1ab3b0eff63",
+  "inputs": {
+    "ownerName": "ПеречислениеПоУмолчанию",
+    "owner": "Enum.ПеречислениеПоУмолчанию",
+    "ownerIdentity": "d4d5d160-ee41-473b-b967-5d2ce005ce27",
+    "forms": [],
+    "templates": [],
+    "commandNames": [],
+    "defaultLanguage": "ru",
+    "registeredLanguages": [
+      "ru",
+      "en"
+    ],
+    "component": "cfe",
+    "compatibilityMode": "Version8_3_27",
+    "componentKind": "extension",
+    "profiles": [
+      {
+        "name": "Order",
+        "yamlName": "Порядок",
+        "pathName": "Порядок",
+        "emptyForm": "mapping",
+        "policy": "notSpecified",
+        "expectedKind": "",
+        "maxTextLength": "",
+        "maxNumberDigits": "",
+        "allowedTextLength": "",
+        "owners": []
+      },
+      {
+        "name": "Ref",
+        "yamlName": "Ссылка",
+        "pathName": "Ссылка",
+        "emptyForm": "mapping",
+        "policy": "notSpecified",
+        "expectedKind": "",
+        "maxTextLength": "",
+        "maxNumberDigits": "",
+        "allowedTextLength": "",
+        "owners": []
+      }
+    ],
+    "owners": [],
+    "canonicalNames": [
+      "Order",
+      "Ref"
+    ],
+    "elidableNames": []
+  }
+}

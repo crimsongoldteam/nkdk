@@ -1,0 +1,132 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/parameterValue/__fixtures__/data.ts",
+      "sha256": "9fed8ac1159b0d10a61bdd66282a60ec2eeb7c3f3a720abb75f7ea34ae38d229"
+    },
+    {
+      "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dcsMetadataValue/__fixtures__/data.ts",
+      "sha256": "bb75a337bfd24e63a911af152696fd21ca06b4f029e2680bfa36f4d0adf0a27f"
+    }
+  ],
+  "fixtures": [
+    {
+      "id": "full",
+      "rule": {
+        "type": "SettingsParameterValue",
+        "valueType": "DesignTimeValue",
+        "yaml": "Формат"
+      },
+      "xml": "<dcscor:item xsi:type=\"dcsset:SettingsParameterValue\">\n\t<dcscor:parameter>Формат</dcscor:parameter>\n\t<dcscor:value xsi:type=\"v8:LocalStringType\">\n\t\t<v8:item>\n\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t<v8:content>ЧЦ=3; ЧДЦ=2</v8:content>\n\t\t</v8:item>\n\t</dcscor:value>\n</dcscor:item>",
+      "yaml": {
+        "Тип": "МногоязычнаяСтрока",
+        "Значение": "ЧЦ=3; ЧДЦ=2"
+      }
+    },
+    {
+      "id": "useFalse",
+      "rule": {
+        "type": "SettingsParameterValue",
+        "valueType": "Color",
+        "yaml": "ЦветФона"
+      },
+      "xml": "<dcscor:item xsi:type=\"dcsset:SettingsParameterValue\">\n\t<dcscor:use>false</dcscor:use>\n\t<dcscor:parameter>ЦветФона</dcscor:parameter>\n\t<dcscor:value xsi:type=\"v8ui:Color\">web:Red</dcscor:value>\n</dcscor:item>",
+      "yaml": {
+        "Использовать": "Ложь",
+        "Значение": "Красный"
+      }
+    },
+    {
+      "id": "typeLink",
+      "rule": {
+        "type": "SettingsParameterValue",
+        "valueType": "TypeLink",
+        "yaml": "СвязьПоТипу"
+      },
+      "xml": "<dcscor:item xsi:type=\"dcsset:SettingsParameterValue\">\n\t<dcscor:parameter>СвязьПоТипу</dcscor:parameter>\n\t<dcscor:value xsi:type=\"dcscor:TypeLink\">\n\t\t<dcscor:field>Поле1</dcscor:field>\n\t\t<dcscor:linkItem>2</dcscor:linkItem>\n\t</dcscor:value>\n</dcscor:item>",
+      "yaml": {
+        "Значение": "Поле1(2)"
+      }
+    },
+    {
+      "id": "choiceParameters",
+      "rule": {
+        "type": "SettingsParameterValue",
+        "valueType": "Parameter",
+        "yaml": "ПараметрыВыбора"
+      },
+      "xml": "<dcscor:item xsi:type=\"dcsset:SettingsParameterValue\">\n\t<dcscor:parameter>ПараметрыВыбора</dcscor:parameter>\n\t<dcscor:value xsi:type=\"dcscor:ChoiceParameters\">\n\t\t<dcscor:item>\n\t\t\t<dcscor:choiceParameter>Параметр</dcscor:choiceParameter>\n\t\t\t<dcscor:value xsi:type=\"xs:decimal\">123</dcscor:value>\n\t\t</dcscor:item>\n\t</dcscor:value>\n</dcscor:item>",
+      "yaml": {
+        "Значение": {
+          "Параметр": 123
+        }
+      }
+    },
+    {
+      "id": "choiceParameterLinks",
+      "rule": {
+        "type": "SettingsParameterValue",
+        "valueType": "ChoiceParameterLinks",
+        "yaml": "СвязиПараметровВыбора"
+      },
+      "xml": "<dcscor:item xsi:type=\"dcsset:SettingsParameterValue\">\n\t<dcscor:parameter>СвязиПараметровВыбора</dcscor:parameter>\n\t<dcscor:value xsi:type=\"dcscor:ChoiceParameterLinks\">\n\t\t<dcscor:item>\n\t\t\t<dcscor:choiceParameter>ПараметрВыбора</dcscor:choiceParameter>\n\t\t\t<dcscor:value>Поле1</dcscor:value>\n\t\t\t<dcscor:mode xsi:type=\"ent:LinkedValueChangeMode\">DontChange</dcscor:mode>\n\t\t</dcscor:item>\n\t</dcscor:value>\n</dcscor:item>",
+      "yaml": {
+        "Значение": [
+          {
+            "Имя": "ПараметрВыбора",
+            "ПутьКДанным": "Поле1",
+            "РежимИзменения": "НеИзменять"
+          }
+        ]
+      }
+    },
+    {
+      "id": "systemEnumeration",
+      "rule": {
+        "type": "SettingsParameterValue",
+        "valueType": "SystemEnumeration",
+        "typeSE": "FoldersAndItemsUse",
+        "yaml": "ВыборГруппИЭлементов"
+      },
+      "xml": "<dcscor:item xsi:type=\"dcsset:SettingsParameterValue\">\n\t<dcscor:parameter>ВыборГруппИЭлементов</dcscor:parameter>\n\t<dcscor:value xsi:type=\"ent:FoldersAndItemsUse\">Items</dcscor:value>\n</dcscor:item>",
+      "yaml": {
+        "Значение": "Элементы"
+      }
+    },
+    {
+      "id": "fewValues",
+      "rule": {
+        "type": "SettingsParameterValue",
+        "valueType": "DesignTimeValue",
+        "yaml": "ИмяПараметра"
+      },
+      "xml": "<dcscor:item xsi:type=\"dcsset:SettingsParameterValue\">\n\t<dcscor:use>false</dcscor:use>\n\t<dcscor:parameter>ИмяПараметра</dcscor:parameter>\n\t<dcscor:value xsi:type=\"v8:LocalStringType\">\n\t\t<v8:item>\n\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t<v8:content>Перечисление.ИмяПеречисления.Значение1</v8:content>\n\t\t</v8:item>\n\t</dcscor:value>\n\t<dcscor:value xsi:type=\"v8:LocalStringType\">\n\t\t<v8:item>\n\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t<v8:content>Перечисление.ИмяПеречисления.Значение2</v8:content>\n\t\t</v8:item>\n\t</dcscor:value>\n</dcscor:item>",
+      "yaml": {
+        "Использовать": "Ложь",
+        "Значение": [
+          {
+            "Тип": "МногоязычнаяСтрока",
+            "Значение": "Перечисление.ИмяПеречисления.Значение1"
+          },
+          {
+            "Тип": "МногоязычнаяСтрока",
+            "Значение": "Перечисление.ИмяПеречисления.Значение2"
+          }
+        ]
+      }
+    },
+    {
+      "id": "shortOnlyValue",
+      "rule": {
+        "type": "SettingsParameterValue",
+        "valueType": "Color",
+        "yaml": "ЦветТекста"
+      },
+      "xml": "<dcscor:item xsi:type=\"dcsset:SettingsParameterValue\">\n\t<dcscor:parameter>ЦветТекста</dcscor:parameter>\n\t<dcscor:value xsi:type=\"v8ui:Color\">web:Blue</dcscor:value>\n</dcscor:item>",
+      "yaml": {
+        "Значение": "Синий"
+      }
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.ObjectBelonging
+  value1: common.string
+value:
+  kind: record
+  fields:
+    - name: objectBelonging
+      type:
+        use: value0
+    - name: name
+      type:
+        use: value1
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: objectBelonging
+        path:
+          - Properties
+          - ObjectBelonging
+      - field: name
+        path:
+          - Properties
+          - Name
+  yaml:
+    kind: mapping
+    fields: []
+presence:
+  - target:
+      field: objectBelonging
+    xml:
+      missing:
+        denotes:
+          literal: Native
+      canonical:
+        - when:
+            eq:
+              - field: objectBelonging
+              - literal: Native
+          form: missing
+    yaml:
+      default:
+        literal: Native
+  - target:
+      field: name
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          input: ownerName
+inputs:
+  ownerName:
+    type:
+      kind: scalar
+      scalar: text
+id: candidate.fragment.ae5aefdfe9c81c90d178

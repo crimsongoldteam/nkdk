@@ -12,6 +12,11 @@ imports:
   identifiers: common.type-description-identifiers
   text: common.string
 parameters:
+  requireValues:
+    type:
+      kind: scalar
+      scalar: boolean
+    default: false
   addTypeDescriptionAttributeToXML:
     type:
       kind: scalar
@@ -31,6 +36,8 @@ value:
         with:
           metadataAttributeTypesOnly:
             parameter: metadataAttributeTypesOnly
+          requireValues:
+            parameter: requireValues
     - name: types
       type:
         use: types

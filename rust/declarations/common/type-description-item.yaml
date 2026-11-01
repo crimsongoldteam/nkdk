@@ -37,6 +37,23 @@ presence:
   xml: {missing: {denotes: {literal: ''}}}
   yaml: {missing: {denotes: {literal: ''}}, omitWhen: {eq: [{field: second}, {literal: ''}]}}
 constraints:
+  - id: valid-qualifiers
+    appliesTo: [xml-import, yaml-validation]
+    assert:
+      and:
+      - if: {matches: {value: {field: value}, pattern: 'Строка|ФиксированнаяСтрока'}}
+        then:
+          and:
+          - {matches: {value: {field: first}, pattern: '[0-9]*'}}
+          - {eq: [{field: second}, {literal: ''}]}
+        else: {literal: true}
+      - if: {matches: {value: {field: value}, pattern: 'Число|ПоложительноеЧисло'}}
+        then:
+          and:
+          - {matches: {value: {field: first}, pattern: '[0-9]*'}}
+          - {matches: {value: {field: second}, pattern: '[0-9]*'}}
+        else: {literal: true}
+    diagnostic: {code: type-description.qualifiers, severity: error, at: {self: true}, message: Параметры строки и числа должны быть целыми неотрицательными числами}
   - id: metadata-attribute-allowed-types
     appliesTo:
       - xml-import

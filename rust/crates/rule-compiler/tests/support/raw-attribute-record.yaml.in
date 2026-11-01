@@ -1,0 +1,6 @@
+- kind: value
+  id: @ID@
+  value: {kind: record, fields: [{name: raw, type: {kind: scalar, scalar: text}}]}
+  representations:
+    xml: {kind: record, fields: [{field: raw, path: [], attribute: @ATTRIBUTE@}]}
+    yaml: {kind: mapping, fields: [{field: raw, key: @KEY@}]}

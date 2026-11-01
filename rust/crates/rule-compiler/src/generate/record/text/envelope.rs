@@ -77,7 +77,7 @@ fn write_xml_@id@(value:&V@id@,inputs:&InputView<'_>)->core::Result<Vec<u8>>{
 let ordinary=write_xml_plain_@id@(value,inputs)?;
 let Some(patch)=value.raw.get(@slot@) else{return Ok(ordinary)};
 let tree=patch.apply(text_tree_@id@(&ordinary)?,core::xml::Name{namespace:@namespace@.into(),local:@local@.into()},&[],Q@id@)?;
-let mut namespaces=Vec::new();tree.collect_namespaces(&mut namespaces);let mut out=core::xml::Writer::new(&namespaces);tree.write_at(&mut out,@parent@,Q@id@)?;Ok(out.finish())
+let parent:&[(&str,&str)]=@parent@;let mut namespaces=Vec::new();tree.collect_namespaces(&mut namespaces);for &(namespace,_) in parent {if !namespace.is_empty() && !namespaces.contains(&namespace){namespaces.push(namespace);}}let mut out=core::xml::Writer::new(&namespaces);tree.write_at(&mut out,parent,Q@id@)?;Ok(out.finish())
 }
 fn preserve_text_record_@id@(meaning:&[u8],expected:&[u8],inputs:&InputView<'_>)->core::Result<Vec<u8>>{
 let base=write_xml_plain_@id@(&text_semantic_@id@(meaning,inputs)?,inputs)?;

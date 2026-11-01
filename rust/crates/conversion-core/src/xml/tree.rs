@@ -5,12 +5,39 @@ use super::{Attribute, Name, Token, is_whitespace, matches, visit_scoped};
 use crate::{Result, RuntimeDiagnostic};
 pub use patch::Patch;
 
+#[derive(Clone)]
 pub struct Tree {
     name: Name,
     attributes: Vec<Attribute>,
     text: String,
     text_qname: Option<Name>,
     children: Vec<Tree>,
+}
+
+impl super::attribute_scan::Source for &Tree {
+    fn visit_attributes(
+        self,
+        mut consume: impl FnMut(super::attribute_scan::Event<'_>) -> Result<()>,
+    ) -> Result<()> {
+        fn walk(
+            tree: &Tree,
+            consume: &mut impl FnMut(super::attribute_scan::Event<'_>) -> Result<()>,
+        ) -> Result<()> {
+            use super::attribute_scan::Event;
+            consume(Event::Enter((&tree.name.namespace, &tree.name.local)))?;
+            for attribute in &tree.attributes {
+                consume(Event::Attribute(
+                    (&attribute.name.namespace, &attribute.name.local),
+                    &attribute.text,
+                ))?;
+            }
+            for child in &tree.children {
+                walk(child, consume)?;
+            }
+            consume(Event::Leave)
+        }
+        walk(self, &mut consume)
+    }
 }
 #[derive(Clone, PartialEq, Eq)]
 enum Payload {
@@ -41,17 +68,59 @@ fn qualified(name: &Name, namespaces: &[(&str, &str)]) -> Result<String> {
     Ok(format!("{prefix}:{}", name.local))
 }
 impl Tree {
+    /// Require the declared root without repeating capture/error boilerplate.
+    pub fn capture_required(source: &[u8], path: &[(&str, &str)]) -> Result<Self> {
+        Self::capture(source, path)?.ok_or_else(|| {
+            RuntimeDiagnostic::new("xml.owner-root", "Expected the declared document root")
+        })
+    }
+
+    /// Count matching descendants in an already captured exceptional boundary.
+    pub fn count_at(&self, path: &[(&str, &str)]) -> usize {
+        let Some((first, tail)) = path.split_first() else {
+            return 1;
+        };
+        self.children
+            .iter()
+            .filter(|child| child.name.namespace == first.0 && child.name.local == first.1)
+            .map(|child| child.count_at(tail))
+            .sum()
+    }
+
     /// Rebase a captured value onto the root expected by a reusable declaration.
     pub fn rename_root(&mut self, name: Name) {
         self.name = name;
     }
 
+    /// A scalar patch must not also own attributes emitted by sibling record fields.
+    pub fn omit_attributes(&mut self, names: &[(&str, &str)]) {
+        self.attributes.retain(|attribute| {
+            !names
+                .iter()
+                .any(|name| attribute.name.namespace == name.0 && attribute.name.local == name.1)
+        });
+    }
+
     /// Serialize this subtree as an independent XML document.
     pub fn document(&self, qname_attributes: &[(&str, &str)]) -> Result<Vec<u8>> {
+        self.document_at(&[], qname_attributes)
+    }
+
+    /// Restore a subtree together with the declaration's ancestor path.
+    pub fn document_at(
+        &self,
+        parent: &[(&str, &str)],
+        qname_attributes: &[(&str, &str)],
+    ) -> Result<Vec<u8>> {
         let mut namespaces = Vec::new();
+        for (namespace, _) in parent {
+            if !namespace.is_empty() && !namespaces.contains(namespace) {
+                namespaces.push(*namespace);
+            }
+        }
         self.collect_namespaces(&mut namespaces);
         let mut writer = super::Writer::new(&namespaces);
-        self.write_at(&mut writer, &[], qname_attributes)?;
+        self.write_at(&mut writer, parent, qname_attributes)?;
         Ok(writer.finish())
     }
 
@@ -146,15 +215,7 @@ impl Tree {
             if (child.name.namespace.as_str(), child.name.local.as_str()) != member {
                 continue;
             }
-            let mut namespaces: Vec<_> = parent
-                .iter()
-                .map(|(uri, _)| *uri)
-                .filter(|uri| !uri.is_empty())
-                .collect();
-            child.collect_namespaces(&mut namespaces);
-            let mut writer = super::Writer::new(&namespaces);
-            child.write_at(&mut writer, parent, qnames)?;
-            visit(&writer.finish())?;
+            visit(&child.document_at(parent, qnames)?)?;
         }
         Ok(())
     }
@@ -163,7 +224,7 @@ impl Tree {
         target: &[(&str, &str)],
         qname_text: impl Fn(&[Name]) -> bool,
     ) -> Result<Option<Self>> {
-        Self::capture_selected(source, target, None, qname_text)
+        Self::capture_selected::<false>(source, target, None, |path, _| qname_text(path))
     }
     /// Select a particular occurrence only on the exceptional preservation path.
     pub fn capture_at(
@@ -171,13 +232,30 @@ impl Tree {
         target: &[(&str, &str)],
         offset: usize,
     ) -> Result<Option<Self>> {
-        Self::capture_selected(source, target, Some(offset), |_| false)
+        Self::capture_at_with_qnames(source, target, offset, |_| false)
     }
-    fn capture_selected(
+    /// Select one occurrence while preserving declaration-marked QName text.
+    pub fn capture_at_with_qnames(
+        source: &[u8],
+        target: &[(&str, &str)],
+        offset: usize,
+        qname_text: impl Fn(&[Name]) -> bool,
+    ) -> Result<Option<Self>> {
+        Self::capture_selected::<false>(source, target, Some(offset), |path, _| qname_text(path))
+    }
+    /// Preserve QName meaning only for the selected variant of each occurrence.
+    pub fn capture_with_value_qnames(
+        source: &[u8],
+        target: &[(&str, &str)],
+        qname_text: impl Fn(&[Name], &[usize]) -> bool,
+    ) -> Result<Option<Self>> {
+        Self::capture_selected::<true>(source, target, None, qname_text)
+    }
+    fn capture_selected<const CONTEXT: bool>(
         source: &[u8],
         target: &[(&str, &str)],
         offset: Option<usize>,
-        qname_text: impl Fn(&[Name]) -> bool,
+        qname_text: impl Fn(&[Name], &[usize]) -> bool,
     ) -> Result<Option<Self>> {
         if target.is_empty() {
             return Err(failure("A preservation boundary must name an element"));
@@ -185,88 +263,80 @@ impl Tree {
         let mut stack: Vec<Self> = Vec::new();
         let mut result = None;
         let mut selected = false;
+        let mut occurrences = super::Occurrences::default();
         visit_scoped(source, |path, token, scope| {
-            if path.len() < target.len() || !matches(&path[..target.len()], target) {
-                return Ok(());
+            if CONTEXT && matches!(token, Token::Start(_)) {
+                occurrences.enter(path.last().expect("element name"));
             }
-            if path.len() == target.len()
-                && let Token::Start(position) = &token
-            {
-                selected = offset.is_none_or(|offset| offset == *position);
-            }
-            if !selected {
-                return Ok(());
-            }
-            match token {
-                Token::Start(_) => {
-                    if path.len() == target.len() && result.is_some() {
-                        return Err(failure("Preservation boundary has multiple occurrences"));
-                    }
-                    stack.push(Self {
-                        name: path.last().expect("element path").clone(),
-                        attributes: Vec::new(),
-                        text: String::new(),
-                        text_qname: None,
-                        children: Vec::new(),
-                    });
+            let end = matches!(token, Token::End);
+            let result = (|| {
+                if path.len() < target.len() || !matches(&path[..target.len()], target) {
+                    return Ok(());
                 }
-                Token::Attribute(attribute) => stack
-                    .last_mut()
-                    .expect("opened element")
-                    .attributes
-                    .push(attribute),
-                Token::Text(text) => stack
-                    .last_mut()
-                    .expect("opened element")
-                    .text
-                    .push_str(text),
-                Token::End => {
-                    let mut node = stack.pop().expect("opened element");
-                    if !node.children.is_empty() {
-                        if !is_whitespace(&node.text) {
-                            return Err(failure(
-                                "Mixed content requires an explicit ordered text representation",
-                            ));
+                if path.len() == target.len()
+                    && let Token::Start(position) = &token
+                {
+                    selected = offset.is_none_or(|offset| offset == *position);
+                }
+                if !selected {
+                    return Ok(());
+                }
+                match token {
+                    Token::Start(_) => {
+                        if path.len() == target.len() && result.is_some() {
+                            return Err(failure("Preservation boundary has multiple occurrences"));
                         }
-                        node.text.clear();
-                    } else if qname_text(path)
-                        && let Ok((namespace, local)) = scope.resolve_qname(&node.text)
-                    {
-                        node.text_qname = Some(Name {
-                            namespace: namespace.into(),
-                            local: local.into(),
+                        stack.push(Self {
+                            name: path.last().expect("element path").clone(),
+                            attributes: Vec::new(),
+                            text: String::new(),
+                            text_qname: None,
+                            children: Vec::new(),
                         });
-                        node.text.clear();
                     }
-                    if let Some(parent) = stack.last_mut() {
-                        parent.children.push(node);
-                    } else {
-                        result = Some(node);
+                    Token::Attribute(attribute) => stack
+                        .last_mut()
+                        .expect("opened element")
+                        .attributes
+                        .push(attribute),
+                    Token::Text(text) => stack
+                        .last_mut()
+                        .expect("opened element")
+                        .text
+                        .push_str(text),
+                    Token::End => {
+                        let mut node = stack.pop().expect("opened element");
+                        if !node.children.is_empty() {
+                            if !is_whitespace(&node.text) {
+                                return Err(failure(
+                                    "Mixed content requires an explicit ordered text representation",
+                                ));
+                            }
+                            node.text.clear();
+                        } else if qname_text(path, occurrences.path())
+                            && let Ok((namespace, local)) = scope.resolve_qname(&node.text)
+                        {
+                            node.text_qname = Some(Name {
+                                namespace: namespace.into(),
+                                local: local.into(),
+                            });
+                            node.text.clear();
+                        }
+                        if let Some(parent) = stack.last_mut() {
+                            parent.children.push(node);
+                        } else {
+                            result = Some(node);
+                        }
                     }
                 }
+                Ok(())
+            })();
+            if CONTEXT && end {
+                occurrences.leave();
             }
-            Ok(())
+            result
         })?;
         Ok(result)
-    }
-    /// Select owned siblings only on the exceptional preservation path.
-    pub(super) fn retain_children(&mut self, names: &[(&str, &str)]) {
-        self.children.retain(|child| {
-            names
-                .iter()
-                .any(|name| child.name.namespace == name.0 && child.name.local == name.1)
-        });
-        self.attributes.clear();
-        self.text.clear();
-        self.text_qname = None;
-    }
-    pub(super) fn retain_owned_path(&mut self, path: &[(&str, &str)]) {
-        self.retain_children(&path[..1]);
-        if path.len() > 1 {
-            for child in &mut self.children {
-                child.retain_owned_path(&path[1..]);
-            }
-        }
     }
     /// Write only owned descendants, leaving shared ancestors open for siblings.
     pub fn write_owned_at<'a>(
@@ -304,16 +374,6 @@ impl Tree {
             }
         }
         Ok(())
-    }
-    pub(super) fn retain_record(&mut self, children: &[(&str, &str)], attributes: &[(&str, &str)]) {
-        let mut saved = std::mem::take(&mut self.attributes);
-        saved.retain(|attribute| {
-            attributes
-                .iter()
-                .any(|name| attribute.name.namespace == name.0 && attribute.name.local == name.1)
-        });
-        self.retain_children(children);
-        self.attributes = saved;
     }
     /// Append an unwrapped collection without reopening its shared container.
     pub fn write_children_at<'a>(
@@ -357,11 +417,8 @@ impl Tree {
             }
             let value = if qname_attributes.iter().any(|(uri, local)| {
                 *uri == attribute.name.namespace && *local == attribute.name.local
-            }) {
-                let name = attribute
-                    .qname
-                    .as_ref()
-                    .ok_or_else(|| failure("Declared QName attribute cannot be resolved"))?;
+            }) && let Some(name) = &attribute.qname
+            {
                 if !registered(name) {
                     return Err(failure(
                         "Preserved QName namespace is not registered with the writer",
@@ -417,14 +474,9 @@ impl Tree {
         for attribute in &self.attributes {
             let value = if qname_attributes.iter().any(|(uri, local)| {
                 *uri == attribute.name.namespace && *local == attribute.name.local
-            }) {
-                qualified(
-                    attribute
-                        .qname
-                        .as_ref()
-                        .ok_or_else(|| failure("Declared QName attribute cannot be resolved"))?,
-                    namespaces,
-                )?
+            }) && let Some(name) = &attribute.qname
+            {
+                qualified(name, namespaces)?
             } else {
                 attribute.text.clone()
             };

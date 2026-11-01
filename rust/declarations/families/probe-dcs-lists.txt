@@ -1,0 +1,7 @@
+migration.dcs-available-values
+migration.dcs-available-fields
+migration.dcs-order-item-fields
+migration.dcs-order
+migration.group-item-field
+migration.group-item-collection
+migration.structure-item-group

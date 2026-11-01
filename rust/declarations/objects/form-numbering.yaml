@@ -1,0 +1,208 @@
+# Источники номеров и резервов формы; полное преобразование описано отдельно.
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+  - format: nkdk-declarations/1
+    kind: object
+    id: metadata.form-attribute-numbering
+    namespaces:
+      f: http://v8.1c.ru/8.3/xcf/logform
+    inputs:
+      component:
+        type: {kind: scalar, scalar: text}
+      owner:
+        type: {kind: scalar, scalar: text}
+    value:
+      kind: record
+      fields:
+        - {name: name, type: {kind: scalar, scalar: text}}
+        - {name: id, type: {kind: scalar, scalar: text}}
+    representations:
+      xml:
+        kind: record
+        fields: [{field: name, path: [f:Attribute], attribute: name}, {field: id, path: [f:Attribute], attribute: id}]
+      yaml:
+        kind: mapping
+        fields: [{field: name, key: Имя}, {field: id, key: Идентификатор}]
+    presence:
+      - target: {field: id}
+        xml: {missing: {denotes: {absent: true}}}
+        yaml: {missing: {denotes: {absent: true}}}
+    contributions:
+      - index: metadata.form-attribute-identities
+        key: {record: {component: {input: component}, owner: {input: owner}, name: {field: name}}}
+        value: {field: id}
+        when: {present: {field: id}}
+      - index: metadata.form-attribute-identities
+        key: {record: {component: {input: component}, owner: {input: owner}, name: {field: name}}}
+        allocate: {scope: [component, owner], first: 1}
+  - format: nkdk-declarations/1
+    kind: object
+    id: metadata.form-command-numbering
+    namespaces:
+      f: http://v8.1c.ru/8.3/xcf/logform
+    inputs:
+      component:
+        type: {kind: scalar, scalar: text}
+      owner:
+        type: {kind: scalar, scalar: text}
+    value:
+      kind: record
+      fields:
+        - {name: name, type: {kind: scalar, scalar: text}}
+        - {name: id, type: {kind: scalar, scalar: text}}
+    representations:
+      xml:
+        kind: record
+        fields: [{field: name, path: [f:Command], attribute: name}, {field: id, path: [f:Command], attribute: id}]
+      yaml:
+        kind: mapping
+        fields: [{field: name, key: Имя}, {field: id, key: Идентификатор}]
+    presence:
+      - target: {field: id}
+        xml: {missing: {denotes: {absent: true}}}
+        yaml: {missing: {denotes: {absent: true}}}
+    contributions:
+      - index: metadata.form-command-identities
+        key: {record: {component: {input: component}, owner: {input: owner}, name: {field: name}}}
+        value: {field: id}
+        when: {present: {field: id}}
+      - index: metadata.form-command-identities
+        key: {record: {component: {input: component}, owner: {input: owner}, name: {field: name}}}
+        allocate: {scope: [component, owner], first: 1}
+  - format: nkdk-declarations/1
+    kind: object
+    id: metadata.form-parameter-numbering
+    namespaces:
+      f: http://v8.1c.ru/8.3/xcf/logform
+    inputs:
+      component:
+        type: {kind: scalar, scalar: text}
+      owner:
+        type: {kind: scalar, scalar: text}
+    value:
+      kind: record
+      fields:
+        - {name: name, type: {kind: scalar, scalar: text}}
+        - {name: id, type: {kind: scalar, scalar: text}}
+    representations:
+      xml:
+        kind: record
+        fields: [{field: name, path: [f:Parameter], attribute: name}, {field: id, path: [f:Parameter], attribute: id}]
+      yaml:
+        kind: mapping
+        fields: [{field: name, key: Имя}, {field: id, key: Идентификатор}]
+    presence:
+      - target: {field: id}
+        xml: {missing: {denotes: {absent: true}}}
+        yaml: {missing: {denotes: {absent: true}}}
+    contributions:
+      - index: metadata.form-parameter-identities
+        key: {record: {component: {input: component}, owner: {input: owner}, name: {field: name}}}
+        value: {field: id}
+        when: {present: {field: id}}
+      - index: metadata.form-parameter-identities
+        key: {record: {component: {input: component}, owner: {input: owner}, name: {field: name}}}
+        allocate: {scope: [component, owner], first: 1}
+  - format: nkdk-declarations/1
+    kind: object
+    id: metadata.form-id-reservations
+    namespaces:
+      f: http://v8.1c.ru/8.3/xcf/logform
+    inputs:
+      component:
+        type: {kind: scalar, scalar: text}
+      owner:
+        type: {kind: scalar, scalar: text}
+    value:
+      kind: record
+      fields:
+        - {name: form, type: {kind: scalar, scalar: text}}
+        - {name: base, type: {kind: scalar, scalar: text}}
+        - {name: attributes, type: {kind: scalar, scalar: text}}
+        - {name: attribute, type: {kind: scalar, scalar: text}}
+        - {name: columns, type: {kind: scalar, scalar: text}}
+        - {name: column, type: {kind: scalar, scalar: text}}
+        - {name: commands, type: {kind: scalar, scalar: text}}
+        - {name: command, type: {kind: scalar, scalar: text}}
+        - {name: parameters, type: {kind: scalar, scalar: text}}
+        - {name: parameter, type: {kind: scalar, scalar: text}}
+    representations:
+      xml:
+        kind: record
+        fields: [{field: form, path: [f:Form], attribute: id}, {field: base, path: [f:Form, f:BaseForm], attribute: id}, {field: attributes, path: [f:Form, f:Attributes], attribute: id}, {field: attribute, path: [f:Form, f:Attribute], attribute: id}, {field: columns, path: [f:Form, f:Columns], attribute: id}, {field: column, path: [f:Form, f:Column], attribute: id}, {field: commands, path: [f:Form, f:Commands], attribute: id}, {field: command, path: [f:Form, f:Command], attribute: id}, {field: parameters, path: [f:Form, f:Parameters], attribute: id}, {field: parameter, path: [f:Form, f:Parameter], attribute: id}]
+      yaml:
+        kind: mapping
+        fields: [{field: form, key: form}, {field: base, key: base}, {field: attributes, key: attributes}, {field: attribute, key: attribute}, {field: columns, key: columns}, {field: column, key: column}, {field: commands, key: commands}, {field: command, key: command}, {field: parameters, key: parameters}, {field: parameter, key: parameter}]
+    presence:
+      - target: {field: form}
+        xml: {missing: {denotes: {absent: true}}}
+        yaml: {missing: {denotes: {absent: true}}}
+      - target: {field: base}
+        xml: {missing: {denotes: {absent: true}}}
+        yaml: {missing: {denotes: {absent: true}}}
+      - target: {field: attributes}
+        xml: {missing: {denotes: {absent: true}}}
+        yaml: {missing: {denotes: {absent: true}}}
+      - target: {field: attribute}
+        xml: {missing: {denotes: {absent: true}}}
+        yaml: {missing: {denotes: {absent: true}}}
+      - target: {field: columns}
+        xml: {missing: {denotes: {absent: true}}}
+        yaml: {missing: {denotes: {absent: true}}}
+      - target: {field: column}
+        xml: {missing: {denotes: {absent: true}}}
+        yaml: {missing: {denotes: {absent: true}}}
+      - target: {field: commands}
+        xml: {missing: {denotes: {absent: true}}}
+        yaml: {missing: {denotes: {absent: true}}}
+      - target: {field: command}
+        xml: {missing: {denotes: {absent: true}}}
+        yaml: {missing: {denotes: {absent: true}}}
+      - target: {field: parameters}
+        xml: {missing: {denotes: {absent: true}}}
+        yaml: {missing: {denotes: {absent: true}}}
+      - target: {field: parameter}
+        xml: {missing: {denotes: {absent: true}}}
+        yaml: {missing: {denotes: {absent: true}}}
+    contributions:
+      - index: metadata.element-identities
+        key: {record: {component: {input: component}, owner: {input: owner}}}
+        reserve: {field: form}
+        when: {present: {field: form}}
+      - index: metadata.element-identities
+        key: {record: {component: {input: component}, owner: {input: owner}}}
+        reserve: {field: base}
+        when: {present: {field: base}}
+      - index: metadata.form-attribute-identities
+        key: {record: {component: {input: component}, owner: {input: owner}}}
+        reserve: {field: attributes}
+        when: {present: {field: attributes}}
+      - index: metadata.form-attribute-identities
+        key: {record: {component: {input: component}, owner: {input: owner}}}
+        reserve: {field: attribute}
+        when: {present: {field: attribute}}
+      - index: metadata.form-attribute-identities
+        key: {record: {component: {input: component}, owner: {input: owner}}}
+        reserve: {field: columns}
+        when: {present: {field: columns}}
+      - index: metadata.form-attribute-identities
+        key: {record: {component: {input: component}, owner: {input: owner}}}
+        reserve: {field: column}
+        when: {present: {field: column}}
+      - index: metadata.form-command-identities
+        key: {record: {component: {input: component}, owner: {input: owner}}}
+        reserve: {field: commands}
+        when: {present: {field: commands}}
+      - index: metadata.form-command-identities
+        key: {record: {component: {input: component}, owner: {input: owner}}}
+        reserve: {field: command}
+        when: {present: {field: command}}
+      - index: metadata.form-parameter-identities
+        key: {record: {component: {input: component}, owner: {input: owner}}}
+        reserve: {field: parameters}
+        when: {present: {field: parameters}}
+      - index: metadata.form-parameter-identities
+        key: {record: {component: {input: component}, owner: {input: owner}}}
+        reserve: {field: parameter}
+        when: {present: {field: parameter}}

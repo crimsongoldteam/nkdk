@@ -17,6 +17,10 @@ test('defined type profiles differ only in declared empty and missing states',()
   assert.equal(rule(extension,'synonym').xml.canonical,undefined);
   assert.deepEqual(rule(extension,'synonym').yaml.omitWhen,{not:{present:{field:'synonym'}}});
   assert.deepEqual(rule(extension,'synonym').yaml.missing.denotes,{absent:true});
+  const inherited=rule(extension,'objectBelonging').yaml.missing.denotes;
+  assert.deepEqual(inherited.if,{present:{lookup:rule(extension,'base').yaml.missing.denotes.then.require.lookup}});
+  assert.equal(inherited.then.literal,'Adopted');
+  assert.equal(inherited.else.literal,'Native');
   assert.deepEqual(base.contributions,extension.contributions);
 });
 
@@ -26,31 +30,55 @@ test('defined type internal ID source follows the shared document rule',()=>{
   const defined=yaml.load(readFileSync('rust/declarations/probes/defined-type-internal-types.generated.yaml','utf8'));
   const ownerFragment=yaml.load(readFileSync('rust/declarations/fragments/defined-type-internal-info.generated.yaml','utf8'));
   assert.equal(defined.id,'migration.defined-type-internal-types');
-  source.id=defined.id;
-  source.representations.xml.fields[0].path=ownerFragment.representations.xml.fields[0].path;
-  delete source.inputs.owner;
-  source.inputs.ownerName={type:{kind:'scalar',scalar:'text'}};
-  source.inputs.component={type:{kind:'scalar',scalar:'text'}};
-  source.inputs.parent={type:{kind:'scalar',scalar:'text'}};
-  source.inputs.identities={index:'metadata.own-identities'};
-  for(const contribution of source.contributions)contribution.key.record.owner={
-    require:{lookup:{in:{input:'identities'},key:{record:{
-      component:{input:'component'},owner:{input:'parent'},kind:{literal:'DefinedType'},name:{input:'ownerName'},
-    }}}},
-  };
-  assert.deepEqual(defined,source);
+  assert.deepEqual(defined.representations.xml.fields[0].path,ownerFragment.representations.xml.fields[0].path);
+  assert.deepEqual(defined.value,source.value);
+  assert.deepEqual(defined.representations.yaml,source.representations.yaml);
+  assert.equal(defined.contributions.length,source.contributions.length);
+  for(const [index,contribution] of defined.contributions.entries()){
+    assert.equal(contribution.index,source.contributions[index].index);
+    assert.deepEqual(contribution.forEach,source.contributions[index].forEach);
+    assert.deepEqual(contribution.value,source.contributions[index].value);
+    assert.equal(contribution.key.record.owner.require.lookup.key.record.name.input,'ownerName');
+  }
+  assert.equal(defined.inputs.identitySeed.type.scalar,'text');
+  const generated=defined.presence[0].yaml.missing.denotes.sequence[0].record;
+  assert.equal(generated.typeId.identity.format,'uuid');
+  assert.equal(generated.valueId.identity.format,'uuid');
 });
 
-test('defined type identity providers extract UUID and base UUID from owner XML',()=>{
+test('defined type identity providers prepare owner UUID and optional base UUID',()=>{
   execFileSync(process.execPath,['tools/rules-migration/src/defined-type-identity-operation.mjs','--check'],{stdio:'pipe'});
   const own=yaml.load(readFileSync('rust/declarations/probes/defined-type-own-identity.generated.yaml','utf8'));
-  const base=yaml.load(readFileSync('rust/declarations/probes/defined-type-base-identity.generated.yaml','utf8'));
-  for(const provider of [own,base]){
-    assert.deepEqual(provider.representations.xml.content.fields.find(field=>field.field==='uuid'),{field:'uuid',path:['md:MetaDataObject','md:DefinedType'],attribute:'uuid'});
-    assert.equal(provider.compose[0].bind.identity.field,'uuid');
-  }
+  const baseCatalog=yaml.load(readFileSync('rust/declarations/probes/defined-type-base-identity.generated.yaml','utf8'));
+  const base=baseCatalog.declarations.find(item=>item.id==='migration.defined-type-base-identity');
+  assert.deepEqual(own.representations.xml.content.fields.find(field=>field.field==='uuid'),{field:'uuid',path:['md:MetaDataObject','md:DefinedType'],attribute:'uuid'});
+  assert.equal(own.compose[0].bind.identity.field,'uuid');
   assert.equal(own.compose[0].bind.name.field,'name');
   assert.equal(own.compose[0].bind.kind.literal,'DefinedType');
-  assert.deepEqual(base.representations.xml.content.fields.find(field=>field.field==='base').path,['md:MetaDataObject','md:DefinedType','md:Properties','md:ExtendedConfigurationObject']);
-  assert.equal(base.compose[0].bind.baseIdentity.field,'base');
+  assert.deepEqual(base.representations.xml.fields.find(field=>field.field==='base').path,['md:MetaDataObject','md:DefinedType','md:Properties']);
+  const baseValues=baseCatalog.declarations.find(item=>item.id==='migration.defined-type-base-values');
+  assert.deepEqual(baseValues.representations.xml.path,['md:ExtendedConfigurationObject']);
+  assert.deepEqual(base.contributions[0].forEach,{in:{field:'base'},as:'item'});
+  assert.equal(base.contributions[0].key.record.identity.require.lookup.in.input,'identities');
+});
+
+test('enumeration identity sources derive every generated type from rules.ts',()=>{
+  execFileSync(process.execPath,['tools/rules-migration/src/enumeration-identity-operation.mjs','--check'],{stdio:'pipe'});
+  const extraction=JSON.parse(readFileSync('tests/migration/rules-extraction.json','utf8'));
+  const source=extraction.entries.find(entry=>entry.symbol==='MetadataEnumerationRules');
+  const expected=source.properties.find(property=>property.type==='InternalInfo').parameters.items;
+  const own=yaml.load(readFileSync('rust/declarations/probes/enumeration-own-identity.generated.yaml','utf8'));
+  const internal=yaml.load(readFileSync('rust/declarations/probes/enumeration-internal-types.generated.yaml','utf8'));
+  const base=yaml.load(readFileSync('rust/declarations/probes/enumeration-base-identity.generated.yaml','utf8'));
+  assert.deepEqual(own.representations.xml.content.fields.find(field=>field.field==='uuid'),
+    {field:'uuid',path:['md:MetaDataObject','md:Enum'],attribute:'uuid'});
+  assert.deepEqual(own.presence.find(row=>row.target.field==='uuid').yaml.missing.denotes.identity.address,
+    [{literal:'Перечисление'},{input:'ownerName'}]);
+  const rows=internal.presence.find(row=>row.target.field==='types').yaml.missing.denotes.sequence;
+  assert.deepEqual(rows.map(row=>[row.record.name.concat[0].literal,row.record.category.literal]),
+    expected.map(row=>[row.name+'.',row.category]));
+  assert.deepEqual(internal.representations.xml.fields[0].path,['md:MetaDataObject','md:Enum','md:InternalInfo']);
+  assert(internal.value.fields.some(field=>field.name==='states'));
+  assert.deepEqual(base.representations.xml.fields[0].path,['md:MetaDataObject','md:Enum','md:Properties']);
+  assert.equal(base.contributions[0].key.record.identity.require.lookup.key.record.kind.literal,'Enum');
 });

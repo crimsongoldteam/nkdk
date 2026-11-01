@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.dcs-available-fields
+namespaces: {dcsset: 'http://v8.1c.ru/8.1/data-composition-system/settings'}
+imports: {fields: common.dcs-available-fields}
+inputs:
+  defaultLanguage: {type: {kind: scalar, scalar: text}}
+  registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+value:
+  kind: record
+  fields:
+  - name: fields
+    type:
+      use: fields
+      bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}}
+representations:
+  xml: {kind: record, fields: [{field: fields, path: [Root, dcsset:selection]}]}
+  yaml: {kind: mapping, fields: [{field: fields, key: Поля}]}

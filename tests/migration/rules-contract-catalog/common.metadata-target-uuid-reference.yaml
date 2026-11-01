@@ -1,0 +1,28 @@
+format: nkdk-declarations/1
+kind: value
+id: common.metadata-target-uuid-reference
+imports:
+  head: common.metadata-target-uuid-head
+  tail: common.metadata-target-uuid-tail
+value:
+  kind: record
+  fields:
+    - name: head
+      type:
+        use: head
+    - name: tail
+      type:
+        use: tail
+representations:
+  xml:
+    kind: text-pattern
+    parts:
+      - field: head
+      - literal: '-'
+      - field: tail
+  yaml:
+    kind: text-pattern
+    parts:
+      - field: head
+      - literal: '-'
+      - field: tail

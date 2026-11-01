@@ -1,0 +1,53 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.UseFullTextSearch
+  value1: system.DataHistoryUse
+value:
+  kind: record
+  fields:
+    - name: fullTextSearch
+      type:
+        use: value0
+    - name: dataHistory
+      type:
+        use: value1
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: fullTextSearch
+        path:
+          - Properties
+          - FullTextSearch
+      - field: dataHistory
+        path:
+          - Properties
+          - DataHistory
+  yaml:
+    kind: mapping
+    fields:
+      - field: fullTextSearch
+        key: ПолнотекстовыйПоиск
+      - field: dataHistory
+        key: ИсторияДанных
+presence:
+  - target:
+      field: fullTextSearch
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Use
+  - target:
+      field: dataHistory
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Use
+id: candidate.fragment.ea5b5016fb12d0cd8747

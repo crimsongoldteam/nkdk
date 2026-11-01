@@ -1,0 +1,20 @@
+format: nkdk-declarations/1
+kind: value
+id: common.data-table-virtual
+imports:
+  kind: common.path-virtual-table
+value:
+  kind: record
+  fields:
+    - name: kind
+      type:
+        use: kind
+representations:
+  xml:
+    kind: text-pattern
+    parts:
+      - field: kind
+  yaml:
+    kind: text-pattern
+    parts:
+      - field: kind

@@ -15,6 +15,7 @@ imports:
   attributes: fragment.document-attributes
   rootKind: common.path-root
   children: fragment.document-child-names
+  commands: fragment.document-commands
 namespaces: {md: 'http://v8.1c.ru/8.3/MDClasses'}
 inputs:
   additionalIndexIds: {index: metadata.additional-index-ids}
@@ -37,6 +38,8 @@ inputs:
   valueIds: {index: metadata.internal-value-ids}
   forms: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
   templates: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  commandIds: {index: metadata.own-identities}
+  baseIds: {index: metadata.base-identities}
 compose:
 - {use: indexes, bind: {owner: {input: owner}, identities: {input: additionalIndexIds}}}
 - {use: templateFiles, bind: {names: {input: templates}}}
@@ -49,6 +52,7 @@ compose:
 - {use: links, bind: {ownerName: {input: name}, roots: {input: roots}, formTargets: {input: formTargets}, ownerPath: {input: ownerPath}, forms: {input: forms}}}
 - {use: attributes, bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}, definedTypes: {input: definedTypes}, roots: {input: roots}, forms: {input: formTargets}, ownerRoot: {input: ownerRoot}, attributes: {input: attributeNames}, containingOwnerName: {input: name}, identities: {input: attributeIds}, component: {input: component}, owner: {input: owner}}}
 - {use: children, bind: {forms: {input: forms}, templates: {input: templates}}}
+- {use: commands, bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}, roots: {input: roots}, identities: {input: commandIds}, baseIds: {input: baseIds}, component: {input: component}, owner: {input: owner}}}
 - {use: help, bind: {pages: {input: helpPages}}}
 value: {kind: record, fields: [{name: uuid, type: {kind: scalar, scalar: text}}]}
 representations:

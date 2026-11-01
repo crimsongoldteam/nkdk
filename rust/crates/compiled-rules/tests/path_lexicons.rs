@@ -1,9 +1,707 @@
+#[path = "support/command_identity.rs"]
+mod command_identity;
+#[path = "support/fact_budget.rs"]
+mod fact_budget;
+#[path = "support/journal_columns.rs"]
+mod journal_columns;
+
+use nkdk_compiled_rules::{Direction, convert_file, entry_id, verify_candidate};
+#[cfg(not(feature = "journal-full"))]
+use nkdk_compiled_rules::{PreparedInputs, validate_file};
 use nkdk_compiled_rules_probes as nkdk_compiled_rules;
-use nkdk_compiled_rules::{
-    Direction, PreparedInputs, convert_file, entry_id, validate_file, verify_candidate,
-};
 
 #[test]
+#[cfg(not(feature = "journal-full"))]
+fn recalculation_leading_data_uses_short_and_full_paths_from_xml_fixture() {
+    use nkdk_compiled_rules::{InputValue, prepare_inputs};
+    let fixture = include_str!(
+        "../../../../e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВсеСвойства/Recalculations/ПерерасчетВсеСвойства.xml"
+    );
+    let start = fixture.find("<LeadingRegisterData>").unwrap();
+    let end = fixture[start..].find("</LeadingRegisterData>").unwrap()
+        + start
+        + "</LeadingRegisterData>".len();
+    let xml = format!(
+        "<Properties xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">{}</Properties>",
+        &fixture[start..end]
+    );
+    let expected = "ДанныеВедущихРегистров:\n  - ИзмерениеВсеСвойства\n  - РегистрРасчета.РегистрРасчетаВедущий.Измерение.ИзмерениеПараметрыВыбора";
+    let entry = entry_id("migration.contextual-member-links").unwrap();
+    let inputs = prepare_inputs(
+        entry,
+        vec![(
+            "ownerName".into(),
+            InputValue::Text("РегистрРасчетаВсеСвойства".into()),
+        )],
+    )
+    .unwrap();
+    let actual = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+    assert_eq!(actual.bytes, expected.as_bytes());
+    assert!(!actual.bytes.windows(4).any(|bytes| bytes == b"!xml"));
+    verify_candidate(entry, xml.as_bytes(), expected.as_bytes(), &inputs).unwrap();
+}
+
+#[test]
+#[cfg(not(feature = "journal-full"))]
+fn document_root_facts_are_snapshotted_from_a_real_xml_file() {
+    let entry = entry_id("migration.document-root-source").unwrap();
+    let source = include_bytes!(
+        "../../../../e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойства.xml"
+    );
+    let inputs = nkdk_compiled_rules::prepare_inputs(entry, Vec::new()).unwrap();
+    let snapshot = nkdk_compiled_rules::snapshot_fact_source(entry, source, &inputs).unwrap();
+    assert!(snapshot.len() < source.len() / 10);
+    let generation = nkdk_conversion_core::facts::Generation(1);
+    let mut facts =
+        nkdk_compiled_rules::fact_builder(generation, fact_budget::fact_budget(100, 10000, 100));
+    assert!(
+        nkdk_compiled_rules::contribute_file(
+            entry,
+            Direction::YamlToXml,
+            &snapshot,
+            &inputs,
+            &mut facts,
+        )
+        .is_empty()
+    );
+    assert_eq!(
+        facts.finish().lookup_parts(
+            generation,
+            nkdk_compiled_rules::fact_id("metadata.roots").unwrap(),
+            &["Document", "ДокументВсеСвойства"],
+        ),
+        nkdk_conversion_core::facts::FactState::Ready("309c8cc5-95cd-4f0f-9807-3c3385ec3271")
+    );
+}
+
+fn journal_standard_inputs() -> Vec<(String, nkdk_compiled_rules::InputValue)> {
+    let contracts: serde_json::Value = serde_json::from_slice(include_bytes!(
+        "../../../../tests/migration/rules-contract-cases.json"
+    ))
+    .unwrap();
+    let standard = contracts["cases"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|row| row["id"] == "standard-attribute-family-document-journal")
+        .unwrap();
+    nkdk_conversion_core::inputs::read(&serde_json::to_vec(&standard["inputs"]).unwrap())
+        .unwrap()
+        .into_iter()
+        .filter(|(key, _)| {
+            [
+                "profiles",
+                "owners",
+                "canonicalNames",
+                "elidableNames",
+                "componentKind",
+            ]
+            .contains(&key.as_str())
+        })
+        .collect()
+}
+
+#[test]
+#[cfg(not(feature = "journal-full"))]
+fn journal_properties_restore_adoption_from_base_identity() {
+    use nkdk_compiled_rules::{
+        InputValue, contribute_file, fact_builder, prepare_fact_inputs, prepare_inputs,
+    };
+    let generation = nkdk_conversion_core::facts::Generation(1);
+    let budget = nkdk_conversion_core::facts::prepared::FactBudget {
+        text: nkdk_conversion_core::facts::text::TextBudget {
+            entries: 10,
+            bytes: 1000,
+        },
+        rows: 10,
+    };
+    let base_entry = entry_id("migration.metadata-base-identity").unwrap();
+    let base_inputs = prepare_inputs(
+        base_entry,
+        [
+            ("component".into(), InputValue::Text("cfe".into())),
+            ("identity".into(), InputValue::Text("owner-cfe".into())),
+            ("baseIdentity".into(), InputValue::Text("base-uuid".into())),
+        ]
+        .into(),
+    )
+    .unwrap();
+    let mut facts = fact_builder(generation, budget);
+    assert!(
+        contribute_file(
+            base_entry,
+            Direction::YamlToXml,
+            "Имя: J".as_bytes(),
+            &base_inputs,
+            &mut facts
+        )
+        .is_empty()
+    );
+    let entry = entry_id("migration.journal-base-properties").unwrap();
+    let inputs = prepare_fact_inputs(
+        entry,
+        std::sync::Arc::new(facts.finish()),
+        generation,
+        vec![
+            ("name".into(), InputValue::Text("J".into())),
+            ("owner".into(), InputValue::Text("owner-cfe".into())),
+            ("component".into(), InputValue::Text("cfe".into())),
+            (
+                "registeredLanguages".into(),
+                InputValue::Sequence(vec![InputValue::Text("ru".into())]),
+            ),
+            ("defaultLanguage".into(), InputValue::Text("ru".into())),
+        ],
+    )
+    .unwrap();
+    let canonical = convert_file(entry, Direction::YamlToXml, b"", &inputs).unwrap();
+    let xml = canonical.bytes.as_slice();
+    let written = String::from_utf8_lossy(xml);
+    assert!(
+        written.contains("<n0:ObjectBelonging>Adopted</n0:ObjectBelonging>"),
+        "{written}"
+    );
+    assert!(
+        written
+            .contains("<n0:ExtendedConfigurationObject>base-uuid</n0:ExtendedConfigurationObject>"),
+        "{written}"
+    );
+    let yaml = convert_file(entry, Direction::XmlToYaml, xml, &inputs).unwrap();
+    assert!(!String::from_utf8_lossy(&yaml.bytes).contains("!xml"));
+    assert!(!String::from_utf8_lossy(&yaml.bytes).contains("ObjectBelonging"));
+    verify_candidate(entry, xml, &yaml.bytes, &inputs).unwrap();
+}
+
+#[test]
+#[cfg(not(feature = "journal-full"))]
+fn journal_internal_type_facts_accept_neighboring_property_states() {
+    let source = include_bytes!(
+        "../../../../e2e/fixtures/xml/cfe/all-extension/DocumentJournals/ЖурналДокументовВсеСвойства.xml"
+    );
+    let entry = entry_id("migration.journal-internal-types").unwrap();
+    let inputs = nkdk_compiled_rules::prepare_inputs(
+        entry,
+        vec![(
+            "owner".into(),
+            nkdk_compiled_rules::InputValue::Text("fb4abe02-f000-40aa-af03-80cb661508e5".into()),
+        )],
+    )
+    .unwrap();
+    let snapshot = convert_file(entry, Direction::XmlToYaml, source, &inputs).unwrap();
+    let meaning = nkdk_conversion_core::raw::Document::decode(&snapshot.bytes)
+        .unwrap()
+        .map_or(snapshot.bytes, |document| document.meaning);
+    let rendered = String::from_utf8(meaning.clone()).unwrap();
+    assert!(rendered.contains("ВнутренниеТипы:"), "{rendered}");
+    assert!(rendered.contains("СостоянияСвойств:"), "{rendered}");
+    assert!(!rendered.contains("!xml"), "{rendered}");
+    let generation = nkdk_conversion_core::facts::Generation(1);
+    let mut builder =
+        nkdk_compiled_rules::fact_builder(generation, fact_budget::fact_budget(20, 2000, 20));
+    assert!(
+        nkdk_compiled_rules::contribute_file(
+            entry,
+            Direction::YamlToXml,
+            &meaning,
+            &inputs,
+            &mut builder
+        )
+        .is_empty()
+    );
+}
+
+#[test]
+#[cfg(not(feature = "journal-full"))]
+fn journal_property_state_has_a_compact_reversible_form() {
+    let entry = entry_id("migration.journal-property-state-probe").unwrap();
+    let inputs = PreparedInputs::default();
+    let source = include_str!(
+        "../../../../e2e/fixtures/xml/cfe/all-extension/DocumentJournals/ЖурналДокументовВсеСвойства.xml"
+    );
+    let first = source.find("<xr:PropertyState>").unwrap();
+    let last =
+        first + source[first..].find("</xr:PropertyState>").unwrap() + "</xr:PropertyState>".len();
+    let xml = format!(
+        "<MetaDataObject xmlns=\"http://v8.1c.ru/8.3/MDClasses\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><DocumentJournal><InternalInfo>{}</InternalInfo></DocumentJournal></MetaDataObject>",
+        &source[first..last]
+    );
+    let yaml = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+    let rendered = std::str::from_utf8(&yaml.bytes).unwrap();
+    assert!(rendered.contains("Изменять:"), "{rendered}");
+    assert!(rendered.contains("МодульМенеджера"), "{rendered}");
+    assert!(!rendered.contains("!xml"), "{rendered}");
+    verify_candidate(entry, xml.as_bytes(), &yaml.bytes, &inputs).unwrap();
+    let unexpected = xml.replace(
+        "<xr:State>Extended</xr:State>",
+        "<xr:State>Unknown</xr:State>",
+    );
+    let anomaly =
+        convert_file(entry, Direction::XmlToYaml, unexpected.as_bytes(), &inputs).unwrap();
+    assert!(String::from_utf8_lossy(&anomaly.bytes).contains("!xml"));
+    verify_candidate(entry, unexpected.as_bytes(), &anomaly.bytes, &inputs).unwrap();
+}
+
+#[cfg(feature = "journal-full")]
+#[test]
+fn adopted_journal_keeps_its_full_e2e_xml() {
+    use nkdk_compiled_rules::{
+        InputValue, contribute_file, fact_builder, prepare_fact_inputs, prepare_inputs,
+    };
+    let source = include_bytes!(
+        "../../../../e2e/fixtures/xml/cfe/all-extension/DocumentJournals/ЖурналДокументовВсеСвойства.xml"
+    );
+    let owner = "fb4abe02-f000-40aa-af03-80cb661508e5";
+    let name = "ЖурналДокументовВсеСвойства";
+    let generation = nkdk_conversion_core::facts::Generation(1);
+    let mut facts = fact_builder(
+        generation,
+        nkdk_conversion_core::facts::prepared::FactBudget {
+            text: nkdk_conversion_core::facts::text::TextBudget {
+                entries: 2000,
+                bytes: 200000,
+            },
+            rows: 1000,
+        },
+    );
+    let internal = entry_id("migration.journal-internal-types").unwrap();
+    let internal_inputs = prepare_inputs(
+        internal,
+        vec![("owner".into(), InputValue::Text(owner.into()))],
+    )
+    .unwrap();
+    assert!(
+        contribute_file(
+            internal,
+            Direction::XmlToYaml,
+            source,
+            &internal_inputs,
+            &mut facts
+        )
+        .is_empty()
+    );
+    let base_entry = entry_id("migration.adopted-journal-base-source").unwrap();
+    let base_inputs = prepare_inputs(
+        base_entry,
+        vec![("component".into(), InputValue::Text("cfe".into()))],
+    )
+    .unwrap();
+    let base_snapshot =
+        nkdk_compiled_rules::snapshot_fact_source(base_entry, source, &base_inputs).unwrap();
+    assert!(
+        contribute_file(
+            base_entry,
+            Direction::YamlToXml,
+            &base_snapshot,
+            &base_inputs,
+            &mut facts
+        )
+        .is_empty()
+    );
+    for column in journal_columns::extract(&String::from_utf8_lossy(source)) {
+        command_identity::seed_kind(
+            &mut facts,
+            "cfe",
+            owner,
+            "Column",
+            &column.name,
+            &column.uuid,
+        );
+        let base = column
+            .xml
+            .split_once("<ExtendedConfigurationObject>")
+            .expect("adopted column base UUID")
+            .1
+            .split_once("</ExtendedConfigurationObject>")
+            .expect("complete adopted column base UUID")
+            .0;
+        command_identity::seed_base(&mut facts, "cfe", &column.uuid, base, &column.name);
+    }
+    command_identity::seed(
+        &mut facts,
+        "cfe",
+        owner,
+        "Команда1",
+        "3c563475-adf5-4d72-a172-f708f45595d1",
+    );
+    command_identity::seed_base(
+        &mut facts,
+        "cfe",
+        "3c563475-adf5-4d72-a172-f708f45595d1",
+        "379bfbdd-9fa6-4a7c-aa7b-45d9c52a210c",
+        "Команда1",
+    );
+    let root = entry_id("migration.adopted-command-group-root-source").unwrap();
+    let root_inputs = prepare_inputs(root, vec![]).unwrap();
+    let root_xml = include_bytes!(
+        "../../../../e2e/fixtures/xml/cfe/all-extension/CommandGroups/ГруппаКомандПоУмолчанию.xml"
+    );
+    let root_snapshot =
+        nkdk_compiled_rules::snapshot_fact_source(root, root_xml, &root_inputs).unwrap();
+    assert!(
+        contribute_file(
+            root,
+            Direction::YamlToXml,
+            &root_snapshot,
+            &root_inputs,
+            &mut facts
+        )
+        .is_empty()
+    );
+    let document_entry = entry_id("migration.document-root-source").unwrap();
+    let document_inputs = prepare_inputs(document_entry, Vec::new()).unwrap();
+    for document in [
+        include_bytes!(
+            "../../../../e2e/fixtures/xml/cfe/all-extension/Documents/ДокументВсеСвойства.xml"
+        )
+        .as_slice(),
+        include_bytes!(
+            "../../../../e2e/fixtures/xml/cfe/all-extension/Documents/ДокументДругойДляЖурнала.xml"
+        )
+        .as_slice(),
+    ] {
+        let snapshot =
+            nkdk_compiled_rules::snapshot_fact_source(document_entry, document, &document_inputs)
+                .unwrap();
+        assert!(
+            contribute_file(
+                document_entry,
+                Direction::YamlToXml,
+                &snapshot,
+                &document_inputs,
+                &mut facts,
+            )
+            .is_empty()
+        );
+    }
+    let mut values = journal_standard_inputs();
+    values.extend(
+        [
+            ("owner", InputValue::Text(owner.into())),
+            ("name", InputValue::Text(name.into())),
+            ("component", InputValue::Text("cfe".into())),
+            ("defaultLanguage", InputValue::Text("ru".into())),
+            (
+                "registeredLanguages",
+                InputValue::Sequence(vec![InputValue::Text("ru".into())]),
+            ),
+            (
+                "forms",
+                InputValue::Sequence(vec![InputValue::Text("ФормаСписка".into())]),
+            ),
+            (
+                "templates",
+                InputValue::Sequence(vec![InputValue::Text("Макет".into())]),
+            ),
+            (
+                "commandNames",
+                InputValue::Sequence(vec![InputValue::Text("Команда1".into())]),
+            ),
+            (
+                "ownerPath",
+                InputValue::Text(format!("DocumentJournal.{name}")),
+            ),
+            ("helpPages", InputValue::Sequence(vec![])),
+        ]
+        .into_iter()
+        .map(|(key, value)| (key.into(), value)),
+    );
+    let entry = entry_id("migration.journal-identity-and-children").unwrap();
+    let facts = std::sync::Arc::new(facts.finish());
+    let inputs = prepare_fact_inputs(entry, facts, generation, values).unwrap();
+    let yaml = convert_file(entry, Direction::XmlToYaml, source, &inputs).unwrap();
+    let rendered = String::from_utf8_lossy(&yaml.bytes);
+    assert!(rendered.contains("Изменять:"), "{rendered}");
+    assert!(rendered.contains("МодульМенеджера"), "{rendered}");
+    assert!(rendered.contains("Графы:"), "{rendered}");
+    assert!(rendered.contains("МодульКоманды"), "{rendered}");
+    assert!(rendered.contains("Команда1:"), "{rendered}");
+    assert!(!rendered.contains("Команды: !xml/"), "{rendered}");
+    assert!(!rendered.contains("Графы: !xml/"), "{rendered}");
+    assert!(
+        !rendered.contains("РегистрируемыеДокументы: !xml/"),
+        "{rendered}"
+    );
+    assert!(!rendered.contains("#order"), "{rendered}");
+    assert!(!rendered.contains("UseStandardCommands"), "{rendered}");
+    assert!(!rendered.contains("IncludeHelpInContents"), "{rendered}");
+    assert!(!rendered.contains("!xml/"), "{rendered}");
+    verify_candidate(entry, source, &yaml.bytes, &inputs).unwrap();
+    let changed = rendered.replacen("Синоним: \"\"", "Синоним: Изменено", 1);
+    assert_ne!(changed, rendered);
+    assert!(verify_candidate(entry, source, changed.as_bytes(), &inputs).is_err());
+}
+
+#[test]
+#[cfg(not(feature = "journal-full"))]
+fn child_form_names_use_the_shared_child_collection_contract() {
+    use nkdk_compiled_rules::InputValue;
+
+    let source = include_str!(
+        "../../../../packages/rules/metadata/appliedObjects/metadataDocument/__fixtures__/sync/xml/ДокументВсеСвойства.xml"
+    );
+    for name in ["ФормаДокумента", "ФормаСписка", "ФормаВыбора"]
+    {
+        assert!(source.contains(&format!("<Form>{name}</Form>")));
+    }
+    let entry = entry_id("migration.document-child-names").unwrap();
+    let forms = ["ФормаДокумента", "ФормаСписка", "ФормаВыбора"];
+    let inputs = nkdk_compiled_rules::prepare_inputs(
+        entry,
+        vec![
+            (
+                "forms".into(),
+                InputValue::Sequence(
+                    forms
+                        .iter()
+                        .map(|name| InputValue::Text((*name).into()))
+                        .collect(),
+                ),
+            ),
+            ("templates".into(), InputValue::Sequence(vec![])),
+        ],
+    )
+    .unwrap();
+    let prefix = "<md:MetaDataObject xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\"><md:Document><md:ChildObjects>";
+    let suffix = "</md:ChildObjects></md:Document></md:MetaDataObject>";
+    let normal = format!(
+        "{prefix}<md:Form>ФормаДокумента</md:Form><md:Form>ФормаСписка</md:Form><md:Form>ФормаВыбора</md:Form>{suffix}"
+    );
+    let converted = convert_file(entry, Direction::XmlToYaml, normal.as_bytes(), &inputs).unwrap();
+    assert!(converted.bytes.is_empty());
+    verify_candidate(entry, normal.as_bytes(), &converted.bytes, &inputs).unwrap();
+    for names in [
+        "<md:Form>ФормаСписка</md:Form><md:Form>ФормаДокумента</md:Form><md:Form>ФормаВыбора</md:Form>",
+        "<md:Form>ФормаДокумента</md:Form><md:Form>ФормаДокумента</md:Form>",
+        "",
+    ] {
+        let xml = format!("{prefix}{names}{suffix}");
+        let yaml = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+        verify_candidate(entry, xml.as_bytes(), &yaml.bytes, &inputs).unwrap();
+    }
+}
+
+#[test]
+#[cfg(not(feature = "journal-full"))]
+fn enumeration_child_names_restore_real_forms_and_template() {
+    use nkdk_compiled_rules::InputValue;
+
+    let source = include_str!("../../../../e2e/fixtures/xml/cf/Enums/ПеречислениеВсеСвойства.xml");
+    let forms = ["ФормаСписка", "ФормаВыбора"];
+    let templates = ["Макет"];
+    for (tag, values) in [
+        ("Form", forms.as_slice()),
+        ("Template", templates.as_slice()),
+    ] {
+        for value in values {
+            assert!(source.contains(&format!("<{tag}>{value}</{tag}>")));
+        }
+    }
+    let entry = entry_id("migration.enumeration-child-names").unwrap();
+    let inputs = nkdk_compiled_rules::prepare_inputs(
+        entry,
+        [
+            ("forms".into(), forms.as_slice()),
+            ("templates".into(), templates.as_slice()),
+        ]
+        .into_iter()
+        .map(|(name, values)| {
+            (
+                name,
+                InputValue::Sequence(
+                    values
+                        .iter()
+                        .map(|value| InputValue::Text((*value).into()))
+                        .collect(),
+                ),
+            )
+        })
+        .collect(),
+    )
+    .unwrap();
+    let xml = format!(
+        "<md:MetaDataObject xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\"><md:Enum><md:ChildObjects><md:Form>{}</md:Form><md:Form>{}</md:Form><md:Template>{}</md:Template></md:ChildObjects></md:Enum></md:MetaDataObject>",
+        forms[0], forms[1], templates[0]
+    );
+    let yaml = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+    assert!(yaml.bytes.is_empty());
+    verify_candidate(entry, xml.as_bytes(), &yaml.bytes, &inputs).unwrap();
+}
+
+#[test]
+#[cfg(not(feature = "journal-full"))]
+fn enumeration_form_links_restore_real_form_references() {
+    use nkdk_compiled_rules::InputValue;
+    use nkdk_conversion_core::facts::{
+        Generation,
+        prepared::{FactBudget, TextIndexInput},
+        text::TextBudget,
+    };
+
+    let source = include_str!("../../../../e2e/fixtures/xml/cf/Enums/ПеречислениеВсеСвойства.xml");
+    let owner = "Enum.ПеречислениеВсеСвойства";
+    for form in ["ФормаСписка", "ФормаВыбора"] {
+        assert!(source.contains(&format!("{owner}.Form.{form}")));
+    }
+    let entry = entry_id("migration.enumeration-form-links").unwrap();
+    let generation = Generation(1);
+    let facts = nkdk_compiled_rules::fact_builder(
+        generation,
+        FactBudget {
+            text: TextBudget {
+                entries: 100,
+                bytes: 10_000,
+            },
+            rows: 100,
+        },
+    )
+    .finish();
+    let roots = TextIndexInput::new(
+        facts.into(),
+        generation,
+        nkdk_compiled_rules::fact_id("metadata.roots").unwrap(),
+    );
+    let inputs = nkdk_compiled_rules::prepare_inputs(
+        entry,
+        vec![
+            ("ownerPath".into(), InputValue::Text(owner.into())),
+            (
+                "forms".into(),
+                InputValue::Sequence(vec![
+                    InputValue::Text("ФормаСписка".into()),
+                    InputValue::Text("ФормаВыбора".into()),
+                ]),
+            ),
+            ("roots".into(), InputValue::TextIndex(roots)),
+        ],
+    )
+    .unwrap();
+    let xml = format!(
+        "<md:MetaDataObject xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\"><md:Enum><md:Properties><md:DefaultListForm>{owner}.Form.ФормаСписка</md:DefaultListForm><md:DefaultChoiceForm>{owner}.Form.ФормаВыбора</md:DefaultChoiceForm><md:AuxiliaryListForm/><md:AuxiliaryChoiceForm/></md:Properties></md:Enum></md:MetaDataObject>"
+    );
+    let yaml = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+    let rendered = String::from_utf8_lossy(&yaml.bytes);
+    assert!(
+        rendered.contains("ОсновнаяФормаСписка: ФормаСписка"),
+        "{rendered}"
+    );
+    assert!(
+        rendered.contains("ОсновнаяФормаДляВыбора: ФормаВыбора"),
+        "{rendered}"
+    );
+    verify_candidate(entry, xml.as_bytes(), &yaml.bytes, &inputs).unwrap();
+}
+
+#[test]
+#[cfg(not(feature = "journal-full"))]
+fn file_backed_child_names_share_the_same_collection_declaration() {
+    use nkdk_compiled_rules::InputValue;
+
+    let entry = entry_id("migration.child-file-item-names").unwrap();
+    let cases = [
+        (
+            "tables",
+            "Table",
+            &[
+                "ТаблицаВсеСвойства",
+                "ТаблицаПоУмолчанию",
+                "ТаблицаМодульНабора",
+            ][..],
+            include_str!(
+                "../../../../e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства.xml"
+            ),
+        ),
+        (
+            "cubes",
+            "Cube",
+            &["КубВсеСвойства", "КубПоУмолчанию"][..],
+            include_str!(
+                "../../../../e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства.xml"
+            ),
+        ),
+        (
+            "recalculations",
+            "Recalculation",
+            &["ПерерасчетВсеСвойства", "ПерерасчетПоУмолчанию"][..],
+            include_str!(
+                "../../../../e2e/fixtures/xml/cf/CalculationRegisters/РегистрРасчетаВсеСвойства.xml"
+            ),
+        ),
+        (
+            "dimensionTables",
+            "DimensionTable",
+            &["ТаблицаИзмеренияВсеСвойства", "ТаблицаИзмеренияПоУмолчанию"][..],
+            include_str!(
+                "../../../../e2e/fixtures/xml/cf/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства.xml"
+            ),
+        ),
+    ];
+    for (selected, tag, names, source) in cases {
+        let inputs = nkdk_compiled_rules::prepare_inputs(
+            entry,
+            ["tables", "cubes", "recalculations", "dimensionTables"]
+                .into_iter()
+                .map(|key| {
+                    let values = if key == selected { names } else { &[] };
+                    (
+                        key.into(),
+                        InputValue::Sequence(
+                            values
+                                .iter()
+                                .map(|name| InputValue::Text((*name).into()))
+                                .collect(),
+                        ),
+                    )
+                })
+                .collect(),
+        )
+        .unwrap();
+        let nodes = names
+            .iter()
+            .map(|name| {
+                assert!(source.contains(&format!("<{tag}>{name}</{tag}>")));
+                format!("<{tag}>{name}</{tag}>")
+            })
+            .collect::<String>();
+        let xml = format!("<Root><ChildObjects>{nodes}</ChildObjects></Root>");
+        let yaml = convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+        assert!(
+            yaml.bytes.is_empty(),
+            "{}",
+            String::from_utf8_lossy(&yaml.bytes)
+        );
+        verify_candidate(entry, xml.as_bytes(), &yaml.bytes, &inputs).unwrap();
+        let key = match selected {
+            "tables" => "Таблицы",
+            "cubes" => "Кубы",
+            "recalculations" => "Перерасчеты",
+            "dimensionTables" => "ТаблицыИзмерений",
+            _ => unreachable!(),
+        };
+        let explicit = format!(
+            "{key}:\n{}",
+            names
+                .iter()
+                .map(|name| format!("  - {name}\n"))
+                .collect::<String>()
+        );
+        assert!(
+            validate_file(entry, explicit.as_bytes(), &inputs)
+                .iter()
+                .any(|issue| issue.code.as_deref() == Some("yaml.implicit-value")),
+            "explicit computed {key} should be omitted"
+        );
+        let altered = format!(
+            "<Root><ChildObjects><{tag}>{}</{tag}><{tag}>{}</{tag}></ChildObjects></Root>",
+            names[0], names[0]
+        );
+        let changed =
+            convert_file(entry, Direction::XmlToYaml, altered.as_bytes(), &inputs).unwrap();
+        verify_candidate(entry, altered.as_bytes(), &changed.bytes, &inputs).unwrap();
+    }
+}
+
+#[test]
+#[cfg(not(feature = "journal-full"))]
 fn path_lexicons_preserve_the_existing_bidirectional_vocabulary() {
     let fixture_root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..");
     let read_fixture = |case: &serde_json::Value| {
@@ -214,6 +912,30 @@ fn path_lexicons_preserve_the_existing_bidirectional_vocabulary() {
             );
             assert!(errors.is_empty(), "{}: {errors:?}", case["source"]);
         }
+        for case in internal.as_array().unwrap() {
+            for command in case["commands"].as_array().unwrap() {
+                command_identity::seed(
+                    &mut ids,
+                    "cf",
+                    case["owner"].as_str().unwrap(),
+                    command["name"].as_str().unwrap(),
+                    command["identity"].as_str().unwrap(),
+                );
+            }
+            if case["kind"] == "DocumentJournal" {
+                let source = String::from_utf8(read_fixture(case)).unwrap();
+                for column in journal_columns::extract(&source) {
+                    command_identity::seed_kind(
+                        &mut ids,
+                        "cf",
+                        case["owner"].as_str().unwrap(),
+                        "Column",
+                        &column.name,
+                        &column.uuid,
+                    );
+                }
+            }
+        }
         let ids = std::sync::Arc::new(ids.finish());
         let mut checked = 0;
         for case in internal.as_array().unwrap() {
@@ -294,7 +1016,11 @@ fn path_lexicons_preserve_the_existing_bidirectional_vocabulary() {
             if case["kind"] == "Document" {
                 continue;
             }
-            let assembled = entry_id("migration.journal-identity-and-children").unwrap();
+            let full_journal = entry_id("migration.journal-identity-and-children");
+            assert_eq!(full_journal.is_some(), cfg!(feature = "journal-full"));
+            let Some(assembled) = full_journal else {
+                continue;
+            };
             let mut values = vec![
                 (
                     "owner".into(),
@@ -306,6 +1032,11 @@ fn path_lexicons_preserve_the_existing_bidirectional_vocabulary() {
                 ),
             ];
             values.extend(language_inputs(case));
+            values.extend(journal_standard_inputs());
+            values.push((
+                "component".into(),
+                nkdk_compiled_rules::InputValue::Text("cf".into()),
+            ));
             values.extend(resource_inputs(case));
             values.push((
                 "commandNames".into(),
@@ -403,9 +1134,55 @@ fn path_lexicons_preserve_the_existing_bidirectional_vocabulary() {
             ])
             .unwrap();
             let original = case["assemblyXml"].as_str().unwrap();
-            for xml in [
+            let with_commands = case["commands"].as_array().unwrap().iter().fold(
                 original.to_owned(),
-                original.replace(
+                |xml, command| {
+                    let command_xml = command["xml"]
+                        .as_str()
+                        .unwrap()
+                        .replace(
+                            "<ns0:ParameterUseMode",
+                            "<ns0:CommandParameterType /><ns0:ParameterUseMode",
+                        )
+                        .replace("<ns0:Shortcut", "<ns0:Picture /><ns0:Shortcut");
+                    xml.replacen(
+                        "</ns0:ChildObjects>",
+                        &format!("{command_xml}</ns0:ChildObjects>"),
+                        1,
+                    )
+                },
+            );
+            let source = String::from_utf8(read_fixture(case)).unwrap();
+            let standard_attributes = source.split_once("<StandardAttributes>")
+                .and_then(|(_, tail)| tail.split_once("</StandardAttributes>"))
+                .map_or_else(String::new, |(body, _)| format!(
+                    "<StandardAttributes xmlns=\"http://v8.1c.ru/8.3/MDClasses\">{body}</StandardAttributes>"
+                ));
+            let mut columns = String::new();
+            for column in journal_columns::extract(&source) {
+                columns.push_str(&column.xml.replacen(
+                    "<Column ",
+                    "<Column xmlns=\"http://v8.1c.ru/8.3/MDClasses\" ",
+                    1,
+                ));
+            }
+            let with_commands = with_commands.replacen(
+                "<ns0:ChildObjects>",
+                &format!("<ns0:ChildObjects>{columns}"),
+                1,
+            );
+            let with_commands = if standard_attributes.is_empty() {
+                with_commands
+            } else {
+                with_commands.replacen(
+                    "<ns0:ListPresentation>",
+                    &format!("{standard_attributes}<ns0:ListPresentation>"),
+                    1,
+                )
+            };
+            for xml in [
+                with_commands.to_owned(),
+                with_commands.replace(
                     &format!(" uuid=\"{}\"", case["owner"].as_str().unwrap()),
                     "",
                 ),
@@ -414,6 +1191,59 @@ fn path_lexicons_preserve_the_existing_bidirectional_vocabulary() {
             {
                 let yaml =
                     convert_file(assembled, Direction::XmlToYaml, xml.as_bytes(), &inputs).unwrap();
+                if !columns.is_empty() {
+                    let rendered = String::from_utf8_lossy(&yaml.bytes);
+                    assert!(rendered.contains("Графы:"), "{rendered}");
+                    assert!(
+                        rendered.contains("Документ.ДокументВсеСвойства.Реквизит.РеквизитБулево"),
+                        "{rendered}"
+                    );
+                    assert!(
+                        !rendered
+                            .split_once("$xml:")
+                            .is_some_and(|(_, raw)| raw.contains("ChildObjects")),
+                        "{rendered}"
+                    );
+                }
+                if !standard_attributes.is_empty() {
+                    let rendered = String::from_utf8_lossy(&yaml.bytes);
+                    assert!(rendered.contains("СтандартныеРеквизиты:"), "{rendered}");
+                    assert!(rendered.contains("Ссылка:"), "{rendered}");
+                }
+                if let Some(command) = case["commands"].as_array().unwrap().first() {
+                    let rendered = String::from_utf8_lossy(&yaml.bytes);
+                    assert!(rendered.contains("Команды:"), "{rendered}");
+                    assert!(
+                        rendered.contains(command["name"].as_str().unwrap()),
+                        "{rendered}"
+                    );
+                    let mut discovered = nkdk_compiled_rules::fact_builder(generation, budget());
+                    assert!(
+                        nkdk_compiled_rules::contribute_file(
+                            assembled,
+                            Direction::XmlToYaml,
+                            xml.as_bytes(),
+                            &inputs,
+                            &mut discovered,
+                        )
+                        .is_empty()
+                    );
+                    assert_eq!(
+                        discovered.finish().lookup_parts(
+                            generation,
+                            nkdk_compiled_rules::fact_id("metadata.own-identities").unwrap(),
+                            &[
+                                "cf",
+                                "Command",
+                                command["name"].as_str().unwrap(),
+                                case["owner"].as_str().unwrap()
+                            ],
+                        ),
+                        nkdk_conversion_core::facts::FactState::Ready(
+                            command["identity"].as_str().unwrap()
+                        ),
+                    );
+                }
                 verify_candidate(assembled, xml.as_bytes(), &yaml.bytes, &inputs).unwrap();
                 let exported =
                     convert_file(assembled, Direction::YamlToXml, &yaml.bytes, &cold).unwrap();
@@ -445,6 +1275,11 @@ fn path_lexicons_preserve_the_existing_bidirectional_vocabulary() {
                 }
                 assert!(!String::from_utf8_lossy(&yaml.bytes).contains("ВнутренниеТипы:"));
             }
+            let complete_source = read_fixture(case);
+            let complete_yaml =
+                convert_file(assembled, Direction::XmlToYaml, &complete_source, &inputs)
+                    .unwrap_or_else(|errors| panic!("{}: {errors:?}", case["source"]));
+            verify_candidate(assembled, &complete_source, &complete_yaml.bytes, &inputs).unwrap();
         }
         assert_eq!(checked, 98);
     }
@@ -467,6 +1302,11 @@ fn path_lexicons_preserve_the_existing_bidirectional_vocabulary() {
             values.push((
                 "name".into(),
                 nkdk_compiled_rules::InputValue::Text(case["name"].as_str().unwrap().into()),
+            ));
+        } else {
+            values.push((
+                "adopted".into(),
+                nkdk_compiled_rules::InputValue::Boolean(false),
             ));
         }
         let inputs =
@@ -571,25 +1411,58 @@ fn path_lexicons_preserve_the_existing_bidirectional_vocabulary() {
             nkdk_compiled_rules::prepare_fact_inputs(entry, facts.clone(), generation, vec![])
                 .unwrap();
         let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..");
-        for (directory, kind, name) in [
-            ("Documents", "Документ", "ДокументВсеСвойства"),
+        for (source_path, yaml_path) in [
             (
-                "DocumentJournals",
-                "ЖурналДокументов",
-                "ЖурналДокументовВсеСвойства",
+                "xml/cf/Documents/ДокументВсеСвойства.xml",
+                "nkdk/cf/Документ/ДокументВсеСвойства/Свойства.yaml",
+            ),
+            (
+                "xml/cf/DocumentJournals/ЖурналДокументовВсеСвойства.xml",
+                "nkdk/cf/ЖурналДокументов/ЖурналДокументовВсеСвойства/Свойства.yaml",
+            ),
+            (
+                "xml/cf/CommonCommands/ОбщаяКомандаВсеСвойства.xml",
+                "nkdk/cf/ОбщаяКоманда/ОбщаяКомандаВсеСвойства/Свойства.yaml",
+            ),
+            (
+                "xml/cf/CommonCommands/ОбщаяКомандаПоУмолчанию.xml",
+                "nkdk/cf/ОбщаяКоманда/ОбщаяКомандаПоУмолчанию/Свойства.yaml",
+            ),
+            (
+                "xml/cf/CommonCommands/КомандаСДанными.xml",
+                "nkdk/cf/ОбщаяКоманда/КомандаСДанными/Свойства.yaml",
+            ),
+            (
+                "xml/cfe/all-extension/Documents/ДокументВсеСвойства.xml",
+                "nkdk/cfe/Расширение_All/Документ/ДокументВсеСвойства/Свойства.yaml",
+            ),
+            (
+                "xml/cfe/all-extension/Documents/ДокументВсеСвойстваExt.xml",
+                "nkdk/cfe/Расширение_All/Документ/ДокументВсеСвойстваExt/Свойства.yaml",
+            ),
+            (
+                "xml/cfe/all-extension/DocumentJournals/ЖурналДокументовВсеСвойства.xml",
+                "nkdk/cfe/Расширение_All/ЖурналДокументов/ЖурналДокументовВсеСвойства/Свойства.yaml",
+            ),
+            (
+                "xml/cfe/all-extension/DocumentJournals/ЖурналДокументовВсеСвойстваExt.xml",
+                "nkdk/cfe/Расширение_All/ЖурналДокументов/ЖурналДокументовВсеСвойстваExt/Свойства.yaml",
+            ),
+            (
+                "xml/cfe/all-extension/CommonCommands/КомандаСДанными.xml",
+                "nkdk/cfe/Расширение_All/ОбщаяКоманда/КомандаСДанными/Свойства.yaml",
+            ),
+            (
+                "xml/cfe/all-extension/CommonCommands/КомандаСДаннымиExt.xml",
+                "nkdk/cfe/Расширение_All/ОбщаяКоманда/КомандаСДаннымиExt/Свойства.yaml",
             ),
         ] {
-            let source = std::fs::read_to_string(
-                root.join(format!("e2e/fixtures/xml/cf/{directory}/{name}.xml")),
-            )
-            .unwrap();
+            let source =
+                std::fs::read_to_string(root.join("e2e/fixtures").join(source_path)).unwrap();
             let start = source.find("<Group>").unwrap();
             let end = start + source[start..].find("</Group>").unwrap() + "</Group>".len();
             let xml = format!("<Root>{}</Root>", &source[start..end]);
-            let yaml = std::fs::read_to_string(
-                root.join(format!("e2e/fixtures/nkdk/cf/{kind}/{name}/Свойства.yaml")),
-            )
-            .unwrap();
+            let yaml = std::fs::read_to_string(root.join("e2e/fixtures").join(yaml_path)).unwrap();
             let expected = yaml
                 .lines()
                 .map(str::trim)
@@ -602,6 +1475,7 @@ fn path_lexicons_preserve_the_existing_bidirectional_vocabulary() {
             assert_eq!(std::str::from_utf8(&canonical.bytes).unwrap(), expected);
             let preserved =
                 convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &prepared).unwrap();
+            assert_eq!(std::str::from_utf8(&preserved.bytes).unwrap(), expected);
             verify_candidate(entry, xml.as_bytes(), &preserved.bytes, &prepared).unwrap();
         }
         for xml in [
@@ -612,6 +1486,9 @@ fn path_lexicons_preserve_the_existing_bidirectional_vocabulary() {
         ] {
             let preserved =
                 convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &prepared).unwrap();
+            if xml.contains("Missing") || xml.contains("Unknown") {
+                assert!(String::from_utf8_lossy(&preserved.bytes).contains("!xml/"));
+            }
             assert!(validate_file(entry, &preserved.bytes, &prepared).is_empty());
             verify_candidate(entry, xml.as_bytes(), &preserved.bytes, &prepared).unwrap();
         }
@@ -643,17 +1520,17 @@ fn path_lexicons_preserve_the_existing_bidirectional_vocabulary() {
                 };
                 let token = match node {
                     Node::MappingStart(tag) => {
-                        assert!(tag.is_none());
+                        assert!(tag.is_none(), "tagged mapping YAML: {text}");
                         (0, String::new())
                     }
                     Node::MappingEnd => (1, String::new()),
                     Node::SequenceStart(tag) => {
-                        assert!(tag.is_none());
+                        assert!(tag.is_none(), "tagged sequence YAML: {text}");
                         (2, String::new())
                     }
                     Node::SequenceEnd => (3, String::new()),
                     Node::Scalar(value, tag) => {
-                        assert!(tag.is_none());
+                        assert!(tag.is_none(), "tagged YAML: {text}");
                         let (text, numeric) = value.into_choice_text()?;
                         if numeric {
                             (
@@ -671,7 +1548,7 @@ fn path_lexicons_preserve_the_existing_bidirectional_vocabulary() {
                 Ok(())
             },
         )
-        .unwrap();
+        .unwrap_or_else(|error| panic!("cannot normalize {text:?}: {error:?}"));
         let mut properties = properties.into_values().collect::<Vec<_>>();
         properties.sort();
         properties
@@ -824,7 +1701,18 @@ fn path_lexicons_preserve_the_existing_bidirectional_vocabulary() {
                 );
                 assert_eq!(route.paths(Direction::YamlToXml), (yaml_path, xml_path));
             }
-            let xml = command["xml"].as_str().unwrap();
+            // The bounded inventory predates these properties; both source
+            // fixtures contain their empty XML elements in these positions.
+            let source = command["xml"].as_str().unwrap();
+            assert!(!source.contains("<ns0:Picture"));
+            assert!(!source.contains("<ns0:CommandParameterType"));
+            let xml = source
+                .replace(
+                    "<ns0:ParameterUseMode",
+                    "<ns0:CommandParameterType /><ns0:ParameterUseMode",
+                )
+                .replace("<ns0:Shortcut", "<ns0:Picture /><ns0:Shortcut");
+            assert_ne!(xml, source);
             // Ordinary Group has no xsi:type, as in every command fixture in the e2e corpus.
             let imported =
                 convert_file(entry, Direction::XmlToYaml, xml.as_bytes(), &prepared).unwrap();
@@ -834,18 +1722,46 @@ fn path_lexicons_preserve_the_existing_bidirectional_vocabulary() {
                 nkdk_conversion_core::raw::Property::decode(&imported.bytes, "Группа", "Group")
                     .unwrap()
                     .map_or_else(|| imported.bytes.clone(), |envelope| envelope.meaning);
+            let meaning_text = std::str::from_utf8(&meaning).unwrap();
+            let empty_picture = "Картинка: !xml/raw\n  $xml: \"\"";
+            assert!(meaning_text.contains(empty_picture));
+            let ordinary_meaning = meaning_text.replace(empty_picture, "");
             assert_eq!(
-                normalized_properties(std::str::from_utf8(&meaning).unwrap()),
+                normalized_properties(&ordinary_meaning),
                 normalized_properties(expected)
             );
             let canonical =
                 convert_file(entry, Direction::YamlToXml, expected.as_bytes(), &prepared).unwrap();
             let back =
                 convert_file(entry, Direction::XmlToYaml, &canonical.bytes, &prepared).unwrap();
+            let back_text = std::str::from_utf8(&back.bytes).unwrap();
             assert_eq!(
-                normalized_properties(std::str::from_utf8(&back.bytes).unwrap()),
+                normalized_properties(&back_text.replace(empty_picture, "")),
                 normalized_properties(expected)
             );
+            let pictured = xml.replace(
+                "<ns0:Picture />",
+                "<ns0:Picture xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><xr:Ref>StdPicture.BusinessProcess</xr:Ref><xr:LoadTransparent>true</xr:LoadTransparent></ns0:Picture>",
+            );
+            assert_ne!(pictured, xml);
+            let pictured_yaml =
+                convert_file(entry, Direction::XmlToYaml, pictured.as_bytes(), &prepared).unwrap();
+            assert!(
+                String::from_utf8_lossy(&pictured_yaml.bytes).contains("Картинка: БизнесПроцесс")
+            );
+            verify_candidate(entry, pictured.as_bytes(), &pictured_yaml.bytes, &prepared).unwrap();
+            let typed = xml.replace(
+                "<ns0:CommandParameterType />",
+                "<ns0:CommandParameterType xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:cfg=\"http://v8.1c.ru/8.1/data/enterprise/current-config\"><v8:Type>cfg:CatalogRef.СправочникПолный</v8:Type></ns0:CommandParameterType>",
+            );
+            assert_ne!(typed, xml);
+            let typed_yaml =
+                convert_file(entry, Direction::XmlToYaml, typed.as_bytes(), &prepared).unwrap();
+            assert!(
+                String::from_utf8_lossy(&typed_yaml.bytes)
+                    .contains("ТипПараметраКоманды: Справочник.СправочникПолный")
+            );
+            verify_candidate(entry, typed.as_bytes(), &typed_yaml.bytes, &prepared).unwrap();
             command_count += 1;
         }
     }
@@ -862,6 +1778,16 @@ fn path_lexicons_preserve_the_existing_bidirectional_vocabulary() {
             "name".into(),
             nkdk_compiled_rules::InputValue::Text(case["name"].as_str().unwrap().into()),
         ));
+        if case["kind"] == "DocumentJournal" {
+            values.push((
+                "owner".into(),
+                nkdk_compiled_rules::InputValue::Text(case["owner"].as_str().unwrap().into()),
+            ));
+            values.push((
+                "component".into(),
+                nkdk_compiled_rules::InputValue::Text("cf".into()),
+            ));
+        }
         let prepared =
             nkdk_compiled_rules::prepare_fact_inputs(entry, facts.clone(), generation, values)
                 .unwrap();
@@ -1072,6 +1998,221 @@ fn path_lexicons_preserve_the_existing_bidirectional_vocabulary() {
     let links = entry_id("migration.based-on-links").unwrap();
     let link_inputs =
         nkdk_compiled_rules::prepare_fact_inputs(links, facts.clone(), generation, vec![]).unwrap();
+    let object_refs = entry_id("migration.metadata-object-ref-collection").unwrap();
+    let object_ref_inputs =
+        nkdk_compiled_rules::prepare_fact_inputs(object_refs, facts.clone(), generation, vec![])
+            .unwrap();
+    for (fragment, expected) in [
+        (
+            include_str!(
+                "../../../../packages/rules/metadata/commonObjects/metadataObjectRefCollection/__fixtures__/single.xml"
+            ),
+            &["Справочник.Контрагенты"][..],
+        ),
+        (
+            include_str!(
+                "../../../../packages/rules/metadata/commonObjects/metadataObjectRefCollection/__fixtures__/multiple.xml"
+            ),
+            &["Справочник.Контрагенты", "Документ.ПриемНаРаботу"][..],
+        ),
+    ] {
+        let xml = format!(
+            "<Root xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">{}</Root>",
+            fragment.replace("BasedOn", "md:Owners")
+        );
+        let converted = convert_file(
+            object_refs,
+            Direction::XmlToYaml,
+            xml.as_bytes(),
+            &object_ref_inputs,
+        )
+        .unwrap();
+        let yaml = String::from_utf8(converted.bytes).unwrap();
+        assert!(yaml.contains("Владельцы:"), "{yaml}");
+        assert_eq!(yaml.matches("  - ").count(), expected.len(), "{yaml}");
+        for name in expected {
+            assert!(yaml.contains(&format!("  - {name}")), "{yaml}");
+        }
+        // The original TS fixture names are absent from this separate fact corpus.
+        assert!(yaml.contains("!xml/invalid"), "{yaml}");
+        assert!(validate_file(object_refs, yaml.as_bytes(), &object_ref_inputs).is_empty());
+        verify_candidate(
+            object_refs,
+            xml.as_bytes(),
+            yaml.as_bytes(),
+            &object_ref_inputs,
+        )
+        .unwrap();
+    }
+    for (source, expected) in [
+        (
+            include_str!("../../../../e2e/fixtures/xml/cf/Catalogs/СправочникСВладельцем.xml"),
+            "Справочник.СправочникВладелец",
+        ),
+        (
+            include_str!("../../../../e2e/fixtures/xml/cf/Catalogs/ЗначенияХарактеристик.xml"),
+            "ПланВидовХарактеристик.ПланВидовХарактеристикВсеСвойства",
+        ),
+    ] {
+        let start = source.find("<Owners>").unwrap();
+        let end = source[start..].find("</Owners>").unwrap() + start + "</Owners>".len();
+        let fragment = source[start..end]
+            .replace("<Owners>", "<md:Owners>")
+            .replace("</Owners>", "</md:Owners>");
+        let xml = format!(
+            "<Root xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">{fragment}</Root>"
+        );
+        let result = convert_file(
+            object_refs,
+            Direction::XmlToYaml,
+            xml.as_bytes(),
+            &object_ref_inputs,
+        )
+        .unwrap();
+        let yaml = String::from_utf8_lossy(&result.bytes);
+        assert!(yaml.contains(expected), "{yaml}");
+        assert!(!yaml.contains("!xml"), "{yaml}");
+        verify_candidate(
+            object_refs,
+            xml.as_bytes(),
+            &result.bytes,
+            &object_ref_inputs,
+        )
+        .unwrap();
+    }
+    let root = corpus["roots"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|root| root["kind"] == "Catalog")
+        .unwrap();
+    let known_path = format!(
+        "{}.{}",
+        root["kind"].as_str().unwrap(),
+        root["name"].as_str().unwrap()
+    );
+    let xml = wrap_links(&[&known_path]).replace("md:BasedOn", "md:Owners");
+    let result = convert_file(
+        object_refs,
+        Direction::XmlToYaml,
+        xml.as_bytes(),
+        &object_ref_inputs,
+    )
+    .unwrap();
+    assert!(!String::from_utf8_lossy(&result.bytes).contains("!xml"));
+    verify_candidate(
+        object_refs,
+        xml.as_bytes(),
+        &result.bytes,
+        &object_ref_inputs,
+    )
+    .unwrap();
+    let forbidden_root = &corpus["roots"].as_array().unwrap()[0];
+    let forbidden_path = format!(
+        "{}.{}",
+        forbidden_root["kind"].as_str().unwrap(),
+        forbidden_root["name"].as_str().unwrap()
+    );
+    let forbidden_xml = wrap_links(&[&forbidden_path]).replace("md:BasedOn", "md:Owners");
+    let forbidden = convert_file(
+        object_refs,
+        Direction::XmlToYaml,
+        forbidden_xml.as_bytes(),
+        &object_ref_inputs,
+    )
+    .unwrap();
+    assert!(
+        String::from_utf8_lossy(&forbidden.bytes).contains("!xml/invalid"),
+        "{}",
+        String::from_utf8_lossy(&forbidden.bytes)
+    );
+    verify_candidate(
+        object_refs,
+        forbidden_xml.as_bytes(),
+        &forbidden.bytes,
+        &object_ref_inputs,
+    )
+    .unwrap();
+    let forbidden_yaml = format!(
+        "Владельцы:\n  - РегистрБухгалтерии.{}\n",
+        forbidden_root["name"].as_str().unwrap()
+    );
+    assert!(
+        validate_file(object_refs, forbidden_yaml.as_bytes(), &object_ref_inputs)
+            .iter()
+            .any(|issue| issue.code.as_deref() == Some("metadata.target-not-allowed"))
+    );
+    for (xml, expected_yaml) in [
+        ("<Root/>", "Владельцы: !xml/raw"),
+        (
+            "<Root xmlns:md=\"http://v8.1c.ru/8.3/MDClasses\"><md:Owners/></Root>",
+            "",
+        ),
+    ] {
+        let result = convert_file(
+            object_refs,
+            Direction::XmlToYaml,
+            xml.as_bytes(),
+            &object_ref_inputs,
+        )
+        .unwrap();
+        let yaml = String::from_utf8_lossy(&result.bytes);
+        if expected_yaml.is_empty() {
+            assert!(!yaml.contains("Владельцы:"), "input={xml}; yaml={yaml}");
+        } else {
+            assert!(yaml.starts_with(expected_yaml), "input={xml}; yaml={yaml}");
+        }
+        verify_candidate(
+            object_refs,
+            xml.as_bytes(),
+            &result.bytes,
+            &object_ref_inputs,
+        )
+        .unwrap();
+    }
+    let duplicate = wrap_links(&[&known_path, &known_path]).replace("md:BasedOn", "md:Owners");
+    let result = convert_file(
+        object_refs,
+        Direction::XmlToYaml,
+        duplicate.as_bytes(),
+        &object_ref_inputs,
+    )
+    .unwrap();
+    assert_eq!(
+        String::from_utf8_lossy(&result.bytes)
+            .matches("  - ")
+            .count(),
+        2
+    );
+    verify_candidate(
+        object_refs,
+        duplicate.as_bytes(),
+        &result.bytes,
+        &object_ref_inputs,
+    )
+    .unwrap();
+    let malformed = wrap_links(&[&known_path])
+        .replace("md:BasedOn", "md:Owners")
+        .replace("xr:MDObjectRef", "xr:ValueList");
+    let result = convert_file(
+        object_refs,
+        Direction::XmlToYaml,
+        malformed.as_bytes(),
+        &object_ref_inputs,
+    )
+    .unwrap();
+    assert!(
+        String::from_utf8_lossy(&result.bytes).contains("!xml/raw"),
+        "{}",
+        String::from_utf8_lossy(&result.bytes)
+    );
+    verify_candidate(
+        object_refs,
+        malformed.as_bytes(),
+        &result.bytes,
+        &object_ref_inputs,
+    )
+    .unwrap();
     let collections = corpus["basedOnCollections"].as_array().unwrap();
     assert!(
         collections

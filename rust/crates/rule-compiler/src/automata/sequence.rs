@@ -4,11 +4,13 @@ use regex_automata::{
     util::{look::Look, primitives::StateID},
 };
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq, Hash)]
 pub(crate) enum Part {
     Literal(String),
     Words(Vec<String>),
     AsciiDigits(usize),
+    AsciiClassPlus(Vec<(u8, u8)>),
+    AsciiClassExact(usize, Vec<(u8, u8)>),
     Until(String),
     Rest,
     Cell(String),
@@ -28,6 +30,35 @@ pub(crate) fn compile_sequences(
 }
 
 pub(crate) fn compile_sequences_with_fallback(
+    patterns: &[Vec<Part>],
+    fallback: Option<&[bool]>,
+    state_budget: usize,
+    byte_budget: usize,
+) -> Result<DFA<Vec<u32>>, Error> {
+    let key = SequenceKey {
+        patterns: patterns.to_vec(),
+        fallback: fallback.map(<[bool]>::to_vec),
+        state_budget,
+        byte_budget,
+    };
+    if let Some(machine) = ASSETS.with(|assets| {
+        assets
+            .borrow()
+            .as_ref()
+            .and_then(|store| store.sequence_cache.get(&key).cloned())
+    }) {
+        return Ok(machine);
+    }
+    let machine = compile_sequences_uncached(patterns, fallback, state_budget, byte_budget)?;
+    ASSETS.with(|assets| {
+        if let Some(store) = assets.borrow_mut().as_mut() {
+            store.sequence_cache.insert(key, machine.clone());
+        }
+    });
+    Ok(machine)
+}
+
+fn compile_sequences_uncached(
     patterns: &[Vec<Part>],
     fallback: Option<&[bool]>,
     state_budget: usize,
@@ -69,6 +100,43 @@ pub(crate) fn compile_sequences_with_fallback(
                             .map_err(build_error)?;
                     }
                     digits
+                }
+                Part::AsciiClassPlus(ranges) => {
+                    let repeat = builder.add_union(vec![tail]).map_err(build_error)?;
+                    let mut choices = Vec::new();
+                    for (start, end) in ranges {
+                        choices.push(
+                            builder
+                                .add_range(Transition {
+                                    start: *start,
+                                    end: *end,
+                                    next: repeat,
+                                })
+                                .map_err(build_error)?,
+                        );
+                    }
+                    let one = builder.add_union(choices).map_err(build_error)?;
+                    builder.patch(repeat, one).map_err(build_error)?;
+                    one
+                }
+                Part::AsciiClassExact(count, ranges) => {
+                    let mut exact = tail;
+                    for _ in 0..*count {
+                        let mut choices = Vec::with_capacity(ranges.len());
+                        for (start, end) in ranges {
+                            choices.push(
+                                builder
+                                    .add_range(Transition {
+                                        start: *start,
+                                        end: *end,
+                                        next: exact,
+                                    })
+                                    .map_err(build_error)?,
+                            );
+                        }
+                        exact = builder.add_union(choices).map_err(build_error)?;
+                    }
+                    exact
                 }
                 Part::Until(delimiter) => until(
                     &mut builder,

@@ -1,0 +1,120 @@
+{
+  "assembled": [
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "type",
+    "passwordMode",
+    "format",
+    "editFormat",
+    "toolTip",
+    "markNegatives",
+    "mask",
+    "multiLine",
+    "extendedEdit",
+    "minValue",
+    "maxValue",
+    "fillFromFillingValue",
+    "fillValue",
+    "fillChecking",
+    "choiceFoldersAndItems",
+    "choiceParameterLinks",
+    "choiceParameters",
+    "quickChoice",
+    "createOnInput",
+    "choiceForm",
+    "linkByType",
+    "choiceHistoryOnInput",
+    "use",
+    "indexing",
+    "fullTextSearch",
+    "dataHistory",
+    "binaryDataStorageLocationUse",
+    "binaryDataStorageLocationUseField",
+    "uuid"
+  ],
+  "pending": [],
+  "blockers": [
+    {
+      "reason": "owner-state-assembly-required"
+    }
+  ],
+  "complete": false,
+  "stateContracts": [
+    {
+      "property": "extendedConfigurationObject",
+      "representation": "tagged",
+      "requiresHistory": true,
+      "attached": true
+    },
+    {
+      "property": "synonym",
+      "representation": "plain",
+      "requiresHistory": false,
+      "attached": true
+    },
+    {
+      "property": "type",
+      "representation": "multi",
+      "requiresHistory": true,
+      "attached": true
+    },
+    {
+      "property": "format",
+      "representation": "tagged",
+      "requiresHistory": true,
+      "attached": true
+    },
+    {
+      "property": "editFormat",
+      "representation": "plain",
+      "requiresHistory": false,
+      "attached": true
+    },
+    {
+      "property": "toolTip",
+      "representation": "plain",
+      "requiresHistory": false,
+      "attached": true
+    },
+    {
+      "property": "choiceForm",
+      "representation": "plain",
+      "requiresHistory": false,
+      "attached": true
+    }
+  ],
+  "indexRequirements": {
+    "bindings": {
+      "state_states": "metadata.property-state-membership",
+      "state_baseIds": "metadata.base-identities",
+      "ordinary0_definedTypes": "metadata.defined-type-alternatives",
+      "ordinary0_roots": "metadata.roots",
+      "ordinary0_forms": "metadata.forms",
+      "ordinary1_identities": "metadata.own-identities"
+    },
+    "missing": []
+  },
+  "fileFactSources": [
+    "metadata.catalog-attribute.file-facts.MetadataCatalogRules.own-identity",
+    "metadata.catalog-attribute.file-facts.MetadataCatalogRules.states",
+    "metadata.catalog-attribute.file-facts.MetadataCatalogRules.base-identity"
+  ],
+  "collections": [
+    {
+      "owner": "MetadataCatalogRules",
+      "property": "attributes",
+      "fragment": "metadata.catalog-attribute.collection.MetadataCatalogRules.attributes",
+      "probe": "metadata.catalog-attribute.collection.MetadataCatalogRules.attributes.probe",
+      "indexProviders": {
+        "state_states": "metadata.property-state-membership",
+        "state_baseIds": "metadata.base-identities",
+        "ordinary0_definedTypes": "metadata.defined-type-alternatives",
+        "ordinary0_roots": "metadata.roots",
+        "ordinary0_forms": "metadata.forms",
+        "ordinary1_identities": "metadata.own-identities"
+      }
+    }
+  ]
+}

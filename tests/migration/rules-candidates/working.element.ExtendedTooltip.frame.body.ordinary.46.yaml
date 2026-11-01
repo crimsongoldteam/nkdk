@@ -1,0 +1,20 @@
+format: nkdk-declarations/1
+kind: fragment
+id: working.element.ExtendedTooltip.frame.body.ordinary.46
+description: 'Кандидат проекции: относительный XML-корень f:Events; не полный владелец'
+imports:
+  part0: working.element.ExtendedTooltip.frame.body.ordinary.47
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []
+namespaces:
+  md: http://v8.1c.ru/8.3/xcf/logform

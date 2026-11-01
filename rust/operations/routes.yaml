@@ -13,9 +13,13 @@ routes:
     registeredLanguages: registeredLanguages
   sources:
   - entry: migration.defined-type-own-identity
-    inputs: {component: component, parent: parent}
+    inputs: {component: component, parent: parent, ownerName: name}
   - entry: migration.defined-type-base-identity
     only: [cfe]
-    inputs: {component: component}
+    newOwner:
+      template:
+        base:
+        - base: {externalSnapshot: {component: cf, entry: migration.defined-type-own-identity, field: uuid}}
+    inputs: {component: component, parent: parent, ownerName: name}
   - entry: migration.defined-type-internal-types
     inputs: {ownerName: name, component: component, parent: parent}

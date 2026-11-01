@@ -1,0 +1,60 @@
+format: nkdk-declarations/1
+kind: value
+id: common.dcs-design-time-formatted-text
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  v8: http://v8.1c.ru/8.1/data/core
+imports:
+  kind: common.dcs-formatted-kind
+  value: common.dcs-formatted-local-string
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+value:
+  kind: record
+  fields:
+    - name: kind
+      type:
+        use: kind
+    - name: value
+      type:
+        use: value
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+representations:
+  xml:
+    kind: with-attributes
+    attributes:
+      - name: xsi:type
+        value:
+          qname: v8:LocalFormattedStringType
+    content:
+      kind: record
+      fields:
+        - field: value
+          path: []
+  yaml:
+    kind: mapping
+    fields:
+      - field: kind
+        key: Тип
+      - field: value
+        key: Значение
+presence:
+  - target:
+      field: kind
+    xml:
+      missing:
+        denotes:
+          literal: МногоязычнаяФорматированнаяСтрока

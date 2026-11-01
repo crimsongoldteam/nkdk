@@ -1,6 +1,48 @@
 use super::*;
 use crate::generate::shorthand::specialize;
 
+fn text_mapping_shape(entry: &LinkedEntry) -> Result<Option<Value>, Diagnostic> {
+    let (LinkedType::Sequence(item), YamlRepresentation::KeyedMapping { key, value, .. }) =
+        (&entry.value, &entry.yaml)
+    else {
+        return Ok(None);
+    };
+    let LinkedType::Record(fields) = item.as_ref() else {
+        return Err(unsupported(entry));
+    };
+    let text_field = |name: &str| {
+        fields
+            .iter()
+            .any(|field| field.name == name && field.value == LinkedType::Scalar(ScalarType::Text))
+    };
+    if !text_field(key) || !text_field(value) {
+        return Err(unsupported(entry));
+    }
+    Ok(Some(
+        json!({"type":"object","additionalProperties":{"type":"string"}}),
+    ))
+}
+
+pub(super) fn value_shape(entry: &LinkedEntry) -> Result<Option<Value>, Diagnostic> {
+    let Some(mapping) = text_mapping_shape(entry)? else {
+        return Ok(None);
+    };
+    let mut alternatives = vec![mapping];
+    if entry.shorthands.iter().any(|shorthand| {
+        matches!(
+            shorthand.representation,
+            LinkedShorthandRepresentation::ScalarField(_)
+                | LinkedShorthandRepresentation::ScalarLiteral(_)
+                | LinkedShorthandRepresentation::ScalarText { .. }
+        )
+    }) {
+        alternatives.push(json!({"type":"string"}));
+    }
+    Ok(Some(
+        json!({"anyOf":alternatives,"x-nkdk-runtime-validation":true}),
+    ))
+}
+
 pub(super) fn build(program: &Program, owner: &LinkedEntry) -> Result<Option<Value>, Diagnostic> {
     let (LinkedType::Record(fields), YamlRepresentation::Mapping(mapping)) =
         (&owner.value, &owner.yaml)
@@ -46,13 +88,7 @@ pub(super) fn build(program: &Program, owner: &LinkedEntry) -> Result<Option<Val
         .expect("linked value") as u32;
     let mut nonempty = false;
     for constraint in &common.constraints {
-        if constraint.diagnostic.severity != Severity::Error
-            || !constraint
-                .applies_to
-                .contains(&ValidationPhase::YamlValidation)
-            || (!constraint.forms.is_empty()
-                && !constraint.forms.contains(&LinkedForm::YamlKeyedMapping))
-        {
+        if !yaml_constraint_applies(constraint, LinkedForm::YamlKeyedMapping) {
             continue;
         }
         let Some(iteration) = &constraint.for_each else {
@@ -72,13 +108,18 @@ pub(super) fn build(program: &Program, owner: &LinkedEntry) -> Result<Option<Val
             nonempty = true;
         }
     }
-    let mut text = json!({"type":"string"});
+    let mut mapping_shape = text_mapping_shape(common)?.ok_or_else(|| unsupported(common))?;
     if nonempty {
-        text["minLength"] = json!(1);
+        mapping_shape["additionalProperties"]["minLength"] = json!(1);
     }
-    let mut alternatives = vec![json!({"type":"object","additionalProperties":text})];
+    let mut alternatives = vec![mapping_shape];
     for shorthand in &common.shorthands {
-        if shorthand.representation == LinkedShorthandRepresentation::ScalarText {
+        if matches!(
+            shorthand.representation,
+            LinkedShorthandRepresentation::ScalarField(_)
+                | LinkedShorthandRepresentation::ScalarLiteral(_)
+                | LinkedShorthandRepresentation::ScalarText { .. }
+        ) {
             let enabled = shorthand
                 .when
                 .as_ref()

@@ -1,0 +1,115 @@
+# Generated from AppearanceFieldsRules; checked against the static source table by emit.test.mjs.
+format: nkdk-declarations/1
+kind: value
+id: common.appearance-fields
+namespaces:
+  dcscor: http://v8.1c.ru/8.1/data-composition-system/core
+imports:
+  item: common.dcs-appearance-parameter
+parameters:
+  settingsXsi:
+    type:
+      kind: scalar
+      scalar: boolean
+    default: true
+inputs:
+  styleTypes:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  labels:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: code
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  codes:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: label
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+value:
+  kind: sequence
+  item:
+    use: item
+    with:
+      settingsXsi:
+        parameter: settingsXsi
+    bind:
+      styleTypes:
+        input: styleTypes
+      defaultLanguage:
+        input: defaultLanguage
+      registeredLanguages:
+        input: registeredLanguages
+      labels:
+        input: labels
+      codes:
+        input: codes
+representations:
+  xml:
+    kind: element-sequence
+    path:
+      - dcscor:item
+  yaml:
+    kind: record-mapping
+    key: parameter
+    itemInputs:
+      parameterName:
+        rowKey: true
+      valueProfile:
+        table:
+          key:
+            rowKey: true
+          values:
+            ЦветФона: Color
+            ЦветТекста: Color
+            Шрифт: Font
+            ГоризонтальноеПоложение: HorizontalAlign
+            Формат: DesignTimeValue
+            ВыделятьОтрицательные: Primitive
+            ОтметкаНезаполненного: Primitive
+            Текст: DesignTimeValue
+            Видимость: Primitive
+            Доступность: Primitive
+            ТолькоПросмотр: Primitive
+            Отображать: Primitive
+          default: ''

@@ -1,0 +1,31 @@
+format: nkdk-declarations/1
+kind: value
+id: common.picture-pixel
+imports:
+  coordinate: common.exact-decimal
+value:
+  kind: record
+  fields:
+    - name: x
+      type:
+        use: coordinate
+    - name: 'y'
+      type:
+        use: coordinate
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: x
+        path: []
+        attribute: x
+      - field: 'y'
+        path: []
+        attribute: 'y'
+  yaml:
+    kind: mapping
+    fields:
+      - field: x
+        key: x
+      - field: 'y'
+        key: 'y'

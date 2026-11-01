@@ -1,0 +1,788 @@
+# Generated independent fact readers from rules.ts by record-owner-operation.mjs
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+  - format: nkdk-declarations/1
+    kind: object
+    id: metadata.catalog-attribute.own-identity
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+      ownerName:
+        type:
+          kind: scalar
+          scalar: text
+      identitySeed:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: name
+          type:
+            kind: scalar
+            scalar: text
+        - name: uuid
+          type:
+            kind: scalar
+            scalar: text
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: name
+            path:
+              - md:Attribute
+              - md:Properties
+              - md:Name
+          - field: uuid
+            path:
+              - md:Attribute
+            attribute: uuid
+      yaml:
+        kind: mapping
+        fields:
+          - field: name
+            key: name
+          - field: uuid
+            key: uuid
+    presence:
+      - target:
+          field: name
+        yaml:
+          missing:
+            denotes:
+              input: ownerName
+      - target:
+          field: uuid
+        yaml:
+          missing:
+            denotes:
+              identity:
+                seed:
+                  input: identitySeed
+                domain: uuid
+                format: uuid
+                address:
+                  - input: component
+                  - concat:
+                      - literal: 'owner:'
+                      - input: owner
+                  - literal: Attribute
+                  - field: name
+    contributions:
+      - index: metadata.own-identities
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: owner
+            kind:
+              literal: Attribute
+            name:
+              field: name
+        value:
+          field: uuid
+  - format: nkdk-declarations/1
+    kind: object
+    id: metadata.catalog-attribute.states
+    imports:
+      rows: common.property-states
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    inputs:
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: states
+          type:
+            use: rows
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: states
+            path:
+              - md:Attribute
+              - md:InternalInfo
+      yaml:
+        kind: mapping
+        fields:
+          - field: states
+            key: Состояния
+    presence:
+      - target:
+          field: states
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+    contributions:
+      - index: metadata.property-state-membership
+        duplicates: coalesce-equal
+        forEach:
+          in:
+            field: states
+          as: row
+        key:
+          record:
+            owner:
+              input: owner
+            property:
+              get:
+                of:
+                  var: row
+                field: name
+            mode:
+              get:
+                of:
+                  var: row
+                field: mode
+        value:
+          literal: present
+  - format: nkdk-declarations/1
+    kind: object
+    id: metadata.catalog-attribute.base-identity
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: base
+          type:
+            kind: scalar
+            scalar: text
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: base
+            path:
+              - md:Attribute
+              - md:Properties
+              - md:ExtendedConfigurationObject
+      yaml:
+        kind: mapping
+        fields:
+          - field: base
+            key: base
+    presence:
+      - target:
+          field: base
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+    contributions:
+      - index: metadata.base-identities
+        when:
+          present:
+            field: base
+        key:
+          record:
+            component:
+              input: component
+            identity:
+              input: owner
+        value:
+          field: base
+  - format: nkdk-declarations/1
+    kind: fragment
+    id: candidate.composed-collection.fragment.b28b31040160bd8c80db
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+      ownerName:
+        type:
+          kind: scalar
+          scalar: text
+      identitySeed:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: name
+          type:
+            kind: scalar
+            scalar: text
+        - name: uuid
+          type:
+            kind: scalar
+            scalar: text
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: name
+            path:
+              - md:Properties
+              - md:Name
+          - field: uuid
+            path: []
+            attribute: uuid
+      yaml:
+        kind: mapping
+        fields:
+          - field: name
+            key: name
+          - field: uuid
+            key: uuid
+    presence:
+      - target:
+          field: name
+        yaml:
+          missing:
+            denotes:
+              absent: true
+      - target:
+          field: uuid
+        yaml:
+          missing:
+            denotes:
+              identity:
+                seed:
+                  input: identitySeed
+                domain: uuid
+                format: uuid
+                address:
+                  - input: component
+                  - concat:
+                      - literal: 'owner:'
+                      - input: owner
+                  - literal: Attribute
+                  - field: name
+    contributions:
+      - index: metadata.own-identities
+        key:
+          record:
+            component:
+              input: component
+            owner:
+              input: owner
+            kind:
+              literal: Attribute
+            name:
+              field: name
+        value:
+          field: uuid
+  - format: nkdk-declarations/1
+    kind: value
+    id: candidate.composed-collection.item.b2aa0863fd0ce7a3db49
+    imports:
+      facts: candidate.composed-collection.fragment.b28b31040160bd8c80db
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+      ownerName:
+        type:
+          kind: scalar
+          scalar: text
+      identitySeed:
+        type:
+          kind: scalar
+          scalar: text
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    compose:
+      - use: facts
+        bind:
+          component:
+            input: component
+          owner:
+            input: owner
+          ownerName:
+            input: ownerName
+          identitySeed:
+            input: identitySeed
+    value:
+      kind: record
+      fields: []
+    representations:
+      xml:
+        kind: record
+        fields: []
+      yaml:
+        kind: mapping
+        fields: []
+  - format: nkdk-declarations/1
+    kind: value
+    id: candidate.composed-collection.list.87ef2455a374cf13ea15
+    imports:
+      facts: candidate.composed-collection.fragment.b28b31040160bd8c80db
+      item: candidate.composed-collection.item.b2aa0863fd0ce7a3db49
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+      ownerName:
+        type:
+          kind: scalar
+          scalar: text
+      identitySeed:
+        type:
+          kind: scalar
+          scalar: text
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    value:
+      kind: sequence
+      item:
+        use: item
+        bind:
+          component:
+            input: component
+          owner:
+            input: owner
+          ownerName:
+            input: ownerName
+          identitySeed:
+            input: identitySeed
+    representations:
+      xml:
+        kind: element-sequence
+        path:
+          - md:Attribute
+      yaml:
+        kind: record-mapping
+        key: name
+  - format: nkdk-declarations/1
+    kind: object
+    id: metadata.catalog-attribute.file-facts.MetadataCatalogRules.own-identity
+    imports:
+      facts: candidate.composed-collection.fragment.b28b31040160bd8c80db
+      items: candidate.composed-collection.list.87ef2455a374cf13ea15
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      ownerName:
+        type:
+          kind: scalar
+          scalar: text
+      identitySeed:
+        type:
+          kind: scalar
+          scalar: text
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    value:
+      kind: record
+      fields:
+        - name: attributes
+          type:
+            use: items
+            bind:
+              component:
+                input: component
+              owner:
+                field: parentIdentity
+              ownerName:
+                input: ownerName
+              identitySeed:
+                input: identitySeed
+        - name: parentIdentity
+          type:
+            kind: scalar
+            scalar: text
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: attributes
+            path:
+              - md:MetaDataObject
+              - md:Catalog
+              - md:ChildObjects
+          - field: parentIdentity
+            path:
+              - md:MetaDataObject
+              - md:Catalog
+            attribute: uuid
+      yaml:
+        kind: mapping
+        fields:
+          - field: attributes
+            key: Реквизиты
+          - field: parentIdentity
+            key: parentIdentity
+  - format: nkdk-declarations/1
+    kind: fragment
+    id: candidate.composed-collection.fragment.d977b250c9fbce79019d
+    imports:
+      rows: common.property-states
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    inputs:
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: states
+          type:
+            use: rows
+        - name: name
+          type:
+            kind: scalar
+            scalar: text
+        - name: uuid
+          type:
+            kind: scalar
+            scalar: text
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: states
+            path:
+              - md:InternalInfo
+          - field: name
+            path:
+              - md:Properties
+              - md:Name
+          - field: uuid
+            path: []
+            attribute: uuid
+      yaml:
+        kind: mapping
+        fields:
+          - field: states
+            key: Состояния
+          - field: name
+            key: name
+          - field: uuid
+            key: uuid
+    presence:
+      - target:
+          field: states
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+    contributions:
+      - index: metadata.property-state-membership
+        duplicates: coalesce-equal
+        forEach:
+          in:
+            field: states
+          as: row
+        key:
+          record:
+            owner:
+              input: owner
+            property:
+              get:
+                of:
+                  var: row
+                field: name
+            mode:
+              get:
+                of:
+                  var: row
+                field: mode
+        value:
+          literal: present
+  - format: nkdk-declarations/1
+    kind: value
+    id: candidate.composed-collection.item.befb537c61bf55a055a8
+    imports:
+      facts: candidate.composed-collection.fragment.d977b250c9fbce79019d
+    inputs: {}
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    compose:
+      - use: facts
+        bind:
+          owner:
+            field: uuid
+    value:
+      kind: record
+      fields: []
+    representations:
+      xml:
+        kind: record
+        fields: []
+      yaml:
+        kind: mapping
+        fields: []
+  - format: nkdk-declarations/1
+    kind: value
+    id: candidate.composed-collection.list.2cc7b0f5dee302dc28f6
+    imports:
+      facts: candidate.composed-collection.fragment.d977b250c9fbce79019d
+      item: candidate.composed-collection.item.befb537c61bf55a055a8
+    inputs: {}
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    value:
+      kind: sequence
+      item:
+        use: item
+        bind: {}
+    representations:
+      xml:
+        kind: element-sequence
+        path:
+          - md:Attribute
+      yaml:
+        kind: record-mapping
+        key: name
+  - format: nkdk-declarations/1
+    kind: object
+    id: metadata.catalog-attribute.file-facts.MetadataCatalogRules.states
+    imports:
+      facts: candidate.composed-collection.fragment.d977b250c9fbce79019d
+      items: candidate.composed-collection.list.2cc7b0f5dee302dc28f6
+    inputs: {}
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    value:
+      kind: record
+      fields:
+        - name: attributes
+          type:
+            use: items
+            bind: {}
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: attributes
+            path:
+              - md:MetaDataObject
+              - md:Catalog
+              - md:ChildObjects
+      yaml:
+        kind: mapping
+        fields:
+          - field: attributes
+            key: Реквизиты
+  - format: nkdk-declarations/1
+    kind: fragment
+    id: candidate.composed-collection.fragment.689177066d327f2a4e2f
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: base
+          type:
+            kind: scalar
+            scalar: text
+        - name: name
+          type:
+            kind: scalar
+            scalar: text
+        - name: uuid
+          type:
+            kind: scalar
+            scalar: text
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: base
+            path:
+              - md:Properties
+              - md:ExtendedConfigurationObject
+          - field: name
+            path:
+              - md:Properties
+              - md:Name
+          - field: uuid
+            path: []
+            attribute: uuid
+      yaml:
+        kind: mapping
+        fields:
+          - field: base
+            key: base
+          - field: name
+            key: name
+          - field: uuid
+            key: uuid
+    presence:
+      - target:
+          field: base
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+    contributions:
+      - index: metadata.base-identities
+        when:
+          present:
+            field: base
+        key:
+          record:
+            component:
+              input: component
+            identity:
+              input: owner
+        value:
+          field: base
+  - format: nkdk-declarations/1
+    kind: value
+    id: candidate.composed-collection.item.e6c6f2224fc2de59b594
+    imports:
+      facts: candidate.composed-collection.fragment.689177066d327f2a4e2f
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    compose:
+      - use: facts
+        bind:
+          component:
+            input: component
+          owner:
+            field: uuid
+    value:
+      kind: record
+      fields: []
+    representations:
+      xml:
+        kind: record
+        fields: []
+      yaml:
+        kind: mapping
+        fields: []
+  - format: nkdk-declarations/1
+    kind: value
+    id: candidate.composed-collection.list.599d73805bebb574f80f
+    imports:
+      facts: candidate.composed-collection.fragment.689177066d327f2a4e2f
+      item: candidate.composed-collection.item.e6c6f2224fc2de59b594
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    value:
+      kind: sequence
+      item:
+        use: item
+        bind:
+          component:
+            input: component
+    representations:
+      xml:
+        kind: element-sequence
+        path:
+          - md:Attribute
+      yaml:
+        kind: record-mapping
+        key: name
+  - format: nkdk-declarations/1
+    kind: object
+    id: metadata.catalog-attribute.file-facts.MetadataCatalogRules.base-identity
+    imports:
+      facts: candidate.composed-collection.fragment.689177066d327f2a4e2f
+      items: candidate.composed-collection.list.599d73805bebb574f80f
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    value:
+      kind: record
+      fields:
+        - name: attributes
+          type:
+            use: items
+            bind:
+              component:
+                input: component
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: attributes
+            path:
+              - md:MetaDataObject
+              - md:Catalog
+              - md:ChildObjects
+      yaml:
+        kind: mapping
+        fields:
+          - field: attributes
+            key: Реквизиты

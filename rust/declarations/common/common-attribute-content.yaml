@@ -1,0 +1,69 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: common.common-attribute-content-path
+  imports: {root: common.path-root.common-attribute-content, name: common.metadata-name}
+  value:
+    kind: record
+    fields:
+    - {name: root, type: {use: root}}
+    - {name: name, type: {use: name}}
+  representations:
+    xml: {kind: text-pattern, separator: '.', parts: [{field: root}, {field: name}]}
+    yaml: {kind: text-pattern, separator: '.', parts: [{field: root}, {field: name}]}
+- kind: value
+  id: common.common-attribute-content-optional-path
+  imports: {path: common.common-attribute-content-path, other: common.string}
+  value:
+    kind: choice
+    variants:
+    - {name: path, type: {use: path}}
+    - {name: other, type: {use: other}}
+  representations:
+    xml: {kind: choice, fallback: other}
+    yaml: {kind: choice, fallback: other}
+- kind: value
+  id: common.common-attribute-content-item
+  namespaces: {xr: 'http://v8.1c.ru/8.3/xcf/readable'}
+  imports: {path: common.common-attribute-content-optional-path, use: system.CommonAttributeUse}
+  value:
+    kind: record
+    fields:
+    - {name: metadata, type: {use: path}}
+    - {name: use, type: {use: use}}
+    - {name: separation, type: {use: path}}
+  representations:
+    xml:
+      kind: record
+      fields:
+      - {field: metadata, path: [xr:Metadata]}
+      - {field: use, path: [xr:Use]}
+      - {field: separation, path: [xr:ConditionalSeparation]}
+    yaml:
+      kind: mapping
+      fields:
+      - {field: metadata, key: Объект}
+      - {field: use, key: Использование}
+      - {field: separation, key: УсловноеРазделение}
+  presence:
+  - target: {field: separation}
+    xml: {missing: {denotes: {variant: {name: other, value: {literal: ''}}}}}
+    yaml: {missing: {denotes: {variant: {name: other, value: {literal: ''}}}}}
+- kind: value
+  id: common.common-attribute-content
+  namespaces: {xr: 'http://v8.1c.ru/8.3/xcf/readable'}
+  imports: {item: common.common-attribute-content-item}
+  value: {kind: sequence, item: {use: item}}
+  representations:
+    xml: {kind: element-sequence, path: [xr:Item], item: {kind: declared}}
+    yaml: {kind: sequence, item: {kind: declared}}
+  presence:
+  - target: self
+    xml:
+      missing: {denotes: {absent: true}}
+      empty:
+      - {form: empty-element, denotes: {absent: true}}
+      - {form: empty-item, denotes: {absent: true}}
+    yaml:
+      missing: {denotes: {absent: true}}

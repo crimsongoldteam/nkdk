@@ -12,6 +12,7 @@ use std::{
 };
 
 use crate::generate::GeneratedFile;
+use sha2::{Digest, Sha256};
 
 thread_local! {
     static ASSETS: RefCell<Option<AssetStore>> = const { RefCell::new(None) };
@@ -22,6 +23,23 @@ struct AssetStore {
     files: Vec<GeneratedFile>,
     machines: Vec<MachineAsset>,
     by_hash: HashMap<u64, Vec<usize>>,
+    regex_cache: HashMap<RegexKey, DFA<Vec<u32>>>,
+    sequence_cache: HashMap<SequenceKey, DFA<Vec<u32>>>,
+}
+
+#[derive(Clone, PartialEq, Eq, Hash)]
+struct RegexKey {
+    patterns: Vec<String>,
+    state_budget: usize,
+    byte_budget: usize,
+}
+
+#[derive(Clone, PartialEq, Eq, Hash)]
+struct SequenceKey {
+    patterns: Vec<Vec<Part>>,
+    fallback: Option<Vec<bool>>,
+    state_budget: usize,
+    byte_budget: usize,
 }
 
 struct MachineAsset {
@@ -46,9 +64,14 @@ impl AssetStore {
         }
         let index = self.machines.len();
         let little_index = self.files.len();
+        let name = if crate::generate::shared_capture::active() {
+            machine_name(little, big)
+        } else {
+            index.to_string()
+        };
         for (endian, bytes) in [("little", little), ("big", big)] {
             self.files.push(GeneratedFile {
-                path: format!("automaton-{index}-{endian}.bin"),
+                path: format!("automaton-{name}-{endian}.bin"),
                 contents: bytes.to_vec(),
             });
         }
@@ -62,7 +85,7 @@ impl AssetStore {
 
     fn source(&self) -> String {
         if self.machines.is_empty() {
-            return String::new();
+            return "#[allow(dead_code)] pub(crate) mod automata_store {}\n".into();
         }
         let mut out =
             String::from("#[allow(dead_code)] pub(crate) mod automata_store { use crate::core;\n");
@@ -75,15 +98,47 @@ impl AssetStore {
                 big.contents.len(),
                 "automaton byte orders differ in size"
             );
+            let index = if crate::generate::shared_capture::active() {
+                machine_name(&little.contents, &big.contents)
+            } else {
+                index.to_string()
+            };
+            let before = out.len();
             writeln!(out, "#[repr(align(4))] struct Bytes{index}([u8;{length}]);").unwrap();
             for (endian, file) in [("little", little), ("big", big)] {
                 writeln!(out, "#[cfg(target_endian={endian:?})] static B{index}:Bytes{index}=Bytes{index}(*include_bytes!({:?}));", file.path).unwrap();
             }
             writeln!(out, "pub(crate) static A{index}:core::pattern::Pattern=core::pattern::Pattern::new(&B{index}.0);").unwrap();
+            crate::generate::shared_capture::unit(|| {
+                crate::generate::shared_units::GeneratedUnit {
+                    id: crate::generate::shared_units::UnitId(format!("automata_store::A{index}")),
+                    namespace: vec!["automata_store".into()],
+                    definitions: [crate::generate::shared_units::SymbolId(format!(
+                        "automata_store::A{index}"
+                    ))]
+                    .into(),
+                    references: Default::default(),
+                    source: out[before..].to_owned(),
+                    source_kinds: Default::default(),
+                    files: vec![
+                        (little.path.clone(), little.contents.clone()),
+                        (big.path.clone(), big.contents.clone()),
+                    ],
+                }
+            });
         }
         out.push_str("}\n");
         out
     }
+}
+
+fn machine_name(little: &[u8], big: &[u8]) -> String {
+    let mut hash = Sha256::new();
+    hash.update((little.len() as u64).to_le_bytes());
+    hash.update(little);
+    hash.update((big.len() as u64).to_le_bytes());
+    hash.update(big);
+    format!("{:x}", hash.finalize())
 }
 
 pub(crate) struct Assets;
@@ -103,6 +158,15 @@ impl Assets {
         ASSETS.with(|assets| {
             let store = assets.borrow_mut().take().expect("automaton asset session");
             (store.source(), store.files)
+        })
+    }
+
+    #[cfg(test)]
+    fn compiled_count(&self) -> usize {
+        ASSETS.with(|assets| {
+            let assets = assets.borrow();
+            let store = assets.as_ref().unwrap();
+            store.regex_cache.len() + store.sequence_cache.len()
         })
     }
 }
@@ -144,6 +208,36 @@ impl std::fmt::Display for Error {
 }
 
 pub(crate) fn compile(
+    patterns: &[&str],
+    state_budget: usize,
+    byte_budget: usize,
+) -> Result<DFA<Vec<u32>>, Error> {
+    let key = RegexKey {
+        patterns: patterns
+            .iter()
+            .map(|pattern| (*pattern).to_owned())
+            .collect(),
+        state_budget,
+        byte_budget,
+    };
+    if let Some(machine) = ASSETS.with(|assets| {
+        assets
+            .borrow()
+            .as_ref()
+            .and_then(|store| store.regex_cache.get(&key).cloned())
+    }) {
+        return Ok(machine);
+    }
+    let machine = compile_uncached(patterns, state_budget, byte_budget)?;
+    ASSETS.with(|assets| {
+        if let Some(store) = assets.borrow_mut().as_mut() {
+            store.regex_cache.insert(key, machine.clone());
+        }
+    });
+    Ok(machine)
+}
+
+fn compile_uncached(
     patterns: &[&str],
     state_budget: usize,
     byte_budget: usize,
@@ -263,12 +357,65 @@ pub(crate) fn declaration(name: &str, machine: &DFA<Vec<u32>>) -> String {
             .expect("automaton asset session")
             .insert(little, big)
     });
-    format!("#[allow(unused_imports)] use crate::automata_store::A{index} as {name};\n")
+    if crate::generate::shared_capture::active() {
+        let stable = machine_name(little, big);
+        let symbol = format!("automata_store::A{stable}");
+        let target =
+            crate::generate::shared_capture::reference(&symbol, format!("crate::{symbol}"));
+        format!("#[allow(unused_imports)] use {target} as {name};\n")
+    } else {
+        format!("#[allow(unused_imports)] use crate::automata_store::A{index} as {name};\n")
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn repeated_declarations_compile_each_automaton_once() {
+        let assets = Assets::enter();
+        let first = compile(&["alpha", "beta"], 1024, 1 << 20).unwrap();
+        let second = compile(&["alpha", "beta"], 1024, 1 << 20).unwrap();
+        assert_eq!(
+            first.to_bytes_native_endian(),
+            second.to_bytes_native_endian()
+        );
+        assert_eq!(assets.compiled_count(), 1);
+        let forms = [
+            vec![Part::Literal("alpha".into())],
+            vec![Part::Literal("beta".into())],
+        ];
+        let first = compile_sequences_with_fallback(&forms, None, 1024, 1 << 20).unwrap();
+        let second = compile_sequences_with_fallback(&forms, None, 1024, 1 << 20).unwrap();
+        assert_eq!(
+            first.to_bytes_native_endian(),
+            second.to_bytes_native_endian()
+        );
+        assert_eq!(assets.compiled_count(), 2);
+        let _ = assets.finish();
+    }
+
+    #[test]
+    fn automaton_cache_keeps_budgets_and_fallbacks_distinct() {
+        let assets = Assets::enter();
+        let forms = [vec![Part::Literal("alpha".into())]];
+        compile_sequences_with_fallback(&forms, None, 1024, 1 << 20).unwrap();
+        compile_sequences_with_fallback(&forms, None, 2048, 1 << 20).unwrap();
+        let open = [vec![Part::Rest]];
+        compile_sequences_with_fallback(&open, Some(&[true]), 1024, 1 << 20).unwrap();
+        compile_sequences_with_fallback(&open, None, 1024, 1 << 20).unwrap();
+        assert_eq!(assets.compiled_count(), 4);
+        let _ = assets.finish();
+    }
+
+    #[test]
+    fn empty_catalog_still_exposes_automata_module() {
+        let assets = Assets::enter();
+        let (store, files) = assets.finish();
+        assert!(store.contains("mod automata_store"));
+        assert!(files.is_empty());
+    }
 
     #[test]
     fn automaton_table_is_stored_outside_rust_source() {
@@ -411,5 +558,22 @@ mod tests {
         ));
         assert!(compile_sequences(&[vec![Part::Until("".into())]], 4096, 1 << 20).is_err());
         assert!(compile_sequences(&[vec![Part::Until("aaaa".into())]], 2, 1 << 20).is_err());
+    }
+
+    #[test]
+    fn sequence_choice_selects_an_empty_exact_variant_with_a_fallback() {
+        let machine = compile_sequences_with_fallback(
+            &[
+                vec![Part::Words(vec![String::new()])],
+                vec![Part::AsciiClassPlus(vec![(b'0', b'9')]), Part::Rest],
+            ],
+            Some(&[false, true]),
+            1024,
+            1 << 20,
+        )
+        .unwrap();
+        let input = Input::new("");
+        let found = machine.try_search_fwd(&input).unwrap();
+        assert_eq!(found.map(|matched| matched.pattern().as_usize()), Some(0));
     }
 }

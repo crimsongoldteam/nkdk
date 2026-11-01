@@ -1,0 +1,27 @@
+format: nkdk-declarations/1
+kind: resources
+id: resources.configuration-pictures
+imports: {picture: fragment.external-picture-resource}
+compose:
+- use: picture
+  bind:
+    descriptorXml: {sequence: [{literal: Ext}, {literal: MainSectionPicture.xml}]}
+    descriptorYaml: {sequence: [{literal: КартинкаОсновногоРаздела}, {literal: MainSectionPicture.xml}]}
+    payloadXml: {sequence: [{literal: Ext}, {literal: MainSectionPicture}]}
+    payloadYaml: {sequence: [{literal: КартинкаОсновногоРаздела}]}
+- use: picture
+  bind:
+    descriptorXml: {sequence: [{literal: Ext}, {literal: Logo.xml}]}
+    descriptorYaml: {sequence: [{literal: Логотип}, {literal: Logo.xml}]}
+    payloadXml: {sequence: [{literal: Ext}, {literal: Logo}]}
+    payloadYaml: {sequence: [{literal: Логотип}]}
+- use: picture
+  bind:
+    descriptorXml: {sequence: [{literal: Ext}, {literal: Splash.xml}]}
+    descriptorYaml: {sequence: [{literal: Заставка}, {literal: Splash.xml}]}
+    payloadXml: {sequence: [{literal: Ext}, {literal: Splash}]}
+    payloadYaml: {sequence: [{literal: Заставка}]}
+value: {kind: record, fields: []}
+representations:
+  xml: {kind: record, fields: []}
+  yaml: {kind: mapping, fields: []}

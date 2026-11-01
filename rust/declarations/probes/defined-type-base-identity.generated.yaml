@@ -1,61 +1,127 @@
 # Generated from rust/declarations/objects/defined-type.yaml by tools/rules-migration/src/defined-type-identity-operation.mjs
 format: nkdk-declarations/1
-kind: object
-id: migration.defined-type-base-identity
-namespaces:
-  md: http://v8.1c.ru/8.3/MDClasses
-imports:
-  facts: fragment.metadata-base-identity
-inputs:
-  component:
-    type:
-      kind: scalar
-      scalar: text
-value:
-  kind: record
-  fields:
-    - name: uuid
-      type:
-        kind: scalar
-        scalar: text
-    - name: base
-      type:
-        kind: scalar
-        scalar: text
-compose:
-  - use: facts
-    bind:
-      component:
-        input: component
-      identity:
-        field: uuid
-      baseIdentity:
-        field: base
-representations:
-  xml:
-    kind: with-attributes
-    attributes:
-      - name: version
-        value:
-          text: '2.20'
-    content:
+kind: catalog
+declarations:
+  - format: nkdk-declarations/1
+    kind: value
+    id: migration.defined-type-base-row
+    imports:
+      text: common.string
+    value:
       kind: record
       fields:
-        - field: uuid
-          path:
-            - md:MetaDataObject
-            - md:DefinedType
-          attribute: uuid
-        - field: base
-          path:
-            - md:MetaDataObject
-            - md:DefinedType
-            - md:Properties
-            - md:ExtendedConfigurationObject
-  yaml:
-    kind: mapping
-    fields:
-      - field: uuid
-        key: uuid
-      - field: base
-        key: base
+        - name: base
+          type:
+            use: text
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: base
+            path: []
+      yaml:
+        kind: mapping
+        fields:
+          - field: base
+            key: base
+  - format: nkdk-declarations/1
+    kind: value
+    id: migration.defined-type-base-values
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      row: migration.defined-type-base-row
+    value:
+      kind: sequence
+      item:
+        use: row
+    representations:
+      xml:
+        kind: element-sequence
+        path:
+          - md:ExtendedConfigurationObject
+      yaml:
+        kind: sequence
+  - format: nkdk-declarations/1
+    kind: object
+    id: migration.defined-type-base-identity
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      bases: migration.defined-type-base-values
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      parent:
+        type:
+          kind: scalar
+          scalar: text
+      ownerName:
+        type:
+          kind: scalar
+          scalar: text
+      identities:
+        index: metadata.own-identities
+    value:
+      kind: record
+      fields:
+        - name: base
+          type:
+            use: bases
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: base
+            path:
+              - md:MetaDataObject
+              - md:DefinedType
+              - md:Properties
+      yaml:
+        kind: mapping
+        fields:
+          - field: base
+            key: base
+    presence:
+      - target:
+          field: base
+        xml:
+          missing:
+            denotes:
+              sequence: []
+        yaml:
+          missing:
+            denotes:
+              sequence: []
+    contributions:
+      - index: metadata.base-identities
+        forEach:
+          in:
+            field: base
+          as: item
+        key:
+          record:
+            component:
+              input: component
+            identity:
+              require:
+                lookup:
+                  in:
+                    input: identities
+                  key:
+                    record:
+                      component:
+                        input: component
+                      owner:
+                        input: parent
+                      kind:
+                        literal: DefinedType
+                      name:
+                        input: ownerName
+        value:
+          get:
+            of:
+              var: item
+            field: base

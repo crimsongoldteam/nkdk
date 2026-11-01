@@ -63,6 +63,7 @@ pub(super) fn bindings(
             let unused_nil = fields.iter().enumerate().any(|(i, field)| {
                 name == format!("nil{i}")
                     && super::super::scalar_presence::empty(field.presence, EmptyKind::Element)
+                    && !super::paired_null(field)
             });
             if name.starts_with("header") || unused_nil {
                 format!("{name}:_")
@@ -92,6 +93,7 @@ pub(super) fn generate(
         writeln!(out, "{name}:{initial},").unwrap();
     }
     writeln!(out,"}}}}\nfn consume(&mut self,path:&[core::xml::Name],token:&core::xml::Token<'_>)->core::Result<()>{{").unwrap();
+    out.push_str("let _=path;\n");
     for (i, field) in physical_fields(fields) {
         if field.attribute.is_some() {
             continue;
@@ -102,7 +104,13 @@ pub(super) fn generate(
     out.push_str(container_attributes);
     for (i, field) in physical_fields(fields) {
         if let Some(attribute) = field.attribute {
-            writeln!(out, "if core::xml::matches(path,{}) && {} {{if self.r{i}.replace(_attribute.text.clone()).is_some() {{return Err(RuntimeDiagnostic::new(\"xml.duplicate-field\",\"Repeated attribute\"));}} return Ok(());}}", path_code(field.path), super::super::attributes::name_matches(attribute,"_attribute.name")).unwrap();
+            writeln!(out, "if core::xml::matches(path,{}) && {} {{if self.r{i}.replace(_attribute.text.clone()).is_some() {{return Err(RuntimeDiagnostic::repeated_xml_attribute());}} return Ok(());}}", path_code(field.path), super::super::attributes::name_matches(attribute,"_attribute.name")).unwrap();
+        }
+    }
+    // Declared attributes belong to their slots even when the same element
+    // also carries a scalar text field. Only unmatched attributes affect shape.
+    for (i, field) in physical_fields(fields) {
+        if field.attribute.is_some() {
             continue;
         }
         if let Codec::Choice(choice) = &field.codec {
@@ -156,7 +164,7 @@ pub(super) fn generate(
         )
         .unwrap();
     }
-    out.push_str("Err(RuntimeDiagnostic::new(\"xml.unknown-attribute\",\"Undeclared container attribute\"))},core::xml::Token::Start(offset)=>{\n");
+    out.push_str("Err(RuntimeDiagnostic::unknown_xml_attribute())},core::xml::Token::Start(offset)=>{let _=offset;\n");
 
     if let Some(layout) = layout {
         writeln!(
@@ -168,7 +176,7 @@ pub(super) fn generate(
     }
     for group in headers.chunk_by(|left, right| left.1.path == right.1.path) {
         let (i, field) = group[0];
-        writeln!(out, "if core::xml::matches(path,{}) {{if self.header{i} {{return Err(RuntimeDiagnostic::new(\"xml.duplicate-field\",\"Repeated attribute container\"));}} self.header{i}=true;",path_code(field.path)).unwrap();
+        writeln!(out, "if core::xml::matches(path,{}) {{if self.header{i} {{return Err(RuntimeDiagnostic::repeated_xml_container());}} self.header{i}=true;",path_code(field.path)).unwrap();
         for (index, _) in group {
             writeln!(out, "self.positions[{index}]=core::Position::xml(*offset);").unwrap();
         }
@@ -183,7 +191,7 @@ pub(super) fn generate(
         if field.attribute.is_some() {
             continue;
         }
-        writeln!(out, "if core::xml::matches(path, {}) {{ if self.r{i}.is_some() {{ return Err(RuntimeDiagnostic::new(\"xml.duplicate-field\", {:?})); }} self.positions[{i}] = core::Position::xml(*offset); self.r{i} = Some(String::new()); return Ok(()); }}", path_code(field.path), field.key).unwrap();
+        writeln!(out, "if core::xml::matches(path, {}) {{ if self.r{i}.is_some() {{self.nested{i}=true;}} self.positions[{i}] = core::Position::xml(*offset); self.r{i} = Some(String::new()); return Ok(()); }}", path_code(field.path)).unwrap();
     }
     if let Some(layout) = layout {
         writeln!(
@@ -206,23 +214,24 @@ pub(super) fn generate(
         )
         .unwrap();
     }
-    out.push_str("Err(RuntimeDiagnostic::new(\"xml.unknown-field\", \"Unknown XML path\")) }, core::xml::Token::Text(text) => {\n");
+    out.push_str(
+        "Err(RuntimeDiagnostic::unknown_xml_field()) }, core::xml::Token::Text(text) => {\n",
+    );
     for (i, field) in physical_fields(fields) {
         if field.attribute.is_some() {
             continue;
         }
         writeln!(out, "if core::xml::matches(path, {}) {{ self.r{i}.as_mut().expect(\"started field\").push_str(text); return Ok(()); }}", path_code(field.path)).unwrap();
     }
-    out.push_str("if core::xml::is_whitespace(text) { Ok(()) } else { Err(RuntimeDiagnostic::new(\"xml.unexpected-text\", \"Text outside a declared scalar\")) } }, core::xml::Token::End => Ok(()) } }\n");
+    out.push_str("if core::xml::is_whitespace(text) { Ok(()) } else { Err(RuntimeDiagnostic::unexpected_xml_text()) } }, core::xml::Token::End => Ok(()) } }\n");
     out.push_str("#[allow(dead_code,unused_variables)] fn consume_scoped(&mut self,path:&[core::xml::Name],token:&core::xml::Token<'_>,scope:Option<core::xml::NamespaceScope<'_>>)->core::Result<()>{self.consume(path,token)?;");
     for (i, field) in physical_fields(fields) {
-        if field.attribute.is_none()
-            && matches!(
-                field.codec,
-                Codec::QNameText(_) | Codec::QNameEnumeration(..)
-            )
-        {
-            writeln!(out,"if matches!(token,core::xml::Token::End) && core::xml::matches(path,{}) && let Some(raw)=&mut self.r{i} {{let (namespace,local)=scope.ok_or_else(||RuntimeDiagnostic::new(\"xml.qname-prefix\",\"QName namespace scope is unavailable\"))?.resolve_qname(raw)?;*raw=format!(\"{{namespace}}\\0{{local}}\");}}",path_code(field.path)).unwrap();
+        if field.codec.is_qname() {
+            if let Some(attribute) = field.attribute {
+                writeln!(out,"if let core::xml::Token::Attribute(attribute)=token && core::xml::matches(path,{}) && {} && let Some(raw)=&mut self.r{i} && let Some((namespace,local))=attribute.qname.as_ref().map(|name|(name.namespace.as_str(),name.local.as_str())).or_else(||scope.and_then(|scope|scope.resolve_qname(raw).ok())){{*raw=format!(\"{{namespace}}\\0{{local}}\");}}",path_code(field.path),super::super::attributes::name_matches(attribute,"attribute.name")).unwrap();
+                continue;
+            }
+            writeln!(out,"if matches!(token,core::xml::Token::End) && core::xml::matches(path,{}) && let Some(raw)=&mut self.r{i} && let Some((namespace,local))=scope.and_then(|scope|scope.resolve_qname(raw).ok()){{*raw=format!(\"{{namespace}}\\0{{local}}\");}}",path_code(field.path)).unwrap();
         }
     }
     out.push_str("Ok(())}\n");

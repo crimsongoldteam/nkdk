@@ -1,0 +1,4 @@
+migration.command-collection
+migration.document-commands
+migration.metadata-own-identity
+migration.metadata-root-index

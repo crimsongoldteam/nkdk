@@ -1,0 +1,62 @@
+format: nkdk-declarations/1
+kind: value
+id: common.form-settings-storage-object
+imports:
+  name: common.metadata-name
+  rootKind: common.path-root
+inputs:
+  roots:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: kind
+            type:
+              use: rootKind
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+value:
+  kind: record
+  fields:
+    - name: name
+      type:
+        use: name
+representations:
+  xml:
+    kind: text-pattern
+    parts:
+      - literal: SettingsStorage.
+      - field: name
+  yaml:
+    kind: text-pattern
+    parts:
+      - literal: ХранилищеНастроек.
+      - field: name
+constraints:
+  - id: target-exists
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    assert:
+      present:
+        lookup:
+          in:
+            input: roots
+          key:
+            record:
+              kind:
+                literal: SettingsStorage
+              name:
+                field: name
+    diagnostic:
+      code: metadata.target-missing
+      severity: error
+      at:
+        self: true
+      message: Settings storage is missing

@@ -52,3 +52,12 @@ enum:
   SettingsStorage: ХранилищеНастроек
   Subsystem: Подсистема
   Sequence: Последовательность
+projections:
+  - id: common.path-root.russian-xml
+    xml:
+      kind: yaml-text
+  - id: common.path-root.common-attribute-content
+    yaml:
+      overrides:
+        Catalog: Справочники
+        ChartOfCalculationTypes: ПланыВидовРасчета

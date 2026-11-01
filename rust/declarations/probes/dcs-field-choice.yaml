@@ -1,0 +1,22 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.dcs-field-choice
+imports: {value: common.dcs-field-choice, text: common.string}
+value:
+  kind: record
+  fields: [{name: value, type: {use: value}}, {name: other, type: {use: text}}]
+representations:
+  xml: {kind: record, fields: [{field: value, path: [Root, Value]}, {field: other, path: [Root, Other]}]}
+  yaml: {kind: mapping, fields: [{field: value, key: Значение}, {field: other, key: Сосед}]}
+presence:
+- target: {field: value}
+  xml:
+    missing: {denotes: {absent: true}}
+    empty: [{form: nil, denotes: {absent: true}}]
+    canonical: [{when: {not: {present: {field: value}}}, form: nil}]
+  yaml:
+    missing: {denotes: {absent: true}}
+    empty: [{form: null, denotes: {absent: true}}]
+- target: {field: other}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {missing: {denotes: {absent: true}}}

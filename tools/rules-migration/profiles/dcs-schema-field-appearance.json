@@ -1,0 +1,14 @@
+{
+  "symbol": "DataCompositionSchemaDataSetFieldRules",
+  "properties": [
+    "kind",
+    "appearance"
+  ],
+  "id": "working.dcs-schema-field-appearance",
+  "output": "rust/declarations/probes/dcs-schema-field-appearance.generated.yaml",
+  "namespaces": {
+    "xsi": "http://www.w3.org/2001/XMLSchema-instance",
+    "dcssch": "http://v8.1c.ru/8.1/data-composition-system/schema"
+  },
+  "root": "Field"
+}

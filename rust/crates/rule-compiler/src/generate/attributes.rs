@@ -3,6 +3,7 @@ use std::fmt::Write;
 pub(super) struct Attributes {
     pub definitions: String,
     pub read: String,
+    pub read_tokens: String,
     pub write: String,
     pub namespaces: BTreeSet<String>,
     pub qnames: String,
@@ -76,6 +77,7 @@ pub(super) fn generate_with_storage(
     let mut result = Attributes {
         definitions: String::new(),
         read: String::new(),
+        read_tokens: String::new(),
         write: String::new(),
         namespaces: BTreeSet::new(),
         qnames: String::new(),
@@ -114,7 +116,16 @@ pub(super) fn generate_with_storage(
                 )
             }
         };
-        writeln!(result.read, "if core::xml::matches(path, {path}) && {named} {{ if !({valid}) {{ return Err(RuntimeDiagnostic::new(\"xml.attribute-value\", \"Unexpected declared attribute value\")); }} return Ok(()); }}").unwrap();
+        let guard = format!("core::xml::matches(path, {path}) && {named}");
+        let validate = format!(
+            "if !({valid}) {{return Err(RuntimeDiagnostic::new(\"xml.attribute-value\",\"Unexpected declared attribute value\"));}}return Ok(());"
+        );
+        writeln!(result.read, "if {guard}{{{validate}}}").unwrap();
+        writeln!(
+            result.read_tokens,
+            "if let core::xml::Token::Attribute(_attribute)=token && {guard}{{{validate}}}"
+        )
+        .unwrap();
         let condition = if let Some(when) = &attribute.when {
             let (defs, mut condition) =
                 expressions::expression_with_storage(owner, program, when, storage)?;

@@ -1,0 +1,292 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.ObjectBelonging
+  value1: common.string
+  value2: common.i8n-text
+  inputType1f8ea46361ff: common.path-root
+  value4: common.owner-or-common-form-link
+value:
+  kind: record
+  fields:
+    - name: objectBelonging
+      type:
+        use: value0
+    - name: name
+      type:
+        use: value1
+    - name: synonym
+      type:
+        use: value2
+        with:
+          excludeIfEqualNameYAML: true
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            input: ownerName
+    - name: comment
+      type:
+        use: value1
+    - name: defaultSaveForm
+      type:
+        use: value4
+        bind:
+          owner:
+            input: owner
+          forms:
+            input: forms
+          roots:
+            input: roots
+    - name: defaultLoadForm
+      type:
+        use: value4
+        bind:
+          owner:
+            input: owner
+          forms:
+            input: forms
+          roots:
+            input: roots
+    - name: auxiliarySaveForm
+      type:
+        use: value4
+        bind:
+          owner:
+            input: owner
+          forms:
+            input: forms
+          roots:
+            input: roots
+    - name: auxiliaryLoadForm
+      type:
+        use: value4
+        bind:
+          owner:
+            input: owner
+          forms:
+            input: forms
+          roots:
+            input: roots
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: objectBelonging
+        path:
+          - Properties
+          - ObjectBelonging
+      - field: name
+        path:
+          - Properties
+          - Name
+      - field: synonym
+        path:
+          - Properties
+          - Synonym
+      - field: comment
+        path:
+          - Properties
+          - Comment
+      - field: defaultSaveForm
+        path:
+          - Properties
+          - DefaultSaveForm
+      - field: defaultLoadForm
+        path:
+          - Properties
+          - DefaultLoadForm
+      - field: auxiliarySaveForm
+        path:
+          - Properties
+          - AuxiliarySaveForm
+      - field: auxiliaryLoadForm
+        path:
+          - Properties
+          - AuxiliaryLoadForm
+  yaml:
+    kind: mapping
+    fields:
+      - field: synonym
+        key: Синоним
+      - field: comment
+        key: Комментарий
+      - field: defaultSaveForm
+        key: ОсновнаяФормаСохранения
+      - field: defaultLoadForm
+        key: ОсновнаяФормаЗагрузки
+      - field: auxiliarySaveForm
+        key: ВспомогательнаяФормаСохранения
+      - field: auxiliaryLoadForm
+        key: ВспомогательнаяФормаЗагрузки
+presence:
+  - target:
+      field: objectBelonging
+    xml:
+      missing:
+        denotes:
+          literal: Native
+      canonical:
+        - when:
+            eq:
+              - field: objectBelonging
+              - literal: Native
+          form: missing
+    yaml:
+      default:
+        literal: Native
+  - target:
+      field: name
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          input: ownerName
+  - target:
+      field: synonym
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: synonym
+          form: empty-element
+  - target:
+      field: comment
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: ''
+  - target:
+      field: defaultSaveForm
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: defaultSaveForm
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: defaultLoadForm
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: defaultLoadForm
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: auxiliarySaveForm
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: auxiliarySaveForm
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: auxiliaryLoadForm
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: auxiliaryLoadForm
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+inputs:
+  ownerName:
+    type:
+      kind: scalar
+      scalar: text
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  forms:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  roots:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: kind
+            type:
+              use: inputType1f8ea46361ff
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+id: candidate.fragment.a9795ef366f635061a90

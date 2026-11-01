@@ -1,0 +1,90 @@
+format: nkdk-declarations/1
+kind: value
+id: common.conditional-appearance
+description: >-
+  Проекция ConditionalAppearanceRules: conditionalAppearanceItems, viewMode, userSettingID, userSettingPresentation;
+  остальные свойства владельца не включены
+imports:
+  part0: candidate.fragment.061d6b72e55fa623a97f
+compose:
+  - use: part0
+    bind:
+      defaultLanguage:
+        input: defaultLanguage
+      registeredLanguages:
+        input: registeredLanguages
+      styleTypes:
+        input: styleTypes
+      labels:
+        input: labels
+      codes:
+        input: codes
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  styleTypes:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  labels:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: code
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  codes:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: label
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+yamlOrder:
+  - conditionalAppearanceItems
+  - viewMode
+  - userSettingID
+  - userSettingPresentation

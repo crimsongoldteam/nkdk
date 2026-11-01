@@ -6,6 +6,11 @@ pub struct Document {
     pub payload: Vec<u8>,
 }
 impl Document {
+    /// The preservation envelope uses an empty mapping when no semantic value exists.
+    pub fn meaning_is_empty(&self) -> Result<bool> {
+        super::meaning_is_empty(&self.meaning)
+    }
+
     pub fn encode(meaning: &[u8], payload: &[u8]) -> Result<Vec<u8>> {
         let meaning = document::parse(if meaning.is_empty() { b"{}" } else { meaning })?;
         if meaning

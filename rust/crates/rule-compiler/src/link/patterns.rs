@@ -101,7 +101,7 @@ pub(super) fn resolve(
     ))
 }
 
-fn context_only(value: &LinkedExpression) -> bool {
+pub(super) fn context_only(value: &LinkedExpression) -> bool {
     fn visit(value: &LinkedExpression, locals: &BTreeSet<u32>) -> bool {
         match &value.kind {
             LinkedExpressionKind::Absent
@@ -131,7 +131,17 @@ fn context_only(value: &LinkedExpression) -> bool {
 pub(super) fn disjoint(a: &LinkedShorthand, b: &LinkedShorthand) -> bool {
     use LinkedShorthandRepresentation::*;
     match (&a.representation, &b.representation) {
-        (ScalarText, KeyedMapping { .. }) | (KeyedMapping { .. }, ScalarText) => true,
+        (MappingField(_), ScalarField(_) | ScalarLiteral(_) | ScalarText { .. })
+        | (ScalarField(_) | ScalarLiteral(_) | ScalarText { .. }, MappingField(_)) => true,
+        (MappingField(_), _) | (_, MappingField(_)) => guards_disjoint(a, b),
+        (ScalarField(_), KeyedMapping { .. }) | (KeyedMapping { .. }, ScalarField(_)) => true,
+        (ScalarField(_), _) | (_, ScalarField(_)) => guards_disjoint(a, b),
+        (ScalarLiteral(a), ScalarLiteral(b)) => a != b,
+        (ScalarLiteral(_), ScalarText { .. }) | (ScalarText { .. }, ScalarLiteral(_)) => {
+            guards_disjoint(a, b)
+        }
+        (ScalarLiteral(_), KeyedMapping { .. }) | (KeyedMapping { .. }, ScalarLiteral(_)) => true,
+        (ScalarText { .. }, KeyedMapping { .. }) | (KeyedMapping { .. }, ScalarText { .. }) => true,
         (KeyedMapping { .. }, KeyedMapping { .. }) => {
             excludes_fixed_key(a, b) || excludes_fixed_key(b, a)
         }
@@ -221,13 +231,7 @@ fn compatible_fixed_type(actual: &LinkedType, expected: &LinkedType) -> bool {
     match (actual, expected) {
         (LinkedType::Optional(inner), expected) => compatible_fixed_type(inner, expected),
         (LinkedType::Record(actual), LinkedType::Record(expected)) => {
-            actual.len() == expected.len()
-                && expected.iter().all(|field| {
-                    actual
-                        .iter()
-                        .find(|actual| actual.name == field.name)
-                        .is_some_and(|actual| compatible_fixed_type(&actual.value, &field.value))
-                })
+            expressions::record_fields_match(actual, expected, compatible_fixed_type)
         }
         (LinkedType::Sequence(actual), LinkedType::Sequence(expected)) => {
             compatible_fixed_type(actual, expected)
@@ -241,7 +245,10 @@ pub(super) fn scalar_inverse(value: &LinkedExpression) -> bool {
         match &value.kind {
             LinkedExpressionKind::Capture(0) => Some(1),
             LinkedExpressionKind::Operation {
-                operator: LinkedOperator::Sequence | LinkedOperator::Record(_),
+                operator:
+                    LinkedOperator::Sequence
+                    | LinkedOperator::Record(_)
+                    | LinkedOperator::ConstructVariant(_),
                 arguments,
             } => arguments.iter().try_fold(0usize, |total, value| {
                 Some(total.saturating_add(count(value)?))
@@ -250,5 +257,63 @@ pub(super) fn scalar_inverse(value: &LinkedExpression) -> bool {
             _ => None,
         }
     }
-    count(value) == Some(1)
+    count(value).is_some_and(|count| count > 0)
+}
+
+fn guards_disjoint(a: &LinkedShorthand, b: &LinkedShorthand) -> bool {
+    fn equality(value: &LinkedExpression) -> Option<(&LinkedExpression, &LinkedExpression)> {
+        if let LinkedExpressionKind::Operation {
+            operator: LinkedOperator::Equal,
+            arguments,
+        } = &value.kind
+            && arguments.len() == 2
+        {
+            return Some((&arguments[0], &arguments[1]));
+        }
+        None
+    }
+    fn different_literals(a: &ScalarLiteral, b: &ScalarLiteral) -> bool {
+        match (a, b) {
+            (ScalarLiteral::Number(a), ScalarLiteral::Number(b)) => {
+                match (
+                    nkdk_decimal::Decimal::parse(a),
+                    nkdk_decimal::Decimal::parse(b),
+                ) {
+                    (Ok(a), Ok(b)) => a != b,
+                    _ => false,
+                }
+            }
+            _ => a != b,
+        }
+    }
+    fn conditions(a: &LinkedExpression, b: &LinkedExpression) -> bool {
+        for (left, right) in [(a, b), (b, a)] {
+            if let LinkedExpressionKind::Operation {
+                operator,
+                arguments,
+            } = &left.kind
+            {
+                match operator {
+                    LinkedOperator::Or => {
+                        return arguments.iter().all(|branch| conditions(branch, right));
+                    }
+                    LinkedOperator::And => {
+                        return arguments.iter().any(|branch| conditions(branch, right));
+                    }
+                    _ => {}
+                }
+            }
+        }
+        match (equality(a), equality(b)) {
+            (Some((a_input, a_value)), Some((b_input, b_value))) => {
+                matches!((&a_input.kind,&b_input.kind),(LinkedExpressionKind::Input(a),LinkedExpressionKind::Input(b)) if a==b)
+                    && matches!((&a_value.kind,&b_value.kind),(LinkedExpressionKind::Literal(a),LinkedExpressionKind::Literal(b)) if different_literals(a,b))
+            }
+            _ => false,
+        }
+    }
+    match (&a.when, &b.when) {
+        (Some(a), Some(b)) => conditions(a, b),
+        _ => false,
+    }
 }

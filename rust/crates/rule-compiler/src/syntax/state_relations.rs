@@ -80,6 +80,7 @@ fn rule(
         xml_empty: vec![],
         yaml_empty: vec![],
         yaml_omit_when: None,
+        yaml_null_when: None,
         xml_canonical: vec![],
         source: source.clone(),
     }

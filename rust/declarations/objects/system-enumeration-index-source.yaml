@@ -1,0 +1,24 @@
+format: nkdk-declarations/1
+kind: object
+id: metadata.system-enumeration-index-source
+imports: {rows: common.lexicon-rows}
+value: {kind: record, fields: [{name: rows, type: {use: rows}}]}
+representations:
+  xml: {kind: record, fields: [{field: rows, path: [Dictionaries, Rows]}]}
+  yaml: {kind: mapping, fields: [{field: rows, key: Словари}]}
+contributions:
+  - index: dcs.enumeration-labels
+    forEach: {in: {field: rows}, as: row}
+    key:
+      record:
+        name: {get: {of: {var: row}, field: name}}
+        code: {get: {of: {var: row}, field: code}}
+    value: {get: {of: {var: row}, field: label}}
+  - index: dcs.enumeration-codes
+    forEach: {in: {field: rows}, as: row}
+    when: {get: {of: {var: row}, field: canonical}}
+    key:
+      record:
+        name: {get: {of: {var: row}, field: name}}
+        label: {get: {of: {var: row}, field: label}}
+    value: {get: {of: {var: row}, field: code}}

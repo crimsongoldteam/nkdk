@@ -1,0 +1,58 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: common.choice-parameter-dcs
+  namespaces: {dcscor: http://v8.1c.ru/8.1/data-composition-system/core}
+  imports: {value: common.metadata-value}
+  inputs:
+    defaultLanguage: {type: {kind: scalar, scalar: text}}
+    registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  value:
+    kind: record
+    fields:
+    - {name: name, type: {kind: scalar, scalar: text}}
+    - {name: value, type: {use: value, bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}, onlyStringType: {literal: false}}}}
+  representations:
+    xml:
+      kind: record
+      fields:
+      - {field: name, path: [dcscor:choiceParameter]}
+      - {field: value, path: [dcscor:value]}
+    yaml:
+      kind: mapping
+      fields:
+      - {field: name, key: Имя}
+      - {field: value, key: Значение}
+  presence:
+  - target: {field: value}
+    xml:
+      missing: {denotes: {absent: true}}
+      empty:
+      - {form: empty-element, denotes: {absent: true}}
+      - {form: nil, denotes: {absent: true}}
+      canonical:
+      - {when: {not: {present: {field: value}}}, form: nil}
+    yaml: {missing: {denotes: {absent: true}}}
+- kind: value
+  id: common.dcs-choice-parameters
+  namespaces:
+    xsi: http://www.w3.org/2001/XMLSchema-instance
+    dcscor: http://v8.1c.ru/8.1/data-composition-system/core
+  imports: {item: common.choice-parameter-dcs}
+  inputs:
+    defaultLanguage: {type: {kind: scalar, scalar: text}}
+    registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  value:
+    kind: sequence
+    item:
+      use: item
+      bind:
+        defaultLanguage: {input: defaultLanguage}
+        registeredLanguages: {input: registeredLanguages}
+  representations:
+    xml:
+      kind: with-attributes
+      attributes: [{name: xsi:type, value: {qname: dcscor:ChoiceParameters}}]
+      content: {kind: element-sequence, path: [dcscor:item], item: {kind: declared}}
+    yaml: {kind: record-mapping, key: name, value: value, maxItems: 1}

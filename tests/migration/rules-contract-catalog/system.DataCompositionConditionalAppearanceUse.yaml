@@ -1,0 +1,19 @@
+format: nkdk-declarations/1
+kind: value
+id: system.DataCompositionConditionalAppearanceUse
+enum:
+  Use: Использовать
+  DontUse: НеИспользовать
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  t: http://v8.1c.ru/8.1/data-composition-system/core
+projections:
+  - id: system.DataCompositionConditionalAppearanceUse.dcs
+    xml:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: t:DataCompositionConditionalAppearanceUse
+      content:
+        kind: text

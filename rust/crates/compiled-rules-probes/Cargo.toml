@@ -17,38 +17,3 @@ nkdk-conversion-core = { path = "../conversion-core" }
 
 [build-dependencies]
 nkdk-rule-compiler = { path = "../rule-compiler" }
-
-[dev-dependencies]
-serde_json = { version = "=1.0.150", features = ["arbitrary_precision"] }
-
-[[test]]
-name = "calendar_records"
-path = "../compiled-rules/tests/calendar_records.rs"
-
-[[test]]
-name = "defined_type_owner"
-path = "../compiled-rules/tests/defined_type_owner.rs"
-
-[[test]]
-name = "identity"
-path = "../compiled-rules/tests/identity.rs"
-
-[[test]]
-name = "path_lexicons"
-path = "../compiled-rules/tests/path_lexicons.rs"
-
-[[test]]
-name = "qname"
-path = "../compiled-rules/tests/qname.rs"
-
-[[test]]
-name = "scalars"
-path = "../compiled-rules/tests/scalars.rs"
-
-[[test]]
-name = "sequences"
-path = "../compiled-rules/tests/sequences.rs"
-
-[[test]]
-name = "type_description"
-path = "../compiled-rules/tests/type_description.rs"

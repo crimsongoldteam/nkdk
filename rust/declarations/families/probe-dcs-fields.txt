@@ -1,0 +1,15 @@
+migration.dcs-metadata-value-basic
+migration.dcs-filter-field
+migration.dcs-filter-boolean
+migration.dcs-field-choice
+migration.dcs-local-string-type
+migration.dcs-design-time-value
+migration.dcs-design-time-explicit-field
+migration.dcs-design-time-localized-text
+migration.dcs-design-time-formatted-text
+migration.dcs-design-time-choice
+migration.dcs-primitive-value
+migration.dcs-metadata-color
+migration.dcs-metadata-font
+probe.style-item-type-facts
+migration.dcs-enumeration-lexeme

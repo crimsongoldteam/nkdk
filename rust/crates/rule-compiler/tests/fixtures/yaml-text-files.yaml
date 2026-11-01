@@ -1,0 +1,29 @@
+format: nkdk-declarations/1
+kind: object
+id: owner
+imports: {boolean: common.boolean}
+inputs: {parentName: {type: {kind: scalar, scalar: text}}}
+value:
+  kind: record
+  fields:
+  - {name: payload, type: {kind: scalar, scalar: text}}
+  - {name: flag, type: {use: boolean}}
+  - {name: title, type: {kind: scalar, scalar: text}}
+representations:
+  xml:
+    kind: record
+    fields:
+    - {field: payload, path: [Root, Payload]}
+    - {field: flag, path: [Root, Flag]}
+    - {field: title, path: [Root, Title]}
+  yaml:
+    kind: mapping
+    fields:
+    - field: payload
+      file: {sequence: [{literal: Тексты}, {concat: [{input: parentName}, {literal: '.txt'}]}]}
+    - {field: flag, key: Флаг}
+    - {field: title, key: Имя}
+presence:
+- target: {field: payload}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {missing: {denotes: {absent: true}}}

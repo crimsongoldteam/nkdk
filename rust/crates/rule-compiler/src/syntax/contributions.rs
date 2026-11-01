@@ -16,7 +16,20 @@ pub(super) fn parse(path: &str, fields: &[(Node, Node)]) -> Result<Vec<Contribut
     items
         .iter()
         .map(|item| {
-            let fields = item.mapping(path, &["index", "key", "value", "forEach", "union"])?;
+            let fields = item.mapping(
+                path,
+                &[
+                    "index",
+                    "key",
+                    "value",
+                    "forEach",
+                    "when",
+                    "union",
+                    "duplicates",
+                    "allocate",
+                    "reserve",
+                ],
+            )?;
             let index = item.field(path, fields, "index")?;
             let name = index.text(path)?;
             if name.is_empty() {
@@ -27,9 +40,98 @@ pub(super) fn parse(path: &str, fields: &[(Node, Node)]) -> Result<Vec<Contribut
                     "Index name cannot be empty",
                 ));
             }
+            let coalesce_equal = match optional_field(fields, "duplicates") {
+                None => false,
+                Some(node) => match node.text(path)? {
+                    "reject" => false,
+                    "coalesce-equal" => true,
+                    _ => {
+                        return Err(error(
+                            path,
+                            node.mark,
+                            "invalid_duplicates",
+                            "Expected reject or coalesce-equal",
+                        ));
+                    }
+                },
+            };
+            let value = optional_field(fields, "value")
+                .map(|node| expression(path, node))
+                .transpose()?;
+            let reservation = optional_field(fields, "reserve")
+                .map(|node| expression(path, node))
+                .transpose()?;
+            let allocation = optional_field(fields, "allocate")
+                .map(|node| {
+                    let fields = node.mapping(path, &["scope", "first", "phase"])?;
+                    let scope = node.field(path, fields, "scope")?;
+                    let Shape::Sequence(parts) = &scope.shape else {
+                        return Err(error(
+                            path,
+                            scope.mark,
+                            "allocation_scope",
+                            "Expected key column names",
+                        ));
+                    };
+                    let scope = parts
+                        .iter()
+                        .map(|part| part.text(path).map(str::to_owned))
+                        .collect::<Result<Vec<_>, _>>()?;
+                    let first = node.field(path, fields, "first")?;
+                    let ScalarLiteral::Number(number) = scalar_literal(path, first)? else {
+                        return Err(error(
+                            path,
+                            first.mark,
+                            "allocation_first",
+                            "Expected a positive integer",
+                        ));
+                    };
+                    let number = number
+                        .parse::<u64>()
+                        .ok()
+                        .filter(|number| *number > 0)
+                        .ok_or_else(|| {
+                            error(
+                                path,
+                                first.mark,
+                                "allocation_first",
+                                "Expected a positive u64 integer",
+                            )
+                        })?;
+                    let phase = optional_field(fields, "phase")
+                        .map(|phase| {
+                            let ScalarLiteral::Number(number) = scalar_literal(path, phase)? else {
+                                return Err(error(path, phase.mark, "allocation_phase", "Expected a nonnegative u32 integer"));
+                            };
+                            number.parse::<u32>().map_err(|_| error(path, phase.mark, "allocation_phase", "Expected a nonnegative u32 integer"))
+                        })
+                        .transpose()?
+                        .unwrap_or(0);
+                    Ok(nkdk_rule_model::NumberAllocation {
+                        scope,
+                        first: number,
+                        phase,
+                    })
+                })
+                .transpose()?;
+            if [value.is_some(), allocation.is_some(), reservation.is_some()].into_iter().filter(|present| *present).count() != 1
+                || ((allocation.is_some() || reservation.is_some()) && optional_field(fields, "union").is_some())
+                || (reservation.is_some() && optional_field(fields, "duplicates").is_some())
+            {
+                return Err(error(
+                    path,
+                    item.mark,
+                    "allocation_value",
+                    "Specify one value, allocate or reserve; number operations cannot be unions and reserve has no duplicate policy",
+                ));
+            }
             Ok(Contribution {
+                coalesce_equal,
                 for_each: optional_field(fields, "forEach")
                     .map(|node| iteration(path, node))
+                    .transpose()?,
+                when: optional_field(fields, "when")
+                    .map(|node| expression(path, node))
                     .transpose()?,
                 index: name.into(),
                 union_reference_prefix: optional_field(fields, "union")
@@ -48,7 +150,12 @@ pub(super) fn parse(path: &str, fields: &[(Node, Node)]) -> Result<Vec<Contribut
                     })
                     .transpose()?,
                 key: expression(path, item.field(path, fields, "key")?)?,
-                value: expression(path, item.field(path, fields, "value")?)?,
+                write: match (value, allocation, reservation) {
+                    (Some(value), _, _) => nkdk_rule_model::IndexWrite::Value(value),
+                    (_, Some(allocation), _) => nkdk_rule_model::IndexWrite::Allocate(allocation),
+                    (_, _, Some(value)) => nkdk_rule_model::IndexWrite::Reserve(value),
+                    _ => unreachable!("checked one write action"),
+                },
                 source: location(path, item),
             })
         })

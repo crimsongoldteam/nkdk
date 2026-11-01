@@ -1,5 +1,29 @@
+#[path = "support/source_record_state.rs"]
+mod source_record_state;
 use nkdk_rule_compiler::{SourceFile, compile, generate, link, parse_many};
 use std::{fs, process::Command};
+mod support;
+#[test]
+fn xml_only_sequence_without_yaml_key_does_not_panic_the_compiler() {
+    let common = include_bytes!("../../../declarations/common/internal-contained-objects.yaml");
+    let owner = b"format: nkdk-declarations/1\nkind: object\nid: test.hidden-sequence\nimports: {rows: common.internal-contained-objects}\nvalue: {kind: record, fields: [{name: rows, type: {use: rows}}]}\nrepresentations:\n  xml: {kind: record, fields: [{field: rows, path: [Root]}]}\n  yaml: {kind: mapping, fields: []}\n";
+    let outcome = std::panic::catch_unwind(|| {
+        compile(&[
+            SourceFile {
+                path: "common.yaml",
+                bytes: common,
+            },
+            SourceFile {
+                path: "owner.yaml",
+                bytes: owner,
+            },
+        ])
+    });
+    assert!(
+        outcome.is_ok(),
+        "an unsupported hidden collection must report a diagnostic"
+    );
+}
 #[test]
 fn generated_keyed_mapping_preserves_duplicate_occurrences_and_proves_the_candidate() {
     let common = b"format: nkdk-declarations/1\nkind: value\nid: common.dictionary\nvalue:\n  kind: sequence\n  item:\n    kind: record\n    fields:\n      - {name: key, type: {kind: scalar, scalar: text}}\n      - {name: text, type: {kind: scalar, scalar: text}}\nrepresentations:\n  xml:\n    kind: element-sequence\n    path: [item]\n    item:\n      kind: record\n      fields:\n        - {field: key, path: [key]}\n        - {field: text, path: [text]}\n  yaml: {kind: keyed-mapping, key: key, value: text}\n";
@@ -33,7 +57,29 @@ presence:
   xml: {missing: {denotes: {absent: true}}}
   yaml: {missing: {denotes: {absent: true}}}
 "#;
+    let simple_row = namespace_row
+        .replace("common.namespace-row", "common.simple-row")
+        .replace(
+            "type: {use: qualified}",
+            "type: {kind: scalar, scalar: text}",
+        );
+    let simple_rows = namespace_rows
+        .replace("common.namespace-rows", "common.simple-marked-rows")
+        .replace("common.namespace-row", "common.simple-row")
+        .replace(
+            "yaml: {kind: sequence}",
+            "yaml: {kind: sequence, itemTag: изменять}",
+        );
+    let simple_owner = list_owner.replace("record-list", "simple-marked-rows");
     let namespace_owner = list_owner.replace("record-list", "namespace-rows");
+    let marked_namespace_rows = namespace_rows
+        .replace("common.namespace-rows", "common.marked-namespace-rows")
+        .replace(
+            "yaml: {kind: sequence}",
+            "yaml: {kind: sequence, itemTag: изменять}",
+        );
+    let marked_namespace_owner = namespace_owner.replace("namespace-rows", "marked-namespace-rows");
+
     let dependent_owner = r#"format: nkdk-declarations/1
 kind: object
 id: test.dependent-properties
@@ -82,7 +128,7 @@ representations:
 constraints:
 - id: available
   appliesTo: [xml-import, yaml-validation]
-  assert: {each: {in: {self: true}, as: item, where: {not: {eq: [{get: {of: {var: item}, field: code}}, {literal: forbidden}]}}}}
+  assert: {each: {in: {firstBy: {in: {self: true}, as: row, key: {get: {of: {var: row}, field: code}}}}, as: item, where: {not: {eq: [{get: {of: {var: item}, field: code}}, {literal: forbidden}]}}}}
   diagnostic: {code: item.unavailable, severity: error, at: {self: true}, message: Unavailable item}
 presence:
 - target: self
@@ -90,6 +136,19 @@ presence:
   yaml: {missing: {denotes: {absent: true}}}
 "#;
     let pattern_list_owner = list_owner.replace("record-list", "patterned-list");
+    let marked_list = patterned_list
+        .replace("common.patterned-list", "common.marked-list")
+        .replace(
+            "yaml: {kind: sequence,",
+            "yaml: {kind: sequence, itemTag: изменять,",
+        )
+        .replace(
+            "item: {kind: scalar, scalar: text}",
+            "item: {kind: declared}",
+        )
+        .replace("item: {kind: text}", "item: {kind: declared}");
+    let marked_owner = pattern_list_owner.replace("patterned-list", "marked-list");
+
     let singleton_list = patterned_list
         .replace("common.patterned-list", "common.singleton-list")
         .replace(
@@ -138,6 +197,54 @@ representations:
         choice_list.split("presence:").nth(1).unwrap()
     );
     let choice_owner = pattern_list_owner.replace("patterned-list", "choice-list");
+    let collision_list = choice_list
+        .replace(
+            "yaml: {kind: sequence,",
+            "yaml: {kind: sequence, itemTag: outer,",
+        )
+        .replace(
+            "item: {kind: scalar, scalar: text}",
+            "item: {kind: declared}",
+        )
+        .replace("item: {kind: text}", "item: {kind: declared}");
+    for invalid in ["xml/raw", "has space", ""] {
+        let source = collision_list.replace("itemTag: outer", &format!("itemTag: {invalid:?}"));
+        assert_eq!(
+            nkdk_rule_compiler::parse(SourceFile {
+                path: "bad-item-tag.yaml",
+                bytes: source.as_bytes()
+            })
+            .unwrap_err()[0]
+                .code,
+            "invalid_sequence_item_tag"
+        );
+    }
+    let tagged_choice=choice_item.replace("yaml: {kind: choice}",
+        "yaml: {kind: choice, variants: [{variant: first, form: tagged, tag: first}, {variant: second, form: tagged, tag: second}]}");
+    let collisions = [
+        lower_code,
+        &choice_first,
+        &second_item,
+        &tagged_choice,
+        &collision_list,
+    ]
+    .into_iter()
+    .enumerate()
+    .map(|(i, source)| {
+        nkdk_rule_compiler::parse(SourceFile {
+            path: &format!("tag-collision-{i}.yaml"),
+            bytes: source.as_bytes(),
+        })
+        .unwrap()
+    })
+    .collect::<Vec<_>>();
+    assert!(
+        link(&collisions)
+            .unwrap_err()
+            .iter()
+            .any(|error| error.code == "sequence_item_tag_collision")
+    );
+
     let bound_first = choice_first
         .replace("common.choice-first", "common.bound-first")
         .replace(
@@ -599,14 +706,9 @@ constraints:
     let composite_profiles:Vec<_>=(0..32).map(|profile|composite_owner
         .replace("test.composite", &format!("test.composite-{profile}"))
         .replace("{use: dictionary, bind:", &format!("{{use: dictionary, with: {{preserveEmptyXML: {}, excludeIfEqualNameYAML: {}, skipEmptyToXML: {}, typedXML: {}, xmlWithDefaultLanguage: {}}}, bind:",profile&1!=0,profile&2!=0,profile&4!=0,profile&8!=0,profile&16!=0))).collect();
-    let external_owner = r#"format: nkdk-declarations/1
-kind: object
-id: test.external-payload
-value: {kind: record, fields: [{name: payload, type: {kind: scalar, scalar: text}}, {name: name, type: {kind: scalar, scalar: text}}]}
-representations:
-  xml: {kind: record, fields: [{field: payload, path: [Data], file: [Aux, Payload.xml]}, {field: name, path: [Primary, Name]}]}
-  yaml: {kind: mapping, fields: [{field: payload, key: Payload}, {field: name, key: Name}]}
-"#;
+    let external_owner = include_str!("support/external-document-owner.yaml.in")
+        .replace("@IMPORTS@", "")
+        .replace("@PAYLOAD_TYPE@", "{kind: scalar, scalar: text}");
     let mut sources = vec![
         SourceFile {
             path: "qname-common.yaml",
@@ -747,6 +849,34 @@ representations:
         SourceFile {
             path: "compact-frame-owner.yaml",
             bytes: compact_frame_owner.as_bytes(),
+        },
+        SourceFile {
+            path: "simple-row.yaml",
+            bytes: simple_row.as_bytes(),
+        },
+        SourceFile {
+            path: "simple-rows.yaml",
+            bytes: simple_rows.as_bytes(),
+        },
+        SourceFile {
+            path: "simple-owner.yaml",
+            bytes: simple_owner.as_bytes(),
+        },
+        SourceFile {
+            path: "marked-namespace-rows.yaml",
+            bytes: marked_namespace_rows.as_bytes(),
+        },
+        SourceFile {
+            path: "marked-namespace-owner.yaml",
+            bytes: marked_namespace_owner.as_bytes(),
+        },
+        SourceFile {
+            path: "marked-list.yaml",
+            bytes: marked_list.as_bytes(),
+        },
+        SourceFile {
+            path: "marked-owner.yaml",
+            bytes: marked_owner.as_bytes(),
         },
         SourceFile {
             path: "patterned-list.yaml",
@@ -899,6 +1029,28 @@ representations:
             bytes: include_bytes!("../../../declarations/common/boolean-flag.yaml"),
         },
     ]);
+    let root_empty_owner = owner
+        .replace("test.dictionary", "test.root-empty-dictionary")
+        .replace("[Root, Entries]", "[Root]")
+        + "presence:\n  - target: {field: entries}\n    xml: {missing: {denotes: {absent: true}}, empty: [{form: empty-element, denotes: {absent: true}}], canonical: [{when: {not: {present: {field: entries}}}, form: empty-element}]}\n    yaml: {missing: {denotes: {absent: true}}}\n";
+    let root_guarded_owner = root_empty_owner
+        .replace("test.root-empty-dictionary", "test.root-guarded-dictionary")
+        .replace(
+            "value:\n",
+            "inputs:\n  enabled: {type: {kind: scalar, scalar: boolean}}\nvalue:\n",
+        )
+        .replace(
+            "canonical: [{when: {not: {present: {field: entries}}}, form: empty-element}]",
+            "canonical: [{when: {not: {input: enabled}}, form: missing}]",
+        );
+    sources.push(SourceFile {
+        path: "root-guarded.yaml",
+        bytes: root_guarded_owner.as_bytes(),
+    });
+    sources.push(SourceFile {
+        path: "root-empty.yaml",
+        bytes: root_empty_owner.as_bytes(),
+    });
     sources.push(SourceFile {
         path: "default-container.yaml",
         bytes: default_container_owner.as_bytes(),
@@ -977,10 +1129,96 @@ representations:
         path: "bound-rows.yaml",
         bytes: bound_rows.as_bytes(),
     });
-    let modules = sources
+    sources.extend([
+        SourceFile {
+            path: "string.yaml",
+            bytes: include_bytes!("../../../declarations/common/string.yaml"),
+        },
+        SourceFile {
+            path: "type-description.yaml",
+            bytes: include_bytes!("../../../declarations/common/type-description.yaml"),
+        },
+        SourceFile {
+            path: "type-description-items.yaml",
+            bytes: include_bytes!("../../../declarations/common/type-description-items.yaml"),
+        },
+        SourceFile {
+            path: "type-description-item.yaml",
+            bytes: include_bytes!("../../../declarations/common/type-description-item.yaml"),
+        },
+        SourceFile {
+            path: "type-description-name.yaml",
+            bytes: include_bytes!("../../../declarations/common/type-description-name.yaml"),
+        },
+        SourceFile {
+            path: "type-description-types.yaml",
+            bytes: include_bytes!("../../../declarations/common/type-description-types.yaml"),
+        },
+        SourceFile {
+            path: "type-description-type-sets.yaml",
+            bytes: include_bytes!("../../../declarations/common/type-description-type-sets.yaml"),
+        },
+        SourceFile {
+            path: "type-description-qname-item.yaml",
+            bytes: include_bytes!("../../../declarations/common/type-description-qname-item.yaml"),
+        },
+        SourceFile {
+            path: "type-description-identifiers.yaml",
+            bytes: include_bytes!("../../../declarations/common/type-description-identifiers.yaml"),
+        },
+        SourceFile {
+            path: "type-description-identifier-item.yaml",
+            bytes: include_bytes!(
+                "../../../declarations/common/type-description-identifier-item.yaml"
+            ),
+        },
+        SourceFile {
+            path: "type-description-owner.yaml",
+            bytes: include_bytes!("../../../declarations/probes/type-description.yaml"),
+        },
+        SourceFile {
+            path: "common-grouped-type-description.yaml",
+            bytes: include_bytes!("../../../declarations/common/grouped-type-description.yaml"),
+        },
+        SourceFile {
+            path: "grouped-type-description-owner.yaml",
+            bytes: include_bytes!(
+                "../../../declarations/probes/grouped-type-description-owner.yaml"
+            ),
+        },
+        SourceFile {
+            path: "grouped-type-description.yaml",
+            bytes: include_bytes!("../../../declarations/probes/grouped-type-description.yaml"),
+        },
+    ]);
+    sources.extend([
+        SourceFile {
+            path: "property-states.yaml",
+            bytes: include_bytes!("../../../declarations/common/property-states.yaml"),
+        },
+        SourceFile {
+            path: "property-state-row.yaml",
+            bytes: include_bytes!("../../../declarations/common/property-state-row.yaml"),
+        },
+    ]);
+    sources.push(SourceFile {
+        path: "type-description-context-choice.yaml",
+        bytes: include_bytes!("../../../declarations/probes/type-description-context-choice.yaml"),
+    });
+    let mut modules = sources
         .into_iter()
         .flat_map(|source| parse_many(source).unwrap())
         .collect::<Vec<_>>();
+    let existing = modules
+        .iter()
+        .map(|module| module.id.clone())
+        .collect::<std::collections::HashSet<_>>();
+    modules.extend(
+        source_record_state::load(false)
+            .into_iter()
+            .filter(|module| !existing.contains(&module.id)),
+    );
+
     for (from, to, code) in [
         (
             "{literal: 'Object.'}",
@@ -1062,47 +1300,130 @@ representations:
         .unwrap()
         .id;
     let mut overlapping = program.clone();
-    let common = overlapping
+    let generic_source = overlapping
+        .entries
+        .iter()
+        .find(|entry| entry.name == "common.generic-fields")
+        .unwrap()
+        .source
+        .clone();
+    // Static profiles are independent linked definitions. Mutate all uses of
+    // this declaration to exercise the overlap check on the emitted profiles.
+    for common in overlapping
         .entries
         .iter_mut()
-        .find(|entry| entry.name == "common.generic-fields")
-        .unwrap();
-    let nkdk_rule_model::LinkedXml::Record(xml) = &mut common.xml else {
-        panic!("record")
+        .filter(|entry| entry.source == generic_source)
+    {
+        let nkdk_rule_model::LinkedXml::Record(xml) = &mut common.xml else {
+            panic!("record")
+        };
+        xml.iter_mut()
+            .find(|field| field.field == "detail")
+            .unwrap()
+            .path = vec![nkdk_rule_model::ExpandedName {
+            namespace: "http://v8.1c.ru/8.1/data/core".into(),
+            local: "item".into(),
+        }];
+    }
+    let errors = match generate(&overlapping) {
+        Err(errors) => errors,
+        Ok(_) => panic!("Overlapping XML routes must be rejected"),
     };
-    xml.iter_mut()
-        .find(|field| field.field == "detail")
-        .unwrap()
-        .path = vec![nkdk_rule_model::ExpandedName {
-        namespace: "http://v8.1c.ru/8.1/data/core".into(),
-        local: "item".into(),
-    }];
     assert!(
-        generate(&overlapping)
-            .unwrap_err()
+        errors
             .iter()
-            .any(|error| error.message.contains("must not overlap"))
+            .any(|error| error.message.contains("must not overlap")),
+        "{errors:?}"
+    );
+    let mut marked_groups = program.clone();
+    let collection = marked_groups
+        .entries
+        .iter_mut()
+        .find(|entry| entry.name == "common.type-description-items")
+        .unwrap();
+    let nkdk_rule_model::YamlRepresentation::Sequence { item_tag, .. } = &mut collection.yaml
+    else {
+        unreachable!()
+    };
+    *item_tag = Some("внутренняя".into());
+    let errors =
+        generate(&marked_groups).expect_err("Conflicting item and group marks must be rejected");
+    assert!(
+        errors.iter().any(|error| error
+            .message
+            .contains("cannot replace an item's semantic root mark")),
+        "{errors:?}"
     );
     let generated = generate(&program).unwrap();
-    let root = std::env::temp_dir().join(format!(
-        "nkdk-generated-collection-{}-{}",
-        std::process::id(),
-        std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap()
-            .as_nanos()
-    ));
-    fs::create_dir_all(root.join("src")).unwrap();
-    let core = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .parent()
-        .unwrap()
-        .join("conversion-core");
+    let root = support::generated_crate_root("generated-collection");
+    let core = support::conversion_core_path();
     fs::write(root.join("Cargo.toml"), format!("[package]\nname=\"generated-collection\"\nversion=\"0.0.0\"\nedition=\"2024\"\n[dependencies]\nnkdk-conversion-core={{path={core:?}}}\n[workspace]\n")).unwrap();
     for file in generated.files {
         fs::write(root.join("src").join(file.path), file.contents).unwrap();
     }
     fs::write(root.join("src/main.rs"), r#"include!("generated.rs");
 fn main() {
+    {
+        let entry=entry_id("test.marked-list").unwrap();
+        let inputs=PreparedInputs::default();
+        let xml=b"<Root><Entries><Item>Entry::first</Item><Item>Entry::second</Item><Item>Entry::first</Item></Entries></Root>";
+        let yaml="Entries:\n  - !изменять first\n  - !изменять second\n  - !изменять first".as_bytes();
+        let imported=convert_file(entry,Direction::XmlToYaml,xml,&inputs).unwrap();
+        assert_eq!(imported.bytes,yaml);
+        let restored=convert_file(entry,Direction::YamlToXml,yaml,&inputs).unwrap();
+        let back=convert_file(entry,Direction::XmlToYaml,&restored.bytes,&inputs).unwrap();
+        assert_eq!(back.bytes,yaml);
+        assert!(validate_file(entry,"Entries: [!проверять first]".as_bytes(),&inputs).iter().any(|issue|issue.code.as_deref()==Some("yaml.item-tag")));
+        let description=b"<Root xmlns:v8='http://v8.1c.ru/8.1/data/core' xmlns:xs='http://www.w3.org/2001/XMLSchema'><Type><v8:Type>xs:string</v8:Type><v8:Type>xs:boolean</v8:Type><v8:StringQualifiers><v8:Length>10</v8:Length><v8:AllowedLength>Variable</v8:AllowedLength></v8:StringQualifiers></Type></Root>";
+        let description=read_xml_FULL_DESCRIPTION_ID(description,&inputs.view()).unwrap();
+        let mut group=String::new();
+        item_FULL_DESCRIPTION_ID::write_yaml_sequence_items::<true,true>(description.body.as_ref().unwrap(),&inputs.view(),&mut group,"","!изменять").unwrap();
+        assert_eq!(group,"- !изменять\n  Строка(10)\n- !изменять\n  Булево");
+        let date=b"<Root xmlns:v8='http://v8.1c.ru/8.1/data/core' xmlns:xs='http://www.w3.org/2001/XMLSchema'><Type><v8:Type>xs:dateTime</v8:Type><v8:DateQualifiers><v8:DateFractions>Date</v8:DateFractions></v8:DateQualifiers></Type></Root>";
+        let date=read_xml_FULL_DESCRIPTION_ID(date,&inputs.view()).unwrap();
+        let mut ordered=String::new();
+        item_FULL_DESCRIPTION_ID::write_yaml_sequence_items::<true,false>(date.body.as_ref().unwrap(),&inputs.view(),&mut ordered,"","").unwrap();
+        item_FULL_DESCRIPTION_ID::write_yaml_sequence_items::<true,true>(description.body.as_ref().unwrap(),&inputs.view(),&mut ordered,"","!изменять").unwrap();
+        assert_eq!(ordered,"-\n  Дата\n- !изменять\n  Строка(10)\n- !изменять\n  Булево");
+        let preserved=core::raw::Document::encode("[Булево]".as_bytes(),b"{_extra: retained}").unwrap();
+        let raw_description=item_FULL_DESCRIPTION_ID::read_yaml(&preserved,&inputs.view()).unwrap();
+        let mut protected_output=String::from("unchanged");
+        let error=item_FULL_DESCRIPTION_ID::write_yaml_sequence_items::<true,true>(&raw_description,&inputs.view(),&mut protected_output,"","!изменять").unwrap_err();
+        assert_eq!(error.code.as_deref(),Some("yaml.group-envelope"));
+        assert_eq!(protected_output,"unchanged");
+        let simple=entry_id("test.simple-marked-rows").unwrap();
+        let source=b"<Root><Entries><Item><Name>first</Name><Value>One</Value></Item></Entries></Root>";
+        let expected="Entries:\n  - !изменять\n    Key: first\n    Qualified: One".as_bytes();
+        let value=convert_file(simple,Direction::XmlToYaml,source,&inputs).unwrap();
+        assert_eq!(value.bytes,expected);
+        verify_candidate(simple,source,expected,&inputs).unwrap();
+        let rows=read_xml_SIMPLE_ITEMS_ID(source,&inputs.view()).unwrap();
+        let mut flat=String::new();
+        write_yaml_sequence_items_SIMPLE_ITEMS_ID::<true,true>(&rows,&inputs.view(),&mut flat,"","!изменять").unwrap();
+        write_yaml_sequence_items_SIMPLE_ITEMS_ID::<true,true>(&rows,&inputs.view(),&mut flat,"","!проверять").unwrap();
+        assert_eq!(flat,"- !изменять\n  Key: first\n  Qualified: One\n- !проверять\n  Key: first\n  Qualified: One");
+        let empty=read_xml_SIMPLE_ITEMS_ID(b"<Root><Entries/></Root>",&inputs.view()).unwrap();
+        let mut absent_output=String::new();
+        write_yaml_sequence_items_SIMPLE_ITEMS_ID::<true,true>(&empty,&inputs.view(),&mut absent_output,"","!изменять").unwrap();
+        assert!(absent_output.is_empty());
+        let mut protected=rows;
+        protected.raw=Some(core::xml::Patch::read(b"null",&[],&[]).unwrap());
+        assert_eq!(write_yaml_sequence_items_SIMPLE_ITEMS_ID::<true,true>(&protected,&inputs.view(),&mut absent_output,"","!изменять").unwrap_err().code.as_deref(),Some("yaml.group-envelope"));
+        assert!(absent_output.is_empty());
+
+
+        let malformed=b"<Root><Entries><Item><Name>first</Name><Value><Other/></Value></Item></Entries></Root>";
+        let preserved=convert_file(simple,Direction::XmlToYaml,malformed,&inputs).unwrap();
+        let yaml=String::from_utf8_lossy(&preserved.bytes);
+        assert!(yaml.contains("- !изменять") && yaml.contains("Key: first") && yaml.contains("!xml/raw"),"{yaml}");
+
+        verify_candidate(simple,malformed,&preserved.bytes,&inputs).unwrap_or_else(|error|panic!("nested marked anomaly: {error:?}, YAML {}",String::from_utf8_lossy(&preserved.bytes)));
+
+        let invalid=b"<Root><Entries><Item>Entry::BAD</Item></Entries></Root>";
+        let preserved=convert_file(entry,Direction::XmlToYaml,invalid,&inputs).unwrap();
+        verify_candidate(entry,invalid,&preserved.bytes,&inputs).unwrap_or_else(|error|panic!("{}: {error:?}",String::from_utf8_lossy(&preserved.bytes)));
+
+    }
     {
         let inputs=PreparedInputs::default();
         let mut state=OwnerXmlReadDEPENDENT_ID::new();
@@ -1183,12 +1504,14 @@ fn main() {
     }
 
     {
-        let namespaced=entry_id("test.namespace-rows").unwrap();
+        for (entry_name,mark) in [("test.namespace-rows",""),("test.marked-namespace-rows"," !изменять")] {
+        let namespaced=entry_id(entry_name).unwrap();
         let xml=b"<Root xmlns:p='urn:outer'><Entries><Item><Name>first</Name><Value>p:One</Value></Item><Item><Name>second</Name><Value xmlns:p='urn:inner'>p:Two</Value></Item></Entries></Root>";
         let result=convert_file(namespaced,Direction::XmlToYaml,xml,&PreparedInputs::default()).unwrap();
         let yaml=String::from_utf8_lossy(&result.bytes);
-        assert_eq!(yaml, "Entries:\n  -\n    Key: first\n    Qualified:\n      Namespace: urn:outer\n      Name: One\n  -\n    Key: second\n    Qualified:\n      Namespace: urn:inner\n      Name: Two");
+        assert_eq!(yaml, "Entries:\n  -\n    Key: first\n    Qualified:\n      Namespace: urn:outer\n      Name: One\n  -\n    Key: second\n    Qualified:\n      Namespace: urn:inner\n      Name: Two".replace("  -\n",&format!("  -{mark}\n")));
         verify_candidate(namespaced,xml,&result.bytes,&PreparedInputs::default()).unwrap();
+        }
         let singleton=entry_id("test.singleton-list").unwrap();
         let inputs=PreparedInputs::default();
         for (body, expected) in [("", "Entries: []"), ("<Item>Entry::good</Item>", "Entries: good"), ("<Item>Entry::good</Item><Item>Entry::other</Item>", "Entries:\n  - good\n  - other")] {
@@ -1402,7 +1725,7 @@ fn main() {
     {
         let entry=entry_id("test.composite-fields").unwrap();
         let inputs=read_inputs(entry,b"languages: [ru]\nname: Hello").unwrap();
-        let xml="<Root xmlns:v8='http://v8.1c.ru/8.1/data/core'><Entries amount='9007199254740993' label='kept' formatted='false'><v8:item><v8:lang>ru</v8:lang><v8:content>Hello</v8:content></v8:item><Detail>body</Detail></Entries></Root>";
+        let xml="<Root xmlns:v8='http://v8.1c.ru/8.1/data/core'><Entries amount='9007199254740993' label='kept' formatted='false'><Detail>body</Detail><v8:item><v8:lang>ru</v8:lang><v8:content>Hello</v8:content></v8:item></Entries></Root>";
         let result=convert_file(entry,Direction::XmlToYaml,xml.as_bytes(),&inputs).unwrap();
         let yaml=String::from_utf8_lossy(&result.bytes);
         for expected in ["Amount: 9007199254740993","Label: kept","Detail: body"] {assert!(yaml.contains(expected),"{yaml}");}
@@ -1412,6 +1735,11 @@ fn main() {
         assert!(reversed.contains("amount=\"9007199254740993\""),"{reversed}");
         assert!(!yaml.contains("!xml"),"{yaml}");
         verify_candidate(entry,xml.as_bytes(),&result.bytes,&inputs).unwrap();
+        // The declaration puts Detail before the text collection. Preserve the other order.
+        let reordered_children=xml.replace("<Detail>body</Detail>","").replace("</Entries>","<Detail>body</Detail></Entries>");
+        let preserved=convert_file(entry,Direction::XmlToYaml,reordered_children.as_bytes(),&inputs).unwrap();
+        assert!(String::from_utf8_lossy(&preserved.bytes).contains("!xml/raw"));
+        verify_candidate(entry,reordered_children.as_bytes(),&preserved.bytes,&inputs).unwrap();
         let reordered=xml.replace("amount='9007199254740993' label='kept' formatted='false'","formatted='false' amount='9007199254740993' label='kept'");
         let result=convert_file(entry,Direction::XmlToYaml,reordered.as_bytes(),&inputs).unwrap();
         assert!(String::from_utf8_lossy(&result.bytes).contains("!xml/raw"));
@@ -1421,7 +1749,7 @@ fn main() {
         let entry=entry_id("test.generic-fields").unwrap();
         let inputs=read_inputs(entry,b"languages: [ru]\nname: Hello").unwrap();
         for (amount,label,anomaly) in [("9007199254740993"," label='kept'",false),("001.20"," label='kept'",true),("wrong"," label='kept'",true),(""," label='kept'",true),("3","",true)] {
-            let xml=format!("<Root xmlns:v8='http://v8.1c.ru/8.1/data/core' xmlns:q='urn:amount'><Bundle mode='First' q:amount='{amount}'{label}><v8:item><v8:lang>ru</v8:lang><v8:content>Hello</v8:content></v8:item><Detail>body</Detail></Bundle></Root>");
+            let xml=format!("<Root xmlns:v8='http://v8.1c.ru/8.1/data/core' xmlns:q='urn:amount'><Bundle mode='First' q:amount='{amount}'{label}><Detail>body</Detail><v8:item><v8:lang>ru</v8:lang><v8:content>Hello</v8:content></v8:item></Bundle></Root>");
             let result=convert_file(entry,Direction::XmlToYaml,xml.as_bytes(),&inputs).unwrap();
             let yaml=String::from_utf8_lossy(&result.bytes);
             assert_eq!(yaml.contains("!xml"),anomaly,"{yaml}");
@@ -1497,12 +1825,12 @@ fn main() {
         assert_eq!(annotated,"Before: kept\nEntries:\n  Текст:\n    !xml/invalid de: Hallo");
         let source=String::from_utf8(missing_attr.to_vec()).unwrap().replace("<Entries>","<Before>kept</Before><Entries formatted='false'>").replace("</Root>","<After>kept</After></Root>");
         let mut siblings=0;
-        let value=read_xml_events_COMPOSITE_ID(source.as_bytes(),&inputs.view(),core::xml::Events(|consume:&mut core::xml::Consumer<'_>| {
-            use crate::core::xml::Source;
-            core::xml::DocumentSource(source.as_bytes()).visit(|path,token| {
+        let value=read_xml_events_COMPOSITE_ID(source.as_bytes(),&inputs.view(),core::xml::ScopedEvents(|consume:&mut core::xml::ScopedConsumer<'_>| {
+            use crate::core::xml::ScopedSource;
+            core::xml::DocumentSource(source.as_bytes()).visit_scoped(|path,token,scope| {
                 if path.get(1).is_some_and(|name|matches!(name.local.as_str(),"Before"|"After")) {
                     if matches!(token,core::xml::Token::Text("kept")) {siblings+=1;} Ok(())
-                } else {consume(path,token)}
+                } else {consume(path,token,scope)}
             })
         })).unwrap();
         assert_eq!(siblings,2);
@@ -1575,6 +1903,19 @@ fn main() {
         assert_eq!(result.bytes, expected.as_bytes());
         assert!(validate_file(entry, expected.as_bytes(), inputs).is_empty());
         assert!(verify_candidate(entry, xml.as_bytes(), expected.as_bytes(), inputs).is_ok());
+    }
+    let empty_root=entry_id("test.root-empty-dictionary").unwrap();
+    let empty_xml=convert_file(empty_root,Direction::YamlToXml,b"{}",&PreparedInputs::default()).unwrap();
+    assert!(String::from_utf8_lossy(&empty_xml.bytes).contains("<Root"));
+    let empty_yaml=convert_file(empty_root,Direction::XmlToYaml,b"<Root/>",&PreparedInputs::default()).unwrap();
+    assert_eq!(empty_yaml.bytes,b"");
+    verify_candidate(empty_root,b"<Root/>",b"{}",&PreparedInputs::default()).unwrap();
+    let guarded_root=entry_id("test.root-guarded-dictionary").unwrap();
+    for enabled in [false,true] {
+        let gate=read_inputs(guarded_root,format!("enabled: {enabled}").as_bytes()).unwrap();
+        let xml=convert_file(guarded_root,Direction::YamlToXml,b"Entries: {ru: Hello}",&gate).unwrap();
+        assert_eq!(xml.bytes.is_empty(),!enabled);
+        if enabled {assert!(String::from_utf8_lossy(&xml.bytes).contains("Hello"));}
     }
     let entry=entry_id("test.dictionary").unwrap();
     let inputs=PreparedInputs::default();
@@ -1676,10 +2017,30 @@ fn main() {
         .replace("COMPOSITE_ID", &composite_id.to_string())
         .replace("COLLECTION_ID", &collection_id.to_string())
         .replace("LIST_ID", &list_id.to_string())
-        .replace("DEPENDENT_ID", &dependent_id.to_string());
+        .replace("DEPENDENT_ID", &dependent_id.to_string())
+        .replace(
+            "FULL_DESCRIPTION_ID",
+            &program
+                .entries
+                .iter()
+                .find(|entry| entry.name == "migration.type-description")
+                .unwrap()
+                .id
+                .to_string(),
+        )
+        .replace(
+            "SIMPLE_ITEMS_ID",
+            &program
+                .entries
+                .iter()
+                .find(|entry| entry.name == "test.simple-marked-rows")
+                .unwrap()
+                .id
+                .to_string(),
+        );
     let main = main.replacen(
         "fn main() {",
-        "fn main() { independent_corpus(); profile_matrix(); { let entry=entry_id(\"test.default-container\").unwrap(); let inputs=read_inputs(entry,b\"{}\").unwrap(); let original=b\"<Root/>\"; let expected=b\"Entries: !xml/raw\\n  $xml: null\"; let result=convert_file(entry,Direction::XmlToYaml,original,&inputs).unwrap(); assert_eq!(result.bytes,expected); verify_candidate(entry,original,expected,&inputs).unwrap(); }",
+        "fn main() { grouped_fixture_matrix(); independent_corpus(); profile_matrix(); { let entry=entry_id(\"test.default-container\").unwrap(); let inputs=read_inputs(entry,b\"{}\").unwrap(); let original=b\"<Root/>\"; let expected=b\"Entries: !xml/raw\\n  $xml: null\"; let result=convert_file(entry,Direction::XmlToYaml,original,&inputs).unwrap(); assert_eq!(result.bytes,expected); verify_candidate(entry,original,expected,&inputs).unwrap(); }",
         1,
     );
     let main = main.replacen(
@@ -1699,7 +2060,10 @@ fn main() {
     );
     fs::write(
         root.join("src/main.rs"),
-        main + &corpus_checks() + &matrix_checks() + &composite_matrix_checks(),
+        main + &corpus_checks()
+            + &matrix_checks()
+            + &composite_matrix_checks()
+            + &grouped_fixture_checks(&program),
     )
     .unwrap();
     for args in [
@@ -1988,4 +2352,323 @@ fn composite_requires_explicit_xml_absence_semantics() {
         compile(&sources).is_err(),
         "XML absence must not inherit YAML defaults silently"
     );
+}
+
+// The source and expected values come from immutable e2e fixtures. Only the
+// group payload is checked here; the complete MultiState router is a separate gate.
+fn grouped_fixture_checks(program: &nkdk_rule_model::Program) -> String {
+    let repository = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..");
+    let xml = fs::read_to_string(
+        repository.join("e2e/fixtures/xml/cfe/all-extension/Catalogs/СправочникПолный.xml"),
+    )
+    .unwrap();
+    let yaml = fs::read_to_string(
+        repository
+            .join("e2e/fixtures/nkdk/cfe/Расширение_All/Справочник/СправочникПолный/Свойства.yaml"),
+    )
+    .unwrap();
+    let id = program
+        .entries
+        .iter()
+        .find(|entry| entry.name == "migration.type-description")
+        .unwrap()
+        .id;
+    let mut code = String::from(
+        r#"
+fn grouped_fixture_matrix() {
+    fn nodes(source:&[u8])->Vec<String> {
+        let mut result=Vec::new();
+        core::yaml::visit_nodes(source,|node,_| {
+            result.push(match node {
+                core::yaml::Node::Scalar(value,tag)=>if value.is_null(){format!("null:{tag:?}")}else{format!("scalar:{tag:?}:{}",value.into_text()?)},
+                core::yaml::Node::SequenceStart(tag)=>format!("sequence:{tag:?}"),
+                core::yaml::Node::SequenceEnd=>"end-sequence".into(),
+                core::yaml::Node::MappingStart(tag)=>format!("mapping:{tag:?}"),
+                core::yaml::Node::MappingEnd=>"end-mapping".into(),
+            });
+            Ok(())
+        }).unwrap();
+        result
+    }
+    let inputs=PreparedInputs::default();
+"#,
+    );
+    for name in ["СтроковыйРеквизитСИндексом", "РеквизитСправочника"]
+    {
+        let marker = format!("<Name>{name}</Name>");
+        let attribute = xml
+            .split_once(&marker)
+            .unwrap()
+            .1
+            .split_once("</Attribute>")
+            .unwrap()
+            .0;
+        let payload = |group: &str| {
+            let open = format!("<xr:{group} xsi:type=\"v8:TypeDescription\">");
+            let close = format!("</xr:{group}>");
+            let content = attribute
+                .split_once(&open)
+                .unwrap()
+                .1
+                .split_once(&close)
+                .unwrap()
+                .0;
+            format!(
+                "<Root xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><Type>{content}</Type></Root>"
+            )
+        };
+        let check = payload("CheckValue");
+        let extend = payload("ExtendValue");
+        let before = xml.split_once(&marker).unwrap().0;
+        let history = before
+            .rsplit_once("<InternalInfo>")
+            .unwrap()
+            .1
+            .split_once("</InternalInfo>")
+            .unwrap()
+            .0;
+        let original_type = attribute
+            .split_once("<Type xsi:type=\"xr:ExtendedProperty\">")
+            .unwrap()
+            .1
+            .split_once("</Type>")
+            .unwrap()
+            .0;
+        let group_xml = format!(
+            "<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">{original_type}</Root>"
+        );
+        let marker = format!("\n  {name}:\n");
+        let attribute_yaml = yaml.split_once(&marker).unwrap().1;
+        let expected = attribute_yaml
+            .split_once("    Тип:\n")
+            .unwrap()
+            .1
+            .lines()
+            .take_while(|line| line.starts_with("      - "))
+            .map(|line| line.trim())
+            .collect::<Vec<_>>()
+            .join("\n");
+        assert!(
+            !expected.is_empty(),
+            "Missing independent expected type for {name}"
+        );
+        let nested_xml = group_xml.replace(
+            &format!(">{original_type}</Root>"),
+            &format!("><Type xsi:type=\"xr:ExtendedProperty\">{original_type}</Type></Root>"),
+        );
+        code.push_str(&format!(r#"{{
+            let nested_entry=entry_id("migration.grouped-type-description-owner").unwrap();
+            let nested_source={nested_xml:?}.as_bytes();
+            let nested=convert_file(nested_entry,Direction::XmlToYaml,nested_source,&inputs).unwrap();
+            assert_eq!(nodes(&nested.bytes),nodes({expected:?}.as_bytes()));
+            verify_candidate(nested_entry,nested_source,&nested.bytes,&inputs).unwrap();
+            for abnormal in [
+                {nested_xml:?}.replace("<v8:Length>10</v8:Length>","<v8:Length>oops</v8:Length>"),
+                {nested_xml:?}.replace("</xr:CheckValue>","<v8:Unexpected>keep</v8:Unexpected></xr:CheckValue>"),
+                {nested_xml:?}.replace("</xr:CheckValue>","</xr:CheckValue><xr:CheckValue xsi:type=\"v8:TypeDescription\"/>"),
+                {nested_xml:?}.replace("</Type>","<xr:NotifyValue xsi:type=\"v8:TypeDescription\"/></Type>"),
+                {nested_xml:?}.replace("xsi:type=\"xr:ExtendedProperty\"","xsi:type=\"xr:Unexpected\"")
+            ] {{
+                if abnormal.as_bytes()==nested_source {{continue;}}
+                let anomalous=convert_file(nested_entry,Direction::XmlToYaml,abnormal.as_bytes(),&inputs).unwrap();
+                assert!(String::from_utf8_lossy(&anomalous.bytes).contains("!xml/"),"{{abnormal}} => {{}}",String::from_utf8_lossy(&anomalous.bytes));
+                verify_candidate(nested_entry,abnormal.as_bytes(),&anomalous.bytes,&inputs).unwrap_or_else(|error|panic!("{{error:?}}: {{abnormal}} => {{}}",String::from_utf8_lossy(&anomalous.bytes)));
+            }}
+            let contextual_entry=entry_id("migration.type-description-context-owner").unwrap();
+            let contextual_inputs=read_inputs(contextual_entry,b"{{\"mode\":\"MultiState\"}}").unwrap();
+            let contextual=convert_file(contextual_entry,Direction::XmlToYaml,nested_source,&contextual_inputs).unwrap();
+            let contextual_expected=format!("Тип:\n{{}}",{expected:?}.lines().map(|line|format!("  {{line}}\n")).collect::<String>());
+            assert_eq!(nodes(&contextual.bytes),nodes(contextual_expected.as_bytes()));
+            verify_candidate(contextual_entry,nested_source,contextual_expected.as_bytes(),&contextual_inputs).unwrap();
+            let computed_entry=entry_id("migration.type-description-computed-context-owner").unwrap();
+            let computed_inputs=read_inputs(computed_entry,b"{{\"mode\":\"MultiState\"}}").unwrap();
+            let computed=convert_file(computed_entry,Direction::XmlToYaml,nested_source,&computed_inputs).unwrap();
+            assert_eq!(nodes(&computed.bytes),nodes(contextual_expected.as_bytes()));
+            verify_candidate(computed_entry,nested_source,contextual_expected.as_bytes(),&computed_inputs).unwrap();
+            let history_source={nested_xml:?}.replace("<Type xsi:type=\"xr:ExtendedProperty\">",&format!("<History>{{}}</History><Type xsi:type=\"xr:ExtendedProperty\">",{history:?}));
+            let history_entry=entry_id("migration.type-description-history-owner").unwrap();
+            let facts_entry=entry_id("migration.type-description-history-source").unwrap();
+            let generation=core::facts::Generation(91);
+            let source_inputs=read_inputs(facts_entry,b"{{\"owner\":\"current\"}}").unwrap();
+            let budget=||core::facts::prepared::FactBudget{{text:core::facts::text::TextBudget{{entries:20,bytes:2000}},rows:20}};
+            let mut builder=fact_builder(generation,budget());
+            assert!(contribute_file(facts_entry,Direction::XmlToYaml,history_source.as_bytes(),&source_inputs,&mut builder).is_empty());
+            let facts=std::sync::Arc::new(builder.finish());
+            let inputs_from_facts=|facts,owner:&str,property:&str|prepare_inputs(history_entry,vec![
+                ("owner".into(),InputValue::Text(owner.into())),
+                ("property".into(),InputValue::Text(property.into())),
+                ("states".into(),InputValue::TextIndex(core::facts::prepared::TextIndexInput::new(facts,generation,fact_id("migration.context-states").unwrap()))),
+            ]).unwrap();
+            let history_inputs=inputs_from_facts(facts.clone(),"current","Type");
+            let source_record=entry_id("test.source-record-state").unwrap();
+            let source_record_inputs=prepare_inputs(source_record,vec![
+                ("owner".into(),InputValue::Text("current".into())),
+                ("adopted".into(),InputValue::Boolean(true)),
+                ("compatibilityMode".into(),InputValue::Text("Version8_3_27".into())),
+                ("states".into(),InputValue::TextIndex(core::facts::prepared::TextIndexInput::new(facts.clone(),generation,fact_id("migration.context-states").unwrap()))),
+            ]).unwrap();
+            let source_record_xml=history_source.replace("<Root ","<Attribute xmlns=\"http://v8.1c.ru/8.3/MDClasses\" ")
+                .replace("</Root>","</Attribute>").replace("<History>","<InternalInfo>").replace("</History>","</InternalInfo>")
+                .replace("<Type ","<Properties><Type ").replace("</Type>","</Type></Properties>");
+            let source_record_yaml=convert_file(source_record,Direction::XmlToYaml,source_record_xml.as_bytes(),&source_record_inputs).unwrap();
+            // The assembled source owner also includes its base relation.
+            // XML has neither a base reference nor a notice: its declared empty state is null.
+            let source_record_expected=format!("ОбъектРасширяемойКонфигурации:\n{{}}",contextual_expected);
+            assert_eq!(nodes(&source_record_yaml.bytes),nodes(source_record_expected.as_bytes()));
+            assert!(!String::from_utf8_lossy(&source_record_yaml.bytes).contains("!xml/"));
+            verify_candidate(source_record,source_record_xml.as_bytes(),source_record_expected.as_bytes(),&source_record_inputs).unwrap();
+            let history_expected=contextual_expected.clone();
+            let history_result=convert_file(history_entry,Direction::XmlToYaml,history_source.as_bytes(),&history_inputs).unwrap();
+            assert_eq!(nodes(&history_result.bytes),nodes(history_expected.as_bytes()));
+            assert!(!String::from_utf8_lossy(&history_result.bytes).contains("!xml/"));
+            verify_candidate(history_entry,history_source.as_bytes(),history_expected.as_bytes(),&history_inputs).unwrap();
+            let mut yaml_builder=fact_builder(generation,budget());
+            assert!(contribute_file(facts_entry,Direction::YamlToXml,history_expected.as_bytes(),&source_inputs,&mut yaml_builder).is_empty());
+            let yaml_inputs=inputs_from_facts(std::sync::Arc::new(yaml_builder.finish()),"current","Type");
+            let restored=convert_file(history_entry,Direction::YamlToXml,history_expected.as_bytes(),&yaml_inputs).unwrap();
+            let reimported=convert_file(history_entry,Direction::XmlToYaml,&restored.bytes,&yaml_inputs).unwrap();
+            assert_eq!(nodes(&reimported.bytes),nodes(history_expected.as_bytes()));
+            verify_candidate(history_entry,history_source.as_bytes(),history_expected.as_bytes(),&yaml_inputs).unwrap();
+            let plain_inputs=read_inputs(contextual_entry,b"{{\"mode\":\"Control\"}}").unwrap();
+            for source in [{check:?},{extend:?}] {{
+                let typed=source.replace("<Root ","<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" ")
+                    .replace("<Type>","<Type xsi:type=\"v8:TypeDescription\">");
+                let plain=convert_file(contextual_entry,Direction::XmlToYaml,typed.as_bytes(),&plain_inputs).unwrap();
+                assert!(!String::from_utf8_lossy(&plain.bytes).contains("!xml/"));
+                verify_candidate(contextual_entry,typed.as_bytes(),&plain.bytes,&plain_inputs).unwrap();
+                for (owner,property) in [("current","Other"),("other","Type")] {{
+                    let scoped_inputs=inputs_from_facts(facts.clone(),owner,property);
+                    let scoped_source=typed.replace("<Root ","<Root xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" ")
+                        .replace("<Type xsi:type=\"v8:TypeDescription\">",&format!("<History>{{}}</History><Type xsi:type=\"v8:TypeDescription\">",{history:?}));
+                    let scoped_expected=format!("Состояния:\n  - Property: Type\n    State: MultiState\n{{}}",String::from_utf8_lossy(&plain.bytes));
+                    let scoped=convert_file(history_entry,Direction::XmlToYaml,scoped_source.as_bytes(),&scoped_inputs).unwrap();
+                    assert!(!String::from_utf8_lossy(&scoped.bytes).contains("!xml/"));
+                    assert_eq!(nodes(&scoped.bytes),nodes(scoped_expected.as_bytes()));
+                    verify_candidate(history_entry,scoped_source.as_bytes(),scoped_expected.as_bytes(),&scoped_inputs).unwrap();
+                }}
+            }}
+
+            let group_entry=entry_id("migration.grouped-type-description").unwrap();
+            let source={group_xml:?}.as_bytes();
+            let grouped=convert_file(group_entry,Direction::XmlToYaml,source,&inputs).unwrap();
+            assert_eq!(nodes(&grouped.bytes),nodes({expected:?}.as_bytes()));
+            verify_candidate(group_entry,source,&grouped.bytes,&inputs).unwrap();
+            let exported=convert_file(group_entry,Direction::YamlToXml,{expected:?}.as_bytes(),&inputs).unwrap();
+            verify_candidate(group_entry,source,{expected:?}.as_bytes(),&inputs).unwrap();
+            let back=convert_file(group_entry,Direction::XmlToYaml,&exported.bytes,&inputs).unwrap();
+            assert_eq!(nodes(&back.bytes),nodes({expected:?}.as_bytes()));
+            for source in [{check:?}.as_bytes(),{extend:?}.as_bytes()] {{
+                let ordinary=convert_file(entry_id("migration.type-description").unwrap(),Direction::XmlToYaml,source,&inputs).unwrap();
+                verify_candidate(entry_id("migration.type-description").unwrap(),source,&ordinary.bytes,&inputs).unwrap();
+            }}
+            let check=read_xml_{id}({check:?}.as_bytes(),&inputs.view()).unwrap();
+            let extend=read_xml_{id}({extend:?}.as_bytes(),&inputs.view()).unwrap();
+            let mut actual=String::new();
+            item_{id}::write_yaml_sequence_items::<true,false>(check.body.as_ref().unwrap(),&inputs.view(),&mut actual,"","").unwrap();
+            item_{id}::write_yaml_sequence_items::<true,true>(extend.body.as_ref().unwrap(),&inputs.view(),&mut actual,"","!изменять").unwrap();
+            assert_eq!(nodes(actual.as_bytes()),nodes({expected:?}.as_bytes()),"{{}}",{name:?});
+        }}
+"#));
+    }
+    code.push_str(r#"            {let group_entry=entry_id("migration.grouped-type-description").unwrap();for input in ["[!изменять Булево, Дата, !изменять Булево, !проверять Строка(10)]","[[]]","[!изменять []]","[]"] {
+                let output=convert_file(group_entry,Direction::YamlToXml,input.as_bytes(),&inputs).unwrap();
+                let round_trip=convert_file(group_entry,Direction::XmlToYaml,&output.bytes,&inputs).unwrap();
+                // Interleaving becomes first-group order, while repeated values remain.
+                let expected=if input.starts_with("[!изменять Булево") {"[!изменять Булево, !изменять Булево, Дата, !проверять Строка(10)]"}else{input};
+                assert_eq!(nodes(&round_trip.bytes),nodes(expected.as_bytes()));
+                assert!(!String::from_utf8_lossy(&round_trip.bytes).contains("!xml/"),"A reversible group must not become raw");
+            }
+
+            }
+"#);
+    code.push_str("}\n");
+    code
+}
+
+#[test]
+fn generated_singleton_values_preserve_records_repeats_tags_and_xml_anomalies() {
+    let source = r#"format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: common.detail
+  value: {kind: record, fields: [{name: text, type: {kind: scalar, scalar: text}}]}
+  representations:
+    xml: {kind: record, fields: [{field: text, path: [Text]}]}
+    yaml: {kind: mapping, fields: [{field: text, key: Text}]}
+- kind: value
+  id: common.row
+  imports: {detail: common.detail}
+  value: {kind: record, fields: [{name: key, type: {kind: scalar, scalar: text}}, {name: detail, type: {use: detail}}]}
+  representations:
+    xml: {kind: record, fields: [{field: key, path: [Key]}, {field: detail, path: [Detail]}]}
+    yaml: {kind: mapping, fields: [{field: key, key: Key}, {field: detail, key: Detail}]}
+- kind: value
+  id: common.rows
+  imports: {row: common.row}
+  value: {kind: sequence, item: {use: row}}
+  representations:
+    xml: {kind: element-sequence, path: [Item]}
+    yaml: {kind: sequence, singleton: value}
+- kind: object
+  id: test.rows
+  imports: {rows: common.rows}
+  value: {kind: record, fields: [{name: rows, type: {use: rows}}]}
+  representations:
+    xml: {kind: record, fields: [{field: rows, path: [Root, Entries]}]}
+    yaml: {kind: mapping, fields: [{field: rows, key: Entries}]}
+"#;
+    // A second independently named declaration must reuse the same body,
+    // while both public owners retain their own generated entry IDs.
+    let repeated = source
+        .split("- kind: value\n  id: common.row\n")
+        .nth(1)
+        .unwrap();
+    let repeated = format!("- kind: value\n  id: common.row\n{repeated}")
+        .replace("common.row\n", "common.other-row\n")
+        .replace("common.rows", "common.other-rows")
+        .replace("common.row}", "common.other-row}")
+        .replace("test.rows", "test.other-rows");
+    let source = format!("{source}{repeated}");
+    for marked in [false, true] {
+        let source = if marked {
+            source.replace("singleton: value", "singleton: value, itemTag: изменять")
+        } else {
+            source.clone()
+        };
+        let (generated, id) = support::compile_catalog("singleton.yaml", &source, "test.rows");
+        let main=r#"mod generated; use generated::*; use nkdk_conversion_core::{Direction,PreparedInputs};
+fn main(){
+for name in ["test.rows","test.other-rows"] {
+let entry=entry_id(name).unwrap();let inputs=PreparedInputs::default();let mark=MARK;
+for count in [0,1,2] {
+let item="<Item><Key>first</Key><Detail><Text>one</Text></Detail></Item>";
+let xml=format!("<Root><Entries>{}</Entries></Root>",item.repeat(count));
+let expected=match count {
+0=>"Entries: []".into(),
+1=>format!("Entries:{}\n  Key: first\n  Detail:\n    Text: one",mark),
+_=>format!("Entries:\n  -{}\n    Key: first\n    Detail:\n      Text: one\n  -{}\n    Key: first\n    Detail:\n      Text: one",mark,mark),
+};
+assert_eq!(convert_file(entry,Direction::XmlToYaml,xml.as_bytes(),&inputs).unwrap().bytes,expected.as_bytes());
+verify_candidate(entry,xml.as_bytes(),expected.as_bytes(),&inputs).unwrap();
+if count==1 {
+let expanded=format!("Entries:\n  -{}\n    Key: first\n    Detail:\n      Text: one",mark);
+verify_candidate(entry,xml.as_bytes(),expanded.as_bytes(),&inputs).unwrap();
+}
+}
+let exceptional=b"<Root><Entries><Item extra='kept'><Key>first</Key><Detail><Text>one</Text></Detail></Item></Entries></Root>";
+let result=convert_file(entry,Direction::XmlToYaml,exceptional,&inputs).unwrap();
+let yaml=std::str::from_utf8(&result.bytes).unwrap();assert!(yaml.contains("!xml/raw"),"{yaml}");
+verify_candidate(entry,exceptional,&result.bytes,&inputs).unwrap();
+let singleton=yaml.replacen("Entries:\n  - !xml/raw\n", "Entries: !xml/raw\n",1)
+.lines().enumerate().map(|(index,line)| if index==0 {line.to_owned()} else {line.strip_prefix("  ").unwrap_or(line).to_owned()}).collect::<Vec<_>>().join("\n");
+verify_candidate(entry,exceptional,singleton.as_bytes(),&inputs).unwrap();
+// A complete replacement with empty meaning is also an opaque item, even
+// when emitted by a projecting record instead of the short Item envelope.
+let replacement="Entries:\n  - !xml/raw\n    $значение: {}\n    $xml:\n      '#replace': 'true'\n      _extra: kept\n      Key: first\n      Detail:\n        Text: one";
+verify_candidate(entry,exceptional,replacement.as_bytes(),&inputs).unwrap();
+}
+}"#.replace("MARK",if marked {"\" !изменять\""} else {"\"\""});
+        support::run_generated("nkdk-singleton-values", generated, id, &main);
+    }
 }

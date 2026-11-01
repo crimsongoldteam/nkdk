@@ -1,0 +1,48 @@
+format: nkdk-declarations/1
+kind: value
+id: common.style-item-value-font
+imports:
+  kind: common.string
+  value: common.font
+inputs:
+  styleTypes:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: scalar
+        scalar: text
+value:
+  kind: record
+  fields:
+    - name: kind
+      type:
+        use: kind
+    - name: value
+      type:
+        use: value
+        bind:
+          styleTypes:
+            input: styleTypes
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: value
+        path: []
+  yaml:
+    kind: mapping
+    fields:
+      - field: kind
+        key: Вид
+      - field: value
+        key: Значение
+presence:
+  - target:
+      field: kind
+    xml:
+      missing:
+        denotes:
+          literal: Шрифт

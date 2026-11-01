@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/decimal", "crates/rule-model", "crates/rule-compiler", "crates/conversion-core", "crates/compiled-rules", "crates/compiled-rules-probes", "crates/system-enum-shards/*", "apps/nkdk", "tools/dev"]
+members = ["crates/decimal", "crates/rule-model", "crates/rule-compiler", "crates/conversion-core", "crates/compiled-rules", "crates/compiled-rules-base", "crates/compiled-rules-elements", "crates/compiled-rules-elements-2", "crates/compiled-rules-bodies", "crates/compiled-rules-bodies-2", "crates/compiled-rules-bodies-3", "crates/compiled-rules-bodies-4", "crates/compiled-rules-bodies-5", "crates/compiled-rules-owners", "crates/compiled-rules-owners-2", "crates/compiled-rules-owners-3", "crates/compiled-rules-members", "crates/compiled-rules-members-2", "crates/compiled-rules-inputs", "crates/compiled-rules-inputs-2", "crates/compiled-rules-probes", "crates/compiled-rules-font", "crates/compiled-rules-picture", "crates/compiled-rules-fields", "crates/probe-*", "crates/candidate-*", "crates/system-enum-shards/*", "apps/nkdk", "tools/dev", "generated-aot/*", "generated-aot/*/packages/*"]
 resolver = "3"
 
 [workspace.package]
@@ -39,3 +39,10 @@ incremental = false
 [profile.test]
 debug = 0
 incremental = false
+
+# Optimize the build-time compiler and automata construction, not the converter.
+[profile.dev.build-override]
+opt-level = 2
+
+[profile.test.build-override]
+opt-level = 2

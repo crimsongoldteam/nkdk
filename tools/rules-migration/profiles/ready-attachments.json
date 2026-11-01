@@ -286,6 +286,26 @@
     "parameters": {
       "type": "Module",
       "externalMetadata": {
+        "segment": "ObjectModule",
+        "placement": "derivedEntry"
+      },
+      "nkdkPath": "МодульОбъекта.bsl",
+      "xmlPath": "Ext/ObjectModule.bsl",
+      "toXML": false,
+      "fromXML": false,
+      "syncArea": {
+        "kind": "objectModule",
+        "yamlFile": "МодульОбъекта.bsl",
+        "xmlPath": "Ext/ObjectModule.bsl"
+      }
+    },
+    "fragment": "fragment.object-module-resource"
+  },
+  {
+    "type": "Module",
+    "parameters": {
+      "type": "Module",
+      "externalMetadata": {
         "segment": "CommandModule",
         "placement": "derivedEntry"
       },
@@ -295,6 +315,218 @@
       "fromXML": false
     },
     "fragment": "fragment.standalone-command-module-resource"
+  },
+  {
+    "type": "Module",
+    "parameters": {
+      "type": "Module",
+      "externalMetadata": {
+        "segment": "CommandModule",
+        "placement": "derivedEntry"
+      },
+      "nkdkPath": {
+        "$pathTemplate": [
+          "Команды",
+          {
+            "concat": [
+              {
+                "input": "name"
+              },
+              {
+                "literal": ".bsl"
+              }
+            ]
+          }
+        ]
+      },
+      "xmlPath": {
+        "$pathTemplate": [
+          "Commands",
+          {
+            "input": "name"
+          },
+          "Ext",
+          "CommandModule.bsl"
+        ]
+      },
+      "toXML": false,
+      "fromXML": false
+    },
+    "fragment": "fragment.command-module-resource"
+  },
+  {
+    "type": "Module",
+    "parameters": {
+      "type": "Module",
+      "externalMetadata": {
+        "segment": "CommandModule",
+        "placement": "derivedEntry"
+      },
+      "nkdkPath": {
+        "$pathTemplate": [
+          "Команды",
+          {
+            "concat": [
+              {
+                "input": "name"
+              },
+              {
+                "literal": ".bsl"
+              }
+            ]
+          }
+        ]
+      },
+      "xmlPath": {
+        "$pathConditional": {
+          "optionalInput": "parentName",
+          "absent": [
+            "Commands",
+            {
+              "input": "name"
+            },
+            "Ext",
+            "CommandModule.bsl"
+          ],
+          "present": [
+            "Cubes",
+            {
+              "input": "parentName"
+            },
+            "Commands",
+            {
+              "input": "name"
+            },
+            "Ext",
+            "CommandModule.bsl"
+          ]
+        }
+      },
+      "toXML": false,
+      "fromXML": false
+    },
+    "fragment": "fragment.command-module-with-parent-resource",
+    "bindings": {
+      "container": {
+        "literal": "Cubes"
+      }
+    }
+  },
+  {
+    "type": "Module",
+    "parameters": {
+      "type": "Module",
+      "externalMetadata": {
+        "segment": "CommandModule",
+        "placement": "derivedEntry"
+      },
+      "nkdkPath": {
+        "$pathTemplate": [
+          "Команды",
+          {
+            "concat": [
+              {
+                "input": "name"
+              },
+              {
+                "literal": ".bsl"
+              }
+            ]
+          }
+        ]
+      },
+      "xmlPath": {
+        "$pathConditional": {
+          "optionalInput": "parentName",
+          "absent": [
+            "Commands",
+            {
+              "input": "name"
+            },
+            "Ext",
+            "CommandModule.bsl"
+          ],
+          "present": [
+            "Tables",
+            {
+              "input": "parentName"
+            },
+            "Commands",
+            {
+              "input": "name"
+            },
+            "Ext",
+            "CommandModule.bsl"
+          ]
+        }
+      },
+      "toXML": false,
+      "fromXML": false
+    },
+    "fragment": "fragment.command-module-with-parent-resource",
+    "bindings": {
+      "container": {
+        "literal": "Tables"
+      }
+    }
+  },
+  {
+    "type": "Module",
+    "parameters": {
+      "type": "Module",
+      "externalMetadata": {
+        "segment": "CommandModule",
+        "placement": "derivedEntry"
+      },
+      "nkdkPath": {
+        "$pathTemplate": [
+          "Команды",
+          {
+            "concat": [
+              {
+                "input": "name"
+              },
+              {
+                "literal": ".bsl"
+              }
+            ]
+          }
+        ]
+      },
+      "xmlPath": {
+        "$pathConditional": {
+          "optionalInput": "parentName",
+          "absent": [
+            "Commands",
+            {
+              "input": "name"
+            },
+            "Ext",
+            "CommandModule.bsl"
+          ],
+          "present": [
+            "DimensionTables",
+            {
+              "input": "parentName"
+            },
+            "Commands",
+            {
+              "input": "name"
+            },
+            "Ext",
+            "CommandModule.bsl"
+          ]
+        }
+      },
+      "toXML": false,
+      "fromXML": false
+    },
+    "fragment": "fragment.command-module-with-parent-resource",
+    "bindings": {
+      "container": {
+        "literal": "DimensionTables"
+      }
+    }
   },
   {
     "type": "Module",

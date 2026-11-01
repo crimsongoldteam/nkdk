@@ -1,0 +1,60 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: common.metadata-root-path-roots
+  imports: {root: common.path-root, name: common.metadata-name}
+  inputs:
+    allowedRoot: {type: {use: root}}
+  value:
+    kind: record
+    fields:
+    - {name: root, type: {use: root}}
+    - {name: name, type: {use: name}}
+  representations:
+    xml: {kind: text-pattern, separator: '.', parts: [{field: root}, {field: name}]}
+    yaml: {kind: text-pattern, separator: '.', parts: [{field: root}, {field: name}]}
+  constraints:
+  - id: allowed-root
+    appliesTo: [xml-import, yaml-validation]
+    assert: {eq: [{input: allowedRoot}, {get: {of: {self: true}, field: root}}]}
+    diagnostic: {code: metadata.target-root, severity: error, at: {self: true}, message: Ссылка ведёт к недопустимому виду объекта}
+- kind: value
+  id: common.metadata-item-link-roots
+  imports: {object: common.metadata-root-path-roots, uuid: common.metadata-link-uuid, empty: common.metadata-link-empty, root: common.path-root}
+  inputs:
+    allowedRoot: {type: {use: root}}
+  parameters:
+    typedXML: {type: {kind: scalar, scalar: boolean}, default: false}
+  namespaces: {xsi: 'http://www.w3.org/2001/XMLSchema-instance', xr: 'http://v8.1c.ru/8.3/xcf/readable'}
+  value:
+    kind: choice
+    variants:
+    - {name: object, type: {use: object, bind: {allowedRoot: {input: allowedRoot}}}}
+    - {name: uuid, type: {use: uuid}}
+    - {name: empty, type: {use: empty}}
+  representations:
+    xml:
+      kind: with-attributes
+      attributes: [{name: xsi:type, value: {qname: xr:MDObjectRef}, when: {parameter: typedXML}}]
+      content: {kind: choice, fallback: uuid}
+    yaml: {kind: choice, fallback: uuid}
+- kind: value
+  id: common.metadata-item-links-roots
+  imports: {item: common.metadata-item-link-roots, root: common.path-root}
+  inputs:
+    allowedRoot: {type: {use: root}}
+  namespaces: {xr: 'http://v8.1c.ru/8.3/xcf/readable'}
+  value: {kind: sequence, item: {use: item, with: {typedXML: true}, bind: {allowedRoot: {input: allowedRoot}}}}
+  representations:
+    xml: {kind: element-sequence, path: [xr:Item]}
+    yaml: {kind: sequence}
+  presence:
+  - target: self
+    xml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: empty-element, denotes: {absent: true}}]
+    yaml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: empty-sequence, denotes: {absent: true}}]
+      omitWhen: {not: {present: {self: true}}}

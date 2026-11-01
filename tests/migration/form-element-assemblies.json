@@ -1,0 +1,272 @@
+{
+  "scope": "Singleton element assembly candidates; relative placement; pending properties remain explicit",
+  "assemblies": [
+    {
+      "type": "AutoCommandBar",
+      "entry": "candidate.element.AutoCommandBar",
+      "source": {
+        "path": "packages/rules/metadata/forms/elements/autoCommandBar/rules.ts",
+        "symbol": "AutoCommandBarRules"
+      },
+      "path": [
+        "AutoCommandBar"
+      ],
+      "assembled": [
+        "name",
+        "autofill",
+        "displayImportance",
+        "horizontalAlign"
+      ],
+      "pending": [
+        {
+          "name": "childItems",
+          "reason": "unsupported-common"
+        }
+      ],
+      "notSerialized": [],
+      "blockers": [],
+      "complete": false
+    },
+    {
+      "type": "TableAutoCommandBar",
+      "entry": "candidate.element.TableAutoCommandBar",
+      "source": {
+        "path": "packages/rules/metadata/forms/elements/autoCommandBar/rules.ts",
+        "symbol": "AutoCommandBarRules"
+      },
+      "path": [
+        "AutoCommandBar"
+      ],
+      "assembled": [
+        "name",
+        "autofill",
+        "displayImportance",
+        "horizontalAlign"
+      ],
+      "pending": [
+        {
+          "name": "childItems",
+          "reason": "unsupported-common"
+        }
+      ],
+      "notSerialized": [],
+      "blockers": [],
+      "complete": false
+    },
+    {
+      "type": "ContextMenu",
+      "entry": "candidate.element.ContextMenu",
+      "source": {
+        "path": "packages/rules/metadata/forms/elements/contextMenu/rules.ts",
+        "symbol": "ContextMenuRules"
+      },
+      "path": [
+        "ContextMenu"
+      ],
+      "assembled": [
+        "name",
+        "displayImportance",
+        "autofill"
+      ],
+      "pending": [
+        {
+          "name": "childItems",
+          "reason": "unsupported-common"
+        }
+      ],
+      "notSerialized": [],
+      "blockers": [],
+      "complete": false
+    },
+    {
+      "type": "ExtendedTooltip",
+      "entry": "candidate.element.ExtendedTooltip",
+      "source": {
+        "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+        "symbol": "ExtendedTooltipRules"
+      },
+      "path": [
+        "ExtendedTooltip"
+      ],
+      "assembled": [
+        "title",
+        "autoMaxHeight",
+        "autoMaxWidth",
+        "displayImportance",
+        "enabled",
+        "font",
+        "height",
+        "horizontalAlignInGroup",
+        "horizontalStretch",
+        "maxHeight",
+        "maxWidth",
+        "onMainServerUnavalableBehavior",
+        "shortcut",
+        "skipOnInput",
+        "textColor",
+        "toolTip",
+        "toolTipRepresentation",
+        "userVisible",
+        "verticalAlignInGroup",
+        "verticalStretch",
+        "visible",
+        "width",
+        "backColor",
+        "border",
+        "borderColor",
+        "horizontalAlign",
+        "hyperlink",
+        "titleHeight",
+        "verticalAlign",
+        "events"
+      ],
+      "pending": [],
+      "notSerialized": [
+        {
+          "name": "type",
+          "reason": "runtime-only-no-xml-yaml"
+        }
+      ],
+      "blockers": [],
+      "complete": true
+    },
+    {
+      "type": "SingleSearchControlAddition",
+      "entry": "candidate.element.SingleSearchControlAddition",
+      "source": {
+        "path": "packages/rules/metadata/forms/elements/searchControlAddition/rules.ts",
+        "symbol": "SingleSearchControlAdditionRules"
+      },
+      "path": [
+        "SingleSearchControlAddition"
+      ],
+      "assembled": [
+        "autoMaxWidth",
+        "backColor",
+        "borderColor",
+        "displayImportance",
+        "enabled",
+        "extendedTooltip",
+        "font",
+        "horizontalAlignInGroup",
+        "horizontalStretch",
+        "maxWidth",
+        "textColor",
+        "title",
+        "toolTip",
+        "toolTipRepresentation",
+        "userVisible",
+        "verticalAlignInGroup",
+        "visible",
+        "width"
+      ],
+      "pending": [
+        {
+          "name": "additionSource",
+          "reason": "unsupported-common"
+        },
+        {
+          "name": "contextMenu",
+          "reason": "unsupported-common"
+        },
+        {
+          "name": "childItems",
+          "reason": "unsupported-common"
+        }
+      ],
+      "notSerialized": [],
+      "blockers": [],
+      "complete": false
+    },
+    {
+      "type": "SingleSearchStringAddition",
+      "entry": "candidate.element.SingleSearchStringAddition",
+      "source": {
+        "path": "packages/rules/metadata/forms/elements/searchStringAddition/rules.ts",
+        "symbol": "SingleSearchStringAdditionRules"
+      },
+      "path": [
+        "SingleSearchStringAddition"
+      ],
+      "assembled": [
+        "autoMaxWidth",
+        "backColor",
+        "borderColor",
+        "font",
+        "horizontalStretch",
+        "maxWidth",
+        "textColor",
+        "width",
+        "displayImportance",
+        "enabled",
+        "extendedTooltip",
+        "horizontalAlignInGroup",
+        "title",
+        "toolTip",
+        "toolTipRepresentation",
+        "userVisible",
+        "verticalAlignInGroup",
+        "visible"
+      ],
+      "pending": [
+        {
+          "name": "additionSource",
+          "reason": "unsupported-common"
+        },
+        {
+          "name": "contextMenu",
+          "reason": "unsupported-common"
+        }
+      ],
+      "notSerialized": [],
+      "blockers": [],
+      "complete": false
+    },
+    {
+      "type": "SingleViewStatusAddition",
+      "entry": "candidate.element.SingleViewStatusAddition",
+      "source": {
+        "path": "packages/rules/metadata/forms/elements/viewStatusAddition/rules.ts",
+        "symbol": "SingleViewStatusAdditionRules"
+      },
+      "path": [
+        "SingleViewStatusAddition"
+      ],
+      "assembled": [
+        "autoMaxWidth",
+        "backColor",
+        "border",
+        "borderColor",
+        "buttonsBackColor",
+        "font",
+        "horizontalAlign",
+        "horizontalStretch",
+        "maxWidth",
+        "textColor",
+        "titleFont",
+        "titleTextColor",
+        "width",
+        "displayImportance",
+        "enabled",
+        "visible",
+        "extendedTooltip",
+        "title",
+        "toolTip",
+        "toolTipRepresentation"
+      ],
+      "pending": [
+        {
+          "name": "additionSource",
+          "reason": "unsupported-common"
+        },
+        {
+          "name": "contextMenu",
+          "reason": "unsupported-common"
+        }
+      ],
+      "notSerialized": [],
+      "blockers": [],
+      "complete": false
+    }
+  ]
+}

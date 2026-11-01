@@ -1,0 +1,45 @@
+format: nkdk-declarations/1
+kind: value
+id: system.StyleColors
+enum:
+  FieldAlternativeBackColor: АльтернативныйЦветФонаПоля
+  ActivityColor: ЦветАктивности
+  AccentColor: ЦветАкцента
+  ImportantColor: ЦветВажного
+  AuxiliaryNavigationColor: ЦветДополнительнойНавигации
+  ReportLineColor: ЦветЛинииОтчета
+  NavigationColor: ЦветНавигации
+  SpecialTextColor: ЦветОсобогоТекста
+  NegativeTextColor: ЦветОтрицательногоЧисла
+  BorderColor: ЦветРамки
+  ButtonBorderColor: ЦветРамкиКнопки
+  FieldSelectedTextColor: ЦветТекстаВыделенияПоля
+  ButtonTextColor: ЦветТекстаКнопки
+  TableFooterTextColor: ЦветТекстаПодвалаТаблицы
+  ToolTipTextColor: ЦветТекстаПодсказки
+  FieldTextColor: ЦветТекстаПоля
+  FormTextColor: ЦветТекстаФормы
+  TableHeaderTextColor: ЦветТекстаШапкиТаблицы
+  FieldSelectionBackColor: ЦветФонаВыделенияПоля
+  ReportGroup1BackColor: ЦветФонаГруппировкиОтчета1
+  ReportGroup2BackColor: ЦветФонаГруппировкиОтчета2
+  ButtonBackColor: ЦветФонаКнопки
+  TableFooterBackColor: ЦветФонаПодвалаТаблицы
+  ToolTipBackColor: ЦветФонаПодсказки
+  FieldBackColor: ЦветФонаПоля
+  FormBackColor: ЦветФонаФормы
+  ReportHeaderBackColor: ЦветФонаШапкиОтчета
+  TableHeaderBackColor: ЦветФонаШапкиТаблицы
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  t: http://v8.1c.ru/8.1/data/enterprise
+projections:
+  - id: system.StyleColors.dcs
+    xml:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: t:StyleColors
+      content:
+        kind: text

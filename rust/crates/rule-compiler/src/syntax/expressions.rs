@@ -20,6 +20,8 @@ pub(super) fn expression(path: &str, value: &Node) -> Result<Expression, Diagnos
     let fields = value.mapping(
         path,
         &[
+            "identity",
+            "logicalAddress",
             "input",
             "lookup",
             "matches",
@@ -32,6 +34,8 @@ pub(super) fn expression(path: &str, value: &Node) -> Result<Expression, Diagnos
             "textLengthAtMost",
             "textLengthEquals",
             "calendarFits",
+            "decimalText",
+            "enumText",
             "decimalFits",
             "match",
             "present",
@@ -52,6 +56,7 @@ pub(super) fn expression(path: &str, value: &Node) -> Result<Expression, Diagnos
             "not",
             "absent",
             "self",
+            "collectionPosition",
             "var",
             "get",
             "fold",
@@ -80,6 +85,85 @@ pub(super) fn expression(path: &str, value: &Node) -> Result<Expression, Diagnos
     }
     let (operator, operand) = &fields[0];
     let kind = match operator.text(path)? {
+        "logicalAddress" => {
+            let fields = operand.mapping(path, &["parent", "parts"])?;
+            let parent = optional_field(fields, "parent")
+                .map(|value| expression(path, value).map(Box::new))
+                .transpose()?;
+            let parts = operand.field(path, fields, "parts")?;
+            let Shape::Sequence(parts) = &parts.shape else {
+                return Err(error(
+                    path,
+                    parts.mark,
+                    "expected_sequence",
+                    "Address parts must be a list",
+                ));
+            };
+            if parts.is_empty() {
+                return Err(error(
+                    path,
+                    operand.mark,
+                    "invalid_expression",
+                    "Address parts must not be empty",
+                ));
+            }
+            ExpressionKind::LogicalAddress {
+                parent,
+                parts: parts
+                    .iter()
+                    .map(|part| {
+                        if let Shape::Mapping(fields) = &part.shape
+                            && optional_field(fields, "yamlField").is_some()
+                        {
+                            let fields = part.mapping(path, &["yamlField"])?;
+                            let name = part.field(path, fields, "yamlField")?.text(path)?;
+                            if name.is_empty() {
+                                return Err(error(
+                                    path,
+                                    part.mark,
+                                    "invalid_expression",
+                                    "Address field name must not be empty",
+                                ));
+                            }
+                            return Ok(Expression {
+                                kind: ExpressionKind::YamlField(name.into()),
+                                source: location(path, part),
+                            });
+                        }
+                        expression(path, part)
+                    })
+                    .collect::<Result<_, _>>()?,
+            }
+        }
+        "identity" => {
+            let fields = operand.mapping(path, &["seed", "domain", "format", "address"])?;
+            let address = operand.field(path, fields, "address")?;
+            let Shape::Sequence(segments) = &address.shape else {
+                return Err(error(
+                    path,
+                    address.mark,
+                    "expected_sequence",
+                    "Identity address must be a list",
+                ));
+            };
+            if segments.is_empty() {
+                return Err(error(
+                    path,
+                    address.mark,
+                    "invalid_expression",
+                    "Identity address must not be empty",
+                ));
+            }
+            ExpressionKind::Identity {
+                seed: Box::new(expression(path, operand.field(path, fields, "seed")?)?),
+                domain: operand.field(path, fields, "domain")?.text(path)?.into(),
+                format: operand.field(path, fields, "format")?.text(path)?.into(),
+                address: segments
+                    .iter()
+                    .map(|segment| expression(path, segment))
+                    .collect::<Result<_, _>>()?,
+            }
+        }
         "variant" => {
             let fields = operand.mapping(path, &["name", "value"])?;
             ExpressionKind::ConstructVariant {
@@ -135,6 +219,8 @@ pub(super) fn expression(path: &str, value: &Node) -> Result<Expression, Diagnos
                 fraction: Box::new(expression(path, operand.field(path, fields, "fraction")?)?),
             }
         }
+        "enumText" => ExpressionKind::EnumText(Box::new(expression(path, operand)?)),
+        "decimalText" => ExpressionKind::DecimalText(Box::new(expression(path, operand)?)),
         "decimalFits" => {
             let fields = operand.mapping(path, &["value", "digits", "fraction", "sign"])?;
             ExpressionKind::DecimalFits {
@@ -294,6 +380,17 @@ pub(super) fn expression(path: &str, value: &Node) -> Result<Expression, Diagnos
                 ));
             }
             ExpressionKind::SelfValue
+        }
+        "collectionPosition" => {
+            if scalar_literal(path, operand)? != ScalarLiteral::Boolean(true) {
+                return Err(error(
+                    path,
+                    operand.mark,
+                    "invalid_collection_position",
+                    "Expected collectionPosition: true",
+                ));
+            }
+            ExpressionKind::CollectionPosition
         }
         "var" => ExpressionKind::Variable(operand.text(path)?.into()),
         "field" => ExpressionKind::Field(operand.text(path)?.into()),

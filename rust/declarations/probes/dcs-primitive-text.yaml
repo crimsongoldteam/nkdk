@@ -1,0 +1,9 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.dcs-primitive-text
+namespaces: {dcscor: http://v8.1c.ru/8.1/data-composition-system/core}
+imports: {value: common.dcs-primitive-text}
+value: {kind: record, fields: [{name: value, type: {use: value}}]}
+representations:
+  xml: {kind: record, fields: [{field: value, path: [Root, dcscor:value]}]}
+  yaml: {kind: mapping, fields: [{field: value, key: Значение}]}

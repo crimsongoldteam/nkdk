@@ -1,0 +1,88 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: probe.changed-capacity
+  imports: {boolean: common.boolean}
+  inputs: {changed: {type: {kind: scalar, scalar: boolean}}}
+  value: {kind: record, fields: [{name: capacity, type: {kind: scalar, scalar: number, profile: decimal}}, {name: state, type: {use: boolean}}]}
+  representations:
+    xml: {kind: record, fields: [{field: capacity, path: [Value]}]}
+    yaml: {kind: projection, field: capacity}
+  presence:
+  - target: {field: capacity}
+    yaml:
+      empty: [{form: 'null', denotes: {literal: 9}}]
+      nullWhen: {eq: [{field: capacity}, {literal: 9}]}
+  - target: {field: state}
+    xml: {missing: {denotes: {input: changed}}}
+    yaml: {missing: {denotes: {input: changed}}}
+  constraints:
+  - id: selected-state
+    appliesTo: [xml-import, yaml-validation]
+    forms: [record, scalar]
+    assert: {field: state}
+    diagnostic: {code: state.expected, severity: error, at: {self: true}, message: Expected the selected state}
+- kind: value
+  id: probe.plain-capacity
+  imports: {boolean: common.boolean}
+  inputs: {changed: {type: {kind: scalar, scalar: boolean}}}
+  value: {kind: record, fields: [{name: capacity, type: {kind: scalar, scalar: number, profile: decimal}}, {name: state, type: {use: boolean}}]}
+  representations:
+    xml: {kind: record, fields: [{field: capacity, path: [Value]}]}
+    yaml: {kind: projection, field: capacity}
+  presence:
+  - target: {field: state}
+    xml: {missing: {denotes: {input: changed}}}
+    yaml: {missing: {denotes: {input: changed}}}
+  constraints:
+  - id: selected-state
+    appliesTo: [xml-import, yaml-validation]
+    forms: [record, scalar]
+    assert: {not: {field: state}}
+    diagnostic: {code: state.expected, severity: error, at: {self: true}, message: Expected the ordinary state}
+- kind: value
+  id: probe.stateful-capacity
+  imports: {changed: probe.changed-capacity, plain: probe.plain-capacity}
+  inputs: {changed: {type: {kind: scalar, scalar: boolean}}}
+  value:
+    kind: choice
+    variants:
+    - {name: changed, type: {use: changed, bind: {changed: {input: changed}}}}
+    - {name: plain, type: {use: plain, bind: {changed: {input: changed}}}}
+  representations:
+    xml: {kind: choice, fallback: plain}
+    yaml: {kind: choice, variants: [{variant: changed, form: scalar, tag: изменять}]}
+- kind: object
+  id: migration.tagged-default-state
+  imports: {capacity: probe.stateful-capacity}
+  inputs: {changed: {type: {kind: scalar, scalar: boolean}}}
+  value:
+    kind: record
+    fields: [{name: capacity, type: {use: capacity, bind: {changed: {input: changed}}}}]
+  representations:
+    xml: {kind: record, fields: [{field: capacity, path: [Root, Properties]}]}
+    yaml: {kind: mapping, fields: [{field: capacity, key: Длина}]}
+- kind: object
+  id: migration.tagged-collected-state
+  imports: {capacity: probe.stateful-capacity, rows: common.property-states}
+  value:
+    kind: record
+    fields:
+    - {name: rows, type: {use: rows}}
+    - name: capacity
+      type:
+        use: capacity
+        bind:
+          changed:
+            exists:
+              in: {field: rows}
+              as: row
+              where: {and: [{eq: [{get: {of: {var: row}, field: name}}, {literal: Capacity}]}, {eq: [{get: {of: {var: row}, field: mode}}, {literal: Extended}]}]}
+  representations:
+    xml: {kind: record, fields: [{field: rows, path: [Root, InternalInfo]}, {field: capacity, path: [Root, Properties]}]}
+    yaml: {kind: mapping, fields: [{field: capacity, key: Длина}, {field: rows, key: Состояния}]}
+  presence:
+  - target: {field: rows}
+    xml: {missing: {denotes: {sequence: []}}}
+    yaml: {missing: {denotes: {sequence: []}}}

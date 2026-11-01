@@ -1,0 +1,44 @@
+# Generated from packages/rules/metadata/commonObjects/predefined/rules.ts by file-envelope-operation.mjs
+format: nkdk-declarations/1
+kind: object
+id: migration.predefined-account-file
+namespaces:
+  p: http://v8.1c.ru/8.3/xcf/predef
+imports:
+  items: probe.predefined-account-file-items
+inputs:
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  identities:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: scalar
+        scalar: text
+    index: metadata.predefined-identities
+value:
+  kind: record
+  fields:
+    - name: items
+      type:
+        use: items
+        bind:
+          parent:
+            input: owner
+          identities:
+            input: identities
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: items
+        path:
+          - p:PredefinedData
+  yaml:
+    kind: projection
+    field: items

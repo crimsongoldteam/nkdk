@@ -2,15 +2,27 @@ format: nkdk-declarations/1
 kind: value
 id: common.metadata-reference
 imports:
+  rootPath: common.metadata-root-path
   path: common.metadata-reference-path
+  uuid: common.metadata-target-uuid-reference
+  prefixedUuid: common.metadata-prefixed-uuid-reference
   empty: common.metadata-empty-reference
   text: common.string
 value:
   kind: choice
   variants:
+    - name: rootPath
+      type:
+        use: rootPath
     - name: path
       type:
         use: path
+    - name: uuid
+      type:
+        use: uuid
+    - name: prefixedUuid
+      type:
+        use: prefixedUuid
     - name: empty
       type:
         use: empty

@@ -42,10 +42,16 @@ pub(crate) fn expression(
     }
     Ok(())
 }
-fn first_field(value: &LinkedExpression) -> Option<u32> {
+fn first_field(value: &LinkedExpression, offset: usize, captures: &[u32]) -> Option<u32> {
     match &value.kind {
         LinkedExpressionKind::Field(slot) => Some(*slot),
-        LinkedExpressionKind::Operation { arguments, .. } => arguments.iter().find_map(first_field),
+        LinkedExpressionKind::Input(slot) => (*slot as usize)
+            .checked_sub(offset)
+            .and_then(|slot| captures.get(slot))
+            .copied(),
+        LinkedExpressionKind::Operation { arguments, .. } => arguments
+            .iter()
+            .find_map(|value| first_field(value, offset, captures)),
         _ => None,
     }
 }
@@ -56,9 +62,38 @@ fn part_index(slot: u32, owner: &LinkedEntry, parts: &[LinkedEntry]) -> usize {
         .expect("every owner field belongs to one part")
 }
 
-pub(super) fn distribute(owner: &LinkedEntry, parts: &mut [LinkedEntry]) -> Result<(), Diagnostic> {
+pub(super) fn distribute(
+    owner: &LinkedEntry,
+    parts: &mut [LinkedEntry],
+    captures: &[u32],
+) -> Result<(), Diagnostic> {
+    // Capturing a sibling for lexical scope does not change which storage unit
+    // owns its constraint. Resolve captured slots before choosing that unit.
+    let offset = owner.inputs.len() - captures.len();
     for rule in &owner.presence {
         let LinkedPresenceTarget::Field(slot) = rule.target else {
+            // A value's boundary absence is consumed by its enclosing reader;
+            // it is not a default or omission contract for any partitioned field.
+            let boundary_absence = owner.kind == ModuleKind::Value
+                && rule
+                    .xml_missing
+                    .as_ref()
+                    .is_none_or(|value| matches!(value.kind, LinkedExpressionKind::Absent))
+                && rule
+                    .yaml_missing
+                    .as_ref()
+                    .is_none_or(|value| matches!(value.kind, LinkedExpressionKind::Absent))
+                && rule.xml_empty.is_empty()
+                && rule.canonical.is_empty()
+                && rule.yaml_omit_when.is_none()
+                && !rule.yaml_empty.is_empty()
+                && rule.yaml_empty.iter().all(|form| {
+                    form.form == EmptyKind::Null
+                        && matches!(form.denotes.kind, LinkedExpressionKind::Absent)
+                });
+            if boundary_absence {
+                continue;
+            }
             return Err(unsupported(
                 owner,
                 "Whole-owner presence is not a property contract",
@@ -75,10 +110,10 @@ pub(super) fn distribute(owner: &LinkedEntry, parts: &mut [LinkedEntry]) -> Resu
     for rule in &owner.constraints {
         let slot = match rule.diagnostic.at {
             LinkedDiagnosticTarget::Field(slot) => Some(slot),
-            _ => first_field(&rule.assertion).or_else(|| {
+            _ => first_field(&rule.assertion, offset, captures).or_else(|| {
                 rule.for_each
                     .as_ref()
-                    .and_then(|iteration| first_field(&iteration.input))
+                    .and_then(|iteration| first_field(&iteration.input, offset, captures))
             }),
         };
         let selected = slot.map_or(0, |slot| part_index(slot, owner, parts));

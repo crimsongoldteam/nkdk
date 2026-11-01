@@ -1,0 +1,106 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.Indexing
+  value1: common.metadata-member-path
+value:
+  kind: record
+  fields:
+    - name: indexing
+      type:
+        use: value0
+    - name: addressingDimension
+      type:
+        use: value1
+        bind: {}
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: indexing
+        path:
+          - Properties
+          - Indexing
+      - field: addressingDimension
+        path:
+          - Properties
+          - AddressingDimension
+  yaml:
+    kind: mapping
+    fields:
+      - field: indexing
+        key: Индексирование
+      - field: addressingDimension
+        key: ИзмерениеАдресации
+presence:
+  - target:
+      field: indexing
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: DontIndex
+  - target:
+      field: addressingDimension
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: addressingDimension
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+constraints:
+  - id: addressingDimension-root
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      present:
+        field: addressingDimension
+    assert:
+      eq:
+        - get:
+            of:
+              field: addressingDimension
+            field: root
+        - literal: InformationRegister
+    diagnostic:
+      code: metadata.root-kind
+      severity: error
+      at:
+        field: addressingDimension
+      message: Недопустимый вид ссылки
+  - id: addressingDimension-kind
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    when:
+      present:
+        field: addressingDimension
+    assert:
+      eq:
+        - get:
+            of:
+              field: addressingDimension
+            field: kind
+        - literal: Dimension
+    diagnostic:
+      code: metadata.member-kind
+      severity: error
+      at:
+        field: addressingDimension
+      message: Недопустимый вид ссылки
+id: candidate.fragment.5e30dbf675d5463a5f58

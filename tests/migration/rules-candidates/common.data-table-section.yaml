@@ -1,0 +1,28 @@
+format: nkdk-declarations/1
+kind: value
+id: common.data-table-section
+imports:
+  kind: common.data-table-section-kind
+  name: common.metadata-name
+value:
+  kind: record
+  fields:
+    - name: kind
+      type:
+        use: kind
+    - name: name
+      type:
+        use: name
+representations:
+  xml:
+    kind: text-pattern
+    separator: .
+    parts:
+      - field: kind
+      - field: name
+  yaml:
+    kind: text-pattern
+    separator: .
+    parts:
+      - field: kind
+      - field: name

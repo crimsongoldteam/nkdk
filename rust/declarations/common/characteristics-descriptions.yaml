@@ -1,0 +1,155 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: common.characteristics-table-link
+  imports: {root: common.metadata-root-path, child: common.metadata-structural-path}
+  value:
+    kind: choice
+    variants:
+    - {name: root, type: {use: root}}
+    - {name: child, type: {use: child}}
+  representations: {xml: {kind: choice}, yaml: {kind: choice}}
+- kind: value
+  id: common.characteristics-service-field
+  value: {kind: scalar, scalar: text, pattern: '-[0-9]+'}
+  representations:
+    xml: {kind: text}
+    yaml: {kind: scalar, scalar: text}
+- kind: value
+  id: common.characteristics-field-link
+  imports: {field: common.metadata-field-chain-path, service: common.characteristics-service-field}
+  value:
+    kind: choice
+    variants:
+    - {name: field, type: {use: field}}
+    - {name: service, type: {use: service}}
+  representations: {xml: {kind: choice}, yaml: {kind: choice}}
+  presence:
+  - target: self
+    xml: {missing: {denotes: {absent: true}}}
+    yaml:
+      missing: {denotes: {variant: {name: service, value: {literal: '-1'}}}}
+      omitWhen:
+        and:
+        - {isVariant: {value: {self: true}, variant: service}}
+        - {eq: [{variantValue: {value: {self: true}, variant: service}}, {literal: '-1'}]}
+- kind: value
+  id: common.characteristics-filter-value
+  namespaces:
+    xsi: http://www.w3.org/2001/XMLSchema-instance
+    xr: http://v8.1c.ru/8.3/xcf/readable
+    xs: http://www.w3.org/2001/XMLSchema
+  imports:
+    reference: common.metadata-reference
+    boolean: common.boolean
+    text: common.string
+  value:
+    kind: choice
+    variants:
+    - {name: reference, type: {use: reference}}
+    - {name: boolean, type: {use: boolean}}
+    - {name: text, type: {use: text}}
+  representations:
+    xml:
+      kind: choice
+      attribute: xsi:type
+      variants:
+      - {variant: reference, in: [xr:DesignTimeRef], emit: xr:DesignTimeRef}
+      - {variant: boolean, in: [xs:boolean], emit: xs:boolean}
+      - {variant: text, in: [xs:string], emit: xs:string}
+      otherwise: text
+    yaml: {kind: choice}
+  presence:
+  - target: self
+    xml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: nil, denotes: {absent: true}}]
+      canonical: [{when: {not: {present: {self: true}}}, form: nil}]
+    yaml: {missing: {denotes: {absent: true}}}
+- kind: value
+  id: common.characteristics-description
+  namespaces:
+    xr: http://v8.1c.ru/8.3/xcf/readable
+    xsi: http://www.w3.org/2001/XMLSchema-instance
+  imports:
+    table: common.characteristics-table-link
+    field: common.characteristics-field-link
+    filter: common.characteristics-filter-value
+  value:
+    kind: record
+    fields:
+    - {name: characteristicTypes, type: {use: table}}
+    - {name: keyField, type: {use: field}}
+    - {name: typesFilterField, type: {use: field}}
+    - name: typesFilterValue
+      type: {use: filter}
+    - {name: dataPathField, type: {use: field}}
+    - {name: multipleValuesUseField, type: {use: field}}
+    - {name: characteristicValues, type: {use: table}}
+    - {name: objectField, type: {use: field}}
+    - {name: typeField, type: {use: field}}
+    - {name: valueField, type: {use: field}}
+    - {name: multipleValuesKeyField, type: {use: field}}
+    - {name: multipleValuesOrderField, type: {use: field}}
+  representations:
+    xml:
+      kind: record
+      fields:
+      - {field: characteristicTypes, path: [xr:CharacteristicTypes], attribute: from}
+      - {field: keyField, path: [xr:CharacteristicTypes, xr:KeyField]}
+      - {field: typesFilterField, path: [xr:CharacteristicTypes, xr:TypesFilterField]}
+      - {field: typesFilterValue, path: [xr:CharacteristicTypes, xr:TypesFilterValue]}
+      - {field: dataPathField, path: [xr:CharacteristicTypes, xr:DataPathField]}
+      - {field: multipleValuesUseField, path: [xr:CharacteristicTypes, xr:MultipleValuesUseField]}
+      - {field: characteristicValues, path: [xr:CharacteristicValues], attribute: from}
+      - {field: objectField, path: [xr:CharacteristicValues, xr:ObjectField]}
+      - {field: typeField, path: [xr:CharacteristicValues, xr:TypeField]}
+      - {field: valueField, path: [xr:CharacteristicValues, xr:ValueField]}
+      - {field: multipleValuesKeyField, path: [xr:CharacteristicValues, xr:MultipleValuesKeyField]}
+      - {field: multipleValuesOrderField, path: [xr:CharacteristicValues, xr:MultipleValuesOrderField]}
+    yaml:
+      kind: mapping
+      fields:
+      - {field: characteristicTypes, key: ВидыХарактеристик}
+      - {field: typesFilterValue, key: ЗначениеОтбораВидов}
+      - {field: characteristicValues, key: ЗначенияХарактеристик}
+      - {field: typeField, key: ПолеВида}
+      - {field: valueField, key: ПолеЗначения}
+      - {field: multipleValuesUseField, key: ПолеИспользованияМножественныхЗначений}
+      - {field: keyField, key: ПолеКлюча}
+      - {field: multipleValuesKeyField, key: ПолеКлючаМножественныхЗначений}
+      - {field: objectField, key: ПолеОбъекта}
+      - {field: typesFilterField, key: ПолеОтбораВидов}
+      - {field: multipleValuesOrderField, key: ПолеПорядкаМножественныхЗначений}
+      - {field: dataPathField, key: ПолеПутиКДанным}
+  presence:
+  - target: {field: characteristicTypes}
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}}
+  - target: {field: characteristicValues}
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}}
+  - target: {field: typesFilterValue}
+    xml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: nil, denotes: {absent: true}}]
+      canonical: [{when: {not: {present: {field: typesFilterValue}}}, form: nil}]
+    yaml: {missing: {denotes: {absent: true}}}
+- kind: value
+  id: common.characteristics-descriptions
+  namespaces: {xr: http://v8.1c.ru/8.3/xcf/readable}
+  imports: {item: common.characteristics-description}
+  value:
+    kind: sequence
+    item: {use: item}
+  representations:
+    xml: {kind: element-sequence, path: [xr:Characteristic], item: {kind: declared}}
+    yaml: {kind: sequence, item: {kind: declared}}
+  presence:
+  - target: self
+    xml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: empty-element, denotes: {absent: true}}]
+    yaml:
+      missing: {denotes: {absent: true}}

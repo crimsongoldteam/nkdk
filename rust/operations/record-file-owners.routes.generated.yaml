@@ -1,0 +1,1132 @@
+format: nkdk-operation-routes/1
+routes:
+  - xmlDir: XDTOPackages
+    yamlDir: ПакетXDTO
+    yamlFile: Свойства.yaml
+    owners:
+      cf: metadata.xdto-package
+      cfe: metadata.xdto-package
+    ownerFacts: false
+    inputs:
+      state_adopted:
+        byComponent:
+          cf:
+            literal: false
+          cfe:
+            select:
+              'on':
+                snapshot:
+                  entry: metadata.xdto-package.base-identity
+                  field: objectBelonging
+              cases:
+                Собственный:
+                  literal: false
+                Заимствованный:
+                  literal: true
+      state_owner:
+        snapshot:
+          entry: metadata.xdto-package.own-identity
+          field: uuid
+      state_compatibilityMode: compatibilityMode
+      state_component: component
+      ordinary0_ownerName:
+        snapshot:
+          entry: metadata.xdto-package.own-identity
+          field: name
+      ordinary0_defaultLanguage: defaultLanguage
+      ordinary0_registeredLanguages: registeredLanguages
+      ordinary1_owner: parent
+      ordinary1_kind:
+        literal: XDTOPackage
+      ordinary1_name:
+        snapshot:
+          entry: metadata.xdto-package.own-identity
+          field: name
+      resource_baseComponent:
+        literal: cf
+    sources:
+      - entry: metadata.xdto-package.own-identity
+        inputs:
+          component: component
+          owner: parent
+          ownerName: name
+      - entry: metadata.xdto-package.states
+        inputs:
+          owner:
+            snapshot:
+              entry: metadata.xdto-package.own-identity
+              field: uuid
+        newOwner:
+          template: {}
+      - entry: metadata.xdto-package.base-identity
+        inputs:
+          component: component
+          owner:
+            snapshot:
+              entry: metadata.xdto-package.own-identity
+              field: uuid
+        newOwner:
+          template: {}
+      - entry: migration.resource-fingerprint-source
+        inputs:
+          component: component
+          owner:
+            snapshot:
+              entry: metadata.xdto-package.own-identity
+              field: uuid
+        factDirections:
+          - xml-to-yaml
+          - yaml-to-xml
+        newOwner:
+          template:
+            files: []
+        resourcePresence:
+          field: files
+          paths:
+            - name: package
+              xml:
+                - Ext
+                - Package.bin
+              yaml:
+                - Package.bin
+          fingerprint:
+            maxBytes: 16777216
+  - xmlDir: WebSocketClients
+    yamlDir: WebSocketКлиент
+    yamlFile: Свойства.yaml
+    owners:
+      cf: metadata.websocket-client
+      cfe: metadata.websocket-client
+    ownerFacts: false
+    inputs:
+      state_adopted:
+        byComponent:
+          cf:
+            literal: false
+          cfe:
+            select:
+              'on':
+                snapshot:
+                  entry: metadata.websocket-client.base-identity
+                  field: objectBelonging
+              cases:
+                Собственный:
+                  literal: false
+                Заимствованный:
+                  literal: true
+      state_owner:
+        snapshot:
+          entry: metadata.websocket-client.own-identity
+          field: uuid
+      state_compatibilityMode: compatibilityMode
+      state_component: component
+      ordinary0_ownerName:
+        snapshot:
+          entry: metadata.websocket-client.own-identity
+          field: name
+      ordinary0_defaultLanguage: defaultLanguage
+      ordinary0_registeredLanguages: registeredLanguages
+      ordinary1_owner: parent
+      ordinary1_kind:
+        literal: WebSocketClient
+      ordinary1_name:
+        snapshot:
+          entry: metadata.websocket-client.own-identity
+          field: name
+      resource_baseComponent:
+        literal: cf
+    sources:
+      - entry: metadata.websocket-client.own-identity
+        inputs:
+          component: component
+          owner: parent
+          ownerName: name
+      - entry: metadata.websocket-client.states
+        inputs:
+          owner:
+            snapshot:
+              entry: metadata.websocket-client.own-identity
+              field: uuid
+        newOwner:
+          template: {}
+      - entry: metadata.websocket-client.base-identity
+        inputs:
+          component: component
+          owner:
+            snapshot:
+              entry: metadata.websocket-client.own-identity
+              field: uuid
+        newOwner:
+          template: {}
+      - entry: migration.resource-fingerprint-source
+        inputs:
+          component: component
+          owner:
+            snapshot:
+              entry: metadata.websocket-client.own-identity
+              field: uuid
+        factDirections:
+          - xml-to-yaml
+          - yaml-to-xml
+        newOwner:
+          template:
+            files: []
+        resourcePresence:
+          field: files
+          paths:
+            - name: module
+              xml:
+                - Ext
+                - Module.bsl
+              yaml:
+                - Модуль.bsl
+          fingerprint:
+            maxBytes: 16777216
+  - xmlDir: Languages
+    yamlDir: Язык
+    owners:
+      cf: metadata.language
+      cfe: metadata.language
+    ownerFacts: false
+    inputs:
+      state_adopted:
+        byComponent:
+          cf:
+            literal: false
+          cfe:
+            select:
+              'on':
+                snapshot:
+                  entry: metadata.language.base-identity
+                  field: objectBelonging
+              cases:
+                Собственный:
+                  literal: false
+                Заимствованный:
+                  literal: true
+      state_owner:
+        snapshot:
+          entry: metadata.language.own-identity
+          field: uuid
+      state_compatibilityMode: compatibilityMode
+      state_component: component
+      ordinary0_ownerName:
+        snapshot:
+          entry: metadata.language.own-identity
+          field: name
+      ordinary0_defaultLanguage: defaultLanguage
+      ordinary0_registeredLanguages: registeredLanguages
+      ordinary1_owner: parent
+      ordinary1_kind:
+        literal: Language
+      ordinary1_name:
+        snapshot:
+          entry: metadata.language.own-identity
+          field: name
+    sources:
+      - entry: metadata.language.own-identity
+        inputs:
+          component: component
+          owner: parent
+          ownerName: name
+      - entry: metadata.language.states
+        inputs:
+          owner:
+            snapshot:
+              entry: metadata.language.own-identity
+              field: uuid
+        newOwner:
+          template: {}
+      - entry: metadata.language.base-identity
+        inputs:
+          component: component
+          owner:
+            snapshot:
+              entry: metadata.language.own-identity
+              field: uuid
+        newOwner:
+          template: {}
+  - xmlDir: EventSubscriptions
+    yamlDir: ПодпискаНаСобытие
+    owners:
+      cf: metadata.event-subscription
+      cfe: metadata.event-subscription
+    ownerFacts: false
+    inputs:
+      state_adopted:
+        byComponent:
+          cf:
+            literal: false
+          cfe:
+            select:
+              'on':
+                snapshot:
+                  entry: metadata.event-subscription.base-identity
+                  field: objectBelonging
+              cases:
+                Собственный:
+                  literal: false
+                Заимствованный:
+                  literal: true
+      state_owner:
+        snapshot:
+          entry: metadata.event-subscription.own-identity
+          field: uuid
+      state_compatibilityMode: compatibilityMode
+      state_component: component
+      ordinary0_ownerName:
+        snapshot:
+          entry: metadata.event-subscription.own-identity
+          field: name
+      ordinary0_defaultLanguage: defaultLanguage
+      ordinary0_registeredLanguages: registeredLanguages
+      ordinary1_owner: parent
+      ordinary1_kind:
+        literal: EventSubscription
+      ordinary1_name:
+        snapshot:
+          entry: metadata.event-subscription.own-identity
+          field: name
+    sources:
+      - entry: metadata.event-subscription.own-identity
+        inputs:
+          component: component
+          owner: parent
+          ownerName: name
+      - entry: metadata.event-subscription.states
+        inputs:
+          owner:
+            snapshot:
+              entry: metadata.event-subscription.own-identity
+              field: uuid
+        newOwner:
+          template: {}
+      - entry: metadata.event-subscription.base-identity
+        inputs:
+          component: component
+          owner:
+            snapshot:
+              entry: metadata.event-subscription.own-identity
+              field: uuid
+        newOwner:
+          template: {}
+  - xmlDir: SessionParameters
+    yamlDir: ПараметрСеанса
+    owners:
+      cf: metadata.session-parameter
+      cfe: metadata.session-parameter
+    ownerFacts: false
+    inputs:
+      state_adopted:
+        byComponent:
+          cf:
+            literal: false
+          cfe:
+            select:
+              'on':
+                snapshot:
+                  entry: metadata.session-parameter.base-identity
+                  field: objectBelonging
+              cases:
+                Собственный:
+                  literal: false
+                Заимствованный:
+                  literal: true
+      state_owner:
+        snapshot:
+          entry: metadata.session-parameter.own-identity
+          field: uuid
+      state_compatibilityMode: compatibilityMode
+      state_component: component
+      ordinary0_ownerName:
+        snapshot:
+          entry: metadata.session-parameter.own-identity
+          field: name
+      ordinary0_defaultLanguage: defaultLanguage
+      ordinary0_registeredLanguages: registeredLanguages
+      ordinary1_owner: parent
+      ordinary1_kind:
+        literal: SessionParameter
+      ordinary1_name:
+        snapshot:
+          entry: metadata.session-parameter.own-identity
+          field: name
+    sources:
+      - entry: metadata.session-parameter.own-identity
+        inputs:
+          component: component
+          owner: parent
+          ownerName: name
+      - entry: metadata.session-parameter.states
+        inputs:
+          owner:
+            snapshot:
+              entry: metadata.session-parameter.own-identity
+              field: uuid
+        newOwner:
+          template: {}
+      - entry: metadata.session-parameter.base-identity
+        inputs:
+          component: component
+          owner:
+            snapshot:
+              entry: metadata.session-parameter.own-identity
+              field: uuid
+        newOwner:
+          template: {}
+  - xmlDir: FunctionalOptionsParameters
+    yamlDir: ПараметрФункциональныхОпций
+    owners:
+      cf: metadata.functional-options-parameter
+      cfe: metadata.functional-options-parameter
+    ownerFacts: false
+    inputs:
+      state_adopted:
+        byComponent:
+          cf:
+            literal: false
+          cfe:
+            select:
+              'on':
+                snapshot:
+                  entry: metadata.functional-options-parameter.base-identity
+                  field: objectBelonging
+              cases:
+                Собственный:
+                  literal: false
+                Заимствованный:
+                  literal: true
+      state_owner:
+        snapshot:
+          entry: metadata.functional-options-parameter.own-identity
+          field: uuid
+      state_compatibilityMode: compatibilityMode
+      state_component: component
+      ordinary0_ownerName:
+        snapshot:
+          entry: metadata.functional-options-parameter.own-identity
+          field: name
+      ordinary0_defaultLanguage: defaultLanguage
+      ordinary0_registeredLanguages: registeredLanguages
+      ordinary1_owner: parent
+      ordinary1_kind:
+        literal: FunctionalOptionsParameter
+      ordinary1_name:
+        snapshot:
+          entry: metadata.functional-options-parameter.own-identity
+          field: name
+    sources:
+      - entry: metadata.functional-options-parameter.own-identity
+        inputs:
+          component: component
+          owner: parent
+          ownerName: name
+      - entry: metadata.functional-options-parameter.states
+        inputs:
+          owner:
+            snapshot:
+              entry: metadata.functional-options-parameter.own-identity
+              field: uuid
+        newOwner:
+          template: {}
+      - entry: metadata.functional-options-parameter.base-identity
+        inputs:
+          component: component
+          owner:
+            snapshot:
+              entry: metadata.functional-options-parameter.own-identity
+              field: uuid
+        newOwner:
+          template: {}
+  - xmlDir: Styles
+    yamlDir: Стиль
+    yamlFile: Свойства.yaml
+    owners:
+      cf: metadata.style
+      cfe: metadata.style
+    ownerFacts: false
+    inputs:
+      state_adopted:
+        byComponent:
+          cf:
+            literal: false
+          cfe:
+            select:
+              'on':
+                snapshot:
+                  entry: metadata.style.base-identity
+                  field: objectBelonging
+              cases:
+                Собственный:
+                  literal: false
+                Заимствованный:
+                  literal: true
+      state_owner:
+        snapshot:
+          entry: metadata.style.own-identity
+          field: uuid
+      state_compatibilityMode: compatibilityMode
+      state_component: component
+      ordinary0_ownerName:
+        snapshot:
+          entry: metadata.style.own-identity
+          field: name
+      ordinary0_defaultLanguage: defaultLanguage
+      ordinary0_registeredLanguages: registeredLanguages
+      ordinary1_owner: parent
+      ordinary1_kind:
+        literal: Style
+      ordinary1_name:
+        snapshot:
+          entry: metadata.style.own-identity
+          field: name
+      resource_baseComponent:
+        literal: cf
+    sources:
+      - entry: metadata.style.own-identity
+        inputs:
+          component: component
+          owner: parent
+          ownerName: name
+      - entry: metadata.style.states
+        inputs:
+          owner:
+            snapshot:
+              entry: metadata.style.own-identity
+              field: uuid
+        newOwner:
+          template: {}
+      - entry: metadata.style.base-identity
+        inputs:
+          component: component
+          owner:
+            snapshot:
+              entry: metadata.style.own-identity
+              field: uuid
+        newOwner:
+          template: {}
+      - entry: migration.resource-fingerprint-source
+        inputs:
+          component: component
+          owner:
+            snapshot:
+              entry: metadata.style.own-identity
+              field: uuid
+        factDirections:
+          - xml-to-yaml
+          - yaml-to-xml
+        newOwner:
+          template:
+            files: []
+        resourcePresence:
+          field: files
+          paths:
+            - name: style
+              xml:
+                - Ext
+                - Style.xml
+              yaml:
+                - Style.xml
+          fingerprint:
+            maxBytes: 16777216
+  - xmlDir: StyleItems
+    yamlDir: ЭлементСтиля
+    owners:
+      cf: metadata.style-item
+      cfe: metadata.style-item
+    ownerFacts: false
+    inputs:
+      state_adopted:
+        byComponent:
+          cf:
+            literal: false
+          cfe:
+            select:
+              'on':
+                snapshot:
+                  entry: metadata.style-item.base-identity
+                  field: objectBelonging
+              cases:
+                Собственный:
+                  literal: false
+                Заимствованный:
+                  literal: true
+      state_owner:
+        snapshot:
+          entry: metadata.style-item.own-identity
+          field: uuid
+      state_compatibilityMode: compatibilityMode
+      state_component: component
+      ordinary0_ownerName:
+        snapshot:
+          entry: metadata.style-item.own-identity
+          field: name
+      ordinary0_defaultLanguage: defaultLanguage
+      ordinary0_registeredLanguages: registeredLanguages
+      ordinary1_owner: parent
+      ordinary1_kind:
+        literal: StyleItem
+      ordinary1_name:
+        snapshot:
+          entry: metadata.style-item.own-identity
+          field: name
+    sources:
+      - entry: metadata.style-item.own-identity
+        inputs:
+          component: component
+          owner: parent
+          ownerName: name
+      - entry: metadata.style-item.states
+        inputs:
+          owner:
+            snapshot:
+              entry: metadata.style-item.own-identity
+              field: uuid
+        newOwner:
+          template: {}
+      - entry: metadata.style-item.base-identity
+        inputs:
+          component: component
+          owner:
+            snapshot:
+              entry: metadata.style-item.own-identity
+              field: uuid
+        newOwner:
+          template: {}
+      - entry: metadata.style-item-type-facts
+        inputs:
+          ownerName: name
+  - xmlDir: CommandGroups
+    yamlDir: ГруппаКоманд
+    owners:
+      cf: metadata.command-group
+      cfe: metadata.command-group
+    ownerFacts: false
+    inputs:
+      state_adopted:
+        byComponent:
+          cf:
+            literal: false
+          cfe:
+            select:
+              'on':
+                snapshot:
+                  entry: metadata.command-group.base-identity
+                  field: objectBelonging
+              cases:
+                Собственный:
+                  literal: false
+                Заимствованный:
+                  literal: true
+      state_owner:
+        snapshot:
+          entry: metadata.command-group.own-identity
+          field: uuid
+      state_compatibilityMode: compatibilityMode
+      state_component: component
+      ordinary0_ownerName:
+        snapshot:
+          entry: metadata.command-group.own-identity
+          field: name
+      ordinary0_defaultLanguage: defaultLanguage
+      ordinary0_registeredLanguages: registeredLanguages
+      ordinary1_owner: parent
+      ordinary1_kind:
+        literal: CommandGroup
+      ordinary1_name:
+        snapshot:
+          entry: metadata.command-group.own-identity
+          field: name
+    sources:
+      - entry: metadata.command-group.own-identity
+        inputs:
+          component: component
+          owner: parent
+          ownerName: name
+      - entry: metadata.command-group.states
+        inputs:
+          owner:
+            snapshot:
+              entry: metadata.command-group.own-identity
+              field: uuid
+        newOwner:
+          template: {}
+      - entry: metadata.command-group.base-identity
+        inputs:
+          component: component
+          owner:
+            snapshot:
+              entry: metadata.command-group.own-identity
+              field: uuid
+        newOwner:
+          template: {}
+  - xmlDir: CommonModules
+    yamlDir: ОбщийМодуль
+    yamlFile: Свойства.yaml
+    owners:
+      cf: metadata.common-module
+      cfe: metadata.common-module
+    ownerFacts: false
+    inputs:
+      state_adopted:
+        byComponent:
+          cf:
+            literal: false
+          cfe:
+            select:
+              'on':
+                snapshot:
+                  entry: metadata.common-module.base-identity
+                  field: objectBelonging
+              cases:
+                Собственный:
+                  literal: false
+                Заимствованный:
+                  literal: true
+      state_owner:
+        snapshot:
+          entry: metadata.common-module.own-identity
+          field: uuid
+      state_compatibilityMode: compatibilityMode
+      state_component: component
+      ordinary0_ownerName:
+        snapshot:
+          entry: metadata.common-module.own-identity
+          field: name
+      ordinary0_defaultLanguage: defaultLanguage
+      ordinary0_registeredLanguages: registeredLanguages
+      ordinary1_owner: parent
+      ordinary1_kind:
+        literal: CommonModule
+      ordinary1_name:
+        snapshot:
+          entry: metadata.common-module.own-identity
+          field: name
+      resource_baseComponent:
+        literal: cf
+    sources:
+      - entry: metadata.common-module.own-identity
+        inputs:
+          component: component
+          owner: parent
+          ownerName: name
+      - entry: metadata.common-module.states
+        inputs:
+          owner:
+            snapshot:
+              entry: metadata.common-module.own-identity
+              field: uuid
+        newOwner:
+          template: {}
+      - entry: metadata.common-module.base-identity
+        inputs:
+          component: component
+          owner:
+            snapshot:
+              entry: metadata.common-module.own-identity
+              field: uuid
+        newOwner:
+          template: {}
+      - entry: migration.resource-fingerprint-source
+        inputs:
+          component: component
+          owner:
+            snapshot:
+              entry: metadata.common-module.own-identity
+              field: uuid
+        factDirections:
+          - xml-to-yaml
+          - yaml-to-xml
+        newOwner:
+          template:
+            files: []
+        resourcePresence:
+          field: files
+          paths:
+            - name: module
+              xml:
+                - Ext
+                - Module.bsl
+              yaml:
+                - Модуль.bsl
+          fingerprint:
+            maxBytes: 16777216
+  - xmlDir: Bots
+    yamlDir: Бот
+    yamlFile: Свойства.yaml
+    owners:
+      cf: metadata.bot
+      cfe: metadata.bot
+    ownerFacts: false
+    inputs:
+      state_adopted:
+        byComponent:
+          cf:
+            literal: false
+          cfe:
+            select:
+              'on':
+                snapshot:
+                  entry: metadata.bot.base-identity
+                  field: objectBelonging
+              cases:
+                Собственный:
+                  literal: false
+                Заимствованный:
+                  literal: true
+      state_owner:
+        snapshot:
+          entry: metadata.bot.own-identity
+          field: uuid
+      state_compatibilityMode: compatibilityMode
+      state_component: component
+      ordinary0_ownerName:
+        snapshot:
+          entry: metadata.bot.own-identity
+          field: name
+      ordinary0_defaultLanguage: defaultLanguage
+      ordinary0_registeredLanguages: registeredLanguages
+      ordinary1_owner: parent
+      ordinary1_kind:
+        literal: Bot
+      ordinary1_name:
+        snapshot:
+          entry: metadata.bot.own-identity
+          field: name
+      resource_baseComponent:
+        literal: cf
+    sources:
+      - entry: metadata.bot.own-identity
+        inputs:
+          component: component
+          owner: parent
+          ownerName: name
+      - entry: metadata.bot.states
+        inputs:
+          owner:
+            snapshot:
+              entry: metadata.bot.own-identity
+              field: uuid
+        newOwner:
+          template: {}
+      - entry: metadata.bot.base-identity
+        inputs:
+          component: component
+          owner:
+            snapshot:
+              entry: metadata.bot.own-identity
+              field: uuid
+        newOwner:
+          template: {}
+      - entry: migration.resource-fingerprint-source
+        inputs:
+          component: component
+          owner:
+            snapshot:
+              entry: metadata.bot.own-identity
+              field: uuid
+        factDirections:
+          - xml-to-yaml
+          - yaml-to-xml
+        newOwner:
+          template:
+            files: []
+        resourcePresence:
+          field: files
+          paths:
+            - name: module
+              xml:
+                - Ext
+                - Module.bsl
+              yaml:
+                - Модуль.bsl
+          fingerprint:
+            maxBytes: 16777216
+  - xmlDir: Roles
+    yamlDir: Роль
+    yamlFile: Свойства.yaml
+    owners:
+      cf: metadata.role
+      cfe: metadata.role
+    ownerFacts: false
+    inputs:
+      state_adopted:
+        byComponent:
+          cf:
+            literal: false
+          cfe:
+            select:
+              'on':
+                snapshot:
+                  entry: metadata.role.base-identity
+                  field: objectBelonging
+              cases:
+                Собственный:
+                  literal: false
+                Заимствованный:
+                  literal: true
+      state_owner:
+        snapshot:
+          entry: metadata.role.own-identity
+          field: uuid
+      state_compatibilityMode: compatibilityMode
+      state_component: component
+      ordinary0_ownerName:
+        snapshot:
+          entry: metadata.role.own-identity
+          field: name
+      ordinary0_defaultLanguage: defaultLanguage
+      ordinary0_registeredLanguages: registeredLanguages
+      ordinary1_owner: parent
+      ordinary1_kind:
+        literal: Role
+      ordinary1_name:
+        snapshot:
+          entry: metadata.role.own-identity
+          field: name
+      resource_baseComponent:
+        literal: cf
+    sources:
+      - entry: metadata.role.own-identity
+        inputs:
+          component: component
+          owner: parent
+          ownerName: name
+      - entry: metadata.role.states
+        inputs:
+          owner:
+            snapshot:
+              entry: metadata.role.own-identity
+              field: uuid
+        newOwner:
+          template: {}
+      - entry: metadata.role.base-identity
+        inputs:
+          component: component
+          owner:
+            snapshot:
+              entry: metadata.role.own-identity
+              field: uuid
+        newOwner:
+          template: {}
+      - entry: migration.resource-fingerprint-source
+        inputs:
+          component: component
+          owner:
+            snapshot:
+              entry: metadata.role.own-identity
+              field: uuid
+        factDirections:
+          - xml-to-yaml
+          - yaml-to-xml
+        newOwner:
+          template:
+            files: []
+        resourcePresence:
+          field: files
+          paths:
+            - name: rights
+              xml:
+                - Ext
+                - Rights.xml
+              yaml:
+                - Rights.xml
+          fingerprint:
+            maxBytes: 16777216
+  - xmlDir: CommonTemplates
+    yamlDir: ОбщийМакет
+    yamlFile: Свойства.yaml
+    owners:
+      cf: metadata.common-template
+      cfe: metadata.common-template
+    ownerFacts: false
+    inputs:
+      state_adopted:
+        byComponent:
+          cf:
+            literal: false
+          cfe:
+            select:
+              'on':
+                snapshot:
+                  entry: metadata.common-template.base-identity
+                  field: objectBelonging
+              cases:
+                Собственный:
+                  literal: false
+                Заимствованный:
+                  literal: true
+      state_owner:
+        snapshot:
+          entry: metadata.common-template.own-identity
+          field: uuid
+      state_compatibilityMode: compatibilityMode
+      state_component: component
+      ordinary0_ownerName:
+        snapshot:
+          entry: metadata.common-template.own-identity
+          field: name
+      ordinary0_defaultLanguage: defaultLanguage
+      ordinary0_registeredLanguages: registeredLanguages
+      ordinary1_owner: parent
+      ordinary1_kind:
+        literal: CommonTemplate
+      ordinary1_name:
+        snapshot:
+          entry: metadata.common-template.own-identity
+          field: name
+      resource_baseComponent:
+        literal: cf
+    sources:
+      - entry: metadata.common-template.own-identity
+        inputs:
+          component: component
+          owner: parent
+          ownerName: name
+      - entry: metadata.common-template.states
+        inputs:
+          owner:
+            snapshot:
+              entry: metadata.common-template.own-identity
+              field: uuid
+        newOwner:
+          template: {}
+      - entry: metadata.common-template.base-identity
+        inputs:
+          component: component
+          owner:
+            snapshot:
+              entry: metadata.common-template.own-identity
+              field: uuid
+        newOwner:
+          template: {}
+      - entry: migration.resource-fingerprint-source
+        inputs:
+          component: component
+          owner:
+            snapshot:
+              entry: metadata.common-template.own-identity
+              field: uuid
+        factDirections:
+          - xml-to-yaml
+          - yaml-to-xml
+        newOwner:
+          template:
+            files: []
+        resourcePresence:
+          field: files
+          paths:
+            - name: template
+              xml:
+                - Ext
+                - Template.xml
+              yaml:
+                - Template.xml
+          fingerprint:
+            maxBytes: 16777216
+factRoutes:
+  - xmlDir: XDTOPackages
+    yamlDir: ПакетXDTO
+    yamlFile: Свойства.yaml
+    entry: migration.resource-fingerprint-source
+    fromBase: true
+    only:
+      - cf
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      component: component
+      owner:
+        snapshot:
+          entry: metadata.xdto-package.own-identity
+          field: uuid
+  - xmlDir: WebSocketClients
+    yamlDir: WebSocketКлиент
+    yamlFile: Свойства.yaml
+    entry: migration.resource-fingerprint-source
+    fromBase: true
+    only:
+      - cf
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      component: component
+      owner:
+        snapshot:
+          entry: metadata.websocket-client.own-identity
+          field: uuid
+  - xmlDir: Styles
+    yamlDir: Стиль
+    yamlFile: Свойства.yaml
+    entry: migration.resource-fingerprint-source
+    fromBase: true
+    only:
+      - cf
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      component: component
+      owner:
+        snapshot:
+          entry: metadata.style.own-identity
+          field: uuid
+  - xmlDir: CommonModules
+    yamlDir: ОбщийМодуль
+    yamlFile: Свойства.yaml
+    entry: migration.resource-fingerprint-source
+    fromBase: true
+    only:
+      - cf
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      component: component
+      owner:
+        snapshot:
+          entry: metadata.common-module.own-identity
+          field: uuid
+  - xmlDir: Bots
+    yamlDir: Бот
+    yamlFile: Свойства.yaml
+    entry: migration.resource-fingerprint-source
+    fromBase: true
+    only:
+      - cf
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      component: component
+      owner:
+        snapshot:
+          entry: metadata.bot.own-identity
+          field: uuid
+  - xmlDir: Roles
+    yamlDir: Роль
+    yamlFile: Свойства.yaml
+    entry: migration.resource-fingerprint-source
+    fromBase: true
+    only:
+      - cf
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      component: component
+      owner:
+        snapshot:
+          entry: metadata.role.own-identity
+          field: uuid
+  - xmlDir: CommonTemplates
+    yamlDir: ОбщийМакет
+    yamlFile: Свойства.yaml
+    entry: migration.resource-fingerprint-source
+    fromBase: true
+    only:
+      - cf
+    factDirections:
+      - yaml-to-xml
+    inputs:
+      component: component
+      owner:
+        snapshot:
+          entry: metadata.common-template.own-identity
+          field: uuid

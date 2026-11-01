@@ -1,0 +1,41 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: probe.tagged-choice-plain
+  value: {kind: scalar, scalar: text}
+  representations: {xml: {kind: text}, yaml: {kind: scalar, scalar: text}}
+- kind: value
+  id: probe.tagged-choice-special
+  value: {kind: scalar, scalar: text}
+  representations: {xml: {kind: text}, yaml: {kind: scalar, scalar: text}}
+- kind: value
+  id: probe.tagged-scalar-choice
+  namespaces:
+    xsi: http://www.w3.org/2001/XMLSchema-instance
+    xs: http://www.w3.org/2001/XMLSchema
+    v8: http://v8.1c.ru/8.1/data/core
+  imports: {plain: probe.tagged-choice-plain, special: probe.tagged-choice-special}
+  value:
+    kind: choice
+    variants:
+    - {name: plain, type: {use: plain}}
+    - {name: special, type: {use: special}}
+  representations:
+    xml:
+      kind: choice
+      attribute: xsi:type
+      variants:
+      - {variant: plain, in: [v8:LocalStringType], emit: v8:LocalStringType}
+      - {variant: special, in: [xs:string], emit: xs:string}
+      otherwise: plain
+    yaml:
+      kind: choice
+      variants: [{variant: special, form: scalar, tag: xml/string}]
+- kind: object
+  id: migration.tagged-scalar-choice
+  imports: {value: probe.tagged-scalar-choice}
+  value: {kind: record, fields: [{name: value, type: {use: value}}]}
+  representations:
+    xml: {kind: record, fields: [{field: value, path: [Root, Value]}]}
+    yaml: {kind: mapping, fields: [{field: value, key: Значение}]}

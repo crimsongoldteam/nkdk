@@ -1,0 +1,193 @@
+# Адрес реквизита определяется подготовленным индексом живых имён.
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+  - kind: value
+    id: source.public-form-additional-group-mode-rows
+    namespaces:
+      f: http://v8.1c.ru/8.3/xcf/logform
+    imports:
+      row: source.form-additional-group-mode-row
+    value:
+      kind: sequence
+      item:
+        use: row
+    representations:
+      xml:
+        kind: element-sequence
+        path:
+          - f:AdditionalColumns
+        item:
+          kind: declared
+      yaml:
+        kind: record-mapping
+        key: table
+  - kind: fragment
+    id: source.public-form-additional-group-modes-data
+    imports:
+      groups: source.public-form-additional-group-mode-rows
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+      parent:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: groups
+          type: {use: groups}
+    representations:
+      xml:
+        kind: record
+        fields:
+          - {field: groups, path: [f:Columns]}
+      yaml:
+        kind: mapping
+        fields:
+          - {field: groups, key: ДополнительныеКолонки}
+    presence:
+      - target:
+          field: groups
+        xml:
+          missing: {denotes: {absent: true}}
+        yaml:
+          missing: {denotes: {absent: true}}
+    contributions:
+      - index: metadata.form-additional-group-address-modes
+        duplicates: coalesce-equal
+        forEach:
+          in: {field: groups}
+          as: row
+        key:
+          record: {component: {input: component}, owner: {input: owner}, origin: {literal: current}, parent: {input: parent}, name: {get: {of: {var: row}, field: table}}}
+        value:
+          if: {and: [{not: {eq: [{get: {of: {var: row}, field: table}}, {literal: ''}]}}, {one: {in: {field: groups}, as: candidate, where: {eq: [{get: {of: {var: candidate}, field: table}}, {get: {of: {var: row}, field: table}}]}}}]}
+          then: {literal: named}
+          else: {literal: positional}
+    namespaces:
+      f: http://v8.1c.ru/8.3/xcf/logform
+  - format: nkdk-declarations/1
+    kind: value
+    id: source.public-form-attribute-group-modes
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+      attributeModes:
+        type:
+          kind: index
+          key: {kind: record, fields: [{name: component, type: {kind: scalar, scalar: text}}, {name: name, type: {kind: scalar, scalar: text}}, {name: origin, type: {kind: scalar, scalar: text}}, {name: owner, type: {kind: scalar, scalar: text}}]}
+          value: {kind: scalar, scalar: text}
+    imports:
+      groups: source.public-form-additional-group-modes-data
+    namespaces:
+      f: http://v8.1c.ru/8.3/xcf/logform
+    value:
+      kind: record
+      fields:
+        - name: name
+          type: {kind: scalar, scalar: text}
+    representations:
+      xml:
+        kind: record
+        fields:
+          - {field: name, path: [], attribute: name}
+      yaml:
+        kind: mapping
+        fields:
+          - {field: name, key: Имя}
+    compose:
+      - use: groups
+        bind:
+          component: {input: component}
+          owner: {input: owner}
+          parent: {if: {eq: [{require: {lookup: {in: {input: attributeModes}, key: {record: {component: {input: component}, name: {field: name}, origin: {literal: current}, owner: {input: owner}}}}}}, {literal: positional}]}, then: {logicalAddress: {parts: [{literal: Атрибут}, {collectionPosition: true}]}}, else: {logicalAddress: {parts: [{literal: Атрибут}, {field: name}]}}}
+  - format: nkdk-declarations/1
+    kind: value
+    id: source.public-form-attribute-group-mode-rows
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+      attributeModes:
+        type:
+          kind: index
+          key: {kind: record, fields: [{name: component, type: {kind: scalar, scalar: text}}, {name: name, type: {kind: scalar, scalar: text}}, {name: origin, type: {kind: scalar, scalar: text}}, {name: owner, type: {kind: scalar, scalar: text}}]}
+          value: {kind: scalar, scalar: text}
+    imports:
+      row: source.public-form-attribute-group-modes
+    namespaces:
+      f: http://v8.1c.ru/8.3/xcf/logform
+    value:
+      kind: sequence
+      item:
+        use: row
+        bind:
+          component: {input: component}
+          owner: {input: owner}
+          attributeModes: {input: attributeModes}
+    representations:
+      xml:
+        kind: element-sequence
+        path:
+          - f:Attribute
+      yaml:
+        kind: record-mapping
+        key: name
+  - format: nkdk-declarations/1
+    kind: object
+    id: metadata.public-form-additional-group-modes
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+      attributeModes:
+        index: metadata.form-attribute-address-modes
+    imports:
+      rows: source.public-form-attribute-group-mode-rows
+    namespaces:
+      f: http://v8.1c.ru/8.3/xcf/logform
+    value:
+      kind: record
+      fields:
+        - name: rows
+          type: {use: rows, bind: {component: {input: component}, owner: {input: owner}, attributeModes: {input: attributeModes}}}
+    representations:
+      xml:
+        kind: record
+        fields:
+          - {field: rows, path: [f:Form, f:Attributes]}
+      yaml:
+        kind: mapping
+        fields:
+          - {field: rows, key: Реквизиты}
+    presence:
+      - target:
+          field: rows
+        xml:
+          missing: {denotes: {absent: true}}
+        yaml:
+          missing: {denotes: {absent: true}}

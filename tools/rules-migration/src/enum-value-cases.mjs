@@ -41,8 +41,8 @@ export function enumValueCases(catalog) {
   cases.push({...borrowed,id:'enum-values-notify',xml:withRows(notify),yaml:notifyYAML});
   for(const mode of ['Version8_3_14','Version8_3_15','Версия8_3_15','DontUse']) {
     cases.push({...borrowed,id:'enum-values-notify-'+mode,inputs:{...borrowed.inputs,compatibilityMode:mode},
-      xml:withRows(notify),yaml:mode==='Version8_3_14'?undefined:notifyYAML,
-      ...(mode==='Version8_3_14'?{annotation:'    ОбъектРасширяемойКонфигурации: !xml/invalid',noRaw:true,retainedYAML:['    Синоним: ""','    ПринадлежностьОбъекта: Заимствованный'],rejectedYAML:[notifyYAML],rejectedCode:'metadata.notify-compatibility'}:mode==='Version8_3_15'?{rejectedYAML:[notifyYAML.replace('ОбъектРасширяемойКонфигурации: !проверять','ОбъектРасширяемойКонфигурации: !xml/invalid\n      $значение: !проверять')],rejectedCode:'xml/anomaly-tag-unnecessary'}:{})});
+      xml:withRows(notify),yaml:mode==='Version8_3_14'?notifyYAML.replace('ОбъектРасширяемойКонфигурации: !проверять','ОбъектРасширяемойКонфигурации: !xml/invalid\n      $значение: !проверять'):notifyYAML,
+      ...(mode==='Version8_3_14'?{annotation:'    ОбъектРасширяемойКонфигурации: !xml/invalid',retainedYAML:['    Синоним: ""','    ПринадлежностьОбъекта: Заимствованный'],rejectedYAML:[notifyYAML],rejectedCode:'metadata.notify-compatibility'}:mode==='Version8_3_15'?{rejectedYAML:[notifyYAML.replace('ОбъектРасширяемойКонфигурации: !проверять','ОбъектРасширяемойКонфигурации: !xml/invalid\n      $значение: !проверять')],rejectedCode:'xml/anomaly-tag-unnecessary'}:{})});
   }
   for(const mode of ['Version8_3_7','Version8_3_8']) {
     cases.push({...borrowed,id:'enum-values-borrowing-'+mode,inputs:{...borrowed.inputs,compatibilityMode:mode},

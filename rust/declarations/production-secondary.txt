@@ -1,0 +1,2 @@
+# Ownership of generated conversion bodies; all packages load the same universe.
+objects/complete-scalar-owners.generated.yaml

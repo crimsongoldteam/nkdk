@@ -1,0 +1,229 @@
+# Generated from rules.ts by tools/rules-migration/src/journal-owner-operation.mjs
+format: nkdk-operation-routes/1
+routes:
+  - xmlDir: DocumentJournals
+    yamlDir: ЖурналДокументов
+    yamlFile: Свойства.yaml
+    ownerFacts: false
+    owners:
+      cf: metadata.journal
+      cfe: metadata.journal
+    inputs:
+      owner:
+        snapshot:
+          entry: migration.journal-own-identity
+          field: uuid
+      name: name
+      ownerPath:
+        concat:
+          - literal: DocumentJournal.
+          - name
+      forms:
+        snapshot:
+          entry: migration.journal-child-names
+          field: Формы
+          default: []
+      templates:
+        snapshot:
+          entry: migration.journal-child-names
+          field: Шаблоны
+          default: []
+      commandNames:
+        snapshot:
+          entry: migration.journal-commands-identity-source
+          field: commands
+          each: name
+          default: []
+      helpPages:
+        snapshot:
+          entry: migration.journal-help-pages-source
+          field: pages
+          default: []
+      defaultLanguage: defaultLanguage
+      registeredLanguages: registeredLanguages
+      component: component
+      componentKind:
+        byComponent:
+          cf:
+            literal: configuration
+          cfe:
+            literal: extension
+      owners:
+        literal: []
+      canonicalNames:
+        literal:
+          - Type
+          - Ref
+          - Date
+          - Posted
+          - DeletionMark
+          - Number
+      elidableNames:
+        byComponent:
+          cf:
+            literal:
+              - Type
+              - Ref
+              - Date
+              - Posted
+              - DeletionMark
+              - Number
+          cfe:
+            literal: []
+      profiles:
+        literal:
+          - name: Ref
+            yamlName: Ссылка
+            pathName: Ссылка
+            emptyForm: mapping
+            policy: forbidden
+            expectedKind: ''
+            maxTextLength: ''
+            maxNumberDigits: ''
+            allowedTextLength: ''
+            owners: []
+          - name: Type
+            yamlName: Тип
+            pathName: Тип
+            emptyForm: mapping
+            policy: notSpecified
+            expectedKind: ''
+            maxTextLength: ''
+            maxNumberDigits: ''
+            allowedTextLength: ''
+            owners: []
+          - name: Date
+            yamlName: Дата
+            pathName: Дата
+            emptyForm: mapping
+            policy: byEffectiveType
+            expectedKind: calendar
+            maxTextLength: ''
+            maxNumberDigits: ''
+            allowedTextLength: ''
+            owners: []
+          - name: Number
+            yamlName: Номер
+            pathName: Номер
+            emptyForm: mapping
+            policy: codeFromOwner
+            expectedKind: ''
+            maxTextLength: ''
+            maxNumberDigits: ''
+            allowedTextLength: ''
+            owners: []
+          - name: Posted
+            yamlName: Проведен
+            pathName: Проведен
+            emptyForm: mapping
+            policy: notSpecified
+            expectedKind: ''
+            maxTextLength: ''
+            maxNumberDigits: ''
+            allowedTextLength: ''
+            owners: []
+          - name: DeletionMark
+            yamlName: ПометкаУдаления
+            pathName: ПометкаУдаления
+            emptyForm: mapping
+            policy: byEffectiveType
+            expectedKind: boolean
+            maxTextLength: ''
+            maxNumberDigits: ''
+            allowedTextLength: ''
+            owners: []
+    sources:
+      - entry: migration.journal-own-identity
+        inputs:
+          component: component
+          parent: parent
+          ownerName: name
+      - entry: migration.journal-base-identity
+        only:
+          - cfe
+        newOwner:
+          template:
+            base:
+              - base:
+                  externalSnapshot:
+                    component: cf
+                    entry: migration.journal-own-identity
+                    field: uuid
+        inputs:
+          component: component
+          parent: parent
+          ownerName: name
+      - entry: migration.journal-columns-identity-source
+        factDirections:
+          - xml-to-yaml
+          - yaml-to-xml
+        newOwner:
+          template:
+            columns: []
+        inputs:
+          component: component
+          ownerIdentity:
+            snapshot:
+              entry: migration.journal-own-identity
+              field: uuid
+      - entry: migration.journal-commands-identity-source
+        factDirections:
+          - xml-to-yaml
+          - yaml-to-xml
+        newOwner:
+          template:
+            commands: []
+        inputs:
+          component: component
+          ownerIdentity:
+            snapshot:
+              entry: migration.journal-own-identity
+              field: uuid
+      - entry: migration.journal-generated-types
+        inputs:
+          component: component
+          parent: parent
+          ownerName: name
+      - entry: migration.journal-child-names
+        inputs:
+          forms:
+            literal: []
+          templates:
+            literal: []
+      - entry: migration.journal-help-pages-source
+        factDirections: []
+        resourceNames:
+          directory:
+            - Ext
+            - Help
+          field: pages
+          extensions:
+            - html
+            - htm
+        newOwner:
+          template:
+            pages: []
+        inputs: {}
+      - entry: migration.journal-additional-index-identity-source
+        resourceFile:
+          - Ext
+          - AdditionalIndexes.xml
+        missingResource:
+          indexes: []
+        newOwner:
+          template:
+            indexes: []
+        inputs:
+          owner:
+            snapshot:
+              entry: migration.journal-own-identity
+              field: uuid
+factRoutes:
+  - xmlDir: Documents
+    entry: migration.document-root-source
+  - xmlDir: CommandGroups
+    entry: migration.command-group-root-source
+  - xmlDir: CommandGroups
+    entry: migration.adopted-command-group-root-source
+    only:
+      - cfe

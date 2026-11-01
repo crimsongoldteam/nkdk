@@ -1,0 +1,85 @@
+# Minimal element-space provider for the all-spaces reservation profile.
+format: nkdk-declarations/1
+kind: object
+id: test.form-element-numbering
+namespaces:
+  f: http://v8.1c.ru/8.3/xcf/logform
+inputs:
+  component:
+    type:
+      kind: scalar
+      scalar: text
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+value:
+  kind: record
+  fields:
+  - name: name
+    type:
+      kind: scalar
+      scalar: text
+  - name: id
+    type:
+      kind: scalar
+      scalar: text
+representations:
+  xml:
+    kind: record
+    fields:
+    - field: name
+      path:
+      - f:Element
+      attribute: name
+    - field: id
+      path:
+      - f:Element
+      attribute: id
+  yaml:
+    kind: mapping
+    fields:
+    - field: name
+      key: Имя
+    - field: id
+      key: Идентификатор
+presence:
+- target:
+    field: id
+  xml:
+    missing:
+      denotes:
+        absent: true
+  yaml:
+    missing:
+      denotes:
+        absent: true
+contributions:
+- index: metadata.element-identities
+  key:
+    record:
+      component:
+        input: component
+      owner:
+        input: owner
+      name:
+        field: name
+  value:
+    field: id
+  when:
+    present:
+      field: id
+- index: metadata.element-identities
+  key:
+    record:
+      component:
+        input: component
+      owner:
+        input: owner
+      name:
+        field: name
+  allocate:
+    scope:
+    - component
+    - owner
+    first: 1

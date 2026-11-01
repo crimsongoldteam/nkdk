@@ -65,6 +65,7 @@ pub(crate) fn capture_inputs(entry: &LinkedEntry) -> Result<CapturedInputs<'_>, 
             .iter()
             .chain(&rule.yaml_missing)
             .chain(&rule.yaml_omit_when)
+            .chain(&rule.yaml_null_when)
             .chain(
                 rule.xml_empty
                     .iter()
@@ -161,22 +162,48 @@ impl CapturedInputs<'_> {
     }
 }
 
+pub(crate) fn materialize_row_inputs(entry: &mut LinkedEntry, base: u32) {
+    let mut materialize = |value: &mut LinkedExpression, _| {
+        if let LinkedExpressionKind::RowInput(slot) = value.kind {
+            value.kind = LinkedExpressionKind::Input(base + slot);
+        }
+    };
+    visit_mut(entry, &mut materialize);
+    // Contributions retain their own field scope, but row inputs use the
+    // same placed slots as representations and constraints.
+    for contribution in &mut entry.contributions {
+        for value in std::iter::once(&mut contribution.key)
+            .chain(contribution.write.value_mut())
+            .chain(&mut contribution.when)
+            .chain(
+                contribution
+                    .for_each
+                    .iter_mut()
+                    .map(|iteration| &mut iteration.input),
+            )
+        {
+            expression(value, None, &mut materialize);
+        }
+    }
+}
+
+fn expression(
+    value: &mut LinkedExpression,
+    local: Option<u32>,
+    visitor: &mut impl FnMut(&mut LinkedExpression, Option<u32>),
+) {
+    visitor(value, local);
+    if let LinkedExpressionKind::Operation { arguments, .. } = &mut value.kind {
+        for argument in arguments {
+            expression(argument, local, visitor);
+        }
+    }
+}
+
 fn visit_mut(
     entry: &mut LinkedEntry,
     visitor: &mut impl FnMut(&mut LinkedExpression, Option<u32>),
 ) {
-    fn expression(
-        value: &mut LinkedExpression,
-        local: Option<u32>,
-        visitor: &mut impl FnMut(&mut LinkedExpression, Option<u32>),
-    ) {
-        visitor(value, local);
-        if let LinkedExpressionKind::Operation { arguments, .. } = &mut value.kind {
-            for argument in arguments {
-                expression(argument, local, visitor);
-            }
-        }
-    }
     fn bindings(
         value: &mut LinkedType,
         visitor: &mut impl FnMut(&mut LinkedExpression, Option<u32>),
@@ -208,6 +235,11 @@ fn visit_mut(
             }
         }
         xml = content;
+    }
+    for short in &mut entry.shorthands {
+        for value in short.expressions_mut() {
+            expression(value, None, visitor);
+        }
     }
     for rule in &mut entry.presence {
         let local = match rule.target {

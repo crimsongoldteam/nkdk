@@ -1,0 +1,8 @@
+[package]
+name="nkdk-aot-99f2c1e53b79fafe"
+version="0.0.0"
+edition="2024"
+[lib]
+test=false
+[dependencies]
+nkdk-conversion-core = { path = "../../../../crates/conversion-core" }

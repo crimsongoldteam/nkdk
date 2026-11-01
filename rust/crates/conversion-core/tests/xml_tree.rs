@@ -24,6 +24,15 @@ fn captured_subtree_can_be_rebased_to_a_declaration_root() {
         |_| false,
     )
     .unwrap();
+    let nested = tree
+        .document_at(&[("urn:owner", "Owner"), ("urn:schema", "Items")], &[])
+        .unwrap();
+    nkdk_conversion_core::proof::verify(
+        b"<o:Owner xmlns:o='urn:owner' xmlns:s='urn:schema'><s:Items><Node code='x'><Name>leaf</Name></Node></s:Items></o:Owner>",
+        &nested,
+        |_| false,
+    )
+    .unwrap();
 }
 
 #[test]
@@ -57,6 +66,50 @@ fn exceptional_xml_tree_keeps_empty_leaves_attributes_and_occurrences() {
         .write_at(&mut writer, &[("", "Root")], &[])
         .unwrap();
     nkdk_conversion_core::proof::verify(source, &writer.finish(), |_| false).unwrap();
+    let source = Tree::capture(b"<Root extra='keep'>old</Root>", &[("", "Root")])
+        .unwrap()
+        .unwrap();
+    let ordinary = Tree::capture(b"<Root>old</Root>", &[("", "Root")])
+        .unwrap()
+        .unwrap();
+    let delta = source.patch_yaml(Some(&ordinary), &[], &[]).unwrap();
+    assert_eq!(delta, "_extra: keep");
+    assert_eq!(
+        source
+            .patch_at(Some(&ordinary), &[], false, &[], &[])
+            .unwrap(),
+        Some(delta.clone())
+    );
+    let repeated = Tree::capture(b"<Root><X>a</X><X>b</X></Root>", &[("", "Root")])
+        .unwrap()
+        .unwrap();
+    assert_eq!(
+        repeated
+            .patch_at(None, &[("", "X")], false, &[], &[])
+            .unwrap(),
+        None
+    );
+
+    assert_eq!(source.text_patch_yaml("old", &[], &[]).unwrap(), delta);
+    let edited = Tree::capture(b"<Root>new</Root>", &[("", "Root")]).unwrap();
+    let restored = nkdk_conversion_core::xml::Patch::read(delta.as_bytes(), &[], &[])
+        .unwrap()
+        .apply(
+            edited,
+            nkdk_conversion_core::xml::Name {
+                namespace: String::new(),
+                local: "Root".into(),
+            },
+            &[],
+            &[],
+        )
+        .unwrap();
+    nkdk_conversion_core::proof::verify(
+        b"<Root extra='keep'>new</Root>",
+        &restored.document(&[]).unwrap(),
+        |_| false,
+    )
+    .unwrap();
     for invalid in [
         "bad/name: x",
         "a: x\na: y",
@@ -87,6 +140,10 @@ fn exceptional_xml_tree_keeps_empty_leaves_attributes_and_occurrences() {
         .position(|part| part == b"<Value code")
         .unwrap();
     let selected = Tree::capture_at(repeated, path, offset).unwrap().unwrap();
+    let owner = Tree::capture(repeated, &[("", "Root")]).unwrap().unwrap();
+    assert_eq!(owner.count_at(&path[1..]), 2);
+    assert_eq!(owner.count_at(&[("", "Unknown")]), 0);
+
     let mut writer = nkdk_conversion_core::xml::Writer::new(&[]);
     selected
         .write_at(&mut writer, &[("", "Root")], &[])
@@ -177,4 +234,28 @@ fn repeated_fields_have_occurrence_specific_meaning() {
     verify_with_occurrences(original, restored, scalar, |_, _| false, |_| false).unwrap();
     let changed = b"<Root><Item><Value/></Item><Item><Value><Child/></Value></Item></Root>";
     assert!(verify_with_occurrences(original, changed, scalar, |_, _| false, |_| false).is_err());
+}
+
+#[test]
+fn selected_occurrence_keeps_its_own_qname_namespace() {
+    let source = b"<Root xmlns:t='urn:first'><Value>t:First</Value><Value xmlns:t='urn:second'>t:Second</Value></Root>";
+    let offset = source
+        .windows(b"<Value xmlns".len())
+        .position(|part| part == b"<Value xmlns")
+        .unwrap();
+    let tree =
+        Tree::capture_at_with_qnames(source, &[("", "Root"), ("", "Value")], offset, |path| {
+            path.last().is_some_and(|name| name.local == "Value")
+        })
+        .unwrap()
+        .unwrap();
+    let restored = tree.document(&[]).unwrap();
+    nkdk_conversion_core::proof::verify_with_qnames(
+        b"<Value xmlns:q='urn:second'>q:Second</Value>",
+        &restored,
+        |_| false,
+        |_, _| false,
+        |path| path.last().is_some_and(|name| name.local == "Value"),
+    )
+    .unwrap();
 }

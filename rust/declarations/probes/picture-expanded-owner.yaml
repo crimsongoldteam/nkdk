@@ -1,0 +1,8 @@
+format: nkdk-declarations/1
+kind: object
+id: probe.picture-expanded-owner
+imports: {picture: common.picture-absolute-expanded}
+value: {kind: record, fields: [{name: picture, type: {use: picture}}]}
+representations:
+  xml: {kind: record, fields: [{field: picture, path: [Root, Picture]}]}
+  yaml: {kind: mapping, fields: [{field: picture, key: Картинка}]}

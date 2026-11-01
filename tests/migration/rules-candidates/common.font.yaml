@@ -1,0 +1,57 @@
+format: nkdk-declarations/1
+kind: value
+id: common.font
+imports:
+  normal: common.font-normal
+  raw: common.font-raw-reference
+inputs:
+  styleTypes:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: scalar
+        scalar: text
+value:
+  kind: choice
+  variants:
+    - name: normal
+      type:
+        use: normal
+        bind:
+          styleTypes:
+            input: styleTypes
+    - name: raw
+      type:
+        use: raw
+representations:
+  xml:
+    kind: choice
+    fallback: raw
+  yaml:
+    kind: choice
+    variants:
+      - variant: raw
+        form: mapping
+        key: Вид
+        value: ЭлементСтиля
+      - variant: raw
+        form: mapping
+        key: Вид
+        value: WindowsШрифт
+      - variant: raw
+        form: mapping
+        key: Вид
+        value: Абсолютный
+      - variant: raw
+        form: mapping
+        key: Вид
+        value: АвтоШрифт
+      - variant: normal
+        form: mapping
+        key: Вид
+      - variant: normal
+        form: mapping
+        key: ВидXML

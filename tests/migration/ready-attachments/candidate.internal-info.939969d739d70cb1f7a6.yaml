@@ -1,0 +1,108 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  types: common.internal-generated-types
+namespaces:
+  md: http://v8.1c.ru/8.3/MDClasses
+inputs:
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  name:
+    type:
+      kind: scalar
+      scalar: text
+  typeIds:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: owner
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  valueIds:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: owner
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+value:
+  kind: record
+  fields:
+    - name: types
+      type:
+        use: types
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: types
+        path:
+          - md:IntegrationServiceChannel
+          - md:InternalInfo
+  yaml:
+    kind: mapping
+    fields:
+      - field: types
+        key: ВнутренниеТипы
+presence:
+  - target:
+      field: types
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        sequence:
+          - record:
+              name:
+                concat:
+                  - literal: IntegrationServiceChannelManager.
+                  - input: name
+              category:
+                literal: Manager
+              typeId:
+                require:
+                  lookup:
+                    in:
+                      input: typeIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        name:
+                          literal: IntegrationServiceChannelManager
+              valueId:
+                require:
+                  lookup:
+                    in:
+                      input: valueIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        name:
+                          literal: IntegrationServiceChannelManager
+id: candidate.internal-info.939969d739d70cb1f7a6

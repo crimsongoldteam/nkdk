@@ -1,7 +1,7 @@
 format: nkdk-declarations/1
 kind: object
 id: migration.journal-internal-types
-imports: {types: common.internal-generated-types}
+imports: {types: common.internal-generated-types, states: common.property-states}
 namespaces: {md: 'http://v8.1c.ru/8.3/MDClasses'}
 inputs: {owner: {type: {kind: scalar, scalar: text}}}
 types:
@@ -26,10 +26,14 @@ types:
       lowercase: []
       emptyInput: absent
       noTokens: absent
-value: {kind: record, fields: [{name: types, type: {use: types}}]}
+value: {kind: record, fields: [{name: types, type: {use: types}}, {name: states, type: {use: states}}]}
 representations:
-  xml: {kind: record, fields: [{field: types, path: ['md:MetaDataObject', 'md:DocumentJournal', 'md:InternalInfo']}]}
-  yaml: {kind: mapping, fields: [{field: types, key: ВнутренниеТипы}]}
+  xml: {kind: record, fields: [{field: types, path: ['md:MetaDataObject', 'md:DocumentJournal', 'md:InternalInfo']}, {field: states, path: ['md:MetaDataObject', 'md:DocumentJournal', 'md:InternalInfo']}]}
+  yaml: {kind: mapping, fields: [{field: types, key: ВнутренниеТипы}, {field: states, key: СостоянияСвойств}]}
+presence:
+- target: {field: states}
+  xml: {missing: {denotes: {absent: true}}}
+  yaml: {missing: {denotes: {absent: true}}}
 contributions:
 - index: metadata.internal-type-ids
   forEach: {in: {field: types}, as: row}

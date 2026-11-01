@@ -1,12 +1,19 @@
 use super::*;
 use std::fmt::Write;
 
+pub(super) struct Scope<'a> {
+    pub sequence: Option<&'a str>,
+    pub input_prelude: &'a str,
+    pub field_type_names: Option<Vec<String>>,
+}
+
 pub(super) fn generate(
     entry: &LinkedEntry,
     program: &Program,
     codec: &super::text_pattern::Codec<'_>,
     name: &str,
     field_count: usize,
+    method: &str,
 ) -> Result<String, Diagnostic> {
     let LinkedType::Record(fields) = &entry.value else {
         unreachable!("text record")
@@ -17,10 +24,42 @@ pub(super) fn generate(
         .enumerate()
         .map(|(index, _)| (codec.field_meaning(name, index, "self"), "true".into()))
         .collect::<Vec<_>>();
-    let mut expressions = expressions::Expressions::new(entry, program, fields, Some(&storage));
+    generate_with_storage(
+        entry,
+        program,
+        name,
+        fields,
+        &storage,
+        method,
+        Scope {
+            sequence: None,
+            input_prelude: codec.bound_scope(),
+            field_type_names: Some(
+                (0..fields.len())
+                    .map(|index| format!("{name}P{index}"))
+                    .collect(),
+            ),
+        },
+    )
+}
+
+pub(super) fn generate_with_storage(
+    entry: &LinkedEntry,
+    program: &Program,
+    name: &str,
+    fields: &[LinkedField],
+    storage: &[(String, String)],
+    method: &str,
+    scope: Scope<'_>,
+) -> Result<String, Diagnostic> {
+    let mut expressions = expressions::Expressions::new(entry, program, fields, Some(storage));
+    expressions.field_type_names = scope.field_type_names;
+    if let Some(sequence_name) = scope.sequence {
+        expressions.sequence_item_name = Some(sequence_name.to_owned());
+    }
     let mut body = String::new();
     for rule in &entry.constraints {
-        if rule.for_each.is_some() || !entry.inputs.is_empty() || !entry.parameters.is_empty() {
+        if rule.for_each.is_some() || !entry.parameters.is_empty() {
             return Err(unsupported(
                 entry,
                 "Text item checks require specialized inputs and scalar constraints",
@@ -55,11 +94,12 @@ pub(super) fn generate(
     // Scalar owners currently use lifted constraints; sequences reuse this method.
     if body.is_empty() {
         return Ok(format!(
-            "impl {name} {{ #[allow(dead_code)] fn issues(&self,_xml:bool,_inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{{Vec::new()}} }}\n"
+            "impl {name} {{ #[allow(dead_code)] fn {method}(&self,_xml:bool,_inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{{Vec::new()}} }}\n"
         ));
     }
     Ok(format!(
-        "impl {name} {{ #[allow(dead_code)] fn issues(&self,xml:bool,_inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{{ {} let mut errors=Vec::new(); let _=xml; {body} errors }} }}\n",
-        expressions.constants
+        "impl {name} {{ #[allow(dead_code)] fn {method}(&self,xml:bool,_inputs:&InputView<'_>)->Vec<RuntimeDiagnostic>{{ {input_scope} {} let mut errors=Vec::new(); let _=xml; {body} errors }} }}\n",
+        expressions.constants,
+        input_scope = scope.input_prelude
     ))
 }

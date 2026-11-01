@@ -1,0 +1,59 @@
+format: nkdk-declarations/1
+kind: value
+id: common.dcs-appearance-string-content
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  xs: http://www.w3.org/2001/XMLSchema
+  v8: http://v8.1c.ru/8.1/data/core
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+imports:
+  text: common.string
+  localized: common.i8n-text
+value:
+  kind: choice
+  variants:
+    - name: text
+      type:
+        use: text
+    - name: localized
+      type:
+        use: localized
+        with:
+          typedXML: true
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            literal: ''
+representations:
+  xml:
+    kind: choice
+    attribute: xsi:type
+    variants:
+      - variant: text
+        in:
+          - xs:string
+        emit: xs:string
+      - variant: localized
+        in:
+          - v8:LocalStringType
+        emit: v8:LocalStringType
+    otherwise: text
+  yaml:
+    kind: choice
+    variants:
+      - variant: localized
+        form: mapping
+    fallback: text

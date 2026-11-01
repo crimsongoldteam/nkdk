@@ -1,0 +1,71 @@
+format: nkdk-declarations/1
+kind: value
+id: source.public-form-additional-column-requests
+inputs:
+  component:
+    type:
+      kind: scalar
+      scalar: text
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  parent:
+    type:
+      kind: scalar
+      scalar: text
+  groupModes:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: component
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: origin
+            type:
+              kind: scalar
+              scalar: text
+          - name: owner
+            type:
+              kind: scalar
+              scalar: text
+          - name: parent
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+imports:
+  row: source.public-form-additional-column-request
+namespaces:
+  f: http://v8.1c.ru/8.3/xcf/logform
+value:
+  kind: sequence
+  item:
+    use: row
+    bind:
+      component:
+        input: component
+      owner:
+        input: owner
+      parent:
+        input: parent
+      groupModes:
+        input: groupModes
+representations:
+  xml:
+    kind: element-sequence
+    path:
+      - f:AdditionalColumns
+  yaml:
+    kind: record-mapping
+    key: table
+    value: columns

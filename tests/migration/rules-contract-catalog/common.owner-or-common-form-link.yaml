@@ -4,6 +4,7 @@ id: common.owner-or-common-form-link
 imports:
   own: common.owner-form-link
   common: common.common-form-link
+  empty: common.metadata-link-empty
   rootKind: common.path-root
 inputs:
   owner:
@@ -49,8 +50,12 @@ value:
         bind:
           roots:
             input: roots
+    - name: empty
+      type:
+        use: empty
 representations:
   xml:
     kind: choice
   yaml:
     kind: choice
+    fallback: own

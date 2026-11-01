@@ -1,0 +1,94 @@
+format: nkdk-declarations/1
+kind: value
+id: common.dcs-appearance-boolean-value
+imports:
+  value: common.dcs-primitive-choice
+inputs:
+  labels:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: code
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  codes:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: label
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+value:
+  kind: record
+  fields:
+    - name: value
+      type:
+        use: value
+        with:
+          exportNilValue: true
+        bind:
+          labels:
+            input: labels
+          codes:
+            input: codes
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          onlyStringType:
+            literal: false
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: value
+        path: []
+  yaml:
+    kind: projection
+    field: value
+constraints:
+  - id: boolean-only
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    assert:
+      isVariant:
+        value:
+          field: value
+        variant: boolean
+    diagnostic:
+      code: dcs.appearance-boolean
+      severity: error
+      at:
+        field: value
+      message: Нужно логическое значение

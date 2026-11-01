@@ -1,0 +1,25 @@
+format: nkdk-declarations/1
+kind: value
+id: common.dcs-appearance-kind
+value:
+  kind: enum
+  variants:
+    - name: Поле
+      value: Поле
+    - name: ФорматированнаяСтрока
+      value: ФорматированнаяСтрока
+representations:
+  xml:
+    kind: text
+    values:
+      - value: Поле
+        text: Поле
+      - value: ФорматированнаяСтрока
+        text: ФорматированнаяСтрока
+  yaml:
+    kind: scalar
+    values:
+      - value: Поле
+        literal: Поле
+      - value: ФорматированнаяСтрока
+        literal: ФорматированнаяСтрока

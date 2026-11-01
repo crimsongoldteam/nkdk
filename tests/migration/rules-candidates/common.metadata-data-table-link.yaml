@@ -1,0 +1,26 @@
+format: nkdk-declarations/1
+kind: value
+id: common.metadata-data-table-link
+imports:
+  path: common.metadata-data-table-path
+  root: common.path-root
+inputs:
+  allowedRoots:
+    type:
+      kind: sequence
+      item:
+        use: root
+value:
+  kind: choice
+  variants:
+    - name: path
+      type:
+        use: path
+        bind:
+          allowedRoots:
+            input: allowedRoots
+representations:
+  xml:
+    kind: choice
+  yaml:
+    kind: choice

@@ -1,0 +1,11 @@
+# Проверочные владельцы без InputByString; предметные пути остаются данными.
+- symbol: MetadataAccountingRegisterRules
+  xmlDirectory: AccountingRegisters
+  yamlDirectory: РегистрБухгалтерии
+  name: РегистрБухгалтерииВсеСвойстваОбороты
+  yamlFile: Свойства.yaml
+- symbol: MetadataDocumentNumeratorRules
+  completeOwner: true
+  xmlDirectory: DocumentNumerators
+  yamlDirectory: Нумератор
+  name: НумераторДокументовВсеСвойства

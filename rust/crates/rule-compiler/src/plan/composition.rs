@@ -16,7 +16,7 @@ impl Composition {
     }
     fn prepare(entry: &LinkedEntry, program: &Program) -> Result<Self, Diagnostic> {
         let scope = scopes::capture_inputs(entry)?;
-        let mut parts = records::parts(&scope.entry, program)?;
+        let mut parts = records::parts(&scope.entry, program, &scope.captures)?;
         for part in &mut parts {
             scope.localize(part)?;
         }

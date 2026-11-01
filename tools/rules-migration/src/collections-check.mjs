@@ -1,24 +1,48 @@
+import {declarations as predefinedOwnerDeclarations,cases as predefinedOwnerCases,factSources as predefinedOwnerSources} from '../test/fixtures/source-predefined-owner.mjs';
+import {declarations as tabularOwnerDeclarations,cases as tabularOwnerCases,factSources as tabularOwnerSources} from '../test/fixtures/source-tabular-owner.mjs';
+import {ownerReferenceCases} from './owner-reference-cases.mjs';
 import {enumValueCases} from './enum-value-cases.mjs';
 import {documentAttributeCases} from './document-attribute-cases.mjs';
 import {internalInfoCases} from './internal-info-cases.mjs';
 import {emptyTextCases} from './empty-text-cases.mjs';
 import {hiddenScalarCases} from './hidden-scalar-cases.mjs';
+import {dcsParameterCase} from './dcs-parameter-case.mjs';
+import {externalFunctionCase} from './external-function-case.mjs';
+import {externalFieldCase} from './external-field-case.mjs';
+import {externalOwnerInternalCases} from './external-owner-internal-case.mjs';
 import {fileURLToPath} from 'node:url';
+import {readFileSync} from 'node:fs';
 import {join} from 'node:path';
 import {spawnSync} from 'node:child_process';
 import {fixture,xml,yaml as expected} from '../test/fixtures/array-collection.mjs';
 import {declarations as unifiedDeclarations,cases as unifiedCases} from '../test/fixtures/unified-record.mjs';
+import {declarations as inputOwnerDeclarations,cases as inputOwnerCases,factSources as inputOwnerSources} from '../test/fixtures/source-input-owner.mjs';
+import {declarations as standardOwnerDeclarations,cases as standardOwnerCases,factSources as standardOwnerSources} from '../test/fixtures/source-standard-owner.mjs';
 import {emitCollections} from './collection-emission.mjs';
 import {candidateCatalog,dependencyFiles,yaml} from './candidate-catalog.mjs';
 import {writeFocused} from './focused-output.mjs';
+import {selectContracts,mergeFactSources} from './focused-catalog.mjs';
+import {runtimeExportsFromCaseFile} from './runtime-exports.mjs';
 const root=fileURLToPath(new URL('../../../',import.meta.url));
 process.chdir(root);
 const {graph,entries}=fixture(),{catalog}=candidateCatalog();
+const characteristicStates=JSON.parse(readFileSync('tests/migration/characteristic-base-state-operation.json','utf8'));
+const characteristicDeclarations=[...new Set([...characteristicStates.cases.map(row=>row.entry),
+ ...characteristicStates.factSources.map(row=>row.entry)])].map(id=>{
+ const module=catalog.get(id);
+ if(!module)throw new Error('Missing characteristic state declaration: '+id);
+ return module;
+});
 const enumValues=enumValueCases(catalog);
 const documentAttributes=documentAttributeCases(catalog);
 const internalInfo=internalInfoCases(catalog);
 const emptyText=emptyTextCases(catalog);
 const hiddenScalar=hiddenScalarCases(catalog);
+const ownerReferences=ownerReferenceCases(catalog);
+const realDcsParameter=dcsParameterCase(catalog);
+const realExternalFunction=externalFunctionCase(catalog);
+const realExternalField=externalFieldCase(catalog);
+const externalOwnerInternal=externalOwnerInternalCases(catalog);
 const emitted=emitCollections(graph,entries,catalog);
 if(emitted.results[0].status!=='candidate')throw new Error(JSON.stringify(emitted.results));
 const indexedEntries=structuredClone(entries);
@@ -44,6 +68,13 @@ namedGraph.registrations[0].parameters.yamlAsArray=false;
 namedGraph.registrations[0].parameters.keyField='name';
 const named=emitCollections(namedGraph,entries,catalog);
 if(named.results[0].status!=='candidate')throw new Error(JSON.stringify(named.results));
+const directGraph=structuredClone(namedGraph);
+directGraph.edges[0].mapping.xmlParents=[];
+const directOwner=directGraph.edges[0].owner;
+const directOwnerKey=`${directOwner.path}#${directOwner.symbol}`;
+const direct=emitCollections(directGraph,entries,catalog,{}, {ownerXmlRoots:{[directOwnerKey]:['Root']}});
+if(direct.results[0].status!=='candidate')throw new Error(JSON.stringify(direct.results));
+const directXML=xml.replace('<Items>','').replace('</Items>','');
 const textEntries=structuredClone(entries);
 textEntries.find(entry=>entry.symbol==='ItemRules').properties.unshift({name:'synonym',status:'static-parameters',parameters:{type:'I8nText',xml:'Synonym',xmlParents:['Properties'],yaml:'Синоним',excludeIfEqualNameYAML:true}});
 const textCollections=[graph,namedGraph].map(source=>emitCollections(source,textEntries,catalog));
@@ -55,6 +86,7 @@ textCollections.push(emitCollections(implicitGraph,implicitEntries,catalog));
 for(const result of textCollections)if(result.results[0].status!=='candidate')throw new Error(JSON.stringify(result.results));
 const textXML='<Root xmlns:v8="http://v8.1c.ru/8.1/data/core"><Items><Item><Properties><Synonym><v8:item><v8:lang>ru</v8:lang><v8:content>Первый</v8:content></v8:item></Synonym><Name>Первый</Name><Enabled>true</Enabled></Properties></Item><Item><Properties><Synonym><v8:item><v8:lang>ru</v8:lang><v8:content>Второй</v8:content></v8:item></Synonym><Name>Второй</Name><Enabled>false</Enabled></Properties></Item></Items></Root>';
 named.modules[0].constraints=[{id:'key-policy',appliesTo:['xml-import','yaml-validation'],assert:{not:{eq:[{field:'name'},{literal:'forbidden'}]}},diagnostic:{code:'test.key-policy',severity:'error',at:{field:'name'},message:'Reserved key'}}];
+direct.modules[0].constraints=structuredClone(named.modules[0].constraints);
 const identified=structuredClone(textCollections[1].modules);
 identified.forEach((module,index)=>{module.id=`test.identified-text.${index}`;module.inputs.identities={type:{kind:'index',key:{kind:'scalar',scalar:'text'},value:{kind:'scalar',scalar:'text'}}};});
 identified[0].value.fields.push({name:'token',type:{kind:'scalar',scalar:'text'}});
@@ -108,18 +140,21 @@ xmlOnlyScalar.value.fields=xmlOnlyScalar.value.fields.filter(field=>field.name!=
 xmlOnlyScalar.representations.xml.fields=xmlOnlyScalar.representations.xml.fields.filter(field=>field.field!=='nested').map(field=>({...field,path:['Root',...field.path]}));
 xmlOnlyScalar.representations.yaml.fields=xmlOnlyScalar.representations.yaml.fields.filter(field=>field.field!=='nested');
 xmlOnlyScalar.constraints.push({id:'hidden-policy',appliesTo:['yaml-validation'],assert:{not:{eq:[{field:'token'},{literal:'blocked-token'}]}},diagnostic:{code:'test.hidden-policy',severity:'error',at:{field:'token'},message:'Restored token is reserved'}});
-const declarations=[...hiddenScalar.modules,...emptyText.modules,...internalInfo.modules,...enumValues.modules,...documentAttributes.modules,...unifiedDeclarations,xmlOnlyScalar,...xmlOnly,...groupedCommon,...grouped,...emitted.modules,...named.modules,...composed,nested,...indexed.modules,...textCollections.flatMap(result=>result.modules),...identified,...automaticIdentity.modules,computedFacts,computedConsumer,chainedSource,chainedConsumer,catalog.get('migration.metadata-root-index')];
+const declarations=[...characteristicDeclarations,...predefinedOwnerDeclarations,...tabularOwnerDeclarations,...standardOwnerDeclarations,...inputOwnerDeclarations,...ownerReferences.modules,...hiddenScalar.modules,...emptyText.modules,...internalInfo.modules,...externalOwnerInternal.modules,...enumValues.modules,...documentAttributes.modules,...realDcsParameter.modules,...realExternalFunction.modules,...realExternalField.modules,...unifiedDeclarations,xmlOnlyScalar,...xmlOnly,...groupedCommon,...grouped,...emitted.modules,...named.modules,...direct.modules,...composed,nested,...indexed.modules,...textCollections.flatMap(result=>result.modules),...identified,...automaticIdentity.modules,computedFacts,computedConsumer,chainedSource,chainedConsumer,catalog.get('migration.metadata-root-index'),catalog.get('migration.defined-type-facts'),catalog.get('migration.form-metadata-header')];
 const modules=[...declarations,...dependencyFiles(declarations,catalog)];
 const files=Object.fromEntries(modules.map(m=>[m.id+'.yaml',yaml.dump(m,{noRefs:true})]));
 const entry=emitted.results[0].declaration;
-const paths=writeFocused(join(root,'rust/target/collection-emission-check'),files,{factSources:[...internalInfo.factSources,...enumValues.factSources,...documentAttributes.factSources,{entry:automaticIdentityEntry,xml:automaticIdentityXML,inputs:automaticIdentityInputs},{entry:chainedSource.id,yaml:"Name: НумПервый"},{entry:identified[2].id,xml:identifiedXML,inputs:identifiedInputs},{entry:'migration.metadata-root-index',xml:'<Root><Kind>DocumentNumerator</Kind><Name>Общий</Name><Identity>shared</Identity></Root>'},{entry:computedFacts.id,xml:'<Root><Items><Item><Properties><Name>Первый</Name><Enabled>true</Enabled></Properties></Item></Items></Root>'},{entry:computedFacts.id,yaml:'Элементы: [{Имя: Второй, Включено: Ложь}]'}],cases:[...hiddenScalar.cases,...emptyText.cases,...internalInfo.cases,...enumValues.cases,...documentAttributes.cases,
+const manifest={factSources:[...characteristicStates.factSources,...predefinedOwnerSources,...tabularOwnerSources,...standardOwnerSources,...inputOwnerSources,...ownerReferences.factSources,...internalInfo.factSources,...externalOwnerInternal.factSources,...enumValues.factSources,...documentAttributes.factSources,...realExternalFunction.factSources,...realExternalField.factSources,{entry:automaticIdentityEntry,xml:automaticIdentityXML,inputs:automaticIdentityInputs},{entry:chainedSource.id,yaml:"Name: НумПервый"},{entry:identified[2].id,xml:identifiedXML,inputs:identifiedInputs},{entry:'migration.metadata-root-index',xml:'<Root><Kind>DocumentNumerator</Kind><Name>Общий</Name><Identity>shared</Identity></Root>'},{entry:computedFacts.id,xml:'<Root><Items><Item><Properties><Name>Первый</Name><Enabled>true</Enabled></Properties></Item></Items></Root>'},{entry:computedFacts.id,yaml:'Элементы: [{Имя: Второй, Включено: Ложь}]'}],cases:[...characteristicStates.cases,...ownerReferences.cases,...hiddenScalar.cases,...emptyText.cases,...internalInfo.cases,...externalOwnerInternal.cases,...enumValues.cases,...documentAttributes.cases,
+  ...realDcsParameter.cases,
+  ...realExternalFunction.cases,
+  ...realExternalField.cases,
   {id:'generated-dependent-index',entry:chainedConsumer.id,factBindings:{derived:'test.chained'},xml:'<Root><Name>НумПервый</Name></Root>',yaml:'Name: НумПервый',rejectedYAML:['Name: НумВторой']},
   {id:'automatically-generated-uuid',entry:automaticIdentityEntry,inputs:automaticIdentityInputs,factBindings:{identities:'metadata.own-identities'},xml:automaticIdentityXML,yaml:'Элементы:\n  Первый:\n    Включено: Истина\n  Второй:\n    Включено: Ложь'},
   {id:'generated-identity-and-synonym',entry:identified[2].id,inputs:identifiedInputs,factBindings:{identities:'test.identified-text'},xml:identifiedXML,yaml:'Элементы:\n  Первый:\n    Включено: Истина\n  Второй:\n    Включено: Ложь'},
   ...['Первый','Второй'].map((name,index)=>({id:`generated-computed-index-${index}`,entry:computedConsumer.id,factBindings:{derived:'test.computed'},xml:`<Root><Name>Нум${name}</Name></Root>`,yaml:`Name: Нум${name}`,rejectedYAML:['Name: Первый','Name: НумОтсутствует']})),
   ...textCollections.map((result,index)=>({id:`generated-local-name-${index}`,entry:result.results[0].declaration,inputs:{defaultLanguage:'ru',registeredLanguages:['ru','en']},xml:textXML,yaml:index===0?expected:'Элементы:\n  Первый:\n    Включено: Истина\n  Второй:\n    Включено: Ложь'})),
   {id:'generated-shared-index',entry:indexed.results[0].declaration,factBindings:{roots:'metadata.roots'},xml:xml.replaceAll('</Properties>','<Numerator>DocumentNumerator.Общий</Numerator></Properties>'),yaml:'Элементы:\n  - Имя: Первый\n    Включено: Истина\n    Нумератор: Общий\n  - Имя: Второй\n    Включено: Ложь\n    Нумератор: Общий',rejectedYAML:['Элементы: [{Имя: Первый, Включено: Истина, Нумератор: Отсутствует}]']},
-  ...unifiedCases,
+  ...unifiedCases,...inputOwnerCases,...standardOwnerCases,...tabularOwnerCases,...predefinedOwnerCases,
   {id:'xml-only-scalar-normal',entry:xmlOnlyScalar.id,xml:'<Root><Properties token="Первый"><Name>Первый</Name><Enabled>true</Enabled></Properties></Root>',yaml:'Имя: Первый\nВключено: Истина',rejectedYAML:['Имя: Первый\nВключено: Истина\nToken: other','Имя: Первый\nВключено: Истина\ntoken: other','Имя: blocked-token\nВключено: Истина']},
   {id:'xml-only-scalar-mismatch',entry:xmlOnlyScalar.id,xml:'<Root><Properties token="other"><Name>Первый</Name><Enabled>true</Enabled></Properties></Root>',annotation:'token: !xml/raw'},
   {id:'xml-only-scalar-absent',entry:xmlOnlyScalar.id,xml:'<Root><Properties><Name>Первый</Name><Enabled>true</Enabled></Properties></Root>',annotation:'token: !xml/raw'},
@@ -134,6 +169,7 @@ const paths=writeFocused(join(root,'rust/target/collection-emission-check'),file
   {id:'named-composed-invalid-key',entry:composed[2].id,xml:xml.replace('Первый','forbidden').replaceAll('</Enabled>','</Enabled><Nested><Text>Данные</Text></Nested>'),annotation:'Элементы: !xml/raw'},
   {id:'named-composed-records',entry:composed[2].id,xml:xml.replaceAll('</Enabled>','</Enabled><Nested><Text>Данные</Text></Nested>'),yaml:'Элементы:\n  Первый:\n    Включено: Истина\n    Вложенное:\n      Текст: Данные\n  Второй:\n    Включено: Ложь\n    Вложенное:\n      Текст: Данные'},
   {id:'generated-named-records',entry:named.results[0].declaration,xml,rejectedYAML:['Элементы: {forbidden: {Включено: Истина}}','Элементы: {Первый: {Имя: Второй, Включено: Истина}}','Элементы: {Первый: {}, Первый: {}}'],yaml:'Элементы:\n  Первый:\n    Включено: Истина\n  Второй:\n    Включено: Ложь'},
+  {id:'generated-direct-named-records',entry:direct.results[0].declaration,xml:directXML,yaml:'Элементы:\n  Первый:\n    Включено: Истина\n  Второй:\n    Включено: Ложь'},
   {id:'generated-named-invalid-key',entry:named.results[0].declaration,xml:xml.replace('Первый','forbidden'),annotation:'Элементы: !xml/raw'},
   {id:'generated-named-missing-key',entry:named.results[0].declaration,xml:xml.replace(/<Name>[^<]+<\/Name>/g,''),annotation:'Элементы: !xml/raw'},
   {id:'generated-named-duplicate',entry:named.results[0].declaration,xml:xml.replace('Второй','Первый'),annotation:'Элементы: !xml/raw'},
@@ -142,8 +178,17 @@ const paths=writeFocused(join(root,'rust/target/collection-emission-check'),file
   {id:'generated-array-records',entry,xml,yaml:expected},
   {id:'generated-array-repeated-names',entry,xml:xml.replace('Второй','Первый'),yaml:expected.replace('Второй','Первый')},
   {id:'generated-empty-array',entry,xml:'<Root><Items/></Root>',yaml:'Элементы: []'},
-]});
+]};
+const args=process.argv.slice(2);
+if(args.length && (args.length!==2 || args[0]!=='--cases'))throw new Error('Usage: collections-check.mjs [--cases <comma-separated identifiers>]');
+manifest.factSources=mergeFactSources(manifest.factSources);
+const selected=args.length?selectContracts(manifest,new Map(modules.map(module=>[module.id,module])),args[1].split(',')):undefined;
+const paths=writeFocused(join(root,'rust/target/collection-emission-check'),
+ selected?Object.fromEntries(selected.modules.map(module=>[module.id+'.yaml',files[module.id+'.yaml']])):files,
+ selected?.manifest??manifest);
 const result=spawnSync('cargo',['run','--offline','--locked','--manifest-path','../tools/rules-migration/runtime/Cargo.toml','--target-dir','target/migration-contracts','-j','1','--',paths.cases],{
- cwd:join(root,'rust'),stdio:'inherit',env:{...process.env,NKDK_MIGRATION_CATALOG:paths.catalog,CARGO_INCREMENTAL:'0',CARGO_PROFILE_DEV_DEBUG:'0',CARGO_PROFILE_TEST_DEBUG:'0'}});
+ cwd:join(root,'rust'),stdio:'inherit',env:{...process.env,NKDK_MIGRATION_CATALOG:paths.catalog,
+   NKDK_MIGRATION_EXPORTS:runtimeExportsFromCaseFile(paths.cases),
+   CARGO_INCREMENTAL:'0',CARGO_PROFILE_DEV_DEBUG:'0',CARGO_PROFILE_TEST_DEBUG:'0'}});
 if(result.error)throw result.error;
 process.exitCode=result.status??1;

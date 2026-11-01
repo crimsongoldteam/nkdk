@@ -1,6 +1,7 @@
 format: nkdk-declarations/1
 kind: object
 id: common.fill-value-profile
+namespaces: {xs: http://www.w3.org/2001/XMLSchema}
 imports: {choice: common.metadata-value, typeDescription: common.type-description}
 inputs:
   defaultLanguage: {type: {kind: scalar, scalar: text}}
@@ -25,7 +26,16 @@ presence:
   xml:
     missing: {denotes: {absent: true}}
     empty: [{form: nil, denotes: {absent: true}}]
-    canonical: [{when: {not: {present: {field: value}}}, form: nil}]
+    canonical:
+    - when:
+        and:
+        - {not: {present: {field: value}}}
+        - {present: {field: type}}
+        - {one: {in: {get: {of: {field: type}, field: items}}, as: item, where: {literal: true}}}
+        - {exists: {in: {get: {of: {field: type}, field: items}}, as: item, where: {matches: {value: {get: {of: {var: item}, field: value}}, pattern: '^(Строка|ФиксированнаяСтрока)$'}}}}
+      form: empty-element
+      type: xs:string
+    - {when: {not: {present: {field: value}}}, form: nil}
   yaml:
     missing:
       denotes:

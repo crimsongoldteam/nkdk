@@ -1,7 +1,7 @@
 use crate::RuntimeDiagnostic;
 
 /// XML stores a byte offset until an error needs a line/column; YAML already supplies them.
-#[derive(Debug, Clone, Copy, Default)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub struct Position {
     line: usize,
     column: usize,

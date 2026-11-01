@@ -1,0 +1,149 @@
+format: nkdk-declarations/1
+kind: fragment
+id: fragment.journal-commands
+imports:
+  rows: metadata.command-rows
+  rootKind: common.path-root
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  roots:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+        - name: kind
+          type:
+            use: rootKind
+        - name: name
+          type:
+            kind: scalar
+            scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  identities:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+        - name: component
+          type:
+            kind: scalar
+            scalar: text
+        - name: owner
+          type:
+            kind: scalar
+            scalar: text
+        - name: kind
+          type:
+            kind: scalar
+            scalar: text
+        - name: name
+          type:
+            kind: scalar
+            scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  baseIds:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+        - {name: component, type: {kind: scalar, scalar: text}}
+        - {name: identity, type: {kind: scalar, scalar: text}}
+      value: {kind: scalar, scalar: text}
+  component:
+    type:
+      kind: scalar
+      scalar: text
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+value:
+  kind: record
+  fields:
+  - name: commands
+    type:
+      use: rows
+      bind:
+        defaultLanguage:
+          input: defaultLanguage
+        registeredLanguages:
+          input: registeredLanguages
+        roots:
+          input: roots
+        identities:
+          input: identities
+        baseIds:
+          input: baseIds
+        component:
+          input: component
+        owner:
+          input: owner
+representations:
+  xml:
+    kind: record
+    fields:
+    - field: commands
+      path:
+      - md:MetaDataObject
+      - md:DocumentJournal
+      - md:ChildObjects
+  yaml:
+    kind: mapping
+    fields:
+    - field: commands
+      key: Команды
+presence:
+- target: {field: commands}
+  yaml:
+    missing: {denotes: {sequence: []}}
+    omitWhen: {not: {exists: {in: {field: commands}, as: row, where: {literal: true}}}}
+namespaces:
+  md: http://v8.1c.ru/8.3/MDClasses
+contributions:
+- index: metadata.own-identities
+  forEach:
+    in:
+      field: commands
+    as: row
+  key:
+    record:
+      component:
+        input: component
+      owner:
+        input: owner
+      kind:
+        literal: Command
+      name:
+        get:
+          of:
+            var: row
+          field: name
+  value:
+    get:
+      of:
+        var: row
+      field: uuid
+- index: metadata.path-children
+  forEach: {in: {field: commands}, as: row}
+  key:
+    record:
+      parent: {input: owner}
+      kind: {literal: Command}
+      name: {get: {of: {var: row}, field: name}}
+  value: {get: {of: {var: row}, field: uuid}}

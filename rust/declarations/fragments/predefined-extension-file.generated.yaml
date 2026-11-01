@@ -1,0 +1,65 @@
+# Generated from packages/rules/metadata/commonObjects/predefined/rules.ts and packages/rules/metadata/appliedObjects/metadataCatalog/rules.ts by file-envelope-operation.mjs
+format: nkdk-declarations/1
+kind: fragment
+id: fragment.predefined-extension-file
+namespaces:
+  p: http://v8.1c.ru/8.3/xcf/predef
+imports:
+  items: probe.predefined-extension-file-items
+inputs:
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  identities:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  borrowed:
+    type:
+      kind: scalar
+      scalar: boolean
+value:
+  kind: record
+  fields:
+    - name: items
+      type:
+        use: items
+        bind:
+          parent:
+            input: owner
+          identities:
+            input: identities
+          borrowed:
+            input: borrowed
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: items
+        path:
+          - p:PredefinedData
+        file:
+          - Ext
+          - Predefined.xml
+  yaml:
+    kind: mapping
+    fields:
+      - field: items
+        key: Предопределенные
+presence:
+  - target:
+      field: items
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true

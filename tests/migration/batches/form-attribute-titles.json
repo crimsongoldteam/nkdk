@@ -1,0 +1,12 @@
+{
+  "id": "form-attribute-titles",
+  "expectedPropertyCount": 1,
+  "cases": [
+    "form-attribute-title-missing",
+    "form-attribute-title-name",
+    "form-attribute-title-custom",
+    "form-attribute-title-empty-element",
+    "form-attribute-title-real-0",
+    "form-attribute-title-real-1"
+  ]
+}

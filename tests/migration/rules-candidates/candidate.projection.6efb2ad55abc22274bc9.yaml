@@ -1,0 +1,19 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.projection.6efb2ad55abc22274bc9
+description: 'Кандидат проекции: относительный XML-корень MainTable; не полный владелец'
+imports:
+  inputType1f8ea46361ff: common.path-root
+  part0: candidate.fragment.b79e1896757d972b5ead
+compose:
+  - use: part0
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []

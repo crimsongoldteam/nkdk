@@ -1,0 +1,35 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.type-description
+value:
+  kind: record
+  fields:
+    - name: availableTypes
+      type:
+        use: value0
+        bind: {}
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: availableTypes
+        path:
+          - AvailableTypes
+  yaml:
+    kind: mapping
+    fields:
+      - field: availableTypes
+        key: ДоступныеТипы
+presence:
+  - target:
+      field: availableTypes
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+id: candidate.fragment.2527208219e80d00f809

@@ -1,0 +1,52 @@
+format: nkdk-declarations/1
+kind: value
+id: common.dcs-available-fields
+namespaces:
+  dcsset: http://v8.1c.ru/8.1/data-composition-system/settings
+imports:
+  item: common.dcs-available-field-row
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+value:
+  kind: sequence
+  item:
+    use: item
+    bind:
+      defaultLanguage:
+        input: defaultLanguage
+      registeredLanguages:
+        input: registeredLanguages
+representations:
+  xml:
+    kind: element-sequence
+    path:
+      - dcsset:item
+    item:
+      kind: declared
+  yaml:
+    kind: sequence
+    item:
+      kind: declared
+presence:
+  - target: self
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true

@@ -390,3 +390,103 @@ fn optional_text_groups_restore_absent_slots_and_preserve_boundaries() {
     assert!(OptionalPattern::<1>::new(&[O::Slot(0), O::Slot(0)]).is_err());
     assert!(OptionalPattern::<1>::new(&[O::Slot(0), O::Optional(1, &[O::Literal("x")])]).is_err());
 }
+
+#[test]
+fn optional_leading_slots_use_a_closing_literal_to_distinguish_full_and_short_text() {
+    use nkdk_conversion_core::text_pattern::{OptionalPart as O, OptionalPattern, PatternError};
+    let mut plan = OptionalPattern::<3>::new(&[
+        O::Optional(
+            1,
+            &[
+                O::Slot(0),
+                O::Literal("."),
+                O::Slot(1),
+                O::Literal(".Форма."),
+            ],
+        ),
+        O::Slot(2),
+    ])
+    .unwrap();
+    for (source, values, active) in [
+        ("ФормаВыбора", [None, None, Some("ФормаВыбора")], [false; 3]),
+        (
+            "Справочник.Товары.Форма.ФормаВыбора",
+            [Some("Справочник"), Some("Товары"), Some("ФормаВыбора")],
+            [false, true, false],
+        ),
+    ] {
+        assert_eq!(plan.parse(source).unwrap(), values);
+        let mut rendered = String::new();
+        plan.write(&values, &active, &mut rendered, 1024).unwrap();
+        assert_eq!(rendered, source);
+    }
+    let mut rendered = String::new();
+    assert_eq!(
+        plan.write(
+            &[None, None, Some("Справочник.Товары.Форма.ФормаВыбора")],
+            &[false; 3],
+            &mut rendered,
+            1024
+        ),
+        Err(PatternError::AmbiguousValue)
+    );
+}
+
+#[test]
+fn variable_width_rows_borrow_complete_records_and_check_budgets() {
+    use nkdk_conversion_core::text_pattern::{PatternError, Sequence};
+    let plan = Sequence::<2>::new(".").unwrap();
+    let width = |kind: &str| match kind {
+        "Pair" => Ok(2),
+        "Stop" => Ok(1),
+        _ => Err(PatternError::Input { offset: 0 }),
+    };
+    let rows = plan
+        .rows_variable("Pair.имя.Stop.Pair.Stop", 3, 100, width)
+        .unwrap()
+        .map(Result::unwrap)
+        .collect::<Vec<_>>();
+    assert_eq!(
+        rows.iter().map(|row| row.text).collect::<Vec<_>>(),
+        ["Pair.имя", "Stop", "Pair.Stop"]
+    );
+    assert_eq!(rows[1].cells, ["Stop", ""]);
+    for source in ["Pair", "Stop.", "Unknown.name"] {
+        assert!(
+            plan.rows_variable(source, 3, 100, width)
+                .unwrap()
+                .collect::<Result<Vec<_>, _>>()
+                .is_err()
+        );
+    }
+    assert!(
+        plan.rows_variable("Stop.Stop", 1, 100, width)
+            .unwrap()
+            .collect::<Result<Vec<_>, _>>()
+            .is_err()
+    );
+    assert!(plan.rows_variable("Stop", 1, 1, width).is_err());
+    assert_eq!(plan.rows_variable("", 0, 0, width).unwrap().count(), 0);
+    let (head, rows) = plan
+        .rows_with_head_variable::<2, _>("Root.Name.Pair.Stop.Stop", 2, 100, width)
+        .unwrap();
+    assert_eq!(head, ["Root", "Name"]);
+    assert_eq!(rows.collect::<Result<Vec<_>, _>>().unwrap().len(), 2);
+    let (_, rows) = plan
+        .rows_with_head_variable::<2, _>("Root.Name", 0, 100, width)
+        .unwrap();
+    assert_eq!(rows.count(), 0);
+    assert!(
+        plan.rows_with_head_variable::<2, _>("Root", 2, 100, width)
+            .is_err()
+    );
+    for invalid_width in [0, 3] {
+        assert!(
+            plan.rows_variable("Stop", 1, 100, |_| Ok(invalid_width))
+                .unwrap()
+                .next()
+                .unwrap()
+                .is_err()
+        );
+    }
+}

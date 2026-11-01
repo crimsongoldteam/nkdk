@@ -1,0 +1,44 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.string
+value:
+  kind: record
+  fields:
+    - name: queryText
+      type:
+        use: value0
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: queryText
+        path:
+          - QueryText
+  yaml:
+    kind: mapping
+    fields:
+      - field: queryText
+        file:
+          sequence:
+            - literal: ДинамическийСписок
+            - concat:
+                - input: parentName
+                - literal: .query
+presence:
+  - target:
+      field: queryText
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+inputs:
+  parentName:
+    type:
+      kind: scalar
+      scalar: text
+id: candidate.fragment.b45a94c8423591692096

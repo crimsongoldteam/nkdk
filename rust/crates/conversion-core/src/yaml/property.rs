@@ -1,6 +1,44 @@
 use super::{Node, Source};
 use crate::{Result, RuntimeDiagnostic};
 
+/// Add the discriminator of a selected mapping to an already rendered value.
+/// The child declaration remains responsible for all of its own fields.
+pub fn insert_mapping_literal(
+    output: &mut String,
+    start: usize,
+    indent: &str,
+    property: Option<&str>,
+    key: &str,
+    value: &str,
+) -> Result<()> {
+    let position = if let Some(property) = property {
+        let header = format!("{indent}{}:\n", super::mapping_key(property));
+        if !output[start..].starts_with(&header) {
+            return Err(RuntimeDiagnostic::new(
+                "yaml.choice-form",
+                "Selected value did not write its declared mapping property",
+            ));
+        }
+        start + header.len()
+    } else {
+        start
+    };
+    let inner = if property.is_some() {
+        format!("{indent}  ")
+    } else {
+        indent.to_owned()
+    };
+    output.insert_str(
+        position,
+        &format!(
+            "{inner}{}: {}\n",
+            super::mapping_key(key),
+            super::scalar(value)
+        ),
+    );
+    Ok(())
+}
+
 /// Stream the value of one declared property, rejecting extra or repeated keys.
 pub(super) fn visit_property(
     source: impl Source,

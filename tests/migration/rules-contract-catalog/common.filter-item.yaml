@@ -1,0 +1,57 @@
+format: nkdk-declarations/1
+kind: value
+id: common.filter-item
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  xs: http://www.w3.org/2001/XMLSchema
+  v8: http://v8.1c.ru/8.1/data/core
+  dcsset: http://v8.1c.ru/8.1/data-composition-system/settings
+  dcscor: http://v8.1c.ru/8.1/data-composition-system/core
+  xr: http://v8.1c.ru/8.3/xcf/readable
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+imports:
+  node: common.filter-node
+value:
+  kind: sequence
+  item:
+    use: node
+    bind:
+      defaultLanguage:
+        input: defaultLanguage
+      registeredLanguages:
+        input: registeredLanguages
+representations:
+  xml:
+    kind: element-sequence
+    path:
+      - dcsset:item
+  yaml:
+    kind: sequence
+presence:
+  - target: self
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+      omitWhen:
+        not:
+          exists:
+            in:
+              self: true
+            as: row
+            where:
+              literal: true

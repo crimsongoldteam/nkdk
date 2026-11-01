@@ -1,0 +1,42 @@
+# Сохранённая аномалия повторных таблиц mixedColumns.xml; ожидаемый XML проверяется независимо.
+ДополнительныеКолонки: !xml/raw
+  $значение:
+    ГрафикНачислений:
+      Сумма:
+        Тип: Число(10, 2)
+  $xml:
+    "{http://v8.1c.ru/8.3/xcf/logform}AdditionalColumns":
+      - _table: ГрафикНачислений
+        "{http://v8.1c.ru/8.3/xcf/logform}Column":
+          _name: Сумма
+          _id: "2"
+          "{http://v8.1c.ru/8.3/xcf/logform}Title":
+            "{http://v8.1c.ru/8.1/data/core}item":
+              "{http://v8.1c.ru/8.1/data/core}lang": ru
+              "{http://v8.1c.ru/8.1/data/core}content": Сумма
+          "{http://v8.1c.ru/8.3/xcf/logform}Type":
+            "{http://v8.1c.ru/8.1/data/core}Type":
+              "#qname":
+                - http://www.w3.org/2001/XMLSchema
+                - decimal
+            "{http://v8.1c.ru/8.1/data/core}NumberQualifiers":
+              "{http://v8.1c.ru/8.1/data/core}Digits": "10"
+              "{http://v8.1c.ru/8.1/data/core}FractionDigits": "2"
+              "{http://v8.1c.ru/8.1/data/core}AllowedSign": Any
+      - _table: ГрафикНачислений
+        "{http://v8.1c.ru/8.3/xcf/logform}Column":
+          _name: Сумма
+          _id: "3"
+          "{http://v8.1c.ru/8.3/xcf/logform}Title":
+            "{http://v8.1c.ru/8.1/data/core}item":
+              "{http://v8.1c.ru/8.1/data/core}lang": ru
+              "{http://v8.1c.ru/8.1/data/core}content": Сумма
+          "{http://v8.1c.ru/8.3/xcf/logform}Type":
+            "{http://v8.1c.ru/8.1/data/core}Type":
+              "#qname":
+                - http://www.w3.org/2001/XMLSchema
+                - decimal
+            "{http://v8.1c.ru/8.1/data/core}NumberQualifiers":
+              "{http://v8.1c.ru/8.1/data/core}Digits": "10"
+              "{http://v8.1c.ru/8.1/data/core}FractionDigits": "2"
+              "{http://v8.1c.ru/8.1/data/core}AllowedSign": Any

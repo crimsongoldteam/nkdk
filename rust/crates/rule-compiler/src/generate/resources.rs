@@ -1,7 +1,7 @@
 use super::*;
 use std::fmt::Write;
 
-pub(super) fn generate(entries: &[&LinkedEntry]) -> Result<String, Diagnostic> {
+pub(super) fn generate(entries: &[&LinkedEntry], program: &Program) -> Result<String, Diagnostic> {
     let mut out = String::from(
         "pub fn resource_requests(entry: EntryId, inputs: &PreparedInputs, limits: core::resources::Limits) -> core::Result<core::resources::Plan> { inputs.check_entry(entry)?; let mut plan = core::resources::Plan::new(limits); match entry.0 {\n",
     );
@@ -9,10 +9,14 @@ pub(super) fn generate(entries: &[&LinkedEntry]) -> Result<String, Diagnostic> {
         writeln!(out, "{} => {{", entry.id).unwrap();
         for group in &entry.resources {
             if let Some(iteration) = &group.for_each {
+                let loop_open = super::expressions::iteration_loop(
+                    iteration,
+                    &sequence(&iteration.input, entry)?,
+                    "resource_item",
+                );
                 writeln!(
                     out,
-                    "for resource_item in {} {{ let _resource_v{} = resource_item?;",
-                    sequence(&iteration.input, entry)?,
+                    "{loop_open} let _resource_v{} = resource_item?;",
                     iteration.slot
                 )
                 .unwrap();
@@ -58,9 +62,22 @@ pub(super) fn generate(entries: &[&LinkedEntry]) -> Result<String, Diagnostic> {
     out.push_str(
         "_=>Err(RuntimeDiagnostic::new(\"entry.unknown\",\"Unknown generated entry\"))}}\n",
     );
+    out.push_str("pub fn yaml_file_requests(entry:EntryId,inputs:&PreparedInputs,limits:core::resources::Limits)->core::Result<Vec<core::resources::RelativePath>>{inputs.check_entry(entry)?;let _=limits;let result=match entry.0{\n");
+    for entry in entries
+        .iter()
+        .filter(|entry| super::external_text::has_documents(entry, program))
+    {
+        let paths = super::external_text::file_paths(entry, program)?
+            .iter()
+            .map(|file| path(file, entry))
+            .collect::<Result<Vec<_>, _>>()?
+            .join(",");
+        writeln!(out, "{}=>vec![{}],", entry.id, paths).unwrap();
+    }
+    out.push_str("_=>{document_paths(entry)?;Vec::new()}};core::resources::validate_document_paths(&result,limits)?;Ok(result)}\n");
     Ok(out)
 }
-fn path(value: &LinkedExpression, entry: &LinkedEntry) -> Result<String, Diagnostic> {
+pub(super) fn path(value: &LinkedExpression, entry: &LinkedEntry) -> Result<String, Diagnostic> {
     match &value.kind {
         LinkedExpressionKind::Input(_) => Ok(format!(
             "core::resources::RelativePath::new({}.collect::<core::Result<Vec<_>>>()?, limits.path_bytes)?",
@@ -73,9 +90,34 @@ fn path(value: &LinkedExpression, entry: &LinkedEntry) -> Result<String, Diagnos
             "core::resources::RelativePath::new([{}], limits.path_bytes)?",
             text_parts(arguments, entry)?
         )),
+        LinkedExpressionKind::Operation {
+            operator: LinkedOperator::Conditional,
+            arguments,
+        } if arguments.len() == 3 => Ok(format!(
+            "if {} {{ {} }} else {{ {} }}",
+            condition(&arguments[0], entry)?,
+            path(&arguments[1], entry)?,
+            path(&arguments[2], entry)?
+        )),
         _ => Err(unsupported(
             entry,
             "Resource path requires explicit sequence parts",
+        )),
+    }
+}
+fn condition(value: &LinkedExpression, entry: &LinkedEntry) -> Result<String, Diagnostic> {
+    match &value.kind {
+        LinkedExpressionKind::Operation {
+            operator: LinkedOperator::Equal,
+            arguments,
+        } if arguments.len() == 2 => Ok(format!(
+            "{} == {}",
+            text(&arguments[0], entry)?,
+            text(&arguments[1], entry)?
+        )),
+        _ => Err(unsupported(
+            entry,
+            "Resource condition requires prepared text equality",
         )),
     }
 }

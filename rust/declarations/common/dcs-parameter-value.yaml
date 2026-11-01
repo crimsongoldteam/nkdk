@@ -1,0 +1,271 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+  - kind: value
+    id: common.dcs-parameter-value-choice
+    namespaces:
+      xsi: http://www.w3.org/2001/XMLSchema-instance
+      v8ui: http://v8.1c.ru/8.1/data/ui
+      v8: http://v8.1c.ru/8.1/data/core
+      xs: http://www.w3.org/2001/XMLSchema
+      dcscor: http://v8.1c.ru/8.1/data-composition-system/core
+      ent: http://v8.1c.ru/8.1/data/enterprise
+    imports:
+      color: common.color
+      font: common.font-normal
+      links: common.dcs-choice-parameter-links-items
+      choiceParameters: common.dcs-choice-parameters
+      field: common.dcs-parameter-field-value
+      horizontalAlign: system.HorizontalAlign.dcs
+      foldersAndItemsUse: common.dcs-folders-and-items-use-nullable
+      typeLink: common.type-link-dcs
+      designTime: common.dcs-design-time-choice
+      primitive: common.dcs-primitive-value
+      primitiveSelector: common.dcs-primitive-choice
+    inputs:
+      valueProfile:
+        type: {kind: scalar, scalar: text}
+      defaultLanguage:
+        type: {kind: scalar, scalar: text}
+      registeredLanguages:
+        type: {kind: sequence, item: {kind: scalar, scalar: text}}
+      labels:
+        type: {kind: index, key: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}, {name: code, type: {kind: scalar, scalar: text}}]}, value: {kind: scalar, scalar: text}}
+      codes:
+        type: {kind: index, key: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}, {name: label, type: {kind: scalar, scalar: text}}]}, value: {kind: scalar, scalar: text}}
+      styleTypes:
+        type: {kind: index, key: {kind: scalar, scalar: text}, value: {kind: scalar, scalar: text}}
+    value:
+      kind: choice
+      variants:
+        - {name: color, type: {use: color, with: {retainAuto: true}, bind: {styleTypes: {input: styleTypes}}}}
+        - {name: font, type: {use: font, bind: {styleTypes: {input: styleTypes}}}}
+        - {name: links, type: {use: links}}
+        - {name: choiceParameters, type: {use: choiceParameters, bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}}}}
+        - {name: field, type: {use: field, bind: {labels: {input: labels}, codes: {input: codes}}}}
+        - {name: horizontalAlign, type: {use: horizontalAlign}}
+        - {name: foldersAndItemsUse, type: {use: foldersAndItemsUse}}
+        - {name: typeLink, type: {use: typeLink}}
+        - {name: designTime, type: {use: designTime, bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}}}}
+        - {name: primitive, type: {use: primitive, bind: {labels: {input: labels}, codes: {input: codes}, defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}}}}
+    representations:
+      xml:
+        kind: choice
+        attribute: xsi:type
+        variants: [{variant: color, in: [v8ui:Color], emit: v8ui:Color}, {variant: font, in: [v8ui:Font], emit: v8ui:Font}, {variant: links, in: [dcscor:ChoiceParameterLinks], emit: dcscor:ChoiceParameterLinks}, {variant: choiceParameters, in: [dcscor:ChoiceParameters], emit: dcscor:ChoiceParameters}, {variant: field, from: field}, {variant: horizontalAlign, in: [v8ui:HorizontalAlign], emit: v8ui:HorizontalAlign}, {variant: foldersAndItemsUse, in: [ent:FoldersAndItemsUse], emit: ent:FoldersAndItemsUse}, {variant: typeLink, in: [dcscor:TypeLink], emit: dcscor:TypeLink}, {variant: designTime, in: [dcscor:DesignTimeValue, dcscor:Field, v8:LocalStringType, v8:LocalFormattedStringType, xs:string]}, {variant: primitive, from: primitiveSelector}]
+        otherwise: color
+      yaml:
+        kind: choice
+        variants: [{variant: font, form: mapping, key: Вид}, {variant: font, form: mapping, key: ВидXML}, {variant: font, form: input-profile, input: valueProfile, equals: Font}, {variant: links, form: sequence}, {variant: links, form: input-profile, input: valueProfile, equals: ChoiceParameterLinks}, {variant: choiceParameters, form: mapping-input, input: valueProfile, equals: ChoiceParameters}, {variant: color, form: scalar-input, input: valueProfile, equals: Color}, {variant: field, form: input-profile, input: valueProfile, equals: Field}, {variant: horizontalAlign, form: scalar-input, input: valueProfile, equals: HorizontalAlign}, {variant: foldersAndItemsUse, form: input-profile, input: valueProfile, equals: FoldersAndItemsUse}, {variant: typeLink, form: scalar-input, input: valueProfile, equals: TypeLink}, {variant: designTime, form: mapping, key: Тип}, {variant: designTime, form: scalar-input, input: valueProfile, equals: DesignTimeValue}, {variant: primitive, form: input-profile, input: valueProfile, equals: Primitive}]
+  - kind: value
+    id: common.dcs-parameter-atom
+    namespaces:
+      xsi: http://www.w3.org/2001/XMLSchema-instance
+      v8ui: http://v8.1c.ru/8.1/data/ui
+      v8: http://v8.1c.ru/8.1/data/core
+      xs: http://www.w3.org/2001/XMLSchema
+      dcscor: http://v8.1c.ru/8.1/data-composition-system/core
+      ent: http://v8.1c.ru/8.1/data/enterprise
+    imports:
+      value: common.dcs-parameter-value-choice
+    inputs:
+      valueProfile:
+        type: {kind: scalar, scalar: text}
+      defaultLanguage:
+        type: {kind: scalar, scalar: text}
+      registeredLanguages:
+        type: {kind: sequence, item: {kind: scalar, scalar: text}}
+      labels:
+        type: {kind: index, key: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}, {name: code, type: {kind: scalar, scalar: text}}]}, value: {kind: scalar, scalar: text}}
+      codes:
+        type: {kind: index, key: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}, {name: label, type: {kind: scalar, scalar: text}}]}, value: {kind: scalar, scalar: text}}
+      styleTypes:
+        type: {kind: index, key: {kind: scalar, scalar: text}, value: {kind: scalar, scalar: text}}
+    value:
+      kind: record
+      fields:
+        - {name: value, type: {use: value, bind: {valueProfile: {input: valueProfile}, defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}, labels: {input: labels}, codes: {input: codes}, styleTypes: {input: styleTypes}}}}
+    representations:
+      xml:
+        kind: record
+        fields: [{field: value, path: []}]
+      yaml:
+        kind: projection
+        field: value
+    presence:
+      - target: {field: value}
+        xml: {missing: {denotes: {absent: true}}, empty: [{form: nil, denotes: {absent: true}}]}
+        yaml: {missing: {denotes: {absent: true}}, empty: [{form: 'null', denotes: {absent: true}}]}
+  - kind: value
+    id: common.dcs-parameter-values
+    namespaces:
+      xsi: http://www.w3.org/2001/XMLSchema-instance
+      dcscor: http://v8.1c.ru/8.1/data-composition-system/core
+      dcsset: http://v8.1c.ru/8.1/data-composition-system/settings
+    imports:
+      item: common.dcs-parameter-atom
+    inputs:
+      valueProfile:
+        type: {kind: scalar, scalar: text}
+      defaultLanguage:
+        type: {kind: scalar, scalar: text}
+      registeredLanguages:
+        type: {kind: sequence, item: {kind: scalar, scalar: text}}
+      labels:
+        type: {kind: index, key: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}, {name: code, type: {kind: scalar, scalar: text}}]}, value: {kind: scalar, scalar: text}}
+      codes:
+        type: {kind: index, key: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}, {name: label, type: {kind: scalar, scalar: text}}]}, value: {kind: scalar, scalar: text}}
+      styleTypes:
+        type: {kind: index, key: {kind: scalar, scalar: text}, value: {kind: scalar, scalar: text}}
+    value:
+      kind: sequence
+      item:
+        use: item
+        bind: {valueProfile: {input: valueProfile}, defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}, labels: {input: labels}, codes: {input: codes}, styleTypes: {input: styleTypes}}
+    representations:
+      xml:
+        kind: element-sequence
+        path: [dcscor:value]
+      yaml:
+        kind: sequence
+        singleton: value
+    presence:
+      - target: self
+        xml: {missing: {denotes: {absent: true}}, empty: [{form: empty-element, denotes: {absent: true}}]}
+        yaml: {missing: {denotes: {absent: true}}, empty: [{form: empty-sequence, denotes: {absent: true}}]}
+  - kind: value
+    id: common.dcs-parameter-value
+    namespaces:
+      xsi: http://www.w3.org/2001/XMLSchema-instance
+      dcscor: http://v8.1c.ru/8.1/data-composition-system/core
+      dcsset: http://v8.1c.ru/8.1/data-composition-system/settings
+    imports:
+      text: common.string
+      flag: common.boolean
+      value: common.dcs-parameter-values
+      view: system.DataCompositionSettingsItemViewMode
+      presentation: common.dcs-local-string-type
+      children: common.dcs-parameter-children
+    parameters:
+      settingsXsi:
+        type: {kind: scalar, scalar: boolean}
+        default: true
+    inputs:
+      parameterName:
+        type: {kind: scalar, scalar: text}
+      valueProfile:
+        type: {kind: scalar, scalar: text}
+      styleTypes:
+        type: {kind: index, key: {kind: scalar, scalar: text}, value: {kind: scalar, scalar: text}}
+      defaultLanguage:
+        type: {kind: scalar, scalar: text}
+      registeredLanguages:
+        type: {kind: sequence, item: {kind: scalar, scalar: text}}
+      labels:
+        type: {kind: index, key: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}, {name: code, type: {kind: scalar, scalar: text}}]}, value: {kind: scalar, scalar: text}}
+      codes:
+        type: {kind: index, key: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}, {name: label, type: {kind: scalar, scalar: text}}]}, value: {kind: scalar, scalar: text}}
+    value:
+      kind: record
+      fields:
+        - {name: use, type: {use: flag}}
+        - {name: parameter, type: {use: text}}
+        - {name: value, type: {use: value, bind: {valueProfile: {input: valueProfile}, styleTypes: {input: styleTypes}, defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}, labels: {input: labels}, codes: {input: codes}}}}
+        - name: children
+          type:
+            use: children
+            bind: {parameterName: {input: parameterName}, valueProfile: {input: valueProfile}, styleTypes: {input: styleTypes}, defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}, labels: {input: labels}, codes: {input: codes}}
+        - {name: viewMode, type: {use: view}}
+        - {name: userSettingID, type: {use: text}}
+        - {name: userSettingPresentation, type: {use: presentation, bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}}}}
+    representations:
+      xml:
+        kind: with-attributes
+        attributes: [{name: xsi:type, value: {qname: dcsset:SettingsParameterValue}, when: {or: [{parameter: settingsXsi}, {present: {field: viewMode}}, {present: {field: userSettingID}}, {present: {field: userSettingPresentation}}]}}]
+        content: {kind: record, fields: [{field: use, path: [dcscor:use]}, {field: parameter, path: [dcscor:parameter]}, {field: value, path: []}, {field: children, path: []}, {field: viewMode, path: [dcsset:viewMode]}, {field: userSettingID, path: [dcsset:userSettingID]}, {field: userSettingPresentation, path: [dcsset:userSettingPresentation]}]}
+      yaml:
+        kind: mapping
+        fields: [{field: use, key: Использовать}, {field: value, key: Значение}, {field: viewMode, key: РежимОтображения}, {field: userSettingID, key: ИдентификаторПользовательскойНастройки}, {field: userSettingPresentation, key: ПредставлениеПользовательскойНастройки}, {field: children, key: Элементы}]
+        shorthand:
+          - {id: compact-value, canonical: false, representation: {kind: scalar, field: value}, when: {or: [{eq: [{input: valueProfile}, {literal: Field}]}, {eq: [{input: valueProfile}, {literal: Primitive}]}, {eq: [{input: valueProfile}, {literal: DesignTimeValue}]}]}}
+          - {id: compact-typed-value, representation: {kind: mapping, field: value}, when: {eq: [{input: valueProfile}, {literal: DesignTimeValue}]}}
+          - id: auto-color
+            representation: {kind: scalar, literal: Авто}
+            when: {eq: [{input: valueProfile}, {literal: Color}]}
+            denotes:
+              record:
+                use: {literal: true}
+                parameter: {input: parameterName}
+                value:
+                  sequence:
+                    - record:
+                        value:
+                          variant:
+                            name: color
+                            value: {variant: {name: Авто, value: {record: {}}}}
+                children: {sequence: []}
+                viewMode: {absent: true}
+                userSettingID: {absent: true}
+                userSettingPresentation: {absent: true}
+    presence:
+      - target: {field: use}
+        xml: {missing: {denotes: {literal: true}}, canonical: [{when: {field: use}, form: missing}, {form: ordinary}]}
+        yaml: {missing: {denotes: {literal: true}}, omitWhen: {field: use}}
+      - target: {field: parameter}
+        yaml: {missing: {denotes: {input: parameterName}}}
+      - target: {field: value}
+        xml: {missing: {denotes: {absent: true}}}
+        yaml: {missing: {denotes: {absent: true}}}
+      - target: {field: viewMode}
+        xml: {missing: {denotes: {absent: true}}}
+        yaml: {missing: {denotes: {absent: true}}}
+      - target: {field: userSettingID}
+        xml: {missing: {denotes: {absent: true}}}
+        yaml: {missing: {denotes: {absent: true}}}
+      - target: {field: userSettingPresentation}
+        xml: {missing: {denotes: {absent: true}}}
+        yaml: {missing: {denotes: {absent: true}}}
+      - target: {field: children}
+        xml: {missing: {denotes: {absent: true}}}
+        yaml: {missing: {denotes: {sequence: []}}}
+    constraints:
+      - id: parameter-name
+        appliesTo: [xml-import]
+        assert: {eq: [{field: parameter}, {input: parameterName}]}
+        diagnostic: {code: dcs.parameter-name, severity: error, at: {field: parameter}, message: Имя параметра не соответствует правилу}
+      - id: selected-profile
+        appliesTo: [xml-import, yaml-validation]
+        assert: {not: {eq: [{input: valueProfile}, {literal: ''}]}}
+        diagnostic: {code: dcs.parameter-profile-missing, severity: error, at: {field: parameter}, message: Для параметра не определён тип значения}
+      - id: parameter-profile
+        appliesTo: [xml-import, yaml-validation]
+        assert: {each: {in: {field: value}, as: item, where: {or: [{not: {present: {get: {of: {var: item}, field: value}}}}, {and: [{eq: [{input: valueProfile}, {literal: Color}]}, {isVariant: {value: {get: {of: {var: item}, field: value}}, variant: color}}]}, {and: [{eq: [{input: valueProfile}, {literal: Font}]}, {isVariant: {value: {get: {of: {var: item}, field: value}}, variant: font}}]}, {and: [{eq: [{input: valueProfile}, {literal: ChoiceParameterLinks}]}, {isVariant: {value: {get: {of: {var: item}, field: value}}, variant: links}}]}, {and: [{eq: [{input: valueProfile}, {literal: ChoiceParameters}]}, {isVariant: {value: {get: {of: {var: item}, field: value}}, variant: choiceParameters}}]}, {and: [{eq: [{input: valueProfile}, {literal: Field}]}, {isVariant: {value: {get: {of: {var: item}, field: value}}, variant: field}}]}, {and: [{eq: [{input: valueProfile}, {literal: HorizontalAlign}]}, {isVariant: {value: {get: {of: {var: item}, field: value}}, variant: horizontalAlign}}]}, {and: [{eq: [{input: valueProfile}, {literal: FoldersAndItemsUse}]}, {isVariant: {value: {get: {of: {var: item}, field: value}}, variant: foldersAndItemsUse}}]}, {and: [{eq: [{input: valueProfile}, {literal: TypeLink}]}, {isVariant: {value: {get: {of: {var: item}, field: value}}, variant: typeLink}}]}, {and: [{eq: [{input: valueProfile}, {literal: DesignTimeValue}]}, {isVariant: {value: {get: {of: {var: item}, field: value}}, variant: designTime}}]}, {and: [{eq: [{input: valueProfile}, {literal: Primitive}]}, {isVariant: {value: {get: {of: {var: item}, field: value}}, variant: primitive}}]}]}}}
+        diagnostic: {code: dcs.parameter-profile, severity: error, at: {field: value}, message: Значение не соответствует типу параметра}
+
+  - kind: value
+    id: common.dcs-parameter-children
+    namespaces: {dcscor: 'http://v8.1c.ru/8.1/data-composition-system/core'}
+    imports: {item: common.dcs-parameter-value}
+    parameters:
+      settingsXsi: {type: {kind: scalar, scalar: boolean}, default: false}
+    inputs:
+      parameterName: {type: {kind: scalar, scalar: text}}
+      valueProfile: {type: {kind: scalar, scalar: text}}
+      styleTypes: {type: {kind: index, key: {kind: scalar, scalar: text}, value: {kind: scalar, scalar: text}}}
+      defaultLanguage: {type: {kind: scalar, scalar: text}}
+      registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+      labels: {type: {kind: index, key: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}, {name: code, type: {kind: scalar, scalar: text}}]}, value: {kind: scalar, scalar: text}}}
+      codes: {type: {kind: index, key: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}, {name: label, type: {kind: scalar, scalar: text}}]}, value: {kind: scalar, scalar: text}}}
+    value:
+      kind: sequence
+      item:
+        use: item
+        with: {settingsXsi: {parameter: settingsXsi}}
+        bind: {parameterName: {input: parameterName}, valueProfile: {input: valueProfile}, styleTypes: {input: styleTypes}, defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}, labels: {input: labels}, codes: {input: codes}}
+    representations:
+      xml: {kind: element-sequence, path: [dcscor:item]}
+      yaml: {kind: sequence}
+    presence:
+      - target: self
+        xml: {missing: {denotes: {absent: true}}}
+        yaml: {missing: {denotes: {absent: true}}, omitWhen: {eq: [{self: true}, {sequence: []}]}}

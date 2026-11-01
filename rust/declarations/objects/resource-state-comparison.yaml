@@ -1,0 +1,103 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.resource-state-comparison
+inputs:
+  component:
+    type:
+      kind: scalar
+      scalar: text
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  baseComponent:
+    type:
+      kind: scalar
+      scalar: text
+  baseOwner:
+    type:
+      kind: scalar
+      scalar: text
+  active:
+    type:
+      kind: scalar
+      scalar: boolean
+  basePropertyExists:
+    type:
+      kind: scalar
+      scalar: boolean
+  fingerprints:
+    index: metadata.resource-fingerprints
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: component
+            type:
+              kind: scalar
+              scalar: text
+          - name: owner
+            type:
+              kind: scalar
+              scalar: text
+          - name: property
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+value:
+  kind: record
+  fields:
+    - name: property
+      type:
+        kind: scalar
+        scalar: text
+    - name: mode
+      type:
+        kind: scalar
+        scalar: text
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: property
+        path:
+          - State
+          - Name
+      - field: mode
+        path:
+          - State
+          - Mode
+  yaml:
+    kind: mapping
+    fields:
+      - field: property
+        key: property
+      - field: mode
+        key: mode
+imports:
+  policy: fragment.resource-state-policy
+compose:
+  - use: policy
+    bind:
+      component:
+        input: component
+      owner:
+        input: owner
+      baseComponent:
+        input: baseComponent
+      baseOwner:
+        input: baseOwner
+      active:
+        input: active
+      basePropertyExists:
+        input: basePropertyExists
+      fingerprints:
+        input: fingerprints
+      property:
+        field: property
+      mode:
+        field: mode

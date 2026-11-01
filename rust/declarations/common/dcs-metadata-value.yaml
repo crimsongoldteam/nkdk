@@ -1,0 +1,383 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: common.dcs-metadata-color-content
+  namespaces:
+    xsi: http://www.w3.org/2001/XMLSchema-instance
+    v8ui: http://v8.1c.ru/8.1/data/ui
+  imports: {color: common.color}
+  inputs:
+    styleTypes:
+      type: {kind: index, key: {kind: scalar, scalar: text}, value: {kind: scalar, scalar: text}}
+  value:
+    kind: record
+    fields: [{name: color, type: {use: color, bind: {styleTypes: {input: styleTypes}}}}]
+  representations:
+    xml:
+      kind: with-attributes
+      attributes: [{name: xsi:type, value: {qname: v8ui:Color}}]
+      content: {kind: record, fields: [{field: color, path: []}]}
+    yaml: {kind: projection, field: color}
+- kind: value
+  id: common.dcs-metadata-font-content
+  namespaces:
+    xsi: http://www.w3.org/2001/XMLSchema-instance
+    v8ui: http://v8.1c.ru/8.1/data/ui
+  imports: {font: common.font}
+  inputs:
+    styleTypes:
+      type: {kind: index, key: {kind: scalar, scalar: text}, value: {kind: scalar, scalar: text}}
+  value:
+    kind: record
+    fields: [{name: font, type: {use: font, bind: {styleTypes: {input: styleTypes}}}}]
+  representations:
+    xml:
+      kind: with-attributes
+      attributes: [{name: xsi:type, value: {qname: v8ui:Font}}]
+      content: {kind: record, fields: [{field: font, path: []}]}
+    yaml: {kind: projection, field: font}
+- kind: value
+  id: common.dcs-metadata-field
+  namespaces:
+    xsi: http://www.w3.org/2001/XMLSchema-instance
+    dcscor: http://v8.1c.ru/8.1/data-composition-system/core
+  value: {kind: scalar, scalar: text}
+  representations:
+    xml:
+      kind: with-attributes
+      attributes: [{name: xsi:type, value: {qname: dcscor:Field}}]
+      content: {kind: text}
+    yaml: {kind: scalar, scalar: text}
+- kind: value
+  id: common.dcs-primitive-value
+  imports: {value: common.dcs-primitive-choice}
+  inputs:
+    labels:
+      type: {kind: index, key: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}, {name: code, type: {kind: scalar, scalar: text}}]}, value: {kind: scalar, scalar: text}}
+    codes:
+      type: {kind: index, key: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}, {name: label, type: {kind: scalar, scalar: text}}]}, value: {kind: scalar, scalar: text}}
+    defaultLanguage: {type: {kind: scalar, scalar: text}}
+    registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  value:
+    kind: record
+    fields:
+    - name: value
+      type:
+        use: value
+        with: {exportNilValue: true}
+        bind:
+          labels: {input: labels}
+          codes: {input: codes}
+          defaultLanguage: {input: defaultLanguage}
+          registeredLanguages: {input: registeredLanguages}
+          onlyStringType: {literal: false}
+  representations:
+    xml: {kind: record, fields: [{field: value, path: []}]}
+    yaml: {kind: projection, field: value}
+- kind: value
+  id: common.dcs-primitive-values
+  namespaces: {dcscor: http://v8.1c.ru/8.1/data-composition-system/core}
+  imports: {item: common.dcs-primitive-value}
+  inputs:
+    labels:
+      type: {kind: index, key: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}, {name: code, type: {kind: scalar, scalar: text}}]}, value: {kind: scalar, scalar: text}}
+    codes:
+      type: {kind: index, key: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}, {name: label, type: {kind: scalar, scalar: text}}]}, value: {kind: scalar, scalar: text}}
+    defaultLanguage: {type: {kind: scalar, scalar: text}}
+    registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  value:
+    kind: sequence
+    item:
+      use: item
+      bind:
+        labels: {input: labels}
+        codes: {input: codes}
+        defaultLanguage: {input: defaultLanguage}
+        registeredLanguages: {input: registeredLanguages}
+  representations:
+    xml: {kind: element-sequence, path: [dcscor:value], item: {kind: declared}}
+    yaml: {kind: sequence, singleton: scalar, item: {kind: declared}}
+- kind: value
+  id: common.dcs-design-time-value
+  namespaces:
+    xsi: http://www.w3.org/2001/XMLSchema-instance
+    dcscor: http://v8.1c.ru/8.1/data-composition-system/core
+  imports: {root: common.path-root.russian-xml, name: common.metadata-name}
+  value:
+    kind: record
+    fields:
+    - {name: root, type: {use: root}}
+    - {name: owner, type: {use: name}}
+    - {name: value, type: {use: name}}
+  representations:
+    xml:
+      kind: with-attributes
+      attributes: [{name: xsi:type, value: {qname: dcscor:DesignTimeValue}}]
+      content: {kind: text-pattern, separator: '.', parts: [{field: root}, {field: owner}, {field: value}]}
+    yaml: {kind: text-pattern, separator: '.', parts: [{field: root}, {field: owner}, {field: value}]}
+- kind: value
+  id: common.dcs-explicit-field-kind
+  enum: {Поле: Поле}
+- kind: value
+  id: common.dcs-localized-kind
+  enum: {МногоязычнаяСтрока: МногоязычнаяСтрока}
+- kind: value
+  id: common.dcs-formatted-kind
+  enum: {МногоязычнаяФорматированнаяСтрока: МногоязычнаяФорматированнаяСтрока}
+- kind: value
+  id: common.dcs-design-time-localized-text
+  imports: {kind: common.dcs-localized-kind, value: common.dcs-local-string-type}
+  inputs:
+    defaultLanguage: {type: {kind: scalar, scalar: text}}
+    registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  value:
+    kind: record
+    fields:
+    - {name: kind, type: {use: kind}}
+    - name: value
+      type:
+        use: value
+        bind:
+          defaultLanguage: {input: defaultLanguage}
+          registeredLanguages: {input: registeredLanguages}
+  representations:
+    xml: {kind: record, fields: [{field: value, path: []}]}
+    yaml: {kind: mapping, fields: [{field: kind, key: Тип}, {field: value, key: Значение}]}
+  presence:
+  - target: {field: kind}
+    xml: {missing: {denotes: {literal: МногоязычнаяСтрока}}}
+  constraints:
+  - id: localized-kind
+    appliesTo: [xml-import, yaml-validation]
+    assert: {isVariant: {value: {field: value}, variant: localized}}
+    diagnostic: {code: dcs.localized-kind, severity: error, at: {field: value}, message: Ожидалась многоязычная строка}
+- kind: value
+  id: common.dcs-design-time-explicit-field
+  imports: {kind: common.dcs-explicit-field-kind, field: common.dcs-metadata-field}
+  value:
+    kind: record
+    fields:
+    - {name: kind, type: {use: kind}}
+    - {name: field, type: {use: field}}
+  representations:
+    xml: {kind: record, fields: [{field: field, path: []}]}
+    yaml: {kind: mapping, fields: [{field: kind, key: Тип}, {field: field, key: Значение}]}
+  presence:
+  - target: {field: kind}
+    xml: {missing: {denotes: {literal: Поле}}}
+- kind: value
+  id: common.dcs-formatted-local-string
+  namespaces: {v8: http://v8.1c.ru/8.1/data/core}
+  imports: {text: common.i8n-text, formatted: common.boolean-flag}
+  inputs:
+    defaultLanguage: {type: {kind: scalar, scalar: text}}
+    registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  value:
+    kind: record
+    fields:
+    - name: text
+      type:
+        use: text
+        bind:
+          defaultLanguage: {input: defaultLanguage}
+          registeredLanguages: {input: registeredLanguages}
+          ownerName: {literal: ''}
+    - {name: formatted, type: {use: formatted}}
+  representations:
+    xml: {kind: record, fields: [{field: text, path: [v8:lws]}, {field: formatted, path: [v8:formatted]}]}
+    yaml: {kind: mapping, fields: [{field: formatted, key: Форматированный}, {field: text, key: Текст}]}
+- kind: value
+  id: common.dcs-design-time-formatted-text
+  namespaces:
+    xsi: http://www.w3.org/2001/XMLSchema-instance
+    v8: http://v8.1c.ru/8.1/data/core
+  imports: {kind: common.dcs-formatted-kind, value: common.dcs-formatted-local-string}
+  inputs:
+    defaultLanguage: {type: {kind: scalar, scalar: text}}
+    registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  value:
+    kind: record
+    fields:
+    - {name: kind, type: {use: kind}}
+    - name: value
+      type:
+        use: value
+        bind:
+          defaultLanguage: {input: defaultLanguage}
+          registeredLanguages: {input: registeredLanguages}
+  representations:
+    xml:
+      kind: with-attributes
+      attributes: [{name: xsi:type, value: {qname: v8:LocalFormattedStringType}}]
+      content: {kind: record, fields: [{field: value, path: []}]}
+    yaml: {kind: mapping, fields: [{field: kind, key: Тип}, {field: value, key: Значение}]}
+  presence:
+  - target: {field: kind}
+    xml: {missing: {denotes: {literal: МногоязычнаяФорматированнаяСтрока}}}
+- kind: value
+  id: common.dcs-design-time-choice
+  namespaces:
+    xsi: http://www.w3.org/2001/XMLSchema-instance
+    xs: http://www.w3.org/2001/XMLSchema
+    v8: http://v8.1c.ru/8.1/data/core
+    dcscor: http://v8.1c.ru/8.1/data-composition-system/core
+  imports:
+    path: common.dcs-design-time-value
+    field: common.dcs-design-time-explicit-field
+    localized: common.dcs-design-time-localized-text
+    formatted: common.dcs-design-time-formatted-text
+    text: common.dcs-xml-string
+  inputs:
+    defaultLanguage: {type: {kind: scalar, scalar: text}}
+    registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  value:
+    kind: choice
+    variants:
+    - {name: path, type: {use: path}}
+    - {name: field, type: {use: field}}
+    - name: localized
+      type:
+        use: localized
+        bind:
+          defaultLanguage: {input: defaultLanguage}
+          registeredLanguages: {input: registeredLanguages}
+    - name: formatted
+      type:
+        use: formatted
+        bind:
+          defaultLanguage: {input: defaultLanguage}
+          registeredLanguages: {input: registeredLanguages}
+    - {name: text, type: {use: text}}
+  representations:
+    xml:
+      kind: choice
+      attribute: xsi:type
+      variants:
+      - {variant: path, in: [dcscor:DesignTimeValue], emit: dcscor:DesignTimeValue}
+      - {variant: field, in: [dcscor:Field], emit: dcscor:Field}
+      - {variant: localized, in: [v8:LocalStringType], emit: v8:LocalStringType}
+      - {variant: formatted, in: [v8:LocalFormattedStringType], emit: v8:LocalFormattedStringType}
+      - {variant: text, in: [xs:string], emit: xs:string}
+      otherwise: text
+    yaml:
+      kind: choice
+      variants:
+      - {variant: field, form: mapping, key: Тип}
+      - {variant: localized, form: mapping, key: Тип}
+      - {variant: formatted, form: mapping, key: Тип}
+- kind: value
+  id: common.dcs-design-time-choice-nullable
+  imports: {value: common.dcs-design-time-choice}
+  inputs:
+    defaultLanguage: {type: {kind: scalar, scalar: text}}
+    registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  value:
+    kind: record
+    fields:
+    - name: value
+      type:
+        use: value
+        bind:
+          defaultLanguage: {input: defaultLanguage}
+          registeredLanguages: {input: registeredLanguages}
+  representations:
+    xml: {kind: record, fields: [{field: value, path: []}]}
+    yaml: {kind: projection, field: value}
+  presence:
+  - target: {field: value}
+    xml:
+      empty: [{form: nil, denotes: {absent: true}}]
+      canonical: [{when: {not: {present: {field: value}}}, form: nil}]
+    yaml: {empty: [{form: null, denotes: {absent: true}}]}
+- kind: value
+  id: common.dcs-horizontal-align-nullable
+  imports: {value: system.HorizontalAlign.dcs}
+  value:
+    kind: record
+    fields: [{name: value, type: {use: value}}]
+  representations:
+    xml: {kind: record, fields: [{field: value, path: []}]}
+    yaml: {kind: projection, field: value}
+  presence:
+  - target: {field: value}
+    xml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: nil, denotes: {absent: true}}]
+      canonical: [{when: {not: {present: {field: value}}}, form: nil}]
+    yaml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: null, denotes: {absent: true}}]
+- kind: value
+  id: common.dcs-folders-and-items-use-nullable
+  imports: {value: system.FoldersAndItemsUse.dcs}
+  value:
+    kind: record
+    fields: [{name: value, type: {use: value}}]
+  representations:
+    xml: {kind: record, fields: [{field: value, path: []}]}
+    yaml: {kind: projection, field: value}
+  presence:
+  - target: {field: value}
+    xml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: nil, denotes: {absent: true}}]
+      canonical: [{when: {not: {present: {field: value}}}, form: nil}]
+    yaml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: null, denotes: {absent: true}}]
+- kind: value
+  id: common.dcs-filter-field
+  namespaces:
+    xsi: http://www.w3.org/2001/XMLSchema-instance
+    dcscor: http://v8.1c.ru/8.1/data-composition-system/core
+  imports: {field: common.string}
+  value:
+    kind: record
+    fields: [{name: field, type: {use: field}}]
+  representations:
+    xml:
+      kind: with-attributes
+      attributes: [{name: xsi:type, value: {qname: dcscor:Field}}]
+      content: {kind: text-pattern, parts: [{field: field}]}
+    yaml: {kind: text-pattern, parts: [{literal: '.'}, {field: field}]}
+- kind: value
+  id: common.dcs-metadata-color
+  imports: {value: common.dcs-metadata-color-content}
+  inputs:
+    styleTypes:
+      type: {kind: index, key: {kind: scalar, scalar: text}, value: {kind: scalar, scalar: text}}
+  value:
+    kind: record
+    fields: [{name: value, type: {use: value, bind: {styleTypes: {input: styleTypes}}}}]
+  representations:
+    xml: {kind: record, fields: [{field: value, path: []}]}
+    yaml: {kind: projection, field: value}
+  presence:
+  - target: {field: value}
+    xml:
+      empty: [{form: nil, denotes: {absent: true}}]
+      canonical:
+      - {when: {not: {present: {field: value}}}, form: nil}
+    yaml:
+      empty: [{form: null, denotes: {absent: true}}]
+- kind: value
+  id: common.dcs-metadata-font
+  imports: {value: common.dcs-metadata-font-content}
+  inputs:
+    styleTypes:
+      type: {kind: index, key: {kind: scalar, scalar: text}, value: {kind: scalar, scalar: text}}
+  value:
+    kind: record
+    fields: [{name: value, type: {use: value, bind: {styleTypes: {input: styleTypes}}}}]
+  representations:
+    xml: {kind: record, fields: [{field: value, path: []}]}
+    yaml: {kind: projection, field: value}
+  presence:
+  - target: {field: value}
+    xml:
+      empty: [{form: nil, denotes: {absent: true}}]
+      canonical:
+      - {when: {not: {present: {field: value}}}, form: nil}
+    yaml:
+      empty: [{form: null, denotes: {absent: true}}]

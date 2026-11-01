@@ -1,0 +1,25 @@
+format: nkdk-declarations/1
+kind: value
+id: common.group-item-auto-use
+value:
+  kind: enum
+  variants:
+    - name: Enabled
+      value: Enabled
+    - name: Disabled
+      value: Disabled
+representations:
+  xml:
+    kind: text
+    values:
+      - value: Enabled
+        text: 'true'
+      - value: Disabled
+        text: 'false'
+  yaml:
+    kind: scalar
+    values:
+      - value: Enabled
+        literal: '[Авто]'
+      - value: Disabled
+        literal: ([Авто])

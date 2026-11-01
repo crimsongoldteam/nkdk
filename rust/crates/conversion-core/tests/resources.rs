@@ -25,6 +25,52 @@ fn resource_paths_and_plan_limits_preserve_routes_without_io() {
         RelativePath::new(["ab", "cd"], 5).unwrap().segments().len(),
         2
     );
+    let limits = Limits {
+        groups: 8,
+        routes: 2,
+        path_bytes: 256,
+    };
+    assert!(
+        nkdk_conversion_core::resources::validate_document_paths(
+            &[xml.clone(), yaml.clone()],
+            limits
+        )
+        .is_ok()
+    );
+    assert!(
+        nkdk_conversion_core::resources::validate_document_paths(
+            &[xml.clone(), xml.clone()],
+            limits
+        )
+        .is_err()
+    );
+    assert!(
+        nkdk_conversion_core::resources::validate_document_paths(
+            &[xml.clone(), yaml.clone()],
+            Limits {
+                routes: 1,
+                ..limits
+            }
+        )
+        .is_err()
+    );
+    assert!(
+        nkdk_conversion_core::resources::validate_document_paths(
+            &[xml.clone(), yaml.clone()],
+            Limits {
+                path_bytes: 1,
+                ..limits
+            }
+        )
+        .is_err()
+    );
+    let mut remaining = 3;
+    assert_eq!(
+        nkdk_conversion_core::resources::copy_document_bytes(b"ab", &mut remaining).unwrap(),
+        b"ab"
+    );
+    assert!(nkdk_conversion_core::resources::copy_document_bytes(b"cd", &mut remaining).is_err());
+    assert_eq!(remaining, 1);
     let route = Route::new(xml.clone(), yaml.clone());
     assert!(!route.is_remainder());
     assert!(route.clone().remainder().is_remainder());

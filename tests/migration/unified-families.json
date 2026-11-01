@@ -1,11 +1,202 @@
 [
-  {"id":"enum-values","role":"accept-first","path":"packages/rules/metadata/appliedObjects/metadataEnumeration/rules.ts","symbol":"MetadataEnumerationValueRules"},
-  {"id":"document-attributes","role":"accept-next","path":"packages/rules/metadata/appliedObjects/metadataDocument/childRules.ts","symbol":"MetadataDocumentAttributeRules",
-    "compilerRoots":["migration.document-identity-and-children","migration.document-internal-types","migration.metadata-root-index","migration.metadata-child-index","migration.form-metadata-header","migration.additional-indexes"]},
-  {"id":"input-field","role":"requirements","path":"packages/rules/metadata/forms/elements/inputField/rules.ts","symbol":"InputFieldRules"},
-  {"id":"table-input-field","role":"requirements","path":"packages/rules/metadata/forms/elements/inputField/rules.ts","symbol":"TableInputFieldRules"},
-  {"id":"form-attribute","role":"requirements","path":"packages/rules/metadata/forms/commonObjects/formAttribute/rules.ts","symbol":"FormAttributeRules"},
-  {"id":"usual-group","role":"requirements","path":"packages/rules/metadata/forms/elements/usualGroup/rules.ts","symbol":"UsualGroupRules"},
-  {"id":"column-group","role":"requirements","path":"packages/rules/metadata/forms/elements/columnGroup/rules.ts","symbol":"ColumnGroupRules"},
-  {"id":"button-group","role":"requirements","path":"packages/rules/metadata/forms/elements/buttonGroup/rules.ts","symbol":"ButtonGroupRules"}
+  {
+    "id": "enum-values",
+    "role": "accept-first",
+    "path": "packages/rules/metadata/appliedObjects/metadataEnumeration/rules.ts",
+    "symbol": "MetadataEnumerationValueRules"
+  },
+  {
+    "id": "document-attributes",
+    "role": "accept-next",
+    "path": "packages/rules/metadata/appliedObjects/metadataDocument/childRules.ts",
+    "symbol": "MetadataDocumentAttributeRules",
+    "compilerRoots": [
+      "migration.document-identity-and-children",
+      "migration.document-internal-types",
+      "migration.metadata-root-index",
+      "migration.metadata-child-index",
+      "migration.metadata-base-identity",
+      "migration.form-metadata-header",
+      "migration.additional-indexes"
+    ]
+  },
+  {
+    "id": "tabular-sections",
+    "role": "accept-next",
+    "path": "packages/rules/metadata/commonObjects/metadataTabularSection/rules.ts",
+    "symbol": "MetadataTabularSectionRules"
+  },
+  {
+    "id": "internal-info",
+    "role": "accept-next",
+    "path": "packages/rules/metadata/commonObjects/internalInfo/fromXML.ts",
+    "symbol": "InternalInfo"
+  },
+  {
+    "id": "choice-form",
+    "role": "accept-next",
+    "path": "packages/rules/metadata/commonObjects/choiceForm/resolve.ts",
+    "symbol": "resolveChoiceFormOwner"
+  },
+  {
+    "id": "input-by-string",
+    "role": "accept-next",
+    "path": "packages/rules/metadata/commonObjects/inputByStringFields/types.ts",
+    "symbol": "inputByStringFieldsRule"
+  },
+  {
+    "id": "numeric-owners",
+    "role": "accept-next",
+    "path": "packages/rules/metadata/commonObjects/number/types.ts",
+    "symbol": "numberRule"
+  },
+  {
+    "id": "form-parameters",
+    "role": "accept-next",
+    "path": "packages/rules/metadata/forms/commonObjects/formParameter/rules.ts",
+    "symbol": "FormParameterRules"
+  },
+  {
+    "id": "scalar-fallbacks",
+    "role": "accept-next",
+    "path": "packages/rules/metadata/forms/elements/autoCommandBar/rules.ts",
+    "symbol": "AutoCommandBarRules"
+  },
+  {
+    "id": "element-identity",
+    "role": "accept-next",
+    "path": "packages/rules/metadata/forms/elements/autoCommandBar/rules.ts",
+    "symbol": "AutoCommandBarRules"
+  },
+  {
+    "id": "input-field",
+    "role": "requirements",
+    "path": "packages/rules/metadata/forms/elements/inputField/rules.ts",
+    "symbol": "InputFieldRules"
+  },
+  {
+    "id": "table-input-field",
+    "role": "requirements",
+    "path": "packages/rules/metadata/forms/elements/inputField/rules.ts",
+    "symbol": "TableInputFieldRules"
+  },
+  {
+    "id": "form-attribute",
+    "role": "requirements",
+    "path": "packages/rules/metadata/forms/commonObjects/formAttribute/rules.ts",
+    "symbol": "FormAttributeRules"
+  },
+  {
+    "id": "usual-group",
+    "role": "requirements",
+    "path": "packages/rules/metadata/forms/elements/usualGroup/rules.ts",
+    "symbol": "UsualGroupRules"
+  },
+  {
+    "id": "column-group",
+    "role": "requirements",
+    "path": "packages/rules/metadata/forms/elements/columnGroup/rules.ts",
+    "symbol": "ColumnGroupRules"
+  },
+  {
+    "id": "button-group",
+    "role": "requirements",
+    "path": "packages/rules/metadata/forms/elements/buttonGroup/rules.ts",
+    "symbol": "ButtonGroupRules"
+  },
+  {
+    "id": "element-assemblies",
+    "role": "accept-next",
+    "path": "packages/rules/metadata/forms/elements/extendedTooltip/rules.ts",
+    "symbol": "ExtendedTooltipRules"
+  },
+  {
+    "id": "grouped-records",
+    "role": "accept-next",
+    "path": "rust/crates/rule-compiler/tests/grouped_mapping.rs",
+    "symbol": "grouped_mapping_is_compiled_from_unrelated_field_names"
+  },
+  {
+    "id": "formatted-records",
+    "role": "accept-next",
+    "path": "packages/rules/metadata/commonObjects/formattedI8nText",
+    "symbol": "FormattedI8nText"
+  },
+  {
+    "id": "record-defaults",
+    "role": "accept-next",
+    "path": "rust/crates/rule-compiler/src/generate/record_reference.rs",
+    "symbol": "record-defaults"
+  },
+  {
+    "id": "dynamic-list-settings",
+    "role": "accept-next",
+    "path": "packages/rules/metadata/forms/commonObjects/dynamicList/rules.ts",
+    "symbol": "DynamicListRules",
+    "backend": "shared-aot"
+  },
+  {
+    "id": "dynamic-list-parameters",
+    "role": "accept-next",
+    "backend": "shared-aot",
+    "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dcsParameter/rules.ts",
+    "symbol": "DCSParameterRules"
+  },
+  {
+    "id": "appearance-field-profiles",
+    "role": "accept-profiles",
+    "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/appearanceFields/rules.ts",
+    "symbol": "AppearanceFieldsRules"
+  },
+  {
+    "id": "settings-parameter-values",
+    "role": "accept-values",
+    "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/parameterValue/fromXML.ts",
+    "symbol": "SettingsParameterValue"
+  },
+  {
+    "id": "dcs-metadata-values",
+    "role": "accept-values",
+    "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dcsMetadataValue/types.ts",
+    "symbol": "MetadataDcsMetadataValue"
+  },
+  {
+    "id": "dcs-metadata-typed-values",
+    "role": "accept-values",
+    "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dscMetadataTypedValue/types.ts",
+    "symbol": "DcsMetadataTypedValue"
+  },
+  {
+    "id": "calculated-fields",
+    "role": "accept-next",
+    "backend": "shared-aot",
+    "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/calculatedFields/types.ts",
+    "symbol": "CalculatedFieldRules"
+  },
+  {
+    "id": "data-set-fields",
+    "role": "accept-values",
+    "backend": "shared-aot",
+    "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/rules.ts",
+    "symbol": "DataCompositionSchemaDataSetFieldRules"
+  },
+  {
+    "id": "filter-comparisons",
+    "role": "accept-values",
+    "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/rules.ts",
+    "symbol": "FilterItemComparisonRules"
+  },
+  {
+    "id": "filter-trees",
+    "role": "accept-values",
+    "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/filterItem/rules.ts",
+    "symbol": "FilterItemGroupRules"
+  },
+  {
+    "id": "conditional-appearance",
+    "role": "accept-values",
+    "backend": "shared-aot",
+    "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/rules.ts",
+    "symbol": "ConditionalAppearanceItemRules"
+  }
 ]

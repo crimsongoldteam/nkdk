@@ -1,0 +1,41 @@
+format: nkdk-declarations/1
+kind: value
+id: common.dcs-available-field
+imports:
+  short: common.dcs-available-field-short
+  full: common.dcs-available-field-full
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+value:
+  kind: choice
+  variants:
+    - name: short
+      type:
+        use: short
+    - name: full
+      type:
+        use: full
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+representations:
+  xml:
+    kind: choice
+    fallback: full
+  yaml:
+    kind: choice
+    variants:
+      - variant: full
+        form: mapping
+        key: Поле

@@ -71,3 +71,39 @@ impl OperationIdentity {
         value
     }
 }
+
+/// Resolve an operation seed written as 64 hexadecimal characters. The seed is
+/// supplied at the operation boundary and never persisted in a fact snapshot.
+pub fn derive(
+    seed: &str,
+    domain: &str,
+    format: IdentityFormat,
+    segments: &[&str],
+) -> crate::Result<String> {
+    let bytes = seed.as_bytes();
+    if bytes.len() != 64 {
+        return Err(crate::RuntimeDiagnostic::new(
+            "identity.seed",
+            "Operation identity seed must contain 64 hexadecimal characters",
+        ));
+    }
+    let mut decoded = [0_u8; 32];
+    for (index, pair) in bytes.as_chunks::<2>().0.iter().enumerate() {
+        let high = (pair[0] as char).to_digit(16);
+        let low = (pair[1] as char).to_digit(16);
+        let (Some(high), Some(low)) = (high, low) else {
+            return Err(crate::RuntimeDiagnostic::new(
+                "identity.seed",
+                "Operation identity seed contains a non-hexadecimal character",
+            ));
+        };
+        decoded[index] = ((high << 4) | low) as u8;
+    }
+    let address = LogicalAddress::from_segments(segments.iter().copied())?;
+    let FactState::Ready(value) =
+        OperationIdentity::new(decoded).resolve(FactState::Missing, domain, format, &address)
+    else {
+        unreachable!("a missing identity is always generated")
+    };
+    Ok(value.into_owned())
+}

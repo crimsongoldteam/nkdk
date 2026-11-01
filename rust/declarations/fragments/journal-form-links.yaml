@@ -1,16 +1,18 @@
 format: nkdk-declarations/1
 kind: fragment
 id: fragment.journal-form-links
-imports: {link: common.owner-form-link}
+imports: {optional: common.owner-form-link-with-empty}
 namespaces: {md: 'http://v8.1c.ru/8.3/MDClasses'}
 inputs:
   ownerPath: {type: {kind: scalar, scalar: text}}
   forms: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  adopted: {type: {kind: scalar, scalar: boolean}}
+  extension: {type: {kind: scalar, scalar: boolean}}
 value:
   kind: record
   fields:
-  - {name: DefaultForm, type: {use: link, bind: {owner: {input: ownerPath}, forms: {input: forms}}}}
-  - {name: AuxiliaryForm, type: {use: link, bind: {owner: {input: ownerPath}, forms: {input: forms}}}}
+  - {name: DefaultForm, type: {use: optional, bind: {owner: {input: ownerPath}, forms: {input: forms}}}}
+  - {name: AuxiliaryForm, type: {use: optional, bind: {owner: {input: ownerPath}, forms: {input: forms}}}}
 representations:
   xml:
     kind: record
@@ -26,12 +28,23 @@ presence:
 - target: {field: DefaultForm}
   xml:
     missing: {denotes: {absent: true}}
-    empty: [{form: empty-element, denotes: {absent: true}}]
-    canonical: [{when: {not: {present: {field: DefaultForm}}}, form: empty-element}]
-  yaml: {missing: {denotes: {absent: true}}}
+    canonical:
+    - {when: {and: [{input: adopted}, {not: {present: {field: DefaultForm}}}]}, form: missing}
+    - {when: {not: {present: {field: DefaultForm}}}, form: empty-element}
+    - {form: ordinary}
+  yaml:
+    missing: {denotes: {absent: true}}
+    empty: [{form: null, denotes: {absent: true}}]
+    nullWhen: {and: [{input: extension}, {not: {input: adopted}}, {isVariant: {value: {field: DefaultForm}, variant: empty}}]}
+    omitWhen: {and: [{not: {input: extension}}, {isVariant: {value: {field: DefaultForm}, variant: empty}}]}
 - target: {field: AuxiliaryForm}
   xml:
     missing: {denotes: {absent: true}}
-    empty: [{form: empty-element, denotes: {absent: true}}]
-    canonical: [{when: {not: {present: {field: AuxiliaryForm}}}, form: empty-element}]
-  yaml: {missing: {denotes: {absent: true}}}
+    canonical:
+    - {when: {and: [{input: adopted}, {not: {present: {field: AuxiliaryForm}}}]}, form: missing}
+    - {when: {not: {present: {field: AuxiliaryForm}}}, form: empty-element}
+  yaml:
+    missing: {denotes: {absent: true}}
+    empty: [{form: null, denotes: {absent: true}}]
+    nullWhen: {and: [{input: extension}, {not: {input: adopted}}, {isVariant: {value: {field: AuxiliaryForm}, variant: empty}}]}
+    omitWhen: {and: [{not: {input: extension}}, {isVariant: {value: {field: AuxiliaryForm}, variant: empty}}]}

@@ -1,4 +1,5 @@
 import {pathTemplate} from './path-template.mjs';
+import {conditionalPathTemplate} from './conditional-path-template.mjs';
 import {isDeepStrictEqual} from 'node:util';
 import {commonInputs} from './common-inputs.mjs';
 import {internalInfoAttachment} from './internal-info-attachment.mjs';
@@ -16,8 +17,10 @@ export function readyAttachment(property,catalog,profiles,owner) {
   let parameters=property.parameters;
   const expression=parameters.xmlPath?.$unresolved?.expression;
   const template=pathTemplate(expression);
-  if(property.status!=='static-parameters' && !template)return {status:'blocked',reason:'requires-expression-mapping'};
-  if(template)parameters={...parameters,xmlPath:{$pathTemplate:template}};
+  const conditional=conditionalPathTemplate(expression);
+  const yamlTemplate=pathTemplate(parameters.nkdkPath?.$unresolved?.expression);
+  if(property.status!=='static-parameters' && !template && !conditional && !yamlTemplate)return {status:'blocked',reason:'requires-expression-mapping'};
+  if(template || conditional || yamlTemplate)parameters={...parameters,...(template?{xmlPath:{$pathTemplate:template}}:conditional?{xmlPath:{$pathConditional:conditional}}:{}),...(yamlTemplate?{nkdkPath:{$pathTemplate:yamlTemplate}}:{})};
   const matches=choices.filter(profile=>isDeepStrictEqual(profile.parameters,parameters));
   if(matches.length>1)throw new Error('Ambiguous ready attachment profile');
   if(!matches.length)return {status:'blocked',reason:'unreviewed-attachment-parameters',differences:choices.map(profile=>Object.keys({...profile.parameters,...property.parameters}).filter(key=>!isDeepStrictEqual(profile.parameters[key],property.parameters[key])).sort())};

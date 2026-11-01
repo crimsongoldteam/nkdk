@@ -25,6 +25,14 @@ export default class MetadataTestRunner extends TestRunner {
     return result
   }
 
+  override async onAfterRunSuite(suite: Suite): Promise<void> {
+    try {
+      await super.onAfterRunSuite(suite)
+    } finally {
+      if (suite.file === suite) this.registriesByFile.delete(suite.file.filepath)
+    }
+  }
+
   override onBeforeTryTask(test: Test): void {
     super.onBeforeTryTask(test)
     this.enterFileContext(test.file.filepath)

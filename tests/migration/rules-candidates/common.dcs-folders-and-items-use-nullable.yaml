@@ -1,0 +1,45 @@
+format: nkdk-declarations/1
+kind: value
+id: common.dcs-folders-and-items-use-nullable
+imports:
+  value: system.FoldersAndItemsUse.dcs
+value:
+  kind: record
+  fields:
+    - name: value
+      type:
+        use: value
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: value
+        path: []
+  yaml:
+    kind: projection
+    field: value
+presence:
+  - target:
+      field: value
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: nil
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: value
+          form: nil
+    yaml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: null
+          denotes:
+            absent: true

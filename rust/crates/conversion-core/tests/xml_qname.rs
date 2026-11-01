@@ -1,25 +1,37 @@
 use nkdk_conversion_core::xml::{self, ScopedSource, Token, Writer};
 
 fn names(source: &[u8]) -> nkdk_conversion_core::Result<Vec<(String, String)>> {
+    let mut buffered = Vec::new();
     let mut result = Vec::new();
     let mut text = String::new();
     xml::ScopedEvents(|consume: &mut xml::ScopedConsumer<'_>| {
         xml::DocumentSource(source).visit_scoped(|path, token, scope| consume(path, token, scope))
     })
     .visit_scoped(|path, token, scope| {
-        if path.last().is_some_and(|name| name.local == "Value") {
-            match token {
-                Token::Start(_) => text.clear(),
-                Token::Text(part) => text.push_str(part),
-                Token::End => {
-                    let (namespace, local) = scope.resolve_qname(&text)?;
-                    result.push((namespace.to_owned(), local.to_owned()));
-                }
-                _ => (),
-            }
-        }
+        buffered.push((
+            path.to_vec(),
+            xml::BufferedToken::from_token(token),
+            scope.to_owned(),
+        ));
         Ok(())
     })?;
+    for (path, event, scope) in buffered {
+        event.visit(|token| {
+            let scope = scope.as_scope();
+            if path.last().is_some_and(|name| name.local == "Value") {
+                match token {
+                    Token::Start(_) => text.clear(),
+                    Token::Text(part) => text.push_str(part),
+                    Token::End => {
+                        let (namespace, local) = scope.resolve_qname(&text)?;
+                        result.push((namespace.to_owned(), local.to_owned()));
+                    }
+                    _ => (),
+                }
+            }
+            Ok::<(), nkdk_conversion_core::RuntimeDiagnostic>(())
+        })?;
+    }
     Ok(result)
 }
 
@@ -142,6 +154,33 @@ fn qname_anomaly_patches_keep_namespace_meaning_without_lexical_guessing() {
             .unwrap()
             .unwrap()
     };
+    for spelling in ["unknown:Thing", "bad:name:tail", ""] {
+        let original = format!("<Root><Value ref=\"{spelling}\"/></Root>");
+        let tree = capture(original.as_bytes());
+        let payload = tree.payload_yaml(&[], &[("", "ref")]).unwrap();
+        let tree = Patch::read_full(payload.as_bytes(), &[], &[("", "ref")])
+            .unwrap()
+            .apply(
+                None,
+                Name {
+                    namespace: String::new(),
+                    local: "Value".into(),
+                },
+                &[],
+                &[("", "ref")],
+            )
+            .unwrap();
+        let mut writer = Writer::new(&[]);
+        tree.write_at(&mut writer, &[("", "Root")], &[("", "ref")])
+            .unwrap();
+        nkdk_conversion_core::proof::verify_with_attributes(
+            original.as_bytes(),
+            &writer.finish(),
+            |_| false,
+            |_, name| name.local == "ref",
+        )
+        .unwrap();
+    }
     for original in [
         br#"<Root xmlns:p="urn:type"><Value flag="x">p:Thing</Value></Root>"#.as_slice(),
         br#"<Root xmlns:p="urn:other"><Value>p:Thing</Value></Root>"#,
@@ -214,4 +253,80 @@ fn write_tree(tree: &nkdk_conversion_core::xml::Tree) -> Vec<u8> {
     let mut writer = Writer::new(&namespaces);
     tree.write_at(&mut writer, &[("", "Root")], &[]).unwrap();
     writer.finish()
+}
+
+#[test]
+fn proof_classifies_qname_per_occurrence_without_reinterpreting_text() {
+    let original = br#"<Root xmlns="urn:form" xmlns:p="urn:value"><Value>Plain</Value><Value>p:Thing</Value></Root>"#;
+    let restored = br#"<f:Root xmlns:f="urn:form" xmlns:q="urn:value"><f:Value>Plain</f:Value><f:Value>q:Thing</f:Value></f:Root>"#;
+    let check = |restored: &[u8]| {
+        nkdk_conversion_core::proof::verify_with_value_qnames(
+            original,
+            restored,
+            &[],
+            |_, _| true,
+            |_, _| false,
+            |path, occurrences| path.len() == 2 && occurrences[1] == 2,
+        )
+    };
+    check(restored).unwrap();
+    let tree = xml::Tree::capture_with_value_qnames(
+        original,
+        &[("urn:form", "Root")],
+        |path, occurrences| path.len() == 2 && occurrences[1] == 2,
+    )
+    .unwrap()
+    .unwrap();
+    let preserved = tree.document(&[]).unwrap();
+    check(&preserved).unwrap();
+    assert!(String::from_utf8(preserved).unwrap().contains(">Plain<"));
+
+    for changed in [
+        String::from_utf8(restored.to_vec())
+            .unwrap()
+            .replace("urn:value", "urn:other"),
+        String::from_utf8(restored.to_vec())
+            .unwrap()
+            .replace(">Plain<", ">f:Plain<"),
+    ] {
+        assert!(check(changed.as_bytes()).is_err(), "{changed}");
+    }
+}
+
+#[test]
+fn static_names_cache_keeps_nested_context_out_of_the_cache() {
+    use nkdk_conversion_core::xml::StaticNames;
+    let outer = StaticNames::new();
+    let inner = StaticNames::new();
+    let calls = std::cell::Cell::new(0);
+    assert_eq!(
+        outer.get(|| {
+            inner.get(|| {
+                calls.set(calls.get() + 1);
+                vec![("", "nested")]
+            })
+        }),
+        vec![("", "nested")]
+    );
+    assert_eq!(outer.get(|| panic!("outer rebuilt")), vec![("", "nested")]);
+    // A nested result may omit an active recursive ancestor. It must never
+    // initialize the inner cache used by a later independent root traversal.
+    assert_eq!(
+        inner.get(|| {
+            calls.set(calls.get() + 1);
+            vec![("", "complete")]
+        }),
+        vec![("", "complete")]
+    );
+    assert_eq!(
+        inner.get(|| panic!("inner rebuilt")),
+        vec![("", "complete")]
+    );
+    assert_eq!(calls.get(), 2);
+    let recovering = StaticNames::new();
+    assert!(std::panic::catch_unwind(|| recovering.get(|| panic!("failed traversal"))).is_err());
+    assert_eq!(
+        recovering.get(|| vec![("", "recovered")]),
+        vec![("", "recovered")]
+    );
 }

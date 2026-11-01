@@ -13,6 +13,17 @@ const rule=field=>{
 delete rule('type').xml.empty;
 delete rule('synonym').xml.canonical;
 rule('synonym').yaml={missing:{denotes:{absent:true}},omitWhen:{not:{present:{field:'synonym'}}}};
+const baseLookup=rule('base').yaml.missing.denotes.then.require.lookup;
+rule('objectBelonging').yaml.missing.denotes={
+  if:{present:{lookup:baseLookup}},
+  then:{literal:'Adopted'},
+  else:{literal:'Native'},
+};
+rule('base').yaml.missing.denotes={
+  if:{present:{lookup:baseLookup}},
+  then:{require:{lookup:baseLookup}},
+  else:{absent:true},
+};
 const content='# Generated from defined-type.yaml by tools/rules-migration/src/owner-profiles-operation.mjs\n'+yaml.dump(profile,{noRefs:true});
 if(process.argv.includes('--check')){
   if(readFileSync(output,'utf8')!==content)throw new Error(`Stale owner profile: ${output}`);

@@ -1,0 +1,22 @@
+format: nkdk-declarations/1
+kind: value
+id: common.data-table-base-suffix
+imports:
+  name: common.metadata-name
+value:
+  kind: record
+  fields:
+    - name: name
+      type:
+        use: name
+representations:
+  xml:
+    kind: text-pattern
+    parts:
+      - literal: Base
+      - field: name
+  yaml:
+    kind: text-pattern
+    parts:
+      - literal: База
+      - field: name

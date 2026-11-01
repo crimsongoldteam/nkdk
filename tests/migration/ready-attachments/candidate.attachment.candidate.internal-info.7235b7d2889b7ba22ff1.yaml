@@ -1,0 +1,64 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.attachment.candidate.internal-info.7235b7d2889b7ba22ff1
+imports:
+  ready: candidate.internal-info.7235b7d2889b7ba22ff1
+compose:
+  - use: ready
+    bind:
+      owner:
+        input: owner
+      name:
+        input: name
+      containedIds:
+        input: containedIds
+inputs:
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  name:
+    type:
+      kind: scalar
+      scalar: text
+  containedIds:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: owner
+            type:
+              kind: scalar
+              scalar: text
+          - name: classId
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+namespaces:
+  md: http://v8.1c.ru/8.3/MDClasses
+  xr: http://v8.1c.ru/8.3/xcf/readable
+value:
+  kind: record
+  fields:
+    - name: probe
+      type:
+        kind: scalar
+        scalar: text
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: probe
+        path:
+          - md:MetaDataObject
+          - Probe
+          - Name
+  yaml:
+    kind: mapping
+    fields:
+      - field: probe
+        key: Проверка

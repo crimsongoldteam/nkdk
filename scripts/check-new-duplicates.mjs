@@ -17,6 +17,19 @@ function normalizeFragment(fragment) {
     .replaceAll(/\s+$/gm, "")
 }
 
+export function isRustSignatureOnly(clone) {
+  if (!clone.firstFile.name.endsWith(".rs") || !clone.secondFile.name.endsWith(".rs")) return false
+  if (!clone.fragments) return false
+  return clone.fragments.every((fragment) => {
+    const lines = fragment.trim().split("\n").map((line) => line.trim())
+    if (!/^(?:pub(?:\([^)]*\))?\s+)?fn\s+[A-Za-z_][\w]*\s*\($/u.test(lines[0])) return false
+    const opensMatch = /^let\s+\([^{}]+\)\s*=\s*match\s+&[A-Za-z_][\w]*(?:\.[A-Za-z_][\w]*)*\s*\{$/u.test(lines.at(-1))
+    const signatureEnd = opensMatch ? -2 : -1
+    if (!/^\)\s*->\s*[^{}]+\{$/u.test(lines.at(signatureEnd))) return false
+    return lines.slice(1, signatureEnd).every((line) => /^[A-Za-z_][\w]*:\s*[^{}]+,$/u.test(line))
+  })
+}
+
 function fileRange(file) {
   const start = file.start?.line ?? file.start ?? 1
   const end = file.end?.line ?? file.end ?? start
@@ -225,7 +238,8 @@ export async function main(args = process.argv.slice(2)) {
     const changedFiles = new Set(changedPaths)
     const newClones = findNewDuplicates(baseClones, currentClones).filter(
       (clone) =>
-        changedFiles.has(resolve(clone.firstFile.name)) || changedFiles.has(resolve(clone.secondFile.name))
+        !isRustSignatureOnly(clone) &&
+        (changedFiles.has(resolve(clone.firstFile.name)) || changedFiles.has(resolve(clone.secondFile.name)))
     )
 
     if (newClones.length === 0) {

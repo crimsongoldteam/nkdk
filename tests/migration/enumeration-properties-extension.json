@@ -1,0 +1,149 @@
+{
+  "entry": "metadata.enumeration",
+  "coverage": {
+    "assembled": [
+      "xmlRoot",
+      "internalInfo",
+      "uuid",
+      "name",
+      "synonym",
+      "comment",
+      "objectBelonging",
+      "extendedConfigurationObject",
+      "useStandardCommands",
+      "standardAttributes",
+      "characteristics",
+      "quickChoice",
+      "choiceMode",
+      "defaultListForm",
+      "defaultChoiceForm",
+      "auxiliaryListForm",
+      "auxiliaryChoiceForm",
+      "managerModule",
+      "listPresentation",
+      "extendedListPresentation",
+      "explanation",
+      "choiceHistoryOnInput",
+      "enumValues",
+      "commands",
+      "forms",
+      "templates"
+    ],
+    "pending": []
+  },
+  "xml": "<ns0:MetaDataObject xmlns:ns0=\"http://v8.1c.ru/8.3/MDClasses\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" version=\"2.20\"><ns0:Enum uuid=\"e2570bdd-b55c-41d5-b063-440cf87b69dc\"><ns0:InternalInfo>\n\t\t\t<xr:GeneratedType name=\"EnumRef.ПеречислениеВсеСвойства\" category=\"Ref\">\n\t\t\t\t<xr:TypeId>728a563d-427c-4ae7-94c3-a7dc3eeb75a5</xr:TypeId>\n\t\t\t\t<xr:ValueId>87b352c4-8de9-4f26-866d-ef145f0ba4ef</xr:ValueId>\n\t\t\t</xr:GeneratedType>\n\t\t\t<xr:GeneratedType name=\"EnumManager.ПеречислениеВсеСвойства\" category=\"Manager\">\n\t\t\t\t<xr:TypeId>da6e8185-9ede-4fae-a04b-115ff99224a2</xr:TypeId>\n\t\t\t\t<xr:ValueId>6df5779d-5ab3-4527-aa18-fa17ace733e0</xr:ValueId>\n\t\t\t</xr:GeneratedType>\n\t\t\t<xr:GeneratedType name=\"EnumList.ПеречислениеВсеСвойства\" category=\"List\">\n\t\t\t\t<xr:TypeId>9b3105b2-460c-4203-83b9-13dc4c120063</xr:TypeId>\n\t\t\t\t<xr:ValueId>4f4404af-0a71-42f7-a364-c81c42336306</xr:ValueId>\n\t\t\t</xr:GeneratedType>\n\t\t\t<xr:PropertyState>\n\t\t\t\t<xr:Property>ManagerModule</xr:Property>\n\t\t\t\t<xr:State>Extended</xr:State>\n\t\t\t</xr:PropertyState>\n\t\t</ns0:InternalInfo>\n\t\t<ns0:Properties><ns0:ObjectBelonging>Adopted</ns0:ObjectBelonging>\n\t\t\t<ns0:Name>ПеречислениеВсеСвойства</ns0:Name>\n\t\t\t<ns0:Synonym />\n\t\t\t<ns0:Comment />\n\t\t\t<ns0:ExtendedConfigurationObject>ec93e916-ecd7-45c4-8e73-ea76f186183c</ns0:ExtendedConfigurationObject>\n\t\t\t<ns0:DefaultListForm />\n\t\t\t<ns0:DefaultChoiceForm />\n\t\t\t<ns0:ListPresentation />\n\t\t\t<ns0:ExtendedListPresentation />\n\t\t\t<ns0:Explanation />\n\t\t</ns0:Properties><ns0:ChildObjects><ns0:EnumValue uuid=\"0940c048-29de-4953-b8af-267eaf8bf1c3\">\n\t\t\t\t<ns0:InternalInfo />\n\t\t\t\t<ns0:Properties>\n\t\t\t\t\t<ns0:ObjectBelonging>Adopted</ns0:ObjectBelonging>\n\t\t\t\t\t<ns0:Name>ЗначениеПеречисления1</ns0:Name>\n\t\t\t\t\t<ns0:Synonym />\n\t\t\t\t\t<ns0:Comment />\n\t\t\t\t\t<ns0:ExtendedConfigurationObject>3422552b-50dd-46cf-88bd-163e75331ff9</ns0:ExtendedConfigurationObject>\n\t\t\t\t</ns0:Properties>\n\t\t\t</ns0:EnumValue>\n\t\t\t<ns0:EnumValue uuid=\"0e2d0774-31ff-4411-9056-f7e97e9979c8\">\n\t\t\t\t<ns0:InternalInfo />\n\t\t\t\t<ns0:Properties>\n\t\t\t\t\t<ns0:ObjectBelonging>Adopted</ns0:ObjectBelonging>\n\t\t\t\t\t<ns0:Name>ЗначениеПеречисления2</ns0:Name>\n\t\t\t\t\t<ns0:Comment />\n\t\t\t\t\t<ns0:ExtendedConfigurationObject>915f7a59-e3e0-43d0-9a49-68375464d960</ns0:ExtendedConfigurationObject>\n\t\t\t\t</ns0:Properties>\n\t\t\t</ns0:EnumValue>\n\t\t\t<ns0:Form>ФормаСписка</ns0:Form>\n\t\t\t<ns0:Form>ФормаВыбора</ns0:Form>\n\t\t\t<ns0:Template>Макет</ns0:Template>\n\t\t\t<ns0:Command uuid=\"f93d3eb1-921a-412f-8b74-92adaf9c69f8\">\n\t\t\t\t<ns0:InternalInfo>\n\t\t\t\t\t<xr:PropertyState>\n\t\t\t\t\t\t<xr:Property>CommandModule</xr:Property>\n\t\t\t\t\t\t<xr:State>Extended</xr:State>\n\t\t\t\t\t</xr:PropertyState>\n\t\t\t\t</ns0:InternalInfo>\n\t\t\t\t<ns0:Properties>\n\t\t\t\t\t<ns0:ObjectBelonging>Adopted</ns0:ObjectBelonging>\n\t\t\t\t\t<ns0:Name>Команда1</ns0:Name>\n\t\t\t\t\t<ns0:Synonym />\n\t\t\t\t\t<ns0:Comment />\n\t\t\t\t\t<ns0:ExtendedConfigurationObject>3712df7a-2311-48bf-a14c-dd76417176c1</ns0:ExtendedConfigurationObject>\n\t\t\t\t\t<ns0:Group>NavigationPanelImportant</ns0:Group>\n\t\t\t\t\t<ns0:ToolTip />\n\t\t\t\t\t<ns0:Picture />\n\t\t\t\t</ns0:Properties>\n\t\t\t</ns0:Command>\n\t\t</ns0:ChildObjects></ns0:Enum></ns0:MetaDataObject>",
+  "yaml": "ПринадлежностьОбъекта: Заимствованный\nСиноним: \"\"\nОсновнаяФормаСписка: \"\"\nОсновнаяФормаДляВыбора: \"\"\nПредставлениеСписка: \"\"\nРасширенноеПредставлениеСписка: \"\"\nПояснение: \"\"\nКоманды:\n  Команда1:\n    Синоним: \"\"\n    Группа: ПанельНавигацииВажное\n    Изменять:\n      - МодульКоманды\n    Подсказка: \"\"\n    Картинка: \"\"\nЗначения:\n  ЗначениеПеречисления1:\n    Синоним: \"\"\n    ПринадлежностьОбъекта: Заимствованный\n  ЗначениеПеречисления2:\n    ПринадлежностьОбъекта: Заимствованный\nИзменять:\n  - МодульМенеджера",
+  "ownerIdentity": "e2570bdd-b55c-41d5-b063-440cf87b69dc",
+  "ownerInternalTypes": [
+    {
+      "name": "EnumRef.ПеречислениеВсеСвойства",
+      "typeId": "728a563d-427c-4ae7-94c3-a7dc3eeb75a5",
+      "valueId": "87b352c4-8de9-4f26-866d-ef145f0ba4ef"
+    },
+    {
+      "name": "EnumManager.ПеречислениеВсеСвойства",
+      "typeId": "da6e8185-9ede-4fae-a04b-115ff99224a2",
+      "valueId": "6df5779d-5ab3-4527-aa18-fa17ace733e0"
+    },
+    {
+      "name": "EnumList.ПеречислениеВсеСвойства",
+      "typeId": "9b3105b2-460c-4203-83b9-13dc4c120063",
+      "valueId": "4f4404af-0a71-42f7-a364-c81c42336306"
+    }
+  ],
+  "ownerPath": "Enum.ПеречислениеВсеСвойства",
+  "ownerForms": [
+    "ФормаСписка",
+    "ФормаВыбора"
+  ],
+  "ownerChildIdentities": [
+    {
+      "kind": "EnumValue",
+      "name": "ЗначениеПеречисления1",
+      "identity": "0940c048-29de-4953-b8af-267eaf8bf1c3",
+      "baseIdentity": "3422552b-50dd-46cf-88bd-163e75331ff9"
+    },
+    {
+      "kind": "EnumValue",
+      "name": "ЗначениеПеречисления2",
+      "identity": "0e2d0774-31ff-4411-9056-f7e97e9979c8",
+      "baseIdentity": "915f7a59-e3e0-43d0-9a49-68375464d960"
+    },
+    {
+      "kind": "Command",
+      "name": "Команда1",
+      "identity": "f93d3eb1-921a-412f-8b74-92adaf9c69f8",
+      "baseIdentity": "3712df7a-2311-48bf-a14c-dd76417176c1"
+    }
+  ],
+  "ownerTemplates": [
+    "Макет"
+  ],
+  "xmlQNamePaths": [],
+  "source": [
+    {
+      "path": "e2e/fixtures/xml/cfe/all-extension/Enums/ПеречислениеВсеСвойства.xml",
+      "sha256": "107c5026868059b333b8f37c27de1aa173882d4642a9766e3a837ef6e8c9652f"
+    },
+    {
+      "path": "e2e/fixtures/nkdk/cfe/Расширение_All/Перечисление/ПеречислениеВсеСвойства/Свойства.yaml",
+      "sha256": "5e1ccd725db66e63efef56343f1a04a0aaabc422414f0ee05c9d084afd03498d"
+    }
+  ],
+  "baseIdentity": "ec93e916-ecd7-45c4-8e73-ea76f186183c",
+  "inputs": {
+    "ownerName": "ПеречислениеВсеСвойства",
+    "owner": "Enum.ПеречислениеВсеСвойства",
+    "ownerIdentity": "e2570bdd-b55c-41d5-b063-440cf87b69dc",
+    "forms": [
+      "ФормаСписка",
+      "ФормаВыбора"
+    ],
+    "templates": [
+      "Макет"
+    ],
+    "commandNames": [
+      "Команда1"
+    ],
+    "defaultLanguage": "ru",
+    "registeredLanguages": [
+      "ru",
+      "en"
+    ],
+    "component": "cfe",
+    "compatibilityMode": "Version8_3_27",
+    "componentKind": "extension",
+    "profiles": [
+      {
+        "name": "Order",
+        "yamlName": "Порядок",
+        "pathName": "Порядок",
+        "emptyForm": "mapping",
+        "policy": "notSpecified",
+        "expectedKind": "",
+        "maxTextLength": "",
+        "maxNumberDigits": "",
+        "allowedTextLength": "",
+        "owners": []
+      },
+      {
+        "name": "Ref",
+        "yamlName": "Ссылка",
+        "pathName": "Ссылка",
+        "emptyForm": "mapping",
+        "policy": "notSpecified",
+        "expectedKind": "",
+        "maxTextLength": "",
+        "maxNumberDigits": "",
+        "allowedTextLength": "",
+        "owners": []
+      }
+    ],
+    "owners": [],
+    "canonicalNames": [
+      "Order",
+      "Ref"
+    ],
+    "elidableNames": []
+  }
+}

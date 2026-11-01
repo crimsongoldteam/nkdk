@@ -1,0 +1,3 @@
+# Ownership of compiled consumer partition 0.
+objects/input-by-string-consumers-0.generated.yaml
+objects/input-by-string-consumers-2.generated.yaml

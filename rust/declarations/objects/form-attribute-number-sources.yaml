@@ -1,0 +1,68 @@
+# Number preparation only. The enclosing collection supplies its canonical address.
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+  - kind: fragment
+    id: source.form-attribute-number-row
+    namespaces: {f: 'http://v8.1c.ru/8.3/xcf/logform'}
+    value: {kind: record, fields: [{name: id, type: {kind: scalar, scalar: text}}]}
+    representations:
+      xml: {kind: record, fields: [{field: id, path: [f:Attribute], attribute: id}]}
+      yaml: {kind: mapping, fields: [{field: id, key: Идентификатор}]}
+    presence:
+      - {target: {field: id}, xml: {missing: {denotes: {absent: true}}}, yaml: {missing: {denotes: {absent: true}}}}
+  - kind: object
+    id: metadata.current-form-attribute-number-source
+    imports: {row: source.form-attribute-number-row}
+    inputs:
+      component: {type: {kind: scalar, scalar: text}}
+      owner: {type: {kind: scalar, scalar: text}}
+      address: {type: {kind: scalar, scalar: text}}
+    compose: [{use: row}]
+    value: {kind: record, fields: []}
+    representations:
+      xml: {kind: record, fields: []}
+      yaml: {kind: mapping, fields: []}
+    contributions:
+      - index: metadata.current-form-attribute-candidates
+        key: {record: {component: {input: component}, owner: {input: owner}, name: {input: address}}}
+        value: {literal: present}
+      - index: metadata.form-attribute-identities
+        key: {record: {component: {input: component}, owner: {input: owner}, name: {input: address}}}
+        value: {field: id}
+        when: {present: {field: id}}
+      - index: metadata.form-attribute-identities
+        key: {record: {component: {input: component}, owner: {input: owner}, name: {input: address}}}
+        allocate: {scope: [component, owner], first: 1}
+  - kind: object
+    id: metadata.base-form-attribute-number-source
+    imports: {row: source.form-attribute-number-row}
+    inputs:
+      component: {type: {kind: scalar, scalar: text}}
+      owner: {type: {kind: scalar, scalar: text}}
+      address: {type: {kind: scalar, scalar: text}}
+      current: {index: metadata.current-form-attribute-candidates}
+    compose: [{use: row}]
+    value: {kind: record, fields: []}
+    representations:
+      xml: {kind: record, fields: []}
+      yaml: {kind: mapping, fields: []}
+    contributions:
+      - index: metadata.form-attribute-identities
+        key: {record: {component: {input: component}, owner: {input: owner}}}
+        reserve: {field: id}
+        when: {present: {field: id}}
+      - index: metadata.form-attribute-identities
+        key: {record: {component: {input: component}, owner: {input: owner}, name: {input: address}}}
+        value: {field: id}
+        when:
+          and:
+            - {present: {field: id}}
+            - not:
+                present: {lookup: {in: {input: current}, key: {record: {component: {input: component}, owner: {input: owner}, name: {input: address}}}}}
+      - index: metadata.form-attribute-identities
+        key: {record: {component: {input: component}, owner: {input: owner}, name: {input: address}}}
+        allocate: {scope: [component, owner], first: 1000001, phase: 1}
+        when:
+          not:
+            present: {lookup: {in: {input: current}, key: {record: {component: {input: component}, owner: {input: owner}, name: {input: address}}}}}

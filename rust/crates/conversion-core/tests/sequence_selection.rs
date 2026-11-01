@@ -166,3 +166,68 @@ fn extraction_moves_nonclone_values_and_rejects_invalid_positions_losslessly() {
     extracted.remaining_mut()[1].0 = 30;
     assert_eq!(extracted.restore(), vec![Item(1), Item(20), Item(30)]);
 }
+
+#[test]
+fn finite_groups_keep_first_appearance_empty_groups_and_move_values() {
+    use nkdk_conversion_core::sequence_pattern::GroupSequence;
+    // No Clone: grouping must move semantic values, not duplicate contexts.
+    #[derive(Debug, PartialEq)]
+    struct Item(String);
+    for (keys, expected) in [
+        (vec![], vec![]),
+        (vec![2], vec![(2, vec![0])]),
+        (
+            vec![2, 0, 1],
+            vec![(2, vec![0]), (0, vec![1]), (1, vec![2])],
+        ),
+        (
+            vec![2, 0, 2, 1, 0],
+            vec![(2, vec![0, 2]), (0, vec![1, 4]), (1, vec![3])],
+        ),
+    ] {
+        let rows: Vec<_> = (0..keys.len())
+            .map(|index| Item(index.to_string()))
+            .collect();
+        let pointers: Vec<_> = rows.iter().map(|row| row.0.as_ptr()).collect();
+        let mut grouped = GroupSequence::<3, Item>::default();
+        for (key, row) in keys.into_iter().zip(rows) {
+            grouped.push(key, row).unwrap();
+        }
+        let groups = grouped.into_groups();
+        assert_eq!(
+            groups
+                .iter()
+                .map(|(key, rows)| (
+                    *key,
+                    rows.iter()
+                        .map(|row| row.0.parse::<usize>().unwrap())
+                        .collect::<Vec<_>>()
+                ))
+                .collect::<Vec<_>>(),
+            expected
+        );
+        for (_, rows) in groups {
+            for row in rows {
+                assert_eq!(row.0.as_ptr(), pointers[row.0.parse::<usize>().unwrap()]);
+            }
+        }
+    }
+    let mut grouped = GroupSequence::<3, Item>::default();
+    assert_eq!(grouped.declare(1), Some(true));
+    assert_eq!(grouped.declare(1), Some(false));
+    grouped.push(2, Item("second".into())).unwrap();
+    assert_eq!(grouped.declare(0), Some(true));
+    assert_eq!(grouped.declare(usize::MAX), None);
+    let bad = Item("unconsumed".into());
+    let pointer = bad.0.as_ptr();
+    let returned = grouped.push(3, bad).unwrap_err();
+    assert_eq!(returned.0.as_ptr(), pointer);
+    assert_eq!(
+        grouped.into_groups(),
+        vec![(1, vec![]), (2, vec![Item("second".into())]), (0, vec![])]
+    );
+    let mut no_keys = GroupSequence::<0, Item>::default();
+    assert_eq!(no_keys.declare(0), None);
+    assert!(no_keys.push(0, Item("retained".into())).is_err());
+    assert!(no_keys.into_groups().is_empty());
+}

@@ -1,0 +1,27 @@
+[package]
+name = "nkdk-probe-defined-type-owner"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+autotests = false
+
+[lib]
+name = "nkdk_compiled_rules_probes"
+test = false
+
+[lints]
+workspace = true
+
+[dependencies]
+nkdk-conversion-core = { path = "../conversion-core" }
+
+[build-dependencies]
+nkdk-rule-compiler = { path = "../rule-compiler" }
+
+[dev-dependencies]
+serde_json = { version = "=1.0.150", features = ["arbitrary_precision"] }
+
+[[test]]
+name = "defined_type_owner"
+path = "../compiled-rules/tests/defined_type_owner.rs"

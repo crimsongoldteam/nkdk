@@ -1,0 +1,28 @@
+format: nkdk-declarations/1
+kind: value
+id: common.picture-reference
+imports:
+  standard: common.picture-standard-reference
+  common: common.picture-common-reference
+  zero: common.picture-zero-reference
+  uuid: common.picture-uuid-reference
+value:
+  kind: choice
+  variants:
+    - name: СтандартнаяКартинка
+      type:
+        use: standard
+    - name: ОбщаяКартинка
+      type:
+        use: common
+    - name: НулеваяСсылка
+      type:
+        use: zero
+    - name: СсылкаПоUUID
+      type:
+        use: uuid
+representations:
+  xml:
+    kind: choice
+  yaml:
+    kind: choice

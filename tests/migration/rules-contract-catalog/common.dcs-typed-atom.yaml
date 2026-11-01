@@ -1,0 +1,46 @@
+format: nkdk-declarations/1
+kind: value
+id: common.dcs-typed-atom
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+imports:
+  value: common.dcs-metadata-typed-value
+value:
+  kind: record
+  fields:
+    - name: value
+      type:
+        use: value
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: value
+        path: []
+  yaml:
+    kind: projection
+    field: value
+presence:
+  - target:
+      field: value
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: nil
+          denotes:
+            absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-mapping
+          denotes:
+            absent: true
+      omitWhen:
+        isVariant:
+          value:
+            field: value
+          variant: undefined

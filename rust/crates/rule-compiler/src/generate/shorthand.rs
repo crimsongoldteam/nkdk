@@ -56,6 +56,12 @@ pub(super) fn scalar(
         write: String::new(),
     };
     for (index, shorthand) in common.shorthands.iter().enumerate() {
+        if !shorthand.canonical {
+            return Err(unsupported(
+                owner,
+                "Noncanonical shorthand requires structural record generation",
+            ));
+        }
         if matches!(
             shorthand.representation,
             LinkedShorthandRepresentation::KeyedMapping { .. }
@@ -67,6 +73,13 @@ pub(super) fn scalar(
             result.read_keyed.push_str(&pattern.read);
             result.write.push_str(&pattern.write);
             continue;
+        }
+        if !matches!(&shorthand.representation, LinkedShorthandRepresentation::ScalarText { prefix, suffix } if prefix.is_empty() && suffix.is_empty())
+        {
+            return Err(unsupported(
+                owner,
+                "Framed scalar shorthand is only supported for records",
+            ));
         }
         let LinkedExpressionKind::Operation {
             operator: LinkedOperator::Sequence,
@@ -122,15 +135,10 @@ pub(super) fn scalar(
             "true".into()
         };
         writeln!(result.definitions, "fn {function}(_inputs: &InputView<'_>) -> core::Result<Option<String>> {{ {definitions} if {when} {{ Ok(Some(({expression}).to_owned())) }} else {{ Ok(None) }} }}").unwrap();
-        let row_position = if common.constraints.iter().any(|rule| {
-            matches!(
-                rule.diagnostic.at,
-                LinkedDiagnosticTarget::Occurrence { .. }
-            )
-        }) {
-            ", positions: [_position; 2]"
+        let row_position = if matches!(common.yaml, YamlRepresentation::KeyedMapping { .. }) {
+            format!(", positions: [_position; {}]", fields.len())
         } else {
-            ""
+            String::new()
         };
         let form_scalar = if common.constraints.iter().any(|rule| {
             rule.applies_to.contains(&ValidationPhase::YamlValidation) && !rule.forms.is_empty()

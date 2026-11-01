@@ -1,0 +1,129 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: migration.type-description-context-choice
+  namespaces:
+    xsi: http://www.w3.org/2001/XMLSchema-instance
+    xr: http://v8.1c.ru/8.3/xcf/readable
+    v8: http://v8.1c.ru/8.1/data/core
+  imports: {plain: common.type-description, grouped: common.grouped-type-description}
+  inputs: {mode: {type: {kind: scalar, scalar: text}}}
+  value:
+    kind: choice
+    variants:
+    - {name: plain, type: {use: plain, with: {addTypeDescriptionAttributeToXML: true}}}
+    - {name: grouped, type: {use: grouped}}
+  representations:
+    xml:
+      kind: choice
+      attribute: xsi:type
+      variants:
+      - {variant: grouped, in: [xr:ExtendedProperty], emit: xr:ExtendedProperty}
+      - {variant: plain, in: [v8:TypeDescription], emit: v8:TypeDescription}
+      otherwise: plain
+    yaml:
+      kind: choice
+      variants:
+      - {variant: plain, form: sequence}
+      - {variant: grouped, form: input-profile, input: mode, equals: MultiState}
+- kind: value
+  id: migration.type-description-canonical-source-value
+  namespaces:
+    xsi: http://www.w3.org/2001/XMLSchema-instance
+    xr: http://v8.1c.ru/8.3/xcf/readable
+    v8: http://v8.1c.ru/8.1/data/core
+  imports: {plain: common.type-description, grouped: common.grouped-type-description}
+  value:
+    kind: choice
+    variants:
+    - {name: plain, type: {use: plain, with: {addTypeDescriptionAttributeToXML: true}}}
+    - {name: grouped, type: {use: grouped}}
+  representations:
+    xml:
+      kind: choice
+      attribute: xsi:type
+      variants:
+      - {variant: grouped, in: [xr:ExtendedProperty], emit: xr:ExtendedProperty}
+      - {variant: plain, in: [v8:TypeDescription], emit: v8:TypeDescription}
+      otherwise: plain
+    yaml:
+      kind: choice
+      variants:
+      - {variant: grouped, form: sequence}
+- kind: object
+  id: migration.type-description-context-owner
+  imports: {description: migration.type-description-context-choice}
+  inputs: {mode: {type: {kind: scalar, scalar: text}}}
+  value: {kind: record, fields: [{name: description, type: {use: description, bind: {mode: {input: mode}}}}]}
+  representations:
+    xml: {kind: record, fields: [{field: description, path: [Root, Type]}]}
+    yaml: {kind: mapping, fields: [{field: description, key: Тип}]}
+- kind: object
+  id: migration.type-description-computed-context-owner
+  imports: {description: migration.type-description-context-choice}
+  inputs: {mode: {type: {kind: scalar, scalar: text}}}
+  value:
+    kind: record
+    fields:
+    - name: description
+      type: {use: description, bind: {mode: {concat: [{input: mode}, {literal: ''}]}}}
+  representations:
+    xml: {kind: record, fields: [{field: description, path: [Root, Type]}]}
+    yaml: {kind: mapping, fields: [{field: description, key: Тип}]}
+- kind: object
+  id: migration.type-description-history-owner
+  imports: {description: migration.type-description-context-choice, rows: common.property-states}
+  inputs:
+    owner: {type: {kind: scalar, scalar: text}}
+    property: {type: {kind: scalar, scalar: text}}
+    states:
+      type:
+        kind: index
+        key: {kind: record, fields: [{name: owner, type: {kind: scalar, scalar: text}}, {name: property, type: {kind: scalar, scalar: text}}, {name: mode, type: {kind: scalar, scalar: text}}]}
+        value: {kind: scalar, scalar: text}
+  value:
+    kind: record
+    fields:
+    - {name: history, type: {use: rows}}
+    - name: description
+      type:
+        use: description
+        bind:
+          mode:
+            if: {present: {lookup: {in: {input: states}, key: {record: {owner: {input: owner}, property: {input: property}, mode: {literal: MultiState}}}}}}
+            then: {literal: MultiState}
+            else: {literal: Control}
+  representations:
+    xml: {kind: record, fields: [{field: history, path: [Root, History]}, {field: description, path: [Root, Type]}]}
+    yaml: {kind: mapping, fields: [{field: history, key: Состояния}, {field: description, key: Тип}]}
+  presence:
+  - target: {field: history}
+    xml: {missing: {denotes: {sequence: []}}}
+    yaml:
+      default:
+        if: {isVariant: {value: {field: description}, variant: grouped}}
+        then: {sequence: [{record: {name: {literal: Type}, mode: {literal: MultiState}}}]}
+        else: {sequence: []}
+- kind: object
+  id: migration.type-description-history-source
+  imports: {rows: common.property-states, description: migration.type-description-canonical-source-value}
+  inputs: {owner: {type: {kind: scalar, scalar: text}}}
+  value: {kind: record, fields: [{name: history, type: {use: rows}}, {name: description, type: {use: description}}]}
+  representations:
+    xml: {kind: record, fields: [{field: history, path: [Root, History]}, {field: description, path: [Root, Type]}]}
+    yaml: {kind: mapping, fields: [{field: history, key: Состояния}, {field: description, key: Тип}]}
+  presence:
+  - target: {field: history}
+    xml: {missing: {denotes: {sequence: []}}}
+    yaml:
+      default:
+        if: {isVariant: {value: {field: description}, variant: grouped}}
+        then: {sequence: [{record: {name: {literal: Type}, mode: {literal: MultiState}}}]}
+        else: {sequence: []}
+  contributions:
+  - index: migration.context-states
+    duplicates: coalesce-equal
+    forEach: {in: {field: history}, as: row}
+    key: {record: {owner: {input: owner}, property: {get: {of: {var: row}, field: name}}, mode: {get: {of: {var: row}, field: mode}}}}
+    value: {literal: present}

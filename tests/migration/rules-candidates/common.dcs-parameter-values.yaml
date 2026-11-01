@@ -1,0 +1,110 @@
+format: nkdk-declarations/1
+kind: value
+id: common.dcs-parameter-values
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  dcscor: http://v8.1c.ru/8.1/data-composition-system/core
+  dcsset: http://v8.1c.ru/8.1/data-composition-system/settings
+imports:
+  item: common.dcs-parameter-atom
+inputs:
+  valueProfile:
+    type:
+      kind: scalar
+      scalar: text
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  labels:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: code
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  codes:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: label
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  styleTypes:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: scalar
+        scalar: text
+value:
+  kind: sequence
+  item:
+    use: item
+    bind:
+      valueProfile:
+        input: valueProfile
+      defaultLanguage:
+        input: defaultLanguage
+      registeredLanguages:
+        input: registeredLanguages
+      labels:
+        input: labels
+      codes:
+        input: codes
+      styleTypes:
+        input: styleTypes
+representations:
+  xml:
+    kind: element-sequence
+    path:
+      - dcscor:value
+  yaml:
+    kind: sequence
+    singleton: value
+presence:
+  - target: self
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-sequence
+          denotes:
+            absent: true

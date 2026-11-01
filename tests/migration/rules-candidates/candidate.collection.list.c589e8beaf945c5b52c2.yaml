@@ -1,0 +1,84 @@
+format: nkdk-declarations/1
+kind: value
+imports:
+  item: common.dcs-parameter
+value:
+  kind: sequence
+  item:
+    use: item
+    bind:
+      defaultLanguage:
+        input: defaultLanguage
+      registeredLanguages:
+        input: registeredLanguages
+      labels:
+        input: labels
+      codes:
+        input: codes
+      styleTypes:
+        input: styleTypes
+representations:
+  xml:
+    kind: element-sequence
+    path:
+      - form:Parameter
+  yaml:
+    kind: record-mapping
+    key: name
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  labels:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: code
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  codes:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: label
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  styleTypes:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: scalar
+        scalar: text
+namespaces:
+  form: http://v8.1c.ru/8.3/xcf/logform
+id: candidate.collection.list.c589e8beaf945c5b52c2

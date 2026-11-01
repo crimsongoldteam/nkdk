@@ -22,11 +22,12 @@ impl<'a> Variant<'a> {
         entry: &'a LinkedEntry,
         program: &'a Program<'a>,
     ) -> Result<Self, Diagnostic> {
+        let (xml_content, _) = attributes::content(&entry.xml);
         if let (
             LinkedType::Scalar(ScalarType::Boolean),
             LinkedXml::BooleanTable(xml),
             YamlRepresentation::BooleanTable(yaml),
-        ) = (&entry.value, &entry.xml, &entry.yaml)
+        ) = (&entry.value, xml_content, &entry.yaml)
         {
             return Ok(Self::Boolean(xml, yaml));
         }
@@ -34,12 +35,12 @@ impl<'a> Variant<'a> {
             LinkedType::Enum(variants),
             LinkedXml::EnumTable(xml),
             YamlRepresentation::EnumTable(yaml),
-        ) = (&entry.value, &entry.xml, &entry.yaml)
+        ) = (&entry.value, xml_content, &entry.yaml)
         {
             return Ok(Self::Enumeration(variants, xml, yaml));
         }
         if matches!(entry.value, LinkedType::Scalar(ScalarType::Decimal))
-            && matches!(entry.xml, LinkedXml::Decimal)
+            && matches!(xml_content, LinkedXml::Decimal)
             && matches!(entry.yaml, YamlRepresentation::Decimal)
         {
             return Ok(Self::Decimal);
@@ -48,7 +49,7 @@ impl<'a> Variant<'a> {
             LinkedType::Scalar(ScalarType::Text),
             LinkedXml::Calendar,
             YamlRepresentation::Calendar { seconds, omit_zero },
-        ) = (&entry.value, &entry.xml, &entry.yaml)
+        ) = (&entry.value, xml_content, &entry.yaml)
         {
             return Ok(Self::Calendar {
                 seconds: *seconds,
@@ -56,7 +57,7 @@ impl<'a> Variant<'a> {
             });
         }
         if matches!(entry.value, LinkedType::Scalar(ScalarType::Text))
-            && matches!(entry.xml, LinkedXml::Text)
+            && matches!(xml_content, LinkedXml::Text)
             && matches!(entry.yaml, YamlRepresentation::Text)
         {
             plain(entry)?;
@@ -69,7 +70,7 @@ impl<'a> Variant<'a> {
             return Ok(Self::Text(entry));
         }
         if matches!(entry.value, LinkedType::Choice(_))
-            && matches!(entry.xml, LinkedXml::Choice { .. })
+            && matches!(xml_content, LinkedXml::Choice { .. })
             && matches!(entry.yaml, YamlRepresentation::Choice { .. })
         {
             return Ok(Self::Choice(Box::new(super::Codec::resolve(
@@ -80,12 +81,6 @@ impl<'a> Variant<'a> {
             return Ok(Self::Sequence(Box::new(sequence)));
         }
         let pattern = text_pattern::Codec::resolve(entry, program)?;
-        if !pattern.has_only_slot_defaults() {
-            return Err(unsupported(
-                entry,
-                "Text choice patterns require restored-slot defaults",
-            ));
-        }
         Ok(Self::Pattern(pattern))
     }
 
@@ -115,6 +110,7 @@ impl<'a> Variant<'a> {
         &self,
         xml: bool,
         entry: &LinkedEntry,
+        strict: bool,
     ) -> Result<Vec<Vec<crate::automata::Part>>, Diagnostic> {
         match self {
             Self::Boolean(xml_table, yaml_table) => Ok(word_parts(
@@ -125,7 +121,14 @@ impl<'a> Variant<'a> {
             Self::Enumeration(_, xml_table, yaml_table) => Ok(word_parts(
                 (if xml { *xml_table } else { *yaml_table })
                     .iter()
-                    .map(|item| item.text.as_str()),
+                    .flat_map(|item| {
+                        std::iter::once(item.text.as_str()).chain(
+                            item.accepted
+                                .iter()
+                                .filter(move |_| xml)
+                                .map(String::as_str),
+                        )
+                    }),
             )),
             Self::Calendar { .. } if xml => Ok(Vec::new()),
             Self::Calendar { seconds, omit_zero } => {
@@ -156,9 +159,9 @@ impl<'a> Variant<'a> {
                 })
             }
             Self::Decimal => Ok(Vec::new()),
-            Self::Pattern(pattern) => Ok(vec![pattern.selection_parts(xml)]),
+            Self::Pattern(pattern) => pattern.selection_forms(xml, strict),
             Self::Sequence(sequence) => sequence.selection_parts(xml, entry),
-            Self::Choice(choice) => choice.selection_parts(xml),
+            Self::Choice(choice) => choice.selection_parts(xml, strict),
             Self::Text(_) => Ok(Vec::new()),
         }
     }
@@ -187,6 +190,7 @@ impl<'a> Variant<'a> {
             Self::Pattern(pattern) if collection => pattern.collection_definition(name),
             Self::Pattern(pattern) => pattern.definition(name),
             Self::Sequence(sequence) if !compact => sequence.definition(name),
+            Self::Choice(choice) if collection && !compact => choice.collection_definition(name),
             Self::Choice(choice) if !compact => choice.definition(name),
             Self::Text(common) if !compact && (!collection || common.constraints.is_empty()) => {
                 Ok(format!("type {name}=String;\n"))
@@ -252,11 +256,14 @@ impl<'a> Variant<'a> {
                         })
                         .collect::<String>()
                 };
-                format!(
-                    "if xml{{match text{{{}_=>return Err(RuntimeDiagnostic::new(\"value.enumeration\",\"Unknown enumeration literal\")),}}}}else{{match text{{{}_=>return Err(RuntimeDiagnostic::new(\"value.enumeration\",\"Unknown enumeration literal\")),}}}}",
-                    table(xml),
-                    table(yaml)
-                )
+                let xml = table(xml);
+                let yaml = table(yaml);
+                let xml = format!("match text{{{xml}_=>return Err(RuntimeDiagnostic::new(\"value.enumeration\",\"Unknown enumeration literal\")),}}");
+                if xml == format!("match text{{{yaml}_=>return Err(RuntimeDiagnostic::new(\"value.enumeration\",\"Unknown enumeration literal\")),}}") {
+                    xml
+                } else {
+                    format!("if xml{{{xml}}}else{{match text{{{yaml}_=>return Err(RuntimeDiagnostic::new(\"value.enumeration\",\"Unknown enumeration literal\")),}}}}")
+                }
             }
             Self::Decimal => "core::decimal::Decimal::parse_owned(text.to_owned()).map_err(|error|RuntimeDiagnostic::new(\"value.decimal\",error.to_string()))?".into(),
             Self::Calendar { seconds, omit_zero } => {
@@ -303,11 +310,14 @@ impl<'a> Variant<'a> {
                         })
                         .collect::<String>()
                 };
-                format!(
-                    "Ok((if xml{{match {value}{{{}}}}}else{{match {value}{{{}}}}}).to_owned())",
-                    arms(xml),
-                    arms(yaml)
-                )
+                let xml = arms(xml);
+                let yaml = arms(yaml);
+                let chosen = if xml == yaml {
+                    format!("match {value}{{{xml}}}")
+                } else {
+                    format!("if xml{{match {value}{{{xml}}}}}else{{match {value}{{{yaml}}}}}")
+                };
+                format!("Ok(({chosen}).to_owned())")
             }
             Self::Decimal => format!("Ok({value}.to_string())"),
             Self::Calendar { seconds, omit_zero } => {

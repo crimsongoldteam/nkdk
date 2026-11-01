@@ -102,14 +102,14 @@ impl<'a, const N: usize> OptionalPattern<'a, N> {
     }
 }
 fn compile<const N: usize>(
-    parts: &[OptionalPart<'_>],
+    sequence: &[OptionalPart<'_>],
     seen: &mut [bool; N],
     groups: &mut [bool; N],
     out: &mut String,
     mut previous_slot: bool,
 ) -> Result<bool, PatternError> {
     let mut optional_prefixes: Vec<&str> = Vec::new();
-    for part in parts {
+    for (position, part) in sequence.iter().enumerate() {
         match part {
             OptionalPart::Literal(text) => {
                 if text.is_empty() {
@@ -147,22 +147,30 @@ fn compile<const N: usize>(
                 let Some(group) = groups.get_mut(*index) else {
                     return Err(PatternError::Plan("Unknown optional group"));
                 };
-                if std::mem::replace(group, true)
-                    || seen[*index]
-                    || !matches!(parts.first(),Some(OptionalPart::Literal(text)) if !text.is_empty())
-                {
+                let opening = match parts.first() {
+                    Some(OptionalPart::Literal(text)) if !text.is_empty() => *text,
+                    Some(OptionalPart::Slot(_))
+                        if position == 0
+                            && matches!(parts.last(), Some(OptionalPart::Literal(text)) if !text.is_empty())
+                            && matches!(
+                                sequence.get(position + 1),
+                                Some(OptionalPart::Slot(_))
+                            ) =>
+                    {
+                        ""
+                    }
+                    _ => return Err(PatternError::Plan("Invalid optional group")),
+                };
+                if std::mem::replace(group, true) || seen[*index] {
                     return Err(PatternError::Plan("Invalid optional group"));
                 }
-                let OptionalPart::Literal(prefix) = parts[0] else {
-                    unreachable!("opening literal")
-                };
                 if optional_prefixes
                     .iter()
-                    .any(|previous| previous.starts_with(prefix) || prefix.starts_with(previous))
+                    .any(|previous| previous.starts_with(opening) || opening.starts_with(previous))
                 {
                     return Err(PatternError::Plan("Optional prefixes must be disjoint"));
                 }
-                optional_prefixes.push(prefix);
+                optional_prefixes.push(opening);
                 out.push_str("(?:");
                 let ending_slot = compile(parts, seen, groups, out, previous_slot)?;
                 if !seen[*index] {

@@ -1,0 +1,138 @@
+[
+  {
+    "property": "fields",
+    "yaml": [
+      {
+        "from": "ПутьКДанным: Реквизит1",
+        "to": "ПутьКДанным: Код",
+        "count": 1
+      }
+    ],
+    "xml": [
+      {
+        "from": "<dcssch:dataPath>Реквизит1</dcssch:dataPath>",
+        "to": "<dcssch:dataPath>Код</dcssch:dataPath>",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "property": "calculatedFields",
+    "yaml": [
+      {
+        "from": "Выражение: Истина",
+        "to": "Выражение: Ложь",
+        "count": 1
+      }
+    ],
+    "xml": [
+      {
+        "from": "<dcssch:expression>Истина</dcssch:expression>",
+        "to": "<dcssch:expression>Ложь</dcssch:expression>",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "property": "parameters",
+    "yaml": [
+      {
+        "from": "Заголовок: Параметр1",
+        "to": "Заголовок: Новый заголовок",
+        "count": 1
+      }
+    ],
+    "xml": [
+      {
+        "from": "<v8:content>Параметр1</v8:content>",
+        "to": "<v8:content>Новый заголовок</v8:content>",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "property": "conditionalAppearance",
+    "yaml": [
+      {
+        "from": "b75fecce-942b-4aed-abc9-e6a02e460fb3",
+        "to": "b75fecce-942b-4aed-abc9-e6a02e460fb4",
+        "count": 1
+      }
+    ],
+    "xml": [
+      {
+        "from": "b75fecce-942b-4aed-abc9-e6a02e460fb3",
+        "to": "b75fecce-942b-4aed-abc9-e6a02e460fb4",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "property": "dataParameters",
+    "yaml": [
+      {
+        "from": "21b52fc2-2b83-40f1-aa31-8dce4c9e7e9a",
+        "to": "21b52fc2-2b83-40f1-aa31-8dce4c9e7e9b",
+        "count": 1
+      }
+    ],
+    "xml": [
+      {
+        "from": "21b52fc2-2b83-40f1-aa31-8dce4c9e7e9a",
+        "to": "21b52fc2-2b83-40f1-aa31-8dce4c9e7e9b",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "property": "filter",
+    "yaml": [
+      {
+        "from": "Представление отбора",
+        "to": "Новое представление отбора",
+        "count": 1
+      }
+    ],
+    "xml": [
+      {
+        "from": ">Представление отбора</dcsset:userSettingPresentation>",
+        "to": ">Новое представление отбора</dcsset:userSettingPresentation>",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "property": "group",
+    "yaml": [
+      {
+        "from": "  Группировка:\n    - Наименование\n",
+        "to": "  Группировка:\n    - Реквизит1\n",
+        "count": 1
+      }
+    ],
+    "xml": [
+      {
+        "from": "<dcsset:item xsi:type=\"dcsset:GroupItemField\">\n\t\t\t\t\t\t\t\t<dcsset:field>Наименование</dcsset:field>",
+        "to": "<dcsset:item xsi:type=\"dcsset:GroupItemField\">\n\t\t\t\t\t\t\t\t<dcsset:field>Реквизит1</dcsset:field>",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "property": "order",
+    "yaml": [
+      {
+        "from": "Поле: Ссылка.Код",
+        "to": "Поле: Ссылка.Наименование",
+        "count": 1
+      }
+    ],
+    "xml": [
+      {
+        "from": "<dcsset:field>Ссылка.Код</dcsset:field>",
+        "to": "<dcsset:field>Ссылка.Наименование</dcsset:field>",
+        "count": 1
+      }
+    ]
+  }
+]

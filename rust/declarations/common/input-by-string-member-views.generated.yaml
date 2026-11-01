@@ -1,0 +1,934 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+  - format: nkdk-declarations/1
+    kind: value
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      key: common.string
+      source_type: candidate.member-source.view.76f7ac13a50680e6edfc
+    value:
+      kind: record
+      fields:
+        - name: name
+          type:
+            use: key
+        - name: uuid
+          type:
+            kind: scalar
+            scalar: text
+        - name: type
+          type:
+            use: source_type
+            bind: {}
+            with:
+              metadataAttributeTypesOnly: true
+        - name: indexedName
+          type:
+            kind: scalar
+            scalar: text
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: name
+            path:
+              - md:Properties
+              - md:Name
+          - field: uuid
+            path: []
+            attribute: uuid
+          - field: type
+            path:
+              - md:Properties
+              - md:Type
+      yaml:
+        kind: mapping
+        fields:
+          - field: name
+            key: name
+          - field: type
+            key: Тип
+    presence:
+      - target:
+          field: name
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+      - target:
+          field: uuid
+        yaml:
+          missing:
+            denotes:
+              absent: true
+      - target:
+          field: type
+        xml:
+          missing:
+            denotes:
+              absent: true
+          empty:
+            - form: empty-element
+              denotes:
+                absent: true
+          canonical:
+            - when:
+                not:
+                  present:
+                    field: type
+              form: empty-element
+        yaml:
+          missing:
+            denotes:
+              absent: true
+      - target:
+          field: indexedName
+        xml:
+          missing:
+            denotes:
+              if:
+                or:
+                  - not:
+                      present:
+                        field: type
+                  - get:
+                      of:
+                        field: type
+                      field: compatible
+              then:
+                field: name
+              else:
+                literal: ''
+        yaml:
+          missing:
+            denotes:
+              if:
+                or:
+                  - not:
+                      present:
+                        field: type
+                  - get:
+                      of:
+                        field: type
+                      field: compatible
+              then:
+                field: name
+              else:
+                literal: ''
+    constraints:
+      - id: name-required
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        assert:
+          present:
+            field: name
+        diagnostic:
+          code: value.required
+          severity: warning
+          at:
+            field: name
+          message: Обязательное значение отсутствует
+    id: candidate.member-source.item.5c0685657f65c7205060
+  - format: nkdk-declarations/1
+    kind: value
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      key: common.string
+      source_type: candidate.member-source.view.76f7ac13a50680e6edfc
+    value:
+      kind: record
+      fields:
+        - name: name
+          type:
+            use: key
+        - name: uuid
+          type:
+            kind: scalar
+            scalar: text
+        - name: type
+          type:
+            use: source_type
+            bind: {}
+        - name: indexedName
+          type:
+            kind: scalar
+            scalar: text
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: name
+            path:
+              - md:Properties
+              - md:Name
+          - field: uuid
+            path: []
+            attribute: uuid
+          - field: type
+            path:
+              - md:Properties
+              - md:Type
+      yaml:
+        kind: mapping
+        fields:
+          - field: name
+            key: name
+          - field: type
+            key: Тип
+    presence:
+      - target:
+          field: name
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+      - target:
+          field: uuid
+        yaml:
+          missing:
+            denotes:
+              absent: true
+      - target:
+          field: type
+        xml:
+          missing:
+            denotes:
+              absent: true
+          empty:
+            - form: empty-element
+              denotes:
+                absent: true
+          canonical:
+            - when:
+                not:
+                  present:
+                    field: type
+              form: empty-element
+        yaml:
+          missing:
+            denotes:
+              absent: true
+      - target:
+          field: indexedName
+        xml:
+          missing:
+            denotes:
+              if:
+                or:
+                  - not:
+                      present:
+                        field: type
+                  - get:
+                      of:
+                        field: type
+                      field: compatible
+              then:
+                field: name
+              else:
+                literal: ''
+        yaml:
+          missing:
+            denotes:
+              if:
+                or:
+                  - not:
+                      present:
+                        field: type
+                  - get:
+                      of:
+                        field: type
+                      field: compatible
+              then:
+                field: name
+              else:
+                literal: ''
+    constraints:
+      - id: name-required
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        assert:
+          present:
+            field: name
+        diagnostic:
+          code: value.required
+          severity: warning
+          at:
+            field: name
+          message: Обязательное значение отсутствует
+    id: candidate.member-source.item.89189ec4d9252c2674be
+  - format: nkdk-declarations/1
+    kind: value
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      item: candidate.member-source.item.89189ec4d9252c2674be
+    value:
+      kind: sequence
+      item:
+        use: item
+    representations:
+      xml:
+        kind: element-sequence
+        path:
+          - md:Attribute
+      yaml:
+        kind: record-mapping
+        key: name
+    id: candidate.member-source.list.40936aad0b5318e3d59c
+  - format: nkdk-declarations/1
+    kind: value
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    imports:
+      item: candidate.member-source.item.5c0685657f65c7205060
+    value:
+      kind: sequence
+      item:
+        use: item
+    representations:
+      xml:
+        kind: element-sequence
+        path:
+          - md:Attribute
+      yaml:
+        kind: record-mapping
+        key: name
+    id: candidate.member-source.list.f81f1ec457e7100a9cd4
+  - format: nkdk-declarations/1
+    kind: value
+    id: candidate.member-source.primary-type-choice
+    imports:
+      item: candidate.member-source.primary-type-pattern
+    value:
+      kind: choice
+      variants:
+        - name: changed
+          type:
+            use: item
+        - name: notified
+          type:
+            use: item
+        - name: plain
+          type:
+            use: item
+    representations:
+      xml:
+        kind: choice
+        fallback: plain
+      yaml:
+        kind: choice
+        variants:
+          - variant: changed
+            form: scalar
+            tag: изменять
+          - variant: notified
+            form: scalar
+            tag: проверять
+  - format: nkdk-declarations/1
+    kind: value
+    id: candidate.member-source.primary-type-items
+    imports:
+      item: candidate.member-source.primary-type-row
+    parameters:
+      requireValues:
+        type:
+          kind: scalar
+          scalar: boolean
+        default: false
+      metadataAttributeTypesOnly:
+        type:
+          kind: scalar
+          scalar: boolean
+        default: false
+    value:
+      kind: sequence
+      item:
+        use: item
+    representations:
+      xml:
+        kind: element-sequence
+        path: []
+        item:
+          kind: declared
+      yaml:
+        kind: sequence
+        singleton: scalar
+        item:
+          kind: declared
+    presence:
+      - target: self
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+    constraints:
+      - id: has-values
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        when:
+          parameter: requireValues
+        assert:
+          exists:
+            in:
+              self: true
+            as: item
+            where:
+              literal: true
+        diagnostic:
+          code: type-description.empty
+          severity: error
+          at:
+            self: true
+          message: Описание должно содержать хотя бы один тип
+  - format: nkdk-declarations/1
+    kind: value
+    id: candidate.member-source.primary-type-pattern
+    description: Единая смысловая строка описания типа
+    imports:
+      name: common.string
+    value:
+      kind: record
+      fields:
+        - name: value
+          type:
+            use: name
+        - name: first
+          type:
+            use: name
+        - name: second
+          type:
+            use: name
+    representations:
+      xml:
+        kind: text-pattern
+        parts:
+          - field: value
+          - literal: '|'
+          - field: first
+          - literal: '|'
+          - field: second
+      yaml:
+        kind: text-pattern
+        parts:
+          - field: value
+          - optional: first
+            parts:
+              - literal: (
+              - field: first
+              - optional: second
+                parts:
+                  - literal: ', '
+                  - field: second
+              - literal: )
+    presence:
+      - target:
+          field: first
+        yaml:
+          missing:
+            denotes:
+              literal: ''
+          omitWhen:
+            eq:
+              - field: first
+              - literal: ''
+      - target:
+          field: second
+        yaml:
+          missing:
+            denotes:
+              literal: ''
+          omitWhen:
+            eq:
+              - field: second
+              - literal: ''
+    constraints:
+      - id: valid-qualifiers
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        assert:
+          and:
+            - if:
+                matches:
+                  value:
+                    field: value
+                  pattern: Строка|ФиксированнаяСтрока
+              then:
+                and:
+                  - matches:
+                      value:
+                        field: first
+                      pattern: '[0-9]*'
+                  - eq:
+                      - field: second
+                      - literal: ''
+              else:
+                literal: true
+            - if:
+                matches:
+                  value:
+                    field: value
+                  pattern: Число|ПоложительноеЧисло
+              then:
+                and:
+                  - matches:
+                      value:
+                        field: first
+                      pattern: '[0-9]*'
+                  - matches:
+                      value:
+                        field: second
+                      pattern: '[0-9]*'
+              else:
+                literal: true
+        diagnostic:
+          code: type-description.qualifiers
+          severity: error
+          at:
+            self: true
+          message: Параметры строки и числа должны быть целыми неотрицательными числами
+      - id: metadata-attribute-allowed-types
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        assert:
+          or:
+            - and:
+                - eq:
+                    - field: value
+                    - literal: Строка
+                - eq:
+                    - field: second
+                    - literal: ''
+                - or:
+                    - eq:
+                        - field: first
+                        - literal: ''
+                    - matches:
+                        value:
+                          field: first
+                        pattern: '[1-9][0-9]*'
+            - and:
+                - eq:
+                    - field: value
+                    - literal: ФиксированнаяСтрока
+                - matches:
+                    value:
+                      field: first
+                    pattern: '[1-9][0-9]*'
+                - eq:
+                    - field: second
+                    - literal: ''
+            - and:
+                - matches:
+                    value:
+                      field: value
+                    pattern: Число|ПоложительноеЧисло
+                - or:
+                    - and:
+                        - eq:
+                            - field: first
+                            - literal: ''
+                        - eq:
+                            - field: second
+                            - literal: ''
+                    - and:
+                        - matches:
+                            value:
+                              field: first
+                            pattern: '[1-9][0-9]*'
+                        - matches:
+                            value:
+                              field: second
+                            pattern: '[0-9]*'
+            - matches:
+                value:
+                  field: value
+                pattern: ^(?:Дата)$
+            - matches:
+                value:
+                  field: value
+                pattern: ^(?:Время)$
+            - matches:
+                value:
+                  field: value
+                pattern: ^(?:ДатаВремя)$
+            - matches:
+                value:
+                  field: value
+                pattern: ^(?:Булево)$
+            - matches:
+                value:
+                  field: value
+                pattern: ^(?:ХранилищеЗначения)$
+            - matches:
+                value:
+                  field: value
+                pattern: ^(?:УникальныйИдентификатор)$
+            - matches:
+                value:
+                  field: value
+                pattern: ^(?:Справочник)$
+            - matches:
+                value:
+                  field: value
+                pattern: ^(?:Справочник\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$
+            - matches:
+                value:
+                  field: value
+                pattern: ^(?:Документ)$
+            - matches:
+                value:
+                  field: value
+                pattern: ^(?:Документ\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$
+            - matches:
+                value:
+                  field: value
+                pattern: ^(?:Перечисление)$
+            - matches:
+                value:
+                  field: value
+                pattern: ^(?:Перечисление\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$
+            - matches:
+                value:
+                  field: value
+                pattern: ^(?:ПланВидовХарактеристик)$
+            - matches:
+                value:
+                  field: value
+                pattern: >-
+                  ^(?:ПланВидовХарактеристик\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$
+            - matches:
+                value:
+                  field: value
+                pattern: ^(?:ПланСчетов)$
+            - matches:
+                value:
+                  field: value
+                pattern: ^(?:ПланСчетов\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$
+            - matches:
+                value:
+                  field: value
+                pattern: ^(?:ПланВидовРасчета)$
+            - matches:
+                value:
+                  field: value
+                pattern: ^(?:ПланВидовРасчета\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$
+            - matches:
+                value:
+                  field: value
+                pattern: ^(?:БизнесПроцесс)$
+            - matches:
+                value:
+                  field: value
+                pattern: ^(?:БизнесПроцесс\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$
+            - matches:
+                value:
+                  field: value
+                pattern: ^(?:ТочкаМаршрутаБизнесПроцесса)$
+            - matches:
+                value:
+                  field: value
+                pattern: >-
+                  ^(?:ТочкаМаршрутаБизнесПроцесса\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$
+            - matches:
+                value:
+                  field: value
+                pattern: ^(?:Задача)$
+            - matches:
+                value:
+                  field: value
+                pattern: ^(?:Задача\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$
+            - matches:
+                value:
+                  field: value
+                pattern: ^(?:ПланОбмена)$
+            - matches:
+                value:
+                  field: value
+                pattern: ^(?:ПланОбмена\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$
+            - matches:
+                value:
+                  field: value
+                pattern: ^(?:ЛюбаяСсылка)$
+            - matches:
+                value:
+                  field: value
+                pattern: ^(?:ОпределяемыйТип\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$
+            - matches:
+                value:
+                  field: value
+                pattern: ^(?:Характеристика\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$
+            - matches:
+                value:
+                  field: value
+                pattern: >-
+                  ^(?:ВнешнийИсточникДанных[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*\.Таблица[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$
+            - matches:
+                value:
+                  field: value
+                pattern: >-
+                  ^(?:ВнешнийИсточникДанных[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*\.Куб[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*\.ТаблицаИзмерения[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$
+        diagnostic:
+          code: type-description.allowed
+          severity: warning
+          at:
+            field: value
+          message: Тип не разрешён декларацией свойства
+        when:
+          literal: false
+  - format: nkdk-declarations/1
+    kind: value
+    id: candidate.member-source.primary-type-row
+    imports:
+      item: candidate.member-source.primary-type-choice
+      compatibility: common.boolean
+    value:
+      kind: record
+      fields:
+        - name: item
+          type:
+            use: item
+        - name: compatible
+          type:
+            use: compatibility
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: item
+            path:
+              - Item
+          - field: compatible
+            path:
+              - Compatibility
+      yaml:
+        kind: projection
+        field: item
+    presence:
+      - target:
+          field: compatible
+        xml:
+          missing:
+            denotes:
+              if:
+                isVariant:
+                  value:
+                    field: item
+                  variant: changed
+              then:
+                matches:
+                  value:
+                    get:
+                      of:
+                        variantValue:
+                          value:
+                            field: item
+                          variant: changed
+                      field: value
+                  pattern: >-
+                    Строка|ФиксированнаяСтрока|Число|ПоложительноеЧисло|Дата|Время|ДатаВремя|Булево|УникальныйИдентификатор|ОпределяемыйТип\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}
+              else:
+                if:
+                  isVariant:
+                    value:
+                      field: item
+                    variant: notified
+                then:
+                  matches:
+                    value:
+                      get:
+                        of:
+                          variantValue:
+                            value:
+                              field: item
+                            variant: notified
+                        field: value
+                    pattern: >-
+                      Строка|ФиксированнаяСтрока|Число|ПоложительноеЧисло|Дата|Время|ДатаВремя|Булево|УникальныйИдентификатор|ОпределяемыйТип\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}
+                else:
+                  matches:
+                    value:
+                      get:
+                        of:
+                          variantValue:
+                            value:
+                              field: item
+                            variant: plain
+                        field: value
+                    pattern: >-
+                      Строка|ФиксированнаяСтрока|Число|ПоложительноеЧисло|Дата|Время|ДатаВремя|Булево|УникальныйИдентификатор|ОпределяемыйТип\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}
+        yaml:
+          missing:
+            denotes:
+              if:
+                isVariant:
+                  value:
+                    field: item
+                  variant: changed
+              then:
+                matches:
+                  value:
+                    get:
+                      of:
+                        variantValue:
+                          value:
+                            field: item
+                          variant: changed
+                      field: value
+                  pattern: >-
+                    Строка|ФиксированнаяСтрока|Число|ПоложительноеЧисло|Дата|Время|ДатаВремя|Булево|УникальныйИдентификатор|ОпределяемыйТип\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}
+              else:
+                if:
+                  isVariant:
+                    value:
+                      field: item
+                    variant: notified
+                then:
+                  matches:
+                    value:
+                      get:
+                        of:
+                          variantValue:
+                            value:
+                              field: item
+                            variant: notified
+                        field: value
+                    pattern: >-
+                      Строка|ФиксированнаяСтрока|Число|ПоложительноеЧисло|Дата|Время|ДатаВремя|Булево|УникальныйИдентификатор|ОпределяемыйТип\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}
+                else:
+                  matches:
+                    value:
+                      get:
+                        of:
+                          variantValue:
+                            value:
+                              field: item
+                            variant: plain
+                        field: value
+                    pattern: >-
+                      Строка|ФиксированнаяСтрока|Число|ПоложительноеЧисло|Дата|Время|ДатаВремя|Булево|УникальныйИдентификатор|ОпределяемыйТип\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}
+  - format: nkdk-declarations/1
+    kind: value
+    id: candidate.member-source.view.76f7ac13a50680e6edfc
+    description: >-
+      Обратимое описание типов; классификация XML-групп задана выражениями
+      декларации
+    namespaces:
+      v8: http://v8.1c.ru/8.1/data/core
+      xsi: http://www.w3.org/2001/XMLSchema-instance
+    imports:
+      items: candidate.member-source.primary-type-items
+      types: common.type-description-types
+      typeSets: common.type-description-type-sets
+      identifiers: common.type-description-identifiers
+      text: common.string
+      compatibility: common.boolean
+    parameters:
+      requireValues:
+        type:
+          kind: scalar
+          scalar: boolean
+        default: false
+      addTypeDescriptionAttributeToXML:
+        type:
+          kind: scalar
+          scalar: boolean
+        default: false
+      metadataAttributeTypesOnly:
+        type:
+          kind: scalar
+          scalar: boolean
+        default: false
+    value:
+      kind: record
+      fields:
+        - name: items
+          type:
+            use: items
+            with:
+              metadataAttributeTypesOnly:
+                parameter: metadataAttributeTypesOnly
+              requireValues:
+                parameter: requireValues
+        - name: compatible
+          type:
+            use: compatibility
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: compatible
+            path:
+              - Compatibility
+      yaml:
+        kind: projection
+        field: items
+    presence:
+      - target:
+          field: items
+        xml:
+          missing:
+            denotes:
+              absent: true
+      - target:
+          field: compatible
+        xml:
+          missing:
+            denotes:
+              or:
+                - not:
+                    exists:
+                      in:
+                        field: items
+                      as: item
+                      where:
+                        literal: true
+                - exists:
+                    in:
+                      field: items
+                    as: item
+                    where:
+                      get:
+                        of:
+                          var: item
+                        field: compatible
+        yaml:
+          missing:
+            denotes:
+              or:
+                - not:
+                    exists:
+                      in:
+                        field: items
+                      as: item
+                      where:
+                        literal: true
+                - exists:
+                    in:
+                      field: items
+                    as: item
+                    where:
+                      get:
+                        of:
+                          var: item
+                        field: compatible
+    constraints: []

@@ -1,0 +1,174 @@
+format: nkdk-declarations/1
+kind: value
+id: common.dcs-appearance-source-choice
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  v8ui: http://v8.1c.ru/8.1/data/ui
+  v8: http://v8.1c.ru/8.1/data/core
+  xs: http://www.w3.org/2001/XMLSchema
+  dcscor: http://v8.1c.ru/8.1/data-composition-system/core
+  ent: http://v8.1c.ru/8.1/data/enterprise
+imports:
+  color: common.color
+  font: common.font-normal
+  horizontalAlign: system.HorizontalAlign.dcs
+  designTime: common.dcs-design-time-choice
+  primitive: common.dcs-appearance-boolean-value
+  primitiveSelector: common.dcs-primitive-choice
+inputs:
+  valueProfile:
+    type:
+      kind: scalar
+      scalar: text
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  labels:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: code
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  codes:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: label
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  styleTypes:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: scalar
+        scalar: text
+value:
+  kind: choice
+  variants:
+    - name: color
+      type:
+        use: color
+        bind:
+          styleTypes:
+            input: styleTypes
+        with:
+          retainAuto: true
+    - name: font
+      type:
+        use: font
+        bind:
+          styleTypes:
+            input: styleTypes
+    - name: horizontalAlign
+      type:
+        use: horizontalAlign
+    - name: designTime
+      type:
+        use: designTime
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+    - name: primitive
+      type:
+        use: primitive
+        bind:
+          labels:
+            input: labels
+          codes:
+            input: codes
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+representations:
+  xml:
+    kind: choice
+    attribute: xsi:type
+    variants:
+      - variant: color
+        in:
+          - v8ui:Color
+        emit: v8ui:Color
+      - variant: font
+        in:
+          - v8ui:Font
+        emit: v8ui:Font
+      - variant: horizontalAlign
+        in:
+          - v8ui:HorizontalAlign
+        emit: v8ui:HorizontalAlign
+      - variant: designTime
+        in:
+          - dcscor:DesignTimeValue
+          - dcscor:Field
+          - v8:LocalStringType
+          - v8:LocalFormattedStringType
+          - xs:string
+      - variant: primitive
+        from: primitiveSelector
+    otherwise: color
+  yaml:
+    kind: choice
+    variants:
+      - variant: font
+        form: mapping
+        key: Вид
+      - variant: font
+        form: mapping
+        key: ВидXML
+      - variant: font
+        form: input-profile
+        input: valueProfile
+        equals: Font
+      - variant: color
+        form: scalar-input
+        input: valueProfile
+        equals: Color
+      - variant: horizontalAlign
+        form: scalar-input
+        input: valueProfile
+        equals: HorizontalAlign
+      - variant: designTime
+        form: mapping
+        key: Тип
+      - variant: designTime
+        form: scalar-input
+        input: valueProfile
+        equals: DesignTimeValue
+      - variant: primitive
+        form: input-profile
+        input: valueProfile
+        equals: Primitive

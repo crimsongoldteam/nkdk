@@ -1,0 +1,3 @@
+# Ownership of complete generated conversion bodies.
+probes/settings-parameter-values-working.generated.yaml
+probes/calculated-fields-working.generated.yaml

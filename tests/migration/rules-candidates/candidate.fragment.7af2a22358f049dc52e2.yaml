@@ -1,0 +1,25 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.dynamic-list-key-fields
+value:
+  kind: record
+  fields:
+    - name: keyFields
+      type:
+        use: value0
+        bind: {}
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: keyFields
+        path:
+          - KeyField
+  yaml:
+    kind: mapping
+    fields:
+      - field: keyFields
+        key: ПоляКлюча
+presence: []
+id: candidate.fragment.7af2a22358f049dc52e2

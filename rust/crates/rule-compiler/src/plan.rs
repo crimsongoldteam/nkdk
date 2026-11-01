@@ -9,12 +9,14 @@ use std::{
 };
 mod composition;
 pub(crate) mod contracts;
+mod definitions;
 pub(crate) mod input_dependencies;
 pub(crate) mod records;
 pub(crate) mod routes;
 pub(crate) mod scopes;
 mod values;
 pub(crate) mod xml_ownership;
+pub(crate) use definitions::Definitions;
 pub(crate) use values::{RecordPlan, ValueId, ValuePlan, diagnostic_key, xml_fields};
 
 /// Prepared at build time. The runtime never receives this structure.
@@ -23,6 +25,7 @@ pub(crate) struct ConversionPlan<'a> {
     program: &'a Program,
     values: BTreeMap<ValueId, ValuePlan<'a>>,
     compositions: composition::Table,
+    definitions: Definitions,
 }
 impl Deref for ConversionPlan<'_> {
     type Target = Program;
@@ -43,6 +46,7 @@ pub(crate) fn build(program: &Program) -> Result<ConversionPlan<'_>, Vec<Diagnos
         program,
         values,
         compositions: Default::default(),
+        definitions: Definitions::prepare(program),
     })
 }
 impl ConversionPlan<'_> {
@@ -54,6 +58,9 @@ impl ConversionPlan<'_> {
     }
     pub(crate) fn value(&self, id: ValueId) -> Option<&ValuePlan<'_>> {
         self.values.get(&id)
+    }
+    pub(crate) fn definitions(&self) -> &Definitions {
+        &self.definitions
     }
     pub(crate) fn record<'a>(
         &'a self,

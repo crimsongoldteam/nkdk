@@ -1,0 +1,182 @@
+{
+  "ordinaryBeforeAfter": [
+    {
+      "scope": "ordinary DynamicList scalar owner; unchanged independent cases, release, no concurrent builds",
+      "iterationsPerGroup": 50000,
+      "groups": 9,
+      "timingsNs": {
+        "xml-to-yaml": {
+          "before": [
+            15693.4575,
+            17004.6375,
+            17066.3775,
+            16730.45834,
+            16958.55084,
+            16458.57416,
+            16634.13666,
+            17916.54668,
+            17644.0225
+          ],
+          "after": [
+            15618.6,
+            15715.25918,
+            17407.15666,
+            16501.94334,
+            18028.60416,
+            17065.13918,
+            18511.68666,
+            17256.865,
+            18384.85834
+          ]
+        },
+        "yaml-to-xml": {
+          "before": [
+            4821.93582,
+            4633.41916,
+            4520.63418,
+            5604.29,
+            5504.34084,
+            4696.39418,
+            5001.58582,
+            4695.05834,
+            4649.76082
+          ],
+          "after": [
+            4657.06168,
+            4567.68916,
+            4594.43666,
+            4666.7525,
+            4854.04916,
+            4873.58584,
+            5191.76834,
+            4562.09582,
+            4621.00918
+          ]
+        }
+      },
+      "ratio": {
+        "xml-to-yaml": 1.0175907813594762,
+        "yaml-to-xml": 0.9916249576818953
+      }
+    },
+    {
+      "scope": "ordinary DynamicList scalar owner; unchanged independent cases, release, no concurrent builds",
+      "iterationsPerGroup": 100000,
+      "groups": 9,
+      "timingsNs": {
+        "xml-to-yaml": {
+          "before": [
+            16828.56166,
+            18826.8925,
+            19842.54083,
+            16479.27666,
+            15684.79333,
+            15557.04625,
+            15649.30583,
+            16765.69,
+            16651.65958
+          ],
+          "after": [
+            17156.28792,
+            16920.59125,
+            16767.90333,
+            15956.25708,
+            15840.57167,
+            15635.73417,
+            15793.94958,
+            15586.63417,
+            16073.1925
+          ]
+        },
+        "yaml-to-xml": {
+          "before": [
+            4754.72042,
+            4592.78792,
+            4636.55625,
+            4791.86708,
+            4799.34875,
+            4685.74083,
+            4884.45917,
+            4677.015,
+            4618.75209
+          ],
+          "after": [
+            4716.80708,
+            4496.40209,
+            4551.08792,
+            4591.60333,
+            4671.81917,
+            4579.41666,
+            4744.36166,
+            4657.37625,
+            4675.48708
+          ]
+        }
+      },
+      "ratio": {
+        "xml-to-yaml": 0.9582382466649009,
+        "yaml-to-xml": 0.9939466178286264
+      }
+    }
+  ],
+  "io": {
+    "scope": "warm local filesystem, identical bounded source loaders; owned versus borrowed staging of the same bytes, not a pre-feature converter baseline",
+    "iterationsPerGroup": 1000,
+    "groups": 5,
+    "timingsNs": {
+      "static-read": [
+        38628,
+        32290,
+        32576,
+        32580,
+        32689
+      ],
+      "prepared-read": [
+        33008,
+        32648,
+        32537,
+        32852,
+        32429
+      ],
+      "owned-write": [
+        176808,
+        170409,
+        188987,
+        173061,
+        184432
+      ],
+      "borrowed-write": [
+        168791,
+        168251,
+        172317,
+        171046,
+        194984
+      ]
+    },
+    "medianNs": {
+      "static-read": 32580,
+      "prepared-read": 32648,
+      "owned-write": 176808,
+      "borrowed-write": 171046
+    }
+  },
+  "fileConversionOnly": {
+    "xmlToYaml": {
+      "case": "dynamic-list-query-ПроизвольныйЗапрос",
+      "direction": "xml-to-yaml",
+      "elapsedNs": 593397584,
+      "iterations": 50000,
+      "preparationNs": 28375,
+      "sourceBytes": 425
+    },
+    "yamlToXml": {
+      "case": "dynamic-list-query-ПроизвольныйЗапрос",
+      "direction": "yaml-to-xml",
+      "elapsedNs": 132028000,
+      "iterations": 50000,
+      "preparationNs": 2917,
+      "sourceBytes": 50
+    }
+  },
+  "conclusion": "No sustained ordinary-path slowdown observed across two independent series. Not evidence of overall 10x performance or a full DynamicList owner acceptance."
+}

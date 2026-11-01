@@ -1,0 +1,3 @@
+migration.enumeration-commands
+migration.metadata-own-identity
+migration.metadata-root-index

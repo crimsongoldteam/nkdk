@@ -1,4 +1,4 @@
-use crate::{facts, rules, with_documents};
+use crate::{facts, rules, with_documents, with_yaml_documents};
 use nkdk_conversion_core::Direction;
 use serde_json::{Value, json};
 use std::time::Instant;
@@ -66,7 +66,7 @@ pub(super) fn run(manifest: &Value, arguments: &[String]) -> Result<(), String> 
     let inputs = if matches!(options.direction, Direction::XmlToYaml) {
         with_documents(fresh, case)
     } else {
-        fresh
+        with_yaml_documents(fresh, case)
     };
     let preparation_ns = preparation.elapsed().as_nanos();
     let source = match options.direction {

@@ -1,0 +1,248 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: system.ObjectBelonging
+  value1: common.string
+  value2: common.i8n-text
+  inputType1f8ea46361ff: common.path-root
+  value4: common.metadata-command-group
+  value5: system.ButtonRepresentation
+  value6: common.picture
+value:
+  kind: record
+  fields:
+    - name: objectBelonging
+      type:
+        use: value0
+    - name: name
+      type:
+        use: value1
+    - name: synonym
+      type:
+        use: value2
+        with:
+          excludeIfEqualNameYAML: true
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            input: ownerName
+    - name: comment
+      type:
+        use: value1
+    - name: group
+      type:
+        use: value4
+        bind:
+          roots:
+            input: roots
+    - name: representation
+      type:
+        use: value5
+    - name: toolTip
+      type:
+        use: value2
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            input: ownerName
+    - name: picture
+      type:
+        use: value6
+        bind: {}
+        with:
+          allowEmpty: true
+    - name: shortcut
+      type:
+        use: value1
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: objectBelonging
+        path:
+          - Properties
+          - ObjectBelonging
+      - field: name
+        path:
+          - Properties
+          - Name
+      - field: synonym
+        path:
+          - Properties
+          - Synonym
+      - field: comment
+        path:
+          - Properties
+          - Comment
+      - field: group
+        path:
+          - Properties
+          - Group
+      - field: representation
+        path:
+          - Properties
+          - Representation
+      - field: toolTip
+        path:
+          - Properties
+          - ToolTip
+      - field: picture
+        path:
+          - Properties
+          - Picture
+      - field: shortcut
+        path:
+          - Properties
+          - Shortcut
+  yaml:
+    kind: mapping
+    fields:
+      - field: synonym
+        key: Синоним
+      - field: comment
+        key: Комментарий
+      - field: group
+        key: Группа
+      - field: representation
+        key: Отображение
+      - field: toolTip
+        key: Подсказка
+      - field: picture
+        key: Картинка
+      - field: shortcut
+        key: СочетаниеКлавиш
+presence:
+  - target:
+      field: objectBelonging
+    xml:
+      missing:
+        denotes:
+          literal: Native
+      canonical:
+        - when:
+            eq:
+              - field: objectBelonging
+              - literal: Native
+          form: missing
+    yaml:
+      default:
+        literal: Native
+  - target:
+      field: name
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          input: ownerName
+  - target:
+      field: synonym
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: synonym
+          form: empty-element
+  - target:
+      field: comment
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: ''
+  - target:
+      field: representation
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: Auto
+  - target:
+      field: toolTip
+    xml:
+      missing:
+        denotes:
+          absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: toolTip
+          form: empty-element
+  - target:
+      field: picture
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: picture
+          form: empty-element
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: shortcut
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: ''
+inputs:
+  ownerName:
+    type:
+      kind: scalar
+      scalar: text
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  roots:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: kind
+            type:
+              use: inputType1f8ea46361ff
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+id: candidate.fragment.c05ea67cd7f4b903a095

@@ -1,0 +1,69 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.form-event-bindings
+value:
+  kind: record
+  fields:
+    - name: events
+      type:
+        use: value0
+        bind:
+          eventNames:
+            sequence:
+              - record:
+                  xml:
+                    literal: OnChange
+                  yaml:
+                    literal: ПриИзменении
+              - record:
+                  xml:
+                    literal: Click
+                  yaml:
+                    literal: Нажатие
+              - record:
+                  xml:
+                    literal: DragStart
+                  yaml:
+                    literal: НачалоПеретаскивания
+              - record:
+                  xml:
+                    literal: DragEnd
+                  yaml:
+                    literal: ОкончаниеПеретаскивания
+              - record:
+                  xml:
+                    literal: Drag
+                  yaml:
+                    literal: Перетаскивание
+              - record:
+                  xml:
+                    literal: DragCheck
+                  yaml:
+                    literal: ПроверкаПеретаскивания
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: events
+        path:
+          - f:Events
+  yaml:
+    kind: mapping
+    fields:
+      - field: events
+        key: События
+presence:
+  - target:
+      field: events
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+namespaces:
+  f: http://v8.1c.ru/8.3/xcf/logform
+id: candidate.fragment.a3a07cd4f9125fac1d1a

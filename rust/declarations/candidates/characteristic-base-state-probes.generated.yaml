@@ -1,0 +1,5063 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+  - format: nkdk-declarations/1
+    kind: object
+    id: candidate.characteristic-base-identity
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields:
+        - name: base
+          type:
+            kind: scalar
+            scalar: text
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: base
+            path:
+              - md:MetaDataObject
+              - md:ChartOfCharacteristicTypes
+              - md:Properties
+              - md:ExtendedConfigurationObject
+      yaml:
+        kind: mapping
+        fields:
+          - field: base
+            key: base
+    presence:
+      - target:
+          field: base
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+    contributions:
+      - index: metadata.base-identities
+        when:
+          present:
+            field: base
+        key:
+          record:
+            component:
+              input: component
+            identity:
+              input: owner
+        value:
+          field: base
+  - kind: value
+    id: candidate.characteristic-base-state.description-state.changed
+    imports:
+      boolean: common.boolean
+      semantic: common.type-description
+    inputs:
+      property:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+      states:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: property
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: mode
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+    value:
+      kind: record
+      fields:
+        - name: value
+          type:
+            use: semantic
+            bind: {}
+        - name: state
+          type:
+            use: boolean
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: value
+            path: []
+      yaml:
+        kind: projection
+        field: value
+    presence:
+      - target:
+          field: state
+        xml:
+          missing:
+            denotes:
+              and:
+                - present:
+                    lookup:
+                      in:
+                        input: states
+                      key:
+                        record:
+                          owner:
+                            input: owner
+                          property:
+                            input: property
+                          mode:
+                            literal: Extended
+                - not:
+                    present:
+                      lookup:
+                        in:
+                          input: states
+                        key:
+                          record:
+                            owner:
+                              input: owner
+                            property:
+                              input: property
+                            mode:
+                              literal: Notify
+        yaml:
+          missing:
+            denotes:
+              literal: true
+    constraints:
+      - id: selected-state
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        forms:
+          - record
+          - scalar
+        assert:
+          field: state
+        diagnostic:
+          code: state.expected
+          severity: error
+          at:
+            self: true
+          message: Expected the selected state
+  - kind: value
+    id: candidate.characteristic-base-state.description-state.notified
+    imports:
+      boolean: common.boolean
+      semantic: common.type-description
+    inputs:
+      property:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+      states:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: property
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: mode
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+    value:
+      kind: record
+      fields:
+        - name: value
+          type:
+            use: semantic
+            bind: {}
+        - name: state
+          type:
+            use: boolean
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: value
+            path: []
+      yaml:
+        kind: projection
+        field: value
+    presence:
+      - target:
+          field: state
+        xml:
+          missing:
+            denotes:
+              and:
+                - present:
+                    lookup:
+                      in:
+                        input: states
+                      key:
+                        record:
+                          owner:
+                            input: owner
+                          property:
+                            input: property
+                          mode:
+                            literal: Notify
+                - not:
+                    present:
+                      lookup:
+                        in:
+                          input: states
+                        key:
+                          record:
+                            owner:
+                              input: owner
+                            property:
+                              input: property
+                            mode:
+                              literal: Extended
+        yaml:
+          missing:
+            denotes:
+              literal: true
+    constraints:
+      - id: selected-state
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        forms:
+          - record
+          - scalar
+        assert:
+          field: state
+        diagnostic:
+          code: state.expected
+          severity: error
+          at:
+            self: true
+          message: Expected the notify state
+  - kind: value
+    id: candidate.characteristic-base-state.description-state.plain
+    imports:
+      boolean: common.boolean
+      semantic: common.type-description
+    inputs:
+      property:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+      states:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: property
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: mode
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+    value:
+      kind: record
+      fields:
+        - name: value
+          type:
+            use: semantic
+            bind: {}
+        - name: state
+          type:
+            use: boolean
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: value
+            path: []
+      yaml:
+        kind: projection
+        field: value
+    presence:
+      - target:
+          field: state
+        xml:
+          missing:
+            denotes:
+              or:
+                - present:
+                    lookup:
+                      in:
+                        input: states
+                      key:
+                        record:
+                          owner:
+                            input: owner
+                          property:
+                            input: property
+                          mode:
+                            literal: Extended
+                - present:
+                    lookup:
+                      in:
+                        input: states
+                      key:
+                        record:
+                          owner:
+                            input: owner
+                          property:
+                            input: property
+                          mode:
+                            literal: Notify
+        yaml:
+          missing:
+            denotes:
+              literal: false
+    constraints:
+      - id: selected-state
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        forms:
+          - record
+          - scalar
+        assert:
+          not:
+            field: state
+        diagnostic:
+          code: state.expected
+          severity: error
+          at:
+            self: true
+          message: Expected the ordinary state
+  - kind: value
+    id: candidate.characteristic-base-state.description-state
+    imports:
+      changed: candidate.characteristic-base-state.description-state.changed
+      plain: candidate.characteristic-base-state.description-state.plain
+      notified: candidate.characteristic-base-state.description-state.notified
+      semantic: common.type-description
+    inputs:
+      property:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+      states:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: property
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: mode
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+    value:
+      kind: choice
+      variants:
+        - name: changed
+          type:
+            use: changed
+            bind:
+              states:
+                input: states
+              owner:
+                input: owner
+              property:
+                input: property
+        - name: notified
+          type:
+            use: notified
+            bind:
+              states:
+                input: states
+              owner:
+                input: owner
+              property:
+                input: property
+        - name: plain
+          type:
+            use: plain
+            bind:
+              states:
+                input: states
+              owner:
+                input: owner
+              property:
+                input: property
+    representations:
+      xml:
+        kind: choice
+        fallback: plain
+      yaml:
+        kind: choice
+        variants:
+          - variant: changed
+            form: tagged
+            tag: изменять
+          - variant: notified
+            form: tagged
+            tag: проверять
+          - variant: plain
+            form: sequence
+  - format: nkdk-declarations/1
+    kind: fragment
+    imports:
+      state_type: candidate.characteristic-base-state.description-state
+      compatibility: system.CompatibilityMode
+    value:
+      kind: record
+      fields:
+        - name: type
+          type:
+            use: state_type
+            bind:
+              property:
+                literal: Type
+              owner:
+                input: owner
+              states:
+                input: states
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: type
+            path:
+              - md:MetaDataObject
+              - md:ChartOfCharacteristicTypes
+              - md:Properties
+              - md:Type
+      yaml:
+        kind: mapping
+        fields:
+          - field: type
+            key: ТипЗначения
+    presence:
+      - target:
+          field: type
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+    id: candidate.characteristic-base-state.type
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    inputs:
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+      states:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: property
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: mode
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+      adopted:
+        type:
+          kind: scalar
+          scalar: boolean
+      compatibilityMode:
+        type:
+          use: compatibility
+    constraints:
+      - id: state-version-type-extend
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        when:
+          and:
+            - present:
+                field: type
+            - isVariant:
+                value:
+                  field: type
+                variant: changed
+        assert:
+          if:
+            input: adopted
+          then:
+            literal: false
+          else:
+            literal: false
+        diagnostic:
+          code: state.mode.unavailable
+          severity: error
+          at:
+            field: type
+          message: >-
+            Пометка свойства недоступна для этого объекта или версии
+            совместимости
+      - id: state-version-type-notify
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        when:
+          and:
+            - present:
+                field: type
+            - isVariant:
+                value:
+                  field: type
+                variant: notified
+        assert:
+          if:
+            input: adopted
+          then:
+            or:
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_15
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_16
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_17
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_18
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_19
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_20
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_21
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_22
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_23
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_24
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_25
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_26
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_27
+              - eq:
+                  - input: compatibilityMode
+                  - literal: DontUse
+          else:
+            literal: false
+        diagnostic:
+          code: state.mode.unavailable
+          severity: error
+          at:
+            field: type
+          message: >-
+            Пометка свойства недоступна для этого объекта или версии
+            совместимости
+      - id: state-version-type-control
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        when:
+          and:
+            - present:
+                field: type
+            - isVariant:
+                value:
+                  field: type
+                variant: plain
+        assert:
+          if:
+            input: adopted
+          then:
+            or:
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_10
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_11
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_12
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_13
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_14
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_15
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_16
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_17
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_18
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_19
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_20
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_21
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_22
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_23
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_24
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_25
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_26
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_27
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_8
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_9
+              - eq:
+                  - input: compatibilityMode
+                  - literal: DontUse
+          else:
+            literal: true
+        diagnostic:
+          code: state.mode.unavailable
+          severity: error
+          at:
+            field: type
+          message: >-
+            Пометка свойства недоступна для этого объекта или версии
+            совместимости
+  - format: nkdk-declarations/1
+    kind: fragment
+    id: candidate.characteristic-base-state.input-type-state
+    imports:
+      number: common.stateful-number
+      stateRows: common.property-states
+      compatibility: system.CompatibilityMode
+      fields: common.owner-checked-metadata-fields
+      context_hierarchical: common.stateful.common.boolean
+      context_codeAllowedLength: common.stateful.system.AllowedLength
+      state: common.base-reference-state
+      state_type: candidate.characteristic-base-state.description-state
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    inputs:
+      name:
+        type:
+          kind: scalar
+          scalar: text
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      members:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: component
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: role
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: name
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+      adopted:
+        type:
+          kind: scalar
+          scalar: boolean
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+      states:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: property
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: mode
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+      baseNumbers:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: property
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+      compatibilityMode:
+        type:
+          use: compatibility
+      baseIds:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: component
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: identity
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+    value:
+      kind: record
+      fields:
+        - name: history
+          type:
+            use: stateRows
+        - name: CodeLength
+          type:
+            use: number
+            bind:
+              implicit:
+                literal: 9
+              property:
+                literal: CodeLength
+              owner:
+                input: owner
+              states:
+                input: states
+        - name: DescriptionLength
+          type:
+            use: number
+            bind:
+              implicit:
+                literal: 25
+              property:
+                literal: DescriptionLength
+              owner:
+                input: owner
+              states:
+                input: states
+        - name: InputByString
+          type:
+            use: fields
+            bind:
+              ownerRoot:
+                literal: ChartOfCharacteristicTypes
+              ownerName:
+                input: name
+              component:
+                input: component
+              owner:
+                input: owner
+              members:
+                input: members
+              memberRole:
+                literal: attributes
+              memberKind:
+                literal: Attribute
+              standardNames:
+                sequence:
+                  - literal: Description
+                  - literal: Code
+        - name: Hierarchical
+          type:
+            use: context_hierarchical
+            bind:
+              implicit:
+                literal: false
+              property:
+                literal: Hierarchical
+              owner:
+                input: owner
+              states:
+                input: states
+        - name: CodeAllowedLength
+          type:
+            use: context_codeAllowedLength
+            bind:
+              implicit:
+                literal: Variable
+              property:
+                literal: CodeAllowedLength
+              owner:
+                input: owner
+              states:
+                input: states
+        - name: state
+          type:
+            use: state
+        - name: base
+          type:
+            kind: scalar
+            scalar: text
+        - name: notice
+          type:
+            kind: scalar
+            scalar: text
+        - name: type
+          type:
+            use: state_type
+            bind:
+              property:
+                literal: Type
+              owner:
+                input: owner
+              states:
+                input: states
+    representations:
+      xml:
+        kind: record
+        fields:
+          - field: history
+            path:
+              - md:MetaDataObject
+              - md:ChartOfCharacteristicTypes
+              - md:InternalInfo
+          - field: base
+            path:
+              - md:MetaDataObject
+              - md:ChartOfCharacteristicTypes
+              - md:Properties
+              - md:ExtendedConfigurationObject
+          - field: type
+            path:
+              - md:MetaDataObject
+              - md:ChartOfCharacteristicTypes
+              - md:Properties
+              - md:Type
+          - field: Hierarchical
+            path:
+              - md:MetaDataObject
+              - md:ChartOfCharacteristicTypes
+              - md:Properties
+              - md:Hierarchical
+          - field: CodeLength
+            path:
+              - md:MetaDataObject
+              - md:ChartOfCharacteristicTypes
+              - md:Properties
+              - md:CodeLength
+          - field: CodeAllowedLength
+            path:
+              - md:MetaDataObject
+              - md:ChartOfCharacteristicTypes
+              - md:Properties
+              - md:CodeAllowedLength
+          - field: DescriptionLength
+            path:
+              - md:MetaDataObject
+              - md:ChartOfCharacteristicTypes
+              - md:Properties
+              - md:DescriptionLength
+          - field: InputByString
+            path:
+              - md:MetaDataObject
+              - md:ChartOfCharacteristicTypes
+              - md:Properties
+              - md:InputByString
+      yaml:
+        kind: mapping
+        fields:
+          - field: CodeLength
+            key: ДлинаКода
+          - field: DescriptionLength
+            key: ДлинаНаименования
+          - field: InputByString
+            key: ВводПоСтроке
+          - field: history
+            key: Состояния
+          - field: Hierarchical
+            key: Иерархический
+          - field: CodeAllowedLength
+            key: ДопустимаяДлинаКода
+          - field: state
+            key: ОбъектРасширяемойКонфигурации
+          - field: type
+            key: ТипЗначения
+    presence:
+      - target:
+          field: DescriptionLength
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          default:
+            if:
+              input: adopted
+            then:
+              absent: true
+            else:
+              variant:
+                name: plain
+                value:
+                  record:
+                    capacity:
+                      literal: 25
+                    state:
+                      literal: false
+      - target:
+          field: CodeLength
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          default:
+            if:
+              input: adopted
+            then:
+              absent: true
+            else:
+              variant:
+                name: plain
+                value:
+                  record:
+                    capacity:
+                      literal: 9
+                    state:
+                      literal: false
+      - target:
+          field: history
+        xml:
+          missing:
+            denotes:
+              sequence: []
+          canonical:
+            - when:
+                and:
+                  - input: adopted
+                  - not:
+                      exists:
+                        in:
+                          field: history
+                        as: row
+                        where:
+                          literal: true
+              form: empty-element
+            - when:
+                not:
+                  exists:
+                    in:
+                      field: history
+                    as: row
+                    where:
+                      literal: true
+              form: missing
+            - form: ordinary
+        yaml:
+          default:
+            concat:
+              - if:
+                  and:
+                    - isVariant:
+                        value:
+                          field: type
+                        variant: changed
+                    - if:
+                        input: adopted
+                      then:
+                        literal: false
+                      else:
+                        literal: false
+                then:
+                  sequence:
+                    - record:
+                        name:
+                          literal: Type
+                        mode:
+                          literal: Extended
+                else:
+                  sequence: []
+              - if:
+                  and:
+                    - isVariant:
+                        value:
+                          field: type
+                        variant: notified
+                    - if:
+                        input: adopted
+                      then:
+                        or:
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_15
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_16
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_17
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_18
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_19
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_20
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_21
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_22
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_23
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_24
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_25
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_26
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_27
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: DontUse
+                      else:
+                        literal: false
+                then:
+                  sequence:
+                    - record:
+                        name:
+                          literal: Type
+                        mode:
+                          literal: Notify
+                else:
+                  sequence: []
+              - if:
+                  and:
+                    - isVariant:
+                        value:
+                          field: Hierarchical
+                        variant: changed
+                    - if:
+                        input: adopted
+                      then:
+                        literal: false
+                      else:
+                        literal: false
+                then:
+                  sequence:
+                    - record:
+                        name:
+                          literal: Hierarchical
+                        mode:
+                          literal: Extended
+                else:
+                  sequence: []
+              - if:
+                  and:
+                    - isVariant:
+                        value:
+                          field: Hierarchical
+                        variant: notified
+                    - if:
+                        input: adopted
+                      then:
+                        or:
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_15
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_16
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_17
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_18
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_19
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_20
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_21
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_22
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_23
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_24
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_25
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_26
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_27
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: DontUse
+                      else:
+                        literal: false
+                then:
+                  sequence:
+                    - record:
+                        name:
+                          literal: Hierarchical
+                        mode:
+                          literal: Notify
+                else:
+                  sequence: []
+              - if:
+                  and:
+                    - isVariant:
+                        value:
+                          field: CodeLength
+                        variant: changed
+                    - and:
+                        - if:
+                            input: adopted
+                          then:
+                            or:
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_10
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_11
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_12
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_13
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_14
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_15
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_16
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_17
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_18
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_19
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_20
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_21
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_22
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_23
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_24
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_25
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_26
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_27
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_8
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_9
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: DontUse
+                          else:
+                            literal: false
+                        - or:
+                            - not:
+                                input: adopted
+                            - present:
+                                lookup:
+                                  in:
+                                    input: baseNumbers
+                                  key:
+                                    record:
+                                      owner:
+                                        input: owner
+                                      property:
+                                        literal: CodeLength
+                then:
+                  sequence:
+                    - record:
+                        name:
+                          literal: CodeLength
+                        mode:
+                          literal: Extended
+                else:
+                  sequence: []
+              - if:
+                  and:
+                    - isVariant:
+                        value:
+                          field: CodeLength
+                        variant: notified
+                    - and:
+                        - if:
+                            input: adopted
+                          then:
+                            or:
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_15
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_16
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_17
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_18
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_19
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_20
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_21
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_22
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_23
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_24
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_25
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_26
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_27
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: DontUse
+                          else:
+                            literal: false
+                        - or:
+                            - not:
+                                input: adopted
+                            - present:
+                                lookup:
+                                  in:
+                                    input: baseNumbers
+                                  key:
+                                    record:
+                                      owner:
+                                        input: owner
+                                      property:
+                                        literal: CodeLength
+                then:
+                  sequence:
+                    - record:
+                        name:
+                          literal: CodeLength
+                        mode:
+                          literal: Notify
+                else:
+                  sequence: []
+              - if:
+                  and:
+                    - isVariant:
+                        value:
+                          field: CodeAllowedLength
+                        variant: changed
+                    - if:
+                        input: adopted
+                      then:
+                        or:
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_10
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_11
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_12
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_13
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_14
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_15
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_16
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_17
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_18
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_19
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_20
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_21
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_22
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_23
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_24
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_25
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_26
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_27
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_8
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_9
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: DontUse
+                      else:
+                        literal: false
+                then:
+                  sequence:
+                    - record:
+                        name:
+                          literal: CodeAllowedLength
+                        mode:
+                          literal: Extended
+                else:
+                  sequence: []
+              - if:
+                  and:
+                    - isVariant:
+                        value:
+                          field: CodeAllowedLength
+                        variant: notified
+                    - if:
+                        input: adopted
+                      then:
+                        or:
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_15
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_16
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_17
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_18
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_19
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_20
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_21
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_22
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_23
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_24
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_25
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_26
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: Version8_3_27
+                          - eq:
+                              - input: compatibilityMode
+                              - literal: DontUse
+                      else:
+                        literal: false
+                then:
+                  sequence:
+                    - record:
+                        name:
+                          literal: CodeAllowedLength
+                        mode:
+                          literal: Notify
+                else:
+                  sequence: []
+              - if:
+                  and:
+                    - isVariant:
+                        value:
+                          field: DescriptionLength
+                        variant: changed
+                    - and:
+                        - if:
+                            input: adopted
+                          then:
+                            or:
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_10
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_11
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_12
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_13
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_14
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_15
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_16
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_17
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_18
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_19
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_20
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_21
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_22
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_23
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_24
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_25
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_26
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_27
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_8
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_9
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: DontUse
+                          else:
+                            literal: false
+                        - or:
+                            - not:
+                                input: adopted
+                            - present:
+                                lookup:
+                                  in:
+                                    input: baseNumbers
+                                  key:
+                                    record:
+                                      owner:
+                                        input: owner
+                                      property:
+                                        literal: DescriptionLength
+                then:
+                  sequence:
+                    - record:
+                        name:
+                          literal: DescriptionLength
+                        mode:
+                          literal: Extended
+                else:
+                  sequence: []
+              - if:
+                  and:
+                    - isVariant:
+                        value:
+                          field: DescriptionLength
+                        variant: notified
+                    - and:
+                        - if:
+                            input: adopted
+                          then:
+                            or:
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_15
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_16
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_17
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_18
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_19
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_20
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_21
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_22
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_23
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_24
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_25
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_26
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: Version8_3_27
+                              - eq:
+                                  - input: compatibilityMode
+                                  - literal: DontUse
+                          else:
+                            literal: false
+                        - or:
+                            - not:
+                                input: adopted
+                            - present:
+                                lookup:
+                                  in:
+                                    input: baseNumbers
+                                  key:
+                                    record:
+                                      owner:
+                                        input: owner
+                                      property:
+                                        literal: DescriptionLength
+                then:
+                  sequence:
+                    - record:
+                        name:
+                          literal: DescriptionLength
+                        mode:
+                          literal: Notify
+                else:
+                  sequence: []
+              - if:
+                  present:
+                    field: notice
+                then:
+                  sequence:
+                    - record:
+                        name:
+                          literal: ExtendedConfigurationObject
+                        mode:
+                          field: notice
+                else:
+                  sequence: []
+      - target:
+          field: InputByString
+        xml:
+          missing:
+            denotes:
+              absent: true
+          empty:
+            - form: empty-element
+              denotes:
+                sequence: []
+          canonical:
+            - when:
+                and:
+                  - input: adopted
+                  - not:
+                      present:
+                        field: InputByString
+              form: missing
+            - form: ordinary
+        yaml:
+          default:
+            if:
+              input: adopted
+            then:
+              absent: true
+            else:
+              concat:
+                - if:
+                    lt:
+                      - literal: 0
+                      - if:
+                          isVariant:
+                            value:
+                              field: DescriptionLength
+                            variant: changed
+                        then:
+                          get:
+                            of:
+                              variantValue:
+                                value:
+                                  field: DescriptionLength
+                                variant: changed
+                            field: capacity
+                        else:
+                          if:
+                            isVariant:
+                              value:
+                                field: DescriptionLength
+                              variant: notified
+                          then:
+                            get:
+                              of:
+                                variantValue:
+                                  value:
+                                    field: DescriptionLength
+                                  variant: notified
+                              field: capacity
+                          else:
+                            get:
+                              of:
+                                variantValue:
+                                  value:
+                                    field: DescriptionLength
+                                  variant: plain
+                              field: capacity
+                  then:
+                    parseYaml:
+                      sequence:
+                        - literal: СтандартныйРеквизит.Наименование
+                  else:
+                    sequence: []
+                - if:
+                    lt:
+                      - literal: 0
+                      - if:
+                          isVariant:
+                            value:
+                              field: CodeLength
+                            variant: changed
+                        then:
+                          get:
+                            of:
+                              variantValue:
+                                value:
+                                  field: CodeLength
+                                variant: changed
+                            field: capacity
+                        else:
+                          if:
+                            isVariant:
+                              value:
+                                field: CodeLength
+                              variant: notified
+                          then:
+                            get:
+                              of:
+                                variantValue:
+                                  value:
+                                    field: CodeLength
+                                  variant: notified
+                              field: capacity
+                          else:
+                            get:
+                              of:
+                                variantValue:
+                                  value:
+                                    field: CodeLength
+                                  variant: plain
+                              field: capacity
+                  then:
+                    parseYaml:
+                      sequence:
+                        - literal: СтандартныйРеквизит.Код
+                  else:
+                    sequence: []
+          empty:
+            - form: empty-sequence
+              denotes:
+                sequence: []
+      - target:
+          field: Hierarchical
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              if:
+                input: adopted
+              then:
+                absent: true
+              else:
+                variant:
+                  name: plain
+                  value:
+                    record:
+                      value:
+                        literal: false
+                      state:
+                        literal: false
+          omitWhen:
+            if:
+              input: adopted
+            then:
+              literal: false
+            else:
+              and:
+                - isVariant:
+                    value:
+                      field: Hierarchical
+                    variant: plain
+                - eq:
+                    - variantValue:
+                        value:
+                          field: Hierarchical
+                        variant: plain
+                    - record:
+                        value:
+                          literal: false
+                        state:
+                          literal: false
+      - target:
+          field: CodeAllowedLength
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              if:
+                input: adopted
+              then:
+                absent: true
+              else:
+                variant:
+                  name: plain
+                  value:
+                    record:
+                      value:
+                        literal: Variable
+                      state:
+                        literal: false
+          omitWhen:
+            if:
+              input: adopted
+            then:
+              literal: false
+            else:
+              and:
+                - isVariant:
+                    value:
+                      field: CodeAllowedLength
+                    variant: plain
+                - eq:
+                    - variantValue:
+                        value:
+                          field: CodeAllowedLength
+                        variant: plain
+                    - record:
+                        value:
+                          literal: Variable
+                        state:
+                          literal: false
+      - target:
+          field: state
+        yaml:
+          omitWhen:
+            not:
+              input: adopted
+      - target:
+          field: type
+        xml:
+          missing:
+            denotes:
+              absent: true
+        yaml:
+          missing:
+            denotes:
+              absent: true
+    constraints:
+      - id: state-agrees-descriptionLength-changed
+        appliesTo:
+          - yaml-validation
+        when:
+          and:
+            - present:
+                field: DescriptionLength
+            - and:
+                - if:
+                    input: adopted
+                  then:
+                    or:
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_10
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_11
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_12
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_13
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_14
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_15
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_16
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_17
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_18
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_19
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_20
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_21
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_22
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_23
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_24
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_25
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_26
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_27
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_8
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_9
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: DontUse
+                  else:
+                    literal: false
+                - or:
+                    - not:
+                        input: adopted
+                    - present:
+                        lookup:
+                          in:
+                            input: baseNumbers
+                          key:
+                            record:
+                              owner:
+                                input: owner
+                              property:
+                                literal: DescriptionLength
+        assert:
+          eq:
+            - isVariant:
+                value:
+                  field: DescriptionLength
+                variant: changed
+            - exists:
+                in:
+                  field: history
+                as: row
+                where:
+                  and:
+                    - eq:
+                        - get:
+                            of:
+                              var: row
+                            field: name
+                        - literal: DescriptionLength
+                    - eq:
+                        - get:
+                            of:
+                              var: row
+                            field: mode
+                        - literal: Extended
+        diagnostic:
+          code: state.expected
+          severity: error
+          at:
+            field: DescriptionLength
+          message: Пометка не соответствует явно заданным состояниям
+      - id: state-agrees-descriptionLength-notified
+        appliesTo:
+          - yaml-validation
+        when:
+          and:
+            - present:
+                field: DescriptionLength
+            - and:
+                - if:
+                    input: adopted
+                  then:
+                    or:
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_15
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_16
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_17
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_18
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_19
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_20
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_21
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_22
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_23
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_24
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_25
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_26
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_27
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: DontUse
+                  else:
+                    literal: false
+                - or:
+                    - not:
+                        input: adopted
+                    - present:
+                        lookup:
+                          in:
+                            input: baseNumbers
+                          key:
+                            record:
+                              owner:
+                                input: owner
+                              property:
+                                literal: DescriptionLength
+        assert:
+          eq:
+            - isVariant:
+                value:
+                  field: DescriptionLength
+                variant: notified
+            - exists:
+                in:
+                  field: history
+                as: row
+                where:
+                  and:
+                    - eq:
+                        - get:
+                            of:
+                              var: row
+                            field: name
+                        - literal: DescriptionLength
+                    - eq:
+                        - get:
+                            of:
+                              var: row
+                            field: mode
+                        - literal: Notify
+        diagnostic:
+          code: state.expected
+          severity: error
+          at:
+            field: DescriptionLength
+          message: Пометка не соответствует явно заданным состояниям
+      - id: state-agrees-codeLength-changed
+        appliesTo:
+          - yaml-validation
+        when:
+          and:
+            - present:
+                field: CodeLength
+            - and:
+                - if:
+                    input: adopted
+                  then:
+                    or:
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_10
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_11
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_12
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_13
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_14
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_15
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_16
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_17
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_18
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_19
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_20
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_21
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_22
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_23
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_24
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_25
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_26
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_27
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_8
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_9
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: DontUse
+                  else:
+                    literal: false
+                - or:
+                    - not:
+                        input: adopted
+                    - present:
+                        lookup:
+                          in:
+                            input: baseNumbers
+                          key:
+                            record:
+                              owner:
+                                input: owner
+                              property:
+                                literal: CodeLength
+        assert:
+          eq:
+            - isVariant:
+                value:
+                  field: CodeLength
+                variant: changed
+            - exists:
+                in:
+                  field: history
+                as: row
+                where:
+                  and:
+                    - eq:
+                        - get:
+                            of:
+                              var: row
+                            field: name
+                        - literal: CodeLength
+                    - eq:
+                        - get:
+                            of:
+                              var: row
+                            field: mode
+                        - literal: Extended
+        diagnostic:
+          code: state.expected
+          severity: error
+          at:
+            field: CodeLength
+          message: Пометка не соответствует явно заданным состояниям
+      - id: state-agrees-codeLength-notified
+        appliesTo:
+          - yaml-validation
+        when:
+          and:
+            - present:
+                field: CodeLength
+            - and:
+                - if:
+                    input: adopted
+                  then:
+                    or:
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_15
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_16
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_17
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_18
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_19
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_20
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_21
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_22
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_23
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_24
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_25
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_26
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: Version8_3_27
+                      - eq:
+                          - input: compatibilityMode
+                          - literal: DontUse
+                  else:
+                    literal: false
+                - or:
+                    - not:
+                        input: adopted
+                    - present:
+                        lookup:
+                          in:
+                            input: baseNumbers
+                          key:
+                            record:
+                              owner:
+                                input: owner
+                              property:
+                                literal: CodeLength
+        assert:
+          eq:
+            - isVariant:
+                value:
+                  field: CodeLength
+                variant: notified
+            - exists:
+                in:
+                  field: history
+                as: row
+                where:
+                  and:
+                    - eq:
+                        - get:
+                            of:
+                              var: row
+                            field: name
+                        - literal: CodeLength
+                    - eq:
+                        - get:
+                            of:
+                              var: row
+                            field: mode
+                        - literal: Notify
+        diagnostic:
+          code: state.expected
+          severity: error
+          at:
+            field: CodeLength
+          message: Пометка не соответствует явно заданным состояниям
+      - id: base-present-DescriptionLength
+        appliesTo:
+          - yaml-validation
+        when:
+          and:
+            - input: adopted
+            - present:
+                field: DescriptionLength
+        assert:
+          present:
+            lookup:
+              in:
+                input: baseNumbers
+              key:
+                record:
+                  owner:
+                    input: owner
+                  property:
+                    literal: DescriptionLength
+        diagnostic:
+          code: base.property.missing
+          severity: error
+          at:
+            field: DescriptionLength
+          message: Свойство отсутствует в основной конфигурации
+      - id: base-value-DescriptionLength-plain
+        appliesTo:
+          - yaml-validation
+        when:
+          and:
+            - and:
+                - input: adopted
+                - present:
+                    field: DescriptionLength
+            - isVariant:
+                value:
+                  field: DescriptionLength
+                variant: plain
+        assert:
+          match:
+            value:
+              lookup:
+                in:
+                  input: baseNumbers
+                key:
+                  record:
+                    owner:
+                      input: owner
+                    property:
+                      literal: DescriptionLength
+            present:
+              as: base
+              then:
+                eq:
+                  - decimalText:
+                      if:
+                        isVariant:
+                          value:
+                            field: DescriptionLength
+                          variant: changed
+                      then:
+                        get:
+                          of:
+                            variantValue:
+                              value:
+                                field: DescriptionLength
+                              variant: changed
+                          field: capacity
+                      else:
+                        if:
+                          isVariant:
+                            value:
+                              field: DescriptionLength
+                            variant: notified
+                        then:
+                          get:
+                            of:
+                              variantValue:
+                                value:
+                                  field: DescriptionLength
+                                variant: notified
+                            field: capacity
+                        else:
+                          get:
+                            of:
+                              variantValue:
+                                value:
+                                  field: DescriptionLength
+                                variant: plain
+                            field: capacity
+                  - var: base
+            absent:
+              literal: true
+        diagnostic:
+          code: base.value.changed
+          severity: error
+          at:
+            field: DescriptionLength
+          message: Значение отличается от основной конфигурации
+      - id: base-value-DescriptionLength-notified
+        appliesTo:
+          - yaml-validation
+        when:
+          and:
+            - and:
+                - input: adopted
+                - present:
+                    field: DescriptionLength
+            - isVariant:
+                value:
+                  field: DescriptionLength
+                variant: notified
+        assert:
+          match:
+            value:
+              lookup:
+                in:
+                  input: baseNumbers
+                key:
+                  record:
+                    owner:
+                      input: owner
+                    property:
+                      literal: DescriptionLength
+            present:
+              as: base
+              then:
+                eq:
+                  - decimalText:
+                      if:
+                        isVariant:
+                          value:
+                            field: DescriptionLength
+                          variant: changed
+                      then:
+                        get:
+                          of:
+                            variantValue:
+                              value:
+                                field: DescriptionLength
+                              variant: changed
+                          field: capacity
+                      else:
+                        if:
+                          isVariant:
+                            value:
+                              field: DescriptionLength
+                            variant: notified
+                        then:
+                          get:
+                            of:
+                              variantValue:
+                                value:
+                                  field: DescriptionLength
+                                variant: notified
+                            field: capacity
+                        else:
+                          get:
+                            of:
+                              variantValue:
+                                value:
+                                  field: DescriptionLength
+                                variant: plain
+                            field: capacity
+                  - var: base
+            absent:
+              literal: true
+        diagnostic:
+          code: base.value.changed
+          severity: warning
+          at:
+            field: DescriptionLength
+          message: Значение отличается от основной конфигурации
+      - id: base-present-CodeLength
+        appliesTo:
+          - yaml-validation
+        when:
+          and:
+            - input: adopted
+            - present:
+                field: CodeLength
+        assert:
+          present:
+            lookup:
+              in:
+                input: baseNumbers
+              key:
+                record:
+                  owner:
+                    input: owner
+                  property:
+                    literal: CodeLength
+        diagnostic:
+          code: base.property.missing
+          severity: error
+          at:
+            field: CodeLength
+          message: Свойство отсутствует в основной конфигурации
+      - id: base-value-CodeLength-plain
+        appliesTo:
+          - yaml-validation
+        when:
+          and:
+            - and:
+                - input: adopted
+                - present:
+                    field: CodeLength
+            - isVariant:
+                value:
+                  field: CodeLength
+                variant: plain
+        assert:
+          match:
+            value:
+              lookup:
+                in:
+                  input: baseNumbers
+                key:
+                  record:
+                    owner:
+                      input: owner
+                    property:
+                      literal: CodeLength
+            present:
+              as: base
+              then:
+                eq:
+                  - decimalText:
+                      if:
+                        isVariant:
+                          value:
+                            field: CodeLength
+                          variant: changed
+                      then:
+                        get:
+                          of:
+                            variantValue:
+                              value:
+                                field: CodeLength
+                              variant: changed
+                          field: capacity
+                      else:
+                        if:
+                          isVariant:
+                            value:
+                              field: CodeLength
+                            variant: notified
+                        then:
+                          get:
+                            of:
+                              variantValue:
+                                value:
+                                  field: CodeLength
+                                variant: notified
+                            field: capacity
+                        else:
+                          get:
+                            of:
+                              variantValue:
+                                value:
+                                  field: CodeLength
+                                variant: plain
+                            field: capacity
+                  - var: base
+            absent:
+              literal: true
+        diagnostic:
+          code: base.value.changed
+          severity: error
+          at:
+            field: CodeLength
+          message: Значение отличается от основной конфигурации
+      - id: base-value-CodeLength-notified
+        appliesTo:
+          - yaml-validation
+        when:
+          and:
+            - and:
+                - input: adopted
+                - present:
+                    field: CodeLength
+            - isVariant:
+                value:
+                  field: CodeLength
+                variant: notified
+        assert:
+          match:
+            value:
+              lookup:
+                in:
+                  input: baseNumbers
+                key:
+                  record:
+                    owner:
+                      input: owner
+                    property:
+                      literal: CodeLength
+            present:
+              as: base
+              then:
+                eq:
+                  - decimalText:
+                      if:
+                        isVariant:
+                          value:
+                            field: CodeLength
+                          variant: changed
+                      then:
+                        get:
+                          of:
+                            variantValue:
+                              value:
+                                field: CodeLength
+                              variant: changed
+                          field: capacity
+                      else:
+                        if:
+                          isVariant:
+                            value:
+                              field: CodeLength
+                            variant: notified
+                        then:
+                          get:
+                            of:
+                              variantValue:
+                                value:
+                                  field: CodeLength
+                                variant: notified
+                            field: capacity
+                        else:
+                          get:
+                            of:
+                              variantValue:
+                                value:
+                                  field: CodeLength
+                                variant: plain
+                            field: capacity
+                  - var: base
+            absent:
+              literal: true
+        diagnostic:
+          code: base.value.changed
+          severity: warning
+          at:
+            field: CodeLength
+          message: Значение отличается от основной конфигурации
+      - id: descriptionLength-minimum
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        when:
+          present:
+            field: DescriptionLength
+        assert:
+          lte:
+            - literal: 0
+            - if:
+                isVariant:
+                  value:
+                    field: DescriptionLength
+                  variant: changed
+              then:
+                get:
+                  of:
+                    variantValue:
+                      value:
+                        field: DescriptionLength
+                      variant: changed
+                  field: capacity
+              else:
+                if:
+                  isVariant:
+                    value:
+                      field: DescriptionLength
+                    variant: notified
+                then:
+                  get:
+                    of:
+                      variantValue:
+                        value:
+                          field: DescriptionLength
+                        variant: notified
+                    field: capacity
+                else:
+                  get:
+                    of:
+                      variantValue:
+                        value:
+                          field: DescriptionLength
+                        variant: plain
+                    field: capacity
+        diagnostic:
+          code: number.minimum
+          severity: error
+          at:
+            field: DescriptionLength
+          message: Число вне допустимой границы 0
+      - id: descriptionLength-maximum
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        when:
+          present:
+            field: DescriptionLength
+        assert:
+          lte:
+            - if:
+                isVariant:
+                  value:
+                    field: DescriptionLength
+                  variant: changed
+              then:
+                get:
+                  of:
+                    variantValue:
+                      value:
+                        field: DescriptionLength
+                      variant: changed
+                  field: capacity
+              else:
+                if:
+                  isVariant:
+                    value:
+                      field: DescriptionLength
+                    variant: notified
+                then:
+                  get:
+                    of:
+                      variantValue:
+                        value:
+                          field: DescriptionLength
+                        variant: notified
+                    field: capacity
+                else:
+                  get:
+                    of:
+                      variantValue:
+                        value:
+                          field: DescriptionLength
+                        variant: plain
+                    field: capacity
+            - literal: 150
+        diagnostic:
+          code: number.maximum
+          severity: error
+          at:
+            field: DescriptionLength
+          message: Число вне допустимой границы 150
+      - id: codeLength-minimum
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        when:
+          present:
+            field: CodeLength
+        assert:
+          lte:
+            - literal: 0
+            - if:
+                isVariant:
+                  value:
+                    field: CodeLength
+                  variant: changed
+              then:
+                get:
+                  of:
+                    variantValue:
+                      value:
+                        field: CodeLength
+                      variant: changed
+                  field: capacity
+              else:
+                if:
+                  isVariant:
+                    value:
+                      field: CodeLength
+                    variant: notified
+                then:
+                  get:
+                    of:
+                      variantValue:
+                        value:
+                          field: CodeLength
+                        variant: notified
+                    field: capacity
+                else:
+                  get:
+                    of:
+                      variantValue:
+                        value:
+                          field: CodeLength
+                        variant: plain
+                    field: capacity
+        diagnostic:
+          code: number.minimum
+          severity: error
+          at:
+            field: CodeLength
+          message: Число вне допустимой границы 0
+      - id: codeLength-maximum
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        when:
+          present:
+            field: CodeLength
+        assert:
+          lte:
+            - if:
+                isVariant:
+                  value:
+                    field: CodeLength
+                  variant: changed
+              then:
+                get:
+                  of:
+                    variantValue:
+                      value:
+                        field: CodeLength
+                      variant: changed
+                  field: capacity
+              else:
+                if:
+                  isVariant:
+                    value:
+                      field: CodeLength
+                    variant: notified
+                then:
+                  get:
+                    of:
+                      variantValue:
+                        value:
+                          field: CodeLength
+                        variant: notified
+                    field: capacity
+                else:
+                  get:
+                    of:
+                      variantValue:
+                        value:
+                          field: CodeLength
+                        variant: plain
+                    field: capacity
+            - literal: 50
+        diagnostic:
+          code: number.maximum
+          severity: error
+          at:
+            field: CodeLength
+          message: Число вне допустимой границы 50
+      - id: state-version-descriptionLength-extend
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        when:
+          and:
+            - present:
+                field: DescriptionLength
+            - isVariant:
+                value:
+                  field: DescriptionLength
+                variant: changed
+        assert:
+          if:
+            input: adopted
+          then:
+            or:
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_10
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_11
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_12
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_13
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_14
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_15
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_16
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_17
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_18
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_19
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_20
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_21
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_22
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_23
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_24
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_25
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_26
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_27
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_8
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_9
+              - eq:
+                  - input: compatibilityMode
+                  - literal: DontUse
+          else:
+            literal: false
+        diagnostic:
+          code: state.mode.unavailable
+          severity: error
+          at:
+            field: DescriptionLength
+          message: >-
+            Пометка свойства недоступна для этого объекта или версии
+            совместимости
+      - id: state-version-descriptionLength-notify
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        when:
+          and:
+            - present:
+                field: DescriptionLength
+            - isVariant:
+                value:
+                  field: DescriptionLength
+                variant: notified
+        assert:
+          if:
+            input: adopted
+          then:
+            or:
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_15
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_16
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_17
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_18
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_19
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_20
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_21
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_22
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_23
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_24
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_25
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_26
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_27
+              - eq:
+                  - input: compatibilityMode
+                  - literal: DontUse
+          else:
+            literal: false
+        diagnostic:
+          code: state.mode.unavailable
+          severity: error
+          at:
+            field: DescriptionLength
+          message: >-
+            Пометка свойства недоступна для этого объекта или версии
+            совместимости
+      - id: state-version-descriptionLength-control
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        when:
+          and:
+            - present:
+                field: DescriptionLength
+            - isVariant:
+                value:
+                  field: DescriptionLength
+                variant: plain
+        assert:
+          if:
+            input: adopted
+          then:
+            or:
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_10
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_11
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_12
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_13
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_14
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_15
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_16
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_17
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_18
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_19
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_20
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_21
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_22
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_23
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_24
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_25
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_26
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_27
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_8
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_9
+              - eq:
+                  - input: compatibilityMode
+                  - literal: DontUse
+          else:
+            literal: true
+        diagnostic:
+          code: state.mode.unavailable
+          severity: error
+          at:
+            field: DescriptionLength
+          message: >-
+            Пометка свойства недоступна для этого объекта или версии
+            совместимости
+      - id: state-version-codeLength-extend
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        when:
+          and:
+            - present:
+                field: CodeLength
+            - isVariant:
+                value:
+                  field: CodeLength
+                variant: changed
+        assert:
+          if:
+            input: adopted
+          then:
+            or:
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_10
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_11
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_12
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_13
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_14
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_15
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_16
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_17
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_18
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_19
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_20
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_21
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_22
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_23
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_24
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_25
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_26
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_27
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_8
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_9
+              - eq:
+                  - input: compatibilityMode
+                  - literal: DontUse
+          else:
+            literal: false
+        diagnostic:
+          code: state.mode.unavailable
+          severity: error
+          at:
+            field: CodeLength
+          message: >-
+            Пометка свойства недоступна для этого объекта или версии
+            совместимости
+      - id: state-version-codeLength-notify
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        when:
+          and:
+            - present:
+                field: CodeLength
+            - isVariant:
+                value:
+                  field: CodeLength
+                variant: notified
+        assert:
+          if:
+            input: adopted
+          then:
+            or:
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_15
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_16
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_17
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_18
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_19
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_20
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_21
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_22
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_23
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_24
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_25
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_26
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_27
+              - eq:
+                  - input: compatibilityMode
+                  - literal: DontUse
+          else:
+            literal: false
+        diagnostic:
+          code: state.mode.unavailable
+          severity: error
+          at:
+            field: CodeLength
+          message: >-
+            Пометка свойства недоступна для этого объекта или версии
+            совместимости
+      - id: state-version-codeLength-control
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        when:
+          and:
+            - present:
+                field: CodeLength
+            - isVariant:
+                value:
+                  field: CodeLength
+                variant: plain
+        assert:
+          if:
+            input: adopted
+          then:
+            or:
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_10
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_11
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_12
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_13
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_14
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_15
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_16
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_17
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_18
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_19
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_20
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_21
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_22
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_23
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_24
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_25
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_26
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_27
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_8
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_9
+              - eq:
+                  - input: compatibilityMode
+                  - literal: DontUse
+          else:
+            literal: true
+        diagnostic:
+          code: state.mode.unavailable
+          severity: error
+          at:
+            field: CodeLength
+          message: >-
+            Пометка свойства недоступна для этого объекта или версии
+            совместимости
+      - id: state-agrees-hierarchical-changed
+        appliesTo:
+          - yaml-validation
+        when:
+          and:
+            - present:
+                field: Hierarchical
+            - if:
+                input: adopted
+              then:
+                literal: false
+              else:
+                literal: false
+        assert:
+          eq:
+            - isVariant:
+                value:
+                  field: Hierarchical
+                variant: changed
+            - exists:
+                in:
+                  field: history
+                as: row
+                where:
+                  and:
+                    - eq:
+                        - get:
+                            of:
+                              var: row
+                            field: name
+                        - literal: Hierarchical
+                    - eq:
+                        - get:
+                            of:
+                              var: row
+                            field: mode
+                        - literal: Extended
+        diagnostic:
+          code: state.expected
+          severity: error
+          at:
+            field: Hierarchical
+          message: Пометка не соответствует явно заданным состояниям
+      - id: state-agrees-hierarchical-notified
+        appliesTo:
+          - yaml-validation
+        when:
+          and:
+            - present:
+                field: Hierarchical
+            - if:
+                input: adopted
+              then:
+                or:
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_15
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_16
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_17
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_18
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_19
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_20
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_21
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_22
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_23
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_24
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_25
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_26
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_27
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: DontUse
+              else:
+                literal: false
+        assert:
+          eq:
+            - isVariant:
+                value:
+                  field: Hierarchical
+                variant: notified
+            - exists:
+                in:
+                  field: history
+                as: row
+                where:
+                  and:
+                    - eq:
+                        - get:
+                            of:
+                              var: row
+                            field: name
+                        - literal: Hierarchical
+                    - eq:
+                        - get:
+                            of:
+                              var: row
+                            field: mode
+                        - literal: Notify
+        diagnostic:
+          code: state.expected
+          severity: error
+          at:
+            field: Hierarchical
+          message: Пометка не соответствует явно заданным состояниям
+      - id: state-agrees-codeAllowedLength-changed
+        appliesTo:
+          - yaml-validation
+        when:
+          and:
+            - present:
+                field: CodeAllowedLength
+            - if:
+                input: adopted
+              then:
+                or:
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_10
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_11
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_12
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_13
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_14
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_15
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_16
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_17
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_18
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_19
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_20
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_21
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_22
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_23
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_24
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_25
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_26
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_27
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_8
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_9
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: DontUse
+              else:
+                literal: false
+        assert:
+          eq:
+            - isVariant:
+                value:
+                  field: CodeAllowedLength
+                variant: changed
+            - exists:
+                in:
+                  field: history
+                as: row
+                where:
+                  and:
+                    - eq:
+                        - get:
+                            of:
+                              var: row
+                            field: name
+                        - literal: CodeAllowedLength
+                    - eq:
+                        - get:
+                            of:
+                              var: row
+                            field: mode
+                        - literal: Extended
+        diagnostic:
+          code: state.expected
+          severity: error
+          at:
+            field: CodeAllowedLength
+          message: Пометка не соответствует явно заданным состояниям
+      - id: state-agrees-codeAllowedLength-notified
+        appliesTo:
+          - yaml-validation
+        when:
+          and:
+            - present:
+                field: CodeAllowedLength
+            - if:
+                input: adopted
+              then:
+                or:
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_15
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_16
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_17
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_18
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_19
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_20
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_21
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_22
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_23
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_24
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_25
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_26
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_27
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: DontUse
+              else:
+                literal: false
+        assert:
+          eq:
+            - isVariant:
+                value:
+                  field: CodeAllowedLength
+                variant: notified
+            - exists:
+                in:
+                  field: history
+                as: row
+                where:
+                  and:
+                    - eq:
+                        - get:
+                            of:
+                              var: row
+                            field: name
+                        - literal: CodeAllowedLength
+                    - eq:
+                        - get:
+                            of:
+                              var: row
+                            field: mode
+                        - literal: Notify
+        diagnostic:
+          code: state.expected
+          severity: error
+          at:
+            field: CodeAllowedLength
+          message: Пометка не соответствует явно заданным состояниям
+      - id: state-version-hierarchical-extend
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        when:
+          and:
+            - present:
+                field: Hierarchical
+            - isVariant:
+                value:
+                  field: Hierarchical
+                variant: changed
+        assert:
+          if:
+            input: adopted
+          then:
+            literal: false
+          else:
+            literal: false
+        diagnostic:
+          code: state.mode.unavailable
+          severity: error
+          at:
+            field: Hierarchical
+          message: >-
+            Пометка свойства недоступна для этого объекта или версии
+            совместимости
+      - id: state-version-hierarchical-notify
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        when:
+          and:
+            - present:
+                field: Hierarchical
+            - isVariant:
+                value:
+                  field: Hierarchical
+                variant: notified
+        assert:
+          if:
+            input: adopted
+          then:
+            or:
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_15
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_16
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_17
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_18
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_19
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_20
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_21
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_22
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_23
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_24
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_25
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_26
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_27
+              - eq:
+                  - input: compatibilityMode
+                  - literal: DontUse
+          else:
+            literal: false
+        diagnostic:
+          code: state.mode.unavailable
+          severity: error
+          at:
+            field: Hierarchical
+          message: >-
+            Пометка свойства недоступна для этого объекта или версии
+            совместимости
+      - id: state-version-hierarchical-control
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        when:
+          and:
+            - present:
+                field: Hierarchical
+            - isVariant:
+                value:
+                  field: Hierarchical
+                variant: plain
+        assert:
+          if:
+            input: adopted
+          then:
+            or:
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_10
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_11
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_12
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_13
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_14
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_15
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_16
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_17
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_18
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_19
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_20
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_21
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_22
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_23
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_24
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_25
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_26
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_27
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_8
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_9
+              - eq:
+                  - input: compatibilityMode
+                  - literal: DontUse
+          else:
+            literal: true
+        diagnostic:
+          code: state.mode.unavailable
+          severity: error
+          at:
+            field: Hierarchical
+          message: >-
+            Пометка свойства недоступна для этого объекта или версии
+            совместимости
+      - id: state-version-codeAllowedLength-extend
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        when:
+          and:
+            - present:
+                field: CodeAllowedLength
+            - isVariant:
+                value:
+                  field: CodeAllowedLength
+                variant: changed
+        assert:
+          if:
+            input: adopted
+          then:
+            or:
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_10
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_11
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_12
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_13
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_14
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_15
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_16
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_17
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_18
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_19
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_20
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_21
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_22
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_23
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_24
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_25
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_26
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_27
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_8
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_9
+              - eq:
+                  - input: compatibilityMode
+                  - literal: DontUse
+          else:
+            literal: false
+        diagnostic:
+          code: state.mode.unavailable
+          severity: error
+          at:
+            field: CodeAllowedLength
+          message: >-
+            Пометка свойства недоступна для этого объекта или версии
+            совместимости
+      - id: state-version-codeAllowedLength-notify
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        when:
+          and:
+            - present:
+                field: CodeAllowedLength
+            - isVariant:
+                value:
+                  field: CodeAllowedLength
+                variant: notified
+        assert:
+          if:
+            input: adopted
+          then:
+            or:
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_15
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_16
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_17
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_18
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_19
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_20
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_21
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_22
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_23
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_24
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_25
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_26
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_27
+              - eq:
+                  - input: compatibilityMode
+                  - literal: DontUse
+          else:
+            literal: false
+        diagnostic:
+          code: state.mode.unavailable
+          severity: error
+          at:
+            field: CodeAllowedLength
+          message: >-
+            Пометка свойства недоступна для этого объекта или версии
+            совместимости
+      - id: state-version-codeAllowedLength-control
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        when:
+          and:
+            - present:
+                field: CodeAllowedLength
+            - isVariant:
+                value:
+                  field: CodeAllowedLength
+                variant: plain
+        assert:
+          if:
+            input: adopted
+          then:
+            or:
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_10
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_11
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_12
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_13
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_14
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_15
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_16
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_17
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_18
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_19
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_20
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_21
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_22
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_23
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_24
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_25
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_26
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_27
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_8
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_9
+              - eq:
+                  - input: compatibilityMode
+                  - literal: DontUse
+          else:
+            literal: true
+        diagnostic:
+          code: state.mode.unavailable
+          severity: error
+          at:
+            field: CodeAllowedLength
+          message: >-
+            Пометка свойства недоступна для этого объекта или версии
+            совместимости
+      - id: borrowed-compatibility
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        assert:
+          or:
+            - not:
+                input: adopted
+            - or:
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_10
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_11
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_12
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_13
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_14
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_15
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_16
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_17
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_18
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_19
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_20
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_21
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_22
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_23
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_24
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_25
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_26
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_27
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_8
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_9
+                - eq:
+                    - input: compatibilityMode
+                    - literal: DontUse
+        diagnostic:
+          code: metadata.borrowed-compatibility
+          severity: error
+          at:
+            field: state
+          message: Borrowing is unavailable in this compatibility mode
+      - id: notify-compatibility
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        assert:
+          or:
+            - not:
+                present:
+                  field: notice
+            - or:
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_15
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_16
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_17
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_18
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_19
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_20
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_21
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_22
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_23
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_24
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_25
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_26
+                - eq:
+                    - input: compatibilityMode
+                    - literal: Version8_3_27
+                - eq:
+                    - input: compatibilityMode
+                    - literal: DontUse
+        diagnostic:
+          code: metadata.notify-compatibility
+          severity: error
+          at:
+            field: state
+          message: Notification is unavailable in this compatibility mode
+      - id: state-version-type-extend
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        when:
+          and:
+            - present:
+                field: type
+            - isVariant:
+                value:
+                  field: type
+                variant: changed
+        assert:
+          if:
+            input: adopted
+          then:
+            literal: false
+          else:
+            literal: false
+        diagnostic:
+          code: state.mode.unavailable
+          severity: error
+          at:
+            field: type
+          message: >-
+            Пометка свойства недоступна для этого объекта или версии
+            совместимости
+      - id: state-version-type-notify
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        when:
+          and:
+            - present:
+                field: type
+            - isVariant:
+                value:
+                  field: type
+                variant: notified
+        assert:
+          if:
+            input: adopted
+          then:
+            or:
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_15
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_16
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_17
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_18
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_19
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_20
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_21
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_22
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_23
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_24
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_25
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_26
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_27
+              - eq:
+                  - input: compatibilityMode
+                  - literal: DontUse
+          else:
+            literal: false
+        diagnostic:
+          code: state.mode.unavailable
+          severity: error
+          at:
+            field: type
+          message: >-
+            Пометка свойства недоступна для этого объекта или версии
+            совместимости
+      - id: state-version-type-control
+        appliesTo:
+          - xml-import
+          - yaml-validation
+        when:
+          and:
+            - present:
+                field: type
+            - isVariant:
+                value:
+                  field: type
+                variant: plain
+        assert:
+          if:
+            input: adopted
+          then:
+            or:
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_10
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_11
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_12
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_13
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_14
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_15
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_16
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_17
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_18
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_19
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_20
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_21
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_22
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_23
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_24
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_25
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_26
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_27
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_8
+              - eq:
+                  - input: compatibilityMode
+                  - literal: Version8_3_9
+              - eq:
+                  - input: compatibilityMode
+                  - literal: DontUse
+          else:
+            literal: true
+        diagnostic:
+          code: state.mode.unavailable
+          severity: error
+          at:
+            field: type
+          message: >-
+            Пометка свойства недоступна для этого объекта или версии
+            совместимости
+      - id: state-agrees-type-changed
+        appliesTo:
+          - yaml-validation
+        when:
+          and:
+            - present:
+                field: type
+            - if:
+                input: adopted
+              then:
+                literal: false
+              else:
+                literal: false
+        assert:
+          eq:
+            - isVariant:
+                value:
+                  field: type
+                variant: changed
+            - exists:
+                in:
+                  field: history
+                as: row
+                where:
+                  and:
+                    - eq:
+                        - get:
+                            of:
+                              var: row
+                            field: name
+                        - literal: Type
+                    - eq:
+                        - get:
+                            of:
+                              var: row
+                            field: mode
+                        - literal: Extended
+        diagnostic:
+          code: state.expected
+          severity: error
+          at:
+            field: type
+          message: Пометка не соответствует явно заданным состояниям
+      - id: state-agrees-type-notified
+        appliesTo:
+          - yaml-validation
+        when:
+          and:
+            - present:
+                field: type
+            - if:
+                input: adopted
+              then:
+                or:
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_15
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_16
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_17
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_18
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_19
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_20
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_21
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_22
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_23
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_24
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_25
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_26
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: Version8_3_27
+                  - eq:
+                      - input: compatibilityMode
+                      - literal: DontUse
+              else:
+                literal: false
+        assert:
+          eq:
+            - isVariant:
+                value:
+                  field: type
+                variant: notified
+            - exists:
+                in:
+                  field: history
+                as: row
+                where:
+                  and:
+                    - eq:
+                        - get:
+                            of:
+                              var: row
+                            field: name
+                        - literal: Type
+                    - eq:
+                        - get:
+                            of:
+                              var: row
+                            field: mode
+                        - literal: Notify
+        diagnostic:
+          code: state.expected
+          severity: error
+          at:
+            field: type
+          message: Пометка не соответствует явно заданным состояниям
+    state-relations:
+      - field: state
+        sources:
+          base:
+            present:
+              if:
+                input: adopted
+              then:
+                require:
+                  lookup:
+                    in:
+                      input: baseIds
+                    key:
+                      record:
+                        component:
+                          input: component
+                        identity:
+                          input: owner
+              else:
+                absent: true
+          notice:
+            equals:
+              literal: Notify
+            from:
+              if:
+                present:
+                  field: history
+              then:
+                match:
+                  value:
+                    select:
+                      in:
+                        field: history
+                      as: item
+                      where:
+                        and:
+                          - present:
+                              get:
+                                of:
+                                  var: item
+                                field: name
+                          - eq:
+                              - get:
+                                  of:
+                                    var: item
+                                  field: name
+                              - literal: ExtendedConfigurationObject
+                  present:
+                    as: selected
+                    then:
+                      get:
+                        of:
+                          var: selected
+                        field: mode
+                  absent:
+                    absent: true
+              else:
+                absent: true
+        states:
+          default:
+            - base
+          empty: []
+          tagged:
+            - base
+            - notice
+          text:
+            - notice
+    xmlOrder:
+      - history
+      - base
+      - type
+      - Hierarchical
+      - CodeLength
+      - CodeAllowedLength
+      - DescriptionLength
+      - InputByString
+  - format: nkdk-declarations/1
+    kind: object
+    id: candidate.input-by-string.chartofcharacteristictypes.base-state
+    imports:
+      part: candidate.characteristic-base-state.input-type-state
+      part_compatibility: system.CompatibilityMode
+    inputs:
+      name:
+        type:
+          kind: scalar
+          scalar: text
+      adopted:
+        type:
+          kind: scalar
+          scalar: boolean
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+      members:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: component
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: role
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: name
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+        index: metadata.input-by-string-members
+      states:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: property
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: mode
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+        index: metadata.property-state-membership
+      baseNumbers:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: property
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+        index: metadata.base-owner-numbers
+      compatibilityMode:
+        type:
+          use: part_compatibility
+      baseIds:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: component
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: identity
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+        index: metadata.base-identities
+    compose:
+      - use: part
+        bind:
+          name:
+            input: name
+          adopted:
+            input: adopted
+          component:
+            input: component
+          owner:
+            input: owner
+          members:
+            input: members
+          states:
+            input: states
+          baseNumbers:
+            input: baseNumbers
+          compatibilityMode:
+            input: compatibilityMode
+          baseIds:
+            input: baseIds
+    value:
+      kind: record
+      fields: []
+    representations:
+      xml:
+        kind: record
+        fields: []
+      yaml:
+        kind: mapping
+        fields: []
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    xmlOrder:
+      - history
+      - base
+      - type
+      - Hierarchical
+      - CodeLength
+      - CodeAllowedLength
+      - DescriptionLength
+      - InputByString
+  - format: nkdk-declarations/1
+    kind: object
+    id: candidate.chartofcharacteristictypes-name-and-input.base-state
+    imports:
+      name: fragment.chartofcharacteristictypes-source-name
+      input: candidate.characteristic-base-state.input-type-state
+      input_compatibility: system.CompatibilityMode
+    inputs:
+      name:
+        type:
+          kind: scalar
+          scalar: text
+      adopted:
+        type:
+          kind: scalar
+          scalar: boolean
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+      members:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: component
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: role
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: name
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+        index: metadata.input-by-string-members
+      states:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: property
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: mode
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+        index: metadata.property-state-membership
+      baseNumbers:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: owner
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: property
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+        index: metadata.base-owner-numbers
+      compatibilityMode:
+        type:
+          use: input_compatibility
+      baseIds:
+        type:
+          kind: index
+          key:
+            kind: record
+            fields:
+              - name: component
+                type:
+                  kind: scalar
+                  scalar: text
+              - name: identity
+                type:
+                  kind: scalar
+                  scalar: text
+          value:
+            kind: scalar
+            scalar: text
+        index: metadata.base-identities
+    compose:
+      - use: name
+        bind:
+          ownerName:
+            input: name
+      - use: input
+        bind:
+          name:
+            input: name
+          adopted:
+            input: adopted
+          component:
+            input: component
+          owner:
+            input: owner
+          members:
+            input: members
+          states:
+            input: states
+          baseNumbers:
+            input: baseNumbers
+          compatibilityMode:
+            input: compatibilityMode
+          baseIds:
+            input: baseIds
+    value:
+      kind: record
+      fields: []
+    representations:
+      xml:
+        kind: record
+        fields: []
+      yaml:
+        kind: mapping
+        fields: []
+    namespaces:
+      md: http://v8.1c.ru/8.3/MDClasses
+    xmlOrder:
+      - history
+      - name
+      - base
+      - type
+      - Hierarchical
+      - CodeLength
+      - CodeAllowedLength
+      - DescriptionLength
+      - InputByString

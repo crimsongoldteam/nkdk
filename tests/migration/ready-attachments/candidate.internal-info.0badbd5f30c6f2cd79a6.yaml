@@ -1,0 +1,283 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  types: common.internal-generated-types
+namespaces:
+  md: http://v8.1c.ru/8.3/MDClasses
+inputs:
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  name:
+    type:
+      kind: scalar
+      scalar: text
+  typeIds:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: owner
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  valueIds:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: owner
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+value:
+  kind: record
+  fields:
+    - name: types
+      type:
+        use: types
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: types
+        path:
+          - md:MetaDataObject
+          - md:Cube
+          - md:InternalInfo
+  yaml:
+    kind: mapping
+    fields:
+      - field: types
+        key: ВнутренниеТипы
+presence:
+  - target:
+      field: types
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        sequence:
+          - record:
+              name:
+                concat:
+                  - literal: ExternalDataSourceCubeManager.
+                  - input: name
+              category:
+                literal: Manager
+              typeId:
+                require:
+                  lookup:
+                    in:
+                      input: typeIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        name:
+                          literal: ExternalDataSourceCubeManager
+              valueId:
+                require:
+                  lookup:
+                    in:
+                      input: valueIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        name:
+                          literal: ExternalDataSourceCubeManager
+          - record:
+              name:
+                concat:
+                  - literal: ExternalDataSourceCubeList.
+                  - input: name
+              category:
+                literal: List
+              typeId:
+                require:
+                  lookup:
+                    in:
+                      input: typeIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        name:
+                          literal: ExternalDataSourceCubeList
+              valueId:
+                require:
+                  lookup:
+                    in:
+                      input: valueIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        name:
+                          literal: ExternalDataSourceCubeList
+          - record:
+              name:
+                concat:
+                  - literal: ExternalDataSourceCubeRecordSet.
+                  - input: name
+              category:
+                literal: RecordSet
+              typeId:
+                require:
+                  lookup:
+                    in:
+                      input: typeIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        name:
+                          literal: ExternalDataSourceCubeRecordSet
+              valueId:
+                require:
+                  lookup:
+                    in:
+                      input: valueIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        name:
+                          literal: ExternalDataSourceCubeRecordSet
+          - record:
+              name:
+                concat:
+                  - literal: ExternalDataSourceCubeRecord.
+                  - input: name
+              category:
+                literal: Record
+              typeId:
+                require:
+                  lookup:
+                    in:
+                      input: typeIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        name:
+                          literal: ExternalDataSourceCubeRecord
+              valueId:
+                require:
+                  lookup:
+                    in:
+                      input: valueIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        name:
+                          literal: ExternalDataSourceCubeRecord
+          - record:
+              name:
+                concat:
+                  - literal: ExternalDataSourceCubeRecordKey.
+                  - input: name
+              category:
+                literal: RecordKey
+              typeId:
+                require:
+                  lookup:
+                    in:
+                      input: typeIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        name:
+                          literal: ExternalDataSourceCubeRecordKey
+              valueId:
+                require:
+                  lookup:
+                    in:
+                      input: valueIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        name:
+                          literal: ExternalDataSourceCubeRecordKey
+          - record:
+              name:
+                concat:
+                  - literal: ExternalDataSourceCubeRecordManager.
+                  - input: name
+              category:
+                literal: RecordManager
+              typeId:
+                require:
+                  lookup:
+                    in:
+                      input: typeIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        name:
+                          literal: ExternalDataSourceCubeRecordManager
+              valueId:
+                require:
+                  lookup:
+                    in:
+                      input: valueIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        name:
+                          literal: ExternalDataSourceCubeRecordManager
+          - record:
+              name:
+                concat:
+                  - literal: ExternalDataSourceCubeDimensionsTablesManager.
+                  - input: name
+              category:
+                literal: DimensionTables
+              typeId:
+                require:
+                  lookup:
+                    in:
+                      input: typeIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        name:
+                          literal: ExternalDataSourceCubeDimensionsTablesManager
+              valueId:
+                require:
+                  lookup:
+                    in:
+                      input: valueIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        name:
+                          literal: ExternalDataSourceCubeDimensionsTablesManager
+id: candidate.internal-info.0badbd5f30c6f2cd79a6

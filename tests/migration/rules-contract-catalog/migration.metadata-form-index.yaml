@@ -1,0 +1,16 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.metadata-form-index
+value:
+  kind: record
+  fields:
+  - {name: parent, type: {kind: scalar, scalar: text}}
+  - {name: name, type: {kind: scalar, scalar: text}}
+  - {name: identity, type: {kind: scalar, scalar: text}}
+representations:
+  xml: {kind: record, fields: [{field: parent, path: [Root, Parent]}, {field: name, path: [Root, Name]}, {field: identity, path: [Root, Identity]}]}
+  yaml: {kind: mapping, fields: [{field: parent, key: parent}, {field: name, key: name}, {field: identity, key: identity}]}
+contributions:
+- index: metadata.forms
+  key: {record: {parent: {field: parent}, name: {field: name}}}
+  value: {field: identity}

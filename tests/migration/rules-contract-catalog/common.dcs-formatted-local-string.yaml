@@ -1,0 +1,52 @@
+format: nkdk-declarations/1
+kind: value
+id: common.dcs-formatted-local-string
+namespaces:
+  v8: http://v8.1c.ru/8.1/data/core
+imports:
+  text: common.i8n-text
+  formatted: common.boolean-flag
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+value:
+  kind: record
+  fields:
+    - name: text
+      type:
+        use: text
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          ownerName:
+            literal: ''
+    - name: formatted
+      type:
+        use: formatted
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: text
+        path:
+          - v8:lws
+      - field: formatted
+        path:
+          - v8:formatted
+  yaml:
+    kind: mapping
+    fields:
+      - field: formatted
+        key: Форматированный
+      - field: text
+        key: Текст

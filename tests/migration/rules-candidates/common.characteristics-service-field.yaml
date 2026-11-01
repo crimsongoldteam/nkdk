@@ -1,0 +1,13 @@
+format: nkdk-declarations/1
+kind: value
+id: common.characteristics-service-field
+value:
+  kind: scalar
+  scalar: text
+  pattern: -[0-9]+
+representations:
+  xml:
+    kind: text
+  yaml:
+    kind: scalar
+    scalar: text

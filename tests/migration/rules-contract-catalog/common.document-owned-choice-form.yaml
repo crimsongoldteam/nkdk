@@ -1,0 +1,69 @@
+format: nkdk-declarations/1
+kind: value
+id: common.document-owned-choice-form
+imports:
+  name: common.metadata-name
+inputs:
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  forms:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+value:
+  kind: record
+  fields:
+    - name: owner
+      type:
+        kind: scalar
+        scalar: text
+    - name: form
+      type:
+        use: name
+representations:
+  xml:
+    kind: text-pattern
+    separator: .
+    parts:
+      - literal: Document
+      - field: owner
+      - literal: Form
+      - field: form
+  yaml:
+    kind: text-pattern
+    separator: .
+    parts:
+      - field: form
+presence:
+  - target:
+      field: owner
+    yaml:
+      default:
+        input: owner
+constraints:
+  - id: form-exists
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    assert:
+      exists:
+        in:
+          input: forms
+        as: name
+        where:
+          eq:
+            - var: name
+            - get:
+                of:
+                  self: true
+                field: form
+    diagnostic:
+      code: metadata.target-missing
+      severity: error
+      at:
+        self: true
+      message: Form is missing

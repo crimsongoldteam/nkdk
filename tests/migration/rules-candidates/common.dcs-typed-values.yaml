@@ -1,0 +1,38 @@
+format: nkdk-declarations/1
+kind: value
+id: common.dcs-typed-values
+imports:
+  item: common.dcs-typed-atom
+value:
+  kind: sequence
+  item:
+    use: item
+representations:
+  xml:
+    kind: element-sequence
+    path: []
+  yaml:
+    kind: sequence
+    singleton: value
+presence:
+  - target: self
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-sequence
+          denotes:
+            absent: true
+      omitWhen:
+        not:
+          exists:
+            in:
+              self: true
+            as: item
+            where:
+              literal: true

@@ -1,0 +1,69 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- format: nkdk-declarations/1
+  kind: value
+  id: test.position-row
+  inputs: {address: {type: {kind: scalar, scalar: text}}}
+  value: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}]}
+  representations:
+    xml: {kind: record, fields: [{field: name, path: [], attribute: name}]}
+    yaml: {kind: mapping, fields: [{field: name, key: Name}]}
+  presence:
+  - target: {field: name}
+    xml: {missing: {denotes: {input: address}}}
+    yaml: {missing: {denotes: {input: address}}}
+- format: nkdk-declarations/1
+  kind: value
+  id: test.position-rows
+  imports: {row: test.position-row}
+  value: {kind: sequence, item: {use: row, bind: {address: {logicalAddress: {parts: [{literal: row}, {collectionPosition: true}]}}}}}
+  representations:
+    xml: {kind: element-sequence, path: [Item], item: {kind: declared}}
+    yaml: {kind: sequence, item: {kind: declared}}
+- format: nkdk-declarations/1
+  kind: value
+  id: test.position-child-rows
+  imports: {row: test.position-row}
+  inputs: {parent: {type: {kind: scalar, scalar: text}}}
+  value: {kind: sequence, item: {use: row, bind: {address: {logicalAddress: {parent: {input: parent}, parts: [{literal: child}, {collectionPosition: true}]}}}}}
+  representations:
+    xml: {kind: element-sequence, path: [Item], item: {kind: declared}}
+    yaml: {kind: sequence, item: {kind: declared}}
+- format: nkdk-declarations/1
+  kind: value
+  id: test.position-parent
+  imports: {children: test.position-child-rows}
+  inputs: {address: {type: {kind: scalar, scalar: text}}}
+  value: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}, {name: children, type: {use: children, bind: {parent: {input: address}}}}]}
+  representations:
+    xml: {kind: record, fields: [{field: name, path: [], attribute: name}, {field: children, path: [Children]}]}
+    yaml: {kind: mapping, fields: [{field: name, key: Name}, {field: children, key: Children}]}
+  presence:
+  - target: {field: name}
+    xml: {missing: {denotes: {input: address}}}
+    yaml: {missing: {denotes: {input: address}}}
+- format: nkdk-declarations/1
+  kind: value
+  id: test.position-parent-rows
+  imports: {row: test.position-parent}
+  value: {kind: sequence, item: {use: row, bind: {address: {logicalAddress: {parts: [{literal: parent}, {collectionPosition: true}]}}}}}
+  representations:
+    xml: {kind: element-sequence, path: [Item], item: {kind: declared}}
+    yaml: {kind: sequence, item: {kind: declared}}
+- format: nkdk-declarations/1
+  kind: object
+  id: test.position-nested-owner
+  imports: {rows: test.position-parent-rows}
+  value: {kind: record, fields: [{name: rows, type: {use: rows}}]}
+  representations:
+    xml: {kind: record, fields: [{field: rows, path: [Root, Rows]}]}
+    yaml: {kind: mapping, fields: [{field: rows, key: Rows}]}
+- format: nkdk-declarations/1
+  kind: object
+  id: test.position-owner
+  imports: {rows: test.position-rows}
+  value: {kind: record, fields: [{name: rows, type: {use: rows}}]}
+  representations:
+    xml: {kind: record, fields: [{field: rows, path: [Root, Rows]}]}
+    yaml: {kind: mapping, fields: [{field: rows, key: Rows}]}

@@ -1,0 +1,25 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.adopted-journal-base-source
+namespaces: {md: 'http://v8.1c.ru/8.3/MDClasses'}
+inputs: {component: {type: {kind: scalar, scalar: text}}}
+value:
+  kind: record
+  fields:
+  - {name: identity, type: {kind: scalar, scalar: text}}
+  - {name: baseIdentity, type: {kind: scalar, scalar: text}}
+representations:
+  xml:
+    kind: record
+    fields:
+    - {field: identity, path: ['md:MetaDataObject', 'md:DocumentJournal'], attribute: uuid}
+    - {field: baseIdentity, path: ['md:MetaDataObject', 'md:DocumentJournal', 'md:Properties', 'md:ExtendedConfigurationObject']}
+  yaml:
+    kind: mapping
+    fields:
+    - {field: identity, key: Идентификатор}
+    - {field: baseIdentity, key: ИдентификаторОсновнойКонфигурации}
+contributions:
+- index: metadata.base-identities
+  key: {record: {component: {input: component}, identity: {field: identity}}}
+  value: {field: baseIdentity}

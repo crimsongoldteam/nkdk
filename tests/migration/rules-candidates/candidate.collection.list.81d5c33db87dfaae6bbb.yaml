@@ -1,0 +1,82 @@
+format: nkdk-declarations/1
+kind: value
+imports:
+  item: candidate.collection.item.2886a7109e4059aaeb53
+value:
+  kind: sequence
+  item:
+    use: item
+    bind:
+      defaultLanguage:
+        input: defaultLanguage
+      registeredLanguages:
+        input: registeredLanguages
+      labels:
+        input: labels
+      codes:
+        input: codes
+      styleTypes:
+        input: styleTypes
+representations:
+  xml:
+    kind: element-sequence
+    path:
+      - Parameter
+  yaml:
+    kind: record-mapping
+    key: name
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  labels:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: code
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  codes:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: label
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  styleTypes:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: scalar
+        scalar: text
+id: candidate.collection.list.81d5c33db87dfaae6bbb

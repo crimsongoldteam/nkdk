@@ -1,0 +1,103 @@
+format: nkdk-declarations/1
+kind: object
+id: contract.form-column-group-modes
+imports:
+  groups: source.form-additional-group-mode-rows
+inputs:
+  component:
+    type:
+      kind: scalar
+      scalar: text
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  origin:
+    type:
+      kind: scalar
+      scalar: text
+  parent:
+    type:
+      kind: scalar
+      scalar: text
+value:
+  kind: record
+  fields:
+    - name: groups
+      type:
+        use: groups
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: groups
+        path:
+          - f:Columns
+  yaml:
+    kind: mapping
+    fields:
+      - field: groups
+        key: Дополнительные
+presence:
+  - target:
+      field: groups
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+contributions:
+  - index: metadata.form-additional-group-address-modes
+    duplicates: coalesce-equal
+    forEach:
+      in:
+        field: groups
+      as: row
+    key:
+      record:
+        component:
+          input: component
+        owner:
+          input: owner
+        origin:
+          input: origin
+        parent:
+          input: parent
+        name:
+          get:
+            of:
+              var: row
+            field: table
+    value:
+      if:
+        and:
+          - not:
+              eq:
+                - get:
+                    of:
+                      var: row
+                    field: table
+                - literal: ''
+          - one:
+              in:
+                field: groups
+              as: candidate
+              where:
+                eq:
+                  - get:
+                      of:
+                        var: candidate
+                      field: table
+                  - get:
+                      of:
+                        var: row
+                      field: table
+      then:
+        literal: named
+      else:
+        literal: positional
+namespaces:
+  f: http://v8.1c.ru/8.3/xcf/logform

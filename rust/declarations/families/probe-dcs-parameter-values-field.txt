@@ -1,0 +1,5 @@
+migration.dcs-parameter-value-base-color
+migration.dcs-parameter-value-field
+migration.dcs-parameter-value-horizontal-align
+migration.dcs-parameter-value-type-link
+probe.style-item-type-facts

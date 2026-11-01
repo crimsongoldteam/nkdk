@@ -1,0 +1,265 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  types: common.internal-generated-types
+  thisNode: common.internal-this-node
+namespaces:
+  md: http://v8.1c.ru/8.3/MDClasses
+  xr: http://v8.1c.ru/8.3/xcf/readable
+inputs:
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  name:
+    type:
+      kind: scalar
+      scalar: text
+  typeIds:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: owner
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  valueIds:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: owner
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  thisNodes:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: scalar
+        scalar: text
+value:
+  kind: record
+  fields:
+    - name: thisNode
+      type:
+        use: thisNode
+    - name: types
+      type:
+        use: types
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: thisNode
+        path:
+          - md:MetaDataObject
+          - md:ExchangePlan
+          - md:InternalInfo
+          - xr:ThisNode
+      - field: types
+        path:
+          - md:MetaDataObject
+          - md:ExchangePlan
+          - md:InternalInfo
+  yaml:
+    kind: mapping
+    fields:
+      - field: types
+        key: ВнутренниеТипы
+presence:
+  - target:
+      field: types
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        sequence:
+          - record:
+              name:
+                concat:
+                  - literal: ExchangePlanObject.
+                  - input: name
+              category:
+                literal: Object
+              typeId:
+                require:
+                  lookup:
+                    in:
+                      input: typeIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        name:
+                          literal: ExchangePlanObject
+              valueId:
+                require:
+                  lookup:
+                    in:
+                      input: valueIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        name:
+                          literal: ExchangePlanObject
+          - record:
+              name:
+                concat:
+                  - literal: ExchangePlanRef.
+                  - input: name
+              category:
+                literal: Ref
+              typeId:
+                require:
+                  lookup:
+                    in:
+                      input: typeIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        name:
+                          literal: ExchangePlanRef
+              valueId:
+                require:
+                  lookup:
+                    in:
+                      input: valueIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        name:
+                          literal: ExchangePlanRef
+          - record:
+              name:
+                concat:
+                  - literal: ExchangePlanSelection.
+                  - input: name
+              category:
+                literal: Selection
+              typeId:
+                require:
+                  lookup:
+                    in:
+                      input: typeIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        name:
+                          literal: ExchangePlanSelection
+              valueId:
+                require:
+                  lookup:
+                    in:
+                      input: valueIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        name:
+                          literal: ExchangePlanSelection
+          - record:
+              name:
+                concat:
+                  - literal: ExchangePlanList.
+                  - input: name
+              category:
+                literal: List
+              typeId:
+                require:
+                  lookup:
+                    in:
+                      input: typeIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        name:
+                          literal: ExchangePlanList
+              valueId:
+                require:
+                  lookup:
+                    in:
+                      input: valueIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        name:
+                          literal: ExchangePlanList
+          - record:
+              name:
+                concat:
+                  - literal: ExchangePlanManager.
+                  - input: name
+              category:
+                literal: Manager
+              typeId:
+                require:
+                  lookup:
+                    in:
+                      input: typeIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        name:
+                          literal: ExchangePlanManager
+              valueId:
+                require:
+                  lookup:
+                    in:
+                      input: valueIds
+                    key:
+                      record:
+                        owner:
+                          input: owner
+                        name:
+                          literal: ExchangePlanManager
+  - target:
+      field: thisNode
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        require:
+          lookup:
+            in:
+              input: thisNodes
+            key:
+              input: owner
+contributions:
+  - index: metadata.internal-this-nodes
+    key:
+      input: owner
+    value:
+      field: thisNode
+id: candidate.internal-info.b1bafca7a8587d909638

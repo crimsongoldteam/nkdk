@@ -23,6 +23,12 @@ fn reader_state(name: &str, members: &[(&str, String, String)]) -> (String, Stri
     )
 }
 
+/// Text-record rows already live in compiled storage; expose a borrowed view.
+pub(super) fn borrowed_records(entry: &LinkedEntry) -> bool {
+    matches!(&entry.value, LinkedType::Sequence(item) if matches!(item.as_ref(), LinkedType::Record(fields)
+        if fields.iter().all(|field| field.value == LinkedType::Scalar(ScalarType::Text))))
+}
+
 pub(super) fn generate(
     entry: &LinkedEntry,
     program: &Program,
@@ -64,12 +70,7 @@ pub(super) fn generate_embedded(
     let mut shape = entry.clone();
     shape.presence.clear();
     plain_shape(&shape)?;
-    if !entry.constraints.is_empty() {
-        return Err(unsupported(
-            entry,
-            "Collection constraints or presence are not generated yet",
-        ));
-    }
+    let merged = super::collection_constraints::merge(common, entry, program, bindings, arguments)?;
     let typed = super::collection_values::codec(common, program)?;
     let scalar_items =
         typed.is_some() || matches!(item.as_ref(), LinkedType::Scalar(ScalarType::Text));
@@ -88,6 +89,18 @@ pub(super) fn generate_embedded(
             ));
         }
     };
+    let projected = matches!(&entry.yaml, YamlRepresentation::Projection(selected) if selected == &fields[0].name);
+    let yaml_shape = if projected && matches!(common.yaml, YamlRepresentation::KeyedMapping { .. })
+    {
+        YamlRepresentation::Mapping(vec![YamlField {
+            field: fields[0].name.clone(),
+            key: fields[0].name.clone(),
+            file: None,
+            source: entry.source.clone(),
+        }])
+    } else {
+        entry.yaml.clone()
+    };
     let (common_xml, declared_attributes) = super::attributes::content(&common.xml);
     let (
         LinkedXml::Record(owner_xml),
@@ -95,22 +108,36 @@ pub(super) fn generate_embedded(
         LinkedXml::ElementSequence {
             path: relative,
             item: xml_item,
+            next: None,
         },
-    ) = (&entry.xml, &entry.yaml, common_xml)
+    ) = (&entry.xml, &yaml_shape, common_xml)
     else {
         return Err(unsupported(
             entry,
             "Sequence representations are not generated",
         ));
     };
-    let (xml_item, item_attributes) = super::attributes::content(xml_item);
+    // The specialized collection writer needs a visible YAML property key.
+    // XML-only fields are handled by the ordinary record generator instead.
+    if owner_yaml.is_empty() || owner_xml.is_empty() {
+        return Ok(None);
+    }
+    let inherited_item = if matches!(xml_item.as_ref(), LinkedXml::Declared) {
+        crate::link::sequence_item::resolve(common, program)?
+    } else {
+        None
+    };
+    let item_contract = inherited_item
+        .as_ref()
+        .map_or(xml_item.as_ref(), |item| &item.xml);
+    let (xml_item, item_attributes) = super::attributes::content(item_contract);
     let rooted_tree = !item_attributes.is_empty();
     let is_tree = rooted_tree || matches!(xml_item, LinkedXml::Tree(_));
     let direct_item = rooted_tree || (scalar_items && !is_tree);
     let mut item_parent: Vec<_> = owner_xml[0].path.iter().chain(relative).cloned().collect();
     let rooted_nodes;
     let nodes = if rooted_tree {
-        if !matches!(xml_item, LinkedXml::Text) || !scalar_items || relative.is_empty() {
+        if !scalar_items || relative.is_empty() {
             return Err(unsupported(
                 entry,
                 "Attributed sequence items currently require text",
@@ -159,7 +186,7 @@ pub(super) fn generate_embedded(
     let xml_fields = match xml_item {
         LinkedXml::Record(fields) => fields,
         LinkedXml::Tree(_) => &tree.fields,
-        LinkedXml::Text | LinkedXml::Declared if scalar_items => &scalar_xml,
+        _ if scalar_items => &scalar_xml,
         _ => {
             return Err(unsupported(
                 entry,
@@ -201,7 +228,7 @@ pub(super) fn generate_embedded(
         ));
     }
     let count = items.len();
-    let keep_form = common.constraints.iter().any(|rule| {
+    let keep_form = merged.constraints.iter().any(|rule| {
         rule.applies_to.contains(&ValidationPhase::YamlValidation) && !rule.forms.is_empty()
     });
     let form_member = if keep_form {
@@ -222,7 +249,7 @@ pub(super) fn generate_embedded(
     };
     let keep_rows = !ordinary; // Duplicate-key diagnostics always need the original key position.
     let keep_self = typed.is_some()
-        || common
+        || merged
             .constraints
             .iter()
             .any(|rule| matches!(rule.diagnostic.at, LinkedDiagnosticTarget::SelfValue));
@@ -259,7 +286,7 @@ pub(super) fn generate_embedded(
     let unwrapped = relative.is_empty();
     let route = &owner_xml[0].path;
     if route.is_empty()
-        || (unwrapped && (route.len() < 3 || !declared_attributes.is_empty()))
+        || (unwrapped && (route.len() < 2 || !declared_attributes.is_empty()))
         || owner_xml[0].attribute.is_some()
     {
         return Err(unsupported(entry, "Sequence needs element routes"));
@@ -305,7 +332,7 @@ pub(super) fn generate_embedded(
         } else {
             arguments
         },
-        &owner_yaml[0].key,
+        (!projected).then_some(owner_yaml[0].key.as_str()),
         parent,
     )?;
     let xml_missing = presence.xml_missing;
@@ -392,6 +419,23 @@ pub(super) fn generate_embedded(
     }
     let id = entry.id;
     let key_name = &owner_yaml[0].key;
+    let annotation_key = if projected {
+        "None".to_owned()
+    } else {
+        format!("Some({key_name:?})")
+    };
+    let emit_header = if projected {
+        String::new()
+    } else {
+        format!("out.push_str(&core::yaml::scalar({key_name:?})); out.push(':');")
+    };
+    let row_break = if projected { "\n" } else { "\n  " };
+    let completed_depth = usize::from(projected);
+    let projected_absence = if projected {
+        "out.push_str(\"{}\");"
+    } else {
+        ""
+    };
     let parent_code = super::record::path_code(parent);
     let item_code = super::record::path_code(&item_path);
     let mut row_attribute_read = String::new();
@@ -422,15 +466,30 @@ pub(super) fn generate_embedded(
         )
     };
 
-    let extra_members = if ordinary && common.constraints.is_empty() && typed.is_none() {
+    let extra_members = if ordinary && merged.constraints.is_empty() && typed.is_none() {
         ""
     } else {
         ", annotations: core::annotations::Mapping, yaml_issues: Vec<RuntimeDiagnostic>, declared_issues: Vec<RuntimeDiagnostic>"
     };
-    let extra_init = if ordinary && common.constraints.is_empty() && typed.is_none() {
+    let extra_init = if ordinary && merged.constraints.is_empty() && typed.is_none() {
         ""
     } else {
         ", annotations: core::annotations::Mapping::default(), yaml_issues: Vec::new(), declared_issues: Vec::new()"
+    };
+    let explicit_member = if presence.yaml_explicit_default.is_empty() {
+        ""
+    } else {
+        ", #[allow(dead_code)] yaml_explicit: bool"
+    };
+    let explicit_xml_init = if presence.yaml_explicit_default.is_empty() {
+        ""
+    } else {
+        ", yaml_explicit: false"
+    };
+    let explicit_yaml_init = if presence.yaml_explicit_default.is_empty() {
+        ""
+    } else {
+        ", yaml_explicit: seen"
     };
     let tree_attributes = &tree.attributes;
     let tree_text = &tree.text;
@@ -445,8 +504,28 @@ pub(super) fn generate_embedded(
         out.push_str(&super::collection_values::read_definition(id, codec)?);
     }
     out.push_str(&format!(
-        "{visibility}struct R{id} {{ {visibility}fields: [{row_type}; {count}]{row_member} }}\n{visibility}struct V{id} {{ {visibility}rows: core::Sequence<R{id}>{self_member}{form_member}, raw: Option<core::xml::Patch>{extra_members} }}\n"
+        "{visibility}struct R{id} {{ {visibility}fields: [{row_type}; {count}]{row_member} }}\n{visibility}struct V{id} {{ {visibility}rows: core::Sequence<R{id}>{self_member}{form_member}, raw: Option<core::xml::Patch>{extra_members}{explicit_member} }}\n"
     ));
+    if borrowed_records(common) {
+        writeln!(out,"impl core::inputs::RecordInput for R{id}{{fn field(&self,index:usize)->Option<core::inputs::InputRef<'_>>{{self.fields.get(index).map(|value|core::inputs::InputRef::Text(value.as_str()))}}}}").unwrap();
+    }
+    if borrowed_records(common) {
+        let row_fields = (0..count)
+            .map(|index| format!("source.text({index})?.to_owned()"))
+            .collect::<Vec<_>>()
+            .join(",");
+        let positions = if keep_rows {
+            format!(",positions:[core::Position::default();{count}]")
+        } else {
+            String::new()
+        };
+        let position = if keep_self {
+            ",position:core::Position::default()"
+        } else {
+            ""
+        };
+        writeln!(out,"#[allow(dead_code)] fn construct_{id}(slots:&[Option<core::inputs::InputRef<'_>>],_inputs:&InputView<'_>)->core::Result<V{id}>{{let rows=match slots.first().copied().flatten(){{None|Some(core::inputs::InputRef::MissingValue)=>core::Sequence::Absent,Some(core::inputs::InputRef::Records(source))=>{{let rows=source.iter().map(|source|Ok(R{id}{{fields:[{row_fields}]{positions}}})).collect::<core::Result<Vec<_>>>()?;core::Sequence::Present(rows)}},_=>return Err(RuntimeDiagnostic::new(\"input.type\",\"Collection construction requires record rows\"))}};Ok(V{id}{{rows{position}{form_xml},raw:None{extra_init}{explicit_xml_init}}})}}").unwrap();
+    }
     writeln!(out, "impl PartialEq for R{id} {{ fn eq(&self, other: &Self) -> bool {{ self.fields == other.fields }} }} impl Eq for R{id} {{}}").unwrap();
     let mut state_members = vec![
         ("rows", format!("Vec<R{id}>"), "Vec::new()".to_owned()),
@@ -475,7 +554,9 @@ pub(super) fn generate_embedded(
         state_members.push(("nil", "bool".into(), "false".into()));
     }
     let (state_code, names) = reader_state(&format!("XmlCollection{id}"), &state_members);
-    writeln!(out,"{state_code} impl XmlCollection{id}{{#[allow(dead_code)] fn consume(&mut self,path:&[core::xml::Name],token:&core::xml::Token<'_>,source:&[u8],inputs:&InputView<'_>)->core::Result<()>{{self.consume_scoped(path,token,None,source,inputs)}} fn consume_scoped(&mut self,path:&[core::xml::Name],token:&core::xml::Token<'_>,scope:Option<core::xml::NamespaceScope<'_>>,source:&[u8],_inputs:&InputView<'_>)->core::Result<()>{{let _=source;let _=scope;let Self{{{names}}}=self;match token {{core::xml::Token::Attribute(_attribute)=>{{{attribute_read}{row_attribute_read}{tree_attributes}{nil_attribute}Err(RuntimeDiagnostic::new(\"xml.unknown-attribute\",\"Undeclared XML attribute\"))}},core::xml::Token::Start(_offset)=>{{let _offset=*_offset;").unwrap();
+    // Keep the declared row meaning available for facts and YAML. The final
+    // XML proof detects the ignored attribute and preserves it in the patch.
+    writeln!(out,"{state_code} impl XmlCollection{id}{{#[allow(dead_code)] fn consume(&mut self,path:&[core::xml::Name],token:&core::xml::Token<'_>,source:&[u8],inputs:&InputView<'_>)->core::Result<()>{{self.consume_scoped(path,token,None,source,inputs)}} fn consume_scoped(&mut self,path:&[core::xml::Name],token:&core::xml::Token<'_>,scope:Option<core::xml::NamespaceScope<'_>>,source:&[u8],_inputs:&InputView<'_>)->core::Result<()>{{let _=source;let _=scope;let Self{{{names}}}=self;match token {{core::xml::Token::Attribute(_attribute)=>{{{attribute_read}{row_attribute_read}{tree_attributes}{nil_attribute}\nif core::xml::matches(path,{item_code}) {{return Ok(());}} Err(RuntimeDiagnostic::new(\"xml.unknown-attribute\",\"Undeclared XML attribute\"))}},core::xml::Token::Start(_offset)=>{{let _offset=*_offset;").unwrap();
     writeln!(out, "if core::xml::matches(path, {parent_code}) {{ if *seen {{ return Err(RuntimeDiagnostic::new(\"xml.duplicate-field\", \"Repeated collection property\")); }} *seen=true; {self_xml} return Ok(()); }}\nif core::xml::matches(path, {item_code}) {{ *fields=std::array::from_fn(|_|None); {row_attribute_positions} if !{direct_item} {{return Ok(());}} }}").unwrap();
     for &(index, path) in &element_paths {
         let path = super::record::path_code(path);
@@ -536,7 +617,7 @@ pub(super) fn generate_embedded(
         "if core::xml::matches(path, {item_code}) {{ rows.push({read_row}); }} Ok(()) }} }} }} }}"
     )
     .unwrap();
-    writeln!(out,"fn finish_xml_{id}(state:XmlCollection{id},_inputs:&InputView<'_>)->core::Result<V{id}>{{let XmlCollection{id}{{rows,seen{}{},..}}=state;if !seen && !{xml_missing} {{return Err(RuntimeDiagnostic::new(\"value.missing\",\"Missing collection property\"));}} Ok(V{id}{{rows:{xml_value}{self_init}{form_xml},raw:None{extra_init}}})}}",if keep_self{",position"}else{""},if presence.xml_nil{",nil"}else{""}).unwrap();
+    writeln!(out,"fn finish_xml_{id}(state:XmlCollection{id},_inputs:&InputView<'_>)->core::Result<V{id}>{{let XmlCollection{id}{{rows,seen{}{},..}}=state;if !seen && !{xml_missing} {{return Err(RuntimeDiagnostic::new(\"value.missing\",\"Missing collection property\"));}} Ok(V{id}{{rows:{xml_value}{self_init}{form_xml},raw:None{extra_init}{explicit_xml_init}}})}}",if keep_self{",position"}else{""},if presence.xml_nil{",nil"}else{""}).unwrap();
     writeln!(out, "fn read_xml_{id}(source: &[u8], inputs: &InputView<'_>) -> core::Result<V{id}> {{ read_xml_with_{id}(source,inputs,|_,_| Ok(false)) }}\n{visibility}fn read_xml_with_{id}(source: &[u8], inputs: &InputView<'_>, consume: impl FnMut(&[core::xml::Name], &core::xml::Token<'_>) -> core::Result<bool>) -> core::Result<V{id}> {{ read_xml_events_scoped_{id}(source,inputs,core::xml::DocumentSource(source),consume) }}\n{visibility}fn read_xml_events_scoped_{id}(source: &[u8], inputs: &InputView<'_>, events: impl core::xml::ScopedSource, mut consume: impl FnMut(&[core::xml::Name], &core::xml::Token<'_>) -> core::Result<bool>) -> core::Result<V{id}> {{let mut state=XmlCollection{id}::new();events.visit_scoped(|path,token,scope|{{if consume(path,token)?{{Ok(())}}else{{state.consume_scoped(path,token,Some(scope),source,inputs)}}}})?;finish_xml_{id}(state,inputs)}}\n#[allow(dead_code)] {visibility}fn read_xml_events_{id}(source: &[u8], inputs: &InputView<'_>, events: impl core::xml::Source, mut consume: impl FnMut(&[core::xml::Name], &core::xml::Token<'_>) -> core::Result<bool>) -> core::Result<V{id}> {{let mut state=XmlCollection{id}::new();events.visit(|path,token|{{if consume(path,token)?{{Ok(())}}else{{state.consume_scoped(path,token,None,source,inputs)}}}})?;finish_xml_{id}(state,inputs)}}").unwrap();
     if ordinary {
         out.push_str(&super::sequence_yaml::generate(
@@ -571,9 +652,17 @@ pub(super) fn generate_embedded(
                 "core::annotations::Mapping::default()".into(),
             ),
             ("rows", format!("Vec<R{id}>"), "Vec::new()".into()),
-            ("depth", "usize".into(), "0".into()),
+            (
+                "depth",
+                "usize".into(),
+                if projected { "1" } else { "0" }.into(),
+            ),
             ("seen", "bool".into(), "false".into()),
-            ("key", "bool".into(), "false".into()),
+            (
+                "key",
+                "bool".into(),
+                if projected { "true" } else { "false" }.into(),
+            ),
             ("pending", "Option<String>".into(), "None".into()),
         ];
         if keep_rows {
@@ -646,14 +735,14 @@ _ => Err(RuntimeDiagnostic::new("yaml.collection-form", "Expected a keyed mappin
 fn finish_yaml_dictionary_{id}(state:YamlDictionary{id},source:&[u8],_inputs:&InputView<'_>,expand:bool)->core::Result<V{id}> {{
 let YamlDictionary{id}{{{bindings}}}=state;
 let source=if source.is_empty() {{b"{{}}".as_slice()}} else {{source}};
-let physical=V{id} {{ rows:core::Sequence::Present(rows){self_init}{form_yaml}, raw: None, annotations, yaml_issues:Vec::new(), declared_issues:Vec::new() }};
+let physical=V{id} {{ rows:core::Sequence::Present(rows){self_init}{form_yaml}, raw: None, annotations, yaml_issues:Vec::new(), declared_issues:Vec::new(){explicit_yaml_init} }};
 let declared_issues=issues_yaml_{id}(&physical, source, _inputs);
 let evidence=if physical.annotations.is_empty() {{ Vec::new() }} else {{ issues_xml_{id}(&physical, source, _inputs) }};
-let yaml_issues=physical.annotations.validate_with_evidence({key_name:?}, physical.rows.iter().map(|row| (row.fields[{key_index}].as_str(), row.positions[{key_index}])), declared_issues.clone(), &evidence);
+let yaml_issues=physical.annotations.validate_at({annotation_key}, physical.rows.iter().map(|row| (row.fields[{key_index}].as_str(), row.positions[{key_index}])), declared_issues.clone(), &evidence);
 let V{id} {{ rows, annotations, .. }}=physical;
 let core::Sequence::Present({expanded_mut}rows)=rows else {{ unreachable!("physical rows are present"); }};
 {keyed_read}
-if (!seen && !{yaml_missing}) || depth!=0 {{ return Err(RuntimeDiagnostic::new("value.missing", "Missing collection property")); }} Ok(V{id} {{rows: if expand {{ {yaml_value} }} else {{ core::Sequence::Present(rows) }}{self_init}{form_yaml}, raw: None, annotations, yaml_issues, declared_issues}}) }}
+if (!seen && !{yaml_missing}) || depth!={completed_depth} {{ return Err(RuntimeDiagnostic::new("value.missing", "Missing collection property")); }} Ok(V{id} {{rows: if expand {{ {yaml_value} }} else {{ core::Sequence::Present(rows) }}{self_init}{form_yaml}, raw: None, annotations, yaml_issues, declared_issues{explicit_yaml_init}}}) }}
 {visibility}fn check_xml_{id}(value: &V{id}, source: &[u8], inputs: &InputView<'_>) -> Vec<RuntimeDiagnostic> {{ issues_xml_{id}(value, source, inputs).into_iter().filter(|error| error.kind==core::annotations::IssueKind::Structural || error.severity!=Severity::Error).collect() }}
 {visibility}fn check_yaml_{id}(value: &V{id}, _source: &[u8], _inputs: &InputView<'_>) -> Vec<RuntimeDiagnostic> {{ value.yaml_issues.clone() }}
 {visibility}fn prepare_yaml_{id}(value: &V{id}, inputs: &InputView<'_>, shorten: bool) -> core::Result<Vec<u8>> {{
@@ -663,21 +752,21 @@ core::yaml::append_properties(out,|out| {{
 let start=out.len();emit_yaml_fields_{id}(value,inputs,shorten,&mut core::yaml::Indented::new(out,indent))?;
 let mut restored=read_yaml_value_{id}(&out.as_bytes()[start..], inputs, false)?;
 let mut issues=restored.declared_issues.clone(); issues.extend(issues_xml_{id}(value, &[], inputs));
-restored.annotations=core::annotations::Mapping::infer({key_name:?}, restored.rows.iter().map(|row| (row.fields[{key_index}].as_str(), core::Position::default())), &issues)?;
+restored.annotations=core::annotations::Mapping::infer_at({annotation_key}, restored.rows.iter().map(|row| (row.fields[{key_index}].as_str(), core::Position::default())), &issues)?;
 if !restored.annotations.is_empty() {{out.truncate(start);emit_yaml_fields_{id}(&restored,inputs,false,&mut core::yaml::Indented::new(out,indent))?;}} Ok(()) }}) }}
 fn emit_yaml_fields_{id}(value: &V{id}, _inputs: &InputView<'_>, shorten: bool, out: &mut core::yaml::Indented<'_>) -> core::Result<()> {{
 let _value=value;
 if !value.annotations.is_empty() {{
-out.push_str(&core::yaml::scalar({key_name:?})); out.push(':');
+{emit_header}
 if let Some(tag)=value.annotations.label(None) {{ out.push(' '); out.push_str(&tag); }}
-for (index,row) in value.rows.iter().enumerate() {{ out.push_str("\n  "); if let Some(tag)=value.annotations.label(Some(index)) {{ out.push_str(&tag); out.push(' '); }} out.push_str(&core::yaml::mapping_key(&row.fields[{key_index}])); out.push_str(": "); out.push_str(&core::yaml::scalar(&row.fields[{text_index}])); }}
+for (index,row) in value.rows.iter().enumerate() {{ out.push_str({row_break:?}); if let Some(tag)=value.annotations.label(Some(index)) {{ out.push_str(&tag); out.push(' '); }} out.push_str(&core::yaml::mapping_key(&row.fields[{key_index}])); out.push_str(": "); out.push_str(&core::yaml::scalar(&row.fields[{text_index}])); }}
 if value.rows.is_empty() {{ out.push_str(" {{}}"); }} return Ok(()); }}
 if shorten || value.rows.is_empty() {{ {presence_yaml} }}
-if !value.rows.is_present() {{ if {yaml_missing} {{return Ok(());}} return Err(RuntimeDiagnostic::new("yaml.presence", "No declared YAML form represents absence")); }}
-out.push_str(&core::yaml::scalar({key_name:?})); out.push(':');
+if !value.rows.is_present() {{ if {yaml_missing} {{ {projected_absence} return Ok(());}} return Err(RuntimeDiagnostic::new("yaml.presence", "No declared YAML form represents absence")); }}
+{emit_header}
 {shorthand_write}
 append_rows_{id}(out, &value.rows); Ok(()) }}
-fn append_rows_{id}<'a>(out: &mut core::yaml::Indented<'_>, rows: impl IntoIterator<Item=&'a R{id}>) {{ let mut any=false; for row in rows {{ any=true; out.push_str("\n  "); out.push_str(&core::yaml::mapping_key(&row.fields[{key_index}])); out.push_str(": "); out.push_str(&core::yaml::scalar(&row.fields[{text_index}])); }} if !any {{ out.push_str(" {{}}"); }} }}
+fn append_rows_{id}<'a>(out: &mut core::yaml::Indented<'_>, rows: impl IntoIterator<Item=&'a R{id}>) {{ let mut any=false; for row in rows {{ any=true; out.push_str({row_break:?}); out.push_str(&core::yaml::mapping_key(&row.fields[{key_index}])); out.push_str(": "); out.push_str(&core::yaml::scalar(&row.fields[{text_index}])); }} if !any {{ out.push_str(" {{}}"); }} }}
 "#).unwrap();
     }
     // Prefixes belong to the declaration; only the exceptional path materializes a tree.
@@ -701,13 +790,34 @@ fn append_rows_{id}<'a>(out: &mut core::yaml::Indented<'_>, rows: impl IntoItera
     } else {
         format!("if value.rows.is_present() {{ {key_name:?} }} else {{ {physical_key:?} }}")
     };
+    let raw_encode = if projected {
+        "core::raw::Document::encode(&meaning,payload.as_bytes())?".to_owned()
+    } else {
+        format!("core::raw::Property::encode({key_name:?},{raw_key},&meaning,payload.as_bytes())?")
+    };
+    let raw_append = if projected {
+        "out.push_str(std::str::from_utf8(&encoded).expect(\"generated YAML\"));Ok(())"
+    } else {
+        "core::yaml::append_encoded_properties(out,&encoded)"
+    };
+    let raw_decode = if projected {
+        "core::raw::Document::decode(source)?".to_owned()
+    } else {
+        format!("core::raw::Property::decode(source,{key_name:?},{physical_key:?})?")
+    };
+    let raw_absence = if projected {
+        ""
+    } else {
+        "if !envelope.has_semantic && !envelope.uses_semantic_name { value.rows=core::Sequence::Absent; }"
+    };
     writeln!(out,r#"fn write_yaml_{id}(value:&V{id},inputs:&InputView<'_>)->core::Result<Vec<u8>> {{let mut out=String::new();write_yaml_into_{id}(value,inputs,&mut out)?;Ok(out.into_bytes())}}
-{visibility}fn write_yaml_into_{id}(value:&V{id},inputs:&InputView<'_>,out:&mut String)->core::Result<()> {{
+{visibility}fn write_yaml_into_{id}(value:&V{id},inputs:&InputView<'_>,out:&mut String)->core::Result<()> {{write_yaml_shortened_{id}(value,inputs,true,out)}}
+fn write_yaml_shortened_{id}(value:&V{id},inputs:&InputView<'_>,shorten:bool,out:&mut String)->core::Result<()> {{
 if let Some(patch)=&value.raw {{
-let meaning=prepare_yaml_{id}(value,inputs,true)?;let payload=patch.to_yaml();
-let encoded=core::raw::Property::encode({key_name:?},{raw_key},&meaning,payload.as_bytes())?;
-core::yaml::append_encoded_properties(out,&encoded)
-}} else {{prepare_yaml_into_{id}(value,inputs,true,out,"")}} }}
+let meaning=prepare_yaml_{id}(value,inputs,shorten)?;let payload=patch.to_yaml();
+let encoded={raw_encode};
+{raw_append}
+}} else {{prepare_yaml_into_{id}(value,inputs,shorten,out,"")}} }}
 "#).unwrap();
 
     writeln!(out, r#"fn read_yaml_{id}(source: &[u8], inputs: &InputView<'_>) -> core::Result<V{id}> {{
@@ -715,9 +825,9 @@ core::yaml::append_encoded_properties(out,&encoded)
             Ok(value) => Ok(value),
             Err(error) => {{
                 if !matches!(error.code.as_deref(), Some("yaml.annotation" | "yaml.unknown-field" | "yaml.collection-form")) {{ return Err(error); }}
-                let Some(envelope)=core::raw::Property::decode(source, {key_name:?}, {physical_key:?})? else {{ return Err(error); }};
+                let Some(envelope)={raw_decode} else {{ return Err(error); }};
                 let mut value=read_plain_yaml_{id}(&envelope.meaning, inputs)?;
-                if !envelope.has_semantic && !envelope.uses_semantic_name {{ value.rows=core::Sequence::Absent; }}
+                {raw_absence}
                 value.raw=Some(core::xml::Patch::read(&envelope.payload, &{raw_namespaces:?}, &{raw_qnames:?})?);
                 Ok(value)
             }}
@@ -783,7 +893,7 @@ core::yaml::append_encoded_properties(out,&encoded)
     fn prepare_xml_{id}(value: &V{id}, inputs: &InputView<'_>) -> core::Result<Option<core::xml::Tree>> {{
         let Some(patch)=&value.raw else {{return Ok(None);}};
         let ordinary=write_plain_xml_{id}(value, inputs)?;
-        let tree=core::xml::Tree::capture(&ordinary,{parent_code})?;
+        let tree=core::xml::Tree::capture_with_qnames(&ordinary,{parent_code},xml_qname_text_{id})?;
         if patch.is_null() && ({ordinary} || (!value.rows.is_present() && tree.is_some())) {{return Ok(None);}}
         Ok(Some(patch.apply(tree,core::xml::Name {{namespace:{physical_namespace:?}.into(),local:{physical_key:?}.into()}},&{raw_namespaces:?},&{raw_qnames:?})?))
     }}
@@ -845,31 +955,26 @@ core::yaml::append_encoded_properties(out,&encoded)
         &qname_text,
     ));
     writeln!(out, "fn verify_{id}(original: &[u8], candidate: &[u8], _inputs: &InputView<'_>) -> core::Result<()> {{ let value=read_yaml_{id}(candidate, _inputs)?; if let Some(error)=check_yaml_{id}(&value, candidate, _inputs).into_iter().find(|error| error.severity==Severity::Error) {{ return Err(error); }} prove_xml_{id}(&value,original,&write_xml_{id}(&value,_inputs)?) }}").unwrap();
-    writeln!(out, r#"fn finalize_yaml_{id}(original: &[u8], candidate: Vec<u8>, value: &V{id}, inputs: &InputView<'_>) -> core::Result<Vec<u8>> {{
-        match verify_{id}(original, &candidate, inputs) {{
-            Ok(()) => return Ok(candidate),
-            Err(error) if error.code.as_deref()==Some("xml.round-trip-mismatch") => {{}},
-            Err(error) => return Err(error),
-        }}
-        let full=prepare_yaml_{id}(value, inputs, false)?;
-        if full!=candidate {{
-            match verify_{id}(original, &full, inputs) {{
-                Ok(()) => return Ok(full),
-                Err(error) if error.code.as_deref()==Some("xml.round-trip-mismatch") => {{}},
-                Err(error) => return Err(error),
-            }}
-        }}
-        let tree=core::xml::Tree::capture(original, {parent_code})?;
-        let restored=read_plain_yaml_{id}(&candidate,inputs)?;
+    let raw_finalize = if projected {
+        "core::raw::Document::encode(meaning,payload.as_bytes())?".to_owned()
+    } else {
+        format!("core::raw::Property::encode({key_name:?},{raw_key},meaning,payload.as_bytes())?")
+    };
+    out.push_str(&super::proof::finalize_yaml_prefix(id));
+    writeln!(out, r#"let tree=core::xml::Tree::capture_with_qnames(original, {parent_code},xml_qname_text_{id})?;
+        let meaning=if {ordinary} {{&full}} else {{&candidate}};
+        let restored=read_plain_yaml_{id}(meaning,inputs)?;
         let ordinary=write_plain_xml_{id}(&restored,inputs)?;
-        let ordinary=core::xml::Tree::capture(&ordinary,{parent_code})?;
+        let ordinary=core::xml::Tree::capture_with_qnames(&ordinary,{parent_code},xml_qname_text_{id})?;
         let payload=match tree {{Some(tree)=>{{let patch=tree.patch_yaml(ordinary.as_ref(), &{raw_namespaces:?}, &{raw_qnames:?})?;if {ordinary} && patch.is_empty() {{"\"\"".into()}} else {{patch}}}},None=>"null".into()}};
-        let annotated=core::raw::Property::encode({key_name:?}, {raw_key}, &candidate, payload.as_bytes())?;
+        let annotated={raw_finalize};
         verify_{id}(original, &annotated, inputs)?;
         Ok(annotated)
     }}"#).unwrap();
     {
-        let fallback = if presence.yaml_missing {
+        let fallback = if projected {
+            "{}".to_owned()
+        } else if presence.yaml_missing {
             String::new()
         } else if ordinary {
             format!("{key_name:?}: []")
@@ -877,8 +982,22 @@ core::yaml::append_encoded_properties(out,&encoded)
             format!("{key_name:?}: {{}}")
         };
         let read = format!("read_xml_with_{id}(source,inputs,|_,_| Ok(false))");
+        // Constant shell attributes carry XML form, not collection meaning.
+        // On the exceptional path reread the body without those attributes;
+        // the final proof retains their original form in the XML patch.
+        let keep_nil = if presence.xml_nil {
+            "!(attribute.name.namespace==\"http://www.w3.org/2001/XMLSchema-instance\" && attribute.name.local==\"nil\")"
+        } else {
+            "true"
+        };
+        let tolerant = format!(
+            "read_xml_with_{id}(source,inputs,|path,token| Ok(core::xml::matches(path,{parent_code}) && matches!(token,core::xml::Token::Attribute(attribute) if {{let _=attribute;{keep_nil}}})))"
+        );
+        let preserved = format!(
+            "match {read} {{Err(error) if matches!(error.code.as_deref(),Some(\"xml.attribute-value\"|\"xml.unknown-attribute\"))=>{tolerant},other=>other}}"
+        );
         let recover = format!(
-            "match {read} {{ Ok(value)=>Ok(value), Err(error) if matches!(error.code.as_deref(),Some(\"value.text-pattern\"|\"value.choice\"|\"value.text-sequence\"|\"value.enum\"|\"xml.unknown-field\"|\"xml.unknown-attribute\"|\"xml.unexpected-text\"|\"xml.attribute-value\"|\"xml.duplicate-field\"|\"value.missing\")) => {{ read_plain_yaml_{id}({fallback:?}.as_bytes(),inputs) }}, Err(error)=>Err(error) }}"
+            "match {preserved} {{ Ok(value)=>Ok(value), Err(error) if matches!(error.code.as_deref(),Some(\"value.text-pattern\"|\"value.choice\"|\"value.text-sequence\"|\"value.enum\"|\"xml.unknown-field\"|\"xml.unknown-attribute\"|\"xml.unexpected-text\"|\"xml.attribute-value\"|\"xml.duplicate-field\"|\"value.missing\")) => {{ read_plain_yaml_{id}({fallback:?}.as_bytes(),inputs) }}, Err(error)=>Err(error) }}"
         );
         out = out.replacen(&read, &recover, 1);
     }

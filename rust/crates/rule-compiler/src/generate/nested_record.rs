@@ -42,10 +42,9 @@ pub(crate) fn lower(owner: &LinkedEntry, program: &Program) -> Result<Option<Lay
             .count()
             > 1
     {
-        return Err(unsupported(
-            common,
-            "Nested scalar records currently require static composition without owner contracts",
-        ));
+        // Flattening is an optimization for static records. Context-dependent
+        // records retain their ordinary value adapter and input bindings.
+        return Ok(None);
     }
     for rule in common
         .presence

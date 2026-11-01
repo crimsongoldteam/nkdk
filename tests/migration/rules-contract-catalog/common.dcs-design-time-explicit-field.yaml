@@ -1,0 +1,35 @@
+format: nkdk-declarations/1
+kind: value
+id: common.dcs-design-time-explicit-field
+imports:
+  kind: common.dcs-explicit-field-kind
+  field: common.dcs-metadata-field
+value:
+  kind: record
+  fields:
+    - name: kind
+      type:
+        use: kind
+    - name: field
+      type:
+        use: field
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: field
+        path: []
+  yaml:
+    kind: mapping
+    fields:
+      - field: kind
+        key: Тип
+      - field: field
+        key: Значение
+presence:
+  - target:
+      field: kind
+    xml:
+      missing:
+        denotes:
+          literal: Поле

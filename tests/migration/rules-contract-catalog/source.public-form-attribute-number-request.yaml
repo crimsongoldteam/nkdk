@@ -1,0 +1,41 @@
+format: nkdk-declarations/1
+kind: fragment
+id: source.public-form-attribute-number-request
+inputs:
+  component:
+    type:
+      kind: scalar
+      scalar: text
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  address:
+    type:
+      kind: scalar
+      scalar: text
+value:
+  kind: record
+  fields: []
+representations:
+  xml:
+    kind: record
+    fields: []
+  yaml:
+    kind: mapping
+    fields: []
+contributions:
+  - index: metadata.form-attribute-identities
+    key:
+      record:
+        component:
+          input: component
+        owner:
+          input: owner
+        name:
+          input: address
+    allocate:
+      scope:
+        - component
+        - owner
+      first: 1

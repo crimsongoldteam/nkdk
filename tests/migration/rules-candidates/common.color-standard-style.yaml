@@ -1,6 +1,8 @@
 format: nkdk-declarations/1
 kind: value
 id: common.color-standard-style
+namespaces:
+  style: http://v8.1c.ru/8.1/data/ui/style
 imports:
   color: system.StyleColors
 value:

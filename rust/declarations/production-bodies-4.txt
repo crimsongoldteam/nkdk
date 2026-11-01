@@ -1,0 +1,5 @@
+# Ownership of complete generated conversion bodies.
+probes/dcs-schema-field-appearance.generated.yaml
+objects/record-file-owners-4.generated.yaml
+objects/defined-type.yaml
+objects/defined-type-extension.generated.yaml

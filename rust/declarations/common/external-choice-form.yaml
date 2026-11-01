@@ -98,7 +98,7 @@ declarations:
     diagnostic: {code: metadata.target-missing, severity: error, at: {self: true}, message: Form is missing}
 - kind: value
   id: common.document-choice-form
-  imports: {own: common.document-owned-choice-form, common: common.common-form-link, journal: common.journal-form-link, rootKind: common.path-root}
+  imports: {own: common.document-owned-choice-form, common: common.common-form-link, journal: common.journal-form-link, empty: common.metadata-link-empty, rootKind: common.path-root}
   inputs:
     owner: {type: {kind: scalar, scalar: text}}
     forms: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
@@ -118,6 +118,7 @@ declarations:
     - {name: own, type: {use: own, bind: {owner: {input: owner}, forms: {input: forms}}}}
     - {name: common, type: {use: common, bind: {roots: {input: roots}}}}
     - {name: journal, type: {use: journal, bind: {roots: {input: roots}, forms: {input: formTargets}}}}
+    - {name: empty, type: {use: empty}}
   representations:
     xml: {kind: choice}
-    yaml: {kind: choice}
+    yaml: {kind: choice, fallback: own}

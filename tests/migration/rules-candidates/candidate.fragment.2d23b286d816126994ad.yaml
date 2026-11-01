@@ -1,0 +1,37 @@
+format: nkdk-declarations/1
+kind: fragment
+imports:
+  value0: common.calculated-field-use-restriction
+value:
+  kind: record
+  fields:
+    - name: useRestriction
+      type:
+        use: value0
+        bind: {}
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: useRestriction
+        path:
+          - dcssch:useRestriction
+  yaml:
+    kind: mapping
+    fields:
+      - field: useRestriction
+        key: ОграничениеИспользования
+presence:
+  - target:
+      field: useRestriction
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+namespaces:
+  dcssch: http://v8.1c.ru/8.1/data-composition-system/schema
+id: candidate.fragment.2d23b286d816126994ad

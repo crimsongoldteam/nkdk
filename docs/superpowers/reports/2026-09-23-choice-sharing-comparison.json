@@ -1,0 +1,31 @@
+{
+  "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)",
+  "crate": "nkdk-compiled-rules-probes",
+  "flags": {
+    "CARGO_BUILD_JOBS": "1",
+    "CARGO_INCREMENTAL": "0",
+    "CARGO_PROFILE_DEV_DEBUG": "0",
+    "offline": true
+  },
+  "without_sharing": {
+    "generated_bytes": 46920703,
+    "generation_ms": 49058,
+    "rustc_seconds": 103.721,
+    "rustc_peak_rss_bytes": 4787994624
+  },
+  "with_sharing": [
+    {
+      "generated_bytes": 46385942,
+      "generation_ms": 47891,
+      "rustc_seconds": 90.634,
+      "rustc_peak_rss_bytes": 4961665024
+    },
+    {
+      "generated_bytes": 46385942,
+      "generation_ms": 48897,
+      "rustc_seconds": 93.576,
+      "rustc_peak_rss_bytes": 5368086528
+    }
+  ],
+  "decision": "rejected: modest source and compile-time reduction, but no demonstrated memory reduction and extra generator complexity"
+}

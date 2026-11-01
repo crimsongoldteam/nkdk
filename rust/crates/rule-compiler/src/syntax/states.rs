@@ -155,6 +155,7 @@ pub(super) fn presence(
             yaml_missing: Some(meaning),
             yaml_empty: vec![],
             yaml_omit_when: Some(omit),
+            yaml_null_when: None,
             xml_canonical: vec![],
             source,
         });

@@ -1,0 +1,23 @@
+format: nkdk-declarations/1
+kind: value
+id: common.dcs-typed-undefined
+namespaces:
+  t: http://v8.1c.ru/8.2/data/types
+imports:
+  name: common.dcs-typed-undefined-token
+value:
+  kind: record
+  fields:
+    - name: name
+      type:
+        use: name
+representations:
+  xml:
+    kind: text-pattern
+    parts:
+      - literal: 't:'
+      - field: name
+  yaml:
+    kind: text-pattern
+    parts:
+      - field: name

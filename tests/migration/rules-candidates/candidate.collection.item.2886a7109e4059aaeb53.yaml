@@ -1,0 +1,360 @@
+format: nkdk-declarations/1
+kind: value
+imports:
+  field0: common.string
+  field1: common.dcs-local-string-type
+  field2: common.type-description
+  field3: common.dcs-primitive-value
+  field4: common.boolean
+  field5: common.string
+  field6: common.boolean
+  field7: common.boolean
+  field8: candidate.dcs-settings-parameter-value-collection.9d5e796ebbaa8071
+  field9: system.DCSParameterUse
+  field10: common.string
+  field11: common.boolean
+value:
+  kind: record
+  fields:
+    - name: name
+      type:
+        use: field0
+    - name: title
+      type:
+        use: field1
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+    - name: valueType
+      type:
+        use: field2
+        bind: {}
+    - name: value
+      type:
+        use: field3
+        bind:
+          labels:
+            input: labels
+          codes:
+            input: codes
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+    - name: useRestriction
+      type:
+        use: field4
+    - name: expression
+      type:
+        use: field5
+    - name: valueListAllowed
+      type:
+        use: field6
+    - name: includeInAvailableFields
+      type:
+        use: field7
+    - name: editParameters
+      type:
+        use: field8
+        bind:
+          styleTypes:
+            input: styleTypes
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          labels:
+            input: labels
+          codes:
+            input: codes
+    - name: use
+      type:
+        use: field9
+    - name: functionalOptionsParameter
+      type:
+        use: field10
+    - name: denyIncompleteValues
+      type:
+        use: field11
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: name
+        path:
+          - dcssch:name
+      - field: title
+        path:
+          - dcssch:title
+      - field: valueType
+        path:
+          - dcssch:valueType
+      - field: value
+        path:
+          - dcssch:value
+      - field: useRestriction
+        path:
+          - dcssch:useRestriction
+      - field: expression
+        path:
+          - dcssch:expression
+      - field: valueListAllowed
+        path:
+          - dcssch:valueListAllowed
+      - field: includeInAvailableFields
+        path:
+          - dcssch:availableAsField
+      - field: editParameters
+        path:
+          - dcssch:inputParameters
+      - field: use
+        path:
+          - dcssch:use
+      - field: functionalOptionsParameter
+        path:
+          - dcssch:functionalOptionsParameter
+      - field: denyIncompleteValues
+        path:
+          - dcssch:denyIncompleteValues
+  yaml:
+    kind: mapping
+    fields:
+      - field: name
+        key: Имя
+      - field: title
+        key: Заголовок
+      - field: valueType
+        key: ТипЗначения
+      - field: value
+        key: Значение
+      - field: useRestriction
+        key: ОграничениеИспользования
+      - field: expression
+        key: Выражение
+      - field: valueListAllowed
+        key: ДоступенСписокЗначений
+      - field: includeInAvailableFields
+        key: ВключатьВДоступныеПоля
+      - field: functionalOptionsParameter
+        key: ПараметрФункциональныхОпций
+      - field: editParameters
+        key: ПараметрыРедактирования
+      - field: denyIncompleteValues
+        key: ЗапрещатьНезаполненныеЗначения
+      - field: use
+        key: Использование
+namespaces:
+  dcssch: http://v8.1c.ru/8.1/data-composition-system/schema
+  dcscor: http://v8.1c.ru/8.1/data-composition-system/core
+presence:
+  - target:
+      field: name
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: title
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: valueType
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: value
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: useRestriction
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      default:
+        literal: false
+  - target:
+      field: expression
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: valueListAllowed
+    xml:
+      missing:
+        denotes:
+          literal: false
+      canonical:
+        - when:
+            eq:
+              - field: valueListAllowed
+              - literal: false
+          form: missing
+    yaml:
+      default:
+        literal: false
+  - target:
+      field: includeInAvailableFields
+    xml:
+      missing:
+        denotes:
+          literal: true
+      canonical:
+        - when:
+            eq:
+              - field: includeInAvailableFields
+              - literal: true
+          form: missing
+    yaml:
+      default:
+        literal: true
+  - target:
+      field: editParameters
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            absent: true
+      canonical:
+        - when:
+            not:
+              present:
+                field: editParameters
+          form: missing
+        - form: ordinary
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: use
+    xml:
+      missing:
+        denotes:
+          literal: Auto
+      canonical:
+        - when:
+            eq:
+              - field: use
+              - literal: Auto
+          form: missing
+    yaml:
+      default:
+        literal: Auto
+  - target:
+      field: functionalOptionsParameter
+    xml:
+      missing:
+        denotes:
+          absent: true
+    yaml:
+      missing:
+        denotes:
+          absent: true
+  - target:
+      field: denyIncompleteValues
+    xml:
+      missing:
+        denotes:
+          literal: false
+      canonical:
+        - when:
+            eq:
+              - field: denyIncompleteValues
+              - literal: false
+          form: missing
+    yaml:
+      default:
+        literal: false
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  labels:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: code
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  codes:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: label
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+  styleTypes:
+    type:
+      kind: index
+      key:
+        kind: scalar
+        scalar: text
+      value:
+        kind: scalar
+        scalar: text
+id: candidate.collection.item.2886a7109e4059aaeb53

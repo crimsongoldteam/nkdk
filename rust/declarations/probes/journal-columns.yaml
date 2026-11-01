@@ -1,0 +1,18 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.journal-columns
+imports: {columns: fragment.journal-columns}
+namespaces: {md: 'http://v8.1c.ru/8.3/MDClasses'}
+inputs:
+  defaultLanguage: {type: {kind: scalar, scalar: text}}
+  registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  identities: {index: metadata.own-identities}
+  baseIds: {index: metadata.base-identities}
+  component: {type: {kind: scalar, scalar: text}}
+  owner: {type: {kind: scalar, scalar: text}}
+compose:
+- {use: columns, bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}, identities: {input: identities}, baseIds: {input: baseIds}, component: {input: component}, owner: {input: owner}}}
+value: {kind: record, fields: []}
+representations:
+  xml: {kind: record, fields: []}
+  yaml: {kind: mapping, fields: []}

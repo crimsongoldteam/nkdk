@@ -1,0 +1,322 @@
+{
+  "scope": "dcs-metadata-typed-values: prepared conversion contracts; production registry acceptance is separate",
+  "cases": [
+    {
+      "id": "dcs-metadata-typed-value-0-emptyValueList",
+      "entry": "working.probe.dcs-metadata-typed-value",
+      "xml": "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:dcscor=\"http://v8.1c.ru/8.1/data-composition-system/core\" xmlns:dcsset=\"http://v8.1c.ru/8.1/data-composition-system/settings\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><value xsi:type=\"v8:ValueListType\">\n\t<v8:valueType/>\n\t<v8:lastId xsi:type=\"xs:decimal\">-1</v8:lastId>\n</value></Root>",
+      "yaml": "Значение: СписокЗначений",
+      "noRaw": true,
+      "source": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dscMetadataTypedValue/__fixtures__/data.ts"
+        }
+      ]
+    },
+    {
+      "id": "dcs-metadata-typed-value-1-field",
+      "entry": "working.probe.dcs-metadata-typed-value",
+      "xml": "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:dcscor=\"http://v8.1c.ru/8.1/data-composition-system/core\" xmlns:dcsset=\"http://v8.1c.ru/8.1/data-composition-system/settings\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><value xsi:type=\"dcscor:Field\">СтандартныйПериод.ДатаНачала</value></Root>",
+      "yaml": "Значение: .СтандартныйПериод.ДатаНачала",
+      "noRaw": true,
+      "source": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dscMetadataTypedValue/__fixtures__/data.ts"
+        }
+      ]
+    },
+    {
+      "id": "dcs-metadata-typed-value-2-designTimeValue",
+      "entry": "working.probe.dcs-metadata-typed-value",
+      "xml": "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:dcscor=\"http://v8.1c.ru/8.1/data-composition-system/core\" xmlns:dcsset=\"http://v8.1c.ru/8.1/data-composition-system/settings\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><value xsi:type=\"dcscor:DesignTimeValue\">Справочник.Справочник1.ПустаяСсылка</value></Root>",
+      "yaml": "Значение: Справочник.Справочник1.ПустаяСсылка",
+      "noRaw": true,
+      "source": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dscMetadataTypedValue/__fixtures__/data.ts"
+        }
+      ]
+    },
+    {
+      "id": "dcs-metadata-typed-value-3-decimal",
+      "entry": "working.probe.dcs-metadata-typed-value",
+      "xml": "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:dcscor=\"http://v8.1c.ru/8.1/data-composition-system/core\" xmlns:dcsset=\"http://v8.1c.ru/8.1/data-composition-system/settings\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><value xsi:type=\"xs:decimal\">0</value></Root>",
+      "yaml": "Значение: 0",
+      "noRaw": true,
+      "source": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dscMetadataTypedValue/__fixtures__/data.ts"
+        }
+      ]
+    },
+    {
+      "id": "dcs-metadata-typed-value-4-boolean",
+      "entry": "working.probe.dcs-metadata-typed-value",
+      "xml": "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:dcscor=\"http://v8.1c.ru/8.1/data-composition-system/core\" xmlns:dcsset=\"http://v8.1c.ru/8.1/data-composition-system/settings\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><value xsi:type=\"xs:boolean\">false</value></Root>",
+      "yaml": "Значение: Ложь",
+      "noRaw": true,
+      "source": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dscMetadataTypedValue/__fixtures__/data.ts"
+        }
+      ]
+    },
+    {
+      "id": "dcs-metadata-typed-value-5-dateTime",
+      "entry": "working.probe.dcs-metadata-typed-value",
+      "xml": "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:dcscor=\"http://v8.1c.ru/8.1/data-composition-system/core\" xmlns:dcsset=\"http://v8.1c.ru/8.1/data-composition-system/settings\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><value xsi:type=\"xs:dateTime\">2024-01-02T03:04:05</value></Root>",
+      "yaml": "Значение: 02.01.2024 03:04:05",
+      "noRaw": true,
+      "source": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dscMetadataTypedValue/__fixtures__/data.ts"
+        }
+      ]
+    },
+    {
+      "id": "dcs-metadata-typed-value-6-string",
+      "entry": "working.probe.dcs-metadata-typed-value",
+      "xml": "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:dcscor=\"http://v8.1c.ru/8.1/data-composition-system/core\" xmlns:dcsset=\"http://v8.1c.ru/8.1/data-composition-system/settings\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><value xsi:type=\"xs:string\">Какой-то текст</value></Root>",
+      "yaml": "Значение: '''Какой-то текст'''",
+      "noRaw": true,
+      "source": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dscMetadataTypedValue/__fixtures__/data.ts"
+        }
+      ]
+    },
+    {
+      "id": "dcs-metadata-typed-value-7-empty string",
+      "entry": "working.probe.dcs-metadata-typed-value",
+      "xml": "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:dcscor=\"http://v8.1c.ru/8.1/data-composition-system/core\" xmlns:dcsset=\"http://v8.1c.ru/8.1/data-composition-system/settings\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><value xsi:type=\"xs:string\"/></Root>",
+      "yaml": "Значение: ''''''",
+      "noRaw": true,
+      "source": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dscMetadataTypedValue/__fixtures__/data.ts"
+        }
+      ]
+    },
+    {
+      "id": "dcs-metadata-typed-value-8-standardBeginningDate",
+      "entry": "working.probe.dcs-metadata-typed-value",
+      "xml": "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:dcscor=\"http://v8.1c.ru/8.1/data-composition-system/core\" xmlns:dcsset=\"http://v8.1c.ru/8.1/data-composition-system/settings\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><value xsi:type=\"v8:StandardBeginningDate\">\n\t<v8:variant xsi:type=\"v8:StandardBeginningDateVariant\">Custom</v8:variant>\n\t<v8:date>0001-01-01T00:00:00</v8:date>\n</value></Root>",
+      "yaml": "Значение:\n  Вариант: ПроизвольнаяДата\n  Дата: 01.01.0001 00:00:00",
+      "noRaw": true,
+      "source": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dscMetadataTypedValue/__fixtures__/data.ts"
+        }
+      ]
+    },
+    {
+      "id": "dcs-metadata-typed-value-9-standardBeginningDate",
+      "entry": "working.probe.dcs-metadata-typed-value",
+      "xml": "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:dcscor=\"http://v8.1c.ru/8.1/data-composition-system/core\" xmlns:dcsset=\"http://v8.1c.ru/8.1/data-composition-system/settings\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><value xsi:type=\"v8:StandardBeginningDate\">\n\t<v8:variant xsi:type=\"v8:StandardBeginningDateVariant\">BeginningOfThisDay</v8:variant>\n</value></Root>",
+      "yaml": "Значение:\n  Вариант: НачалоЭтогоДня",
+      "noRaw": true,
+      "source": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dscMetadataTypedValue/__fixtures__/data.ts"
+        }
+      ]
+    },
+    {
+      "id": "dcs-metadata-typed-value-10-order",
+      "entry": "working.probe.dcs-metadata-typed-value",
+      "xml": "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:dcscor=\"http://v8.1c.ru/8.1/data-composition-system/core\" xmlns:dcsset=\"http://v8.1c.ru/8.1/data-composition-system/settings\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><value xsi:type=\"dcsset:Order\"/></Root>",
+      "yaml": "Значение: Порядок",
+      "noRaw": true,
+      "source": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dscMetadataTypedValue/__fixtures__/data.ts"
+        }
+      ]
+    },
+    {
+      "id": "dcs-typed-legacy-reference",
+      "entry": "working.probe.dcs-metadata-typed-value",
+      "xml": "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:dcscor=\"http://v8.1c.ru/8.1/data-composition-system/core\" xmlns:dcsset=\"http://v8.1c.ru/8.1/data-composition-system/settings\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><value xsi:type=\"xr:DesignTimeRef\">Catalog.Организации.EmptyRef</value></Root>",
+      "annotation": "Значение: !xml/raw",
+      "retainedYAML": [
+        "  $значение: Справочник.Организации.ПустаяСсылка"
+      ],
+      "source": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dscMetadataTypedValue/fromXML.integration.test.ts"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dscMetadataTypedValue/toYAML.test.ts"
+        }
+      ]
+    },
+    {
+      "id": "dcs-typed-canonical-reference",
+      "entry": "working.probe.dcs-metadata-typed-value",
+      "xml": "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:dcscor=\"http://v8.1c.ru/8.1/data-composition-system/core\" xmlns:dcsset=\"http://v8.1c.ru/8.1/data-composition-system/settings\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><value xsi:type=\"dcscor:DesignTimeValue\">Справочник.Организации.ПустаяСсылка</value></Root>",
+      "yaml": "Значение: Справочник.Организации.ПустаяСсылка",
+      "noRaw": true,
+      "source": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dscMetadataTypedValue/fromYAML.test.ts"
+        }
+      ]
+    },
+    {
+      "id": "dcs-typed-sequence",
+      "entry": "working.probe.dcs-typed-values",
+      "xml": "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:dcscor=\"http://v8.1c.ru/8.1/data-composition-system/core\" xmlns:dcsset=\"http://v8.1c.ru/8.1/data-composition-system/settings\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><Name>kept</Name><Values><value xsi:type=\"xs:string\">x</value><value xsi:type=\"xs:decimal\">12.5</value><value xsi:type=\"xs:string\">x</value></Values></Root>",
+      "yaml": "Сосед: kept\nЗначение:\n  - '''x'''\n  - 12.5\n  - '''x'''",
+      "noRaw": true,
+      "source": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dscMetadataTypedValue/fromXML.integration.test.ts"
+        }
+      ],
+      "adaptation": "Combine independently tested string and decimal forms; retain repeated occurrences and order"
+    },
+    {
+      "id": "dcs-typed-absent-values",
+      "entry": "working.probe.dcs-typed-values",
+      "xml": "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:dcscor=\"http://v8.1c.ru/8.1/data-composition-system/core\" xmlns:dcsset=\"http://v8.1c.ru/8.1/data-composition-system/settings\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><Name>kept</Name></Root>",
+      "yaml": "Сосед: kept",
+      "noRaw": true,
+      "source": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dscMetadataTypedValue/fromXML.integration.test.ts"
+        }
+      ],
+      "adaptation": "Place the optional value list beside an independently preserved neighbour; omit its entire property"
+    },
+    {
+      "id": "dcs-typed-nil-position",
+      "entry": "working.probe.dcs-typed-values",
+      "xml": "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:dcscor=\"http://v8.1c.ru/8.1/data-composition-system/core\" xmlns:dcsset=\"http://v8.1c.ru/8.1/data-composition-system/settings\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><Name>kept</Name><Values><value xsi:type=\"xs:string\">x</value><value xsi:nil=\"true\"/><value xsi:type=\"xs:decimal\">12.5</value></Values></Root>",
+      "retainedYAML": [
+        "Сосед: kept",
+        "  - !xml/raw",
+        "      _{http://www.w3.org/2001/XMLSchema-instance}nil: \"true\""
+      ],
+      "acceptedYAML": [
+        "Сосед: kept\nЗначение:\n  - '''x'''\n  - {}\n  - 12.5"
+      ],
+      "source": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dscMetadataTypedValue/fromXML.integration.test.ts"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dscMetadataTypedValue/fromYAML.test.ts"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dscMetadataTypedValue/toYAML.test.ts"
+        }
+      ]
+    },
+    {
+      "id": "dcs-typed-missing-position-export",
+      "entry": "working.probe.dcs-typed-values",
+      "xml": "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:dcscor=\"http://v8.1c.ru/8.1/data-composition-system/core\" xmlns:dcsset=\"http://v8.1c.ru/8.1/data-composition-system/settings\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><Name>kept</Name><Values><value xsi:type=\"xs:string\">x</value><value xsi:type=\"xs:decimal\">12.5</value></Values></Root>",
+      "yaml": "Сосед: kept\nЗначение:\n  - '''x'''\n  - 12.5",
+      "noRaw": true,
+      "reverseYAML": "Сосед: kept\nЗначение:\n  - '''x'''\n  - {}\n  - 12.5",
+      "source": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dscMetadataTypedValue/toXML.integration.test.ts"
+        }
+      ],
+      "adaptation": "Retain the existing rule: a missing array slot invents no XML node; an explicit source nil is preserved by its annotation"
+    },
+    {
+      "id": "dcs-typed-undefined-t",
+      "entry": "working.probe.dcs-typed-values",
+      "xml": "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:dcscor=\"http://v8.1c.ru/8.1/data-composition-system/core\" xmlns:dcsset=\"http://v8.1c.ru/8.1/data-composition-system/settings\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><Name>kept</Name><Values><value xsi:type=\"xs:string\">x</value><value xmlns:t=\"http://v8.1c.ru/8.2/data/types\" xsi:type=\"v8:Type\">t:Undefined</value><value xsi:type=\"xs:string\">y</value></Values></Root>",
+      "retainedYAML": [
+        "Сосед: kept",
+        "  - !xml/raw",
+        "        - http://v8.1c.ru/8.2/data/types",
+        "        - Undefined"
+      ],
+      "xmlQNamePaths": [
+        [
+          "Root",
+          "Values",
+          "value"
+        ]
+      ],
+      "source": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dscMetadataTypedValue/fromXML.integration.test.ts"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dscMetadataTypedValue/toXML.integration.test.ts"
+        }
+      ],
+      "adaptation": "Keep the independently tested Undefined namespace meaning under two prefixes, inside a sequence with neighbours"
+    },
+    {
+      "id": "dcs-typed-undefined-different",
+      "entry": "working.probe.dcs-typed-values",
+      "xml": "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:dcscor=\"http://v8.1c.ru/8.1/data-composition-system/core\" xmlns:dcsset=\"http://v8.1c.ru/8.1/data-composition-system/settings\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><Name>kept</Name><Values><value xsi:type=\"xs:string\">x</value><value xmlns:different=\"http://v8.1c.ru/8.2/data/types\" xsi:type=\"v8:Type\">different:Undefined</value><value xsi:type=\"xs:string\">y</value></Values></Root>",
+      "retainedYAML": [
+        "Сосед: kept",
+        "  - !xml/raw",
+        "        - http://v8.1c.ru/8.2/data/types",
+        "        - Undefined"
+      ],
+      "xmlQNamePaths": [
+        [
+          "Root",
+          "Values",
+          "value"
+        ]
+      ],
+      "source": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dscMetadataTypedValue/fromXML.integration.test.ts"
+        },
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dscMetadataTypedValue/toXML.integration.test.ts"
+        }
+      ],
+      "adaptation": "Keep the independently tested Undefined namespace meaning under two prefixes, inside a sequence with neighbours"
+    },
+    {
+      "id": "dcs-typed-structured-sequence",
+      "entry": "working.probe.dcs-typed-values",
+      "xml": "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:dcscor=\"http://v8.1c.ru/8.1/data-composition-system/core\" xmlns:dcsset=\"http://v8.1c.ru/8.1/data-composition-system/settings\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><Name>kept</Name><Values><value xsi:type=\"v8:ValueListType\">\n\t<v8:valueType/>\n\t<v8:lastId xsi:type=\"xs:decimal\">-1</v8:lastId>\n</value><value xsi:type=\"v8:StandardBeginningDate\">\n\t<v8:variant xsi:type=\"v8:StandardBeginningDateVariant\">Custom</v8:variant>\n\t<v8:date>0001-01-01T00:00:00</v8:date>\n</value><value xsi:type=\"v8:ValueListType\">\n\t<v8:valueType/>\n\t<v8:lastId xsi:type=\"xs:decimal\">-1</v8:lastId>\n</value></Values></Root>",
+      "yaml": "Сосед: kept\nЗначение:\n  - СписокЗначений\n  - Вариант: ПроизвольнаяДата\n    Дата: 01.01.0001 00:00:00\n  - СписокЗначений",
+      "noRaw": true,
+      "source": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dscMetadataTypedValue/__fixtures__/data.ts"
+        }
+      ],
+      "adaptation": "Combine immutable list and beginning-date examples; repeat the list around the structured mapping"
+    },
+    {
+      "id": "dcs-typed-structured-singleton-emptyValueList",
+      "entry": "working.probe.dcs-typed-values",
+      "xml": "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:dcscor=\"http://v8.1c.ru/8.1/data-composition-system/core\" xmlns:dcsset=\"http://v8.1c.ru/8.1/data-composition-system/settings\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><Name>kept</Name><Values><value xsi:type=\"v8:ValueListType\">\n\t<v8:valueType/>\n\t<v8:lastId xsi:type=\"xs:decimal\">-1</v8:lastId>\n</value></Values></Root>",
+      "yaml": "Сосед: kept\nЗначение: СписокЗначений",
+      "noRaw": true,
+      "source": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dscMetadataTypedValue/__fixtures__/data.ts"
+        }
+      ]
+    },
+    {
+      "id": "dcs-typed-structured-singleton-standardBeginningDate",
+      "entry": "working.probe.dcs-typed-values",
+      "xml": "<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:dcscor=\"http://v8.1c.ru/8.1/data-composition-system/core\" xmlns:dcsset=\"http://v8.1c.ru/8.1/data-composition-system/settings\" xmlns:v8=\"http://v8.1c.ru/8.1/data/core\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\"><Name>kept</Name><Values><value xsi:type=\"v8:StandardBeginningDate\">\n\t<v8:variant xsi:type=\"v8:StandardBeginningDateVariant\">Custom</v8:variant>\n\t<v8:date>0001-01-01T00:00:00</v8:date>\n</value></Values></Root>",
+      "yaml": "Сосед: kept\nЗначение:\n  Вариант: ПроизвольнаяДата\n  Дата: 01.01.0001 00:00:00",
+      "noRaw": true,
+      "source": [
+        {
+          "path": "packages/rules/metadata/commonObjects/dataCompositionSystem/dscMetadataTypedValue/__fixtures__/data.ts"
+        }
+      ]
+    }
+  ],
+  "factSources": []
+}

@@ -1,0 +1,31 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.document-root-source
+imports: {name: common.metadata-name, rootKind: common.path-root}
+namespaces: {md: 'http://v8.1c.ru/8.3/MDClasses'}
+value:
+  kind: record
+  fields:
+  - {name: kind, type: {use: rootKind}}
+  - {name: name, type: {use: name}}
+  - {name: identity, type: {kind: scalar, scalar: text}}
+representations:
+  xml:
+    kind: record
+    fields:
+    - {field: name, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:Name']}
+    - {field: identity, path: ['md:MetaDataObject', 'md:Document'], attribute: uuid}
+  yaml:
+    kind: mapping
+    fields:
+    - {field: kind, key: Вид}
+    - {field: name, key: Имя}
+    - {field: identity, key: Идентификатор}
+presence:
+- target: {field: kind}
+  xml: {missing: {denotes: {literal: Document}}}
+  yaml: {default: {literal: Document}}
+contributions:
+- index: metadata.roots
+  key: {record: {kind: {field: kind}, name: {field: name}}}
+  value: {field: identity}

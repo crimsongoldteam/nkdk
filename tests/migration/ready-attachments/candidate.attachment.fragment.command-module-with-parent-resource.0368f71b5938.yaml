@@ -1,0 +1,43 @@
+format: nkdk-declarations/1
+kind: object
+id: candidate.attachment.fragment.command-module-with-parent-resource.0368f71b5938
+imports:
+  ready: fragment.command-module-with-parent-resource
+compose:
+  - use: ready
+    bind:
+      name:
+        input: name
+      parentName:
+        input: parentName
+      container:
+        literal: Cubes
+inputs:
+  name:
+    type:
+      kind: scalar
+      scalar: text
+  parentName:
+    type:
+      kind: scalar
+      scalar: text
+value:
+  kind: record
+  fields:
+    - name: probe
+      type:
+        kind: scalar
+        scalar: text
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: probe
+        path:
+          - Probe
+          - Name
+  yaml:
+    kind: mapping
+    fields:
+      - field: probe
+        key: Проверка

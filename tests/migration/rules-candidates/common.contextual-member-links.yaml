@@ -1,0 +1,67 @@
+format: nkdk-declarations/1
+kind: value
+id: common.contextual-member-links
+imports:
+  path: common.contextual-member-path
+inputs:
+  ownerName:
+    type:
+      kind: scalar
+      scalar: text
+value:
+  kind: sequence
+  item:
+    use: path
+    bind:
+      ownerName:
+        input: ownerName
+namespaces:
+  xr: http://v8.1c.ru/8.3/xcf/readable
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+representations:
+  xml:
+    kind: element-sequence
+    path:
+      - xr:Item
+    item:
+      kind: with-attributes
+      attributes:
+        - name: xsi:type
+          value:
+            qname: xr:MDObjectRef
+      content:
+        kind: text
+  yaml:
+    kind: sequence
+    item:
+      kind: scalar
+      scalar: text
+presence:
+  - target: self
+    xml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-element
+          denotes:
+            sequence: []
+      canonical:
+        - when:
+            not:
+              present:
+                self: true
+          form: missing
+        - form: ordinary
+    yaml:
+      missing:
+        denotes:
+          absent: true
+      empty:
+        - form: empty-sequence
+          denotes:
+            sequence: []
+      omitWhen:
+        not:
+          present:
+            self: true

@@ -1,0 +1,101 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: test.typed-text
+  namespaces: {xsi: 'http://www.w3.org/2001/XMLSchema-instance', t: 'urn:test'}
+  value: {kind: scalar, scalar: text}
+  representations:
+    xml:
+      kind: with-attributes
+      attributes: [{name: xsi:type, value: {qname: t:Text}}]
+      content: {kind: text}
+    yaml: {kind: scalar, scalar: text}
+- kind: value
+  id: test.row
+  value: {kind: record, fields: [{name: label, type: {kind: scalar, scalar: text}}]}
+  representations:
+    xml: {kind: record, fields: [{field: label, path: [Label]}]}
+    yaml: {kind: mapping, fields: [{field: label, key: Label}]}
+- kind: value
+  id: test.value
+  imports: {text: test.typed-text, row: test.row}
+  value: {kind: choice, variants: [{name: text, type: {use: text}}, {name: row, type: {use: row}}]}
+  representations:
+    xml: {kind: choice, fallback: row}
+    yaml: {kind: choice, variants: [{variant: row, form: mapping}], fallback: text}
+- kind: object
+  id: test.owner
+  imports: {value: test.value}
+  value: {kind: record, fields: [{name: value, type: {use: value}}]}
+  representations:
+    xml: {kind: record, fields: [{field: value, path: [Root, Value]}]}
+    yaml: {kind: mapping, fields: [{field: value, key: Value}]}
+- kind: object
+  id: test.optional-owner
+  imports: {value: test.value}
+  value: {kind: record, fields: [{name: value, type: {use: value}}]}
+  representations:
+    xml: {kind: record, fields: [{field: value, path: [Root, Value]}]}
+    yaml: {kind: mapping, fields: [{field: value, key: Value}]}
+  presence:
+  - target: {field: value}
+    xml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: nil, denotes: {absent: true}}]
+    yaml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: null, denotes: {absent: true}}]
+- kind: object
+  id: test.computed-optional-owner
+  imports: {value: test.value}
+  value:
+    kind: record
+    fields:
+    - {name: label, type: {kind: scalar, scalar: text}}
+    - {name: value, type: {use: value}}
+  representations:
+    xml: {kind: record, fields: [{field: label, path: [Root, Label]}]}
+    yaml: {kind: mapping, fields: [{field: value, key: Value}]}
+  presence:
+  - target: {field: label}
+    yaml:
+      missing:
+        denotes:
+          if: {present: {field: value}}
+          then: {variantValue: {value: {field: value}, variant: text}}
+          else: {literal: ''}
+  - target: {field: value}
+    xml:
+      missing:
+        denotes:
+          if: {eq: [{field: label}, {literal: ''}]}
+          then: {absent: true}
+          else: {variant: {name: text, value: {field: label}}}
+    yaml: {missing: {denotes: {absent: true}}}
+- kind: object
+  id: test.null-projection
+  imports: {choice: test.value}
+  value:
+    kind: record
+    fields:
+    - {name: source, type: {use: choice}}
+    - {name: visible, type: {use: choice}}
+  representations:
+    xml: {kind: record, fields: [{field: source, path: [Root, Source]}]}
+    yaml: {kind: mapping, fields: [{field: visible, key: Value}]}
+  presence:
+  - target: {field: source}
+    xml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: nil, denotes: {absent: true}}]
+      canonical: [{when: {isNull: {field: visible}}, form: nil}, {form: ordinary}]
+    yaml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: null, denotes: {absent: true}}]
+  - target: {field: visible}
+    xml: {missing: {denotes: {absent: true}}}
+    yaml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: null, denotes: {absent: true}}]
+      nullWhen: {isNull: {field: source}}

@@ -1,0 +1,208 @@
+# Identity preparation sources only; complete FormAttribute conversion is separate.
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+  - kind: value
+    id: source.form-column
+    value:
+      kind: record
+      fields:
+        - {name: name, type: {kind: scalar, scalar: text}}
+        - {name: id, type: {kind: scalar, scalar: text}}
+    representations:
+      xml: {kind: record, fields: [{field: name, path: [], attribute: name}, {field: id, path: [], attribute: id}]}
+      yaml: {kind: mapping, fields: [{field: name, key: Имя}, {field: id, key: Идентификатор}]}
+  - kind: value
+    id: source.form-column-rows
+    namespaces: {f: 'http://v8.1c.ru/8.3/xcf/logform'}
+    imports: {row: source.form-column}
+    value: {kind: sequence, item: {use: row}}
+    representations:
+      xml: {kind: element-sequence, path: [f:Column], item: {kind: declared}}
+      yaml: {kind: sequence, item: {kind: declared}}
+  - kind: fragment
+    id: source.form-column-row-data
+    imports:
+      rows: source.form-column-rows
+    value:
+      kind: record
+      fields:
+      - name: rows
+        type:
+          use: rows
+    representations:
+      xml:
+        kind: record
+        fields:
+        - field: rows
+          path: []
+      yaml:
+        kind: mapping
+        fields:
+        - field: rows
+          key: Обычные
+    presence:
+    - target:
+        field: rows
+      xml:
+        missing:
+          denotes:
+            absent: true
+      yaml:
+        missing:
+          denotes:
+            absent: true
+  - kind: fragment
+    id: source.form-column-identities
+    imports:
+      data: source.form-column-row-data
+    inputs:
+      component:
+        type:
+          kind: scalar
+          scalar: text
+      owner:
+        type:
+          kind: scalar
+          scalar: text
+      parent:
+        type:
+          kind: scalar
+          scalar: text
+    value:
+      kind: record
+      fields: []
+    representations:
+      xml:
+        kind: record
+        fields: []
+      yaml:
+        kind: mapping
+        fields: []
+    contributions:
+    - index: metadata.form-attribute-identities
+      forEach:
+        in:
+          field: rows
+        as: row
+        index: position
+      key:
+        record:
+          component:
+            input: component
+          owner:
+            input: owner
+          name:
+            if:
+              and:
+              - not:
+                  eq:
+                  - get:
+                      of:
+                        var: row
+                      field: name
+                  - literal: ''
+              - one:
+                  in:
+                    field: rows
+                  as: candidate
+                  where:
+                    eq:
+                    - get:
+                        of:
+                          var: candidate
+                        field: name
+                    - get:
+                        of:
+                          var: row
+                        field: name
+            then:
+              logicalAddress:
+                parent:
+                  input: parent
+                parts:
+                - literal: Колонка
+                - get:
+                    of:
+                      var: row
+                    field: name
+            else:
+              logicalAddress:
+                parent:
+                  input: parent
+                parts:
+                - literal: Колонка
+                - var: position
+      value:
+        get:
+          of:
+            var: row
+          field: id
+    compose:
+    - use: data
+  - kind: value
+    id: source.form-additional-column-group
+    imports: {columns: source.form-column-identities}
+    inputs:
+      component: {type: {kind: scalar, scalar: text}}
+      owner: {type: {kind: scalar, scalar: text}}
+      parent: {type: {kind: scalar, scalar: text}}
+    compose:
+      - use: columns
+        bind:
+          component: {input: component}
+          owner: {input: owner}
+          parent: {logicalAddress: {parent: {input: parent}, parts: [{literal: ДополнительныеКолонки}, {field: table}]}}
+    value: {kind: record, fields: [{name: table, type: {kind: scalar, scalar: text}}]}
+    representations:
+      xml: {kind: record, fields: [{field: table, path: [], attribute: table}]}
+      yaml: {kind: mapping, fields: [{field: table, key: Таблица}]}
+  - kind: value
+    id: source.form-additional-column-groups
+    namespaces: {f: 'http://v8.1c.ru/8.3/xcf/logform'}
+    imports: {group: source.form-additional-column-group}
+    inputs:
+      component: {type: {kind: scalar, scalar: text}}
+      owner: {type: {kind: scalar, scalar: text}}
+      parent: {type: {kind: scalar, scalar: text}}
+    value:
+      kind: sequence
+      item: {use: group, bind: {component: {input: component}, owner: {input: owner}, parent: {input: parent}}}
+    representations:
+      xml: {kind: element-sequence, path: [f:AdditionalColumns], item: {kind: declared}}
+      yaml: {kind: sequence, item: {kind: declared}}
+  - kind: value
+    id: source.form-column-container
+    imports: {ordinary: source.form-column-identities, additional: source.form-additional-column-groups}
+    inputs:
+      component: {type: {kind: scalar, scalar: text}}
+      owner: {type: {kind: scalar, scalar: text}}
+      parent: {type: {kind: scalar, scalar: text}}
+    compose: [{use: ordinary, bind: {component: {input: component}, owner: {input: owner}, parent: {input: parent}}}]
+    value:
+      kind: record
+      fields:
+        - {name: groups, type: {use: additional, bind: {component: {input: component}, owner: {input: owner}, parent: {input: parent}}}}
+    representations:
+      xml: {kind: record, fields: [{field: groups, path: []}]}
+      yaml: {kind: mapping, fields: [{field: groups, key: Дополнительные}]}
+    presence:
+      - {target: {field: groups}, xml: {missing: {denotes: {absent: true}}}, yaml: {missing: {denotes: {absent: true}}}}
+  - kind: object
+    id: metadata.form-column-source
+    namespaces: {f: 'http://v8.1c.ru/8.3/xcf/logform'}
+    imports: {columns: source.form-column-container}
+    inputs:
+      component: {type: {kind: scalar, scalar: text}}
+      owner: {type: {kind: scalar, scalar: text}}
+    value:
+      kind: record
+      fields:
+        - {name: name, type: {kind: scalar, scalar: text}}
+        - name: columns
+          type: {use: columns, bind: {component: {input: component}, owner: {input: owner}, parent: {logicalAddress: {parts: [{field: name}]}}}}
+    representations:
+      xml: {kind: record, fields: [{field: name, path: [f:Attribute], attribute: name}, {field: columns, path: [f:Attribute, f:Columns]}]}
+      yaml: {kind: mapping, fields: [{field: name, key: Имя}, {field: columns, key: Колонки}]}
+    presence:
+      - {target: {field: columns}, xml: {missing: {denotes: {absent: true}}}, yaml: {missing: {denotes: {absent: true}}}}

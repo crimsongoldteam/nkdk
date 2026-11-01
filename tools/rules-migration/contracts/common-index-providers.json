@@ -1,0 +1,40 @@
+{
+  "common.dynamic-list": {
+    "styleTypes": "metadata.style-item-types",
+    "labels": "dcs.enumeration-labels",
+    "codes": "dcs.enumeration-codes"
+  },
+  "common.style-item-value": {
+    "styleTypes": "metadata.style-item-types"
+  },
+  "common.appearance-fields": {
+    "styleTypes": "metadata.style-item-types",
+    "labels": "dcs.enumeration-labels",
+    "codes": "dcs.enumeration-codes"
+  },
+  "common.conditional-appearance-items": {
+    "styleTypes": "metadata.style-item-types",
+    "labels": "dcs.enumeration-labels",
+    "codes": "dcs.enumeration-codes"
+  },
+  "common.dcs-parameter": {
+    "styleTypes": "metadata.style-item-types",
+    "labels": "dcs.enumeration-labels",
+    "codes": "dcs.enumeration-codes"
+  },
+  "common.calculated-field": {
+    "styleTypes": "metadata.style-item-types",
+    "labels": "dcs.enumeration-labels",
+    "codes": "dcs.enumeration-codes"
+  },
+  "common.data-composition-schema-data-set-field": {
+    "styleTypes": "metadata.style-item-types",
+    "labels": "dcs.enumeration-labels",
+    "codes": "dcs.enumeration-codes"
+  },
+  "common.conditional-appearance": {
+    "styleTypes": "metadata.style-item-types",
+    "labels": "dcs.enumeration-labels",
+    "codes": "dcs.enumeration-codes"
+  }
+}

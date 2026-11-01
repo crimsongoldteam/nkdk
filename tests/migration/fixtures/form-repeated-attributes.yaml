@@ -1,0 +1,14 @@
+# Сохранённый повтор имени; смысловая запись одна, исходных реквизита два.
+Реквизиты: !xml/raw
+  $значение:
+    Повтор:
+      Колонки:
+        Отступ: {Тип: Строка}
+  $xml:
+    "{http://v8.1c.ru/8.3/xcf/logform}Attribute":
+      - _name: Повтор
+        "{http://v8.1c.ru/8.3/xcf/logform}Columns":
+          "{http://v8.1c.ru/8.3/xcf/logform}Column": {_name: Отступ}
+      - _name: Повтор
+        "{http://v8.1c.ru/8.3/xcf/logform}Columns":
+          "{http://v8.1c.ru/8.3/xcf/logform}Column": {_name: Отступ}

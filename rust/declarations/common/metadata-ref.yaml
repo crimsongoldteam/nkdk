@@ -1,0 +1,78 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: common.metadata-link-empty
+  value: {kind: enum, variants: [{name: Empty, value: empty}]}
+  representations:
+    xml: {kind: text, values: [{value: empty, text: ''}]}
+    yaml: {kind: scalar, values: [{value: empty, literal: ''}]}
+- kind: value
+  id: common.metadata-link-uuid-text
+  value:
+    kind: scalar
+    scalar: text
+    pattern: '[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}'
+  representations:
+    xml: {kind: text}
+    yaml: {kind: scalar, scalar: text}
+- kind: value
+  id: common.metadata-link-uuid
+  imports: {text: common.metadata-link-uuid-text}
+  value: {kind: record, fields: [{name: uuid, type: {use: text}}]}
+  representations:
+    xml: {kind: text-pattern, parts: [{field: uuid}]}
+    yaml: {kind: text-pattern, parts: [{field: uuid}]}
+- kind: value
+  id: common.metadata-item-link
+  imports: {object: common.metadata-root-path, member: common.metadata-structural-path, uuid: common.metadata-link-uuid, empty: common.metadata-link-empty}
+  parameters:
+    typedXML: {type: {kind: scalar, scalar: boolean}, default: false}
+  namespaces: {xsi: 'http://www.w3.org/2001/XMLSchema-instance', xr: 'http://v8.1c.ru/8.3/xcf/readable'}
+  value:
+    kind: choice
+    variants:
+    - {name: object, type: {use: object}}
+    - {name: member, type: {use: member}}
+    - {name: uuid, type: {use: uuid}}
+    - {name: empty, type: {use: empty}}
+  representations:
+    xml:
+      kind: with-attributes
+      attributes: [{name: xsi:type, value: {qname: xr:MDObjectRef}, when: {parameter: typedXML}}]
+      content: {kind: choice, fallback: uuid}
+    yaml: {kind: choice, fallback: uuid}
+- kind: value
+  id: common.metadata-item-links
+  imports: {item: common.metadata-item-link}
+  namespaces: {xr: 'http://v8.1c.ru/8.3/xcf/readable'}
+  value: {kind: sequence, item: {use: item, with: {typedXML: true}}}
+  representations:
+    xml: {kind: element-sequence, path: [xr:Item]}
+    yaml: {kind: sequence}
+  presence:
+  - target: self
+    xml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: empty-element, denotes: {absent: true}}]
+    yaml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: empty-sequence, denotes: {absent: true}}]
+      omitWhen: {not: {present: {self: true}}}
+- kind: value
+  id: common.metadata-object-links
+  imports: {item: common.metadata-item-link}
+  namespaces: {xr: 'http://v8.1c.ru/8.3/xcf/readable'}
+  value: {kind: sequence, item: {use: item}}
+  representations:
+    xml: {kind: element-sequence, path: [xr:Object]}
+    yaml: {kind: sequence}
+  presence:
+  - target: self
+    xml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: empty-element, denotes: {absent: true}}]
+    yaml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: empty-sequence, denotes: {absent: true}}]
+      omitWhen: {not: {present: {self: true}}}

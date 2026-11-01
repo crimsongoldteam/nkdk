@@ -1,0 +1,101 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: common.dcs-order-item-auto-label
+  value: {kind: enum, variants: [{name: Auto, value: Auto}]}
+  representations:
+    xml: {kind: text, values: [{value: Auto, text: ''}]}
+    yaml: {kind: scalar, values: [{value: Auto, literal: '[Авто]'}]}
+- kind: value
+  id: common.dcs-order-item-auto
+  imports: {label: common.dcs-order-item-auto-label}
+  value: {kind: record, fields: [{name: label, type: {use: label}}]}
+  representations:
+    xml: {kind: record, fields: [{field: label, path: []}]}
+    yaml: {kind: projection, field: label}
+  presence:
+  - target: {field: label}
+    xml: {missing: {denotes: {literal: Auto}}}
+- kind: value
+  id: common.dcs-order-item-field
+  namespaces: {dcsset: 'http://v8.1c.ru/8.1/data-composition-system/settings'}
+  imports: {flag: common.boolean, text: common.string, direction: system.DataCompositionSortDirection, view: system.DataCompositionSettingsItemViewMode}
+  value:
+    kind: record
+    fields:
+    - {name: use, type: {use: flag}}
+    - {name: field, type: {use: text}}
+    - {name: orderType, type: {use: direction}}
+    - {name: viewMode, type: {use: view}}
+  representations:
+    xml:
+      kind: record
+      fields:
+      - {field: use, path: [dcsset:use]}
+      - {field: field, path: [dcsset:field]}
+      - {field: orderType, path: [dcsset:orderType]}
+      - {field: viewMode, path: [dcsset:viewMode]}
+    yaml:
+      kind: mapping
+      fields:
+      - {field: use, key: Использование}
+      - {field: field, key: Поле}
+      - {field: orderType, key: ТипУпорядочивания}
+      - {field: viewMode, key: РежимОтображения}
+  presence:
+  - target: {field: use}
+    xml:
+      missing: {denotes: {literal: true}}
+      canonical: [{when: {field: use}, form: missing}, {form: ordinary}]
+    yaml: {missing: {denotes: {literal: true}}, omitWhen: {field: use}}
+  - target: {field: orderType}
+    xml: {missing: {denotes: {literal: Asc}}}
+    yaml: {missing: {denotes: {literal: Asc}}, omitWhen: {eq: [{field: orderType}, {literal: Asc}]}}
+  - target: {field: viewMode}
+    xml:
+      missing: {denotes: {literal: Auto}}
+      canonical: [{when: {eq: [{field: viewMode}, {literal: Auto}]}, form: missing}, {form: ordinary}]
+    yaml: {missing: {denotes: {literal: Auto}}, omitWhen: {eq: [{field: viewMode}, {literal: Auto}]}}
+- kind: value
+  id: common.dcs-order-item
+  namespaces:
+    xsi: http://www.w3.org/2001/XMLSchema-instance
+    dcsset: http://v8.1c.ru/8.1/data-composition-system/settings
+  imports: {field: common.dcs-order-item-field, auto: common.dcs-order-item-auto}
+  value:
+    kind: choice
+    variants:
+    - {name: field, type: {use: field}}
+    - {name: auto, type: {use: auto}}
+  representations:
+    xml:
+      kind: choice
+      attribute: xsi:type
+      variants:
+      - {variant: field, in: [dcsset:OrderItemField], emit: dcsset:OrderItemField}
+      - {variant: auto, in: [dcsset:OrderItemAuto], emit: dcsset:OrderItemAuto}
+      otherwise: field
+    yaml:
+      kind: choice
+      variants:
+      - {variant: field, form: mapping, key: Поле}
+- kind: value
+  id: common.dcs-order-item-row
+  imports: {item: common.dcs-order-item}
+  value: {kind: record, fields: [{name: item, type: {use: item}}]}
+  representations:
+    xml: {kind: record, fields: [{field: item, path: []}]}
+    yaml: {kind: projection, field: item}
+- kind: value
+  id: common.dcs-order-item-fields
+  namespaces: {dcsset: 'http://v8.1c.ru/8.1/data-composition-system/settings'}
+  imports: {item: common.dcs-order-item-row}
+  value: {kind: sequence, item: {use: item}}
+  representations:
+    xml: {kind: element-sequence, path: [dcsset:item], item: {kind: declared}}
+    yaml: {kind: sequence, item: {kind: declared}}
+  presence:
+  - target: self
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}}

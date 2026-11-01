@@ -1,0 +1,36 @@
+format: nkdk-declarations/1
+kind: value
+id: common.owner-member-link
+imports: {root: common.path-root, kind: common.path-ordinary-member-kind, name: common.metadata-name}
+inputs:
+  ownerRoot: {type: {use: root}}
+  ownerName: {type: {kind: scalar, scalar: text}}
+  memberKind: {type: {use: kind}}
+  members: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+value:
+  kind: record
+  fields:
+  - {name: root, type: {use: root}}
+  - {name: owner, type: {use: name}}
+  - {name: kind, type: {use: kind}}
+  - {name: name, type: {use: name}}
+representations:
+  xml: {kind: text-pattern, separator: '.', parts: [{field: root}, {field: owner}, {field: kind}, {field: name}]}
+  yaml: {kind: text-pattern, parts: [{field: name}]}
+presence:
+- {target: {field: root}, yaml: {default: {input: ownerRoot}}}
+- {target: {field: owner}, yaml: {default: {input: ownerName}}}
+- {target: {field: kind}, yaml: {default: {input: memberKind}}}
+constraints:
+- id: same-owner
+  appliesTo: [xml-import, yaml-validation]
+  assert:
+    and:
+    - {eq: [{get: {of: {self: true}, field: root}}, {input: ownerRoot}]}
+    - {eq: [{get: {of: {self: true}, field: owner}}, {input: ownerName}]}
+    - {eq: [{get: {of: {self: true}, field: kind}}, {input: memberKind}]}
+  diagnostic: {code: metadata.owner-mismatch, severity: error, at: {self: true}, message: Member belongs to another owner}
+- id: member-exists
+  appliesTo: [xml-import, yaml-validation]
+  assert: {exists: {in: {input: members}, as: candidate, where: {eq: [{var: candidate}, {get: {of: {self: true}, field: name}}]}}}
+  diagnostic: {code: metadata.target-missing, severity: error, at: {self: true}, message: Member is missing}

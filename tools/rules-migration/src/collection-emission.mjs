@@ -1,28 +1,40 @@
 import {createHash} from 'node:crypto';
 import {mapProperty} from './mappings.mjs';
+import {mapCollectionReference} from './collection-reference-property.mjs';
+import {mapReconstructedProperty} from './reconstructed-property.mjs';
 import {bindSiblingExpressions,mergeMappedInputs} from './common-inputs.mjs';
 import {prepareCollectionProperty} from './collection-property.mjs';
+import {compareYamlKeys} from './yaml-order.mjs';
 const id=(role,value)=>`candidate.collection.${role}.${createHash('sha256').update(JSON.stringify(value)).digest('hex').slice(0,20)}`;
-const yamlCollator=new Intl.Collator('ru');
-const yamlPriority=key=>key==='Заголовок'||key==='Синоним'?0:key==='Вид'?1:key==='Тип'?2:3;
-const compareYamlKeys=(left,right)=>yamlPriority(left)-yamlPriority(right)||yamlCollator.compare(left,right);
 
 // Emit complete element rules only. Property projections cannot stand in for an element.
 export function emitCollections(graph,entries,catalog,namespaces={},options={}) {
   const modules=[],results=[];
-  const defaultPrefix=options.defaultXmlNamespace;
-  if(defaultPrefix && typeof namespaces[defaultPrefix]!=='string')throw new Error(`Missing default XML namespace: ${defaultPrefix}`);
-  const xmlPath=path=>path.map(name=>defaultPrefix&&!name.includes(':')?`${defaultPrefix}:${name}`:name);
+  const ownerOnly=new Set(['collection-owner-path','collection-property-options','collection-owner-contributions-required',
+    'collection-owner-operation-required','collection-index-addressing-required','owner-source-incomplete']);
   for(const edge of graph.edges) {
+    const itemNamespace=options.itemXmlNamespaces?.[`${edge.item.path}#${edge.item.symbol}`];
+    const localNamespaces={...namespaces};
+    if(itemNamespace) {
+      if(localNamespaces[itemNamespace.prefix] && localNamespaces[itemNamespace.prefix]!==itemNamespace.uri)
+        throw new Error('Conflicting item XML namespace');
+      localNamespaces[itemNamespace.prefix]=itemNamespace.uri;
+    }
+    const defaultPrefix=itemNamespace?.prefix??options.defaultXmlNamespace;
+    if(defaultPrefix && typeof localNamespaces[defaultPrefix]!=='string')throw new Error(`Missing default XML namespace: ${defaultPrefix}`);
+    const xmlPath=path=>path.map(name=>defaultPrefix&&!name.includes(':')?`${defaultPrefix}:${name}`:name);
     const result={owner:edge.owner,property:edge.property,item:edge.item,status:'blocked',blockers:[]};
     results.push(result);
     const block=(reason,details)=>result.blockers.push({reason,...(details?{details}: {})});
     if(edge.status!=='linked-structure')block('collection-link',edge.blockers);
     const registration=graph.registrations.find(r=>r.type===edge.type);
     const parameters=registration?.parameters??{};
-    const supported=['propertyType','itemRule','xmlElement','yamlAsArray','collectionItemRule','schemaName','schemaShape','keyField'];
+    const supported=['propertyType','itemRule','xmlElement','yamlAsArray','collectionItemRule','schemaName','schemaShape','keyField','configurationIndexAddressing','configurationIndexUidSegment','requiredIdentity'];
     const extra=Object.keys(parameters).filter(key=>!supported.includes(key));
     if(extra.length)block('collection-registration-options',extra);
+    const registeredSegment=parameters.configurationIndexUidSegment;
+    if(registeredSegment!==undefined && (typeof registeredSegment!=='string'||!registeredSegment.trim()))block('collection-index-segment-invalid');
+    const ownerContext={...edge.context,configurationIndexUidSegment:registeredSegment??edge.context.configurationIndexUidSegment};
     if(edge.mapping.yamlAsArray!==true && typeof edge.mapping.keyField!=='string')block('collection-key-required');
     if(parameters.schemaShape && parameters.schemaShape!=='array')block('collection-schema-shape');
     const child=entries.find(e=>e.path===edge.item.path&&e.symbol===edge.item.symbol);
@@ -35,18 +47,42 @@ export function emitCollections(graph,entries,catalog,namespaces={},options={}) 
     if(child.xmlOrder?.status==='unresolved' || (child.xmlOrder?.status==='static' && new Set(child.xmlOrder.keys).size!==child.xmlOrder.keys.length))block('item-order-unresolved');
     const owner=entries.find(e=>e.path===edge.owner.path&&e.symbol===edge.owner.symbol);
     const property=owner?.properties.find(p=>p.name===edge.property);
-    const propertyKeys=['type','yaml','xml','xmlParents','itemRule','ownerFactRole','configurationIndexUidSegment'];
-    const unsupported=Object.keys(property?.parameters??{}).filter(key=>!propertyKeys.includes(key));
+    const emptyDefaults=Array.isArray(property?.parameters?.defaultValue) && !property.parameters.defaultValue.length &&
+      Array.isArray(property.parameters.defaultValueXMLEmpty) && !property.parameters.defaultValueXMLEmpty.length &&
+      property.parameters.defaultValueXMLRaw && !Array.isArray(property.parameters.defaultValueXMLRaw) &&
+      typeof property.parameters.defaultValueXMLRaw==='object' && !Object.keys(property.parameters.defaultValueXMLRaw).length;
+    const propertyKeys=['type','yaml','xml','xmlParents','itemRule','ownerFactRole','configurationIndexUidSegment','configurationIndexAddressing'];
+    const unsupported=Object.keys(property?.parameters??{}).filter(key=>!propertyKeys.includes(key) &&
+      !(emptyDefaults && ['defaultValue','defaultValueXMLEmpty','defaultValueXMLRaw'].includes(key)));
     const operationTarget=property?.parameters?.operationTarget;
     if(operationTarget && options.deferOwnerContributions!==true)block('collection-owner-operation-required');
     if(unsupported.filter(key=>key!=='operationTarget').length)block('collection-property-options',unsupported.filter(key=>key!=='operationTarget'));
+    const addressing=[parameters.configurationIndexAddressing,property?.parameters?.configurationIndexAddressing].filter(value=>value!==undefined);
+    if(addressing.some(value=>value!=='yamlPath'))block('collection-index-addressing-unsupported',addressing);
+    else if(addressing.length) {
+      if(options.deferOwnerContributions===true)result.ownerRequirements={indexAddressing:'yamlPath'};
+      else block('collection-index-addressing-required');
+    }
     if(owner?.comparison?.status!=='keys-match')block('owner-source-incomplete');
+    const reconstruction=options.reconstructedFields?.[`${child.path}#${child.symbol}`]??{};
+    const unknownRecovery=Object.keys(reconstruction).filter(name=>!child.properties.some(property=>property.name===name));
+    if(unknownRecovery.length)block('unknown-reconstructed-fields',unknownRecovery);
     const fields=child.properties.map(property=>{
       // The source record collection uses keyField as its key's YAML name
       // when the property omits yaml. Array items have no such contract.
       const source=prepareCollectionProperty(property,edge.mapping);
-      return {property,mapped:mapProperty(source,catalog,namespaces)};
+      return {property,mapped:Object.hasOwn(reconstruction,property.name)
+        ? mapReconstructedProperty(source,reconstruction[property.name],catalog,localNamespaces)
+        : Object.hasOwn(options.collectionValues??{},source.parameters?.type)
+          ? mapCollectionReference(source,options.collectionValues[source.parameters.type],localNamespaces)
+          : mapProperty(source,catalog,localNamespaces,{properties:child.properties})};
     });
+    // xmlId is a checked legacy registration requirement, not a runtime type.
+    if(parameters.requiredIdentity!==undefined &&
+      (parameters.requiredIdentity!=='xmlId' || !fields.some(({property,mapped})=>
+        property.parameters?.xml==='_id' && property.parameters.xmlOnly===true &&
+        Object.hasOwn(reconstruction,property.name) && mapped.status==='candidate')))
+      block('collection-required-identity-binding');
     if(edge.mapping.yamlAsArray!==true && !fields.some(f=>f.property.name===edge.mapping.keyField && f.property.parameters?.type==='string'))block('collection-key-type');
     const incomplete=fields.filter(f=>f.mapped.status!=='candidate').map(f=>({property:f.property.name,reason:f.mapped.reason}));
     if(incomplete.length)block('item-properties',incomplete);
@@ -82,15 +118,23 @@ export function emitCollections(graph,entries,catalog,namespaces={},options={}) 
     const inputRequirements=[...new Set(fields.flatMap(f=>Object.entries(f.mapped.inputs??{}).filter(([name,input])=>input.type?.kind!=='index' &&
       !((['I8nText','FormattedI8nText','MetadataValue'].includes(f.property.parameters?.type) && ['defaultLanguage','registeredLanguages'].includes(name)) || (f.mapped.identityProjection && ['component','owner'].includes(name)))).map(([name])=>name)))];
     if(inputRequirements.length)result.inputRequirements=inputRequirements;
+    const inlineFields=fields.filter(({mapped})=>mapped.yamlInline);
+    if(inlineFields.length && (edge.mapping.yamlAsArray===true || inlineFields.length!==1 ||
+      fields.some(({property,mapped})=>mapped.key!==undefined && property.name!==edge.mapping.keyField && !mapped.yamlInline)))
+      block('collection-inline-value-layout');
     if(fields.some(f=>f.mapped.sourceTag))block('item-source-tag');
-    if(typeof edge.mapping.xml!=='string' || typeof edge.mapping.yaml!=='string' || !Array.isArray(edge.mapping.xmlParents) || !edge.mapping.xmlParents.length || edge.mapping.xmlParents.some(p=>typeof p!=='string'))block('collection-owner-path');
-    if(edge.context.ownerFactRole || edge.context.configurationIndexUidSegment || operationTarget) {
-      if(options.deferOwnerContributions===true)result.ownerRequirements={...structuredClone(edge.context),...(operationTarget?{operationTarget:structuredClone(operationTarget)}:{})};
+    const sourceParents=edge.mapping.xmlParents;
+    const ownerKey=`${edge.owner.path}#${edge.owner.symbol}`;
+    const ownerRoot=options.ownerXmlRoots?.[ownerKey]??edge.mapping.ownerXmlRoot;
+    const projectionParents=Array.isArray(sourceParents) && sourceParents.length ? sourceParents : ownerRoot;
+    if(typeof edge.mapping.xml!=='string' || typeof edge.mapping.yaml!=='string' || !Array.isArray(projectionParents) || !projectionParents.length || projectionParents.some(p=>typeof p!=='string'||!p))block('collection-owner-path');
+    if(ownerContext.ownerFactRole || ownerContext.configurationIndexUidSegment || operationTarget) {
+      if(options.deferOwnerContributions===true)result.ownerRequirements={...result.ownerRequirements,...structuredClone(ownerContext),...(operationTarget?{operationTarget:structuredClone(operationTarget)}:{})};
       else block('collection-owner-contributions-required');
     }
-    const qualified=[edge.mapping.xml,...(Array.isArray(edge.mapping.xmlParents)?edge.mapping.xmlParents:[])].filter(p=>typeof p==='string'&&p.includes(':'));
-    if(qualified.some(p=>typeof namespaces[p.split(':')[0]]!=='string'))block('collection-namespace-binding');
-    if(result.blockers.length)continue;
+    const qualified=[edge.mapping.xml,...(Array.isArray(projectionParents)?projectionParents:[])].filter(p=>typeof p==='string'&&p.includes(':'));
+    if(qualified.some(p=>typeof localNamespaces[p.split(':')[0]]!=='string'))block('collection-namespace-binding');
+    if(result.blockers.length && !(options.emitReadyItems===true && result.blockers.every(blocker=>ownerOnly.has(blocker.reason))))continue;
     if(child.xmlOrder?.status==='static') {
       const ranks=new Map(child.xmlOrder.keys.map((name,index)=>[name,index]));
       fields.sort((a,b)=>(ranks.get(a.property.name)??ranks.size)-(ranks.get(b.property.name)??ranks.size));
@@ -127,18 +171,27 @@ export function emitCollections(graph,entries,catalog,namespaces={},options={}) 
       return module;
     };
     withInputs(row);
-    if(defaultPrefix)(row.namespaces??={})[defaultPrefix]=namespaces[defaultPrefix];
+    if(defaultPrefix)(row.namespaces??={})[defaultPrefix]=localNamespaces[defaultPrefix];
     row.id=id('item',[edge.item,row]);
     const list={format:'nkdk-declarations/1',kind:'value',imports:{item:row.id},value:{kind:'sequence',item:{use:'item'}},
-      representations:{xml:{kind:'element-sequence',path:xmlPath([edge.mapping.xml])},yaml:edge.mapping.yamlAsArray===true?{kind:'sequence'}:{kind:'record-mapping',key:edge.mapping.keyField}}};
+      representations:{xml:{kind:'element-sequence',path:xmlPath([edge.mapping.xml])},yaml:edge.mapping.yamlAsArray===true?{kind:'sequence'}:{kind:'record-mapping',key:edge.mapping.keyField,...(inlineFields.length?{value:inlineFields[0].property.name}:{})}}};
     withInputs(list);
     if(Object.keys(inputs).length)list.value.item.bind=structuredClone(bind);
-    if(qualified.length)list.namespaces=Object.fromEntries(qualified.map(p=>[p.split(':')[0],namespaces[p.split(':')[0]]]));
-    if(defaultPrefix)(list.namespaces??={})[defaultPrefix]=namespaces[defaultPrefix];
+    if(qualified.length)list.namespaces=Object.fromEntries(qualified.map(p=>[p.split(':')[0],localNamespaces[p.split(':')[0]]]));
+    if(defaultPrefix)(list.namespaces??={})[defaultPrefix]=localNamespaces[defaultPrefix];
     list.id=id('list',list);
+    if(options.emitReadyItems===true) {
+      modules.push(row,list);
+      result.itemDeclaration=row.id;
+      result.collectionDeclaration=list.id;
+      if(result.blockers.length)continue;
+    }
     const projection={format:'nkdk-declarations/1',kind:'object',imports:{items:list.id},
       value:{kind:'record',fields:[{name:edge.property,type:{use:'items'}}]},
-      representations:{xml:{kind:'record',fields:[{field:edge.property,path:xmlPath(edge.mapping.xmlParents)}]},yaml:{kind:'mapping',fields:[{field:edge.property,key:edge.mapping.yaml}]}}};
+      representations:{xml:{kind:'record',fields:[{field:edge.property,path:xmlPath(projectionParents)}]},yaml:{kind:'mapping',fields:[{field:edge.property,key:edge.mapping.yaml}]}}};
+    if(emptyDefaults)projection.presence=[{target:{field:edge.property},
+      xml:{missing:{denotes:{sequence:[]}},empty:[{form:'empty-element',denotes:{sequence:[]}}]},
+      yaml:{missing:{denotes:{sequence:[]}},omitWhen:{not:{exists:{in:{field:edge.property},as:'row',where:{literal:true}}}}}}];
     withInputs(projection);
     if(Object.keys(inputs).length)projection.value.fields[0].type.bind=structuredClone(bind);
     if(list.namespaces)projection.namespaces=list.namespaces;

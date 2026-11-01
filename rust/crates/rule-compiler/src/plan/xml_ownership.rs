@@ -118,17 +118,30 @@ fn routes_inner<'a>(
                 owns_element: true,
             })
             .collect(),
-        LinkedXml::ElementSequence { path, item } => {
+        LinkedXml::ElementSequence {
+            path, item, next, ..
+        } => {
             let LinkedType::Sequence(value) = value else {
                 unreachable!("shape validated before ownership")
             };
             routes_inner(value, item, source, entries, visiting)?;
-            vec![XmlRoute {
+            let mut routes = vec![XmlRoute {
                 path: path.clone(),
                 attribute: None,
                 source: source.clone(),
                 owns_element: true,
-            }]
+            }];
+            // The successor owns its complete subtree, including later links.
+            // A containing record must route those tokens to the same reader.
+            if let Some(next) = next {
+                routes.push(XmlRoute {
+                    path: next.clone(),
+                    attribute: None,
+                    source: source.clone(),
+                    owns_element: true,
+                });
+            }
+            routes
         }
         xml if scalar_xml(xml) => {
             vec![XmlRoute {
@@ -154,7 +167,7 @@ fn routes_inner<'a>(
     Ok(result)
 }
 
-fn overlaps(a: &XmlRoute, b: &XmlRoute) -> bool {
+pub(crate) fn overlaps(a: &XmlRoute, b: &XmlRoute) -> bool {
     match (&a.attribute, &b.attribute) {
         (Some(a_name), Some(b_name)) => a.path == b.path && a_name == b_name,
         (None, None) => a.path.starts_with(&b.path) || b.path.starts_with(&a.path),

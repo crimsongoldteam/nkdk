@@ -1,12 +1,14 @@
 format: nkdk-declarations/1
 kind: value
 id: common.metadata-structural-path
-imports: {member: common.metadata-member-path, object: common.metadata-object-path}
+imports: {member: common.metadata-member-path, object: common.metadata-object-path, nestedMember: common.metadata-nested-member-path, nestedObject: common.metadata-nested-object-path}
 value:
   kind: choice
   variants:
   - {name: member, type: {use: member}}
   - {name: object, type: {use: object}}
+  - {name: nestedMember, type: {use: nestedMember}}
+  - {name: nestedObject, type: {use: nestedObject}}
 representations:
   xml: {kind: choice}
   yaml: {kind: choice}

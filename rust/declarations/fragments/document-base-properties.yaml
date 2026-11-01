@@ -6,6 +6,7 @@ imports:
   text: common.i8n-text
   boolean: common.boolean
   number: common.exact-decimal
+  inputFields: common.owner-metadata-fields
   AllowedLength: system.AllowedLength
   BusinessProcessNumberPeriodicity: system.BusinessProcessNumberPeriodicity
   ChoiceDataGetModeOnInputByString: system.ChoiceDataGetModeOnInputByString
@@ -40,6 +41,7 @@ value:
   - {name: NumberPeriodicity, type: {use: BusinessProcessNumberPeriodicity}}
   - {name: CheckUnique, type: {use: boolean}}
   - {name: Autonumbering, type: {use: boolean}}
+  - {name: InputByString, type: {use: inputFields, bind: {ownerRoot: {literal: Document}, ownerName: {input: name}}}}
   - {name: CreateOnInput, type: {use: CreateOnInput}}
   - {name: SearchStringModeOnInputByString, type: {use: SearchStringModeOnInputByString}}
   - {name: FullTextSearchOnInputByString, type: {use: FullTextSearchOnInputByString}}
@@ -77,6 +79,7 @@ representations:
     - {field: NumberPeriodicity, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:NumberPeriodicity']}
     - {field: CheckUnique, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:CheckUnique']}
     - {field: Autonumbering, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:Autonumbering']}
+    - {field: InputByString, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:InputByString']}
     - {field: CreateOnInput, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:CreateOnInput']}
     - {field: SearchStringModeOnInputByString, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:SearchStringModeOnInputByString']}
     - {field: FullTextSearchOnInputByString, path: ['md:MetaDataObject', 'md:Document', 'md:Properties', 'md:FullTextSearchOnInputByString']}
@@ -113,6 +116,7 @@ representations:
     - {field: NumberPeriodicity, key: ПериодичностьНомера}
     - {field: CheckUnique, key: КонтрольУникальности}
     - {field: Autonumbering, key: Автонумерация}
+    - {field: InputByString, key: ВводПоСтроке}
     - {field: CreateOnInput, key: СозданиеПриВводе}
     - {field: SearchStringModeOnInputByString, key: СпособПоискаСтрокиПриВводеПоСтроке}
     - {field: FullTextSearchOnInputByString, key: ПолнотекстовыйПоискПриВводеПоСтроке}
@@ -233,6 +237,19 @@ presence:
 - target: {field: NumberLength}
   xml: {missing: {denotes: {absent: true}}}
   yaml: {default: {literal: 9}}
+- target: {field: InputByString}
+  xml:
+    missing: {denotes: {absent: true}}
+    empty: [{form: empty-element, denotes: {sequence: []}}]
+    canonical:
+    - {when: {eq: [{field: NumberLength}, {literal: 0}]}, form: empty-element}
+    - {form: ordinary}
+  yaml:
+    default:
+      if: {lt: [{literal: 0}, {field: NumberLength}]}
+      then: {parseYaml: {sequence: [{literal: СтандартныйРеквизит.Номер}]}}
+      else: {sequence: []}
+    empty: [{form: empty-sequence, denotes: {sequence: []}}]
 constraints:
 - id: numeric-number-length
   appliesTo: [xml-import, yaml-validation]

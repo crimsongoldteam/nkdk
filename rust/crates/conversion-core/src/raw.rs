@@ -6,6 +6,43 @@ use crate::{
     yaml::document::{self, Kind, Value},
 };
 pub use owner::Document;
+/// The envelope uses an empty mapping when no semantic value can be represented.
+pub fn meaning_is_empty(source: &[u8]) -> Result<bool> {
+    let value = document::parse(source)?;
+    Ok(value.tag.is_none() && matches!(value.kind, Kind::Mapping(fields) if fields.is_empty()))
+}
+
+/// Exceptional storage for one collection member; ordinary members stay compiled.
+pub struct Item {
+    pub payload: Vec<u8>,
+}
+impl Item {
+    pub fn encode(payload: &[u8]) -> Result<Vec<u8>> {
+        Value {
+            kind: Kind::Mapping(vec![(Value::text("$xml"), document::parse(payload)?)]),
+            tag: Some("!xml/raw".into()),
+        }
+        .document()
+    }
+    pub fn decode(source: &[u8]) -> Result<Option<Self>> {
+        let value = document::parse(source)?;
+        if value.tag.as_deref() != Some("!xml/raw") {
+            return Ok(None);
+        }
+        let Kind::Mapping(entries) = value.kind else {
+            return Ok(None);
+        };
+        let [(key, value)] = entries.as_slice() else {
+            return Ok(None);
+        };
+        if key.key()? != "$xml" {
+            return Ok(None);
+        }
+        Ok(Some(Self {
+            payload: value.render()?,
+        }))
+    }
+}
 pub struct Property {
     pub meaning: Vec<u8>,
     pub payload: Vec<u8>,
@@ -41,6 +78,79 @@ fn mapping(value: Value) -> Result<Vec<(Value, Value)>> {
     }
 }
 impl Property {
+    /// Rename a physical raw boundary after a nested writer emitted it.
+    /// The ordinary path never parses YAML; only the exceptional fragment does.
+    pub fn rename_physical_boundary(
+        output: &mut String,
+        start: usize,
+        key: &str,
+        physical_key: &str,
+        indent: &str,
+    ) -> Result<()> {
+        let raw_key = format!("{}: !xml/raw", crate::yaml::scalar(physical_key));
+        let fragment = &output[start..];
+        if !fragment.trim_start().starts_with(&raw_key) {
+            return Ok(());
+        }
+        let leading_newline = fragment.starts_with('\n');
+        let mut plain = String::new();
+        for line in fragment.trim_start_matches('\n').lines() {
+            if !plain.is_empty() {
+                plain.push('\n');
+            }
+            plain.push_str(line.strip_prefix(indent).unwrap_or(line));
+        }
+        let Some(envelope) = Self::decode(plain.as_bytes(), key, physical_key)? else {
+            return Ok(());
+        };
+        if envelope.has_semantic || envelope.uses_semantic_name {
+            return Ok(());
+        }
+        let normalized = Self::encode(key, key, &envelope.meaning, &envelope.payload)?;
+        let text = std::str::from_utf8(&normalized)
+            .map_err(|error| RuntimeDiagnostic::new("yaml.encoding", error.to_string()))?;
+        output.truncate(start);
+        if leading_newline {
+            output.push('\n');
+        }
+        crate::yaml::Indented::new(output, indent).push_str(text);
+        Ok(())
+    }
+
+    /// Scalar readers treat the opaque empty-map marker as an absent semantic field.
+    /// Other properties and their order are retained.
+    pub fn without_empty_scalar(&self, parent: Option<&str>, key: &str) -> Result<Vec<u8>> {
+        fn remove(source: &[u8], key: &str) -> Result<Vec<u8>> {
+            let mut entries = mapping(document::parse(source)?)?;
+            let mut selected = None;
+            let mut found = false;
+            for (index, (name, value)) in entries.iter().enumerate() {
+                if name.key()? == key {
+                    if found {
+                        return Err(invalid("Repeated semantic property"));
+                    }
+                    found = true;
+                    if value.tag.is_none()
+                        && matches!(&value.kind, Kind::Mapping(fields) if fields.is_empty())
+                    {
+                        selected = Some(index);
+                    }
+                }
+            }
+            if let Some(index) = selected {
+                entries.remove(index);
+            }
+            Value {
+                tag: None,
+                kind: Kind::Mapping(entries),
+            }
+            .document()
+        }
+        match parent {
+            Some(parent) => edit_record(&self.meaning, parent, |source| remove(source, key)),
+            None => remove(&self.meaning, key),
+        }
+    }
     pub fn encode_in(
         parent: Option<&str>,
         key: &str,
@@ -227,10 +337,11 @@ impl Fields {
     /// A field carrying an annotation cannot be moved to an unannotated key.
     pub fn has_annotation(&self, index: usize) -> bool {
         self.0.as_ref().is_some_and(|fields| {
-            fields
-                .marks
-                .iter()
-                .any(|(slot, mark)| *slot == index && !mark.is_empty())
+            fields.values.iter().any(|(slot, _)| *slot == index)
+                || fields
+                    .marks
+                    .iter()
+                    .any(|(slot, mark)| *slot == index && !mark.is_empty())
         })
     }
     pub fn label(&self, index: usize) -> Option<String> {

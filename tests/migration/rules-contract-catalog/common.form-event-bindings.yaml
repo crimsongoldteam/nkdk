@@ -1,0 +1,40 @@
+format: nkdk-declarations/1
+kind: value
+id: common.form-event-bindings
+imports:
+  binding: common.event-binding
+namespaces:
+  f: http://v8.1c.ru/8.3/xcf/logform
+inputs:
+  eventNames:
+    type:
+      kind: sequence
+      item:
+        kind: record
+        fields:
+          - name: xml
+            type:
+              kind: scalar
+              scalar: text
+          - name: yaml
+            type:
+              kind: scalar
+              scalar: text
+value:
+  kind: sequence
+  item:
+    use: binding
+representations:
+  xml:
+    kind: element-sequence
+    path:
+      - f:Event
+  yaml:
+    kind: record-mapping
+    key: name
+    groupKey: mode
+    value: handler
+    keyTable:
+      input: eventNames
+      internal: xml
+      external: yaml

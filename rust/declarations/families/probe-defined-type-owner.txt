@@ -1,0 +1,2 @@
+metadata.defined-type
+metadata.defined-type-extension

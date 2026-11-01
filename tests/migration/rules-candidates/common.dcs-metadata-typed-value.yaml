@@ -1,0 +1,110 @@
+format: nkdk-declarations/1
+kind: value
+id: common.dcs-metadata-typed-value
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  xs: http://www.w3.org/2001/XMLSchema
+  v8: http://v8.1c.ru/8.1/data/core
+  dcscor: http://v8.1c.ru/8.1/data-composition-system/core
+  dcsset: http://v8.1c.ru/8.1/data-composition-system/settings
+  xr: http://v8.1c.ru/8.3/xcf/readable
+imports:
+  undefined: common.dcs-typed-undefined
+  text: common.dcs-typed-quoted-string
+  order: common.dcs-typed-order
+  emptyList: common.dcs-typed-empty-value-list
+  field: common.dcs-filter-field
+  reference: common.dcs-typed-reference
+  decimal: common.exact-decimal
+  boolean: common.boolean
+  calendar: common.date-time-seconds
+  beginningDate: common.standard-beginning-date
+value:
+  kind: choice
+  variants:
+    - name: undefined
+      type:
+        use: undefined
+    - name: text
+      type:
+        use: text
+    - name: order
+      type:
+        use: order
+    - name: emptyList
+      type:
+        use: emptyList
+    - name: field
+      type:
+        use: field
+    - name: reference
+      type:
+        use: reference
+    - name: decimal
+      type:
+        use: decimal
+    - name: boolean
+      type:
+        use: boolean
+    - name: calendar
+      type:
+        use: calendar
+    - name: beginningDate
+      type:
+        use: beginningDate
+representations:
+  xml:
+    kind: choice
+    attribute: xsi:type
+    otherwise: text
+    variants:
+      - variant: undefined
+        in:
+          - v8:Type
+        emit: v8:Type
+      - variant: text
+        in:
+          - xs:string
+        emit: xs:string
+      - variant: order
+        in:
+          - dcsset:Order
+        emit: dcsset:Order
+      - variant: emptyList
+        in:
+          - v8:ValueListType
+        emit: v8:ValueListType
+      - variant: field
+        in:
+          - dcscor:Field
+        emit: dcscor:Field
+      - variant: reference
+        in:
+          - dcscor:DesignTimeValue
+          - xr:DesignTimeRef
+        emit: dcscor:DesignTimeValue
+      - variant: decimal
+        in:
+          - xs:decimal
+        emit: xs:decimal
+      - variant: boolean
+        in:
+          - xs:boolean
+        emit: xs:boolean
+      - variant: calendar
+        in:
+          - xs:dateTime
+        emit: xs:dateTime
+      - variant: beginningDate
+        in:
+          - v8:StandardBeginningDate
+        emit: v8:StandardBeginningDate
+  yaml:
+    kind: choice
+    variants:
+      - variant: beginningDate
+        form: mapping
+        key: Вариант
+      - variant: emptyList
+        form: mapping
+        key: ТипЗначений

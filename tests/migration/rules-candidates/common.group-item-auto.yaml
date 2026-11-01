@@ -1,0 +1,44 @@
+format: nkdk-declarations/1
+kind: value
+id: common.group-item-auto
+namespaces:
+  xsi: http://www.w3.org/2001/XMLSchema-instance
+  dcsset: http://v8.1c.ru/8.1/data-composition-system/settings
+imports:
+  use: common.group-item-auto-use
+value:
+  kind: record
+  fields:
+    - name: use
+      type:
+        use: use
+representations:
+  xml:
+    kind: with-attributes
+    attributes:
+      - name: xsi:type
+        value:
+          qname: dcsset:GroupItemAuto
+    content:
+      kind: record
+      fields:
+        - field: use
+          path:
+            - dcsset:use
+  yaml:
+    kind: projection
+    field: use
+presence:
+  - target:
+      field: use
+    xml:
+      missing:
+        denotes:
+          literal: Enabled
+      canonical:
+        - when:
+            eq:
+              - field: use
+              - literal: Enabled
+          form: missing
+        - form: ordinary

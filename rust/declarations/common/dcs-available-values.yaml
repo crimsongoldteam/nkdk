@@ -1,0 +1,73 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: common.dcs-available-value
+  namespaces:
+    dcssch: http://v8.1c.ru/8.1/data-composition-system/schema
+  imports: {value: common.metadata-value, presentation: common.dcs-local-string-type}
+  inputs:
+    defaultLanguage: {type: {kind: scalar, scalar: text}}
+    registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  value:
+    kind: record
+    fields:
+    - name: value
+      type:
+        use: value
+        with: {exportNilValue: true}
+        bind:
+          defaultLanguage: {input: defaultLanguage}
+          registeredLanguages: {input: registeredLanguages}
+          onlyStringType: {literal: false}
+    - name: presentation
+      type:
+        use: presentation
+        bind:
+          defaultLanguage: {input: defaultLanguage}
+          registeredLanguages: {input: registeredLanguages}
+  representations:
+    xml:
+      kind: record
+      fields:
+      - {field: value, path: [dcssch:value]}
+      - {field: presentation, path: [dcssch:presentation]}
+    yaml:
+      kind: mapping
+      fields:
+      - {field: value, key: Значение}
+      - {field: presentation, key: Представление}
+  presence:
+  - target: {field: value}
+    xml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: nil, denotes: {absent: true}}]
+      canonical: [{when: {not: {present: {field: value}}}, form: nil}]
+    yaml: {missing: {denotes: {absent: true}}}
+  - target: {field: presentation}
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}}
+- kind: value
+  id: common.dcs-available-values
+  namespaces:
+    dcssch: http://v8.1c.ru/8.1/data-composition-system/schema
+  imports: {item: common.dcs-available-value}
+  inputs:
+    defaultLanguage: {type: {kind: scalar, scalar: text}}
+    registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  value:
+    kind: sequence
+    item:
+      use: item
+      bind:
+        defaultLanguage: {input: defaultLanguage}
+        registeredLanguages: {input: registeredLanguages}
+  representations:
+    xml: {kind: element-sequence, path: [dcssch:availableValue], item: {kind: declared}}
+    yaml: {kind: sequence, item: {kind: declared}}
+  presence:
+  - target: self
+    xml:
+      missing: {denotes: {absent: true}}
+      empty: [{form: empty-element, denotes: {absent: true}}]
+    yaml: {missing: {denotes: {absent: true}}}

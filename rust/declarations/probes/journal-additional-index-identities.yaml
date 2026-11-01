@@ -1,0 +1,65 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- format: nkdk-declarations/1
+  kind: value
+  id: migration.additional-index-identity-row
+  namespaces: {ep: 'http://v8.1c.ru/8.3/xcf/extrnprops'}
+  value:
+    kind: record
+    fields:
+    - {name: name, type: {kind: scalar, scalar: text}}
+    - {name: identity, type: {kind: scalar, scalar: text}}
+  representations:
+    xml:
+      kind: record
+      fields:
+      - {field: name, path: [ep:Name]}
+      - {field: identity, path: [], attribute: id}
+    yaml:
+      kind: mapping
+      fields:
+      - {field: name, key: name}
+      - {field: identity, key: identity}
+- format: nkdk-declarations/1
+  kind: value
+  id: migration.additional-index-identity-rows
+  imports: {row: migration.additional-index-identity-row}
+  namespaces: {ep: 'http://v8.1c.ru/8.3/xcf/extrnprops'}
+  value: {kind: sequence, item: {use: row}}
+  representations:
+    xml: {kind: element-sequence, path: [ep:AdditionalIndex], item: {kind: declared}}
+    yaml: {kind: sequence, item: {kind: declared}}
+  presence:
+  - target: self
+    xml: {missing: {denotes: {sequence: []}}}
+    yaml: {missing: {denotes: {sequence: []}}}
+- format: nkdk-declarations/1
+  kind: object
+  id: migration.journal-additional-index-identity-source
+  imports: {indexes: migration.additional-index-identity-rows}
+  namespaces: {ep: 'http://v8.1c.ru/8.3/xcf/extrnprops'}
+  inputs:
+    owner: {type: {kind: scalar, scalar: text}}
+  value:
+    kind: record
+    fields:
+    - {name: indexes, type: {use: indexes}}
+  representations:
+    xml:
+      kind: record
+      fields:
+      - {field: indexes, path: [ep:AdditionalIndexes]}
+    yaml:
+      kind: mapping
+      fields:
+      - {field: indexes, key: indexes}
+  presence:
+  - target: {field: indexes}
+    xml: {missing: {denotes: {sequence: []}}}
+    yaml: {missing: {denotes: {sequence: []}}}
+  contributions:
+  - index: metadata.additional-index-ids
+    forEach: {in: {field: indexes}, as: row}
+    key: {record: {owner: {input: owner}, name: {get: {of: {var: row}, field: name}}}}
+    value: {get: {of: {var: row}, field: identity}}

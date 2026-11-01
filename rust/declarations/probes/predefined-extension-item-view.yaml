@@ -1,0 +1,162 @@
+format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: probe.predefined-plain-state
+  value:
+    kind: enum
+    variants:
+    - {name: own, value: own}
+    - {name: check, value: check}
+  representations:
+    xml:
+      kind: text
+      values:
+      - {value: own, text: ''}
+      - {value: check, text: 'AdoptedCheck'}
+    yaml:
+      kind: scalar
+      values:
+      - {value: own, literal: own}
+      - {value: check, literal: check}
+- kind: value
+  id: probe.predefined-plain-row
+  namespaces: {p: 'http://v8.1c.ru/8.3/xcf/predef'}
+  imports: {row: fragment.predefined-catalog-item, state: probe.predefined-plain-state, children: probe.predefined-extension-items}
+  inputs:
+    parent: {type: {kind: scalar, scalar: text}}
+    identities: {type: {kind: index, key: {kind: scalar, scalar: text}, value: {kind: scalar, scalar: text}}}
+    borrowed: {type: {kind: scalar, scalar: boolean}}
+  compose: [{use: row, with: {emitType: false}, bind: {parent: {input: parent}, identities: {input: identities}}}]
+  value:
+    kind: record
+    fields:
+    - {name: state, type: {use: state}}
+    - name: children
+      type:
+        use: children
+        bind:
+          parent: {concat: [{input: parent}, {literal: '.Предопределенный.'}, {field: name}]}
+          identities: {input: identities}
+          borrowed: {input: borrowed}
+  representations:
+    xml: {kind: record, fields: [{field: state, path: [p:ExtensionState]}, {field: children, path: [p:ChildItems]}]}
+    yaml: {kind: mapping, fields: [{field: children, key: Элементы}]}
+  presence:
+  - target: {field: state}
+    xml:
+      missing: {denotes: {literal: own}}
+      canonical:
+      - {when: {eq: [{field: state}, {literal: own}]}, form: missing}
+      - {form: ordinary}
+    yaml:
+      missing: {denotes: {if: {input: borrowed}, then: {literal: check}, else: {literal: own}}}
+  constraints:
+  - id: borrowed-state
+    appliesTo: [xml-import, yaml-validation]
+    assert: {eq: [{input: borrowed}, {eq: [{field: state}, {literal: check}]}]}
+    diagnostic: {code: predefined.borrowed-state, severity: error, at: {self: true}, message: Состояние записи не соответствует принадлежности объекта}
+- kind: value
+  id: probe.predefined-notify-state
+  value:
+    kind: enum
+    variants:
+    - {name: notify, value: notify}
+  representations:
+    xml:
+      kind: text
+      values:
+      - {value: notify, text: 'AdoptedNotify'}
+    yaml:
+      kind: scalar
+      values:
+      - {value: notify, literal: notify}
+- kind: value
+  id: probe.predefined-notify-row
+  namespaces: {p: 'http://v8.1c.ru/8.3/xcf/predef'}
+  imports: {row: fragment.predefined-catalog-item, state: probe.predefined-notify-state, children: probe.predefined-extension-items}
+  inputs:
+    parent: {type: {kind: scalar, scalar: text}}
+    identities: {type: {kind: index, key: {kind: scalar, scalar: text}, value: {kind: scalar, scalar: text}}}
+    borrowed: {type: {kind: scalar, scalar: boolean}}
+  compose: [{use: row, with: {emitType: false}, bind: {parent: {input: parent}, identities: {input: identities}}}]
+  value:
+    kind: record
+    fields:
+    - {name: state, type: {use: state}}
+    - name: children
+      type:
+        use: children
+        bind:
+          parent: {concat: [{input: parent}, {literal: '.Предопределенный.'}, {field: name}]}
+          identities: {input: identities}
+          borrowed: {input: borrowed}
+  representations:
+    xml: {kind: record, fields: [{field: state, path: [p:ExtensionState]}, {field: children, path: [p:ChildItems]}]}
+    yaml: {kind: mapping, fields: [{field: children, key: Элементы}]}
+  presence:
+  - target: {field: state}
+    yaml: {missing: {denotes: {literal: notify}}}
+  constraints:
+  - id: borrowed-state
+    appliesTo: [xml-import, yaml-validation]
+    assert: {input: borrowed}
+    diagnostic: {code: predefined.borrowed-state, severity: error, at: {self: true}, message: Состояние записи не соответствует принадлежности объекта}
+- kind: value
+  id: probe.predefined-extension-row
+  imports: {plain: probe.predefined-plain-row, notify: probe.predefined-notify-row}
+  inputs:
+    parent: {type: {kind: scalar, scalar: text}}
+    identities: {type: {kind: index, key: {kind: scalar, scalar: text}, value: {kind: scalar, scalar: text}}}
+    borrowed: {type: {kind: scalar, scalar: boolean}}
+  value:
+    kind: choice
+    variants:
+    - {name: plain, type: {use: plain, bind: {parent: {input: parent}, identities: {input: identities}, borrowed: {input: borrowed}}}}
+    - {name: notify, type: {use: notify, bind: {parent: {input: parent}, identities: {input: identities}, borrowed: {input: borrowed}}}}
+  representations:
+    xml: {kind: choice, fallback: plain}
+    yaml: {kind: choice, variants: [{variant: plain, form: mapping}, {variant: notify, form: tagged, tag: проверять}]}
+- kind: object
+  id: probe.predefined-extension-item-view
+  namespaces: {p: 'http://v8.1c.ru/8.3/xcf/predef'}
+  imports: {row: probe.predefined-extension-row}
+  inputs:
+    parent: {type: {kind: scalar, scalar: text}}
+    identities: {type: {kind: index, key: {kind: scalar, scalar: text}, value: {kind: scalar, scalar: text}}}
+    borrowed: {type: {kind: scalar, scalar: boolean}}
+  value: {kind: record, fields: [{name: value, type: {use: row, bind: {parent: {input: parent}, identities: {input: identities}, borrowed: {input: borrowed}}}}]}
+  representations:
+    xml: {kind: record, fields: [{field: value, path: [p:Item]}]}
+    yaml: {kind: projection, field: value}
+- kind: object
+  id: probe.predefined-extension-property-view
+  namespaces: {p: 'http://v8.1c.ru/8.3/xcf/predef'}
+  imports: {row: probe.predefined-extension-row}
+  inputs:
+    parent: {type: {kind: scalar, scalar: text}}
+    identities: {type: {kind: index, key: {kind: scalar, scalar: text}, value: {kind: scalar, scalar: text}}}
+    borrowed: {type: {kind: scalar, scalar: boolean}}
+  value: {kind: record, fields: [{name: value, type: {use: row, bind: {parent: {input: parent}, identities: {input: identities}, borrowed: {input: borrowed}}}}]}
+  representations:
+    xml: {kind: record, fields: [{field: value, path: [p:Item]}]}
+    yaml: {kind: mapping, fields: [{field: value, key: Запись}]}
+
+- kind: value
+  id: probe.predefined-extension-items
+  namespaces: {p: 'http://v8.1c.ru/8.3/xcf/predef'}
+  imports: {item: probe.predefined-extension-row}
+  inputs:
+    parent: {type: {kind: scalar, scalar: text}}
+    identities: {type: {kind: index, key: {kind: scalar, scalar: text}, value: {kind: scalar, scalar: text}}}
+    borrowed: {type: {kind: scalar, scalar: boolean}}
+  value:
+    kind: sequence
+    item: {use: item, bind: {parent: {input: parent}, identities: {input: identities}, borrowed: {input: borrowed}}}
+  representations:
+    xml: {kind: element-sequence, path: [p:Item], item: {kind: declared}}
+    yaml: {kind: record-mapping, key: name}
+  presence:
+  - target: self
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}}

@@ -2,9 +2,49 @@ import { exposedRules,dataPath } from '../src/exposed-rules.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { extract } from '../src/extract.mjs';
-import { stateContributionsFor } from '../src/state-contributions.mjs';
+import { stateContributionsFor, taggedNumberProperties, stateCapabilitiesFor } from '../src/state-contributions.mjs';
 import { compare } from '../src/compare.mjs';
 import { fragmentValue, composedValue } from '../src/reviewed-helpers.mjs';
+import {sourceProgram} from '../src/source-program.mjs';
+import {evaluator,serialize} from '../src/static-value.mjs';
+import {readFileSync} from 'node:fs';
+
+test('static literal membership guards retain styles and reject invalid or dynamic input',()=>{
+  const stylePath='packages/rules/metadata/forms/explicitElementName.ts';
+  const sources={[stylePath]:readFileSync(stylePath,'utf8'),
+    'entry.ts':`import {explicitElementNameStyle as style} from './${stylePath}';
+      export const fixed=style('AutoCommandBar',{canonicalSuffix:'Панель',referenceSuffixes:['Панель','Bar'],canonicalNameMode:'fixed'});
+      export const invalid=style('Unknown',{canonicalSuffix:'Панель'});
+      export const dynamic=style(runtime(),{canonicalSuffix:'Панель'});
+      const choices=new Set(['one', 'two']);
+      function pick(key) { if (!choices.has(key)) { return 'other'; } return 'known'; }
+      export const yes=pick('one'), no=pick('three');`};
+  const program=sourceProgram(sources),evaluate=evaluator(program);
+  const declarations=program.parsed.get('/entry.ts').statements.flatMap(statement=>
+    statement.declarationList?[...statement.declarationList.declarations]:[]);
+  const value=name=>evaluate(declarations.find(declaration=>declaration.name.getText()===name).initializer);
+  assert.deepEqual(serialize(value('fixed')),{
+    canonicalSuffix:'Панель',referenceSuffixes:['Панель','Bar'],canonicalNameMode:'fixed',explicitXMLName:true,
+  });
+  assert.equal(value('invalid').kind,'unknown');
+  assert.equal(value('dynamic').kind,'unknown');
+  assert.equal(serialize(value('yes')),'known');
+  assert.equal(serialize(value('no')),'other');
+  for(const escape of ["choices.add('three')",'const alias=choices', 'take(choices)', 'export {choices}']) {
+    const changed={...sources,'entry.ts':sources['entry.ts']+'\n'+escape+';'};
+    const unsafe=sourceProgram(changed),evaluateUnsafe=evaluator(unsafe);
+    const declaration=unsafe.parsed.get('/entry.ts').statements.flatMap(statement=>
+      statement.declarationList?[...statement.declarationList.declarations]:[]).find(declaration=>declaration.name.getText()==='yes');
+    assert.equal(evaluateUnsafe(declaration.initializer).kind,'unknown',escape);
+  }
+  const shadowed=sourceProgram({'shadow.ts':`const Set=unknown; export const result=new Set(['one']);`});
+  const result=shadowed.parsed.get('/shadow.ts').statements[1].declarationList.declarations[0];
+  assert.equal(evaluator(shadowed)(result.initializer).kind,'unknown');
+  const global=sourceProgram({'globals.ts':`const choices=new Set(['one']);`,
+    'mutate.ts':`choices.add('two');`});
+  const initializer=global.parsed.get('/globals.ts').statements[0].declarationList.declarations[0].initializer;
+  assert.equal(evaluator(global)(initializer).kind,'unknown');
+});
 
 test('static extraction retains fragments, shadowing, unknowns and comparison failures', () => {
   const sources = {
@@ -141,6 +181,18 @@ test('runtime state extraction retains profiles, compatibility patches and order
   assert.deepEqual(selected[2].delta.items.map(i=>i.itemType),['A']);
   assert.equal(contributions[3].delta.items.length,2);
   assert.deepEqual(stateContributionsFor(contributions,'unregistered'),[]);
+  const policyEntry={itemType:'A',propertyStates:contributions};
+  assert.deepEqual(stateCapabilitiesFor(policyEntry,'Version8_3_14').label.modes,['extend']);
+  assert.equal(stateCapabilitiesFor(policyEntry,'Версия8_3_14').base,undefined);
+  assert.deepEqual(stateCapabilitiesFor(policyEntry,'Version8_3_15').base.modes,['control','notify']);
+  assert.deepEqual(stateCapabilitiesFor(policyEntry,'DontUse').base.modes,['control','notify']);
+  assert.throws(()=>stateCapabilitiesFor(policyEntry,'Version8_3_bad'),/Unknown/);
+
+  const numeric={itemType:'A',properties:[{name:'label',type:'number'},{name:'other',type:'number'}],
+    propertyStates:[contributions[1],
+      {id:'shared',profile:{properties:{label:{representation:'tagged',modes:['extend']}}}},
+      {id:'foreign',delta:{items:[{itemType:'B',properties:{other:{representation:'tagged',modes:['extend']}}}]}}]};
+  assert.deepEqual(taggedNumberProperties(numeric).map(row=>row.name),['label']);
   assert.throws(()=>stateContributionsFor([...contributions,contributions[1]],'A'),/Duplicate/);
   assert.throws(()=>stateContributionsFor(contributions.slice(1),'A'),/Missing profile/);
   assert.throws(()=>stateContributionsFor([{id:'item:A',item:{itemType:'A',profiles:[],properties:{bad:()=>1}}}],'A'),/data/);

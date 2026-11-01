@@ -1,0 +1,24 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.metadata-object-ref-collection
+imports: {links: common.metadata-object-ref-collection}
+namespaces: {md: 'http://v8.1c.ru/8.3/MDClasses'}
+inputs: {roots: {index: metadata.roots}, children: {index: metadata.children}}
+value: {kind: record, fields: [{name: links, type: {use: links, bind: {roots: {input: roots}, children: {input: children}}}}]}
+representations:
+  xml: {kind: record, fields: [{field: links, path: [Root, 'md:Owners']}]}
+  yaml: {kind: mapping, fields: [{field: links, key: Владельцы}]}
+constraints:
+- id: catalog-owner-roots
+  appliesTo: [xml-import, yaml-validation]
+  assert:
+    each:
+      in: {field: links}
+      as: path
+      where:
+        or:
+        - {eq: [{get: {of: {var: path}, field: root}}, {literal: Catalog}]}
+        - {eq: [{get: {of: {var: path}, field: root}}, {literal: Document}]}
+        - {eq: [{get: {of: {var: path}, field: root}}, {literal: ChartOfCharacteristicTypes}]}
+        - {eq: [{get: {of: {var: path}, field: root}}, {literal: ExchangePlan}]}
+  diagnostic: {code: metadata.target-not-allowed, severity: error, at: {field: links}, message: Expected a catalog owner target}

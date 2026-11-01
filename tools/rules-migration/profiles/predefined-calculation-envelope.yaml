@@ -1,0 +1,111 @@
+format: nkdk-file-envelope/1
+source:
+  path: packages/rules/metadata/commonObjects/predefined/rules.ts
+  symbol: PredefinedRules
+context:
+  ownerMetadataItem:
+    itemType: MetadataChartOfCalculationTypes
+value:
+  format: nkdk-declarations/1
+  kind: value
+  id: probe.predefined-calculation-file-items
+  namespaces:
+    p: http://v8.1c.ru/8.3/xcf/predef
+  imports:
+    item: probe.predefined-calculation-item
+  inputs:
+    parent:
+      type:
+        kind: scalar
+        scalar: text
+    identities:
+      type:
+        kind: index
+        key:
+          kind: scalar
+          scalar: text
+        value:
+          kind: scalar
+          scalar: text
+  value:
+    kind: sequence
+    item:
+      use: item
+      bind:
+        parent:
+          input: parent
+        identities:
+          input: identities
+  representations:
+    xml:
+      kind: element-sequence
+      path:
+        - p:Item
+      item:
+        kind: declared
+    yaml:
+      kind: record-mapping
+      key: name
+owner:
+  format: nkdk-declarations/1
+  kind: object
+  id: migration.predefined-calculation-file
+  namespaces:
+    p: http://v8.1c.ru/8.3/xcf/predef
+  imports:
+    items: probe.predefined-calculation-file-items
+  inputs:
+    owner:
+      type:
+        kind: scalar
+        scalar: text
+    identities:
+      type:
+        kind: index
+        key:
+          kind: scalar
+          scalar: text
+        value:
+          kind: scalar
+          scalar: text
+      index: metadata.predefined-identities
+  value:
+    kind: record
+    fields:
+      - name: items
+        type:
+          use: items
+          bind:
+            parent:
+              input: owner
+            identities:
+              input: identities
+  representations:
+    xml:
+      kind: record
+      fields:
+        - field: items
+          path: []
+    yaml:
+      kind: projection
+      field: items
+outputs:
+  value: rust/declarations/probes/predefined-calculation-file-items.yaml
+  owner: rust/declarations/probes/predefined-calculation-file.yaml
+  attachment: rust/declarations/fragments/predefined-calculation-file.generated.yaml
+  host: rust/declarations/probes/predefined-calculation-owner.generated.yaml
+attachment:
+  id: fragment.predefined-calculation-file
+  source:
+    path: >-
+      packages/rules/metadata/appliedObjects/metadataChartOfCalculationTypes/rules.ts
+    symbol: MetadataChartOfCalculationTypesRules
+  property: predefined
+  host:
+    id: probe.predefined-calculation-owner
+    fields:
+      - {field: name, property: name, key: Имя}
+      - {field: belonging, property: objectBelonging, key: Принадлежность}
+    identity: {input: owner, name: name, component: component}
+    conditions:
+      borrowed: {field: belonging, equals: Adopted}

@@ -1,0 +1,105 @@
+format: nkdk-declarations/1
+kind: value
+id: common.contextual-member-path
+imports:
+  root: common.path-root
+  kind: common.path-ordinary-member-kind
+  name: common.metadata-name
+inputs:
+  ownerName:
+    type:
+      kind: scalar
+      scalar: text
+value:
+  kind: record
+  fields:
+    - name: root
+      type:
+        use: root
+    - name: owner
+      type:
+        use: name
+    - name: kind
+      type:
+        use: kind
+    - name: name
+      type:
+        use: name
+representations:
+  xml:
+    kind: text-pattern
+    separator: .
+    parts:
+      - field: root
+      - field: owner
+      - field: kind
+      - field: name
+  yaml:
+    kind: text-pattern
+    parts:
+      - optional: owner
+        parts:
+          - literal: РегистрРасчета.
+          - field: owner
+          - literal: .
+          - field: kind
+          - literal: .
+      - field: name
+presence:
+  - target:
+      field: root
+    yaml:
+      default:
+        literal: CalculationRegister
+  - target:
+      field: owner
+    yaml:
+      missing:
+        denotes:
+          input: ownerName
+      omitWhen:
+        and:
+          - eq:
+              - field: owner
+              - input: ownerName
+          - eq:
+              - field: kind
+              - literal: Dimension
+  - target:
+      field: kind
+    yaml:
+      default:
+        literal: Dimension
+constraints:
+  - id: calculation-register
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    assert:
+      eq:
+        - field: root
+        - literal: CalculationRegister
+    diagnostic:
+      code: metadata.root-kind
+      severity: error
+      at:
+        self: true
+      message: Expected a calculation register
+  - id: leading-member-kind
+    appliesTo:
+      - xml-import
+      - yaml-validation
+    assert:
+      or:
+        - eq:
+            - field: kind
+            - literal: Dimension
+        - eq:
+            - field: kind
+            - literal: Attribute
+    diagnostic:
+      code: metadata.member-kind
+      severity: error
+      at:
+        self: true
+      message: Expected a dimension or attribute

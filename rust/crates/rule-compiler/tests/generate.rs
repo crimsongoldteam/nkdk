@@ -1,5 +1,388 @@
 use nkdk_rule_compiler::{SourceFile, generate, link, parse, schema};
+use std::collections::BTreeSet;
+
+#[test]
+fn borrowed_sequence_conditions_do_not_generate_empty_else_branches() {
+    let source = r#"
+format: nkdk-declarations/1
+kind: object
+id: test.borrowed-conditional
+inputs:
+  selected: {type: {kind: scalar, scalar: boolean}}
+  rows:
+    type:
+      kind: sequence
+      item: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}]}
+value: {kind: record, fields: [{name: label, type: {kind: scalar, scalar: text}}]}
+representations:
+  xml: {kind: record, fields: [{field: label, path: [Root, Label]}]}
+  yaml: {kind: mapping, fields: [{field: label, key: label}]}
+constraints:
+- id: selected-rows
+  appliesTo: [xml-import, yaml-validation]
+  assert:
+    each:
+      in: {if: {input: selected}, then: {input: rows}, else: {sequence: []}}
+      as: row
+      where: {not: {eq: [{get: {of: {var: row}, field: name}}, {literal: ''}]}}
+  diagnostic: {code: row.empty, severity: error, at: {self: true}, message: Empty row}
+- id: unselected-rows
+  appliesTo: [xml-import, yaml-validation]
+  assert:
+    each:
+      in: {if: {input: selected}, then: {sequence: []}, else: {input: rows}}
+      as: row
+      where: {not: {eq: [{get: {of: {var: row}, field: name}}, {literal: ''}]}}
+  diagnostic: {code: row.empty, severity: error, at: {self: true}, message: Empty row}
+"#;
+    let generated = nkdk_rule_compiler::compile(&[nkdk_rule_compiler::SourceFile {
+        path: "borrowed-conditional.yaml",
+        bytes: source.as_bytes(),
+    }])
+    .unwrap();
+    let code = std::str::from_utf8(
+        &generated
+            .files
+            .iter()
+            .find(|file| file.path == "generated.rs")
+            .unwrap()
+            .contents,
+    )
+    .unwrap();
+    assert!(code.contains("borrowed_scan"));
+    assert!(!code.contains("else{}"));
+}
+mod support;
+
+fn parse_source(path: &str, source: &str) -> nkdk_rule_model::Module {
+    parse(SourceFile {
+        path,
+        bytes: source.as_bytes(),
+    })
+    .unwrap()
+}
+
+fn generated_file(
+    sources: &nkdk_rule_compiler::GeneratedSources,
+) -> &nkdk_rule_compiler::GeneratedFile {
+    sources
+        .files
+        .iter()
+        .find(|file| file.path == "generated.rs")
+        .unwrap()
+}
+
+#[test]
+fn one_static_xml_route_is_shared_by_its_generated_operations() {
+    let source = "format: nkdk-declarations/1\nkind: object\nid: test.path-owner\nvalue: {kind: record, fields: [{name: value, type: {kind: scalar, scalar: text}}]}\nrepresentations:\n  xml: {kind: record, fields: [{field: value, path: [Root, LongNestedElement]}]}\n  yaml: {kind: mapping, fields: [{field: value, key: Значение}]}\n";
+    let module = parse(SourceFile {
+        path: "path-owner.yaml",
+        bytes: source.as_bytes(),
+    })
+    .unwrap();
+    let program = link(&[module]).unwrap();
+    let generated = generate(&program).unwrap();
+    let source = std::str::from_utf8(&generated_file(&generated).contents).unwrap();
+    assert_eq!(
+        source
+            .matches("(\"\", \"Root\"),(\"\", \"LongNestedElement\")")
+            .count(),
+        1
+    );
+    assert!(source.matches("crate::XML_PATH_0").count() > 1);
+    assert_eq!(generated.files, generate(&program).unwrap().files);
+}
+
+#[test]
+#[ignore = "Placement-independent AOT sharing is not implemented yet; keep this size regression as the acceptance target"]
+fn repeated_record_connections_add_only_small_placement_code() {
+    fn generated_len(count: usize) -> usize {
+        let fields = (0..count)
+            .map(|index| format!("{{name: field{index}, type: {{use: child}}}}"))
+            .collect::<Vec<_>>()
+            .join(", ");
+        let xml = (0..count)
+            .map(|index| format!("{{field: field{index}, path: [Root, Field{index}]}}"))
+            .collect::<Vec<_>>()
+            .join(", ");
+        let yaml = (0..count)
+            .map(|index| format!("{{field: field{index}, key: Поле{index}}}"))
+            .collect::<Vec<_>>()
+            .join(", ");
+        let source = format!(
+            "format: nkdk-declarations/1\nkind: catalog\ndeclarations:\n- kind: value\n  id: test.child\n  value: {{kind: record, fields: [{{name: text, type: {{kind: scalar, scalar: text}}}}]}}\n  representations:\n    xml: {{kind: record, fields: [{{field: text, path: [Text]}}]}}\n    yaml: {{kind: mapping, fields: [{{field: text, key: Текст}}]}}\n- kind: object\n  id: test.owner\n  imports: {{child: test.child}}\n  value: {{kind: record, fields: [{fields}]}}\n  representations:\n    xml: {{kind: record, fields: [{xml}]}}\n    yaml: {{kind: mapping, fields: [{yaml}]}}\n"
+        );
+        let modules = nkdk_rule_compiler::parse_many(SourceFile {
+            path: "repeated-child.yaml",
+            bytes: source.as_bytes(),
+        })
+        .unwrap();
+        let program = link(&modules).unwrap();
+        let generated = generate(&program).unwrap();
+        generated_file(&generated).contents.len()
+    }
+    let one = generated_len(1);
+    let ten = generated_len(10);
+    assert!(ten <= one + 10 * 2_000, "one={one}, ten={ten}");
+}
+
+#[test]
+fn unselected_object_does_not_become_a_public_entry() {
+    let source = "format: nkdk-declarations/1\nkind: catalog\ndeclarations:\n- kind: object\n  id: common.reused\n  value: {kind: record, fields: [{name: value, type: {kind: scalar, scalar: text}}]}\n  representations:\n    xml: {kind: record, fields: [{field: value, path: [Root, Value]}]}\n    yaml: {kind: mapping, fields: [{field: value, key: Значение}]}\n- kind: object\n  id: metadata.owner\n  value: {kind: record, fields: [{name: value, type: {kind: scalar, scalar: text}}]}\n  representations:\n    xml: {kind: record, fields: [{field: value, path: [Root, Value]}]}\n    yaml: {kind: mapping, fields: [{field: value, key: Значение}]}\n";
+    let modules = nkdk_rule_compiler::parse_many(SourceFile {
+        path: "two.yaml",
+        bytes: source.as_bytes(),
+    })
+    .unwrap();
+    let program = link(&modules).unwrap();
+    let selected = BTreeSet::from(["metadata.owner".to_owned()]);
+    let generated = nkdk_rule_compiler::generate_selected(&program, &selected).unwrap();
+    let source = std::str::from_utf8(&generated_file(&generated).contents).unwrap();
+    assert!(source.contains("\"metadata.owner\"=>Some(EntryId("));
+    assert!(!source.contains("\"common.reused\"=>Some(EntryId("));
+}
+
+#[test]
+fn selected_consumer_keeps_an_empty_index_without_exporting_its_producer() {
+    let source = r#"format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: object
+  id: test.producer
+  value: {kind: record, fields: [{name: key, type: {kind: scalar, scalar: text}}, {name: id, type: {kind: scalar, scalar: text}}]}
+  representations:
+    xml: {kind: record, fields: [{field: key, path: [Root, Key]}, {field: id, path: [Root, Id]}]}
+    yaml: {kind: mapping, fields: [{field: key, key: Key}, {field: id, key: Id}]}
+  contributions: [{index: metadata.ids, key: {field: key}, value: {field: id}}]
+- kind: object
+  id: test.consumer
+  inputs: {ids: {index: metadata.ids}}
+  value: {kind: record, fields: [{name: value, type: {kind: scalar, scalar: text}}]}
+  representations:
+    xml: {kind: record, fields: [{field: value, path: [Root, Value]}]}
+    yaml: {kind: mapping, fields: [{field: value, key: Значение}]}
+"#;
+    let modules = nkdk_rule_compiler::parse_many(SourceFile {
+        path: "optional-index.yaml",
+        bytes: source.as_bytes(),
+    })
+    .unwrap();
+    let constraint = "constraints:\n- id: wrong-key\n  appliesTo: [yaml-validation]\n  assert: {present: {lookup: {in: {input: ids}, key: {literal: 42}}}}\n  diagnostic: {code: invalid, severity: error, at: {self: true}, message: Invalid key}\n";
+    let invalid = format!(
+        "{source}{}",
+        constraint
+            .lines()
+            .map(|line| format!("  {line}\n"))
+            .collect::<String>()
+    );
+    let invalid_modules = nkdk_rule_compiler::parse_many(SourceFile {
+        path: "numeric-index-key.yaml",
+        bytes: invalid.as_bytes(),
+    })
+    .unwrap();
+    assert!(
+        link(&invalid_modules)
+            .unwrap_err()
+            .iter()
+            .any(|issue| issue.code == "expression_type_mismatch")
+    );
+    let program = link(&modules).unwrap();
+    let generated = nkdk_rule_compiler::generate_selected(
+        &program,
+        &BTreeSet::from(["test.consumer".to_owned()]),
+    )
+    .unwrap();
+    let code = std::str::from_utf8(&generated_file(&generated).contents).unwrap();
+    assert!(code.contains("fact_names()-> &'static [&'static str] { &[\"metadata.ids\"] }"));
+    assert!(code.contains("text_scalar_index_with_coalescing(generation,false)"));
+    assert!(!code.contains("\"test.producer\"=>Some(EntryId("));
+}
+
+#[test]
+fn unselected_recursive_value_does_not_enter_generated_code() {
+    let simple = "format: nkdk-declarations/1\nkind: object\nid: applied.simple\nvalue: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}]}\nrepresentations:\n  xml: {kind: record, fields: [{field: name, path: [Root, Name]}]}\n  yaml: {kind: mapping, fields: [{field: name, key: Имя}]}\n";
+    let mut modules = support::recursive_modules();
+    modules.push(parse_source("simple.yaml", simple));
+    let program = link(&modules).unwrap();
+    let generated = nkdk_rule_compiler::generate_selected(
+        &program,
+        &BTreeSet::from(["applied.simple".to_owned()]),
+    )
+    .unwrap();
+    let source = std::str::from_utf8(&generated_file(&generated).contents).unwrap();
+    assert!(!source.contains("mod recursive_value_"));
+}
 use std::{fs, process::Command};
+
+#[test]
+fn structured_choice_can_try_a_record_before_its_declared_fallback() {
+    let source = r#"format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: test.flag-normal
+  imports: {boolean: common.boolean}
+  value: {kind: record, fields: [{name: enabled, type: {use: boolean}}]}
+  representations:
+    xml: {kind: record, fields: [{field: enabled, path: [], attribute: flag}]}
+    yaml: {kind: mapping, fields: [{field: enabled, key: Enabled}]}
+@RAW_ATTRIBUTE_RECORD@
+- kind: value
+  id: test.flag-choice
+  imports: {normal: test.flag-normal, raw: test.flag-raw}
+  value:
+    kind: choice
+    variants: [{name: normal, type: {use: normal}}, {name: raw, type: {use: raw}}]
+  representations:
+    xml: {kind: choice, fallback: raw}
+    yaml:
+      kind: choice
+      variants: [{variant: normal, form: mapping, key: Enabled}, {variant: raw, form: mapping, key: Raw}]
+- kind: object
+  id: test.flag-owner
+  imports: {flag: test.flag-choice}
+  value: {kind: record, fields: [{name: flag, type: {use: flag}}]}
+  representations:
+    xml: {kind: record, fields: [{field: flag, path: [Root, Entry]}]}
+    yaml: {kind: mapping, fields: [{field: flag, key: Flag}]}
+  presence:
+  - target: {field: flag}
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}}
+"#.replace("@RAW_ATTRIBUTE_RECORD@", &support::raw_attribute_record("test.flag-raw", "flag", "Raw"));
+    let boolean = include_bytes!("../../../../rust/declarations/common/boolean.yaml");
+    let mut declarations = vec![
+        nkdk_rule_compiler::parse(SourceFile {
+            path: "boolean.yaml",
+            bytes: boolean,
+        })
+        .unwrap(),
+    ];
+    declarations.extend(
+        nkdk_rule_compiler::parse_many(SourceFile {
+            path: "choice.yaml",
+            bytes: source.as_bytes(),
+        })
+        .unwrap(),
+    );
+    let program = link(&declarations).unwrap();
+    let generated = generate(&program)
+        .expect("record choice has a generated fallback and one-pass normal path");
+    let source = generated
+        .files
+        .iter()
+        .map(|file| std::str::from_utf8(&file.contents).unwrap())
+        .collect::<String>();
+    assert!(
+        source.contains("read_yaml_empty_mapping(inputs)"),
+        "Absence must use a direct event frame"
+    );
+    assert!(
+        !source.contains("read_yaml_document(b\"{}\""),
+        "Absence must not restart the YAML parser"
+    );
+    assert_eq!(
+        generated
+            .files
+            .iter()
+            .map(|file| file.contents.len())
+            .sum::<usize>(),
+        generated.sizes.iter().map(|size| size.bytes).sum::<usize>()
+    );
+    assert!(
+        generated
+            .sizes
+            .iter()
+            .any(|size| size.entry == "test.flag-owner")
+    );
+    assert!(
+        generated
+            .sizes
+            .iter()
+            .any(|size| size.mechanism == "record-body" && size.bytes > 0)
+    );
+    assert!(
+        generated.sizes.iter().any(|size| {
+            size.entry == "test.flag-owner" && size.mechanism == "owner-choice-part"
+        })
+    );
+    assert!(generated.sizes.iter().any(|size| {
+        size.entry == "test.flag-owner#normal" && size.mechanism == "owner-choice-variant"
+    }));
+}
+
+#[test]
+fn contextual_text_choice_keeps_sibling_bindings_and_variant_presence() {
+    let source = r#"format: nkdk-declarations/1
+kind: catalog
+declarations:
+- kind: value
+  id: test.word
+  value: {kind: scalar, scalar: text, pattern: '[A-Za-z][A-Za-z0-9]*'}
+  representations: {xml: {kind: text}, yaml: {kind: scalar, scalar: text}}
+- kind: value
+  id: test.link
+  imports: {word: test.word}
+  inputs: {prefix: {type: {kind: scalar, scalar: text}}}
+  value: {kind: record, fields: [{name: prefix, type: {use: word}}, {name: name, type: {use: word}}]}
+  representations:
+    xml: {kind: text-pattern, separator: '.', parts: [{field: prefix}, {field: name}]}
+    yaml: {kind: text-pattern, parts: [{field: name}]}
+  presence:
+  - target: {field: prefix}
+    yaml: {missing: {denotes: {input: prefix}}, omitWhen: {eq: [{field: prefix}, {input: prefix}]}}
+- kind: value
+  id: test.empty
+  value: {kind: enum, variants: [{name: Empty, value: empty}]}
+  representations:
+    xml: {kind: text, values: [{value: empty, text: ''}]}
+    yaml: {kind: scalar, values: [{value: empty, literal: ''}]}
+- kind: value
+  id: test.choice
+  imports: {link: test.link, empty: test.empty}
+  inputs: {prefix: {type: {kind: scalar, scalar: text}}}
+  value: {kind: choice, variants: [{name: link, type: {use: link, bind: {prefix: {input: prefix}}}}, {name: empty, type: {use: empty}}]}
+  representations: {xml: {kind: choice, fallback: link}, yaml: {kind: choice, fallback: link}}
+- kind: object
+  id: test.owner
+  imports: {word: test.word, choice: test.choice}
+  value: {kind: record, fields: [{name: prefix, type: {use: word}}, {name: value, type: {use: choice, bind: {prefix: {field: prefix}}}}]}
+  representations:
+    xml: {kind: record, fields: [{field: prefix, path: [Root, Prefix]}, {field: value, path: [Root, Value]}]}
+    yaml: {kind: mapping, fields: [{field: prefix, key: Prefix}, {field: value, key: Value}]}
+  presence:
+  - target: {field: value}
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {missing: {denotes: {absent: true}}, omitWhen: {isVariant: {value: {field: value}, variant: empty}}}
+"#;
+    let modules = nkdk_rule_compiler::parse_many(SourceFile {
+        path: "contextual-choice.yaml",
+        bytes: source.as_bytes(),
+    })
+    .unwrap();
+    let program = link(&modules).unwrap();
+    let owner = program
+        .entries
+        .iter()
+        .find(|entry| entry.name == "test.owner")
+        .unwrap();
+    let nkdk_rule_model::LinkedType::Record(fields) = &owner.value else {
+        panic!("owner record")
+    };
+    assert!(
+        matches!(
+            fields[1].value,
+            nkdk_rule_model::LinkedType::BoundReference { .. }
+        ),
+        "A sibling binding must remain in its caller's field scope"
+    );
+    let generated = generate(&program).expect("contextual scalar alternatives compose normally");
+    assert!(
+        generated.sizes.iter().any(
+            |size| size.entry == "test.owner#empty" && size.mechanism == "owner-choice-variant"
+        )
+    );
+}
 
 #[test]
 fn text_pattern_can_be_written_to_an_unrelated_record_attribute() {
@@ -24,13 +407,30 @@ declarations:
     xml: {kind: record, fields: [{field: label, path: [Archive], attribute: label}]}
     yaml: {kind: mapping, fields: [{field: label, key: Подпись}]}
 "#;
-    let declarations = nkdk_rule_compiler::parse_many(SourceFile {
-        path: "archive-attribute.yaml",
-        bytes: source.as_bytes(),
-    })
-    .unwrap();
-    let program = link(&declarations).unwrap();
-    generate(&program).expect("text-pattern attributes must be independent of Border");
+    for bound in [false, true] {
+        let source = if bound {
+            source.replace(
+                "id: test.archive-label",
+                "id: test.archive-label\n  namespaces: {archive: 'urn:test:archive'}",
+            )
+        } else {
+            source.to_owned()
+        };
+        let declarations = nkdk_rule_compiler::parse_many(SourceFile {
+            path: "archive-attribute.yaml",
+            bytes: source.as_bytes(),
+        })
+        .unwrap();
+        let program = link(&declarations).unwrap();
+        let generated =
+            generate(&program).expect("text-pattern attributes must be independent of Border");
+        let code = std::str::from_utf8(&generated_file(&generated).contents).unwrap();
+        assert_eq!(code.contains("Unknown declared QName namespace"), bound);
+        if bound {
+            assert!(code.contains("urn:test:archive"));
+            assert!(code.contains("consume_scoped"));
+        }
+    }
 }
 
 #[test]
@@ -56,6 +456,54 @@ presence:
   xml: {missing: {denotes: {field: xmlValue}}}
 - target: {field: xmlValue}
   yaml: {missing: {denotes: {field: visible}}}
+"#;
+
+fn projected_translation_record() -> String {
+    PROJECTED_TRANSLATIONS
+        .replace("id: test.projected-translations", "id: test.projected-translations-record")
+        .replace("imports: {translations: common.i8n-text}", "imports: {translations: common.i8n-text, boolean: common.boolean}")
+        .replace("representations:\n", "  - {name: marker, type: {use: boolean}}\n  - {name: caption, type: {kind: scalar, scalar: text}}\nrepresentations:\n")
+        .replace("path: [ProjectedTranslations, Text]}", "path: [ProjectedTranslations, Text]}, {field: marker, path: [ProjectedTranslations, Marker]}, {field: caption, path: [ProjectedTranslations, Caption]}")
+        + "presence:\n- {target: {field: marker}, yaml: {missing: {denotes: {literal: true}}}}\n- {target: {field: caption}, yaml: {missing: {denotes: {literal: fixed}}}}\n"
+}
+
+fn crate_modules_for_projected_translations() -> Vec<nkdk_rule_model::Module> {
+    let mut modules = nkdk_rule_compiler::parse_many(SourceFile {
+        path: "i8n-text.yaml",
+        bytes: include_bytes!("../../../declarations/common/i8n-text.yaml"),
+    })
+    .unwrap();
+    modules.push(parse_source(
+        "boolean.yaml",
+        include_str!("../../../declarations/common/boolean.yaml"),
+    ));
+    modules.push(parse_source(
+        "projected-translations.yaml",
+        PROJECTED_TRANSLATIONS,
+    ));
+    modules.push(parse_source(
+        "projected-translations-record.yaml",
+        &projected_translation_record(),
+    ));
+    modules
+}
+
+const PROJECTED_TRANSLATIONS: &str = r#"format: nkdk-declarations/1
+kind: object
+id: test.projected-translations
+imports: {translations: common.i8n-text}
+inputs:
+  defaultLanguage: {type: {kind: scalar, scalar: text}}
+  registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+  ownerName: {type: {kind: scalar, scalar: text}}
+value:
+  kind: record
+  fields:
+  - name: value
+    type: {use: translations, bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}, ownerName: {input: ownerName}}}
+representations:
+  xml: {kind: record, fields: [{field: value, path: [ProjectedTranslations, Text]}]}
+  yaml: {kind: projection, field: value}
 "#;
 
 const PROJECTED_ROW: &str = r#"format: nkdk-declarations/1
@@ -117,7 +565,17 @@ presence:
 
 #[test]
 fn generated_rust_executes_both_directions_and_uses_the_imported_table() {
+    std::thread::Builder::new()
+        .stack_size(32 * 1024 * 1024)
+        .spawn(generated_rust_executes_both_directions_and_uses_the_imported_table_inner)
+        .unwrap()
+        .join()
+        .unwrap();
+}
+
+fn generated_rust_executes_both_directions_and_uses_the_imported_table_inner() {
     let projected_record = PROJECTED_RECORD;
+    let projected_translations_record = projected_translation_record();
     let directional = include_str!("fixtures/directional-fields.yaml");
     let computed = directional
         .replace("test.directional-fields", "test.computed-fields")
@@ -562,19 +1020,8 @@ contributions:
     let enumeration =
         include_str!("../../../../tests/declaration-corpus/valid/code-type-enum.yaml");
     let enum_owner = "format: nkdk-declarations/1\nkind: object\nid: test.enum-owner\nimports: {code: common.code-type}\nvalue:\n  kind: record\n  fields:\n    - {name: codeType, type: {use: code}}\nrepresentations:\n  xml:\n    kind: record\n    fields:\n      - {field: codeType, path: [Root, CodeType]}\n  yaml:\n    kind: mapping\n    fields:\n      - {field: codeType, key: ТипКода}\n";
-    let root = std::env::temp_dir().join(format!(
-        "nkdk-generated-{}-{}",
-        std::process::id(),
-        std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap()
-            .as_nanos()
-    ));
-    fs::create_dir_all(root.join("src")).unwrap();
-    let core = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .parent()
-        .unwrap()
-        .join("conversion-core");
+    let root = support::generated_crate_root("generated");
+    let core = support::conversion_core_path();
     fs::write(root.join("Cargo.toml"), format!("[package]\nname = \"generated-contract\"\nversion = \"0.0.0\"\nedition = \"2024\"\n[dependencies]\nnkdk-conversion-core = {{ path = {:?}, features = [\"test-probes\"] }}\n[workspace]\n", core)).unwrap();
     for literal in ["Истина", "Да"] {
         let common = common.replace("Истина", literal);
@@ -747,7 +1194,7 @@ presence:
             .replace("literal: Second", "literal: prefix")
             .replace("present: {as: selected, then: {get: {of: {var: selected}, field: mode}}}",
                 "present: {as: selected, then: {if: {and: [{get: {of: {var: selected}, field: enabled}}, {eq: [{get: {of: {var: selected}, field: amount}}, {literal: 9007199254740993}]}, {eq: [{get: {of: {var: selected}, field: state}}, {literal: tagged}]}]}, then: {get: {of: {var: selected}, field: label}}, else: {literal: invalid}}}");
-        let mut modules = [
+        let modules = [
             ("typed-selected-rows.yaml",typed_selected_rows.as_str()),
             ("typed-selected-owner.yaml",typed_selected_owner.as_str()),
             ("hidden-rows-owner.yaml", hidden_rows_owner.as_str()),
@@ -990,6 +1437,9 @@ presence:
             ("projected-row.yaml", PROJECTED_ROW),
             ("projected-rows.yaml", PROJECTED_ROWS),
             ("projected-row-owner.yaml", PROJECTED_ROWS_OWNER),
+            ("projected-translations.yaml", PROJECTED_TRANSLATIONS),
+            ("projected-translations-record.yaml", projected_translations_record.as_str()),
+            ("projected-translations-common.yaml", include_str!("../../../declarations/common/i8n-text.yaml")),
             ("filtered-row-owner.yaml", FILTERED_ROWS_OWNER),
             (
                 "qname-common.yaml",
@@ -1011,13 +1461,22 @@ presence:
             ("numeric-bound.yaml", numeric_bound),
             ("warning-bound.yaml", warning_bound.as_str()),
         ]
-        .map(|(path, source)| {
-            parse(SourceFile {
-                path,
-                bytes: source.as_bytes(),
+        .map(|(path, source)| parse_source(path, source));
+        let mut modules = modules.to_vec();
+        modules.extend(
+            nkdk_rule_compiler::parse_many(SourceFile {
+                path: "borrowed-choice-record.yaml",
+                bytes: include_bytes!("fixtures/borrowed-choice-record.yaml"),
             })
-            .unwrap()
-        });
+            .unwrap(),
+        );
+        modules.extend(
+            nkdk_rule_compiler::parse_many(SourceFile {
+                path: "borrowed-record-union.yaml",
+                bytes: include_bytes!("fixtures/borrowed-record-union.yaml"),
+            })
+            .unwrap(),
+        );
         let program = link(&modules).unwrap();
         let state_schema: serde_json::Value =
             serde_json::from_slice(&schema(&program, "test.finite-states").unwrap()).unwrap();
@@ -1127,8 +1586,10 @@ presence:
                 "attributed-rows-fragment.yaml",
                 "attributed-rows-owner.yaml",
                 "attributed-rows.yaml",
+                "borrowed-choice-record.yaml",
                 "borrowed-nested-rows.yaml",
                 "borrowed-record-rows.yaml",
+                "borrowed-record-union.yaml",
                 "bound-choice-owner.yaml",
                 "bound-choice.yaml",
                 "bound-first.yaml",
@@ -1232,6 +1693,9 @@ presence:
                 "projected-row-owner.yaml",
                 "projected-row.yaml",
                 "projected-rows.yaml",
+                "projected-translations-common.yaml",
+                "projected-translations-record.yaml",
+                "projected-translations.yaml",
                 "property-state-row.yaml",
                 "property-states.yaml",
                 "qname-common.yaml",
@@ -1298,8 +1762,76 @@ presence:
         }
         let main = r###"
 include!("generated.rs");
+struct OptionalNote<'a> { source: &'a dyn core::inputs::RecordInput, missing: bool }
+impl core::inputs::RecordInput for OptionalNote<'_> {
+    fn field(&self, index: usize) -> Option<core::inputs::InputRef<'_>> {
+        if index == 2 && self.missing { Some(core::inputs::InputRef::MissingValue) }
+        else { self.source.field(index) }
+    }
+}
 fn main() {
+    for name in ["test.projected-translations", "test.projected-translations-record"] {
+    let translations = entry_id(name).unwrap();
+    let translation_inputs = prepare_inputs(translations, vec![
+        ("defaultLanguage".into(), InputValue::Text("ru".into())),
+        ("registeredLanguages".into(), InputValue::Sequence(vec![InputValue::Text("ru".into()), InputValue::Text("en".into())])),
+        ("ownerName".into(), InputValue::Text("Example".into())),
+    ]).unwrap();
+    for yaml in ["ru: Текст\nen: Text", "Текст", "''", "{}"] {
+        let xml = convert_file(translations, Direction::YamlToXml, yaml.as_bytes(), &translation_inputs).unwrap();
+        let imported = convert_file(translations, Direction::XmlToYaml, &xml.bytes, &translation_inputs).unwrap();
+        verify_candidate(translations, &xml.bytes, &imported.bytes, &translation_inputs).unwrap();
+        let restored = convert_file(translations, Direction::YamlToXml, &imported.bytes, &translation_inputs).unwrap();
+        assert_eq!(restored.bytes, xml.bytes, "{yaml}");
+    }
+    let normal_xml=convert_file(translations,Direction::YamlToXml,b"ru: Text\nen: Other",&translation_inputs).unwrap().bytes;
+    let normal_xml=String::from_utf8(normal_xml).unwrap();
+    for original in [normal_xml.replace(">ru<", ">zz<"),normal_xml.replace(">en<", ">ru<"),normal_xml.replace("<Text>","<Text unexpected=\"kept\">")] {
+        assert_ne!(original,normal_xml,"the anomaly example must change the source XML");
+        let imported=convert_file(translations,Direction::XmlToYaml,original.as_bytes(),&translation_inputs).unwrap();
+        assert!(String::from_utf8_lossy(&imported.bytes).contains("!xml/"),"anomaly was not registered");
+        verify_candidate(translations,original.as_bytes(),&imported.bytes,&translation_inputs).unwrap();
+    }
+    }
 
+
+
+    let nested_choice = entry_id("test.borrowed-choice-record").unwrap();
+    for (enabled, expected) in [("true", "borrowed"), ("false", "disabled")] {
+        let xml = format!("<Root><Selection><Payload><Name>borrowed</Name><Enabled>{enabled}</Enabled></Payload></Selection></Root>");
+        let imported = convert_file(nested_choice, Direction::XmlToYaml, xml.as_bytes(), &PreparedInputs::default()).unwrap();
+        let yaml = String::from_utf8_lossy(&imported.bytes);
+        let independent = format!("Выбор:\n  Payload:\n    Name: borrowed\n    Enabled: \"{enabled}\"");
+        assert_eq!(yaml, format!("Результат: {expected}\n{independent}"));
+        verify_candidate(nested_choice, xml.as_bytes(), &imported.bytes, &PreparedInputs::default()).unwrap();
+        let exported = convert_file(nested_choice, Direction::YamlToXml, independent.as_bytes(), &PreparedInputs::default()).unwrap();
+        core::proof::verify(xml.as_bytes(), &exported.bytes, |_| false).unwrap();
+    }
+    let union = entry_id("test.borrowed-record-union").unwrap();
+    for (first, second, both, expected) in [
+        (vec!["match"], vec![], true, "one|all"),
+        (vec!["match"], vec!["match"], true, "many|all"),
+        (vec!["other"], vec!["match"], true, "one|some"),
+        (vec!["other"], vec!["other"], true, "empty|some"),
+        (vec![], vec![], true, "empty|all"),
+        (vec!["match"], vec!["other"], false, "one|all"),
+        (vec!["match"], vec!["other"], true, "one|some"),
+        (vec!["match";300], vec![], true, "many|all"),
+    ] {
+        let rows = |names: Vec<&str>| InputValue::Sequence(names.into_iter().map(|name| InputValue::Record(vec![("name".into(), InputValue::Text(name.into()))])).collect());
+        let inputs = prepare_inputs(union, vec![("groups".into(), InputValue::Record(vec![("first".into(), rows(first)), ("second".into(), rows(second)), ("note".into(), InputValue::Text(String::new())), ("both".into(), InputValue::Boolean(both))]))]).unwrap();
+        let prefix = if expected.starts_with("empty") { "none" } else { "match" };
+        let xml = format!("<Root><Source>{prefix}.x</Source></Root>");
+        let xml = xml.as_bytes();
+        let root_view = inputs.view();
+        let groups = OptionalNote {source: root_view.record(0).unwrap(), missing: both};
+        let slots = [Some(core::inputs::InputRef::Record(&groups))];
+        let view = root_view.rebind(&slots);
+        let imported = convert_xml_UNION_ID(xml, &view).unwrap();
+        assert_eq!(imported.bytes, format!("Источник: x\nРезультат: {expected}|{}|{}|{}", if expected.starts_with("empty") {"none"} else {"match"}, if both {"missing"} else {"present"}, if both {"not-ready"} else {"ready"}).as_bytes());
+        let restored = convert_yaml_UNION_ID(&imported.bytes, &view).unwrap();
+        core::proof::verify(xml, &restored.bytes, |_| false).unwrap();
+    }
     let projected = entry_id("test.projected-record").unwrap();
     let projected_xml = b"<Projected><Value>shown</Value></Projected>";
     let projected_yaml = convert_file(projected,Direction::XmlToYaml,projected_xml,&PreparedInputs::default()).unwrap();
@@ -1761,13 +2293,17 @@ fn main() {
         let entry=entry_id(&format!("test.{name}-attributes")).unwrap();
         let inputs=PreparedInputs::default();
         let xml=format!("<Root xmlns:a='urn:attributes' {attributes}><Description>kept</Description></Root>");
-        let result=convert_file(entry,Direction::XmlToYaml,xml.as_bytes(),&inputs).unwrap();
+        let result=convert_file(entry,Direction::XmlToYaml,xml.as_bytes(),&inputs).unwrap_or_else(|error|panic!("{name} {attributes}: {error:?}"));
         let yaml=String::from_utf8_lossy(&result.bytes);
         if let Some(expected)=expected {assert!(yaml.contains(expected),"{name} {attributes}: {yaml}");}
         if omit {assert!(!yaml.contains("Сервер:"),"{yaml}");}
         assert_eq!(yaml.contains("!xml/raw"),raw,"{name} {attributes}: {yaml}");
         assert!(validate_file(entry,&result.bytes,&inputs).is_empty(),"{yaml}");
         verify_candidate(entry,xml.as_bytes(),&result.bytes,&inputs).unwrap();
+        if name=="default" && attributes.is_empty() {
+            let changed=core::raw::Document::encode("Описание: kept".as_bytes(),b"_enabled: 'true'").unwrap();
+            assert!(convert_file(entry,Direction::YamlToXml,&changed,&inputs).is_err(),"An absence patch must not alter the implied value");
+        }
     }
     {
         let entry=entry_id("test.root-scalar").unwrap();
@@ -2659,7 +3195,7 @@ fn main() {
         assert!(!validate_file(entry, bad.as_bytes(), &inputs).is_empty(), "{bad}");
     }
 }
-"###.replace("DEEP_ID", &program.entries.iter().find(|entry|entry.name=="test.deep-items").unwrap().id.to_string()).replace("NESTED_STREAM_ID", &program.entries.iter().find(|entry|entry.name=="test.nested-stream").unwrap().id.to_string()).replace("OWNER_STREAM_ID", &program.entries.iter().find(|entry|entry.name=="test.typed-attributes").unwrap().id.to_string()).replace("HEADER_ID", &program.entries.iter().find(|entry|entry.name=="test.nested-header").unwrap().id.to_string()).replace("QNAME_ID", &program.entries.iter().find(|entry|entry.name=="test.qualified").unwrap().id.to_string()).replace("NESTED_ID", &program.entries.iter().find(|entry|entry.name=="test.nested-scalars").unwrap().id.to_string()).replace("SCALAR_ID", &program.entries.iter().find(|entry| entry.name == "test.scalar-owner").unwrap().id.to_string()).replace("ROWS_ID", &program.entries.iter().find(|entry| entry.name == "test.fact-rows").unwrap().id.to_string()).replace("LITERAL", literal).replace("SLOT_CODEC", &format!("E{}F0", program.entries.iter().find(|entry| entry.name == "test.text-pattern-coded").unwrap().id));
+"###.replace("UNION_ID", &program.entries.iter().find(|entry|entry.name=="test.borrowed-record-union").unwrap().id.to_string()).replace("DEEP_ID", &program.entries.iter().find(|entry|entry.name=="test.deep-items").unwrap().id.to_string()).replace("NESTED_STREAM_ID", &program.entries.iter().find(|entry|entry.name=="test.nested-stream").unwrap().id.to_string()).replace("OWNER_STREAM_ID", &program.entries.iter().find(|entry|entry.name=="test.typed-attributes").unwrap().id.to_string()).replace("HEADER_ID", &program.entries.iter().find(|entry|entry.name=="test.nested-header").unwrap().id.to_string()).replace("QNAME_ID", &program.entries.iter().find(|entry|entry.name=="test.qualified").unwrap().id.to_string()).replace("NESTED_ID", &program.entries.iter().find(|entry|entry.name=="test.nested-scalars").unwrap().id.to_string()).replace("SCALAR_ID", &program.entries.iter().find(|entry| entry.name == "test.scalar-owner").unwrap().id.to_string()).replace("ROWS_ID", &program.entries.iter().find(|entry| entry.name == "test.fact-rows").unwrap().id.to_string()).replace("LITERAL", literal).replace("SLOT_CODEC", &format!("E{}F0", program.entries.iter().find(|entry| entry.name == "test.text-pattern-coded").unwrap().id));
         fs::write(root.join("src/main.rs"), main).unwrap();
         let output = Command::new(env!("CARGO"))
             .args(["run", "--offline", "--quiet"])
@@ -2695,13 +3231,7 @@ fn generation_rejects_records_without_a_single_xml_document_root() {
             ("boolean.yaml", boolean),
             ("string.yaml", text),
         ]
-        .map(|(path, source)| {
-            parse(SourceFile {
-                path,
-                bytes: source.as_bytes(),
-            })
-            .unwrap()
-        });
+        .map(|(path, source)| parse_source(path, source));
         let program = link(&modules).unwrap();
         assert!(
             generate(&program).is_err(),
@@ -2712,6 +3242,39 @@ fn generation_rejects_records_without_a_single_xml_document_root() {
 
 #[test]
 fn generated_record_projects_one_field_and_restores_the_other_side() {
+    let translations = crate_modules_for_projected_translations();
+    generate(&link(&translations).unwrap())
+        .expect("a keyed collection retains its own checks and shorthands when projected");
+
+    let nested = nkdk_rule_compiler::parse_many(SourceFile {
+        path: "borrowed-choice-record.yaml",
+        bytes: include_bytes!("fixtures/borrowed-choice-record.yaml"),
+    })
+    .unwrap();
+    generate(&link(&nested).unwrap()).unwrap();
+    let union_modules = nkdk_rule_compiler::parse_many(SourceFile {
+        path: "borrowed-record-union.yaml",
+        bytes: include_bytes!("fixtures/borrowed-record-union.yaml"),
+    })
+    .unwrap();
+    generate(&link(&union_modules).unwrap()).unwrap();
+    let union = include_str!("fixtures/borrowed-record-union.yaml").replace("fields: [{name: name, type: {kind: scalar, scalar: text}}]", "fields: [{name: name, type: {kind: scalar, scalar: text}}, {name: extra, type: {kind: scalar, scalar: text}}]");
+    let reversed = union.replacen("- name: second\n          type: {kind: sequence, item: {kind: record, fields: [{name: name, type: {kind: scalar, scalar: text}}, {name: extra, type: {kind: scalar, scalar: text}}]}}", "- name: second\n          type: {kind: sequence, item: {kind: record, fields: [{name: extra, type: {kind: scalar, scalar: text}}, {name: name, type: {kind: scalar, scalar: text}}]}}", 1);
+    assert_ne!(union, reversed);
+    let errors = link(
+        &nkdk_rule_compiler::parse_many(SourceFile {
+            path: "reordered-union.yaml",
+            bytes: reversed.as_bytes(),
+        })
+        .unwrap(),
+    )
+    .unwrap_err();
+    assert!(
+        errors
+            .iter()
+            .any(|error| error.message.contains("same field order")),
+        "{errors:?}"
+    );
     let program = link(&[parse(SourceFile {
         path: "projection.yaml",
         bytes: PROJECTED_RECORD.as_bytes(),
@@ -2719,4 +3282,49 @@ fn generated_record_projects_one_field_and_restores_the_other_side() {
     .unwrap()])
     .unwrap();
     generate(&program).unwrap();
+}
+
+#[test]
+fn inferred_record_defaults_require_field_contracts_and_keep_partial_records_strict() {
+    let source =
+        include_str!("fixtures/denoted-record-contract.yaml.in").replace("@FLAG_TYPE@", "text");
+    let defaults = r#"presence:
+  - target: {field: label}
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {default: {literal: word}}
+  - target: {field: flag}
+    xml: {missing: {denotes: {absent: true}}}
+    yaml: {default: {literal: other}}"#;
+    for (presence, value, valid) in [
+        (defaults, "{record: {}}", true),
+        ("presence: []", "{record: {}}", false),
+        (defaults, "{record: {label: {literal: word}}}", false),
+    ] {
+        let source = source
+            .replace("@ROW_PRESENCE@", presence)
+            .replace("@DENOTATION@", value);
+        let modules = nkdk_rule_compiler::parse_many(SourceFile {
+            path: "inferred-defaults.yaml",
+            bytes: source.as_bytes(),
+        })
+        .unwrap();
+        let result = link(&modules).and_then(|program| generate(&program));
+        assert_eq!(
+            result.is_ok(),
+            valid,
+            "presence={presence}, value={value}, errors={:?}",
+            result.as_ref().err()
+        );
+        if valid {
+            let files = result.unwrap();
+            let code = files
+                .files
+                .iter()
+                .map(|file| String::from_utf8_lossy(&file.contents))
+                .collect::<Vec<_>>()
+                .join("\n");
+            assert!(code.contains("construct_defaults"));
+            assert!(code.contains("core::yaml::EmptyMappingSource"));
+        }
+    }
 }

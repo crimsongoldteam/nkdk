@@ -1,0 +1,98 @@
+format: nkdk-declarations/1
+kind: object
+imports:
+  items: candidate.collection.list.80ad27c0fd6fef7a1def
+value:
+  kind: record
+  fields:
+    - name: columns
+      type:
+        use: items
+        bind:
+          defaultLanguage:
+            input: defaultLanguage
+          registeredLanguages:
+            input: registeredLanguages
+          roles:
+            input: roles
+          component:
+            input: component
+          owner:
+            input: owner
+          parent:
+            input: parent
+          numbers:
+            input: numbers
+representations:
+  xml:
+    kind: record
+    fields:
+      - field: columns
+        path:
+          - f:Columns
+  yaml:
+    kind: mapping
+    fields:
+      - field: columns
+        key: Колонки
+inputs:
+  defaultLanguage:
+    type:
+      kind: scalar
+      scalar: text
+  registeredLanguages:
+    type:
+      kind: sequence
+      item:
+        kind: scalar
+        scalar: text
+  roles:
+    type:
+      kind: sequence
+      item:
+        kind: record
+        fields:
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+          - name: yamlName
+            type:
+              kind: scalar
+              scalar: text
+  component:
+    type:
+      kind: scalar
+      scalar: text
+  owner:
+    type:
+      kind: scalar
+      scalar: text
+  parent:
+    type:
+      kind: scalar
+      scalar: text
+  numbers:
+    type:
+      kind: index
+      key:
+        kind: record
+        fields:
+          - name: component
+            type:
+              kind: scalar
+              scalar: text
+          - name: owner
+            type:
+              kind: scalar
+              scalar: text
+          - name: name
+            type:
+              kind: scalar
+              scalar: text
+      value:
+        kind: scalar
+        scalar: text
+namespaces:
+  f: http://v8.1c.ru/8.3/xcf/logform
+id: candidate.collection.property.502881c8abb4397a2508

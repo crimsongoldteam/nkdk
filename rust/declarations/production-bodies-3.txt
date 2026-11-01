@@ -1,0 +1,2 @@
+# Ownership of complete generated conversion bodies and their independent sources.
+candidates/catalog-attribute-owner.generated.yaml

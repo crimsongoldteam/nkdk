@@ -188,6 +188,7 @@ presence:
             and:
               - {parameter: excludeIfEqualNameYAML}
               - {isReady: {input: ownerName}}
+              - {not: {eq: [{input: ownerName}, {literal: ""}]}}
           then:
             match:
               value: {transform: {local: name-words, value: {input: ownerName}}}
@@ -216,6 +217,7 @@ presence:
           and:
             - {parameter: excludeIfEqualNameYAML}
             - {isReady: {input: ownerName}}
+            - {not: {eq: [{input: ownerName}, {literal: ""}]}}
         then:
           match:
             value: {transform: {local: name-words, value: {input: ownerName}}}

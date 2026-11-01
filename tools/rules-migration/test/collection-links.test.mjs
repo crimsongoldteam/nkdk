@@ -41,3 +41,20 @@ test('collection graph resolves aliases and static families without executing re
     'packages/rules/metadata/example/foreign.ts':sources[factory]};
   assert.equal(collectionLinks(foreign,entries).registrations.length,0);
 });
+
+test('direct collection obtains its XML owner from a registered parent rule',()=>{
+  const itemFactory='packages/rules/metadata/ruleRuntime/metadataItem/ruleFactory.ts';
+  const ownerSource={...sources,
+    [itemFactory]:'export const defineMetadataItemRule = (params) => params;',
+    [rules]:sources[rules].replace("one:{type:'One',yaml:'Items',xml:'Item',xmlParents:['Children']","one:{type:'One',yaml:'Items',xml:'Item',xmlParents:[]")+`\nexport const OuterRules={properties:{parent:{type:'Parent',xml:'Settings',yaml:'Настройки'}}};`,
+    'packages/rules/metadata/example/parent-register.ts':`import {defineMetadataItemRule} from '../ruleRuntime/metadataItem/ruleFactory';
+      import {ParentRules} from './rules';
+      export const parent=defineMetadataItemRule({propertyType:'Parent',itemRule:ParentRules});`,
+  };
+  const ownerEntries=extract(ownerSource,[...requests,{path:rules,symbol:'OuterRules'}]);
+  const graph=collectionLinks(ownerSource,ownerEntries);
+  assert.deepEqual(graph.edges[0].mapping.ownerXmlRoot,['Settings']);
+  const ambiguous={...ownerSource,[rules]:ownerSource[rules].replace("parent:{type:'Parent',xml:'Settings'","parent:{type:'Parent',xml:'Settings'},other:{type:'Parent',xml:'Other'")};
+  const ambiguousEntries=extract(ambiguous,[...requests,{path:rules,symbol:'OuterRules'}]);
+  assert.equal(collectionLinks(ambiguous,ambiguousEntries).edges[0].mapping.ownerXmlRoot,undefined);
+});

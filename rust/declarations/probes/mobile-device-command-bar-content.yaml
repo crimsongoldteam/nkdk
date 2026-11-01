@@ -1,0 +1,15 @@
+format: nkdk-declarations/1
+kind: object
+id: migration.mobile-device-command-bar-content
+namespaces: {xr: 'http://v8.1c.ru/8.3/xcf/readable'}
+imports: {content: common.mobile-device-command-bar-content}
+inputs:
+  defaultLanguage: {type: {kind: scalar, scalar: text}}
+  registeredLanguages: {type: {kind: sequence, item: {kind: scalar, scalar: text}}}
+value:
+  kind: record
+  fields:
+  - {name: content, type: {use: content, bind: {defaultLanguage: {input: defaultLanguage}, registeredLanguages: {input: registeredLanguages}}}}
+representations:
+  xml: {kind: record, fields: [{field: content, path: [Root, MobileDeviceCommandBarContent]}]}
+  yaml: {kind: mapping, fields: [{field: content, key: СоставКоманднойПанелиНаМобильномУстройстве}]}

@@ -1,0 +1,62 @@
+format: nkdk-declarations/1
+kind: value
+id: common.picture
+parameters:
+  allowEmpty:
+    type:
+      kind: scalar
+      scalar: boolean
+    default: false
+imports:
+  empty: common.picture-empty
+  standard: common.picture-standard-simple
+  common: common.picture-common-simple
+  zero: common.picture-raw-zero-simple
+  uuid: common.picture-raw-uuid-simple
+  absolute: common.picture-absolute-simple
+  reference_expanded: common.picture-reference-expanded
+  expanded: common.picture-absolute-expanded
+value:
+  kind: choice
+  variants:
+    - name: Пустая
+      type:
+        use: empty
+        with:
+          allowEmpty:
+            parameter: allowEmpty
+    - name: СтандартнаяКартинка
+      type:
+        use: standard
+    - name: ОбщаяКартинка
+      type:
+        use: common
+    - name: НулеваяСсылка
+      type:
+        use: zero
+    - name: СсылкаПоUUID
+      type:
+        use: uuid
+    - name: Файл
+      type:
+        use: absolute
+    - name: СсылкаСНастройками
+      type:
+        use: reference_expanded
+    - name: ФайлСНастройками
+      type:
+        use: expanded
+representations:
+  xml:
+    kind: choice
+    fallback: СсылкаСНастройками
+  yaml:
+    kind: choice
+    fallback: Файл
+    variants:
+      - variant: СсылкаСНастройками
+        form: mapping
+        key: Ссылка
+      - variant: ФайлСНастройками
+        form: mapping
+        key: Ссылка

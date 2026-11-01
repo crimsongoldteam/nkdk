@@ -16,6 +16,7 @@ export function ownerContracts(manifest,catalog,snapshot) {
   const requests=[],modules=[];
   for(const [symbol,xmlFolder,yamlFolder,nameBase=yamlFolder] of [
     ['MetadataExternalDataSourceTableRules','ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables','ВнешнийИсточникДанных/ВнешнийИсточникДанныхВсеСвойства/Таблицы','Таблица'],
+    ['MetadataExternalDataSourceDimensionTableRules','ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства/DimensionTables','ВнешнийИсточникДанных/ВнешнийИсточникДанныхВсеСвойства/Кубы/КубВсеСвойства/ТаблицыИзмерений','ТаблицаИзмерения'],
     ['MetadataDocumentJournalCommandRules','DocumentJournals','ЖурналДокументов'],
     ['MetadataCommonCommandRules','CommonCommands','ОбщаяКоманда'],
     ['MetadataDocumentRules','Documents','Документ'],
@@ -102,7 +103,7 @@ export function ownerContracts(manifest,catalog,snapshot) {
   const results=JSON.parse(execFileSync('python3',['tools/rules-migration/src/project-fixtures.py'],{input:JSON.stringify(requests),encoding:'utf8'}));
   const cases=results.map((result,index)=>{
     const request=requests[index],definition=catalog.get(request.entry);
-    const values={defaultLanguage:'ru',registeredLanguages:['ru','en'],ownerName:request.name,...request.context?.values,...result.linkContext};
+    const values={defaultLanguage:'ru',registeredLanguages:['ru','en'],ownerName:request.name,xmlDefaultVariant:'full',...request.context?.values,...result.linkContext};
     const factBindings=Object.fromEntries(Object.entries(definition.inputs??{}).flatMap(([name,input])=>{
       const index=input.index??(['roots','children'].includes(name)?`metadata.${name}`:null);
       return typeof index==='string'?[[name,index]]:[];
